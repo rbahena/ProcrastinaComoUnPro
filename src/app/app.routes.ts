@@ -11,6 +11,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/landing/landing').then(m => m.Landing)
   },
   {
+    path: 'login',
+    loadComponent: () => import('./pages/login/login').then(m => m.Login)
+  },
+  {
+    path: 'registro',
+    loadComponent: () => import('./pages/registro/registro').then(m => m.Registro)
+  },
+  {
     path: 'hoy',
     loadComponent: () => import('./pages/hoy/hoy').then(m => m.Hoy)
   },

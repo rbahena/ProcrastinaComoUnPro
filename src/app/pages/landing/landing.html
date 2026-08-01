@@ -1,12 +1,17 @@
 <!-- HEADER -->
 <header class="landing-header">
-  <div class="logo" style="padding: 0;">
+  <a routerLink="/landing" class="logo" style="padding: 0; text-decoration: none; display: flex; align-items: center; gap: 8px;">
     <span class="logo-icon"><i class="fa-solid fa-bolt"></i></span>
     <span class="logo-text">Procrastina como un Pro</span>
-  </div>
-  <a routerLink="/hoy">
-    <button class="btn btn-ghost btn-sm">Acceder al App <i class="fa-solid fa-arrow-right" style="margin-left: 4px;"></i></button>
   </a>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <a routerLink="/login">
+      <button class="btn btn-ghost btn-sm">Iniciar sesión</button>
+    </a>
+    <a routerLink="/registro">
+      <button class="btn btn-accent btn-sm">Registrarte</button>
+    </a>
+  </div>
 </header>
 
 <main>
@@ -18,7 +23,7 @@
       Si la disciplina, las listas de tareas y las aplicaciones de productividad ya te fallaron, quizá el problema nunca fue la falta de ganas. Diseñamos una forma diferente de ayudarte a empezar, mantener el enfoque y terminar lo que realmente importa.
     </p>
     <div class="hero-btns">
-      <a routerLink="/hoy">
+      <a routerLink="/registro">
         <button class="btn btn-accent" style="padding: 12px 24px; font-size: 14px;"><i class="fa-solid fa-rocket"></i> Iniciar</button>
       </a>
       <a href="#widget" (click)="scrollToWidget($event)">
@@ -166,60 +171,6 @@
         <div class="step-icon"><i class="fa-solid fa-rotate-right"></i></div>
         <h3 class="step-title">Motivación</h3>
         <p class="step-text"><strong>Inercia de Enfoque</strong>: La dopamina activa el deseo de continuar. La barrera de inicio ha desaparecido, y entras en estado de flujo sin esfuerzo consciente.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- SECTION: DESAFÍO SENDA DEL GUERRERO -->
-  <section class="challenge-section landing-container">
-    <div class="section-header">
-      <div class="hero-badge"><i class="fa-solid fa-khanda"></i> Filosofía samurai aplicada</div>
-      <h2 class="section-title">El Desafío de la Senda del Guerrero</h2>
-      <p class="section-subtitle">Un entrenamiento mental de 7 días inspirado en el Dokkōdō de Miyamoto Musashi. No busques dominar el año entero; vence los impulsos del día de hoy.</p>
-    </div>
-
-    <div class="challenge-box">
-      <div class="challenge-info">
-        <!-- Progress Bar -->
-        <div class="challenge-progress-container" style="margin-bottom: 24px;">
-          <div class="progress-labels" style="display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
-            <span>Progreso del Guerrero</span>
-            <span>{{ selectedChallengeDayIndex() + 1 }} de 7 Días</span>
-          </div>
-          <div class="progress-bar-track" style="height: 6px; background: rgba(255, 255, 255, 0.04); border-radius: 3px; overflow: hidden;">
-            <div class="progress-bar-fill" [style.width.%]="((selectedChallengeDayIndex() + 1) / 7) * 100" style="height: 100%; background: linear-gradient(90deg, var(--accent) 0%, #818cf8 100%); border-radius: 3px; transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
-          </div>
-        </div>
-
-        <h3 class="challenge-day-title">{{ selectedChallengeDay()?.title }}</h3>
-        <p class="challenge-day-desc">{{ selectedChallengeDay()?.desc }}</p>
-        
-        <div class="challenge-metrics">
-          <div class="metric"><i class="fa-regular fa-clock"></i> {{ selectedChallengeDay()?.metric1 }}</div>
-          <div class="metric"><i class="fa-solid fa-shield-halved"></i> {{ selectedChallengeDay()?.metric2 }}</div>
-        </div>
-
-        <a [routerLink]="selectedChallengeDay()?.link">
-          <button class="btn btn-accent" style="margin-top: 28px;">
-            <i class="fa-solid fa-bolt"></i> {{ selectedChallengeDay()?.btnText }}
-          </button>
-        </a>
-      </div>
-
-      <div class="challenge-grid-days">
-        @for (day of challengeDays; track day.num; let idx = $index) {
-          <div class="day-card" 
-               [class.active]="selectedChallengeDayIndex() === idx" 
-               (click)="selectChallengeDay(idx)">
-            <span class="day-num">{{ day.num }}</span>
-            <span class="day-label">{{ day.label }}</span>
-            @if (selectedChallengeDayIndex() === idx) {
-              <i class="fa-solid fa-circle-play day-status"></i>
-            } @else {
-              <i class="fa-solid fa-lock day-status"></i>
-            }
-          </div>
-        }
       </div>
     </div>
   </section>
