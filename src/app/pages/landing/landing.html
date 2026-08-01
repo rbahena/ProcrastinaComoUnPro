@@ -13,15 +13,15 @@
   <!-- HERO SECTION -->
   <section class="hero-section landing-container">
     <div class="hero-badge"><i class="fa-solid fa-brain" style="margin-right: 6px;"></i> Neurociencia aplicada a tu productividad</div>
-    <h1 class="hero-title">No te falta disciplina. Te falta diseño de entorno.</h1>
+    <h1 class="hero-title">Deja de procrastinar. Empieza a terminar lo que comienzas</h1>
     <p class="hero-subtitle">
-      La procrastinación no es un defecto de carácter; es una respuesta automática del cerebro ante el estrés de una tarea. Procrastina como un Pro te ayuda a rediseñar tu entorno digital con herramientas cognitivo-conductuales para desactivar la resistencia inicial sin depender de tu fuerza de voluntad.
+      Si la disciplina, las listas de tareas y las aplicaciones de productividad ya te fallaron, quizá el problema nunca fue la falta de ganas. Diseñamos una forma diferente de ayudarte a empezar, mantener el enfoque y terminar lo que realmente importa.
     </p>
     <div class="hero-btns">
       <a routerLink="/hoy">
-        <button class="btn btn-accent" style="padding: 12px 24px; font-size: 14px;"><i class="fa-solid fa-rocket"></i> Iniciar Gratis</button>
+        <button class="btn btn-accent" style="padding: 12px 24px; font-size: 14px;"><i class="fa-solid fa-rocket"></i> Iniciar</button>
       </a>
-      <a href="#widget">
+      <a href="#widget" (click)="scrollToWidget($event)">
         <button class="btn btn-ghost" style="padding: 12px 24px; font-size: 14px;"><i class="fa-solid fa-circle-question"></i> Diagnosticar mi Estado</button>
       </a>
     </div>
@@ -115,6 +115,111 @@
           <div class="science-pill-title"><i class="fa-solid fa-headphones" style="color: var(--accent);"></i> 3. Enmascaramiento Auditivo Inducido</div>
           <div class="science-pill-desc">El cerebro filtra y descarta los estímulos aleatorios cuando es expuesto a frecuencias continuas sintetizadas (ruido café/rosa), atenuando los pensamientos intrusivos.</div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: EL CICLO REAL DE LA MOTIVACIÓN -->
+  <section class="motivation-section landing-container">
+    <div class="section-header">
+      <h2 class="section-title">El ciclo real de la motivación</h2>
+      <p class="section-subtitle">No esperes a "sentir ganas" para empezar. La neurociencia demuestra que la motivación no es la causa de la acción, sino su consecuencia directa.</p>
+    </div>
+
+    <div class="motivation-flow">
+      <!-- Paso 1 -->
+      <div class="motivation-step">
+        <div class="step-badge">1</div>
+        <div class="step-icon"><i class="fa-solid fa-compress"></i></div>
+        <h3 class="step-title">Micro-Acción</h3>
+        <p class="step-text"><strong>La Regla de los 2 Minutos (James Clear)</strong>: Comprométete con un paso absurdamente fácil. Abre el archivo o lee un solo párrafo. Al reducir el esfuerzo, desarmas el miedo inconsciente a empezar.</p>
+      </div>
+
+      <!-- Arrow -->
+      <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+      <!-- Paso 2 -->
+      <div class="motivation-step">
+        <div class="step-badge">2</div>
+        <div class="step-icon"><i class="fa-solid fa-stopwatch-20"></i></div>
+        <h3 class="step-title">Disparador</h3>
+        <p class="step-text"><strong>Ritual de Activación (Mel Robbins)</strong>: Cuenta 3, 2, 1 en voz alta y realiza un movimiento físico. Esto silencia la duda en la amígdala y transfiere el control a tu corteza motora.</p>
+      </div>
+
+      <!-- Arrow -->
+      <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+      <!-- Paso 3 -->
+      <div class="motivation-step">
+        <div class="step-badge">3</div>
+        <div class="step-icon"><i class="fa-solid fa-award"></i></div>
+        <h3 class="step-title">Dopamina</h3>
+        <p class="step-text"><strong>Éxito Percibido</strong>: Al completar el micro-paso de 2 minutos, tu cerebro registra una victoria inmediata, liberando una pequeña dosis de dopamina en tu circuito de recompensa.</p>
+      </div>
+
+      <!-- Arrow -->
+      <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+      <!-- Paso 4 -->
+      <div class="motivation-step">
+        <div class="step-badge">4</div>
+        <div class="step-icon"><i class="fa-solid fa-rotate-right"></i></div>
+        <h3 class="step-title">Motivación</h3>
+        <p class="step-text"><strong>Inercia de Enfoque</strong>: La dopamina activa el deseo de continuar. La barrera de inicio ha desaparecido, y entras en estado de flujo sin esfuerzo consciente.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: DESAFÍO SENDA DEL GUERRERO -->
+  <section class="challenge-section landing-container">
+    <div class="section-header">
+      <div class="hero-badge"><i class="fa-solid fa-khanda"></i> Filosofía samurai aplicada</div>
+      <h2 class="section-title">El Desafío de la Senda del Guerrero</h2>
+      <p class="section-subtitle">Un entrenamiento mental de 7 días inspirado en el Dokkōdō de Miyamoto Musashi. No busques dominar el año entero; vence los impulsos del día de hoy.</p>
+    </div>
+
+    <div class="challenge-box">
+      <div class="challenge-info">
+        <!-- Progress Bar -->
+        <div class="challenge-progress-container" style="margin-bottom: 24px;">
+          <div class="progress-labels" style="display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
+            <span>Progreso del Guerrero</span>
+            <span>{{ selectedChallengeDayIndex() + 1 }} de 7 Días</span>
+          </div>
+          <div class="progress-bar-track" style="height: 6px; background: rgba(255, 255, 255, 0.04); border-radius: 3px; overflow: hidden;">
+            <div class="progress-bar-fill" [style.width.%]="((selectedChallengeDayIndex() + 1) / 7) * 100" style="height: 100%; background: linear-gradient(90deg, var(--accent) 0%, #818cf8 100%); border-radius: 3px; transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+          </div>
+        </div>
+
+        <h3 class="challenge-day-title">{{ selectedChallengeDay()?.title }}</h3>
+        <p class="challenge-day-desc">{{ selectedChallengeDay()?.desc }}</p>
+        
+        <div class="challenge-metrics">
+          <div class="metric"><i class="fa-regular fa-clock"></i> {{ selectedChallengeDay()?.metric1 }}</div>
+          <div class="metric"><i class="fa-solid fa-shield-halved"></i> {{ selectedChallengeDay()?.metric2 }}</div>
+        </div>
+
+        <a [routerLink]="selectedChallengeDay()?.link">
+          <button class="btn btn-accent" style="margin-top: 28px;">
+            <i class="fa-solid fa-bolt"></i> {{ selectedChallengeDay()?.btnText }}
+          </button>
+        </a>
+      </div>
+
+      <div class="challenge-grid-days">
+        @for (day of challengeDays; track day.num; let idx = $index) {
+          <div class="day-card" 
+               [class.active]="selectedChallengeDayIndex() === idx" 
+               (click)="selectChallengeDay(idx)">
+            <span class="day-num">{{ day.num }}</span>
+            <span class="day-label">{{ day.label }}</span>
+            @if (selectedChallengeDayIndex() === idx) {
+              <i class="fa-solid fa-circle-play day-status"></i>
+            } @else {
+              <i class="fa-solid fa-lock day-status"></i>
+            }
+          </div>
+        }
       </div>
     </div>
   </section>
