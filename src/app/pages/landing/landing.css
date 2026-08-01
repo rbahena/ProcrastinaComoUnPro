@@ -1,6 +1,7 @@
-/* Reset local para página completa (sin sidebar fijo en la landing) */
 :host {
   display: block;
+  width: 100%;
+  flex: 1;
   overflow-x: hidden;
   --bg:      #060813; /* Deep dark blue */
   --bg2:     rgba(18, 22, 45, 0.65); /* Glassmorphic card fill */

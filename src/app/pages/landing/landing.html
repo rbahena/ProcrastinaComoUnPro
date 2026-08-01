@@ -1,28 +1,28 @@
 <!-- HEADER -->
 <header class="landing-header">
   <div class="logo" style="padding: 0;">
-    <span class="logo-icon">⚡</span>
+    <span class="logo-icon"><i class="fa-solid fa-bolt"></i></span>
     <span class="logo-text">Procrastina como un Pro</span>
   </div>
   <a routerLink="/hoy">
-    <button class="btn btn-ghost btn-sm">Acceder al App →</button>
+    <button class="btn btn-ghost btn-sm">Acceder al App <i class="fa-solid fa-arrow-right" style="margin-left: 4px;"></i></button>
   </a>
 </header>
 
 <main>
   <!-- HERO SECTION -->
   <section class="hero-section landing-container">
-    <div class="hero-badge">Ciencia aplicada a tu enfoque</div>
-    <h1 class="hero-title">No te falta fuerza de voluntad. Te falta diseño de entorno.</h1>
+    <div class="hero-badge"><i class="fa-solid fa-brain" style="margin-right: 6px;"></i> Neurociencia aplicada a tu productividad</div>
+    <h1 class="hero-title">No te falta disciplina. Te falta diseño de entorno.</h1>
     <p class="hero-subtitle">
-      La procrastinación no es un problema de pereza, sino de regulación emocional. Procrastina como un Pro te ayuda a rediseñar tu entorno de trabajo con herramientas prácticas para romper la inercia inicial sin depender de tu disciplina.
+      La procrastinación no es un defecto de carácter; es una respuesta automática del cerebro ante el estrés de una tarea. Procrastina como un Pro te ayuda a rediseñar tu entorno digital con herramientas cognitivo-conductuales para desactivar la resistencia inicial sin depender de tu fuerza de voluntad.
     </p>
     <div class="hero-btns">
       <a routerLink="/hoy">
-        <button class="btn btn-accent" style="padding: 12px 24px; font-size: 14px;">Iniciar Gratis</button>
+        <button class="btn btn-accent" style="padding: 12px 24px; font-size: 14px;"><i class="fa-solid fa-rocket"></i> Iniciar Gratis</button>
       </a>
       <a href="#widget">
-        <button class="btn btn-ghost" style="padding: 12px 24px; font-size: 14px;">Diagnosticar mi Estado</button>
+        <button class="btn btn-ghost" style="padding: 12px 24px; font-size: 14px;"><i class="fa-solid fa-circle-question"></i> Diagnosticar mi Estado</button>
       </a>
     </div>
   </section>
@@ -31,39 +31,39 @@
   <section class="widget-section" id="widget">
     <div class="landing-container">
       <div class="widget-card">
-        <div class="widget-title">Diagnóstico de Procrastinación</div>
-        <div class="widget-sub">Selecciona qué excusa o sensación te está deteniendo en este momento</div>
+        <div class="widget-title">Diagnóstico Conductual Inmediato</div>
+        <div class="widget-sub">Identifica qué sensación o excusa sabotea tu enfoque en este momento y obtén una solución de diseño de comportamiento.</div>
 
         <div class="excuse-options">
           <button class="excuse-btn" [class.selected]="selectedExcuseKey() === 'perfect'" (click)="selectExcuse('perfect')">
-            <span style="font-size: 20px">😰</span>
+            <i class="fa-solid fa-face-grimace" style="font-size: 22px; color: var(--accent);"></i>
             <div>
               <div>"Tengo miedo de que no salga bien"</div>
-              <div style="font-size:10px; color:#555; font-weight:normal; margin-top:2px">Parálisis por perfeccionismo</div>
+              <div style="font-size:10px; color:var(--muted); font-weight:normal; margin-top:2px">Parálisis por perfeccionismo</div>
             </div>
           </button>
 
           <button class="excuse-btn" [class.selected]="selectedExcuseKey() === 'bored'" (click)="selectExcuse('bored')">
-            <span style="font-size: 20px">🥱</span>
+            <i class="fa-solid fa-face-tired" style="font-size: 22px; color: var(--accent);"></i>
             <div>
-              <div>"La tarea es aburrida y enorme"</div>
-              <div style="font-size:10px; color:#555; font-weight:normal; margin-top:2px">Sobrecarga y apatía cognitiva</div>
+              <div>"La tarea es aburrida o enorme"</div>
+              <div style="font-size:10px; color:var(--muted); font-weight:normal; margin-top:2px">Sobrecarga y apatía cognitiva</div>
             </div>
           </button>
 
           <button class="excuse-btn" [class.selected]="selectedExcuseKey() === 'time'" (click)="selectExcuse('time')">
-            <span style="font-size: 20px">⏳</span>
+            <i class="fa-solid fa-hourglass-half" style="font-size: 22px; color: var(--accent);"></i>
             <div>
               <div>"Siento que aún me queda tiempo"</div>
-              <div style="font-size:10px; color:#555; font-weight:normal; margin-top:2px">Optimismo sesgado (Present Bias)</div>
+              <div style="font-size:10px; color:var(--muted); font-weight:normal; margin-top:2px">Optimismo sesgado (Present Bias)</div>
             </div>
           </button>
 
           <button class="excuse-btn" [class.selected]="selectedExcuseKey() === 'distract'" (click)="selectExcuse('distract')">
-            <span style="font-size: 20px">📱</span>
+            <i class="fa-solid fa-mobile-screen-button" style="font-size: 22px; color: var(--accent);"></i>
             <div>
               <div>"Abro redes sociales por inercia"</div>
-              <div style="font-size:10px; color:#555; font-weight:normal; margin-top:2px">Falta de barreras ambientales</div>
+              <div style="font-size:10px; color:var(--muted); font-weight:normal; margin-top:2px">Falta de barreras ambientales</div>
             </div>
           </button>
         </div>
@@ -71,14 +71,16 @@
         <!-- CONTENEDOR DE RESULTADO DINÁMICO -->
         <div class="result-box" id="resultBox" [class.visible]="selectedExcuse()">
           <div class="result-header">
-            <span id="resultEmoji">{{ selectedExcuse()?.emoji }}</span>
+            @if (selectedExcuse()?.emoji) {
+              <i [class]="selectedExcuse()?.emoji" style="font-size: 22px; color: var(--green);"></i>
+            }
             <span id="resultTitle">{{ selectedExcuse()?.title }}</span>
           </div>
           <div class="result-desc" id="resultDesc">{{ selectedExcuse()?.desc }}</div>
           <div class="result-action">
             <span class="result-tag" id="resultTag">{{ selectedExcuse()?.tag }}</span>
             <a [routerLink]="selectedExcuse()?.link">
-              <button class="btn btn-green btn-sm" id="resultBtnText">{{ selectedExcuse()?.btnText }} →</button>
+              <button class="btn btn-green btn-sm" id="resultBtnText">{{ selectedExcuse()?.btnText }} <i class="fa-solid fa-chevron-right" style="margin-left: 4px;"></i></button>
             </a>
           </div>
         </div>
@@ -91,27 +93,27 @@
   <section class="science-section landing-container">
     <div class="science-grid">
       <div class="science-content">
-        <h2>La raíz de la inacción</h2>
+        <h2>La neurobiología detrás de tu inacción</h2>
         <p>
-          Cuando te enfrentas a una tarea pesada, tu amígdala (el centro emocional del cerebro) la percibe como una amenaza. Esto desata una respuesta de huida: tu cerebro busca inmediatamente una actividad de gratificación instantánea (como revisar tu teléfono) para aliviar ese estrés.
+          Cuando te enfrentas a una tarea pesada o abrumadora, tu amígdala (el centro emocional de tu cerebro) la percibe como una amenaza directa. Esto detona una respuesta de huida involuntaria: tu cerebro busca alivio inmediato en actividades de gratificación instantánea (como redes sociales) para inundarse de dopamina rápida.
         </p>
         <p>
-          Para derrotar este ciclo, no necesitas más regaños ni agendas complicadas. Necesitas cambiar el diseño de tu entorno usando tres conceptos probados:
+          Para vencer este ciclo repetitivo no necesitas regaños ni agendas complicadas. Necesitas cambiar el diseño de tu entorno digital usando tres principios conductuales validados:
         </p>
       </div>
 
       <div>
         <div class="science-pill">
-          <div class="science-pill-title">🐸 1. La Ley de la Tarea Más Importante</div>
-          <div class="science-pill-desc">Afrontar la tarea de mayor peso emocional primero reduce el estrés del resto del día. Es el principio de "Eat the Frog".</div>
+          <div class="science-pill-title"><i class="fa-solid fa-frog" style="color: var(--green);"></i> 1. Mitigación del Peso Emocional (Eat the Frog)</div>
+          <div class="science-pill-desc">Afrontar la tarea de mayor peso cognitivo al principio de tu jornada libera espacio mental y disminuye drásticamente el estrés de fondo del resto de tu día.</div>
         </div>
         <div class="science-pill">
-          <div class="science-pill-title">🧱 2. Fricción Deliberada</div>
-          <div class="science-pill-desc">Si acceder a tus distracciones habituales requiere al menos 3 acciones adicionales, la probabilidad de caer en ellas se reduce drásticamente.</div>
+          <div class="science-pill-title"><i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i> 2. Arquitectura de Fricción Activa</div>
+          <div class="science-pill-desc">Si acceder a tus distractores habituales requiere al menos 3 acciones o segundos adicionales, la corteza prefrontal retoma el control sobre los impulsos automáticos.</div>
         </div>
         <div class="science-pill">
-          <div class="science-pill-title">🌊 3. Estado de Flujo por Audio</div>
-          <div class="science-pill-desc">El cerebro filtra las señales externas con más facilidad cuando se le expone a frecuencias continuas (ruido café/rosa), disminuyendo los pensamientos intrusivos.</div>
+          <div class="science-pill-title"><i class="fa-solid fa-headphones" style="color: var(--accent);"></i> 3. Enmascaramiento Auditivo Inducido</div>
+          <div class="science-pill-desc">El cerebro filtra y descarta los estímulos aleatorios cuando es expuesto a frecuencias continuas sintetizadas (ruido café/rosa), atenuando los pensamientos intrusivos.</div>
         </div>
       </div>
     </div>
@@ -120,34 +122,34 @@
   <!-- SECTION: HERRAMIENTAS CLAVE -->
   <section class="features-section landing-container">
     <div class="section-header">
-      <h2 class="section-title">Nuestra suite de herramientas prácticas</h2>
-      <p class="section-subtitle">Diseñadas para romper la inercia y estructurar tus sesiones de trabajo óptimo.</p>
+      <h2 class="section-title">Tu kit de herramientas conductuales</h2>
+      <p class="section-subtitle">Módulos prácticos e integrados diseñados para estructurar y proteger tus sesiones de enfoque óptimo.</p>
     </div>
 
     <div class="features-grid">
       <!-- Tarjeta 1 -->
       <div class="feature-card">
-        <div class="feature-icon">⏱️</div>
-        <div class="feature-name">Reloj Pomodoro</div>
-        <div class="feature-desc">Establece lapsos definidos de enfoque con descansos obligatorios para restaurar tu energía atencional.</div>
+        <i class="fa-regular fa-clock feature-icon" style="color: var(--accent); font-size: 32px; display: block; margin-bottom: 20px;"></i>
+        <div class="feature-name">Foco por Bloques</div>
+        <div class="feature-desc">Establece lapsos de concentración protegidos con descansos obligatorios diseñados para restaurar tu energía atencional y evitar la fatiga mental.</div>
       </div>
       <!-- Tarjeta 2 -->
       <div class="feature-card">
-        <div class="feature-icon">🛡️</div>
-        <div class="feature-name">Bloqueador Estricto</div>
-        <div class="feature-desc">Aísla tu navegador de las redes sociales e impulsos rápidos durante tus periodos de concentración.</div>
+        <i class="fa-solid fa-shield-halved feature-icon" style="color: var(--accent); font-size: 32px; display: block; margin-bottom: 20px;"></i>
+        <div class="feature-name">Fricción de Navegador</div>
+        <div class="feature-desc">Aísla tu entorno de trabajo de plataformas dopaminérgicas. Crea un cortafuegos físico que frena tus impulsos automáticos de distracción.</div>
       </div>
       <!-- Tarjeta 3 -->
       <div class="feature-card">
-        <div class="feature-icon">🔊</div>
-        <div class="feature-name">Frecuencias de Enfoque</div>
-        <div class="feature-desc">Generador integrado de ruido coloreado (lluvia, bosque) sintetizado en tiempo real para aislar tu mente.</div>
+        <i class="fa-solid fa-headphones feature-icon" style="color: var(--accent); font-size: 32px; display: block; margin-bottom: 20px;"></i>
+        <div class="feature-name">Sintetizador Sensorial</div>
+        <div class="feature-desc">Generador integrado de ruido coloreado (lluvia, bosque, ruido café) sintetizado en tiempo real para aislar tu corteza auditiva y propiciar ondas alfa.</div>
       </div>
       <!-- Tarjeta 4 -->
       <div class="feature-card">
-        <div class="feature-icon">⏳</div>
-        <div class="feature-name">Urgencia Visual</div>
-        <div class="feature-desc">Contadores regresivos que te recuerdan el valor del tiempo restante y desactivan la Ley de Parkinson.</div>
+        <i class="fa-solid fa-hourglass-empty feature-icon" style="color: var(--accent); font-size: 32px; display: block; margin-bottom: 20px;"></i>
+        <div class="feature-name">Urgencia Visual Sana</div>
+        <div class="feature-desc">Contadores visuales dinámicos que muestran el avance real de tus plazos, destruyendo la Ley de Parkinson que expande y posterga tus pendientes.</div>
       </div>
     </div>
   </section>
@@ -155,5 +157,5 @@
 
 <!-- FOOTER -->
 <footer class="landing-footer">
-  <p>© 2026 Procrastina como un Pro. Desarrollado bajo principios prácticos de psicología cognitiva.</p>
+  <p>© 2026 Procrastina como un Pro. Desarrollado bajo principios y metodologías de la psicología cognitiva conductual.</p>
 </footer>

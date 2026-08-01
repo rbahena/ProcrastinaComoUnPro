@@ -1,3 +1,5 @@
+@import '@fortawesome/fontawesome-free/css/all.css';
+
 /* ===== RESET ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -19,13 +21,25 @@
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   display: flex;
   min-height: 100vh;
   font-size: 14px;
   line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6, .logo-text, .page-title, .widget-title, .section-title {
+  font-family: 'Outfit', sans-serif;
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  flex: 1;
 }
 
 a { text-decoration: none; color: inherit; }
