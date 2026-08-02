@@ -89,7 +89,7 @@
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1.2px;
 }
 
 .label-row {
@@ -229,12 +229,37 @@
   text-decoration: underline;
 }
 
-@media (max-width: 480px) {
-  .auth-card {
-    padding: 30px 20px;
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 100px 16px 40px;
   }
-  .back-link {
-    top: 20px;
-    left: 20px;
+  .form-group input {
+    font-size: 16px; /* Evita zoom automático en móviles */
+    padding: 11px 14px;
   }
 }
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 28px 18px;
+    border-radius: 18px;
+  }
+  .auth-title {
+    font-size: 20px;
+  }
+  .auth-subtitle {
+    font-size: 12.5px;
+  }
+  .form-group label {
+    font-size: 10px;
+  }
+  .btn.w-100, .google-btn {
+    padding: 11px 16px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+  .form-group input {
+    border-radius: 10px;
+  }
+}
+

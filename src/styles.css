@@ -586,3 +586,13 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   right: 0;
   z-index: 100;
 }
+
+@media (max-width: 768px) {
+  .landing-header {
+    padding: 14px 16px;
+  }
+  .landing-header .btn-sm {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
