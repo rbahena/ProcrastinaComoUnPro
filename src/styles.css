@@ -4,21 +4,100 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:      #0e0e0e;
-  --bg2:     #161616;
-  --bg3:     #1e1e1e;
-  --border:  #272727;
-  --accent:  #7c6fef;
-  --green:   #34d399;
-  --yellow:  #fbbf24;
-  --red:     #f87171;
-  --blue:    #60a5fa;
-  --text:    #efefef;
-  --muted:   #5a5a5a;
-  --muted2:  #333;
+  --bg:      #0a0a0c;       /* Sumi-e black */
+  --bg2:     #121217;       /* Lacquer black */
+  --bg3:     #1a1a23;       /* Dark charcoal */
+  --border:  #2d2d3a;       /* Steel Katana grey */
+  --accent:  #d92b2b;       /* Sengoku Crimson */
+  --green:   #10b981;       /* Jade Green */
+  --yellow:  #d4af37;       /* Imperial Gold */
+  --red:     #ef4444;       /* Warrior Blood Red */
+  --blue:    #3b82f6;       /* Indigo Blue */
+  --text:    #f4f4f7;       /* Parchment White */
+  --muted:   #78788a;       /* Slate Grey */
+  --muted2:  #3c3c4e;       /* Iron Steel */
   --sidebar: 210px;
-  --r:       10px;
+  --r:       6px;           /* Sharper corners for a blade-like style */
 }
+
+/* ===== THEMES ===== */
+body.theme-samurai {
+  --bg:      #0a0a0c;       /* Sumi-e black */
+  --bg2:     #121217;       /* Lacquer black */
+  --bg3:     #1a1a23;       /* Dark charcoal */
+  --border:  #2d2d3a;       /* Steel Katana grey */
+  --accent:  #d92b2b;       /* Sengoku Crimson */
+  --green:   #10b981;       /* Jade Green */
+  --yellow:  #d4af37;       /* Imperial Gold */
+  --red:     #ef4444;       /* Warrior Blood Red */
+  --blue:    #3b82f6;       /* Indigo Blue */
+  --text:    #f4f4f7;       /* Parchment White */
+  --muted:   #78788a;       /* Slate Grey */
+  --muted2:  #3c3c4e;       /* Iron Steel */
+  --r:       6px;
+}
+
+body.theme-cyberpunk {
+  --bg:      #0b0b14;       /* Deep slate night shadow */
+  --bg2:     #11111e;       /* Sleek twilight dark */
+  --bg3:     #1b1a2e;       /* Muted violet grey */
+  --border:  #25233d;       /* Soft dark-purple border */
+  --accent:  #ff5376;       /* Soft glowing neon coral-pink */
+  --green:   #10b981;       /* Soft emerald green */
+  --yellow:  #00b0ff;       /* Premium neon cyan */
+  --red:     #ef4444;
+  --blue:    #82a1ff;       /* Electric ice blue */
+  --text:    #e4e1f5;       /* Warm light grey/lavender */
+  --muted:   #6d678d;       /* Muted dusk lavender */
+  --muted2:  #2d274c;       /* Deep twilight steel */
+  --r:       4px;           /* Sharp but premium corners */
+}
+
+body.theme-aurora {
+  --bg:      #0b0f19;       /* Deep cosmic navy-slate */
+  --bg2:     #141b2d;       /* Midnight space slate */
+  --bg3:     #1d263b;       /* Soft blue-grey highlight */
+  --border:  #273452;       /* Subtle steel-blue border */
+  --accent:  #5e62f5;       /* Premium cosmic indigo */
+  --green:   #10b981;       /* Emerald jade green */
+  --yellow:  #f59e0b;       /* Solar gold */
+  --red:     #ef4444;
+  --blue:    #38bdf8;       /* Polar ice blue */
+  --text:    #f1f5f9;       /* Starlight off-white */
+  --muted:   #64748b;       /* Solar wind dust slate */
+  --muted2:  #334155;       /* Sub-space steel slate */
+  --r:       10px;          /* Smooth rounded modern layout */
+}
+
+body.theme-zen {
+  --bg:      #0c0f0d;       /* Deep forest charcoal */
+  --bg2:     #141916;       /* Moss slate cards */
+  --bg3:     #1e2520;       /* Eucalyptus green slate */
+  --border:  #2a362f;       /* Eucalyptus branch border */
+  --accent:  #5c8f75;       /* Calming sage green */
+  --green:   #81b29a;       /* Soft pastel green leaf */
+  --yellow:  #e09f67;       /* Soft sand terracotta */
+  --red:     #e07a5f;       /* Soft clay red */
+  --blue:    #4a6b82;       /* Slate pond blue */
+  --text:    #f1f5f2;       /* Cream off-white */
+  --muted:   #7f9488;       /* Eucalyptus sage grey */
+  --muted2:  #3a4d41;       /* Dark bamboo stem */
+  --r:       14px;          /* Organic circular curves */
+}
+
+/* Auth views theme integration */
+body.theme-samurai .auth-container { background: radial-gradient(circle at top, #301010 0%, #0a0a0c 100%) !important; }
+body.theme-cyberpunk .auth-container { background: radial-gradient(circle at top, #201026 0%, #0b0b14 100%) !important; }
+body.theme-aurora .auth-container { background: radial-gradient(circle at top, #141b35 0%, #0b0f19 100%) !important; }
+body.theme-zen .auth-container { background: radial-gradient(circle at top, #0f241a 0%, #0c0f0d 100%) !important; }
+
+/* Landing page theme integration */
+body.theme-samurai app-landing { background: radial-gradient(circle at 50% 0%, #301010 0%, #0a0a0c 80%) !important; }
+body.theme-cyberpunk app-landing { background: radial-gradient(circle at 50% 0%, #201026 0%, #0b0b14 80%) !important; }
+body.theme-aurora app-landing { background: radial-gradient(circle at 50% 0%, #141b35 0%, #0b0f19 80%) !important; }
+body.theme-zen app-landing { background: radial-gradient(circle at 50% 0%, #0f241a 0%, #0c0f0d 80%) !important; }
+
+
 
 body {
   font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -118,7 +197,6 @@ button { font-family: inherit; cursor: pointer; }
   display: flex;
   flex-direction: column;
   gap: 28px;
-  max-width: 900px;
 }
 
 /* ===== PAGE HEADER ===== */
@@ -595,4 +673,14 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
     padding: 6px 10px;
     font-size: 11px;
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }

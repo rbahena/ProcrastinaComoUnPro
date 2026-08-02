@@ -111,7 +111,7 @@ export class Landing {
       desc: 'No pospongas el coste de fricción emocional. Tu meta hoy es agendar tu tarea más pesada y ejecutarla a primera hora de tu jornada usando el temporizador Pomodoro. Libera tu mente por el resto del día.',
       metric1: '1 Tarea "Sapo" Lista',
       metric2: 'Mañana Productiva',
-      link: '/hoy',
+      link: '/home',
       btnText: 'Agendar Tarea Sapo'
     },
     {

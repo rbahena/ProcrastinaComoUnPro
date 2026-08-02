@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({
@@ -8,16 +8,27 @@ import { Router, RouterLink } from '@angular/router';
   styleUrl: './login.css',
 })
 export class Login {
+  loginError = signal(false);
+
   constructor(private router: Router) {}
 
-  onSubmit(event: Event) {
+  onSubmit(event: Event, email: string, pass: string) {
     event.preventDefault();
-    // Simular inicio de sesión exitoso redirigiendo al dashboard
-    this.router.navigate(['/hoy']);
+    if (email.trim() === 'guerrero@procrastina.pro' && pass === 'vencerlaresistencia') {
+      this.loginError.set(false);
+      this.router.navigate(['/home']);
+    } else {
+      this.loginError.set(true);
+    }
   }
 
   loginWithGoogle() {
-    // Simular inicio de sesión con Google redirigiendo al dashboard
-    this.router.navigate(['/hoy']);
+    this.router.navigate(['/home']);
+  }
+
+  prefill(emailInput: HTMLInputElement, passwordInput: HTMLInputElement) {
+    emailInput.value = 'guerrero@procrastina.pro';
+    passwordInput.value = 'vencerlaresistencia';
+    this.loginError.set(false);
   }
 }

@@ -19,8 +19,8 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/registro/registro').then(m => m.Registro)
   },
   {
-    path: 'hoy',
-    loadComponent: () => import('./pages/hoy/hoy').then(m => m.Hoy)
+    path: 'home',
+    loadComponent: () => import('./pages/home/home').then(m => m.Home)
   },
   {
     path: 'enfoque',
