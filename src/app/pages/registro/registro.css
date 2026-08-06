@@ -5,9 +5,11 @@
   align-items: center;
   justify-content: center;
   padding: 120px 20px 60px;
-  background: radial-gradient(circle at top, #301010 0%, #0a0a0c 100%);
+  background: radial-gradient(circle at top, #161622 0%, #0a0a0c 100%);
   position: relative;
   overflow: hidden;
+  --accent: #6366f1;
+  --border: rgba(99, 102, 241, 0.15);
 }
 
 .auth-container::before {

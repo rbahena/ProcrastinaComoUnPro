@@ -29,53 +29,26 @@ export class Home {
   soundEnabled = signal(true);
   autoblockEnabled = signal(true);
 
+  // Pomodoro
+  timeLeft = signal(25 * 60); // 25 min default
+  timerRunning = signal(false);
+  isBreak = signal(false);
+  focusSessionsCompleted = signal(0);
+  private pomodoroTimer: any = null;
+
+  // Escudo
+  shieldActive = signal(false);
+
   // Datos del Usuario
   userName = signal('Guerrero');
-  streak = signal(5); // Días/Batallas seguidas
-  focusMinutes = signal(85); // Minutos hoy
-  blockedSitesCount = signal(3); // Escudos activos
-  xp = signal(650); // Honor/XP acumulado
+  streak = signal(0); // Días/Batallas seguidas
+  focusMinutes = signal(0); // Minutos hoy
+  blockedSitesCount = signal(0); // Escudos activos
+  xp = signal(0); // Honor/XP acumulado
 
-  // Lista de Tareas
-  tasks = signal<Task[]>([
-    {
-      id: 1,
-      text: 'Forjar y entregar el reporte de batalla trimestral (Enemigo Principal)',
-      priority: 'high',
-      tag: 'Deber',
-      done: false,
-      isFrog: true, // El Gran Oponente (Sapo)
-    },
-    {
-      id: 2,
-      text: 'Meditar y estudiar el sesgo del presente para anticipar la pereza',
-      priority: 'mid',
-      tag: 'Sabiduría',
-      done: false,
-      isFrog: false,
-    },
-    {
-      id: 3,
-      text: 'Restablecer el puente de comunicación del clan (Soporte Técnico)',
-      priority: 'low',
-      tag: 'Tribu',
-      done: true,
-      isFrog: false,
-    },
-    {
-      id: 4,
-      text: 'Forjar el escudo de fricción contra las redes distractoras',
-      priority: 'high',
-      tag: 'Armadura',
-      done: false,
-      isFrog: false,
-    },
-  ]);
+  // Lista de Tareas (Limpia por defecto para nuevos usuarios)
+  tasks = signal<Task[]>([]);
 
-  // Rituales (Mel Robbins 3-2-1)
-  ritualState = signal<'idle' | 'counting' | 'action'>('idle');
-  ritualCount = signal(3);
-  ritualTimer: any = null;
 
   // Diccionario de textos por tema
   private readonly THEME_LABELS = {
@@ -268,6 +241,21 @@ export class Home {
     return Math.round((completed / all.length) * 100);
   });
 
+  completedTasksCount = computed(() => {
+    return this.tasks().filter(t => t.done).length;
+  });
+
+  totalTasksCount = computed(() => {
+    return this.tasks().length;
+  });
+
+  // Pomodoro formatted text string
+  timeString = computed(() => {
+    const min = Math.floor(this.timeLeft() / 60);
+    const sec = this.timeLeft() % 60;
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  });
+
   constructor() {
     const savedTheme = localStorage.getItem('procrastina-theme') as any || 'samurai';
     this.currentTheme.set(savedTheme);
@@ -345,37 +333,37 @@ export class Home {
     this.tasks.update(all => all.filter(t => t.id !== taskId));
   }
 
-  // Agregar nueva tarea
-  addTask(textInput: HTMLInputElement, prioritySelect: HTMLSelectElement, tagInput: HTMLInputElement, isFrogCheckbox: HTMLInputElement) {
+  // Agregar nueva tarea minimalista (Quick Add)
+  quickAddTask(textInput: HTMLInputElement) {
     const text = textInput.value.trim();
     if (!text) return;
 
-    const priority = prioritySelect.value as 'high' | 'mid' | 'low';
-    const tag = tagInput.value.trim() || 'General';
-    const isFrog = isFrogCheckbox.checked;
-
+    const newId = this.tasks().length > 0 ? Math.max(...this.tasks().map(t => t.id)) + 1 : 1;
     const newTask: Task = {
-      id: Date.now(),
+      id: newId,
       text,
-      priority,
-      tag,
+      priority: 'mid',
+      tag: 'Misión',
       done: false,
-      isFrog,
+      isFrog: false
     };
 
-    // Si se marca como sapo y ya había un sapo activo, degradamos los anteriores sapos no completados
-    this.tasks.update(all => {
-      let updated = all;
-      if (isFrog) {
-        updated = all.map(t => (t.isFrog && !t.done ? { ...t, isFrog: false } : t));
-      }
-      return [...updated, newTask];
-    });
-
-    // Limpiar campos
+    this.tasks.update(all => [...all, newTask]);
     textInput.value = '';
-    tagInput.value = '';
-    isFrogCheckbox.checked = false;
+    this.xp.update(val => val + 10); // +10 honor por declarar batalla
+  }
+
+  // Cambiar prioridad de una tarea en ciclo: high -> mid -> low -> high
+  cyclePriority(taskId: number) {
+    this.tasks.update(all =>
+      all.map(t => {
+        if (t.id === taskId) {
+          const nextPriority = t.priority === 'high' ? 'mid' : (t.priority === 'mid' ? 'low' : 'high');
+          return { ...t, priority: nextPriority };
+        }
+        return t;
+      })
+    );
   }
 
   // Marcar tarea existente como Sapo
@@ -390,30 +378,82 @@ export class Home {
     );
   }
 
-  // Activar Ritual 3-2-1 (Frenar inercia)
-  startRitual() {
-    if (this.ritualState() !== 'idle') return;
+  // Toggle escudo/bloqueador
+  toggleShield() {
+    this.shieldActive.update(active => {
+      const next = !active;
+      if (next) {
+        this.blockedSitesCount.update(c => c + 1); // Simular bloqueo incrementado al activar
+      }
+      return next;
+    });
+  }
 
-    this.ritualState.set('counting');
-    this.ritualCount.set(3);
+  // ZEN POMODORO
+  toggleTimer() {
+    if (this.timerRunning()) {
+      this.pauseTimer();
+    } else {
+      this.startTimer();
+    }
+  }
 
-    this.ritualTimer = setInterval(() => {
-      const current = this.ritualCount();
+  startTimer() {
+    this.timerRunning.set(true);
+    this.pomodoroTimer = setInterval(() => {
+      const current = this.timeLeft();
       if (current > 1) {
-        this.ritualCount.set(current - 1);
+        this.timeLeft.set(current - 1);
       } else {
-        clearInterval(this.ritualTimer);
-        this.ritualState.set('action');
-        this.xp.update(val => val + 15); // Recompensar la acción instantánea
+        this.handleTimerComplete();
       }
     }, 1000);
   }
 
-  // Resetear o terminar el ritual
-  resetRitual() {
-    if (this.ritualTimer) {
-      clearInterval(this.ritualTimer);
+  pauseTimer() {
+    this.timerRunning.set(false);
+    if (this.pomodoroTimer) {
+      clearInterval(this.pomodoroTimer);
     }
-    this.ritualState.set('idle');
+  }
+
+  resetTimer() {
+    this.pauseTimer();
+    this.timeLeft.set(this.isBreak() ? 5 * 60 : 25 * 60);
+  }
+
+  handleTimerComplete() {
+    this.pauseTimer();
+    if (!this.isBreak()) {
+      this.focusSessionsCompleted.update(n => n + 1);
+      this.focusMinutes.update(m => m + 25); // Sumar minutos reales al foco del día!
+      this.xp.update(val => val + 30); // Ganar Honor por completar foco
+      this.isBreak.set(true);
+      this.timeLeft.set(5 * 60); // 5 min break
+      this.playSoftAlert();
+    } else {
+      this.isBreak.set(false);
+      this.timeLeft.set(25 * 60); // 25 min focus
+      this.playSoftAlert();
+    }
+    this.startTimer();
+  }
+
+  playSoftAlert() {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.6);
+    } catch (e) {
+      // Ignorar fallo de autoplay
+    }
   }
 }

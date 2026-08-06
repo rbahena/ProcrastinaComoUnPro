@@ -1,1 +1,183 @@
-<p>enfoque works!</p>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <a routerLink="/home" class="logo">
+    <span class="logo-icon"><i class="fa-solid" [class]="labels().logoIcon" style="color: var(--accent);"></i></span>
+    <span class="logo-text">{{ labels().logoText }}</span>
+  </a>
+  <div class="nav">
+    <a routerLink="/home" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      <i class="fa-solid fa-scroll"></i> {{ labels().navTasks }}
+    </a>
+    <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      <i class="fa-solid fa-yin-yang"></i> {{ labels().navZen }}
+    </a>
+    <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      <i class="fa-solid fa-hourglass-half"></i> {{ labels().navTimer }}
+    </a>
+    <a routerLink="/bloqueador" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      <i class="fa-solid fa-shield-halved"></i> {{ labels().navShield }}
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar" style="background: var(--accent); color: #fff;">{{ userName().substring(0, 2).toUpperCase() }}</div>
+    <div style="overflow: hidden; display: flex; flex-direction: column;">
+      <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
+      <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">{{ labels().subtitle }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <!-- PAGE HEADER -->
+  <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div>
+      <h1 class="page-title" style="display: flex; align-items: center; gap: 10px; font-size: 24px;">
+        <i class="fa-solid fa-yin-yang" style="color: var(--accent);"></i> {{ labels().title }}
+      </h1>
+      <p class="page-sub" style="color: var(--muted); font-weight: 500; margin-top: 4px;">
+        {{ labels().desc }}
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 8px; margin-left: auto;">
+      <a routerLink="/home">
+        <button class="btn btn-ghost" style="color: var(--text); border-color: var(--border);"><i class="fa-solid fa-arrow-left"></i> Volver a Bitácora</button>
+      </a>
+    </div>
+  </div>
+
+  <!-- WORKSPACE GRID -->
+  <div class="grid-2" style="margin-top: 30px; gap: 20px;">
+    
+    <!-- COLUMNA IZQUIERDA: TEMPORIZADOR ZEN POMODORO -->
+    <div class="card" style="border-top: 2px solid var(--green); display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 36px 24px; text-align: center;">
+      <div>
+        <h3 class="widget-title" style="font-size: 15px; margin: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--green);">
+          {{ labels().timerTitle }}
+        </h3>
+        <span style="font-size: 11.5px; color: var(--muted); display: block; margin-top: 4px;">
+          {{ isBreak() ? labels().timerBreak : labels().timerFocus }}
+        </span>
+      </div>
+
+      <!-- Reloj -->
+      <div style="width: 170px; height: 170px; border-radius: 50%; border: 4px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: var(--bg3); box-shadow: 0 10px 30px rgba(0,0,0,0.25);"
+           [style.border-color]="timerRunning() ? 'var(--green)' : 'var(--border)'">
+        <div style="font-size: 38px; font-weight: 900; font-family: monospace; letter-spacing: -0.5px; color: var(--text);">
+          {{ timeString() }}
+        </div>
+        <div style="font-size: 10px; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-top: 2px; letter-spacing: 0.5px;">
+          {{ isBreak() ? 'Descanso' : 'Enfoque' }}
+        </div>
+      </div>
+
+      <!-- Controles Pomodoro -->
+      <div style="display: flex; gap: 8px; width: 100%; max-width: 240px; margin-top: 8px;">
+        <button class="btn btn-accent w-100" (click)="toggleTimer()" 
+                [style.background]="timerRunning() ? 'var(--red)' : 'var(--green)'"
+                style="color: #fff; font-weight: bold; padding: 10px; justify-content: center; border-radius: 8px; border: none; cursor: pointer; flex: 2; display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid" [class]="timerRunning() ? 'fa-pause' : 'fa-play'"></i>
+          {{ timerRunning() ? 'Pausar' : 'Concentrarse' }}
+        </button>
+        <button class="btn btn-ghost" (click)="resetTimer()" style="padding: 10px; justify-content: center; border-radius: 8px; cursor: pointer; flex: 1;">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+
+      <!-- Estadísticas de Sesión -->
+      <div style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 14px; width: 100%; display: flex; justify-content: space-around; font-size: 12.5px; color: var(--muted);">
+        <div>
+          <strong style="color: var(--text);">{{ focusSessionsCompleted() }}</strong> {{ labels().sessionsText }}
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMNA DERECHA: KIAI RITUAL (PREPARACIÓN ANTES DEL FOCUS) -->
+    <div class="card" style="border-top: 2px solid var(--accent); background: linear-gradient(135deg, rgba(217,43,43,0.04) 0%, rgba(6,8,19,0) 100%); display: flex; flex-direction: column; gap: 14px; padding: 24px;">
+      <h3 class="widget-title" style="display: flex; align-items: center; gap: 8px; font-size: 15px; margin: 0;">
+        <i class="fa-solid fa-fire" style="color: var(--accent);"></i> {{ labels().ritualTitle }}
+      </h3>
+      <p style="font-size: 12.5px; color: var(--muted); line-height: 1.5; margin: 0;">
+        {{ labels().ritualDesc }}
+      </p>
+
+      <div style="display: flex; align-items: center; justify-content: center; min-height: 140px; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1px dashed var(--border); margin-top: 10px;">
+        @if (ritualState() === 'idle') {
+          <button class="btn btn-accent" (click)="startRitual()" style="background: var(--accent); display: flex; align-items: center; gap: 8px; padding: 11px 20px;">
+            <i class="fa-solid fa-circle-play"></i> {{ labels().ritualBtn }}
+          </button>
+        } @else if (ritualState() === 'counting') {
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <div style="font-size: 48px; font-weight: 900; color: var(--accent); line-height: 1;" class="animate-pulse">
+              {{ ritualCount() }}
+            </div>
+            <span style="font-size: 10.5px; color: var(--yellow); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600;">{{ labels().ritualCounting }}</span>
+          </div>
+        } @else if (ritualState() === 'action') {
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 12px;">
+            <div style="font-size: 18.5px; font-weight: 800; color: var(--green); display: flex; align-items: center; gap: 6px;">
+              {{ labels().ritualActionTitle }}
+            </div>
+            <p style="font-size: 12px; color: var(--muted); line-height: 1.4; margin: 0; max-width: 280px;">{{ labels().ritualActionDesc }}</p>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <button class="btn btn-green btn-sm" (click)="resetRitual(); toggleTimer();" style="background: var(--green); color: #000; font-weight: 800; padding: 8px 16px;">
+                ⏱️ Iniciar Enfoque
+              </button>
+              <button class="btn btn-ghost btn-sm" (click)="resetRitual()" style="padding: 8px 12px;">Descartar</button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN INFERIOR: ESCUDOS DE SONIDO SINTÉTICOS (RUEDO FOCUS) -->
+  <div class="card" style="margin-top: 20px; border-top: 2px solid var(--yellow); padding: 24px; display: flex; flex-direction: column; gap: 14px;">
+    <div>
+      <h3 class="widget-title" style="font-size: 15px; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-headphones" style="color: var(--yellow);"></i> {{ labels().audioTitle }}
+      </h3>
+      <p style="font-size: 12.5px; color: var(--muted); margin-top: 4px; margin-bottom: 0;">
+        {{ labels().audioDesc }}
+      </p>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 6px;">
+      <!-- Ruido Café -->
+      <button (click)="playNoise('brown')"
+              class="btn"
+              [style.background]="activeNoiseType() === 'brown' ? 'var(--yellow)' : 'var(--bg3)'"
+              [style.border-color]="activeNoiseType() === 'brown' ? 'var(--yellow)' : 'var(--border)'"
+              [style.color]="activeNoiseType() === 'brown' ? '#000' : 'var(--text)'"
+              style="padding: 10px 18px; border-radius: 8px; border: 1px solid; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; font-size: 12.5px;">
+        <i class="fa-solid fa-volume-high"></i> {{ labels().audioBrown }}
+      </button>
+
+      <!-- Ruido Lluvia -->
+      <button (click)="playNoise('rain')"
+              class="btn"
+              [style.background]="activeNoiseType() === 'rain' ? 'var(--yellow)' : 'var(--bg3)'"
+              [style.border-color]="activeNoiseType() === 'rain' ? 'var(--yellow)' : 'var(--border)'"
+              [style.color]="activeNoiseType() === 'rain' ? '#000' : 'var(--text)'"
+              style="padding: 10px 18px; border-radius: 8px; border: 1px solid; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; font-size: 12.5px;">
+        <i class="fa-solid fa-cloud-showers-heavy"></i> {{ labels().audioRain }}
+      </button>
+
+      <!-- Control de Volumen -->
+      @if (activeNoiseType() !== 'none') {
+        <div style="display: flex; align-items: center; gap: 10px; margin-left: auto; background: var(--bg3); padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); min-width: 200px;">
+          <i class="fa-solid fa-volume-low" style="color: var(--muted); font-size: 12px;"></i>
+          <input type="range" min="0" max="0.5" step="0.01" [value]="noiseVolume()" (input)="onVolumeChange($event)" 
+                 style="flex: 1; accent-color: var(--yellow); cursor: pointer; height: 4px; border-radius: 2px; outline: none;">
+          <i class="fa-solid fa-volume-high" style="color: var(--muted); font-size: 12px;"></i>
+        </div>
+      }
+    </div>
+  </div>
+
+</div>

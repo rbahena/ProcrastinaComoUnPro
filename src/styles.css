@@ -86,13 +86,13 @@ body.theme-zen {
 }
 
 /* Auth views theme integration */
-body.theme-samurai .auth-container { background: radial-gradient(circle at top, #301010 0%, #0a0a0c 100%) !important; }
+body.theme-samurai .auth-container { background: radial-gradient(circle at top, #161622 0%, #0a0a0c 100%) !important; }
 body.theme-cyberpunk .auth-container { background: radial-gradient(circle at top, #201026 0%, #0b0b14 100%) !important; }
 body.theme-aurora .auth-container { background: radial-gradient(circle at top, #141b35 0%, #0b0f19 100%) !important; }
 body.theme-zen .auth-container { background: radial-gradient(circle at top, #0f241a 0%, #0c0f0d 100%) !important; }
 
 /* Landing page theme integration */
-body.theme-samurai app-landing { background: radial-gradient(circle at 50% 0%, #301010 0%, #0a0a0c 80%) !important; }
+body.theme-samurai app-landing { background: radial-gradient(circle at 50% 0%, #161622 0%, #0a0a0c 80%) !important; }
 body.theme-cyberpunk app-landing { background: radial-gradient(circle at 50% 0%, #201026 0%, #0b0b14 80%) !important; }
 body.theme-aurora app-landing { background: radial-gradient(circle at 50% 0%, #141b35 0%, #0b0f19 80%) !important; }
 body.theme-zen app-landing { background: radial-gradient(circle at 50% 0%, #0f241a 0%, #0c0f0d 80%) !important; }
