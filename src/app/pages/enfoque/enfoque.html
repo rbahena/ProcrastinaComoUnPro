@@ -1,51 +1,425 @@
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <a routerLink="/home" class="logo">
-    <span class="logo-icon"><i class="fa-solid" [class]="labels().logoIcon" style="color: var(--accent);"></i></span>
-    <span class="logo-text">{{ labels().logoText }}</span>
-  </a>
-  <div class="nav">
-    <a routerLink="/home" routerLinkActive="active" class="nav-item">
-      <span class="nav-dot"></span>
-      {{ labels().navTasks }}
+<!-- ESTADO 1: SETUP (PANTALLA DE CONFIGURACIÓN CON SIDEBAR) -->
+<ng-container *ngIf="arenaState() === 'setup'">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <a routerLink="/home" class="logo">
+      <span class="logo-icon"><i class="fa-solid" [class]="labels().logoIcon" style="color: var(--accent);"></i></span>
+      <span class="logo-text">{{ labels().logoText }}</span>
     </a>
-    <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
-      <span class="nav-dot"></span>
-      {{ labels().navZen }}
-    </a>
-    <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
-      <span class="nav-dot"></span>
-      {{ labels().navTimer }}
-    </a>
-    <a routerLink="/bloqueador" routerLinkActive="active" class="nav-item">
-      <span class="nav-dot"></span>
-      {{ labels().navShield }}
-    </a>
-
-    <!-- LOGOUT -->
-    <a routerLink="/login" class="nav-item" style="margin-top: auto; opacity: 0.65;">
-      Cerrar Sesión
-    </a>
-  </div>
-  <div class="sidebar-footer">
-    <div class="avatar" style="background: var(--accent); color: #fff;">{{ userName().substring(0, 2).toUpperCase() }}</div>
-    <div style="overflow: hidden; display: flex; flex-direction: column;">
-      <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
-      <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">Guerrero</div>
+    <div class="nav">
+      <a routerLink="/home" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navTasks }}
+      </a>
+      <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navZen }}
+      </a>
+      <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navTimer }}
+      </a>
+      <a routerLink="/bloqueador" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navShield }}
+      </a>
+      
+      <!-- LOGOUT -->
+      <a routerLink="/login" class="nav-item" style="margin-top: auto; opacity: 0.65;">
+        Cerrar Sesión
+      </a>
     </div>
-  </div>
-</div>
-
-<!-- MAIN WORKSPACE -->
-<div class="main">
-  <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px;">
-    <div>
-      <h1 class="page-title">{{ labels().title }}</h1>
-      <p class="page-sub">{{ labels().desc }}</p>
+    <div class="sidebar-footer">
+      <div class="avatar" style="background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid" [class]="getAvatarIcon()"></i>
+      </div>
+      <div style="overflow: hidden; display: flex; flex-direction: column;">
+        <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
+        <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">
+          {{ getAvatarName() }}
+        </div>
+      </div>
     </div>
   </div>
 
-  <div style="margin-top: 40px; display: flex; align-items: center; justify-content: center; height: 300px; border: 1.5px dashed var(--border); border-radius: var(--r); color: var(--muted); font-size: 13px; font-style: italic;">
-    Área en blanco lista para diseñar.
+  <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
+  <div class="main" style="display: flex; flex-direction: column;">
+    <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+      <div>
+        <h1 class="page-title">{{ labels().title }}</h1>
+        <p class="page-sub">{{ labels().desc }}</p>
+      </div>
+    </div>
+
+    <!-- AREA CENTRAL (DISEÑO ULTRA SIMPLIFICADO) -->
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 480px; padding: 10px;">
+      
+      <div style="width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- PASO 1: OBJETIVO (La Batalla de Hoy) -->
+        <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.04) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">1. ¿En qué te vas a enfocar?</span>
+            <button (click)="activeObjective.set('Sesión de Foco Libre 🧘'); startFocusFlow()"
+                    style="background: transparent; border: none; color: var(--accent); font-size: 10.5px; font-weight: 800; cursor: pointer; text-decoration: none; padding: 0; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.2s;"
+                    onmouseover="this.style.opacity='0.8'"
+                    onmouseout="this.style.opacity='1'">
+              ⚡ Foco Libre (Sin tarea)
+            </button>
+          </div>
+          <input type="text" [(ngModel)]="activeObjective" 
+                 placeholder="Escribe tu único objetivo de hoy..."
+                 style="width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 12px 14px; border-radius: 8px; font-size: 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; outline: none; transition: border-color 0.2s;"
+                 onfocus="this.style.borderColor='var(--accent)'"
+                 onblur="this.style.borderColor='var(--border)'">
+        </div>
+
+        <!-- PASO 2: TIEMPOS CIENTÍFICOS FIJOS (PARETO FILTER) -->
+        <div style="background: rgba(18, 18, 24, 0.45); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">2. Selecciona la duración</span>
+            <span style="font-size: 11.5px; color: var(--accent); font-weight: 700;">{{ focusDuration() }} minutos</span>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+            <button *ngFor="let mins of [15, 25, 50, 90]" (click)="focusDuration.set(mins); applyTimeSettings()"
+                    style="border: 1px solid var(--border); padding: 12px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; font-weight: 800; transition: all 0.2s; font-family: 'Space Grotesk', sans-serif;"
+                    [style.background]="focusDuration() === mins ? 'var(--accent)' : 'transparent'"
+                    [style.borderColor]="focusDuration() === mins ? 'var(--accent)' : 'var(--border)'"
+                    [style.color]="focusDuration() === mins ? '#000' : 'var(--text)'">
+              {{ mins }}m
+            </button>
+          </div>
+        </div>
+
+        <!-- BOTÓN DE ACCIÓN PRINCIPAL (INICIAR) -->
+        <button (click)="startFocusFlow()" 
+                style="width: 100%; border: none; padding: 16px; border-radius: 8px; background: var(--accent); color: #000; font-size: 14px; font-weight: 900; letter-spacing: 0.5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.25s; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);"
+                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 24px rgba(99, 102, 241, 0.35)';"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(99, 102, 241, 0.25)';">
+          <i class="fa-solid fa-yin-yang"></i> Iniciar Enfoque
+        </button>
+
+      </div>
+    </div>
   </div>
-</div>
+</ng-container>
+
+
+<!-- ESTADO 2: COUNTDOWN RITUAL 3-2-1 (PANTALLA COMPLETA OSCURA TOTAL) -->
+<ng-container *ngIf="arenaState() === 'countdown'">
+  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif;">
+    <span style="font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 20px;">Preparando tu mente</span>
+    
+    <!-- Número gigante de cuenta regresiva -->
+    <div class="countdown-pulse" style="font-size: 140px; font-weight: 900; line-height: 1; text-shadow: 0 0 40px rgba(255,255,255,0.15);">
+      {{ countdownValue() }}
+    </div>
+
+    <!-- Mensaje motivador breve -->
+    <span style="font-size: 13px; color: var(--muted); margin-top: 30px; font-weight: 500;">Respira hondo. Vence la inercia mental.</span>
+  </div>
+</ng-container>
+
+
+<!-- ESTADO 3: ACTIVE FOCUS (PANTALLA COMPLETA OSCURA ABSOLUTA #0a0a0c SIN SIDEBAR) -->
+<ng-container *ngIf="arenaState() === 'active'">
+  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a0a0c; z-index: 1000; display: flex; flex-direction: column; overflow-y: auto; padding: 40px; justify-content: space-between; align-items: center; font-family: 'Space Grotesk', sans-serif;">
+    
+    <!-- Luz de respiración sutil en el fondo -->
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px; height: 340px; background: var(--accent); opacity: 0.03; filter: blur(90px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
+
+    <!-- AREA SUPERIOR: OBJETIVO CENTRADO Y GRANDE -->
+    <div style="text-align: center; z-index: 2; margin-top: 10px;">
+      <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2.5px;">Tu batalla de hoy</span>
+      <h1 style="font-size: 26px; font-weight: 900; color: var(--text); margin-top: 6px; letter-spacing: -0.5px; max-width: 600px; line-height: 1.3;">
+        "{{ activeObjective() }}"
+      </h1>
+    </div>
+
+    <!-- AREA CENTRAL: RELOJ GRANDE FLOTANTE -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; z-index: 2; margin: 20px 0;">
+      
+      <!-- Círculo SVG de Progreso -->
+      <div style="position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center;">
+        <svg viewBox="0 0 300 300" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg);">
+          <circle cx="150" cy="150" r="135" style="fill: none; stroke: rgba(255,255,255,0.02); stroke-width: 5;"></circle>
+          <!-- Circunferencia = 848 -->
+          <circle cx="150" cy="150" r="135" 
+                  style="fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear;"
+                  stroke-dasharray="848"
+                  [attr.stroke-dashoffset]="strokeDashoffset()"></circle>
+        </svg>
+
+        <!-- Reloj interno digital -->
+        <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <!-- Si no hay pausa de emergencia -->
+          <ng-container *ngIf="!emergencyPauseActive()">
+            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;">
+              {{ isBreak() ? 'Descanso' : 'Enfoque' }}
+            </span>
+            <span style="font-size: 52px; font-weight: 900; color: var(--text); line-height: 1.1; margin: 4px 0 2px 0; letter-spacing: -2px;">
+              {{ timeString() }}
+            </span>
+            <span style="font-size: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; animation: blink 1.5s infinite;">
+              Concentrado
+            </span>
+          </ng-container>
+
+          <!-- Si la pausa de emergencia está corriendo -->
+          <ng-container *ngIf="emergencyPauseActive()">
+            <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--red); letter-spacing: 1px;">
+              Pausa de Emergencia
+            </span>
+            <span style="font-size: 44px; font-weight: 900; color: var(--red); line-height: 1.1; margin: 6px 0 4px 0; letter-spacing: -1px;">
+              {{ emergencyTimeString() }}
+            </span>
+            <span style="font-size: 8.5px; color: var(--muted); max-width: 140px; line-height: 1.3;">
+              Presiona Reanudar para evitar penalización
+            </span>
+          </ng-container>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- AREA INFERIOR: CO-WORKER / CONFIGURACIONES (MÉTODOS TRASLADADOS ADENTRO DE LA SESIÓN) -->
+    <div style="width: 100%; max-width: 500px; z-index: 2; display: flex; flex-direction: column; gap: 16px;">
+      
+      <!-- Si es "Solo" -->
+      <div style="text-align: center; font-size: 12px; color: var(--muted); font-style: italic; letter-spacing: 0.5px;" *ngIf="coworkingMode() === 'solo'">
+        Trabajando en silencio absoluto
+      </div>
+
+      <!-- Si es "Acompañado" -->
+      <div *ngIf="coworkingMode() === 'partner'" 
+           style="background: rgba(18, 18, 24, 0.6); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 14px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; position: relative;">
+        
+        <!-- Línea divisoria central en la tarjeta -->
+        <div style="position: absolute; top: 15%; bottom: 15%; left: 50%; width: 1px; background: rgba(255,255,255,0.06);"></div>
+
+        <!-- Tú (Lado izquierdo) -->
+        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;">
+          <div style="font-size: 11px; color: var(--muted); font-weight: 700;">Tú ({{ userName() }})</div>
+          <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #000; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+            <i class="fa-solid" [class]="getAvatarIcon()"></i>
+          </div>
+          <div style="font-size: 10.5px; color: var(--accent); font-weight: 700; display: flex; align-items: center; gap: 4px;">
+            <span class="pulse-green-dot" style="width: 4px; height: 4px; background: var(--accent); box-shadow: 0 0 4px var(--accent);"></span>
+            Enfocado
+          </div>
+        </div>
+
+        <!-- Sofia (Lado derecho) -->
+        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;">
+          <div style="font-size: 11px; color: var(--muted); font-weight: 700;">{{ partnerName() }} (Apoyo)</div>
+          
+          <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.3s;"
+               [style.background]="partnerStatus() === 'focused' ? '#3a86f0' : 'rgba(255,255,255,0.02)'"
+               [style.color]="partnerStatus() === 'focused' ? '#fff' : 'var(--muted)'"
+               [style.border]="partnerStatus() === 'focused' ? 'none' : '1px solid rgba(255,255,255,0.05)'">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          
+          <!-- Estado de Sofía -->
+          <div style="font-size: 10.5px; font-weight: 700; display: flex; align-items: center; gap: 4px; transition: color 0.3s;"
+               [style.color]="partnerStatus() === 'focused' ? '#3a86f0' : 'var(--red)'">
+            <span *ngIf="partnerStatus() === 'focused'" class="pulse-green-dot" style="width: 4px; height: 4px; background: #3a86f0; box-shadow: 0 0 4px #3a86f0;"></span>
+            {{ partnerStatus() === 'focused' ? 'Enfocado' : 'Sesión abandonada' }}
+          </div>
+        </div>
+
+        <!-- Mensaje de motivación flotante si Sofia sigue enfocada -->
+        <div *ngIf="partnerStatus() === 'focused'" style="grid-column: span 2; text-align: center; font-size: 10px; color: var(--muted); margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 8px;">
+          "{{ partnerName() }} está contando contigo para terminar este bloque."
+        </div>
+
+        <!-- Alerta animada si Sofia abandona la sesión -->
+        <div *ngIf="partnerStatus() === 'left'" style="grid-column: span 2; text-align: center; font-size: 10px; color: var(--red); margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 8px; font-weight: 800; animation: scalePulse 2s infinite alternate;">
+          ⚠️ Sofía abandonó la sesión. ¡No te rindas! Termina este bloque por tu honor.
+        </div>
+
+      </div>
+
+      <!-- BOTÓN DE AJUSTES EN SESIÓN ACTIVA (GEAR ICON) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <button (click)="showSettingsPanel.set(!showSettingsPanel())" 
+                style="background: transparent; border: none; color: rgba(255,255,255,0.3); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s;"
+                onmouseover="this.style.color='var(--text)'"
+                onmouseout="this.style.color='rgba(255,255,255,0.3)'">
+          <i class="fa-solid fa-gear"></i>
+          <span>Ajustes de Sesión</span>
+          <i class="fa-solid" [class]="showSettingsPanel() ? 'fa-chevron-up' : 'fa-chevron-down'" style="font-size: 8px;"></i>
+        </button>
+
+        <!-- Panel Desplegable de Ajustes dentro del Pomodoro -->
+        <div *ngIf="showSettingsPanel()" 
+             style="width: 100%; background: rgba(18, 18, 24, 0.85); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; text-align: left; animation: slideDown 0.25s ease;">
+          
+          <!-- Selector de Modo Coworking en Vivo -->
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text);">
+            <span style="display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-user-group" style="color: var(--accent); font-size: 11px;"></i> Modo Co-working
+            </span>
+            <div style="display: flex; gap: 4px; background: var(--bg3); padding: 2px; border-radius: 8px; border: 1px solid var(--border);">
+              <button (click)="coworkingMode.set('solo')" 
+                      style="border: none; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
+                      [style.background]="coworkingMode() === 'solo' ? 'var(--bg2)' : 'transparent'"
+                      [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'">Solo</button>
+              <button (click)="coworkingMode.set('partner')" 
+                      style="border: none; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
+                      [style.background]="coworkingMode() === 'partner' ? 'var(--bg2)' : 'transparent'"
+                      [style.color]="coworkingMode() === 'partner' ? 'var(--text)' : 'var(--muted)'">Acompañado</button>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: rgba(255,255,255,0.05);"></div>
+
+          <!-- Activar/Desactivar Alertas Sonoras -->
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text);">
+            <span style="display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-volume-high" style="color: var(--accent); font-size: 11px;"></i> Alerta de sonido
+            </span>
+            <input type="checkbox" [ngModel]="soundEnabled()" (ngModelChange)="soundEnabled.set($event)" style="width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer;">
+          </div>
+
+          <!-- Seleccionar Timbre -->
+          <div *ngIf="soundEnabled()" style="display: flex; flex-direction: column; gap: 6px; font-size: 11px;">
+            <span style="color: var(--muted); font-weight: 600;">Efecto de Alerta</span>
+            <div style="display: flex; gap: 4px; width: 100%;">
+              <button *ngFor="let s of soundOptions" (click)="setSoundType(s)"
+                      style="flex: 1; border: 1px solid var(--border); padding: 6px 2px; border-radius: 4px; background: transparent; cursor: pointer; font-size: 10px; font-weight: 700; font-family: inherit; color: var(--muted); transition: all 0.2s;"
+                      [style.background]="soundType() === s ? 'rgba(255,255,255,0.03)' : 'transparent'"
+                      [style.borderColor]="soundType() === s ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="soundType() === s ? 'var(--accent)' : 'var(--muted)'">
+                {{ s | titlecase }}
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTONES DE ACCIÓN MÁS LIMPIOS -->
+    <div style="display: flex; gap: 14px; width: 100%; max-width: 320px; justify-content: center; z-index: 2; margin-bottom: 10px;">
+      <!-- Play/Pause (Botón de Pánico) -->
+      <button (click)="toggleEmergencyPause()" 
+              style="flex: 1; border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.25s;"
+              [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
+              [style.color]="emergencyPauseActive() ? '#000' : 'var(--text)'"
+              onmouseover="this.style.background='rgba(255,255,255,0.06)'"
+              onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+        <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Pausar' }}</span>
+      </button>
+
+      <!-- Abandonar (Rojo Lineal) -->
+      <button (click)="abandonSession()" 
+              style="flex: 1; background: transparent; border: 1px solid var(--red); color: var(--red); padding: 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;"
+              onmouseover="this.style.background='rgba(239, 68, 68, 0.05)'"
+              onmouseout="this.style.background='transparent'">
+        Abandonar
+      </button>
+    </div>
+
+  </div>
+</ng-container>
+
+
+<!-- ESTADO 4: SUMMARY / CIERRE DOPAMÍNICO (CELEBRACIÓN Y CUESTIONARIO POST-SESIÓN) -->
+<ng-container *ngIf="arenaState() === 'summary'">
+  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #070709; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; font-family: 'Space Grotesk', sans-serif;">
+    
+    <!-- Partículas minimalistas en el fondo (efectos de color) -->
+    <div style="position: absolute; top: 25%; left: 30%; width: 140px; height: 140px; background: var(--green); opacity: 0.04; filter: blur(50px); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: 25%; right: 30%; width: 140px; height: 140px; background: var(--accent); opacity: 0.04; filter: blur(50px); border-radius: 50%;"></div>
+
+    <!-- BLOQUE DEL CUESTIONARIO -->
+    <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.8) 0%, rgba(30, 30, 39, 0.45) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 40px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 28px; box-shadow: 0 32px 80px rgba(0,0,0,0.5); z-index: 2; text-align: center;">
+      
+      <!-- Icono e Introducción -->
+      <div>
+        <div style="font-size: 28px; margin-bottom: 10px;">
+          <span *ngIf="sessionEndingStatus() === 'completed'">🎉</span>
+          <span *ngIf="sessionEndingStatus() === 'interrupted'">⚠️</span>
+          <span *ngIf="sessionEndingStatus() === 'abandoned'">❌</span>
+        </div>
+        <span style="font-size: 10px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Cuestionario de Enfoque</span>
+        <h2 style="font-size: 20px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.4px;">¿Cómo terminó esta sesión?</h2>
+      </div>
+
+      <!-- Pregunta 1: Estado de Finalización (Botones de Recompensas) -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Botón Completada Verde -->
+        <button (click)="sessionEndingStatus.set('completed')" 
+                style="width: 100%; border: 1px solid rgba(16, 185, 129, 0.2); padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
+                [style.background]="sessionEndingStatus() === 'completed' ? 'rgba(16, 185, 129, 0.08)' : 'transparent'"
+                [style.borderColor]="sessionEndingStatus() === 'completed' ? 'var(--green)' : 'rgba(255,255,255,0.05)'">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--green);"></span>
+            <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Completada</span>
+          </div>
+          <span style="font-size: 11px; font-weight: 700; color: var(--green);">+30 XP</span>
+        </button>
+
+        <!-- Botón Interrumpida Amarillo -->
+        <button (click)="sessionEndingStatus.set('interrupted')" 
+                style="width: 100%; border: 1px solid rgba(245, 158, 11, 0.2); padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
+                [style.background]="sessionEndingStatus() === 'interrupted' ? 'rgba(245, 158, 11, 0.08)' : 'transparent'"
+                [style.borderColor]="sessionEndingStatus() === 'interrupted' ? 'var(--yellow)' : 'rgba(255,255,255,0.05)'">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--yellow);"></span>
+            <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Interrumpida</span>
+          </div>
+          <span style="font-size: 11px; font-weight: 700; color: var(--yellow);">+10 XP</span>
+        </button>
+
+        <!-- Botón Abandonada Rojo -->
+        <button (click)="sessionEndingStatus.set('abandoned')" 
+                style="width: 100%; border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
+                [style.background]="sessionEndingStatus() === 'abandoned' ? 'rgba(239, 68, 68, 0.08)' : 'transparent'"
+                [style.borderColor]="sessionEndingStatus() === 'abandoned' ? 'var(--red)' : 'rgba(255,255,255,0.05)'">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--red);"></span>
+            <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Abandonada</span>
+          </div>
+          <span style="font-size: 11px; font-weight: 700; color: var(--red);">0 XP</span>
+        </button>
+      </div>
+
+      <!-- Pregunta 2: Pareto objetivo completado? -->
+      <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+        <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">¿Terminaste tu objetivo principal?</span>
+        
+        <div style="display: flex; gap: 10px; width: 100%;">
+          <button (click)="objectiveCompleted.set(true)" 
+                  style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.2s;"
+                  [style.background]="objectiveCompleted() === true ? 'rgba(99, 102, 241, 0.08)' : 'transparent'"
+                  [style.borderColor]="objectiveCompleted() === true ? 'var(--accent)' : 'var(--border)'"
+                  [style.color]="objectiveCompleted() === true ? 'var(--accent)' : 'var(--text)'">
+            Sí
+          </button>
+          
+          <button (click)="objectiveCompleted.set(false)" 
+                  style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.2s;"
+                  [style.background]="objectiveCompleted() === false ? 'rgba(255, 255, 255, 0.03)' : 'transparent'"
+                  [style.borderColor]="objectiveCompleted() === false ? 'rgba(255,255,255,0.1)' : 'var(--border)'"
+                  [style.color]="objectiveCompleted() === false ? 'var(--muted)' : 'var(--text)'">
+            No
+          </button>
+        </div>
+      </div>
+
+      <!-- Botón de Envío y Retorno -->
+      <button (click)="finishSession()" 
+              [disabled]="objectiveCompleted() === null"
+              style="width: 100%; border: none; padding: 14px; border-radius: 8px; background: var(--accent); color: #000; font-size: 13.5px; font-weight: 900; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;"
+              [style.opacity]="objectiveCompleted() === null ? 0.5 : 1"
+              [style.cursor]="objectiveCompleted() === null ? 'not-allowed' : 'pointer'">
+        Guardar y Salir al Dojo
+      </button>
+
+    </div>
+  </div>
+</ng-container>

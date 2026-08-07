@@ -42,7 +42,7 @@
 
 <!-- MAIN WORKSPACE -->
 <div class="main">
-  <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px;">
+  <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px;">
     <div>
       <h1 class="page-title">{{ labels().title }}</h1>
       <p class="page-sub">{{ labels().desc }}</p>
@@ -50,124 +50,124 @@
   </div>
 
   <!-- METRICAS DE LA COMUNIDAD EN TIEMPO REAL -->
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 28px;">
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 20px;">
     
     <!-- CARD 1: Personas Enfocadas -->
     <div class="metric-card-premium" style="--card-accent: var(--green);">
       <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
           <span class="pulse-green-dot"></span>
-          <span style="font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Ahora mismo</span>
+          <span style="font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Ahora mismo</span>
         </div>
-        <span style="font-size: 10px; color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 2px 6px; border-radius: 4px;">En vivo</span>
+        <span style="font-size: 9px; color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 1px 5px; border-radius: 3px;">En vivo</span>
       </div>
       
       <!-- Fila de espacio invisible para alinear perfectamente con el texto de la tarjeta 2 -->
-      <div style="font-size: 12.5px; color: var(--muted); margin-top: 8px; font-weight: 600; visibility: hidden; user-select: none;">Alineación</div>
+      <div style="font-size: 11.5px; color: var(--muted); margin-top: 4px; font-weight: 600; visibility: hidden; user-select: none;">Alineación</div>
       
-      <div style="font-size: 28px; font-weight: 900; color: var(--text); line-height: 1.2; margin-top: 4px; letter-spacing: -0.5px;">
+      <div style="font-size: 22px; font-weight: 900; color: var(--text); line-height: 1.2; margin-top: 2px; letter-spacing: -0.5px;">
         {{ liveFocusedUsersCount() }} personas
       </div>
-      <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">están trabajando.</div>
+      <div style="font-size: 11px; color: var(--muted); margin-top: 1px;">están trabajando.</div>
       
       <!-- Avatares de Animales Ninja Apilados -->
-      <div class="avatar-stack-container" style="margin-top: 14px;">
+      <div class="avatar-stack-container" style="margin-top: 8px;">
         <div class="avatar-stack-list">
-          <div class="avatar-stack-item" style="background: #3a86f0;" title="Lobo Samurai (Enfocado)">
+          <div class="avatar-stack-item" style="background: #3a86f0; width: 22px; height: 22px; font-size: 9px;" title="Lobo Samurai (Enfocado)">
             <i class="fa-solid fa-shield-halved"></i>
           </div>
-          <div class="avatar-stack-item" style="background: #ff007f;" title="Zorro Ninja (Enfocado)">
+          <div class="avatar-stack-item" style="background: #ff007f; width: 22px; height: 22px; font-size: 9px; margin-left: -6px;" title="Zorro Ninja (Enfocado)">
             <i class="fa-solid fa-mask"></i>
           </div>
-          <div class="avatar-stack-item" style="background: #f59e0b;" title="León Shogun (Enfocado)">
+          <div class="avatar-stack-item" style="background: #f59e0b; width: 22px; height: 22px; font-size: 9px; margin-left: -6px;" title="León Shogun (Enfocado)">
             <i class="fa-solid fa-crown"></i>
           </div>
-          <div class="avatar-stack-item" style="background: #10b981;" title="Búho Estratega (Enfocado)">
+          <div class="avatar-stack-item" style="background: #10b981; width: 22px; height: 22px; font-size: 9px; margin-left: -6px;" title="Búho Estratega (Enfocado)">
             <i class="fa-solid fa-glasses"></i>
           </div>
-          <div class="avatar-stack-item" style="background: #a855f7;" title="Dragón Guardián (Enfocado)">
+          <div class="avatar-stack-item" style="background: #a855f7; width: 22px; height: 22px; font-size: 9px; margin-left: -6px;" title="Dragón Guardián (Enfocado)">
             <i class="fa-solid fa-dragon"></i>
           </div>
         </div>
-        <span style="font-size: 10.5px; color: var(--muted); font-weight: 500; margin-left: 2px;">en directo</span>
+        <span style="font-size: 9.5px; color: var(--muted); font-weight: 500; margin-left: 2px;">en directo</span>
       </div>
     </div>
 
     <!-- CARD 2: Objetivos Cumplidos -->
     <div class="metric-card-premium" style="--card-accent: var(--accent);">
       <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-circle-check" style="font-size: 11px; color: var(--accent);"></i>
-          <span style="font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Hoy</span>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-circle-check" style="font-size: 10px; color: var(--accent);"></i>
+          <span style="font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Hoy</span>
         </div>
-        <span style="font-size: 10px; color: var(--accent); font-weight: 700; background: rgba(99, 102, 241, 0.08); padding: 2px 6px; border-radius: 4px;">Red</span>
+        <span style="font-size: 9px; color: var(--accent); font-weight: 700; background: rgba(99, 102, 241, 0.08); padding: 1px 5px; border-radius: 3px;">Red</span>
       </div>
       
-      <div style="font-size: 12.5px; color: var(--muted); margin-top: 8px; font-weight: 600;">La comunidad ha completado</div>
+      <div style="font-size: 11.5px; color: var(--muted); margin-top: 4px; font-weight: 600;">La comunidad ha completado</div>
       
-      <div style="font-size: 28px; font-weight: 900; color: var(--text); line-height: 1.2; margin-top: 4px; letter-spacing: -0.5px;">
+      <div style="font-size: 22px; font-weight: 900; color: var(--text); line-height: 1.2; margin-top: 2px; letter-spacing: -0.5px;">
         {{ liveCompletedObjectivesToday() }}
       </div>
-      <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">sesiones de enfoque.</div>
+      <div style="font-size: 11px; color: var(--muted); margin-top: 1px;">sesiones de enfoque.</div>
       
       <!-- Iconos de Recompensa Apilados -->
-      <div class="avatar-stack-container" style="margin-top: 14px;">
+      <div class="avatar-stack-container" style="margin-top: 8px;">
         <div class="avatar-stack-list">
-          <div class="avatar-stack-item" style="background: #ffd700; color: #000;" title="Copas de Oro ganadas">
+          <div class="avatar-stack-item" style="background: #ffd700; color: #000; width: 22px; height: 22px; font-size: 9px;" title="Copas de Oro ganadas">
             <i class="fa-solid fa-trophy"></i>
           </div>
-          <div class="avatar-stack-item" style="background: #00b0ff;" title="Diamantes de concentración">
+          <div class="avatar-stack-item" style="background: #00b0ff; width: 22px; height: 22px; font-size: 9px; margin-left: -6px;" title="Diamantes de concentración">
             <i class="fa-solid fa-gem"></i>
           </div>
-          <div class="avatar-stack-item" style="background: #ff5722;" title="Medallas al mérito">
+          <div class="avatar-stack-item" style="background: #ff5722; width: 22px; height: 22px; font-size: 9px; margin-left: -6px;" title="Medallas al mérito">
             <i class="fa-solid fa-medal"></i>
           </div>
-          <div class="avatar-stack-item" style="background: #ffc107; color: #000;" title="Monedas de honor acumuladas">
+          <div class="avatar-stack-item" style="background: #ffc107; color: #000; width: 22px; height: 22px; font-size: 9px; margin-left: -6px;" title="Monedas de honor acumuladas">
             <i class="fa-solid fa-coins"></i>
           </div>
-          <div class="avatar-stack-item" style="background: #9c27b0;" title="Estrellas de constancia">
+          <div class="avatar-stack-item" style="background: #9c27b0; width: 22px; height: 22px; font-size: 9px; margin-left: -6px;" title="Estrellas de constancia">
             <i class="fa-solid fa-star"></i>
           </div>
         </div>
-        <span style="font-size: 10.5px; color: var(--muted); font-weight: 500; margin-left: 2px;">Recompensas</span>
+        <span style="font-size: 9.5px; color: var(--muted); font-weight: 500; margin-left: 2px;">Recompensas</span>
       </div>
     </div>
 
     <!-- CARD 3: Ranking Global (Lista Vertical) -->
-    <div class="metric-card-premium" style="--card-accent: var(--yellow); padding: 20px;">
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-trophy" style="font-size: 11px; color: var(--yellow);"></i>
-          <span style="font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Tu Desempeño</span>
+    <div class="metric-card-premium" style="--card-accent: var(--yellow); padding: 16px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-trophy" style="font-size: 10px; color: var(--yellow);"></i>
+          <span style="font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Tu Desempeño</span>
         </div>
-        <span style="font-size: 10.5px; color: var(--yellow); font-weight: 700;">Top 15%</span>
+        <span style="font-size: 9.5px; color: var(--yellow); font-weight: 700;">Top 15%</span>
       </div>
       
-      <!-- Lista Vertical de Ranking -->
-      <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 12px;">
+      <!-- Lista Vertical de Ranking Compacto -->
+      <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 8px;">
         
         <!-- Posición 40 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); opacity: 0.55;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 7.5px; font-weight: 700; background: var(--bg3);">40</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--muted); opacity: 0.55;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; background: var(--bg3);">40</div>
             <span>Usuario rival</span>
           </div>
           <span>2,980 XP</span>
         </div>
         
         <!-- Posición 41 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); opacity: 0.8;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 7.5px; font-weight: 700; background: var(--bg3);">41</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--muted); opacity: 0.8;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; background: var(--bg3);">41</div>
             <span>Usuario rival</span>
           </div>
           <span>2,920 XP</span>
         </div>
         
         <!-- Posición 42 (TÚ - MÁS GRANDE Y RESALTADO) -->
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; font-weight: 700; color: var(--text); background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.15); padding: 5px 8px; border-radius: 6px; margin: 1px 0;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--yellow); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; background: var(--yellow); color: #000; box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);" [title]="'Mi Guardián: ' + getAvatarName()">
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; font-weight: 700; color: var(--text); background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.15); padding: 3px 6px; border-radius: 4px; margin: 1px 0;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--yellow); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; background: var(--yellow); color: #000; box-shadow: 0 0 8px rgba(212, 175, 55, 0.25);" [title]="'Mi Guardián: ' + getAvatarName()">
               42
             </div>
             <span style="color: var(--yellow);">Tú ({{ getAvatarName() }})</span>
@@ -176,18 +176,18 @@
         </div>
         
         <!-- Posición 43 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); opacity: 0.8;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 7.5px; font-weight: 700; background: var(--bg3);">43</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--muted); opacity: 0.8;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; background: var(--bg3);">43</div>
             <span>Usuario rival</span>
           </div>
           <span>2,790 XP</span>
         </div>
         
         <!-- Posición 44 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); opacity: 0.55;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 7.5px; font-weight: 700; background: var(--bg3);">44</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--muted); opacity: 0.55;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; background: var(--bg3);">44</div>
             <span>Usuario rival</span>
           </div>
           <span>2,720 XP</span>
@@ -198,98 +198,23 @@
     
   </div>
 
-  <!-- INVITACION A LA COMUNIDAD DE CO-WORKING (CTA CARD - TOTALMENTE DISEÑADA E INTERACTIVA) -->
-  <div style="margin-top: 28px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.06) 0%, rgba(18, 18, 24, 0.85) 100%); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: var(--r); padding: 36px; display: flex; flex-direction: column; gap: 28px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);">
-    
-    <!-- Efecto Glow de fondo -->
-    <div style="position: absolute; top: -70px; right: -70px; width: 220px; height: 220px; background: var(--accent); opacity: 0.12; filter: blur(60px); border-radius: 50%;"></div>
-    
-    <!-- Encabezado de la invitación -->
-    <div style="text-align: center;">
-      <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Sinergia de Rendimiento</span>
-      <h2 style="font-size: 24px; font-weight: 900; color: var(--text); margin-top: 6px; letter-spacing: -0.5px;">Comunidad de No Procrastinadores</h2>
-    </div>
-
-    <!-- PIPELINE VISUAL DE TÉCNICAS (DISEÑO PURO) -->
-    <div style="position: relative; display: flex; justify-content: space-between; align-items: center; max-width: 760px; margin: 10px auto; width: 100%; flex-wrap: wrap; gap: 24px;">
-      
-      <!-- Línea conectora de fondo -->
-      <div style="position: absolute; top: 35px; left: 10%; right: 10%; height: 2px; border-top: 2px dashed rgba(255, 255, 255, 0.08); z-index: 1;" class="hide-mobile"></div>
-
-      <!-- Paso 1: Ley de Pareto -->
-      <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; flex: 1; min-width: 140px; z-index: 2;">
-        <div style="width: 70px; height: 70px; border-radius: 50%; border: 2.5px solid rgba(245, 158, 11, 0.15); background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(18, 18, 24, 0.9) 100%); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #f59e0b; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.06); transition: all 0.3s;"
-             onmouseover="this.style.transform='scale(1.1)'; this.style.borderColor='#f59e0b'; this.style.boxShadow='0 0 20px rgba(245,158,11,0.2)';"
-             onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(245, 158, 11, 0.15)'; this.style.boxShadow='0 8px 24px rgba(245, 158, 11, 0.06)';">
-          🎯
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 2px;">
-          <span style="font-size: 13px; font-weight: 800; color: var(--text);">1. Ley de Pareto</span>
-          <span style="font-size: 10.5px; color: var(--muted); font-weight: 600;">80% de impacto con el 20%</span>
-        </div>
+  <!-- BANNER DE INVITACIÓN A LA ARENA (SLIM & GLASSMORPHIC) -->
+  <div style="margin-top: 24px; background: linear-gradient(90deg, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(99, 102, 241, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px;">
+        <i class="fa-solid fa-yin-yang"></i>
       </div>
-
-      <!-- Conector móvil (flecha) -->
-      <div style="color: var(--muted); font-size: 14px; opacity: 0.3; z-index: 2;" class="show-mobile-only">
-        <i class="fa-solid fa-arrow-down"></i>
-      </div>
-
-      <!-- Paso 2: Cómete la Rana -->
-      <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; flex: 1; min-width: 140px; z-index: 2;">
-        <div style="width: 70px; height: 70px; border-radius: 50%; border: 2.5px solid rgba(16, 185, 129, 0.15); background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(18, 18, 24, 0.9) 100%); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #10b981; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.06); transition: all 0.3s;"
-             onmouseover="this.style.transform='scale(1.1)'; this.style.borderColor='#10b981'; this.style.boxShadow='0 0 20px rgba(16,185,129,0.2)';"
-             onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(16, 185, 129, 0.15)'; this.style.boxShadow='0 8px 24px rgba(16, 185, 129, 0.06)';">
-          🐸
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 2px;">
-          <span style="font-size: 13px; font-weight: 800; color: var(--text);">2. Cómete la Rana</span>
-          <span style="font-size: 10.5px; color: var(--muted); font-weight: 600;">Ataca la tarea difícil primero</span>
-        </div>
-      </div>
-
-      <!-- Conector móvil (flecha) -->
-      <div style="color: var(--muted); font-size: 14px; opacity: 0.3; z-index: 2;" class="show-mobile-only">
-        <i class="fa-solid fa-arrow-down"></i>
-      </div>
-
-      <!-- Paso 3: Pomodoro -->
-      <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; flex: 1; min-width: 140px; z-index: 2;">
-        <div style="width: 70px; height: 70px; border-radius: 50%; border: 2.5px solid rgba(56, 189, 248, 0.15); background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(18, 18, 24, 0.9) 100%); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #38bdf8; box-shadow: 0 8px 24px rgba(56, 189, 248, 0.06); transition: all 0.3s;"
-             onmouseover="this.style.transform='scale(1.1)'; this.style.borderColor='#38bdf8'; this.style.boxShadow='0 0 20px rgba(56,189,248,0.2)';"
-             onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(56, 189, 248, 0.15)'; this.style.boxShadow='0 8px 24px rgba(56, 189, 248, 0.06)';">
-          ⏱️
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 2px;">
-          <span style="font-size: 13px; font-weight: 800; color: var(--text);">3. Bloque Pomodoro</span>
-          <span style="font-size: 10.5px; color: var(--muted); font-weight: 600;">Sostén el foco en bloques rígidos</span>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- SECCIÓN DE ACCIÓN (BOTÓN Y ESTATUS MÁS LIMPIO) -->
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px; margin-top: 10px;">
-      
-      <!-- Indicador de coworking en vivo -->
-      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text); opacity: 0.95; background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.15); padding: 6px 14px; border-radius: 20px;">
-          <span class="pulse-green-dot" style="width: 6px; height: 6px; box-shadow: 0 0 6px var(--green); display: inline-block;"></span>
-          <span style="font-weight: 700; color: var(--green);">Co-working Activo</span>
-        </div>
-        <div style="font-size: 12.5px; color: var(--muted); font-weight: 500;">
-          <strong>427 profesionales</strong> conectados ahora en silencio
-        </div>
-      </div>
-
-      <!-- Botón de entrada directo -->
       <div>
-        <a routerLink="/enfoque" class="btn btn-accent" style="padding: 14px 28px; border-radius: 8px; font-weight: 900; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; transition: all 0.25s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);"
-           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(99, 102, 241, 0.35)';"
-           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.25)';">
-          <i class="fa-solid fa-yin-yang"></i> Unirse al Flujo de Trabajo
-        </a>
+        <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; letter-spacing: -0.2px;">¿Listo para trabajar?</h4>
+        <p style="font-size: 11.5px; color: var(--muted); margin: 2px 0 0 0;">Entra a la Arena de Enfoque y activa tu sesión de concentración con la comunidad.</p>
       </div>
     </div>
-
+    <a routerLink="/enfoque" style="font-size: 12px; font-weight: 800; color: #000; background: var(--accent); padding: 8px 16px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);"
+       onmouseover="this.style.transform='translateY(-1px)';"
+       onmouseout="this.style.transform='translateY(0)';"
+       title="Ir a la Arena">
+      <span>Entrar a la Arena</span>
+      <i class="fa-solid fa-arrow-right" style="font-size: 9px;"></i>
+    </a>
   </div>
 </div>

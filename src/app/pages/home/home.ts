@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -9,21 +9,28 @@ import { CommonModule } from '@angular/common';
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home implements OnInit {
+export class Home implements OnInit, OnDestroy {
   currentTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>('samurai');
   userName = signal('Ramiro');
 
   // Mi Avatar / Guardián activo
   selectedAvatar = signal<'lobo' | 'leon' | 'buho' | 'zorro' | 'dragon'>('zorro');
 
-  // Métricas de la Comunidad
-  private readonly targetFocusedUsers = 1284;
-  private readonly targetCompletedObjectives = 12487; // Actualizado a 12,487
+  // Métricas de la Comunidad (Reducido a máximo 100 usuarios activos para una comunidad íntima)
+  private readonly targetFocusedUsers = 74; 
+  private readonly targetCompletedObjectives = 342; // Proporcional a una comunidad de ~74 personas
 
   liveFocusedUsersCount = signal(0); // Inicia en 0 para animación
   liveCompletedObjectivesToday = signal(0); // Inicia en 0 para animación
   rankingPosition = signal(42);
   percentageBeaten = signal(84);
+
+  // Lógica del Temporizador Pomodoro
+  timeLeft = signal(25 * 60);
+  totalSessionTime = signal(25 * 60);
+  timerRunning = signal(false);
+  isBreak = signal(false);
+  private pomodoroTimer: any = null;
 
   labels = computed(() => {
     return {
@@ -36,6 +43,21 @@ export class Home implements OnInit {
       title: 'El Dojo',
       desc: 'Tu espacio mental para declarar objetivos de alto impacto.'
     };
+  });
+
+  // Formato del tiempo en MM:SS
+  timeString = computed(() => {
+    const min = Math.floor(this.timeLeft() / 60);
+    const sec = this.timeLeft() % 60;
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  });
+
+  // Cálculo dinámico del strokeDashoffset para la circunferencia r=85 (Circumferencia = 534)
+  strokeDashoffset = computed(() => {
+    const total = this.totalSessionTime();
+    const left = this.timeLeft();
+    const pct = left / total;
+    return 534 * (1 - pct);
   });
 
   // Auxiliar para obtener el icono de mi avatar
@@ -84,5 +106,74 @@ export class Home implements OnInit {
         clearInterval(timer);
       }
     }, frameRate);
+  }
+
+  ngOnDestroy() {
+    this.stopTimerLoop();
+  }
+
+  // Controles de Pomodoro
+  toggleTimer() {
+    if (this.timerRunning()) {
+      this.stopTimerLoop();
+    } else {
+      this.startTimerLoop();
+    }
+  }
+
+  resetTimer() {
+    this.stopTimerLoop();
+    this.timeLeft.set(this.totalSessionTime());
+  }
+
+  selectMode(mode: 'focus' | 'break') {
+    this.stopTimerLoop();
+    if (mode === 'focus') {
+      this.isBreak.set(false);
+      this.totalSessionTime.set(25 * 60);
+      this.timeLeft.set(25 * 60);
+    } else {
+      this.isBreak.set(true);
+      this.totalSessionTime.set(5 * 60);
+      this.timeLeft.set(5 * 60);
+    }
+  }
+
+  private startTimerLoop() {
+    this.timerRunning.set(true);
+    this.pomodoroTimer = setInterval(() => {
+      if (this.timeLeft() > 0) {
+        this.timeLeft.update(t => t - 1);
+      } else {
+        // Al terminar
+        this.stopTimerLoop();
+        if (!this.isBreak()) {
+          // Completó foco
+          this.selectMode('break');
+          try {
+            const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+          } catch(e){}
+        } else {
+          // Completó descanso
+          this.selectMode('focus');
+        }
+      }
+    }, 1000);
+  }
+
+  private stopTimerLoop() {
+    this.timerRunning.set(false);
+    if (this.pomodoroTimer) {
+      clearInterval(this.pomodoroTimer);
+      this.pomodoroTimer = null;
+    }
   }
 }
