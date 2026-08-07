@@ -1,7 +1,7 @@
 <!-- HEADER -->
 <header class="landing-header">
   <a routerLink="/landing" class="logo" style="padding: 0; text-decoration: none; display: flex; align-items: center; gap: 8px;">
-    <span class="logo-icon"><i class="fa-solid fa-bolt"></i></span>
+    <span class="logo-icon"><i class="fa-solid fa-circle" style="font-size: 10px; color: var(--accent);"></i></span>
     <span class="logo-text">Procrastina como un Pro</span>
   </a>
   <div style="display: flex; gap: 10px; align-items: center;">
@@ -18,15 +18,15 @@
 
   <div class="auth-card">
     <div class="auth-header">
-      <h2 class="auth-title">Crear cuenta</h2>
-      <p class="auth-subtitle">Crea tu cuenta de acceso gratis e inicia hoy</p>
+      <h2 class="auth-title">Crear una cuenta</h2>
+      <p class="auth-subtitle">Crea tu cuenta de acceso gratuito para comenzar</p>
     </div>
 
     <!-- Main Form -->
     <form (submit)="onSubmit($event)" class="auth-form">
       <div class="form-group">
         <label for="name">Nombre Completo</label>
-        <input type="text" id="name" placeholder="Tu nombre" required autocomplete="name">
+        <input type="text" id="name" placeholder="Escribe tu nombre completo" required autocomplete="name">
       </div>
 
       <div class="form-group">
@@ -40,16 +40,16 @@
       </div>
 
       <button type="submit" class="btn btn-accent w-100" style="margin-top: 15px;">
-        Crear cuenta
+        Registrarse
       </button>
 
-      <p class="terms-disclaimer">
-        Al crear tu cuenta, aceptas nuestros Términos de Servicio y la Política de Privacidad.
+      <p class="terms-disclaimer" style="text-align: center; font-size: 11px; margin-top: 14px; line-height: 1.4; color: var(--muted);">
+        Al registrarte, confirmas que aceptas nuestros Términos de Servicio y la Política de Privacidad.
       </p>
     </form>
 
     <div class="auth-footer">
-      ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a>
+      ¿Ya tienes una cuenta registrada? <a routerLink="/login">Inicia sesión</a>
     </div>
   </div>
 </div>

@@ -1,0 +1,473 @@
+/* ===== FOCUS PAGE STYLES ===== */
+
+/* Stats Strip at the top */
+.stats-strip {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.stat-pill:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+}
+
+.stat-pill i {
+  font-size: 13px;
+}
+
+.stat-pill.streak i {
+  color: #ef4444;
+  animation: flamePulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes flamePulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(239,68,68,0.2)); }
+  100% { transform: scale(1.2); filter: drop-shadow(0 0 8px rgba(239,68,68,0.7)); }
+}
+
+/* Quote box with edit toggle */
+.quote-box {
+  background: linear-gradient(90deg, rgba(255,255,255,0.01) 0%, rgba(255,255,255,0.03) 100%);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--r);
+  padding: 16px 20px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s;
+}
+
+.quote-box:hover {
+  background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.04) 100%);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.quote-content {
+  flex: 1;
+}
+
+.quote-text {
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.quote-author {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.quote-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px dashed var(--muted);
+  color: var(--text);
+  font-style: italic;
+  font-size: 13.5px;
+  width: 100%;
+  outline: none;
+  padding: 4px 0;
+  font-family: inherit;
+}
+
+.quote-edit-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quote-edit-btn:hover {
+  color: var(--text);
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Custom Pomodoro Card */
+.pomo-card {
+  border-top: 2px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 36px 24px;
+  text-align: center;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.pomo-card.is-break {
+  border-top-color: var(--green);
+}
+
+/* Mode Selection Tabs */
+.timer-modes {
+  display: flex;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 4px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.timer-mode-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 25px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--muted);
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.timer-mode-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.timer-mode-btn.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.is-break-mode .timer-mode-btn.active {
+  background: var(--green);
+  color: #000;
+}
+
+/* SVG Circular Progress Ring */
+.timer-display-wrapper {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px auto;
+}
+
+.timer-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 7px;
+}
+
+.timer-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 7px;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s linear, stroke 0.3s;
+}
+
+.is-break-mode .timer-progress {
+  stroke: var(--green);
+}
+
+.timer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.timer-session-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.timer-time {
+  font-size: 38px;
+  font-weight: 900;
+  font-family: monospace;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  line-height: 1.1;
+  margin: 4px 0;
+}
+
+.timer-status {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.is-break-mode .timer-status {
+  color: var(--green);
+}
+
+/* Active Task input in Pomodoro card */
+.active-task-wrapper {
+  width: 100%;
+  max-width: 280px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.2s;
+}
+
+.active-task-wrapper:focus-within {
+  border-color: var(--accent);
+}
+
+.active-task-input {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 600;
+  width: 100%;
+  outline: none;
+}
+
+.active-task-input::placeholder {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Controls buttons grid */
+.timer-controls {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.control-btn-main {
+  flex: 2.5;
+  justify-content: center;
+  font-weight: 800;
+  border-radius: 8px;
+  padding: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.control-btn-secondary {
+  flex: 1;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text);
+}
+
+.control-btn-secondary:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+/* Ritual Countdown pulse */
+.countdown-pulse {
+  animation: scalePulse 1s infinite alternate;
+}
+
+@keyframes scalePulse {
+  0% { transform: scale(1); opacity: 0.95; }
+  100% { transform: scale(1.15); opacity: 1; color: var(--accent); }
+}
+
+/* Sound Wave Animation */
+.sound-wave-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+  margin-left: 12px;
+  width: 25px;
+}
+
+.sound-wave-bar {
+  width: 3px;
+  height: 100%;
+  background-color: var(--yellow);
+  border-radius: 2px;
+  transform-origin: bottom;
+  animation: soundBounce 1.2s ease-in-out infinite alternate;
+}
+
+.sound-wave-bar:nth-child(1) { animation-delay: 0.1s; height: 35%; }
+.sound-wave-bar:nth-child(2) { animation-delay: 0.4s; height: 75%; }
+.sound-wave-bar:nth-child(3) { animation-delay: 0.2s; height: 95%; }
+.sound-wave-bar:nth-child(4) { animation-delay: 0.6s; height: 45%; }
+.sound-wave-bar:nth-child(5) { animation-delay: 0.3s; height: 60%; }
+
+@keyframes soundBounce {
+  0% { transform: scaleY(0.2); }
+  100% { transform: scaleY(1); }
+}
+
+/* Noise player UI buttons */
+.noise-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.noise-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  background: var(--bg3);
+  color: var(--text);
+  flex: 1;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.noise-btn:hover {
+  border-color: var(--yellow);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.noise-btn.active {
+  background: var(--yellow) !important;
+  border-color: var(--yellow) !important;
+  color: #000 !important;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+}
+
+/* Custom volume input */
+.vol-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  min-width: 180px;
+  flex: 1.5;
+}
+
+.vol-slider {
+  flex: 1;
+  accent-color: var(--yellow);
+  cursor: pointer;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+}
+
+/* Distractions Note pad styled as paper */
+.distractions-card {
+  border-top: 2px solid var(--yellow);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: linear-gradient(180deg, var(--bg2) 0%, rgba(26, 26, 35, 0.2) 100%);
+}
+
+.distractions-textarea {
+  width: 100%;
+  min-height: 125px;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.distractions-textarea:focus {
+  border-color: var(--yellow);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.distractions-textarea::placeholder {
+  color: var(--muted);
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* Theme adaptation styles */
+.theme-cyberpunk .stat-pill:hover { border-color: var(--accent); }
+.theme-cyberpunk .timer-mode-btn.active { box-shadow: 0 4px 10px rgba(255, 83, 118, 0.3); }
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .noise-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .vol-control {
+    width: 100%;
+  }
+}

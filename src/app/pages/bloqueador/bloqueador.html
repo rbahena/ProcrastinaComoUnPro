@@ -1,1 +1,51 @@
-<p>bloqueador works!</p>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <a routerLink="/home" class="logo">
+    <span class="logo-icon"><i class="fa-solid" [class]="labels().logoIcon" style="color: var(--accent);"></i></span>
+    <span class="logo-text">{{ labels().logoText }}</span>
+  </a>
+  <div class="nav">
+    <a routerLink="/home" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      {{ labels().navTasks }}
+    </a>
+    <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      {{ labels().navZen }}
+    </a>
+    <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      {{ labels().navTimer }}
+    </a>
+    <a routerLink="/bloqueador" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      {{ labels().navShield }}
+    </a>
+
+    <!-- LOGOUT -->
+    <a routerLink="/login" class="nav-item" style="margin-top: auto; opacity: 0.65;">
+      Cerrar Sesión
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar" style="background: var(--accent); color: #fff;">{{ userName().substring(0, 2).toUpperCase() }}</div>
+    <div style="overflow: hidden; display: flex; flex-direction: column;">
+      <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
+      <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">Guerrero</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN WORKSPACE -->
+<div class="main">
+  <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px;">
+    <div>
+      <h1 class="page-title">{{ labels().title }}</h1>
+      <p class="page-sub">{{ labels().desc }}</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px; display: flex; align-items: center; justify-content: center; height: 300px; border: 1.5px dashed var(--border); border-radius: var(--r); color: var(--muted); font-size: 13px; font-style: italic;">
+    Área en blanco lista para diseñar.
+  </div>
+</div>

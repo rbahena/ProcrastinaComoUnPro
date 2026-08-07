@@ -1,0 +1,91 @@
+/* ===== STATS PAGE STYLES ===== */
+
+.guardian-profile-card {
+  border-top: 2px solid var(--accent);
+  padding: 30px;
+  background: linear-gradient(180deg, var(--bg2) 0%, rgba(26, 26, 35, 0.2) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.profile-avatar-wrapper {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 3px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  color: var(--text);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  position: relative;
+  transition: transform 0.3s;
+}
+
+.profile-avatar-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.profile-level-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 28px;
+  height: 28px;
+  background: var(--yellow);
+  color: #000;
+  font-size: 11px;
+  font-weight: 900;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.stats-subcard {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.2s;
+}
+
+.stats-subcard:hover {
+  border-color: var(--accent);
+}
+
+.stats-subcard-val {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.stats-subcard-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+@media (max-width: 576px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

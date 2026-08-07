@@ -2,38 +2,37 @@
 
 /* ===== RESET ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --bg:      #0a0a0c;       /* Sumi-e black */
-  --bg2:     #121217;       /* Lacquer black */
-  --bg3:     #1a1a23;       /* Dark charcoal */
-  --border:  #2d2d3a;       /* Steel Katana grey */
-  --accent:  #d92b2b;       /* Sengoku Crimson */
+  --bg2:     rgba(18, 18, 24, 0.7); /* Lacquered black glass */
+  --bg3:     rgba(30, 30, 39, 0.85); /* Charcoal glass */
+  --border:  rgba(99, 102, 241, 0.12); /* Soft indigo outline */
+  --accent:  #6366f1;       /* Indigo */
   --green:   #10b981;       /* Jade Green */
   --yellow:  #d4af37;       /* Imperial Gold */
   --red:     #ef4444;       /* Warrior Blood Red */
   --blue:    #3b82f6;       /* Indigo Blue */
   --text:    #f4f4f7;       /* Parchment White */
   --muted:   #78788a;       /* Slate Grey */
-  --muted2:  #3c3c4e;       /* Iron Steel */
+  --muted2:  #1f1f2e;       /* Muted darker slate */
   --sidebar: 210px;
   --r:       6px;           /* Sharper corners for a blade-like style */
 }
 
 /* ===== THEMES ===== */
 body.theme-samurai {
-  --bg:      #0a0a0c;       /* Sumi-e black */
-  --bg2:     #121217;       /* Lacquer black */
-  --bg3:     #1a1a23;       /* Dark charcoal */
-  --border:  #2d2d3a;       /* Steel Katana grey */
-  --accent:  #d92b2b;       /* Sengoku Crimson */
-  --green:   #10b981;       /* Jade Green */
-  --yellow:  #d4af37;       /* Imperial Gold */
-  --red:     #ef4444;       /* Warrior Blood Red */
-  --blue:    #3b82f6;       /* Indigo Blue */
-  --text:    #f4f4f7;       /* Parchment White */
-  --muted:   #78788a;       /* Slate Grey */
-  --muted2:  #3c3c4e;       /* Iron Steel */
+  --bg:      #0a0a0c;
+  --bg2:     rgba(18, 18, 24, 0.7);
+  --bg3:     rgba(30, 30, 39, 0.85);
+  --border:  rgba(99, 102, 241, 0.12);
+  --accent:  #6366f1;
+  --green:   #10b981;
+  --yellow:  #d4af37;
+  --red:     #ef4444;
+  --blue:    #3b82f6;
+  --text:    #f4f4f7;
+  --muted:   #78788a;
+  --muted2:  #1f1f2e;
   --r:       6px;
 }
 
@@ -97,7 +96,11 @@ body.theme-cyberpunk app-landing { background: radial-gradient(circle at 50% 0%,
 body.theme-aurora app-landing { background: radial-gradient(circle at 50% 0%, #141b35 0%, #0b0f19 80%) !important; }
 body.theme-zen app-landing { background: radial-gradient(circle at 50% 0%, #0f241a 0%, #0c0f0d 80%) !important; }
 
-
+/* Global body background theme integration */
+body.theme-samurai { background: radial-gradient(circle at 50% 0%, #161622 0%, #0a0a0c 80%) !important; }
+body.theme-cyberpunk { background: radial-gradient(circle at 50% 0%, #201026 0%, #0b0b14 80%) !important; }
+body.theme-aurora { background: radial-gradient(circle at 50% 0%, #141b35 0%, #0b0f19 80%) !important; }
+body.theme-zen { background: radial-gradient(circle at 50% 0%, #0f241a 0%, #0c0f0d 80%) !important; }
 
 body {
   font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;

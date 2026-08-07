@@ -1,7 +1,7 @@
 <!-- HEADER -->
 <header class="landing-header">
   <a routerLink="/landing" class="logo" style="padding: 0; text-decoration: none; display: flex; align-items: center; gap: 8px;">
-    <span class="logo-icon"><i class="fa-solid fa-bolt"></i></span>
+    <span class="logo-icon"><i class="fa-solid fa-circle" style="font-size: 10px; color: var(--accent);"></i></span>
     <span class="logo-text">Procrastina como un Pro</span>
   </a>
   <div style="display: flex; gap: 10px; align-items: center;">
@@ -19,22 +19,22 @@
   <div class="auth-card">
     <div class="auth-header">
       <h2 class="auth-title">Iniciar sesión</h2>
-      <p class="auth-subtitle">Ingresa tus credenciales para acceder</p>
+      <p class="auth-subtitle">Ingresa tus credenciales para acceder a la plataforma</p>
     </div>
 
     <!-- Info de Credenciales de Prueba -->
-    <div style="background: rgba(124, 111, 239, 0.08); border: 1px solid rgba(124, 111, 239, 0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px; font-size: 12px; text-align: left; line-height: 1.5;">
-      <div style="font-weight: 700; color: var(--accent); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-        <span>🔑 Credenciales Demo</span>
-        <button type="button" class="btn btn-accent btn-sm" style="padding: 2px 8px; font-size: 10px; border-radius: 6px; height: auto;" (click)="prefill(emailInput, passwordInput)">Autocompletar</button>
+    <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 12.5px; text-align: left; line-height: 1.5;">
+      <div style="font-weight: 700; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <span>Credenciales de Demostración</span>
+        <button type="button" class="btn btn-accent btn-sm" style="padding: 4px 10px; font-size: 10.5px; border-radius: 4px; height: auto;" (click)="prefill(emailInput, passwordInput)">Autocompletar</button>
       </div>
-      <div style="color: var(--text); opacity: 0.9;"><strong>Usuario:</strong> guerrero@procrastina.pro</div>
-      <div style="color: var(--text); opacity: 0.9;"><strong>Contraseña:</strong> vencerlaresistencia</div>
+      <div style="color: var(--text); opacity: 0.95; margin-bottom: 4px;"><strong>Usuario:</strong> demo@focusapp.com</div>
+      <div style="color: var(--text); opacity: 0.95;"><strong>Contraseña:</strong> demo12345</div>
     </div>
 
     @if (loginError()) {
-      <div style="background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.25); border-radius: 12px; padding: 12px; margin-bottom: 18px; color: var(--red); font-size: 12.5px; text-align: center; font-weight: 500;">
-        ⚠️ Credenciales incorrectas. Usa el botón "Autocompletar" o accede con Google.
+      <div style="background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 18px; color: var(--red); font-size: 12.5px; text-align: center; font-weight: 500;">
+        Las credenciales de acceso ingresadas son incorrectas.
       </div>
     }
 
@@ -48,18 +48,18 @@
       <div class="form-group">
         <div class="label-row">
           <label for="password">Contraseña</label>
-          <a class="forgot-link">¿La olvidaste?</a>
+          <a class="forgot-link">¿Olvidaste tu contraseña?</a>
         </div>
         <input #passwordInput type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
       </div>
 
       <button type="submit" class="btn btn-accent w-100" style="margin-top: 10px;">
-        Entrar
+        Acceder
       </button>
     </form>
 
     <div class="divider">
-      <span>o</span>
+      <span>o bien</span>
     </div>
 
     <!-- Google Button -->
@@ -70,11 +70,11 @@
         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
       </svg>
-      Acceder con Google
+      Iniciar sesión con Google
     </button>
 
     <div class="auth-footer">
-      ¿No tienes cuenta? <a routerLink="/registro">Regístrate</a>
+      ¿No tienes una cuenta aún? <a routerLink="/registro">Regístrate</a>
     </div>
   </div>
 </div>

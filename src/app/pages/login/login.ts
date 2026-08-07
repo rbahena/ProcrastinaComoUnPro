@@ -14,7 +14,7 @@ export class Login {
 
   onSubmit(event: Event, email: string, pass: string) {
     event.preventDefault();
-    if (email.trim() === 'guerrero@procrastina.pro' && pass === 'vencerlaresistencia') {
+    if (email.trim() === 'demo@focusapp.com' && pass === 'demo12345') {
       this.loginError.set(false);
       this.router.navigate(['/home']);
     } else {
@@ -27,8 +27,8 @@ export class Login {
   }
 
   prefill(emailInput: HTMLInputElement, passwordInput: HTMLInputElement) {
-    emailInput.value = 'guerrero@procrastina.pro';
-    passwordInput.value = 'vencerlaresistencia';
+    emailInput.value = 'demo@focusapp.com';
+    passwordInput.value = 'demo12345';
     this.loginError.set(false);
   }
 }

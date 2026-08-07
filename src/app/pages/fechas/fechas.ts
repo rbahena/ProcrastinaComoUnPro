@@ -1,9 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-fechas',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './fechas.html',
   styleUrl: './fechas.css',
 })
-export class Fechas {}
+export class Fechas {
+  currentTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>('samurai');
+  userName = signal('Ramiro');
+
+  labels = computed(() => {
+    return {
+      logoText: 'Kaizen Focus',
+      logoIcon: 'fa-yin-yang',
+      navTasks: 'Dojo',
+      navZen: 'Arena',
+      navTimer: 'Espejo',
+      navShield: 'Resultados',
+      title: 'El Espejo',
+      desc: 'Tu espacio para medir tu progreso y disciplina.'
+    };
+  });
+}
