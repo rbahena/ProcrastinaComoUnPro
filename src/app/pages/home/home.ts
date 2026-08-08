@@ -25,6 +25,32 @@ export class Home implements OnInit, OnDestroy {
   rankingPosition = signal(42);
   percentageBeaten = signal(84);
 
+  // Filtro de Leaderboard de la Comunidad
+  activeRankingFilter = signal<'dia' | 'mes' | 'anio'>('dia');
+
+  rankingData = computed(() => {
+    const filter = this.activeRankingFilter();
+    if (filter === 'dia') {
+      return [
+        { position: 2, name: 'Lobo Veloz', avatar: 'fa-shield-halved', color: '#3a86f0', value: '450 XP', place: '2º' },
+        { position: 1, name: 'Dragón Imperial', avatar: 'fa-dragon', color: '#a855f7', value: '600 XP', place: '1º' },
+        { position: 3, name: 'Búho Sabio', avatar: 'fa-glasses', color: '#10b981', value: '380 XP', place: '3º' }
+      ];
+    } else if (filter === 'mes') {
+      return [
+        { position: 2, name: 'Zorro Astuto', avatar: 'fa-mask', color: '#ff007f', value: '8,400 XP', place: '2º' },
+        { position: 1, name: 'Dragón Imperial', avatar: 'fa-dragon', color: '#a855f7', value: '9,800 XP', place: '1º' },
+        { position: 3, name: 'León Valiente', avatar: 'fa-crown', color: '#f59e0b', value: '7,900 XP', place: '3º' }
+      ];
+    } else {
+      return [
+        { position: 2, name: 'Lobo Veloz', avatar: 'fa-shield-halved', color: '#3a86f0', value: '74,200 XP', place: '2º' },
+        { position: 1, name: 'Zorro Astuto', avatar: 'fa-mask', color: '#ff007f', value: '82,500 XP', place: '1º' },
+        { position: 3, name: 'Búho Sabio', avatar: 'fa-glasses', color: '#10b981', value: '68,400 XP', place: '3º' }
+      ];
+    }
+  });
+
   // Lógica del Temporizador Pomodoro
   timeLeft = signal(25 * 60);
   totalSessionTime = signal(25 * 60);

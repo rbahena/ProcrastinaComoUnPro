@@ -451,5 +451,65 @@
   transform: translateY(-3px) scale(1.15) !important;
 }
 
+/* ===== HORARY FOCUS CHART STYLES ===== */
+.chart-bar {
+  position: relative;
+  overflow: visible;
+}
+
+.chart-bar:hover {
+  transform: scaleY(1.03);
+  filter: brightness(1.2);
+}
+
+/* Custom chart bar tooltip */
+.chart-bar::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, -8px) scale(0.85);
+  background: rgba(18, 18, 24, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 10px rgba(99, 102, 241, 0.15);
+  color: var(--text);
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  letter-spacing: 0.3px;
+}
+
+.chart-bar:hover::before {
+  opacity: 1;
+  transform: translate(-50%, -8px) scale(1);
+}
+
+/* Tooltip small arrow */
+.chart-bar::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, 0) scale(0);
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(18, 18, 24, 0.96) transparent transparent transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.15s ease;
+  z-index: 99;
+}
+
+.chart-bar:hover::after {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
 
 
