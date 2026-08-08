@@ -89,7 +89,7 @@ export class Enfoque implements OnDestroy {
 
     setTimeout(() => {
       this.isNoteFlying.set(false);
-    }, 1200);
+    }, 2000);
   }
 
   removeIdea(index: number) {
