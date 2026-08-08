@@ -23,6 +23,16 @@
         <span class="nav-dot"></span>
         {{ labels().navShield }}
       </a>
+
+      <!-- BAÚL DE IDEAS -->
+      <a (click)="openIdeasModal()" class="nav-item" [class.highlight-glow]="isNoteFlying()" style="cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: flex-start; width: 100%;">
+        <span class="nav-dot" [style.background]="isNoteFlying() ? 'var(--accent)' : 'var(--muted)'" style="transition: background 0.3s;"></span>
+        {{ labels().navIdeas }}
+        <span *ngIf="capturedIdeas().length > 0" 
+              style="margin-left: auto; background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; line-height: 1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);">
+          {{ capturedIdeas().length }}
+        </span>
+      </a>
       
       <!-- LOGOUT -->
       <a routerLink="/login" class="nav-item" style="margin-top: auto; opacity: 0.65;">
@@ -103,8 +113,11 @@
           </button>
         </div>
 
-        <!-- COLUMNA DERECHA: PANEL DE CONFIGURACIÓN -->
-        <div style="background: rgba(18, 18, 24, 0.45); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+        <!-- COLUMNA DERECHA: CONFIGURACIÓN E IDEAS -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          
+          <!-- CAJA DE ESTRATEGIAS -->
+          <div style="background: rgba(18, 18, 24, 0.45); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
           
           <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
             <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
@@ -347,7 +360,52 @@
 
           </div>
 
+        </div> <!-- Cierra Caja de Estrategias -->
+
+        <!-- SECCIÓN DE IDEAS FUGACES -->
+        <div class="distractions-card" [class.flying]="isNoteFlying()" style="position: relative; border: 1px solid var(--border); border-top: 2.5px solid var(--accent); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow: hidden;">
+          
+          <!-- Contenido del card que se oculta al volar -->
+          <div [style.opacity]="isNoteFlying() ? 0 : 1" style="transition: opacity 0.2s; display: flex; flex-direction: column; gap: 12px; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-meteor" style="color: var(--accent); font-size: 14px;"></i>
+              <span style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px;">Ideas Fugaces & Notas</span>
+            </div>
+            
+            <p style="font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4;">
+              ¿Te vino una idea brillante o distracción? Apúntala aquí para sacarla de tu mente y revisarla después.
+            </p>
+
+            <div style="position: relative; width: 100%;">
+              <textarea class="distractions-textarea" 
+                        [ngModel]="currentDraftIdea()" 
+                        (ngModelChange)="currentDraftIdea.set($event)"
+                        placeholder="Ej: Comprar café, llamar a mamá, investigar sobre Angular..."
+                        style="min-height: 80px; padding-bottom: 38px;"></textarea>
+              
+              <!-- Botón de enviar sutil abajo a la derecha de la textarea -->
+              <button (click)="sendDraftIdea()"
+                      [disabled]="!currentDraftIdea().trim()"
+                      style="position: absolute; right: 10px; bottom: 10px; background: var(--accent); border: none; border-radius: 6px; padding: 6px 12px; font-size: 11px; font-weight: 800; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                      [style.opacity]="currentDraftIdea().trim() ? 1 : 0.4"
+                      [style.cursor]="currentDraftIdea().trim() ? 'pointer' : 'not-allowed'"
+                      onmouseover="if(this.style.opacity==='1') { this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 10px rgba(99, 102, 241, 0.45)'; }"
+                      onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                <i class="fa-solid fa-paper-plane" style="font-size: 10px;"></i>
+                <span>Enviar</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Superposición del avión de papel durante el vuelo animado -->
+          <div *ngIf="isNoteFlying()" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; animation: planeGlow 1s infinite alternate;">
+            <i class="fa-solid fa-paper-plane" style="font-size: 48px; color: var(--accent);"></i>
+            <span style="font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-top: 12px;">¡Idea volando!</span>
+          </div>
+
         </div>
+
+      </div> <!-- Cierra Columna Derecha -->
 
       </div>
     </div>
@@ -680,3 +738,80 @@
     </div>
   </div>
 </ng-container>
+
+<!-- MODAL DE IDEAS CAPTURADAS (BAÚL DE IDEAS) -->
+<div *ngIf="showIdeasModal()" 
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; font-family: 'Space Grotesk', sans-serif;">
+  
+  <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.95) 0%, rgba(30, 30, 39, 0.9) 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 32px; width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 32px 80px rgba(0,0,0,0.6); position: relative; animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+    
+    <!-- Cerrar -->
+    <button (click)="closeIdeasModal()" 
+            style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; transition: color 0.2s;"
+            onmouseover="this.style.color='var(--text)';"
+            onmouseout="this.style.color='var(--muted)';">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Header Modal -->
+    <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 14px;">
+      <i class="fa-solid fa-box-archive" style="color: var(--yellow); font-size: 20px; filter: drop-shadow(0 0 8px rgba(255,215,0,0.3));"></i>
+      <div style="text-align: left;">
+        <h3 style="font-size: 16px; font-weight: 800; color: var(--text); margin: 0; letter-spacing: -0.3px;">Baúl de Ideas Fugaces</h3>
+        <span style="font-size: 10px; color: var(--muted); font-weight: 600;">Ideas y distractores capturados para procesar luego</span>
+      </div>
+    </div>
+
+    <!-- Contenido Modal -->
+    <div style="flex: 1; min-height: 200px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px;">
+      
+      <!-- Si no hay ideas -->
+      <div *ngIf="capturedIdeas().length === 0" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; height: 200px; color: var(--muted);">
+        <i class="fa-solid fa-feather" style="font-size: 32px; opacity: 0.3;"></i>
+        <span style="font-size: 12px; font-weight: 500; font-style: italic;">El baúl está vacío. ¡Envía tus primeras ideas volando!</span>
+      </div>
+
+      <!-- Lista de ideas -->
+      <div *ngFor="let idea of capturedIdeas(); let i = index" 
+           style="display: flex; align-items: flex-start; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px 16px; gap: 12px; transition: all 0.2s;"
+           onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,215,0,0.15)';"
+           onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
+        <div style="display: flex; flex-direction: column; gap: 4px; text-align: left; flex: 1;">
+          <span style="font-size: 12.5px; color: var(--text); font-weight: 600; line-height: 1.4; word-break: break-word;">{{ idea }}</span>
+          <span style="font-size: 9px; color: var(--muted); font-weight: 500;">Capturado hoy</span>
+        </div>
+        <button (click)="removeIdea(i)" 
+                style="background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px 8px; font-size: 11px; transition: all 0.2s;"
+                onmouseover="this.style.color='var(--red)'; this.style.transform='scale(1.1)';"
+                onmouseout="this.style.color='var(--muted)'; this.style.transform='scale(1)';"
+                title="Eliminar idea del baúl">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer Modal -->
+    <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; margin-top: 5px;">
+      <span style="font-size: 11px; color: var(--muted); font-weight: 600;">Total: {{ capturedIdeas().length }} ideas</span>
+      
+      <div style="display: flex; gap: 8px;">
+        <!-- Botón limpiar todo (solo si hay ideas) -->
+        <button *ngIf="capturedIdeas().length > 0"
+                (click)="clearAllIdeas()"
+                style="background: transparent; border: 1px solid rgba(239, 68, 68, 0.2); color: var(--red); padding: 8px 14px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
+                onmouseover="this.style.background='rgba(239, 68, 68, 0.05)';"
+                onmouseout="this.style.background='transparent';">
+          Limpiar Todo
+        </button>
+
+        <button (click)="closeIdeasModal()" 
+                style="background: var(--accent); border: none; color: #000; padding: 8px 16px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                onmouseover="this.style.transform='translateY(-1px)';"
+                onmouseout="this.style.transform='translateY(0)';">
+          Listo
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

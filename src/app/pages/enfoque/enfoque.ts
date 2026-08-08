@@ -54,6 +54,50 @@ export class Enfoque implements OnDestroy {
   showSettingsPanel = signal(false);
   showSetupSettings = signal(false);
 
+  // Notas rápidas / Ideas fugaces
+  currentDraftIdea = signal('');
+  capturedIdeas = signal<string[]>(JSON.parse(localStorage.getItem('captured-ideas') || '[]'));
+  isNoteFlying = signal(false);
+  showIdeasModal = signal(false);
+
+  openIdeasModal() {
+    this.showIdeasModal.set(true);
+  }
+
+  closeIdeasModal() {
+    this.showIdeasModal.set(false);
+  }
+
+  clearAllIdeas() {
+    if (confirm('¿Estás seguro de que quieres limpiar todo el baúl de ideas?')) {
+      this.capturedIdeas.set([]);
+      localStorage.setItem('captured-ideas', '[]');
+    }
+  }
+
+  sendDraftIdea() {
+    const idea = this.currentDraftIdea().trim();
+    if (!idea) return;
+
+    this.isNoteFlying.set(true);
+
+    const updatedList = [...this.capturedIdeas(), idea];
+    this.capturedIdeas.set(updatedList);
+    localStorage.setItem('captured-ideas', JSON.stringify(updatedList));
+
+    this.currentDraftIdea.set('');
+
+    setTimeout(() => {
+      this.isNoteFlying.set(false);
+    }, 1200);
+  }
+
+  removeIdea(index: number) {
+    const updatedList = this.capturedIdeas().filter((_, i) => i !== index);
+    this.capturedIdeas.set(updatedList);
+    localStorage.setItem('captured-ideas', JSON.stringify(updatedList));
+  }
+
   // Objetivo Activo (La batalla de hoy) e Integración Metodológica
   activeObjective = signal('');
   activeMethodology = signal<'sapo' | 'pareto'>('sapo');
@@ -95,6 +139,7 @@ export class Enfoque implements OnDestroy {
       navZen: 'Arena',
       navTimer: 'Espejo',
       navShield: 'Resultados',
+      navIdeas: 'Baúl de Ideas',
       title: 'La Arena',
       desc: 'Tu templo de concentración absoluta.'
     };
