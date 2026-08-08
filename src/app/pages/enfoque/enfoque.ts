@@ -17,7 +17,7 @@ export class Enfoque implements OnDestroy {
   userName = signal('Ramiro');
 
   // Escudo acústico / Ruido de fondo en vivo
-  backgroundSound = signal<'off' | 'cafe' | 'lluvia'>('off');
+  backgroundSound = signal<'off' | 'cafe' | 'lluvia' | 'reloj_pared' | 'reloj_pulsera'>('off');
   backgroundVolume = signal(0.4);
 
   // Web Audio Context refs
@@ -206,6 +206,7 @@ export class Enfoque implements OnDestroy {
   startFocusFlow() {
     this.manuallyAbandoned.set(false);
     this.interruptedByPause.set(false);
+    this.objectiveCompleted.set(null);
     this.stopTimerLoop();
     this.stopEmergencyTimer();
     this.emergencyPauseActive.set(false);
@@ -274,6 +275,8 @@ export class Enfoque implements OnDestroy {
   abandonSession() {
     this.stopTimerLoop();
     this.stopEmergencyTimer();
+    this.stopBackgroundSound();
+    this.backgroundSound.set('off');
     this.sessionEndingStatus.set('abandoned');
     this.manuallyAbandoned.set(true);
     this.arenaState.set('summary');
@@ -294,6 +297,7 @@ export class Enfoque implements OnDestroy {
       localStorage.setItem('daily-attempts', JSON.stringify(updatedAttempts));
     }
 
+    this.objectiveCompleted.set(null);
     this.arenaState.set('setup');
     this.router.navigate(['/home']);
   }
@@ -318,6 +322,7 @@ export class Enfoque implements OnDestroy {
     this.stopEmergencyTimer();
     this.stopBackgroundSound();
     this.backgroundSound.set('off');
+    this.objectiveCompleted.set(null);
     this.arenaState.set('setup');
   }
 
@@ -390,7 +395,59 @@ export class Enfoque implements OnDestroy {
     return buffer;
   }
 
-  updateBackgroundSound(sound: 'off' | 'cafe' | 'lluvia') {
+  private createWallClockBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 2; // 2 segundos para "tick-tock" completo
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    const tickTime1 = 0;
+    const tickTime2 = ctx.sampleRate; // a 1 segundo
+    const duration = Math.round(ctx.sampleRate * 0.03); // 30ms
+    
+    // "Tick"
+    for (let i = 0; i < duration; i++) {
+      const t = i / ctx.sampleRate;
+      const tone = Math.sin(2 * Math.PI * 2500 * t) * Math.exp(-150 * t);
+      const noise = (Math.random() * 2 - 1) * Math.exp(-250 * t) * 0.2;
+      data[tickTime1 + i] = (tone + noise) * 0.6;
+    }
+    
+    // "Tock"
+    for (let i = 0; i < duration; i++) {
+      const t = i / ctx.sampleRate;
+      const tone = Math.sin(2 * Math.PI * 1800 * t) * Math.exp(-120 * t);
+      const noise = (Math.random() * 2 - 1) * Math.exp(-200 * t) * 0.2;
+      data[tickTime2 + i] = (tone + noise) * 0.5;
+    }
+    
+    return buffer;
+  }
+
+  private createWristwatchBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 1; // 1 segundo de bucle
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    const tickInterval = Math.round(ctx.sampleRate * 0.25); // 4 ticks por segundo (cada 250ms)
+    const duration = Math.round(ctx.sampleRate * 0.015); // 15ms
+    
+    for (let tickIdx = 0; tickIdx < 4; tickIdx++) {
+      const startOffset = tickIdx * tickInterval;
+      const freq = tickIdx % 2 === 0 ? 3200 : 2800;
+      const vol = tickIdx % 2 === 0 ? 0.4 : 0.35;
+      
+      for (let i = 0; i < duration; i++) {
+        const t = i / ctx.sampleRate;
+        const tone = Math.sin(2 * Math.PI * freq * t) * Math.exp(-300 * t);
+        const noise = (Math.random() * 2 - 1) * Math.exp(-400 * t) * 0.15;
+        data[startOffset + i] = (tone + noise) * vol;
+      }
+    }
+    
+    return buffer;
+  }
+
+  updateBackgroundSound(sound: 'off' | 'cafe' | 'lluvia' | 'reloj_pared' | 'reloj_pulsera') {
     this.backgroundSound.set(sound);
     this.stopBackgroundSound();
 
@@ -405,9 +462,16 @@ export class Enfoque implements OnDestroy {
         this.backgroundAudioCtx.resume();
       }
 
-      const buffer = sound === 'cafe'
-        ? this.createBrownNoiseBuffer(this.backgroundAudioCtx)
-        : this.createRainNoiseBuffer(this.backgroundAudioCtx);
+      let buffer: AudioBuffer;
+      if (sound === 'cafe') {
+        buffer = this.createBrownNoiseBuffer(this.backgroundAudioCtx);
+      } else if (sound === 'lluvia') {
+        buffer = this.createRainNoiseBuffer(this.backgroundAudioCtx);
+      } else if (sound === 'reloj_pared') {
+        buffer = this.createWallClockBuffer(this.backgroundAudioCtx);
+      } else {
+        buffer = this.createWristwatchBuffer(this.backgroundAudioCtx);
+      }
 
       this.backgroundSource = this.backgroundAudioCtx.createBufferSource();
       this.backgroundSource.buffer = buffer;
@@ -511,6 +575,9 @@ export class Enfoque implements OnDestroy {
 
   private startTimerLoop() {
     this.timerRunning.set(true);
+    if (this.backgroundSound() !== 'off') {
+      this.updateBackgroundSound(this.backgroundSound());
+    }
     this.pomodoroTimer = setInterval(() => {
       if (this.timeLeft() > 0) {
         this.timeLeft.update(t => t - 1);
@@ -536,6 +603,7 @@ export class Enfoque implements OnDestroy {
       clearInterval(this.pomodoroTimer);
       this.pomodoroTimer = null;
     }
+    this.stopBackgroundSound();
   }
 
   private stopEmergencyTimer() {

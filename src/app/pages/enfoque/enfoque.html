@@ -256,31 +256,45 @@
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Frecuencia de Fondo</span>
                 <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase;" *ngIf="backgroundSound() !== 'off'">
-                  {{ backgroundSound() === 'cafe' ? 'Ruido Café' : 'Lluvia Zen' }}
+                  {{ backgroundSound() === 'cafe' ? 'Ruido Café' : backgroundSound() === 'lluvia' ? 'Lluvia Zen' : backgroundSound() === 'reloj_pared' ? 'Reloj de Pared' : 'Reloj de Pulsera' }}
                 </span>
               </div>
               
-              <div style="display: flex; gap: 6px; width: 100%;">
+              <div style="display: flex; flex-wrap: wrap; gap: 6px; width: 100%;">
                 <button (click)="updateBackgroundSound('off')"
-                        style="flex: 1; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
                         [style.background]="backgroundSound() === 'off' ? 'rgba(255,255,255,0.05)' : 'transparent'"
                         [style.borderColor]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--border)'"
                         [style.color]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--text)'">
                   🔇 Off
                 </button>
                 <button (click)="updateBackgroundSound('cafe')"
-                        style="flex: 1; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
                         [style.background]="backgroundSound() === 'cafe' ? 'rgba(255,255,255,0.05)' : 'transparent'"
                         [style.borderColor]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--border)'"
                         [style.color]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--text)'">
                   🎚️ Café
                 </button>
                 <button (click)="updateBackgroundSound('lluvia')"
-                        style="flex: 1; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
                         [style.background]="backgroundSound() === 'lluvia' ? 'rgba(255,255,255,0.05)' : 'transparent'"
                         [style.borderColor]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--border)'"
                         [style.color]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--text)'">
                   🌧️ Lluvia
+                </button>
+                <button (click)="updateBackgroundSound('reloj_pared')"
+                        style="flex: 1 1 calc(50% - 6px); min-width: 110px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                        [style.background]="backgroundSound() === 'reloj_pared' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                        [style.borderColor]="backgroundSound() === 'reloj_pared' ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="backgroundSound() === 'reloj_pared' ? 'var(--accent)' : 'var(--text)'">
+                  🕰️ R. Pared
+                </button>
+                <button (click)="updateBackgroundSound('reloj_pulsera')"
+                        style="flex: 1 1 calc(50% - 6px); min-width: 110px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                        [style.background]="backgroundSound() === 'reloj_pulsera' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                        [style.borderColor]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--text)'">
+                  ⌚ R. Pulsera
                 </button>
               </div>
 
@@ -797,54 +811,54 @@
             <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--red);"></span>
             <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Abandonada</span>
           </div>
-          <span style="font-size: 11px; font-weight: 700; color: var(--red);">0 XP</span>
+          <span style="font-size: 11px; font-weight: 700; color: var(--red);">-50 XP</span>
         </button>
       </div>
 
-      <!-- Pregunta 2: ¿Completaste tu objetivo? -->
-      <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+      <!-- Pregunta 2: ¿Completaste tu objetivo? / ¿Lograste avanzar en tu objetivo? (Sólo si NO se abandonó) -->
+      <div *ngIf="sessionEndingStatus() !== 'abandoned'" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
         <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">
-          ¿Completaste tu objetivo?
+          {{ sessionEndingStatus() === 'completed' ? '¿Completaste tu objetivo?' : '¿Lograste avanzar en tu objetivo?' }}
         </span>
         
         <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
           <div style="display: flex; gap: 10px; width: 100%;">
-            <!-- Botón Sí -->
+            <!-- Botón Sí / Sí, lo completé -->
             <button (click)="objectiveCompleted.set('yes')" 
-                    style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.2s;"
+                    style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.25s;"
                     [style.background]="objectiveCompleted() === 'yes' ? 'rgba(99, 102, 241, 0.08)' : 'transparent'"
                     [style.borderColor]="objectiveCompleted() === 'yes' ? 'var(--accent)' : 'var(--border)'"
                     [style.color]="objectiveCompleted() === 'yes' ? 'var(--accent)' : 'var(--text)'">
-              Sí
+              {{ sessionEndingStatus() === 'completed' ? 'Sí' : 'Sí, lo completé' }}
             </button>
             
-            <!-- Botón No -->
+            <!-- Botón No / No avancé nada -->
             <button (click)="objectiveCompleted.set('no')" 
-                    style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.2s;"
+                    style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.25s;"
                     [style.background]="objectiveCompleted() === 'no' ? 'rgba(255, 255, 255, 0.03)' : 'transparent'"
                     [style.borderColor]="objectiveCompleted() === 'no' ? 'rgba(255,255,255,0.1)' : 'var(--border)'"
                     [style.color]="objectiveCompleted() === 'no' ? 'var(--muted)' : 'var(--text)'">
-              No
+              {{ sessionEndingStatus() === 'completed' ? 'No' : 'No avancé nada' }}
             </button>
           </div>
 
-          <!-- Botón Hice un gran avance -->
+          <!-- Botón Hice un gran avance / Sí, avancé algo -->
           <button (click)="objectiveCompleted.set('progress')" 
-                  style="width: 100%; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.2s;"
+                  style="width: 100%; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.25s;"
                   [style.background]="objectiveCompleted() === 'progress' ? 'rgba(16, 185, 129, 0.08)' : 'transparent'"
                   [style.borderColor]="objectiveCompleted() === 'progress' ? 'var(--green)' : 'var(--border)'"
                   [style.color]="objectiveCompleted() === 'progress' ? 'var(--green)' : 'var(--text)'">
-            Hice un gran avance
+            {{ sessionEndingStatus() === 'completed' ? 'Hice un gran avance' : 'Sí, avancé algo' }}
           </button>
         </div>
       </div>
 
       <!-- Botón de Envío y Retorno -->
       <button (click)="finishSession()" 
-              [disabled]="objectiveCompleted() === null"
+              [disabled]="sessionEndingStatus() !== 'abandoned' && objectiveCompleted() === null"
               style="width: 100%; border: none; padding: 14px; border-radius: 8px; background: var(--accent); color: #000; font-size: 13.5px; font-weight: 900; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;"
-              [style.opacity]="objectiveCompleted() === null ? 0.5 : 1"
-              [style.cursor]="objectiveCompleted() === null ? 'not-allowed' : 'pointer'">
+              [style.opacity]="(sessionEndingStatus() !== 'abandoned' && objectiveCompleted() === null) ? 0.5 : 1"
+              [style.cursor]="(sessionEndingStatus() !== 'abandoned' && objectiveCompleted() === null) ? 'not-allowed' : 'pointer'">
         Guardar y Salir al Dojo
       </button>
 
