@@ -7,13 +7,13 @@
       <span class="logo-text">{{ labels().logoText }}</span>
     </a>
     <div class="nav">
-      <a routerLink="/home" routerLinkActive="active" class="nav-item">
-        <span class="nav-dot"></span>
-        {{ labels().navTasks }}
-      </a>
       <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
         <span class="nav-dot"></span>
         {{ labels().navZen }}
+      </a>
+      <a routerLink="/home" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navTasks }}
       </a>
       <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
         <span class="nav-dot"></span>
@@ -51,54 +51,159 @@
       </div>
     </div>
 
-    <!-- AREA CENTRAL (DISEÑO ULTRA SIMPLIFICADO) -->
-    <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 480px; padding: 10px;">
+    <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE DOS COLUMNAS) -->
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 480px; padding: 20px; width: 100%; max-width: 900px; margin: 0 auto;">
       
-      <div style="width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 20px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; width: 100%; align-items: center;">
         
-        <!-- PASO 1: OBJETIVO (La Batalla de Hoy) -->
-        <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.04) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">1. ¿En qué te vas a enfocar?</span>
-            <button (click)="activeObjective.set('Sesión de Foco Libre 🧘'); startFocusFlow()"
-                    style="background: transparent; border: none; color: var(--accent); font-size: 10.5px; font-weight: 800; cursor: pointer; text-decoration: none; padding: 0; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.2s;"
-                    onmouseover="this.style.opacity='0.8'"
-                    onmouseout="this.style.opacity='1'">
-              ⚡ Foco Libre (Sin tarea)
-            </button>
+        <!-- COLUMNA IZQUIERDA: Círculo de Presentación y Arranque -->
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+          <div style="position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center;">
+            <!-- Fondo decorativo con auras suaves -->
+            <div style="position: absolute; width: 300px; height: 300px; background: var(--accent); opacity: 0.04; filter: blur(50px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
+            
+            <!-- Anillo SVG estático para el Setup (Mostrando círculo completo de 25m) -->
+            <svg viewBox="0 0 300 300" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); z-index: 2;">
+              <circle cx="150" cy="150" r="135" style="fill: none; stroke: rgba(255,255,255,0.02); stroke-width: 5;"></circle>
+              <!-- Anillo completo para setup -->
+              <circle cx="150" cy="150" r="135" 
+                      style="fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; opacity: 0.35;"
+                      stroke-dasharray="848"
+                      stroke-dashoffset="0"></circle>
+            </svg>
+
+            <!-- Contenido Interno del Círculo (Reloj y Botón Play) -->
+            <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 3; gap: 6px;">
+              <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;">
+                Listo para Enfoque
+              </span>
+              <span style="font-size: 54px; font-weight: 900; color: var(--text); line-height: 1.1; letter-spacing: -2px; margin-bottom: 8px;">
+                25:00
+              </span>
+              
+              <!-- Botón de Play Circular y Brillante -->
+              <button (click)="startFocusFlow()" 
+                      style="width: 72px; height: 72px; border-radius: 50%; border: none; background: var(--accent); color: #000; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); margin-top: 6px; padding-left: 6px;"
+                      onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 30px var(--accent)';"
+                      onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 0 20px rgba(99, 102, 241, 0.4)';"
+                      title="Arrancar Pomodoro">
+                <i class="fa-solid fa-play"></i>
+              </button>
+            </div>
           </div>
-          <input type="text" [(ngModel)]="activeObjective" 
-                 placeholder="Escribe tu único objetivo de hoy..."
-                 style="width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 12px 14px; border-radius: 8px; font-size: 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; outline: none; transition: border-color 0.2s;"
-                 onfocus="this.style.borderColor='var(--accent)'"
-                 onblur="this.style.borderColor='var(--border)'">
         </div>
 
-        <!-- PASO 2: TIEMPOS CIENTÍFICOS FIJOS (PARETO FILTER) -->
-        <div style="background: rgba(18, 18, 24, 0.45); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">2. Selecciona la duración</span>
-            <span style="font-size: 11.5px; color: var(--accent); font-weight: 700;">{{ focusDuration() }} minutos</span>
-          </div>
+        <!-- COLUMNA DERECHA: PANEL DE CONFIGURACIÓN -->
+        <div style="background: rgba(18, 18, 24, 0.45); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
           
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
-            <button *ngFor="let mins of [15, 25, 50, 90]" (click)="focusDuration.set(mins); applyTimeSettings()"
-                    style="border: 1px solid var(--border); padding: 12px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; font-weight: 800; transition: all 0.2s; font-family: 'Space Grotesk', sans-serif;"
-                    [style.background]="focusDuration() === mins ? 'var(--accent)' : 'transparent'"
-                    [style.borderColor]="focusDuration() === mins ? 'var(--accent)' : 'var(--border)'"
-                    [style.color]="focusDuration() === mins ? '#000' : 'var(--text)'">
-              {{ mins }}m
-            </button>
+          <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
+            <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-sliders" style="color: var(--accent);"></i>
+              Configuración Inicial
+            </h3>
           </div>
-        </div>
 
-        <!-- BOTÓN DE ACCIÓN PRINCIPAL (INICIAR) -->
-        <button (click)="startFocusFlow()" 
-                style="width: 100%; border: none; padding: 16px; border-radius: 8px; background: var(--accent); color: #000; font-size: 14px; font-weight: 900; letter-spacing: 0.5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.25s; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);"
-                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 24px rgba(99, 102, 241, 0.35)';"
-                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(99, 102, 241, 0.25)';">
-          <i class="fa-solid fa-yin-yang"></i> Iniciar Enfoque
-        </button>
+          <!-- 1. TEMA DEL ESPACIO (Theme Selector) -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tema Visual</span>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+              <button *ngFor="let t of themeOptions" 
+                      (click)="changeTheme(t)"
+                      style="border: 1px solid var(--border); padding: 8px 2px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 10.5px; font-weight: 800; font-family: inherit; transition: all 0.2s; text-transform: capitalize;"
+                      [style.background]="currentTheme() === t ? 'var(--accent)' : 'transparent'"
+                      [style.borderColor]="currentTheme() === t ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="currentTheme() === t ? '#000' : 'var(--text)'">
+                {{ t }}
+              </button>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
+
+          <!-- 2. ESCUDO ACÚSTICO (Ambient Background Sound) -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Frecuencia de Fondo</span>
+              <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase;" *ngIf="backgroundSound() !== 'off'">
+                {{ backgroundSound() === 'cafe' ? 'Ruido Café' : 'Lluvia Zen' }}
+              </span>
+            </div>
+            
+            <div style="display: flex; gap: 6px; width: 100%;">
+              <button (click)="updateBackgroundSound('off')"
+                      style="flex: 1; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                      [style.background]="backgroundSound() === 'off' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--text)'">
+                🔇 Off
+              </button>
+              <button (click)="updateBackgroundSound('cafe')"
+                      style="flex: 1; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                      [style.background]="backgroundSound() === 'cafe' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--text)'">
+                🎚️ Café
+              </button>
+              <button (click)="updateBackgroundSound('lluvia')"
+                      style="flex: 1; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                      [style.background]="backgroundSound() === 'lluvia' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--text)'">
+                🌧️ Lluvia
+              </button>
+            </div>
+
+            <!-- Control de Volumen (Sólo si no está en OFF) -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;" *ngIf="backgroundSound() !== 'off'">
+              <i class="fa-solid fa-volume-low" style="font-size: 10px; color: var(--muted);"></i>
+              <input type="range" min="0" max="1" step="0.05" 
+                     [ngModel]="backgroundVolume()" 
+                     (ngModelChange)="updateBackgroundVolume($event)"
+                     style="flex: 1; accent-color: var(--accent); height: 4px; border-radius: 2px; cursor: pointer;">
+              <i class="fa-solid fa-volume-high" style="font-size: 10px; color: var(--muted);"></i>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
+
+          <!-- 3. ALERTA DE FIN DE SESIÓN -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Alerta de Fin de Sesión</span>
+              <input type="checkbox" [ngModel]="soundEnabled()" (ngModelChange)="soundEnabled.set($event)" 
+                     style="width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; border-radius: 4px;">
+            </div>
+            
+            <!-- Selector de tipo de campana (Sólo si alertas habilitadas) -->
+            <div style="display: flex; gap: 4px; width: 100%;" *ngIf="soundEnabled()">
+              <button *ngFor="let s of soundOptions" (click)="setSoundType(s)"
+                      style="flex: 1; border: 1px solid var(--border); padding: 6px 2px; border-radius: 4px; background: transparent; cursor: pointer; font-size: 10px; font-weight: 700; font-family: inherit; color: var(--muted); transition: all 0.2s;"
+                      [style.background]="soundType() === s ? 'rgba(255,255,255,0.03)' : 'transparent'"
+                      [style.borderColor]="soundType() === s ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="soundType() === s ? 'var(--accent)' : 'var(--muted)'">
+                {{ s | titlecase }}
+              </button>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
+
+          <!-- 4. MODO CO-WORKING -->
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Modo de Sesión</span>
+            <div style="display: flex; gap: 4px; background: var(--bg3); padding: 2px; border-radius: 8px; border: 1px solid var(--border);">
+              <button (click)="coworkingMode.set('solo')" 
+                      style="border: none; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
+                      [style.background]="coworkingMode() === 'solo' ? 'var(--bg2)' : 'transparent'"
+                      [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'">Solo</button>
+              <button (click)="coworkingMode.set('partner')" 
+                      style="border: none; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
+                      [style.background]="coworkingMode() === 'partner' ? 'var(--bg2)' : 'transparent'"
+                      [style.color]="coworkingMode() === 'partner' ? 'var(--text)' : 'var(--muted)'">Acompañado</button>
+            </div>
+          </div>
+
+        </div>
 
       </div>
     </div>

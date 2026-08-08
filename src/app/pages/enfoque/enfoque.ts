@@ -11,8 +11,19 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './enfoque.css',
 })
 export class Enfoque implements OnDestroy {
-  currentTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>('samurai');
+  currentTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>(
+    (localStorage.getItem('procrastina-theme') as any) || 'samurai'
+  );
   userName = signal('Ramiro');
+
+  // Escudo acústico / Ruido de fondo en vivo
+  backgroundSound = signal<'off' | 'cafe' | 'lluvia'>('off');
+  backgroundVolume = signal(0.4);
+
+  // Web Audio Context refs
+  private backgroundAudioCtx: AudioContext | null = null;
+  private backgroundSource: AudioBufferSourceNode | null = null;
+  private backgroundGain: GainNode | null = null;
 
   // Mi Avatar / Guardián activo (Consistencia con Dojo)
   selectedAvatar = signal<'lobo' | 'leon' | 'buho' | 'zorro' | 'dragon'>('zorro');
@@ -33,12 +44,13 @@ export class Enfoque implements OnDestroy {
 
   // Opciones de sonido para evitar errores de tipado estricto en plantillas Angular
   soundOptions: ('zen' | 'digital' | 'chime')[] = ['zen', 'chime', 'digital'];
+  themeOptions: ('samurai' | 'cyberpunk' | 'aurora' | 'zen')[] = ['samurai', 'cyberpunk', 'aurora', 'zen'];
 
   // Control para mostrar ajustes secundarios de audio
   showSettingsPanel = signal(false);
 
   // Objetivo Activo (La batalla de hoy)
-  activeObjective = signal('Terminar módulo de autenticación');
+  activeObjective = signal('Sesión de Enfoque');
 
   // Lógica del Temporizador
   timeLeft = signal(25 * 60);
@@ -181,6 +193,8 @@ export class Enfoque implements OnDestroy {
 
   // Finalizar Cuestionario y Volver al Dojo
   finishSession() {
+    this.stopBackgroundSound();
+    this.backgroundSound.set('off');
     this.arenaState.set('setup');
     this.router.navigate(['/home']);
   }
@@ -189,6 +203,8 @@ export class Enfoque implements OnDestroy {
   cancelAndExit() {
     this.stopTimerLoop();
     this.stopEmergencyTimer();
+    this.stopBackgroundSound();
+    this.backgroundSound.set('off');
     this.arenaState.set('setup');
   }
 
@@ -213,9 +229,122 @@ export class Enfoque implements OnDestroy {
     }
   }
 
+  // Cambiar tema global
+  changeTheme(theme: 'samurai' | 'cyberpunk' | 'aurora' | 'zen') {
+    this.currentTheme.set(theme);
+    localStorage.setItem('procrastina-theme', theme);
+    const body = document.body;
+    body.classList.forEach(className => {
+      if (className.startsWith('theme-')) {
+        body.classList.remove(className);
+      }
+    });
+    body.classList.add(`theme-${theme}`);
+  }
+
+  // Generadores de Ruido (Web Audio API)
+  private createBrownNoiseBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 2; // 2 segundos
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let lastOut = 0.0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      data[i] = (lastOut + (0.02 * white)) / 1.02;
+      lastOut = data[i];
+      data[i] *= 3.5; // Normalización aproximada
+    }
+    return buffer;
+  }
+
+  private createRainNoiseBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 2;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let b0 = 0.0, b1 = 0.0, b2 = 0.0, b3 = 0.0, b4 = 0.0, b5 = 0.0, b6 = 0.0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      const pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+      b6 = white * 0.115926;
+      data[i] = pink * 0.11;
+    }
+    return buffer;
+  }
+
+  updateBackgroundSound(sound: 'off' | 'cafe' | 'lluvia') {
+    this.backgroundSound.set(sound);
+    this.stopBackgroundSound();
+
+    if (sound === 'off') return;
+
+    try {
+      if (!this.backgroundAudioCtx) {
+        this.backgroundAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+
+      if (this.backgroundAudioCtx.state === 'suspended') {
+        this.backgroundAudioCtx.resume();
+      }
+
+      const buffer = sound === 'cafe'
+        ? this.createBrownNoiseBuffer(this.backgroundAudioCtx)
+        : this.createRainNoiseBuffer(this.backgroundAudioCtx);
+
+      this.backgroundSource = this.backgroundAudioCtx.createBufferSource();
+      this.backgroundSource.buffer = buffer;
+      this.backgroundSource.loop = true;
+
+      this.backgroundGain = this.backgroundAudioCtx.createGain();
+      this.backgroundGain.gain.value = this.backgroundVolume();
+
+      if (sound === 'lluvia') {
+        const filter = this.backgroundAudioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 1400; // filtro para lluvia suave
+        this.backgroundSource.connect(filter);
+        filter.connect(this.backgroundGain);
+      } else {
+        this.backgroundSource.connect(this.backgroundGain);
+      }
+
+      this.backgroundGain.connect(this.backgroundAudioCtx.destination);
+      this.backgroundSource.start(0);
+    } catch (e) {
+      console.error('Error al iniciar audio de fondo:', e);
+    }
+  }
+
+  updateBackgroundVolume(vol: number) {
+    this.backgroundVolume.set(vol);
+    if (this.backgroundGain) {
+      this.backgroundGain.gain.setValueAtTime(vol, this.backgroundAudioCtx ? this.backgroundAudioCtx.currentTime : 0);
+    }
+  }
+
+  stopBackgroundSound() {
+    if (this.backgroundSource) {
+      try {
+        this.backgroundSource.stop();
+      } catch (e) {}
+      this.backgroundSource.disconnect();
+      this.backgroundSource = null;
+    }
+    if (this.backgroundGain) {
+      this.backgroundGain.disconnect();
+      this.backgroundGain = null;
+    }
+  }
+
   ngOnDestroy() {
     this.stopTimerLoop();
     this.stopEmergencyTimer();
+    this.stopBackgroundSound();
     if (this.countdownTimer) clearInterval(this.countdownTimer);
   }
 

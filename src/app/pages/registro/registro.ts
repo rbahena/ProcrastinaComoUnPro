@@ -13,11 +13,11 @@ export class Registro {
   onSubmit(event: Event) {
     event.preventDefault();
     // Simular registro exitoso redirigiendo al dashboard
-    this.router.navigate(['/home']);
+    this.router.navigate(['/enfoque']);
   }
 
   registerWithGoogle() {
     // Simular registro con Google redirigiendo al dashboard
-    this.router.navigate(['/home']);
+    this.router.navigate(['/enfoque']);
   }
 }
