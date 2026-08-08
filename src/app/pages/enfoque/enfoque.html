@@ -102,6 +102,33 @@
             </div>
           </div>
 
+          <!-- Indicador de Pomodoros y Intentos por Día -->
+          <div *ngIf="dailyAttempts().length > 0" 
+               style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 24px 0 12px 0; width: 100%;">
+            <!-- Badge de Trofeo -->
+            <div [attr.data-tooltip]="attemptsTooltipText()"
+                 style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.15); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: all 0.2s;"
+                 onmouseover="this.style.background='rgba(0,0,0,0.25)'; this.style.borderColor='rgba(255,255,255,0.08)';"
+                 onmouseout="this.style.background='rgba(0,0,0,0.15)'; this.style.borderColor='rgba(255,255,255,0.03)';">
+              <i class="fa-solid fa-trophy" style="color: var(--yellow); font-size: 13px;"></i>
+              <span style="font-size: 11px; font-weight: 800; color: var(--yellow); text-transform: uppercase; letter-spacing: 1px;">
+                {{ totalCommunityPoints() >= 0 ? '+' : '' }}{{ totalCommunityPoints() }} pts
+              </span>
+            </div>
+            <!-- Historial de Puntos de Colores -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 320px; background: rgba(0,0,0,0.12); padding: 8px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); width: auto;">
+              <div *ngFor="let attempt of dailyAttempts()" 
+                   style="display: flex; align-items: center; justify-content: center;"
+                   [attr.data-tooltip]="attempt.status === 'completed' ? 'Completado (+100 pts)' : (attempt.status === 'abandoned' ? 'Abandonado (-50 pts)' : 'Pausado (-20 pts)')">
+                <span style="display: inline-block; animation: scaleUp 0.3s ease;">
+                  <i class="fa-solid fa-circle" 
+                     [style.color]="attempt.status === 'completed' ? 'var(--green)' : (attempt.status === 'abandoned' ? 'var(--red)' : 'var(--yellow)')" 
+                     style="font-size: 7px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.05));"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
           <!-- Botón de ajustes de pomodoro debajo del círculo (Especialmente visible) -->
           <button (click)="showSetupSettings.set(!showSetupSettings())"
                   style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--border); border-radius: 20px; padding: 10px 24px; color: var(--text); font-size: 13px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.25);"
@@ -116,71 +143,21 @@
         <!-- COLUMNA DERECHA: CONFIGURACIÓN E IDEAS -->
         <div style="display: flex; flex-direction: column; gap: 24px;">
           
-          <!-- CAJA DE ESTRATEGIAS -->
-          <div style="background: rgba(18, 18, 24, 0.45); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
-          
-          <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
-            <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-crosshairs" style="color: var(--accent);"></i>
-              Estrategia de Concentración
-            </h3>
-          </div>
-
-          <!-- DECLARACIÓN DE OBJETIVO (MÉTODO SAPO / PARETO 80/20) -->
-          <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 16px;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tu Objetivo Enfocado <span style="font-size: 9px; color: var(--yellow); opacity: 0.85; text-transform: none; font-weight: 600;">(Opcional)</span></span>
-              
-              <!-- Selector de Metodología Sutil -->
-              <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
-                <button (click)="selectMethodology('sapo')"
-                        style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
-                        [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.15)' : 'transparent'"
-                        [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--muted)'"
-                        title="Metodología Cómete el Sapo: la tarea más difícil e importante de tu día.">
-                  🐸 Sapo
-                </button>
-                <button (click)="selectMethodology('pareto')"
-                        style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
-                        [style.background]="activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.15)' : 'transparent'"
-                        [style.color]="activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)'"
-                        title="Filtro Pareto 80/20: el 20% del esfuerzo que genera el 80% del impacto real.">
-                  🎯 Pareto
-                </button>
-              </div>
-            </div>
-
-            <!-- Campo de Texto para el Objetivo -->
-            <div style="position: relative; display: flex; align-items: center;">
-              <input type="text" 
-                     [ngModel]="activeObjective()" 
-                     (ngModelChange)="activeObjective.set($event)"
-                     [placeholder]="activeMethodology() === 'sapo' ? '¿Qué tarea gigante vas a vencer hoy?' : '¿Cuál es tu 20% clave hoy?'"
-                     style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px; padding-right: 40px; color: var(--text); font-size: 12.5px; font-weight: 600; outline: none; transition: all 0.2s; font-family: inherit;"
-                     onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 10px rgba(99, 102, 241, 0.25)';"
-                     onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
-              <i class="fa-solid" 
-                 [class]="activeMethodology() === 'sapo' ? 'fa-frog' : 'fa-bullseye'" 
-                 [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--accent)'"
-                 style="position: absolute; right: 14px; font-size: 14px; pointer-events: none;"></i>
-            </div>
+          <!-- SECCIÓN DE AJUSTES AVANZADOS (Se muestra únicamente cuando showSetupSettings() es true) -->
+          <div *ngIf="showSetupSettings()" 
+               style="background: rgba(18, 18, 24, 0.55); border: 1.5px solid var(--accent); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; animation: slideDown 0.25s ease;">
             
-            <!-- Tip dinámico según la metodología -->
-            <div style="font-size: 10.5px; color: var(--muted); line-height: 1.4; display: flex; align-items: flex-start; gap: 6px;">
-              <i class="fa-solid fa-lightbulb" style="color: var(--yellow); margin-top: 2px;"></i>
-              <span *ngIf="activeMethodology() === 'sapo'">
-                <strong>Cómete el Sapo:</strong> Dedica esta sesión a la tarea de mayor resistencia mental. Completarla romperá la procrastinación para el resto del día.
-              </span>
-              <span *ngIf="activeMethodology() === 'pareto'">
-                <strong>Principio de Pareto:</strong> Enfócate en el 20% clave de tu trabajo. Evita distractores de bajo retorno para maximizar tu impacto hoy.
-              </span>
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
+              <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-gear" style="color: var(--accent);"></i>
+                Ajustes de Pomodoro
+              </h3>
+              <button (click)="showSetupSettings.set(false)" 
+                      style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
+                      title="Cerrar Ajustes">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
             </div>
-          </div>
-
-          <!-- AJUSTES SECUNDARIOS EXPANDIBLES (OCULTOS POR DEFECTO) -->
-          <div *ngIf="showSetupSettings()" style="display: flex; flex-direction: column; gap: 20px; animation: slideDown 0.25s ease;">
-            
-            <div style="height: 1px; background: rgba(255,255,255,0.05); margin: -5px 0 5px 0;"></div>
 
             <!-- DURACIÓN DE POMODORO Y DESCANSO -->
             <div style="display: flex; flex-direction: column; gap: 12px;">
@@ -247,8 +224,7 @@
                   <span style="font-size: 11px; font-weight: 700; color: var(--text);">Ciclo actual: {{ completedPomodoros() % longBreakInterval() }} / {{ longBreakInterval() }}</span>
                   <span style="font-size: 9.5px; color: var(--muted);">Completados en total: {{ completedPomodoros() }}</span>
                 </div>
-                <!-- Botón de reset manual del ciclo -->
-                <button (click)="completedPomodoros.set(0)"
+                <button (click)="resetDailyAttempts()"
                         style="margin-left: auto; background: transparent; border: none; color: var(--red); font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase;"
                         title="Reiniciar contador de ciclos">
                   Reset
@@ -341,71 +317,148 @@
               </div>
             </div>
 
-            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
 
-            <!-- 4. MODO CO-WORKING -->
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Modo de Sesión</span>
-              <div style="display: flex; gap: 4px; background: var(--bg3); padding: 2px; border-radius: 8px; border: 1px solid var(--border);">
-                <button (click)="coworkingMode.set('solo')" 
-                        style="border: none; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
-                        [style.background]="coworkingMode() === 'solo' ? 'var(--bg2)' : 'transparent'"
-                        [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'">Solo</button>
-                <button (click)="coworkingMode.set('partner')" 
-                        style="border: none; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
-                        [style.background]="coworkingMode() === 'partner' ? 'var(--bg2)' : 'transparent'"
-                        [style.color]="coworkingMode() === 'partner' ? 'var(--text)' : 'var(--muted)'">Acompañado</button>
-              </div>
-            </div>
+
+            <!-- BOTÓN APLICAR CAMBIOS / GUARDAR PREFERENCIAS -->
+            <button (click)="showSetupSettings.set(false)"
+                    style="width: 100%; border: none; padding: 12px; border-radius: 8px; background: var(--accent); color: #000; font-size: 12.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.35)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+              <i class="fa-solid fa-check"></i>
+              Aplicar Cambios
+            </button>
 
           </div>
 
-        </div> <!-- Cierra Caja de Estrategias -->
-
-        <!-- SECCIÓN DE IDEAS FUGACES -->
-        <div class="distractions-card" [class.flying]="isNoteFlying()" style="position: relative; border: 1px solid var(--border); border-top: 2.5px solid var(--accent); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow: hidden;">
-          
-          <!-- Contenido del card que se oculta al volar -->
-          <div [style.opacity]="isNoteFlying() ? 0 : 1" style="transition: opacity 0.2s; display: flex; flex-direction: column; gap: 12px; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-meteor" style="color: var(--accent); font-size: 14px;"></i>
-              <span style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px;">Ideas Fugaces & Notas</span>
-            </div>
+          <!-- SECCIONES PRINCIPALES (Ocultas cuando showSetupSettings() es true) -->
+          <ng-container *ngIf="!showSetupSettings()">
             
-            <p style="font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4;">
-              ¿Te vino una idea brillante o distracción? Apúntala aquí para sacarla de tu mente y revisarla después.
-            </p>
+            <!-- CAJA DE ESTRATEGIAS -->
+            <div style="background: rgba(18, 18, 24, 0.45); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+            
+              <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
+                <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-crosshairs" style="color: var(--accent);"></i>
+                  Estrategia de Concentración
+                </h3>
+                 <p style="font-size: 10.5px; color: var(--muted); margin: 6px 0 0 0; line-height: 1.4; text-transform: none; letter-spacing: 0;">
+                  <span *ngIf="activeMethodology() === 'sapo'">Complementa tu Pomodoro con la técnica del Sapo.</span>
+                  <span *ngIf="activeMethodology() === 'pareto'">Complementa tu Pomodoro con la técnica de Pareto.</span>
+                  <span *ngIf="activeMethodology() === 'normal'">Dedica tu Pomodoro a un objetivo claro.</span>
+                 </p>
+               </div>
 
-            <div style="position: relative; width: 100%;">
-              <textarea class="distractions-textarea" 
-                        [ngModel]="currentDraftIdea()" 
-                        (ngModelChange)="currentDraftIdea.set($event)"
-                        placeholder="Ej: Comprar café, llamar a mamá, investigar sobre Angular..."
-                        style="min-height: 80px; padding-bottom: 38px;"></textarea>
+              <!-- DECLARACIÓN DE OBJETIVO (MÉTODO SAPO / PARETO 80/20) -->
+              <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tu Objetivo Enfocado <span style="font-size: 9px; color: var(--yellow); opacity: 0.85; text-transform: none; font-weight: 600;">(Opcional)</span></span>
+                  
+                  <!-- Selector de Metodología Sutil -->
+                  <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
+                    <button (click)="selectMethodology('sapo')"
+                            style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                            [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.15)' : 'transparent'"
+                            [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--muted)'"
+                            title="Metodología Cómete el Sapo: la tarea más difícil e importante de tu día.">
+                      Sapo
+                    </button>
+                    <button (click)="selectMethodology('pareto')"
+                            style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                            [style.background]="activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.15)' : 'transparent'"
+                            [style.color]="activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)'"
+                            title="Filtro Pareto 80/20: el 20% del esfuerzo que genera el 80% del impacto real.">
+                      Pareto
+                    </button>
+                    <button (click)="selectMethodology('normal')"
+                            style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                            [style.background]="activeMethodology() === 'normal' ? 'rgba(255, 255, 255, 0.08)' : 'transparent'"
+                            [style.color]="activeMethodology() === 'normal' ? 'var(--text)' : 'var(--muted)'"
+                            title="Sesión de Enfoque Estándar: enfócate en una tarea tradicional a tu propio ritmo.">
+                      Estándar
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Campo de Texto para el Objetivo -->
+                <div style="position: relative; display: flex; align-items: center;">
+                  <input type="text" 
+                         [ngModel]="activeObjective()" 
+                         (ngModelChange)="activeObjective.set($event)"
+                         [placeholder]="activeMethodology() === 'sapo' ? '¿Qué tarea gigante vas a vencer hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave hoy?' : '¿Qué tarea vas a realizar en esta sesión?')"
+                         style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px; padding-right: 40px; color: var(--text); font-size: 12.5px; font-weight: 600; outline: none; transition: all 0.2s; font-family: inherit;"
+                         onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 10px rgba(99, 102, 241, 0.25)';"
+                         onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
+                  <i class="fa-solid" 
+                     [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-pen-clip')" 
+                     [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')"
+                     style="position: absolute; right: 14px; font-size: 14px; pointer-events: none;"></i>
+                </div>
+                
+                <!-- Tip dinámico según la metodología -->
+                <div style="font-size: 10.5px; color: var(--muted); line-height: 1.4; display: flex; align-items: flex-start; gap: 6px;">
+                  <i class="fa-solid fa-lightbulb" style="color: var(--yellow); margin-top: 2px;"></i>
+                  <span *ngIf="activeMethodology() === 'sapo'">
+                    <strong>Cómete el Sapo:</strong> Dedica esta sesión a la tarea de mayor resistencia mental. Completarla romperá la procrastinación para el resto del día.
+                  </span>
+                  <span *ngIf="activeMethodology() === 'pareto'">
+                    <strong>Principio de Pareto:</strong> Enfócate en el 20% clave de tu trabajo. Evita distractores de bajo retorno para maximizar tu impacto hoy.
+                  </span>
+                  <span *ngIf="activeMethodology() === 'normal'">
+                    <strong>Enfoque Estándar:</strong> Trabaja de forma tradicional en tu tarea del momento a ritmo constante. Ideal para avanzar rutinas o tareas menores.
+                  </span>
+                </div>
+              </div>
+
+            </div> <!-- Cierra Caja de Estrategias -->
+
+            <!-- SECCIÓN DE IDEAS FUGACES -->
+            <div class="distractions-card" [class.flying]="isNoteFlying()" style="position: relative; border: 1px solid var(--border); border-top: 2.5px solid var(--accent); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow: hidden;">
               
-              <!-- Botón de enviar sutil abajo a la derecha de la textarea -->
-              <button (click)="sendDraftIdea()"
-                      [disabled]="!currentDraftIdea().trim()"
-                      style="position: absolute; right: 10px; bottom: 10px; background: var(--accent); border: none; border-radius: 6px; padding: 6px 12px; font-size: 11px; font-weight: 800; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;"
-                      [style.opacity]="currentDraftIdea().trim() ? 1 : 0.4"
-                      [style.cursor]="currentDraftIdea().trim() ? 'pointer' : 'not-allowed'"
-                      onmouseover="if(this.style.opacity==='1') { this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 10px rgba(99, 102, 241, 0.45)'; }"
-                      onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
-                <i class="fa-solid fa-paper-plane" style="font-size: 10px;"></i>
-                <span>Enviar</span>
-              </button>
-            </div>
-          </div>
+              <!-- Contenido del card que se oculta al volar -->
+              <div [style.opacity]="isNoteFlying() ? 0 : 1" style="transition: opacity 0.2s; display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
+                  <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-meteor" style="color: var(--accent);"></i>
+                    Ideas Fugaces & Notas
+                  </h3>
+                </div>
+                
+                <p style="font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4;">
+                  ¿Te vino una idea brillante o distracción? Apúntala aquí para sacarla de tu mente y revisarla después.
+                </p>
 
-          <!-- Superposición del avión de papel durante el vuelo animado -->
-          <div *ngIf="isNoteFlying()" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; animation: planeGlow 1s infinite alternate;">
-            <i class="fa-solid fa-paper-plane" style="font-size: 48px; color: var(--accent);"></i>
-            <span style="font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-top: 12px;">¡Idea volando!</span>
-          </div>
+                <div style="position: relative; width: 100%;">
+                  <textarea class="distractions-textarea" 
+                            [ngModel]="currentDraftIdea()" 
+                            (ngModelChange)="currentDraftIdea.set($event)"
+                            placeholder="Ej: Comprar café, llamar a mamá, revisar los reportes..."
+                            style="min-height: 80px; padding-bottom: 38px;"></textarea>
+                  
+                  <!-- Botón de enviar sutil abajo a la derecha de la textarea -->
+                  <button (click)="sendDraftIdea()"
+                          [disabled]="!currentDraftIdea().trim()"
+                          style="position: absolute; right: 10px; bottom: 10px; background: var(--accent); border: none; border-radius: 6px; padding: 6px 12px; font-size: 11px; font-weight: 800; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                          [style.opacity]="currentDraftIdea().trim() ? 1 : 0.4"
+                          [style.cursor]="currentDraftIdea().trim() ? 'pointer' : 'not-allowed'"
+                          onmouseover="if(this.style.opacity==='1') { this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 10px rgba(99, 102, 241, 0.45)'; }"
+                          onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                    <i class="fa-solid fa-paper-plane" style="font-size: 10px;"></i>
+                    <span>Enviar</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Superposición del avión de papel durante el vuelo animado -->
+              <div *ngIf="isNoteFlying()" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; animation: planeGlow 1s infinite alternate;">
+                <i class="fa-solid fa-paper-plane" style="font-size: 48px; color: var(--accent);"></i>
+                <span style="font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-top: 12px;">¡Idea volando!</span>
+              </div>
+
+            </div>
+
+          </ng-container>
 
         </div>
-
-      </div> <!-- Cierra Columna Derecha -->
 
       </div>
     </div>
@@ -436,14 +489,15 @@
     <!-- Luz de respiración sutil en el fondo -->
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 440px; height: 440px; background: var(--accent); opacity: 0.03; filter: blur(90px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
-    <!-- AREA SUPERIOR: OBJETIVO CENTRADO Y GRANDE -->
-    <div style="text-align: center; z-index: 2; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+    <!-- AREA SUPERIOR: OBJETIVO CENTRADO Y GRANDE (Sólo si hay un objetivo definido) -->
+    <div *ngIf="activeObjective() && activeObjective().trim()" 
+         style="text-align: center; z-index: 2; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
       <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;"
-           [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(99, 102, 241, 0.08)'"
-           [style.border]="activeMethodology() === 'sapo' ? '1px solid rgba(16, 185, 129, 0.15)' : '1px solid rgba(99, 102, 241, 0.15)'"
-           [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--accent)'">
-        <i class="fa-solid" [class]="activeMethodology() === 'sapo' ? 'fa-frog' : 'fa-bullseye'"></i>
-        <span>{{ activeMethodology() === 'sapo' ? 'Misión Sapo (Comer la Rana)' : 'Filtro Pareto 80/20' }}</span>
+           [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.08)' : (activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255, 255, 255, 0.05)')"
+           [style.border]="activeMethodology() === 'sapo' ? '1px solid rgba(16, 185, 129, 0.15)' : (activeMethodology() === 'pareto' ? '1px solid rgba(99, 102, 241, 0.15)' : '1px solid rgba(255, 255, 255, 0.1)')"
+           [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')">
+        <i class="fa-solid" [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-bolt')"></i>
+        <span>{{ activeMethodology() === 'sapo' ? 'Misión Sapo (Comer la Rana)' : (activeMethodology() === 'pareto' ? 'Filtro Pareto 80/20' : 'Enfoque Estándar') }}</span>
       </div>
       <h1 style="font-size: 28px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.5px; max-width: 700px; line-height: 1.3;">
         "{{ activeObjective() }}"
@@ -491,6 +545,33 @@
               Presiona Reanudar para evitar penalización
             </span>
           </ng-container>
+        </div>
+      </div>
+
+      <!-- Indicador de Pomodoros y Intentos por Día en la sesión activa -->
+      <div *ngIf="dailyAttempts().length > 0" 
+           style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 20px 0 0 0; width: 100%;">
+        <!-- Badge de Trofeo -->
+        <div [attr.data-tooltip]="attemptsTooltipText()"
+             style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.15); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: all 0.2s;"
+             onmouseover="this.style.background='rgba(0,0,0,0.25)'; this.style.borderColor='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(0,0,0,0.15)'; this.style.borderColor='rgba(255,255,255,0.03)';">
+          <i class="fa-solid fa-trophy" style="color: var(--yellow); font-size: 13px;"></i>
+          <span style="font-size: 11px; font-weight: 800; color: var(--yellow); text-transform: uppercase; letter-spacing: 1px;">
+            {{ totalCommunityPoints() >= 0 ? '+' : '' }}{{ totalCommunityPoints() }} pts
+          </span>
+        </div>
+        <!-- Historial de Puntos de Colores -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 320px; background: rgba(0,0,0,0.12); padding: 8px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); width: auto;">
+          <div *ngFor="let attempt of dailyAttempts()" 
+               style="display: flex; align-items: center; justify-content: center;"
+               [attr.data-tooltip]="attempt.status === 'completed' ? 'Completado (+100 pts)' : (attempt.status === 'abandoned' ? 'Abandonado (-50 pts)' : 'Pausado (-20 pts)')">
+            <span style="display: inline-block; animation: scaleUp 0.3s ease;">
+              <i class="fa-solid fa-circle" 
+                 [style.color]="attempt.status === 'completed' ? 'var(--green)' : (attempt.status === 'abandoned' ? 'var(--red)' : 'var(--yellow)')" 
+                 style="font-size: 7px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.05));"></i>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -649,8 +730,18 @@
     <div style="position: absolute; bottom: 25%; right: 30%; width: 140px; height: 140px; background: var(--accent); opacity: 0.04; filter: blur(50px); border-radius: 50%;"></div>
 
     <!-- BLOQUE DEL CUESTIONARIO -->
-    <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.8) 0%, rgba(30, 30, 39, 0.45) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 40px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 28px; box-shadow: 0 32px 80px rgba(0,0,0,0.5); z-index: 2; text-align: center;">
+    <div style="position: relative; background: linear-gradient(135deg, rgba(18, 18, 24, 0.8) 0%, rgba(30, 30, 39, 0.45) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 40px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 28px; box-shadow: 0 32px 80px rgba(0,0,0,0.5); z-index: 2; text-align: center;">
       
+      <!-- Botón de Cerrar (X) para retomar el pomodoro (Sólo si no se acabó el tiempo y no se venció por pausa) -->
+      <button *ngIf="timeLeft() > 0 && !interruptedByPause()" 
+              (click)="resumeSession()"
+              style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: all 0.2s;"
+              onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.color='var(--text)';"
+              onmouseout="this.style.background='transparent'; this.style.color='var(--muted)';"
+              title="Cancelar y retomar pomodoro">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
       <!-- Icono e Introducción -->
       <div>
         <div style="font-size: 28px; margin-bottom: 10px;">
@@ -665,10 +756,13 @@
       <!-- Pregunta 1: Estado de Finalización (Botones de Recompensas) -->
       <div style="display: flex; flex-direction: column; gap: 10px;">
         <!-- Botón Completada Verde -->
-        <button (click)="sessionEndingStatus.set('completed')" 
-                style="width: 100%; border: 1px solid rgba(16, 185, 129, 0.2); padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
+        <button [disabled]="manuallyAbandoned() || interruptedByPause()"
+                (click)="sessionEndingStatus.set('completed')" 
+                style="width: 100%; border: 1px solid rgba(16, 185, 129, 0.2); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
                 [style.background]="sessionEndingStatus() === 'completed' ? 'rgba(16, 185, 129, 0.08)' : 'transparent'"
-                [style.borderColor]="sessionEndingStatus() === 'completed' ? 'var(--green)' : 'rgba(255,255,255,0.05)'">
+                [style.borderColor]="sessionEndingStatus() === 'completed' ? 'var(--green)' : 'rgba(255,255,255,0.05)'"
+                [style.opacity]="(manuallyAbandoned() || interruptedByPause()) ? 0.35 : 1"
+                [style.cursor]="(manuallyAbandoned() || interruptedByPause()) ? 'not-allowed' : 'pointer'">
           <div style="display: flex; align-items: center; gap: 10px;">
             <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--green);"></span>
             <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Completada</span>
@@ -677,10 +771,13 @@
         </button>
 
         <!-- Botón Interrumpida Amarillo -->
-        <button (click)="sessionEndingStatus.set('interrupted')" 
-                style="width: 100%; border: 1px solid rgba(245, 158, 11, 0.2); padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
+        <button [disabled]="manuallyAbandoned()"
+                (click)="sessionEndingStatus.set('interrupted')" 
+                style="width: 100%; border: 1px solid rgba(245, 158, 11, 0.2); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
                 [style.background]="sessionEndingStatus() === 'interrupted' ? 'rgba(245, 158, 11, 0.08)' : 'transparent'"
-                [style.borderColor]="sessionEndingStatus() === 'interrupted' ? 'var(--yellow)' : 'rgba(255,255,255,0.05)'">
+                [style.borderColor]="sessionEndingStatus() === 'interrupted' ? 'var(--yellow)' : 'rgba(255,255,255,0.05)'"
+                [style.opacity]="manuallyAbandoned() ? 0.35 : 1"
+                [style.cursor]="manuallyAbandoned() ? 'not-allowed' : 'pointer'">
           <div style="display: flex; align-items: center; gap: 10px;">
             <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--yellow);"></span>
             <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Interrumpida</span>
@@ -689,10 +786,13 @@
         </button>
 
         <!-- Botón Abandonada Rojo -->
-        <button (click)="sessionEndingStatus.set('abandoned')" 
-                style="width: 100%; border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
+        <button [disabled]="interruptedByPause()"
+                (click)="sessionEndingStatus.set('abandoned')" 
+                style="width: 100%; border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
                 [style.background]="sessionEndingStatus() === 'abandoned' ? 'rgba(239, 68, 68, 0.08)' : 'transparent'"
-                [style.borderColor]="sessionEndingStatus() === 'abandoned' ? 'var(--red)' : 'rgba(255,255,255,0.05)'">
+                [style.borderColor]="sessionEndingStatus() === 'abandoned' ? 'var(--red)' : 'rgba(255,255,255,0.05)'"
+                [style.opacity]="interruptedByPause() ? 0.35 : 1"
+                [style.cursor]="interruptedByPause() ? 'not-allowed' : 'pointer'">
           <div style="display: flex; align-items: center; gap: 10px;">
             <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--red);"></span>
             <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Abandonada</span>
@@ -701,27 +801,40 @@
         </button>
       </div>
 
-      <!-- Pregunta 2: Pareto objetivo completado? -->
+      <!-- Pregunta 2: ¿Completaste tu objetivo? -->
       <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
         <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">
-          {{ activeMethodology() === 'sapo' ? '¿Lograste comerte el Sapo por completo?' : '¿Conseguiste finiquitar ese 20% clave (Pareto)?' }}
+          ¿Completaste tu objetivo?
         </span>
         
-        <div style="display: flex; gap: 10px; width: 100%;">
-          <button (click)="objectiveCompleted.set(true)" 
-                  style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.2s;"
-                  [style.background]="objectiveCompleted() === true ? 'rgba(99, 102, 241, 0.08)' : 'transparent'"
-                  [style.borderColor]="objectiveCompleted() === true ? 'var(--accent)' : 'var(--border)'"
-                  [style.color]="objectiveCompleted() === true ? 'var(--accent)' : 'var(--text)'">
-            Sí
-          </button>
-          
-          <button (click)="objectiveCompleted.set(false)" 
-                  style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.2s;"
-                  [style.background]="objectiveCompleted() === false ? 'rgba(255, 255, 255, 0.03)' : 'transparent'"
-                  [style.borderColor]="objectiveCompleted() === false ? 'rgba(255,255,255,0.1)' : 'var(--border)'"
-                  [style.color]="objectiveCompleted() === false ? 'var(--muted)' : 'var(--text)'">
-            No
+        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+          <div style="display: flex; gap: 10px; width: 100%;">
+            <!-- Botón Sí -->
+            <button (click)="objectiveCompleted.set('yes')" 
+                    style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.2s;"
+                    [style.background]="objectiveCompleted() === 'yes' ? 'rgba(99, 102, 241, 0.08)' : 'transparent'"
+                    [style.borderColor]="objectiveCompleted() === 'yes' ? 'var(--accent)' : 'var(--border)'"
+                    [style.color]="objectiveCompleted() === 'yes' ? 'var(--accent)' : 'var(--text)'">
+              Sí
+            </button>
+            
+            <!-- Botón No -->
+            <button (click)="objectiveCompleted.set('no')" 
+                    style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.2s;"
+                    [style.background]="objectiveCompleted() === 'no' ? 'rgba(255, 255, 255, 0.03)' : 'transparent'"
+                    [style.borderColor]="objectiveCompleted() === 'no' ? 'rgba(255,255,255,0.1)' : 'var(--border)'"
+                    [style.color]="objectiveCompleted() === 'no' ? 'var(--muted)' : 'var(--text)'">
+              No
+            </button>
+          </div>
+
+          <!-- Botón Hice un gran avance -->
+          <button (click)="objectiveCompleted.set('progress')" 
+                  style="width: 100%; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.2s;"
+                  [style.background]="objectiveCompleted() === 'progress' ? 'rgba(16, 185, 129, 0.08)' : 'transparent'"
+                  [style.borderColor]="objectiveCompleted() === 'progress' ? 'var(--green)' : 'var(--border)'"
+                  [style.color]="objectiveCompleted() === 'progress' ? 'var(--green)' : 'var(--text)'">
+            Hice un gran avance
           </button>
         </div>
       </div>

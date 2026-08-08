@@ -40,8 +40,41 @@ export class Enfoque implements OnDestroy {
   breakDuration = signal(5);   // Predeterminado a 5 min (Descanso)
   longBreakInterval = signal(4); // 4 pomodoros antes de un descanso largo
   longBreakDuration = signal(15); // Duración de descanso largo (15 min)
-  completedPomodoros = signal(parseInt(localStorage.getItem('completed-pomodoros') || '0', 10));
+  dailyAttempts = signal<{ status: 'completed' | 'abandoned' | 'interrupted', time: string }[]>(
+    localStorage.getItem('daily-attempts') 
+      ? JSON.parse(localStorage.getItem('daily-attempts')!) 
+      : [
+          { status: 'completed', time: '09:00' },
+          { status: 'completed', time: '10:30' },
+          { status: 'completed', time: '12:00' },
+          { status: 'abandoned', time: '13:15' },
+          { status: 'completed', time: '14:30' },
+          { status: 'interrupted', time: '15:45' },
+          { status: 'completed', time: '17:00' },
+          { status: 'completed', time: '18:30' }
+        ]
+  );
+  completedPomodoros = computed(() => {
+    return this.dailyAttempts().filter(a => a.status === 'completed').length;
+  });
+  completedPomodorosArray = computed(() => Array(this.completedPomodoros()));
+  totalCommunityPoints = computed(() => {
+    return this.dailyAttempts().reduce((acc, attempt) => {
+      if (attempt.status === 'completed') return acc + 100;
+      if (attempt.status === 'abandoned') return acc - 50;
+      if (attempt.status === 'interrupted') return acc - 20;
+      return acc;
+    }, 0);
+  });
+  attemptsTooltipText = computed(() => {
+    const completed = this.dailyAttempts().filter(a => a.status === 'completed').length;
+    const interrupted = this.dailyAttempts().filter(a => a.status === 'interrupted').length;
+    const abandoned = this.dailyAttempts().filter(a => a.status === 'abandoned').length;
+    return `Sesiones de hoy: ${completed} completadas, ${interrupted} interrumpidas, ${abandoned} abandonadas`;
+  });
 
+  manuallyAbandoned = signal(false);
+  interruptedByPause = signal(false);
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'partner'>('partner');
@@ -100,9 +133,9 @@ export class Enfoque implements OnDestroy {
 
   // Objetivo Activo (La batalla de hoy) e Integración Metodológica
   activeObjective = signal('');
-  activeMethodology = signal<'sapo' | 'pareto'>('sapo');
+  activeMethodology = signal<'sapo' | 'pareto' | 'normal'>('sapo');
 
-  selectMethodology(method: 'sapo' | 'pareto') {
+  selectMethodology(method: 'sapo' | 'pareto' | 'normal') {
     this.activeMethodology.set(method);
   }
 
@@ -129,7 +162,7 @@ export class Enfoque implements OnDestroy {
 
   // Resultados del Cuestionario Post-Sesión
   sessionEndingStatus = signal<'completed' | 'interrupted' | 'abandoned'>('completed');
-  objectiveCompleted = signal<boolean | null>(null);
+  objectiveCompleted = signal<'yes' | 'no' | 'progress' | null>(null);
 
   labels = computed(() => {
     return {
@@ -171,14 +204,8 @@ export class Enfoque implements OnDestroy {
 
   // Iniciar Flujo: Lanza el Ritual 3-2-1
   startFocusFlow() {
-    if (!this.activeObjective().trim()) {
-      this.activeObjective.set(
-        this.activeMethodology() === 'sapo'
-          ? 'Comer mi Sapo del día 🐸'
-          : 'Resolver mi 20% de alto impacto 🎯'
-      );
-    }
-    
+    this.manuallyAbandoned.set(false);
+    this.interruptedByPause.set(false);
     this.stopTimerLoop();
     this.stopEmergencyTimer();
     this.emergencyPauseActive.set(false);
@@ -235,6 +262,7 @@ export class Enfoque implements OnDestroy {
           // Se acabó el tiempo de pausa -> Sesión Interrumpida automáticamente
           this.stopEmergencyTimer();
           this.sessionEndingStatus.set('interrupted');
+          this.interruptedByPause.set(true);
           this.arenaState.set('summary');
           this.playTone(150, 'sawtooth', 0.15, 0.5);
         }
@@ -247,6 +275,7 @@ export class Enfoque implements OnDestroy {
     this.stopTimerLoop();
     this.stopEmergencyTimer();
     this.sessionEndingStatus.set('abandoned');
+    this.manuallyAbandoned.set(true);
     this.arenaState.set('summary');
   }
 
@@ -255,14 +284,32 @@ export class Enfoque implements OnDestroy {
     this.stopBackgroundSound();
     this.backgroundSound.set('off');
 
-    if (this.sessionEndingStatus() === 'completed') {
-      const nextCount = this.completedPomodoros() + 1;
-      this.completedPomodoros.set(nextCount);
-      localStorage.setItem('completed-pomodoros', nextCount.toString());
+    const currentStatus = this.sessionEndingStatus();
+    if (currentStatus) {
+      const now = new Date();
+      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+      const newAttempt = { status: currentStatus as 'completed' | 'abandoned' | 'interrupted', time: timeStr };
+      const updatedAttempts = [...this.dailyAttempts(), newAttempt];
+      this.dailyAttempts.set(updatedAttempts);
+      localStorage.setItem('daily-attempts', JSON.stringify(updatedAttempts));
     }
 
     this.arenaState.set('setup');
     this.router.navigate(['/home']);
+  }
+
+  resetDailyAttempts() {
+    if (confirm('¿Quieres reiniciar todos los pomodoros y registros de hoy?')) {
+      this.dailyAttempts.set([]);
+      localStorage.setItem('daily-attempts', '[]');
+    }
+  }
+
+  resumeSession() {
+    this.manuallyAbandoned.set(false);
+    this.interruptedByPause.set(false);
+    this.arenaState.set('active');
+    this.startTimerLoop();
   }
 
   // Reiniciar desde Setup

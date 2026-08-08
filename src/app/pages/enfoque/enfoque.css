@@ -557,3 +557,52 @@
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Tooltips personalizados estilizados */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 135%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  background: rgba(18, 18, 24, 0.96);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 10px rgba(99, 102, 241, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 999;
+}
+
+[data-tooltip]::before {
+  content: '';
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  border-width: 6px;
+  border-style: solid;
+  border-color: rgba(18, 18, 24, 0.96) transparent transparent transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 999;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
