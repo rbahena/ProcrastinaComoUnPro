@@ -38,6 +38,10 @@ export class Enfoque implements OnDestroy {
   // Configuración del Pomodoro (Tiempos científicos fijos según el filtro Pareto)
   focusDuration = signal(25); // Predeterminado a 25 min (Estándar Pomodoro)
   breakDuration = signal(5);   // Predeterminado a 5 min (Descanso)
+  longBreakInterval = signal(4); // 4 pomodoros antes de un descanso largo
+  longBreakDuration = signal(15); // Duración de descanso largo (15 min)
+  completedPomodoros = signal(parseInt(localStorage.getItem('completed-pomodoros') || '0', 10));
+
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'partner'>('partner');
@@ -48,9 +52,15 @@ export class Enfoque implements OnDestroy {
 
   // Control para mostrar ajustes secundarios de audio
   showSettingsPanel = signal(false);
+  showSetupSettings = signal(false);
 
-  // Objetivo Activo (La batalla de hoy)
-  activeObjective = signal('Sesión de Enfoque');
+  // Objetivo Activo (La batalla de hoy) e Integración Metodológica
+  activeObjective = signal('');
+  activeMethodology = signal<'sapo' | 'pareto'>('sapo');
+
+  selectMethodology(method: 'sapo' | 'pareto') {
+    this.activeMethodology.set(method);
+  }
 
   // Lógica del Temporizador
   timeLeft = signal(25 * 60);
@@ -117,7 +127,11 @@ export class Enfoque implements OnDestroy {
   // Iniciar Flujo: Lanza el Ritual 3-2-1
   startFocusFlow() {
     if (!this.activeObjective().trim()) {
-      this.activeObjective.set('Sesión de Enfoque Silenciosa');
+      this.activeObjective.set(
+        this.activeMethodology() === 'sapo'
+          ? 'Comer mi Sapo del día 🐸'
+          : 'Resolver mi 20% de alto impacto 🎯'
+      );
     }
     
     this.stopTimerLoop();
@@ -195,6 +209,13 @@ export class Enfoque implements OnDestroy {
   finishSession() {
     this.stopBackgroundSound();
     this.backgroundSound.set('off');
+
+    if (this.sessionEndingStatus() === 'completed') {
+      const nextCount = this.completedPomodoros() + 1;
+      this.completedPomodoros.set(nextCount);
+      localStorage.setItem('completed-pomodoros', nextCount.toString());
+    }
+
     this.arenaState.set('setup');
     this.router.navigate(['/home']);
   }
@@ -370,8 +391,10 @@ export class Enfoque implements OnDestroy {
       this.timeLeft.set(this.focusDuration() * 60);
     } else {
       this.isBreak.set(true);
-      this.totalSessionTime.set(this.breakDuration() * 60);
-      this.timeLeft.set(this.breakDuration() * 60);
+      const isLongBreak = this.completedPomodoros() > 0 && (this.completedPomodoros() % this.longBreakInterval() === 0);
+      const duration = isLongBreak ? this.longBreakDuration() : this.breakDuration();
+      this.totalSessionTime.set(duration * 60);
+      this.timeLeft.set(duration * 60);
     }
   }
 
@@ -381,8 +404,10 @@ export class Enfoque implements OnDestroy {
       this.totalSessionTime.set(this.focusDuration() * 60);
       this.timeLeft.set(this.focusDuration() * 60);
     } else {
-      this.totalSessionTime.set(this.breakDuration() * 60);
-      this.timeLeft.set(this.breakDuration() * 60);
+      const isLongBreak = this.completedPomodoros() > 0 && (this.completedPomodoros() % this.longBreakInterval() === 0);
+      const duration = isLongBreak ? this.longBreakDuration() : this.breakDuration();
+      this.totalSessionTime.set(duration * 60);
+      this.timeLeft.set(duration * 60);
     }
   }
 
