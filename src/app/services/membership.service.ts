@@ -74,7 +74,7 @@ export class MembershipService {
   avatarsCatalog = signal<AvatarItem[]>([
     { id: 'gato', name: 'Gato', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
     { id: 'perro', name: 'Perro', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
-    { id: 'conejo', name: 'Conejo', icon: 'fa-rabbit', color: '#ec4899', isUnlocked: true, isInitial: true },
+    { id: 'conejo', name: 'Conejo', icon: 'fa-rabbit', color: '#9ca3af', isUnlocked: true, isInitial: true },
     { id: 'loro', name: 'Loro', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
     { id: 'hamster', name: 'Hámster', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
     { id: 'pez', name: 'Pez', icon: 'fa-fish', color: '#06b6d4', isUnlocked: true, isInitial: true },

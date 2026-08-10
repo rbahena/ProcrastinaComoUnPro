@@ -1341,7 +1341,7 @@ export class Cualidades implements OnInit {
       // LIBRES DESDE EL INICIO
       { id: 'gato', name: 'Gato', type: 'inicial', emoji: '🐱', color: '#10b981', role: 'Ninja Ágil', cost: 0, qualityId: null },
       { id: 'perro', name: 'Perro', type: 'inicial', emoji: '🐶', color: '#3a86f0', role: 'Guardián Fiel', cost: 0, qualityId: null },
-      { id: 'conejo', name: 'Conejo', type: 'inicial', emoji: '🐰', color: '#ec4899', role: 'Veloz Saltarín', cost: 0, qualityId: null },
+      { id: 'conejo', name: 'Conejo', type: 'inicial', emoji: '🐰', color: '#9ca3af', role: 'Veloz Saltarín', cost: 0, qualityId: null },
       { id: 'loro', name: 'Loro', type: 'inicial', emoji: '🦜', color: '#fbbf24', role: 'Eco Parlanchín', cost: 0, qualityId: null },
       { id: 'hamster', name: 'Hámster', type: 'inicial', emoji: '🐹', color: '#f97316', role: 'Veloz Corredor', cost: 0, qualityId: null },
       { id: 'pez', name: 'Pez', type: 'inicial', emoji: '🐟', color: '#06b6d4', role: 'Nadador Fluido', cost: 0, qualityId: null },
