@@ -90,349 +90,356 @@
     </div>
   </div>
 
-  <!-- METRICAS DE LA COMUNIDAD EN TIEMPO REAL -->
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 20px;">
+  <!-- CONTENEDOR PRINCIPAL EN DOS COLUMNAS -->
+  <div class="dashboard-grid">
     
-    <!-- CARD 1: Personas Enfocadas -->
-    <div class="metric-card-premium card-focused-now" style="--card-accent: var(--green);">
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span class="pulse-green-dot"></span>
-          <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Ahora mismo</span>
-        </div>
-        <span class="card-title-text" style="color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 1px 5px; border-radius: 3px;">En vivo</span>
-      </div>
+    <!-- COLUMNA IZQUIERDA (Principal - Enfoque y Podio) -->
+    <div class="dashboard-main-column">
       
-      <div class="card-large-value">
-        {{ liveFocusedUsersCount() }} personas
-      </div>
-      <div class="card-sub-desc">están trabajando.</div>
-      
-      <!-- Avatares de Animales Ninja Apilados (Solo animales) -->
-      <div class="avatar-stack-container" style="margin-top: 6px;">
-        <div class="avatar-stack-list">
-          <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; display: flex; align-items: center; justify-content: center;">
-            🐺
-            <span class="avatar-tooltip">Lobo Samurai</span>
-          </div>
-          <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-            🦊
-            <span class="avatar-tooltip">Zorro Ninja</span>
-          </div>
-          <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-            🦁
-            <span class="avatar-tooltip">León Shogun</span>
-          </div>
-          <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-            🦉
-            <span class="avatar-tooltip">Búho Estratega</span>
-          </div>
-          <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-            🐼
-            <span class="avatar-tooltip">Panda Ninja</span>
-          </div>
-        </div>
-        <span class="card-title-text" style="color: var(--muted); font-weight: 500; margin-left: 4px;">en directo</span>
-      </div>
-    </div>
-
-    <!-- CARD 2: Objetivos Cumplidos -->
-    <div class="metric-card-premium card-objectives-done" style="--card-accent: var(--accent);">
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <i class="fa-solid fa-circle-check" style="font-size: 10px; color: var(--accent);"></i>
-          <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Hoy</span>
-        </div>
-        <span class="card-title-text" style="color: var(--accent); font-weight: 700; background: rgba(99, 102, 241, 0.08); padding: 1px 5px; border-radius: 3px;">Red</span>
-      </div>
-      
-      <div class="card-large-value">
-        {{ liveCompletedObjectivesToday() }}
-      </div>
-      <div class="card-sub-desc">sesiones completadas.</div>
-      
-      <!-- Iconos de Recompensa (Solo animales) -->
-      <div class="avatar-stack-container" style="margin-top: 6px;">
-        <div class="avatar-stack-list">
-          <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; display: flex; align-items: center; justify-content: center;">
-            🐯
-            <span class="avatar-tooltip">Tigre Guerrero</span>
-          </div>
-          <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-            🐨
-            <span class="avatar-tooltip">Koala Sabio</span>
-          </div>
-          <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-            🐻
-            <span class="avatar-tooltip">Oso Foco</span>
-          </div>
-          <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-            🐸
-            <span class="avatar-tooltip">Rana Productiva</span>
-          </div>
-          <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-            🐱
-            <span class="avatar-tooltip">Gato Constante</span>
-          </div>
-        </div>
-        <span class="card-title-text" style="color: var(--muted); font-weight: 500; margin-left: 4px;">Guerreros</span>
-      </div>
-    </div>
-
-    <!-- CARD 3: Ranking Global / Tu Desempeño (Dinámico Premium vs Free) -->
-    <div class="metric-card-premium card-user-rank" style="--card-accent: var(--yellow); min-height: 155px; display: flex; flex-direction: column; justify-content: space-between;">
-      
-      <!-- CABECERA -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <i class="fa-solid fa-trophy" style="font-size: 10px; color: var(--yellow);"></i>
-          <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Desempeño de Hoy</span>
-        </div>
-        <span class="card-title-text" style="color: var(--yellow); font-weight: 700;" *ngIf="membership.isPremium()">
-          Top {{ 100 - percentageBeaten() }}%
-        </span>
-        <span class="card-title-text" style="color: var(--muted); font-weight: 700;" *ngIf="!membership.isPremium()">
-          Clasificación
-        </span>
-      </div>
-
-      <!-- VISTA GRATUITA: RANKING DUMMY CON INVITACIÓN PREMIUM -->
-      <div *ngIf="!membership.isPremium()" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px; flex: 1; justify-content: center;">
-        <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 6px; opacity: 0.7;">
-          <!-- Posición Actual -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
-            <div style="display: flex; align-items: center; gap: 4px;">
-              <span class="card-large-value" style="font-size: 18px !important; margin-top: 0; color: var(--text);">#{{ rankingPosition() }}</span>
-              <span *ngIf="liveRankShift() !== 0" 
-                    [style.color]="liveRankShift() < 0 ? 'var(--green)' : '#ef4444'" 
-                    style="font-size: 8px; font-weight: 900; display: inline-flex; align-items: center; gap: 1px;">
-                <i class="fa-solid" [class]="liveRankShift() < 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
-              </span>
-            </div>
-          </div>
-
-          <!-- Puntos por Enfoque -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
-            <span class="card-large-value" style="font-size: 16px !important; margin-top: 0; color: var(--muted);">🔒</span>
-          </div>
-
-          <!-- Recompensa Monedas -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Monedas</span>
-            <span style="font-size: 14px; font-weight: 700; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 3px;">
-              🔒
-            </span>
-          </div>
-        </div>
+      <!-- CARD: SESIONES DE ENFOQUE ACTIVAS (COMUNIDAD) -->
+      <div class="coworking-card">
         
-        <!-- Superado Comunidad (Discreto) -->
-        <div style="font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px; width: 100%;">
-          Podrías superar al {{ percentageBeaten() }}% de la comunidad hoy
+        <!-- Cabecera -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-users" style="color: var(--accent); font-size: 14px;"></i>
+            <div>
+              <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Usuarios en Enfoque</h4>
+              <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Usuarios que acaban de iniciar una sesión de enfoque. ¡Únete!</p>
+            </div>
+          </div>
+          <!-- Corona Premium si es gratis -->
+          <span *ngIf="!membership.isPremium()" style="font-size: 9px; color: var(--yellow); font-weight: 800; background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.15); padding: 2px 6px; border-radius: 10px; display: flex; align-items: center; gap: 3px;">
+            <i class="fa-solid fa-crown"></i> PRO
+          </span>
         </div>
+
+        <!-- Lista de salas activas -->
+        <div style="display: flex; flex-direction: column; gap: 10px; min-height: 140px; justify-content: center;">
+          
+          <!-- Sala 1: Ramiro -->
+          <div class="coworking-slot">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="coworking-avatar avatar-sprite sprite-zorro" style="border: 1.5px solid #ff007f;"></div>
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 12px; font-weight: 700; color: var(--text);">Ramiro (Ninja)</span>
+                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                  <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
+                  Inició hace 1 min • 25 min
+                </span>
+              </div>
+            </div>
+            <button (click)="joinSharedSession('Ramiro', 'zorro')" 
+                    class="coworking-btn"
+                    title="Unirme a Ramiro">
+              <span>Unirme</span>
+              <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
+            </button>
+          </div>
+
+          <!-- Sala 2: Ana -->
+          <div class="coworking-slot">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="coworking-avatar avatar-sprite sprite-lobo" style="border: 1.5px solid #3a86f0;"></div>
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 12px; font-weight: 700; color: var(--text);">Ana (Samurái)</span>
+                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                  <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
+                  Inició hace 3 min • 50 min
+                </span>
+              </div>
+            </div>
+            <button (click)="joinSharedSession('Ana', 'lobo')" 
+                    class="coworking-btn"
+                    title="Unirme a Ana">
+              <span>Unirme</span>
+              <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- CARD: PODIO DE LÍDERES (TOP 3) -->
+      <div class="podio-card">
         
-        <button (click)="showPaywallModal.set(true)" 
-                style="border: none; background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 6px; padding: 5px; color: var(--yellow); font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 4px;"
-                onmouseover="this.style.background='rgba(212,175,55,0.18)'"
-                onmouseout="this.style.background='rgba(212,175,55,0.1)'">
-          Desbloquear Dojo Premium
-        </button>
-      </div>
-
-      <!-- VISTA PREMIUM: ESTADÍSTICAS DETALLADAS DE COMPETENCIA -->
-      <div *ngIf="membership.isPremium()" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px; flex: 1;">
-        <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 6px;">
-          <!-- Posición Actual -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
-            <div style="display: flex; align-items: center; gap: 4px;">
-              <span class="card-large-value" style="font-size: 18px !important; margin-top: 0;">#{{ rankingPosition() }}</span>
-              <span *ngIf="liveRankShift() !== 0" 
-                    [style.color]="liveRankShift() < 0 ? 'var(--green)' : '#ef4444'" 
-                    style="font-size: 8px; font-weight: 900; display: inline-flex; align-items: center; gap: 1px;">
-                <i class="fa-solid" [class]="liveRankShift() < 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
-              </span>
+        <!-- Cabecera -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-trophy" style="color: var(--yellow); font-size: 14px;"></i>
+            <div>
+              <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Podio del Dojo</h4>
+              <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Top 3 mejores concentradores de la comunidad</p>
             </div>
           </div>
-
-          <!-- Puntos por Enfoque -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
-            <span class="card-large-value" style="font-size: 18px !important; margin-top: 0; color: var(--green);">+{{ membership.focusPoints() }}</span>
-          </div>
-
-          <!-- Recompensa Monedas (Discretas) -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Monedas</span>
-            <span style="font-size: 14px; font-weight: 700; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 3px;">
-              <i class="fa-solid fa-coins" style="font-size: 10px; opacity: 0.7;"></i> +{{ potentialReward() }}
-            </span>
-          </div>
         </div>
 
-        <!-- Superado Comunidad (Discreto) -->
-        <div style="font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px; width: 100%;">
-          Superaste al {{ percentageBeaten() }}% de la comunidad hoy
-        </div>
-      </div>
-
-      <!-- Indicador de Sincronización en Vivo para ambas vistas -->
-      <div style="font-size: 10px; color: var(--muted); text-align: center; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 4px; opacity: 0.8; border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 6px; width: 100%;">
-        <span class="pulse-green-dot" style="width: 4px; height: 4px; box-shadow: 0 0 4px var(--green);"></span>
-        <span>En vivo • Sincronizado: {{ lastUpdated() }}</span>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- SECCIONES DE COMUNIDAD: RANKING Y CO-WORKING -->
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 24px;">
-    
-    <!-- CARD 1: PODIO DE LÍDERES (TOP 3) -->
-    <div class="podio-card">
-      
-      <!-- Cabecera -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-trophy" style="color: var(--yellow); font-size: 14px;"></i>
-          <div>
-            <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Podio del Dojo</h4>
-            <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Top 3 mejores concentradores de la comunidad</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Selector de Periodo (Día, Mes, Año) -->
-      <div class="podio-pill-container">
-        <button (click)="activeRankingFilter.set('dia')"
-                class="podio-pill-btn"
-                [class.active]="activeRankingFilter() === 'dia'">
-          Día
-        </button>
-        <button (click)="activeRankingFilter.set('mes')"
-                class="podio-pill-btn"
-                [class.active]="activeRankingFilter() === 'mes'">
-          Mes
-        </button>
-        <button (click)="activeRankingFilter.set('anio')"
-                class="podio-pill-btn"
-                [class.active]="activeRankingFilter() === 'anio'">
-          Año
-        </button>
-      </div>
-
-      <!-- Podio (Vista en Hilera) -->
-      <div style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 160px; margin-top: 10px; padding-bottom: 5px;">
-        
-        <!-- 2º Puesto (Izquierda) -->
-        <div class="podio-column second-place">
-          <!-- Avatar -->
-          <div class="podio-avatar-wrapper">
-            <div class="podio-avatar" [style.background]="rankingData()[0].color">
-              <i class="fa-solid" [class]="rankingData()[0].avatar"></i>
-            </div>
-          </div>
-          <span style="font-size: 10.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[0].name }}</span>
-          <span style="font-size: 9.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[0].value }}</span>
-          <div class="podio-bar">2º</div>
-        </div>
-
-        <!-- 1º Puesto (Centro) -->
-        <div class="podio-column first-place">
-          <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 11px; margin-bottom: 2px; filter: drop-shadow(0 0 3px rgba(255,215,0,0.4));"></i>
-          <!-- Avatar -->
-          <div class="podio-avatar-wrapper">
-            <div class="podio-avatar" [style.background]="rankingData()[1].color">
-              <i class="fa-solid" [class]="rankingData()[1].avatar"></i>
-            </div>
-          </div>
-          <span style="font-size: 11px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[1].name }}</span>
-          <span style="font-size: 10px; color: var(--yellow); font-weight: 800; margin-bottom: 6px;">{{ rankingData()[1].value }}</span>
-          <div class="podio-bar">1º</div>
-        </div>
-
-        <!-- 3º Puesto (Derecha) -->
-        <div class="podio-column third-place">
-          <!-- Avatar -->
-          <div class="podio-avatar-wrapper">
-            <div class="podio-avatar" [style.background]="rankingData()[2].color">
-              <i class="fa-solid" [class]="rankingData()[2].avatar"></i>
-            </div>
-          </div>
-          <span style="font-size: 10.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[2].name }}</span>
-          <span style="font-size: 9.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[2].value }}</span>
-          <div class="podio-bar">3º</div>
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- CARD 2: SESIONES DE ENFOQUE ACTIVAS (COMUNIDAD) -->
-    <div class="coworking-card">
-      
-      <!-- Cabecera -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-users" style="color: var(--accent); font-size: 14px;"></i>
-          <div>
-            <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Usuarios en Enfoque</h4>
-            <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Usuarios que acaban de iniciar una sesión de enfoque. ¡Únete!</p>
-          </div>
-        </div>
-        <!-- Corona Premium si es gratis -->
-        <span *ngIf="!membership.isPremium()" style="font-size: 9px; color: var(--yellow); font-weight: 800; background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.15); padding: 2px 6px; border-radius: 10px; display: flex; align-items: center; gap: 3px;">
-          <i class="fa-solid fa-crown"></i> PRO
-        </span>
-      </div>
-
-      <!-- Lista de salas activas -->
-      <div style="display: flex; flex-direction: column; gap: 10px; min-height: 140px; justify-content: center;">
-        
-        <!-- Sala 1: Ramiro -->
-        <div class="coworking-slot">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="coworking-avatar avatar-sprite sprite-zorro" style="border: 1.5px solid #ff007f;"></div>
-            <div style="display: flex; flex-direction: column;">
-              <span style="font-size: 12px; font-weight: 700; color: var(--text);">Ramiro (Ninja)</span>
-              <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-                Inició hace 1 min • 25 min
-              </span>
-            </div>
-          </div>
-          <button (click)="joinSharedSession('Ramiro', 'zorro')" 
-                  class="coworking-btn"
-                  title="Unirme a Ramiro">
-            <span>Unirme</span>
-            <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
+        <!-- Selector de Periodo (Día, Mes, Año) -->
+        <div class="podio-pill-container">
+          <button (click)="activeRankingFilter.set('dia')"
+                  class="podio-pill-btn"
+                  [class.active]="activeRankingFilter() === 'dia'">
+            Día
+          </button>
+          <button (click)="activeRankingFilter.set('mes')"
+                  class="podio-pill-btn"
+                  [class.active]="activeRankingFilter() === 'mes'">
+            Mes
+          </button>
+          <button (click)="activeRankingFilter.set('anio')"
+                  class="podio-pill-btn"
+                  [class.active]="activeRankingFilter() === 'anio'">
+            Año
           </button>
         </div>
 
-        <!-- Sala 2: Ana -->
-        <div class="coworking-slot">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="coworking-avatar avatar-sprite sprite-lobo" style="border: 1.5px solid #3a86f0;"></div>
-            <div style="display: flex; flex-direction: column;">
-              <span style="font-size: 12px; font-weight: 700; color: var(--text);">Ana (Samurái)</span>
-              <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-                Inició hace 3 min • 50 min
-              </span>
+        <!-- Podio (Vista en Hilera) -->
+        <div style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 160px; margin-top: 10px; padding-bottom: 5px;">
+          
+          <!-- 2º Puesto (Izquierda) -->
+          <div class="podio-column second-place">
+            <!-- Avatar -->
+            <div class="podio-avatar-wrapper">
+              <div class="podio-avatar" [style.background]="rankingData()[0].color">
+                <i class="fa-solid" [class]="rankingData()[0].avatar"></i>
+              </div>
             </div>
+            <span style="font-size: 10.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[0].name }}</span>
+            <span style="font-size: 9.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[0].value }}</span>
+            <div class="podio-bar">2º</div>
           </div>
-          <button (click)="joinSharedSession('Ana', 'lobo')" 
-                  class="coworking-btn"
-                  title="Unirme a Ana">
-            <span>Unirme</span>
-            <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
-          </button>
+
+          <!-- 1º Puesto (Centro) -->
+          <div class="podio-column first-place">
+            <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 11px; margin-bottom: 2px; filter: drop-shadow(0 0 3px rgba(255,215,0,0.4));"></i>
+            <!-- Avatar -->
+            <div class="podio-avatar-wrapper">
+              <div class="podio-avatar" [style.background]="rankingData()[1].color">
+                <i class="fa-solid" [class]="rankingData()[1].avatar"></i>
+              </div>
+            </div>
+            <span style="font-size: 11px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[1].name }}</span>
+            <span style="font-size: 10px; color: var(--yellow); font-weight: 800; margin-bottom: 6px;">{{ rankingData()[1].value }}</span>
+            <div class="podio-bar">1º</div>
+          </div>
+
+          <!-- 3º Puesto (Derecha) -->
+          <div class="podio-column third-place">
+            <!-- Avatar -->
+            <div class="podio-avatar-wrapper">
+              <div class="podio-avatar" [style.background]="rankingData()[2].color">
+                <i class="fa-solid" [class]="rankingData()[2].avatar"></i>
+              </div>
+            </div>
+            <span style="font-size: 10.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[2].name }}</span>
+            <span style="font-size: 9.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[2].value }}</span>
+            <div class="podio-bar">3º</div>
+          </div>
+
         </div>
 
       </div>
 
     </div>
+
+    <!-- COLUMNA DERECHA (Secundaria - Métricas y Desempeño) -->
+    <div class="dashboard-sidebar-column">
+      
+      <!-- CARD 1: Personas Enfocadas -->
+      <div class="metric-card-premium card-focused-now" style="--card-accent: var(--green);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="pulse-green-dot"></span>
+            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Ahora mismo</span>
+          </div>
+          <span class="card-title-text" style="color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 1px 5px; border-radius: 3px;">En vivo</span>
+        </div>
+        
+        <div class="card-large-value">
+          {{ liveFocusedUsersCount() }} personas
+        </div>
+        <div class="card-sub-desc">están trabajando.</div>
+        
+        <!-- Avatares de Animales Ninja Apilados (Solo animales) -->
+        <div class="avatar-stack-container" style="margin-top: 6px;">
+          <div class="avatar-stack-list">
+            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; display: flex; align-items: center; justify-content: center;">
+              🐺
+              <span class="avatar-tooltip">Lobo Samurai</span>
+            </div>
+            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
+              🦊
+              <span class="avatar-tooltip">Zorro Ninja</span>
+            </div>
+            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
+              🦁
+              <span class="avatar-tooltip">León Shogun</span>
+            </div>
+            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
+              🦉
+              <span class="avatar-tooltip">Búho Estratega</span>
+            </div>
+            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
+              🐼
+              <span class="avatar-tooltip">Panda Ninja</span>
+            </div>
+          </div>
+          <span class="card-title-text" style="color: var(--muted); font-weight: 500; margin-left: 4px;">en directo</span>
+        </div>
+      </div>
+
+      <!-- CARD 2: Objetivos Cumplidos -->
+      <div class="metric-card-premium card-objectives-done" style="--card-accent: var(--accent);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-circle-check" style="font-size: 10px; color: var(--accent);"></i>
+            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Hoy</span>
+          </div>
+          <span class="card-title-text" style="color: var(--accent); font-weight: 700; background: rgba(99, 102, 241, 0.08); padding: 1px 5px; border-radius: 3px;">Red</span>
+        </div>
+        
+        <div class="card-large-value">
+          {{ liveCompletedObjectivesToday() }}
+        </div>
+        <div class="card-sub-desc">sesiones completadas.</div>
+        
+        <!-- Iconos de Recompensa (Solo animales) -->
+        <div class="avatar-stack-container" style="margin-top: 6px;">
+          <div class="avatar-stack-list">
+            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; display: flex; align-items: center; justify-content: center;">
+              🐯
+              <span class="avatar-tooltip">Tigre Guerrero</span>
+            </div>
+            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
+              🐨
+              <span class="avatar-tooltip">Koala Sabio</span>
+            </div>
+            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
+              🐻
+              <span class="avatar-tooltip">Oso Foco</span>
+            </div>
+            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
+              🐸
+              <span class="avatar-tooltip">Rana Productiva</span>
+            </div>
+            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
+              🐱
+              <span class="avatar-tooltip">Gato Constante</span>
+            </div>
+          </div>
+          <span class="card-title-text" style="color: var(--muted); font-weight: 500; margin-left: 4px;">Guerreros</span>
+        </div>
+      </div>
+
+      <!-- CARD 3: Ranking Global / Tu Desempeño (Dinámico Premium vs Free) -->
+      <div class="metric-card-premium card-user-rank" style="--card-accent: var(--yellow); min-height: 155px; display: flex; flex-direction: column; justify-content: space-between;">
+        
+        <!-- CABECERA -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-trophy" style="font-size: 10px; color: var(--yellow);"></i>
+            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Desempeño de Hoy</span>
+          </div>
+          <span class="card-title-text" style="color: var(--yellow); font-weight: 700;" *ngIf="membership.isPremium()">
+            Top {{ 100 - percentageBeaten() }}%
+          </span>
+          <span class="card-title-text" style="color: var(--muted); font-weight: 700;" *ngIf="!membership.isPremium()">
+            Clasificación
+          </span>
+        </div>
+
+        <!-- VISTA GRATUITA: RANKING DUMMY CON INVITACIÓN PREMIUM -->
+        <div *ngIf="!membership.isPremium()" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px; flex: 1; justify-content: center;">
+          <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 6px; opacity: 0.7;">
+            <!-- Posición Actual -->
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <span class="card-large-value" style="font-size: 18px !important; margin-top: 0; color: var(--text);">#{{ rankingPosition() }}</span>
+                <span *ngIf="liveRankShift() !== 0" 
+                      [style.color]="liveRankShift() < 0 ? 'var(--green)' : '#ef4444'" 
+                      style="font-size: 8px; font-weight: 900; display: inline-flex; align-items: center; gap: 1px;">
+                  <i class="fa-solid" [class]="liveRankShift() < 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
+                </span>
+              </div>
+            </div>
+
+            <!-- Puntos por Enfoque -->
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
+              <span class="card-large-value" style="font-size: 16px !important; margin-top: 0; color: var(--muted);">🔒</span>
+            </div>
+
+            <!-- Recompensa Monedas -->
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Monedas</span>
+              <span style="font-size: 14px; font-weight: 700; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 3px;">
+                🔒
+              </span>
+            </div>
+          </div>
+          
+          <!-- Superado Comunidad (Discreto) -->
+          <div style="font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px; width: 100%;">
+            Podrías superar al {{ percentageBeaten() }}% de la comunidad hoy
+          </div>
+          
+          <button (click)="showPaywallModal.set(true)" 
+                  style="border: none; background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 6px; padding: 5px; color: var(--yellow); font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 4px;"
+                  onmouseover="this.style.background='rgba(212,175,55,0.18)'"
+                  onmouseout="this.style.background='rgba(212,175,55,0.1)'">
+            Desbloquear Dojo Premium
+          </button>
+        </div>
+
+        <!-- VISTA PREMIUM: ESTADÍSTICAS DETALLADAS DE COMPETENCIA -->
+        <div *ngIf="membership.isPremium()" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px; flex: 1;">
+          <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 6px;">
+            <!-- Posición Actual -->
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <span class="card-large-value" style="font-size: 18px !important; margin-top: 0;">#{{ rankingPosition() }}</span>
+                <span *ngIf="liveRankShift() !== 0" 
+                      [style.color]="liveRankShift() < 0 ? 'var(--green)' : '#ef4444'" 
+                      style="font-size: 8px; font-weight: 900; display: inline-flex; align-items: center; gap: 1px;">
+                  <i class="fa-solid" [class]="liveRankShift() < 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
+                </span>
+              </div>
+            </div>
+
+            <!-- Puntos por Enfoque -->
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
+              <span class="card-large-value" style="font-size: 18px !important; margin-top: 0; color: var(--green);">+{{ membership.focusPoints() }}</span>
+            </div>
+
+            <!-- Recompensa Monedas (Discretas) -->
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Monedas</span>
+              <span style="font-size: 14px; font-weight: 700; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 3px;">
+                <i class="fa-solid fa-coins" style="font-size: 10px; opacity: 0.7;"></i> +{{ potentialReward() }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Superado Comunidad (Discreto) -->
+          <div style="font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px; width: 100%;">
+            Superaste al {{ percentageBeaten() }}% de la comunidad hoy
+          </div>
+        </div>
+
+        <!-- Indicador de Sincronización en Vivo -->
+        <div style="font-size: 10px; color: var(--muted); text-align: center; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 4px; opacity: 0.8; border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 6px; width: 100%;">
+          <span class="pulse-green-dot" style="width: 4px; height: 4px; box-shadow: 0 0 4px var(--green);"></span>
+          <span>En vivo • Sincronizado: {{ lastUpdated() }}</span>
+        </div>
+
+      </div>
+
+    </div>
+    
   </div>
 
   <!-- BANNER DE INVITACIÓN A LA ARENA (SLIM & GLASSMORPHIC) -->
