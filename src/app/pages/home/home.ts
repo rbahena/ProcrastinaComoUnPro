@@ -290,6 +290,19 @@ export class Home implements OnInit, OnDestroy {
   selectedPartnerName = signal('');
   selectedPartnerAvatar = signal('');
 
+  // Zoom de Avatar
+  showAvatarZoomModal = signal(false);
+  zoomAvatarId = signal('');
+  zoomAvatarName = signal('');
+  zoomAvatarColor = signal('');
+
+  zoomAvatar(avatarId: string, name: string, color: string = '#ffd700') {
+    this.zoomAvatarId.set(avatarId);
+    this.zoomAvatarName.set(name);
+    this.zoomAvatarColor.set(color);
+    this.showAvatarZoomModal.set(true);
+  }
+
   joinSharedSession(name: string, avatar: string) {
     if (!this.membership.isPremium()) {
       this.showPaywallModal.set(true);

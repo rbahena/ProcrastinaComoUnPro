@@ -33,7 +33,9 @@
     </a>
   </div>
   <div class="sidebar-footer" routerLink="/cualidades" style="cursor: pointer;">
-    <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08);">
+    <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" 
+         style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08); cursor: zoom-in;"
+         (click)="zoomAvatar(membership.selectedAvatar(), userName() + ' (' + getAvatarName() + ')', '#6366f1'); $event.stopPropagation()">
     </div>
     <div style="overflow: hidden; display: flex; flex-direction: column;">
       <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
@@ -104,7 +106,13 @@
           <div style="display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-users" style="color: var(--accent); font-size: 14px;"></i>
             <div>
-              <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Usuarios en Enfoque</h4>
+              <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                Usuarios en Enfoque
+                <span class="flashy-help-badge" 
+                      data-tooltip="Mira quién se está concentrando ahora mismo. Únete a una sesión para sincronizar tu Pomodoro y trabajar juntos en silencio, sin chats ni distracciones.">
+                  <i class="fa-solid fa-circle-question"></i>
+                </span>
+              </h4>
               <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Usuarios que acaban de iniciar una sesión de enfoque. ¡Únete!</p>
             </div>
           </div>
@@ -117,15 +125,17 @@
         <!-- Lista de salas activas -->
         <div style="display: flex; flex-direction: column; gap: 10px; min-height: 140px; justify-content: center;">
           
-          <!-- Sala 1: Ramiro -->
+          <!-- Sala 1: Ramiro (Zorro) -->
           <div class="coworking-slot">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <div class="coworking-avatar avatar-sprite sprite-zorro" style="border: 1.5px solid #ff007f;"></div>
+              <div class="coworking-avatar avatar-sprite sprite-zorro" 
+                   style="border: 1.5px solid #ff9f43; cursor: zoom-in;" 
+                   (click)="zoomAvatar('zorro', 'Ramiro (Zorro)', '#ff9f43')"></div>
               <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 12px; font-weight: 700; color: var(--text);">Ramiro (Ninja)</span>
-                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Ramiro (Zorro)</span>
+                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
                   <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-                  Inició hace 1 min • 25 min
+                  En línea y concentrado ahora
                 </span>
               </div>
             </div>
@@ -137,21 +147,67 @@
             </button>
           </div>
 
-          <!-- Sala 2: Ana -->
+          <!-- Sala 2: Ana (Lobo) -->
           <div class="coworking-slot">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <div class="coworking-avatar avatar-sprite sprite-lobo" style="border: 1.5px solid #3a86f0;"></div>
+              <div class="coworking-avatar avatar-sprite sprite-lobo" 
+                   style="border: 1.5px solid #ff4757; cursor: zoom-in;" 
+                   (click)="zoomAvatar('lobo', 'Ana (Lobo)', '#ff4757')"></div>
               <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 12px; font-weight: 700; color: var(--text);">Ana (Samurái)</span>
-                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Ana (Lobo)</span>
+                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
                   <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-                  Inició hace 3 min • 50 min
+                  En línea y concentrado ahora
                 </span>
               </div>
             </div>
             <button (click)="joinSharedSession('Ana', 'lobo')" 
                     class="coworking-btn"
                     title="Unirme a Ana">
+              <span>Unirme</span>
+              <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
+            </button>
+          </div>
+
+          <!-- Sala 3: Carlos (Panda) -->
+          <div class="coworking-slot">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="coworking-avatar avatar-sprite sprite-panda" 
+                   style="border: 1.5px solid #a4b0be; cursor: zoom-in;" 
+                   (click)="zoomAvatar('panda', 'Carlos (Panda)', '#a4b0be')"></div>
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Carlos (Panda)</span>
+                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+                  <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
+                  En línea y concentrado ahora
+                </span>
+              </div>
+            </div>
+            <button (click)="joinSharedSession('Carlos', 'panda')" 
+                    class="coworking-btn"
+                    title="Unirme a Carlos">
+              <span>Unirme</span>
+              <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
+            </button>
+          </div>
+
+          <!-- Sala 4: Sofía (Águila) -->
+          <div class="coworking-slot">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="coworking-avatar avatar-sprite sprite-aguila" 
+                   style="border: 1.5px solid #54a0ff; cursor: zoom-in;" 
+                   (click)="zoomAvatar('aguila', 'Sofía (Águila)', '#54a0ff')"></div>
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Sofía (Águila)</span>
+                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+                  <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
+                  En línea y concentrado ahora
+                </span>
+              </div>
+            </div>
+            <button (click)="joinSharedSession('Sofía', 'aguila')" 
+                    class="coworking-btn"
+                    title="Unirme a Sofía">
               <span>Unirme</span>
               <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
             </button>
@@ -666,3 +722,43 @@
 
 <!-- Modal de Identidad/Onboarding -->
 <app-identity-settings *ngIf="!membership.onboardingCompleted() || membership.showSettingsModal()" [onboardingMode]="!membership.onboardingCompleted()"></app-identity-settings>
+
+<!-- MODAL DE PREVIEW/ZOOM DE AVATAR -->
+<div *ngIf="showAvatarZoomModal()" 
+     style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 5, 8, 0.95); display: flex; align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(12px); animation: fadeIn 0.25s ease;"
+     (click)="showAvatarZoomModal.set(false)">
+  
+  <!-- Contenedor del Modal -->
+  <div style="background: rgba(18, 18, 24, 0.95); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 90%; max-width: 320px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); position: relative; animation: zoomIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);"
+       (click)="$event.stopPropagation()">
+    
+    <!-- Botón de Cerrar -->
+    <button (click)="showAvatarZoomModal.set(false)" 
+            style="position: absolute; top: 12px; right: 12px; border: none; background: rgba(255,255,255,0.05); color: var(--muted); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
+            onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';"
+            onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.color='var(--muted)';">
+      <i class="fa-solid fa-xmark" style="font-size: 12px;"></i>
+    </button>
+
+    <!-- Avatar Gigante con su sprite -->
+    <div [class]="'avatar-sprite sprite-' + zoomAvatarId()"
+         style="width: 180px; height: 180px; border-radius: 50%; border: 3px solid var(--border-color); box-shadow: 0 0 25px var(--glow-color); transition: all 0.3s ease;"
+         [style.--border-color]="zoomAvatarColor()"
+         [style.--glow-color]="zoomAvatarColor() + '40'">
+    </div>
+
+    <!-- Información del Guardián -->
+    <div>
+      <h3 style="font-size: 16px; font-weight: 800; color: var(--text); margin: 0;">{{ zoomAvatarName() }}</h3>
+      <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0 0;">Espíritu guardián activo en el Dojo</p>
+    </div>
+
+    <!-- Botón de Acción Cerrar -->
+    <button (click)="showAvatarZoomModal.set(false)" 
+            style="border: none; background: var(--accent); color: #000; width: 100%; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+            onmouseover="this.style.transform='translateY(-1px)';"
+            onmouseout="this.style.transform='translateY(0)';">
+      Entendido
+    </button>
+  </div>
+</div>
