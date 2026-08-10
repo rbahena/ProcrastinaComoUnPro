@@ -1,6 +1,7 @@
-import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, signal, computed, OnInit, OnDestroy, WritableSignal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MembershipService } from '../../services/membership.service';
 
 @Component({
   selector: 'app-home',
@@ -10,11 +11,16 @@ import { CommonModule } from '@angular/common';
   styleUrl: './home.css',
 })
 export class Home implements OnInit, OnDestroy {
-  currentTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>('samurai');
-  userName = signal('Ramiro');
+  currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
+  userName!: WritableSignal<string>;
+  selectedAvatar!: WritableSignal<'lobo' | 'leon' | 'buho' | 'zorro' | 'dragon'>;
+  Math = Math;
 
-  // Mi Avatar / Guardián activo
-  selectedAvatar = signal<'lobo' | 'leon' | 'buho' | 'zorro' | 'dragon'>('zorro');
+  constructor(public membership: MembershipService, private router: Router) {
+    this.currentTheme = this.membership.selectedTheme;
+    this.userName = this.membership.userName;
+    this.selectedAvatar = this.membership.selectedAvatar;
+  }
 
   // Métricas de la Comunidad (Reducido a máximo 100 usuarios activos para una comunidad íntima)
   private readonly targetFocusedUsers = 74; 
@@ -22,8 +28,31 @@ export class Home implements OnInit, OnDestroy {
 
   liveFocusedUsersCount = signal(0); // Inicia en 0 para animación
   liveCompletedObjectivesToday = signal(0); // Inicia en 0 para animación
-  rankingPosition = signal(42);
-  percentageBeaten = signal(84);
+  
+  rankingPosition = computed(() => {
+    if (!this.membership.isPremium()) return 42;
+    return Math.max(1, 42 - Math.floor(this.membership.focusPoints() / 30));
+  });
+
+  percentageBeaten = computed(() => {
+    if (!this.membership.isPremium()) return 84;
+    return Math.min(99, 84 + Math.floor(this.membership.focusPoints() / 15));
+  });
+
+  potentialReward = computed(() => {
+    const pos = this.rankingPosition();
+    if (pos === 1) return 100;
+    if (pos <= 3) return 70;
+    if (pos <= 10) return 50;
+    return 20;
+  });
+
+  // Mostrar modal de Paywall Premium
+  showPaywallModal = signal(false);
+
+  togglePremium() {
+    this.membership.setPremium(!this.membership.isPremium());
+  }
 
   // Filtro de Leaderboard de la Comunidad
   activeRankingFilter = signal<'dia' | 'mes' | 'anio'>('dia');
@@ -201,5 +230,32 @@ export class Home implements OnInit, OnDestroy {
       clearInterval(this.pomodoroTimer);
       this.pomodoroTimer = null;
     }
+  }
+
+  // Estado de confirmación de sala compartida
+  showJoinConfirmation = signal(false);
+  selectedPartnerName = signal('');
+  selectedPartnerAvatar = signal('');
+
+  joinSharedSession(name: string, avatar: string) {
+    if (!this.membership.isPremium()) {
+      this.showPaywallModal.set(true);
+      return;
+    }
+
+    this.selectedPartnerName.set(name);
+    this.selectedPartnerAvatar.set(avatar);
+    this.showJoinConfirmation.set(true);
+  }
+
+  confirmJoinRoom() {
+    this.showJoinConfirmation.set(false);
+    localStorage.setItem('shared-session-partner-name', this.selectedPartnerName());
+    localStorage.setItem('shared-session-partner-avatar', this.selectedPartnerAvatar());
+    this.router.navigate(['/enfoque']);
+  }
+
+  cancelJoinRoom() {
+    this.showJoinConfirmation.set(false);
   }
 }

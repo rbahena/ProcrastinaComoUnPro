@@ -54,10 +54,41 @@
 
   <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
   <div class="main" style="display: flex; flex-direction: column;">
-    <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+    <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
       <div>
         <h1 class="page-title">{{ labels().title }}</h1>
         <p class="page-sub">{{ labels().desc }}</p>
+      </div>
+
+      <!-- BALANCES DE USUARIO (PREMIUM VS GRATUITO) -->
+      <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
+        <!-- Badge Premium / Free (Botón interactivo que abre el simulador de Paywall) -->
+        <button (click)="showPaywallModal.set(true)" 
+                style="border: none; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.25s;"
+                [style.background]="membership.isPremium() ? 'linear-gradient(135deg, #ffd700 0%, #f59e0b 100%)' : 'rgba(255,255,255,0.05)'"
+                [style.border]="membership.isPremium() ? 'none' : '1px solid rgba(255,255,255,0.1)'"
+                [style.color]="membership.isPremium() ? '#000' : 'var(--muted)'">
+          <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-star'"></i>
+          <span>{{ membership.isPremium() ? 'Premium' : 'Gratis' }}</span>
+        </button>
+
+        <!-- Puntos e Coins -->
+        <div style="display: flex; gap: 8px;">
+          <!-- Puntos de Enfoque -->
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: flex-end; min-width: 70px;">
+            <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
+            <span style="font-size: 13.5px; font-weight: 900; color: var(--text);">
+              {{ membership.isPremium() ? membership.focusPoints() : '—' }}
+            </span>
+          </div>
+          <!-- Pro Coins -->
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: flex-end; min-width: 70px;">
+            <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pro Coins</span>
+            <span style="font-size: 13.5px; font-weight: 900; color: var(--yellow);">
+              {{ membership.isPremium() ? membership.proCoins() : '—' }}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -239,12 +270,16 @@
               <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tema Visual</span>
               <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
                 <button *ngFor="let t of themeOptions" 
-                        (click)="changeTheme(t)"
-                        style="border: 1px solid var(--border); padding: 8px 2px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 10.5px; font-weight: 800; font-family: inherit; transition: all 0.2s; text-transform: capitalize;"
+                        (click)="selectThemeOption(t)"
+                        style="border: 1px solid var(--border); padding: 8px 2px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 10.5px; font-weight: 800; font-family: inherit; transition: all 0.2s; text-transform: capitalize; position: relative;"
                         [style.background]="currentTheme() === t ? 'var(--accent)' : 'transparent'"
                         [style.borderColor]="currentTheme() === t ? 'var(--accent)' : 'var(--border)'"
                         [style.color]="currentTheme() === t ? '#000' : 'var(--text)'">
                   {{ t }}
+                  <!-- Candado si está bloqueado -->
+                  <i *ngIf="t !== 'samurai' && !membership.unlockedThemes().includes(t)" 
+                     class="fa-solid fa-lock" 
+                     style="position: absolute; top: -3px; right: -3px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
                 </button>
               </div>
             </div>
@@ -331,7 +366,112 @@
               </div>
             </div>
 
+            <!-- TIENDA PREMIUM DE DESBLOQUEABLES (STORE) -->
+            <div style="height: 1px; background: rgba(255,255,255,0.03); margin: 0;"></div>
 
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--yellow); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-store"></i> Tienda de Cosméticos
+              </span>
+              
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 9.5px; color: var(--muted); font-weight: 700;">Avatares Guardián</span>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 6px;">
+                  <!-- Zorro Ninja (Gratis) -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text);">
+                      <i class="fa-solid fa-mask" style="color: var(--accent); font-size: 11px;"></i>
+                      <span>Zorro Ninja</span>
+                    </div>
+                    <button *ngIf="selectedAvatar() !== 'zorro'" 
+                            (click)="membership.selectedAvatar.set('zorro')"
+                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; color: var(--text); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                      Equipar
+                    </button>
+                    <span *ngIf="selectedAvatar() === 'zorro'" style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase;">Activo</span>
+                  </div>
+
+                  <!-- Lobo Carmesí (50 Coins) -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text);">
+                      <i class="fa-solid fa-shield-halved" style="color: #3a86f0; font-size: 11px;"></i>
+                      <span>Lobo Carmesí</span>
+                    </div>
+                    <button *ngIf="!membership.unlockedAvatars().includes('lobo')" 
+                            (click)="buyAvatar('lobo', 50)"
+                            style="background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 4px; padding: 3px 8px; color: var(--yellow); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                      50 🪙
+                    </button>
+                    <button *ngIf="membership.unlockedAvatars().includes('lobo') && selectedAvatar() !== 'lobo'" 
+                            (click)="membership.selectedAvatar.set('lobo')"
+                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; color: var(--text); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                      Equipar
+                    </button>
+                    <span *ngIf="selectedAvatar() === 'lobo'" style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase;">Activo</span>
+                  </div>
+
+                  <!-- León Shogun (80 Coins) -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text);">
+                      <i class="fa-solid fa-crown" style="color: #f59e0b; font-size: 11px;"></i>
+                      <span>León Shogun</span>
+                    </div>
+                    <button *ngIf="!membership.unlockedAvatars().includes('leon')" 
+                            (click)="buyAvatar('leon', 80)"
+                            style="background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 4px; padding: 3px 8px; color: var(--yellow); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                      80 🪙
+                    </button>
+                    <button *ngIf="membership.unlockedAvatars().includes('leon') && selectedAvatar() !== 'leon'" 
+                            (click)="membership.selectedAvatar.set('leon')"
+                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; color: var(--text); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                      Equipar
+                    </button>
+                    <span *ngIf="selectedAvatar() === 'leon'" style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase;">Activo</span>
+                  </div>
+
+                  <!-- Búho Estratega (120 Coins) -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text);">
+                      <i class="fa-solid fa-glasses" style="color: #10b981; font-size: 11px;"></i>
+                      <span>Búho Estratega</span>
+                    </div>
+                    <button *ngIf="!membership.unlockedAvatars().includes('buho')" 
+                            (click)="buyAvatar('buho', 120)"
+                            style="background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 4px; padding: 3px 8px; color: var(--yellow); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                      120 🪙
+                    </button>
+                    <button *ngIf="membership.unlockedAvatars().includes('buho') && selectedAvatar() !== 'buho'" 
+                            (click)="membership.selectedAvatar.set('buho')"
+                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; color: var(--text); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                      Equipar
+                    </button>
+                    <span *ngIf="selectedAvatar() === 'buho'" style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase;">Activo</span>
+                  </div>
+
+                  <!-- Dragón Guardián (200 Coins) -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text);">
+                      <i class="fa-solid fa-dragon" style="color: #a855f7; font-size: 11px;"></i>
+                      <span>Dragón Guardián</span>
+                    </div>
+                    <button *ngIf="!membership.unlockedAvatars().includes('dragon')" 
+                            (click)="buyAvatar('dragon', 200)"
+                            style="background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 4px; padding: 3px 8px; color: var(--yellow); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                      200 🪙
+                    </button>
+                    <button *ngIf="membership.unlockedAvatars().includes('dragon') && selectedAvatar() !== 'dragon'" 
+                            (click)="membership.selectedAvatar.set('dragon')"
+                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; color: var(--text); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                      Equipar
+                    </button>
+                    <span *ngIf="selectedAvatar() === 'dragon'" style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase;">Activo</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="height: 1px; background: rgba(255,255,255,0.03); margin: 0;"></div>
 
             <!-- BOTÓN APLICAR CAMBIOS / GUARDAR PREFERENCIAS -->
             <button (click)="showSetupSettings.set(false)"
@@ -421,6 +561,40 @@
                     <strong>Enfoque Estándar:</strong> Trabaja de forma tradicional en tu tarea del momento a ritmo constante. Ideal para avanzar rutinas o tareas menores.
                   </span>
                 </div>
+              </div>
+
+              <!-- CO-WORKING / TRABAJAR ACOMPAÑADO (PREMIUM) -->
+              <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                  <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Modo de Enfoque</span>
+                  
+                  <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
+                    <button (click)="setFocusMode('solo')"
+                            style="border: none; padding: 4px 10px; border-radius: 4px; font-size: 9.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                            [style.background]="coworkingMode() === 'solo' ? 'var(--bg2)' : 'transparent'"
+                            [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'">
+                      Solo
+                    </button>
+                    <button (click)="setFocusMode('partner')"
+                            style="border: none; padding: 4px 10px; border-radius: 4px; font-size: 9.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; display: inline-flex; align-items: center; gap: 4px;"
+                            [style.background]="coworkingMode() === 'partner' ? 'rgba(99,102,241,0.15)' : 'transparent'"
+                            [style.color]="coworkingMode() === 'partner' ? 'var(--accent)' : 'var(--muted)'"
+                            title="Trabajar acompañado: conéctate con otro guerrero de la comunidad.">
+                      <span>Acompañado</span>
+                      <i class="fa-solid fa-crown" style="color: var(--yellow); font-size: 7px;" *ngIf="!membership.isPremium()"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <p style="font-size: 10.5px; color: var(--muted); margin: 0; line-height: 1.4; display: flex; flex-direction: column; gap: 4px;">
+                  <span *ngIf="coworkingMode() === 'solo'">
+                    Trabajarás en tu propio espacio silencioso en solitario.
+                  </span>
+                  <span *ngIf="coworkingMode() === 'partner'" style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-handshake" style="color: var(--accent);"></i>
+                    <span>Trabajando acompañado de: <strong style="color: var(--text); text-transform: uppercase;">{{ partnerName() }}</strong></span>
+                  </span>
+                </p>
               </div>
 
             </div> <!-- Cierra Caja de Estrategias -->
@@ -516,6 +690,38 @@
       <h1 style="font-size: 28px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.5px; max-width: 700px; line-height: 1.3;">
         "{{ activeObjective() }}"
       </h1>
+    </div>
+
+    <!-- WIDGET DE SESIÓN COMPARTIDA (ACOMPAÑANTE EN VIVO) -->
+    <div *ngIf="coworkingMode() === 'partner'" 
+         style="z-index: 2; margin-top: -10px; display: inline-flex; align-items: center; gap: 14px; background: rgba(99, 102, 241, 0.08); border: 1.5px solid rgba(99, 102, 241, 0.2); border-radius: 20px; padding: 8px 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff;"
+             [style.background]="partnerAvatar() === 'lobo' ? '#3a86f0' : '#ff007f'">
+          <i class="fa-solid" [class]="partnerAvatar() === 'lobo' ? 'fa-shield-halved' : 'fa-mask'"></i>
+        </div>
+        <span style="font-size: 11.5px; font-weight: 800; color: var(--text);">
+          {{ partnerName() || 'Guerrero' }} 
+          <span style="color: var(--muted); font-size: 10px; font-weight: 700; margin-left: 4px;">
+            ({{ partnerTimeString() }})
+          </span>
+        </span>
+      </div>
+      
+      <!-- Separador -->
+      <div style="width: 1px; height: 16px; background: rgba(255,255,255,0.15);"></div>
+      
+      <div style="display: flex; align-items: center; gap: 6px; font-size: 11px;">
+        <!-- Indicador de color dinámico -->
+        <span style="width: 6px; height: 6px; border-radius: 50%; display: inline-block;"
+              [style.background]="!partnerActive() && partnerStatusText() === 'En Pausa' ? 'var(--yellow)' : (!partnerActive() && partnerStatusText() === 'Abandonado' ? 'var(--red)' : 'var(--green)')"
+              [style.animation]="partnerActive() ? 'pulseGreen 1.5s infinite' : 'none'"></span>
+        
+        <span style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;"
+              [style.color]="!partnerActive() && partnerStatusText() === 'En Pausa' ? 'var(--yellow)' : (!partnerActive() && partnerStatusText() === 'Abandonado' ? 'var(--red)' : 'var(--green)')">
+          {{ partnerActive() ? 'Enfocado' : (partnerStatusText() === 'En Pausa' ? 'Pausado' : (partnerStatusText() === 'Abandonado' ? 'Abandonó' : 'Completó')) }}
+        </span>
+      </div>
     </div>
 
     <!-- AREA CENTRAL: RELOJ GRANDE FLOTANTE -->
@@ -711,23 +917,24 @@
     </div>
 
     <!-- BOTONES DE ACCIÓN MÁS LIMPIOS -->
-    <div style="display: flex; gap: 14px; width: 100%; max-width: 320px; justify-content: center; z-index: 2; margin-bottom: 10px;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 320px; z-index: 2; margin-bottom: 10px;">
       <!-- Play/Pause (Botón de Pánico) -->
       <button (click)="toggleEmergencyPause()" 
-              style="flex: 1; border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.25s;"
+              style="width: 100%; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; letter-spacing: 0.5px;"
               [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
+              [style.borderColor]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.1)'"
               [style.color]="emergencyPauseActive() ? '#000' : 'var(--text)'"
-              onmouseover="this.style.background='rgba(255,255,255,0.06)'"
-              onmouseout="this.style.background='rgba(255,255,255,0.02)'">
-        <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Pausar' }}</span>
+              onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='var(--accent)';"
+              onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.1)';">
+        <span>{{ emergencyPauseActive() ? 'Reanudar Enfoque' : 'Pausa de Emergencia' }}</span>
       </button>
 
-      <!-- Abandonar (Rojo Lineal) -->
+      <!-- Abandonar (Muy Discreto) -->
       <button (click)="abandonSession()" 
-              style="flex: 1; background: transparent; border: 1px solid var(--red); color: var(--red); padding: 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;"
-              onmouseover="this.style.background='rgba(239, 68, 68, 0.05)'"
-              onmouseout="this.style.background='transparent'">
-        Abandonar
+              style="background: transparent; border: none; color: rgba(255,255,255,0.25); padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.2s; text-decoration: underline; letter-spacing: 0.2px;"
+              onmouseover="this.style.color='var(--red)';"
+              onmouseout="this.style.color='rgba(255,255,255,0.25)';">
+        Abandonar sesión de enfoque
       </button>
     </div>
 
@@ -853,6 +1060,42 @@
         </div>
       </div>
 
+      <!-- Resumen de Recompensas (Sólo para Premium) -->
+      <div *ngIf="membership.isPremium() && sessionEndingStatus() === 'completed'" 
+           style="background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.15); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
+        <span style="font-size: 10px; color: var(--yellow); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
+          <i class="fa-solid fa-crown"></i> Recompensas Premium Asignadas
+        </span>
+        <div style="display: flex; justify-content: space-around; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--text);">
+            <i class="fa-solid fa-trophy" style="color: var(--yellow);"></i>
+            <span>+10 Puntos</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--text);">
+            <i class="fa-solid fa-coins" style="color: var(--yellow);"></i>
+            <span>+{{ coworkingMode() === 'partner' ? '10' : '5' }} Coins</span>
+          </div>
+        </div>
+        <span *ngIf="coworkingMode() === 'partner'" style="font-size: 9px; color: var(--green); font-weight: 700; text-align: center;">
+          🚀 ¡Incluye bonus de +5 Pro Coins por sesión compartida!
+        </span>
+      </div>
+
+      <!-- Invitación Premium (Sólo para Gratuito) -->
+      <div *ngIf="!membership.isPremium() && sessionEndingStatus() === 'completed'" 
+           style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
+        <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">⭐ Conviértete en Pro</span>
+        <p style="font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4;">
+          Con Premium habrías obtenido **+10 Puntos** y **+5 Pro Coins** para el ranking del Dojo y la Tienda de Cosméticos.
+        </p>
+        <button (click)="showPaywallModal.set(true)" 
+                style="border: none; background: var(--accent); color: #000; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                onmouseover="this.style.transform='translateY(-0.5px)';"
+                onmouseout="this.style.transform='translateY(0)';">
+          Ver Beneficios Premium
+        </button>
+      </div>
+
       <!-- Botón de Envío y Retorno -->
       <button (click)="finishSession()" 
               [disabled]="sessionEndingStatus() !== 'abandoned' && objectiveCompleted() === null"
@@ -941,4 +1184,92 @@
     </div>
 
   </div>
+</div>
+
+<!-- MODAL PREMIUM PAYWALL -->
+<div *ngIf="showPaywallModal()" 
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 11000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+  
+  <div style="background: linear-gradient(135deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 15, 0.9) 100%); border: 1.5px solid var(--accent); border-radius: 24px; padding: 32px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 0 40px rgba(99,102,241,0.25); text-align: center; position: relative;">
+    
+    <!-- Cerrar -->
+    <button (click)="showPaywallModal.set(false)" 
+            style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 18px;">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Header -->
+    <div>
+      <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); border: 1.5px solid var(--yellow); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+        <i class="fa-solid fa-crown" style="color: var(--yellow); font-size: 20px;"></i>
+      </div>
+      <span style="font-size: 10px; color: var(--yellow); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Membresía Premium</span>
+      <h2 style="font-size: 20px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.5px;">Desbloquea el Camino Pro</h2>
+    </div>
+
+    <!-- Beneficios -->
+    <div style="display: flex; flex-direction: column; gap: 10px; text-align: left; background: rgba(0,0,0,0.2); padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);">
+      <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px;">
+        <i class="fa-solid fa-check" style="color: var(--green); margin-top: 2px;"></i>
+        <div>
+          <strong style="color: var(--text);">Pro Coins y Tienda:</strong> Acumula monedas con tus Pomodoros y compra avatares/temas.
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px;">
+        <i class="fa-solid fa-check" style="color: var(--green); margin-top: 2px;"></i>
+        <div>
+          <strong style="color: var(--text);">Puntos y Ranking del Dojo:</strong> Compite en el podio comunitario del Dojo.
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px;">
+        <i class="fa-solid fa-check" style="color: var(--green); margin-top: 2px;"></i>
+        <div>
+          <strong style="color: var(--text);">Salas Compartidas en Vivo:</strong> Enfócate acompañado por compañeros en tiempo real.
+        </div>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+      <!-- Toggle Premium Simulador -->
+      <button (click)="membership.setPremium(!membership.isPremium()); showPaywallModal.set(false)" 
+              style="width: 100%; border: none; padding: 12px; border-radius: 10px; background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%); color: #000; font-size: 13px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+              onmouseover="this.style.transform='scale(1.02)';"
+              onmouseout="this.style.transform='scale(1)';">
+        {{ membership.isPremium() ? 'Volver a Cuenta Gratuita' : 'Simular Premium Gratis (+200 XP, +100 Coins)' }}
+      </button>
+      <button (click)="showPaywallModal.set(false)" 
+              style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 10px; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;">
+        Seguir como Guerrero Gratuito
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST DE NOTIFICACIONES DE CO-WORKING (SIMULADOR EN VIVO) -->
+<div *ngIf="showPartnerNotification()" 
+     style="position: fixed; top: 24px; right: 24px; z-index: 12000; background: linear-gradient(135deg, rgba(20, 20, 25, 0.95) 0%, rgba(10, 10, 15, 0.9) 100%); border-radius: 12px; padding: 16px; min-width: 280px; max-width: 380px; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); animation: slideInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-left: 4px solid var(--accent);"
+     [style.borderLeftColor]="partnerNotificationType() === 'success' ? 'var(--green)' : (partnerNotificationType() === 'warning' ? 'var(--yellow)' : (partnerNotificationType() === 'danger' ? 'var(--red)' : 'var(--accent)'))">
+  
+  <!-- Icono según el tipo -->
+  <div style="font-size: 16px; margin-top: 2px;">
+    <i class="fa-solid" 
+       [class]="partnerNotificationType() === 'success' ? 'fa-circle-check' : (partnerNotificationType() === 'warning' ? 'fa-circle-exclamation' : (partnerNotificationType() === 'danger' ? 'fa-circle-xmark' : 'fa-bell'))"
+       [style.color]="partnerNotificationType() === 'success' ? 'var(--green)' : (partnerNotificationType() === 'warning' ? 'var(--yellow)' : (partnerNotificationType() === 'danger' ? 'var(--red)' : 'var(--accent)'))"></i>
+  </div>
+
+  <!-- Contenido -->
+  <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; text-align: left;">
+    <span style="font-size: 9px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Notificación de Co-working</span>
+    <p style="font-size: 12px; color: var(--text); margin: 0; line-height: 1.4; font-weight: 600;">
+      {{ partnerNotificationMessage() }}
+    </p>
+  </div>
+
+  <!-- Botón cerrar -->
+  <button (click)="showPartnerNotification.set(false)" 
+          style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 12px; padding: 0 4px;">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
 </div>

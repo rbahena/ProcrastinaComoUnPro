@@ -42,10 +42,41 @@
 
 <!-- MAIN WORKSPACE -->
 <div class="main">
-  <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+  <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
     <div>
       <h1 class="page-title">{{ labels().title }}</h1>
       <p class="page-sub">{{ labels().desc }}</p>
+    </div>
+
+    <!-- BALANCES DE USUARIO (PREMIUM VS GRATUITO) -->
+    <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
+      <!-- Badge Premium / Free (Botón interactivo que abre el simulador de Paywall) -->
+      <button (click)="showPaywallModal.set(true)" 
+              style="border: none; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.25s;"
+              [style.background]="membership.isPremium() ? 'linear-gradient(135deg, #ffd700 0%, #f59e0b 100%)' : 'rgba(255,255,255,0.05)'"
+              [style.border]="membership.isPremium() ? 'none' : '1px solid rgba(255,255,255,0.1)'"
+              [style.color]="membership.isPremium() ? '#000' : 'var(--muted)'">
+        <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-star'"></i>
+        <span>{{ membership.isPremium() ? 'Premium' : 'Gratis' }}</span>
+      </button>
+
+      <!-- Puntos e Coins -->
+      <div style="display: flex; gap: 8px;">
+        <!-- Puntos de Enfoque -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: flex-end; min-width: 70px;">
+          <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
+          <span style="font-size: 13.5px; font-weight: 900; color: var(--text);">
+            {{ membership.isPremium() ? membership.focusPoints() : '—' }}
+          </span>
+        </div>
+        <!-- Pro Coins -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: flex-end; min-width: 70px;">
+          <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pro Coins</span>
+          <span style="font-size: 13.5px; font-weight: 900; color: var(--yellow);">
+            {{ membership.isPremium() ? membership.proCoins() : '—' }}
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -133,67 +164,81 @@
       </div>
     </div>
 
-    <!-- CARD 3: Ranking Global (Lista Vertical) -->
-    <div class="metric-card-premium" style="--card-accent: var(--yellow); padding: 16px;">
+    <!-- CARD 3: Ranking Global / Tu Desempeño (Dinámico Premium vs Free) -->
+    <div class="metric-card-premium" style="--card-accent: var(--yellow); padding: 16px; min-height: 190px; display: flex; flex-direction: column; justify-content: space-between;">
+      
+      <!-- CABECERA -->
       <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
         <div style="display: flex; align-items: center; gap: 6px;">
           <i class="fa-solid fa-trophy" style="font-size: 10px; color: var(--yellow);"></i>
           <span style="font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Tu Desempeño</span>
         </div>
-        <span style="font-size: 9.5px; color: var(--yellow); font-weight: 700;">Top 15%</span>
+        <span style="font-size: 9.5px; color: var(--yellow); font-weight: 700;" *ngIf="membership.isPremium()">
+          Top {{ 100 - percentageBeaten() }}%
+        </span>
+        <span style="font-size: 9.5px; color: var(--muted); font-weight: 700;" *ngIf="!membership.isPremium()">
+          Sin clasificar
+        </span>
       </div>
-      
-      <!-- Lista Vertical de Ranking Compacto -->
-      <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 8px;">
-        
-        <!-- Posición 40 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--muted); opacity: 0.55;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <div style="width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; background: var(--bg3);">40</div>
-            <span>Usuario rival</span>
+
+      <!-- VISTA GRATUITA: RANKING DUMMY CON INVITACIÓN PREMIUM -->
+      <div *ngIf="!membership.isPremium()" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px; flex: 1; justify-content: center;">
+        <div style="text-align: center; padding: 4px 0;">
+          <div style="font-size: 20px; font-weight: 900; color: var(--muted); opacity: 0.7;">
+            Posición: #42
           </div>
-          <span>2,980 XP</span>
+          <p style="font-size: 10.5px; color: var(--yellow); margin: 6px 0 0 0; line-height: 1.4; font-weight: 600;">
+            ⭐ Premium te permite acumular Puntos de Enfoque y competir por recompensas.
+          </p>
         </div>
         
-        <!-- Posición 41 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--muted); opacity: 0.8;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <div style="width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; background: var(--bg3);">41</div>
-            <span>Usuario rival</span>
-          </div>
-          <span>2,920 XP</span>
-        </div>
-        
-        <!-- Posición 42 (TÚ - MÁS GRANDE Y RESALTADO) -->
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; font-weight: 700; color: var(--text); background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.15); padding: 3px 6px; border-radius: 4px; margin: 1px 0;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <div style="width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--yellow); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; background: var(--yellow); color: #000; box-shadow: 0 0 8px rgba(212, 175, 55, 0.25);" [title]="'Mi Guardián: ' + getAvatarName()">
-              42
-            </div>
-            <span style="color: var(--yellow);">Tú ({{ getAvatarName() }})</span>
-          </div>
-          <span style="font-weight: 800;">2,850 XP</span>
-        </div>
-        
-        <!-- Posición 43 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--muted); opacity: 0.8;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <div style="width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; background: var(--bg3);">43</div>
-            <span>Usuario rival</span>
-          </div>
-          <span>2,790 XP</span>
-        </div>
-        
-        <!-- Posición 44 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--muted); opacity: 0.55;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <div style="width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; background: var(--bg3);">44</div>
-            <span>Usuario rival</span>
-          </div>
-          <span>2,720 XP</span>
-        </div>
-        
+        <button (click)="showPaywallModal.set(true)" 
+                style="border: none; background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 6px; padding: 8px; color: var(--yellow); font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                onmouseover="this.style.background='rgba(212,175,55,0.18)'"
+                onmouseout="this.style.background='rgba(212,175,55,0.1)'">
+          Ver Beneficios Premium
+        </button>
       </div>
+
+      <!-- VISTA PREMIUM: ESTADÍSTICAS DETALLADAS DE COMPETENCIA -->
+      <div *ngIf="membership.isPremium()" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; flex: 1;">
+        
+        <!-- Posición Actual -->
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 18px; font-weight: 900; color: var(--text);">#{{ rankingPosition() }}</span>
+            <span style="font-size: 9px; color: var(--green); font-weight: 800; display: inline-flex; align-items: center; gap: 1px;" 
+                  *ngIf="membership.focusPoints() >= 30"
+                  title="Posiciones ascendidas">
+              <i class="fa-solid fa-arrow-trend-up"></i>
+              <span>{{ Math.floor(membership.focusPoints() / 30) }}</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Puntos Acumulados -->
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos Enfoque</span>
+          <span style="font-size: 18px; font-weight: 900; color: var(--text);">{{ membership.focusPoints() }} pts</span>
+        </div>
+
+        <!-- Superado % -->
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Superados</span>
+          <span style="font-size: 12.5px; font-weight: 800; color: var(--muted);">{{ percentageBeaten() }}% del Dojo</span>
+        </div>
+
+        <!-- Recompensa Potencial -->
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Recompensa Pot.</span>
+          <span style="font-size: 12.5px; font-weight: 800; color: var(--yellow); display: flex; align-items: center; gap: 3px;">
+            <i class="fa-solid fa-coins"></i> {{ potentialReward() }}
+          </span>
+        </div>
+
+      </div>
+
     </div>
   </div>
 
@@ -380,6 +425,83 @@
       </div>
 
     </div>
+
+    <!-- CARD 3: SESIONES DE ENFOQUE ACTIVAS (COMUNIDAD) -->
+    <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.8) 0%, rgba(30, 30, 39, 0.45) 100%); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; gap: 16px;">
+      
+      <!-- Cabecera -->
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-users" style="color: var(--accent); font-size: 14px;"></i>
+          <div>
+            <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Usuarios en Enfoque</h4>
+            <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Usuarios que acaban de iniciar una sesión de enfoque. ¡Únete!</p>
+          </div>
+        </div>
+        <!-- Corona Premium si es gratis -->
+        <span *ngIf="!membership.isPremium()" style="font-size: 9px; color: var(--yellow); font-weight: 800; background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.15); padding: 2px 6px; border-radius: 10px; display: flex; align-items: center; gap: 3px;">
+          <i class="fa-solid fa-crown"></i> PRO
+        </span>
+      </div>
+
+      <!-- Lista de salas activas -->
+      <div style="display: flex; flex-direction: column; gap: 10px; min-height: 140px; justify-content: center;">
+        
+        <!-- Sala 1: Ramiro -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px 12px; transition: all 0.2s;"
+             onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="background: #ff007f; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff;" title="Guardián: Zorro Ninja">
+              <i class="fa-solid fa-mask"></i>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text);">Ramiro (Ninja)</span>
+              <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
+                Inició hace 1 min • 25 min
+              </span>
+            </div>
+          </div>
+          <button (click)="joinSharedSession('Ramiro', 'zorro')" 
+                  style="border: none; background: var(--accent); color: #000; font-size: 10.5px; font-weight: 800; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;"
+                  onmouseover="this.style.transform='translateY(-1px)';"
+                  onmouseout="this.style.transform='translateY(0)';"
+                  title="Unirme a Ramiro">
+            <span>Unirme</span>
+            <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
+          </button>
+        </div>
+
+        <!-- Sala 2: Ana -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px 12px; transition: all 0.2s;"
+             onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="background: #3a86f0; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff;" title="Guardián: Lobo Samurai">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text);">Ana (Samurái)</span>
+              <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
+                Inició hace 3 min • 50 min
+              </span>
+            </div>
+          </div>
+          <button (click)="joinSharedSession('Ana', 'lobo')" 
+                  style="border: none; background: var(--accent); color: #000; font-size: 10.5px; font-weight: 800; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;"
+                  onmouseover="this.style.transform='translateY(-1px)';"
+                  onmouseout="this.style.transform='translateY(0)';"
+                  title="Unirme a Ana">
+            <span>Unirme</span>
+            <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
   </div>
 
   <!-- BANNER DE INVITACIÓN A LA ARENA (SLIM & GLASSMORPHIC) -->
@@ -400,5 +522,130 @@
       <span>Entrar a la Arena</span>
       <i class="fa-solid fa-arrow-right" style="font-size: 9px;"></i>
     </a>
+  </div>
+</div>
+
+<!-- MODAL PREMIUM PAYWALL -->
+<div *ngIf="showPaywallModal()" 
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 11000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+  
+  <div style="background: linear-gradient(135deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 15, 0.9) 100%); border: 1.5px solid var(--accent); border-radius: 24px; padding: 32px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 0 40px rgba(99,102,241,0.25); text-align: center; position: relative;">
+    
+    <!-- Cerrar -->
+    <button (click)="showPaywallModal.set(false)" 
+            style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 18px;">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Header -->
+    <div>
+      <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); border: 1.5px solid var(--yellow); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+        <i class="fa-solid fa-crown" style="color: var(--yellow); font-size: 20px;"></i>
+      </div>
+      <span style="font-size: 10px; color: var(--yellow); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Membresía Premium</span>
+      <h2 style="font-size: 20px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.5px;">Desbloquea el Camino Pro</h2>
+    </div>
+
+    <!-- Beneficios -->
+    <div style="display: flex; flex-direction: column; gap: 10px; text-align: left; background: rgba(0,0,0,0.2); padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);">
+      <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px;">
+        <i class="fa-solid fa-check" style="color: var(--green); margin-top: 2px;"></i>
+        <div>
+          <strong style="color: var(--text);">Pro Coins y Tienda:</strong> Acumula monedas con tus Pomodoros y compra avatares/temas.
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px;">
+        <i class="fa-solid fa-check" style="color: var(--green); margin-top: 2px;"></i>
+        <div>
+          <strong style="color: var(--text);">Puntos y Ranking del Dojo:</strong> Compite en el podio comunitario del Dojo.
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px;">
+        <i class="fa-solid fa-check" style="color: var(--green); margin-top: 2px;"></i>
+        <div>
+          <strong style="color: var(--text);">Salas Compartidas en Vivo:</strong> Enfócate acompañado por compañeros en tiempo real.
+        </div>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+      <!-- Toggle Premium Simulador -->
+      <button (click)="togglePremium(); showPaywallModal.set(false)" 
+              style="width: 100%; border: none; padding: 12px; border-radius: 10px; background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%); color: #000; font-size: 13px; font-weight: 900; cursor: pointer; transition: all 0.2s;"
+              onmouseover="this.style.transform='scale(1.02)';"
+              onmouseout="this.style.transform='scale(1)';">
+        {{ membership.isPremium() ? 'Volver a Cuenta Gratuita' : 'Simular Premium Gratis (+200 XP, +100 Coins)' }}
+      </button>
+      <button (click)="showPaywallModal.set(false)" 
+              style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 10px; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer;">
+        Seguir como Guerrero Gratuito
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN DE CO-WORKING -->
+<div *ngIf="showJoinConfirmation()" 
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 10500; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+  
+  <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.95) 0%, rgba(30, 30, 39, 0.9) 100%); border: 1.5px solid var(--accent); border-radius: 24px; padding: 32px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 0 30px rgba(99,102,241,0.2); text-align: center; position: relative;">
+    
+    <!-- Cerrar -->
+    <button (click)="cancelJoinRoom()" 
+            style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 18px;">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Header -->
+    <div>
+      <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(99, 102, 241, 0.1); border: 1.5px solid var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+        <i class="fa-solid fa-users" style="color: var(--accent); font-size: 20px;"></i>
+      </div>
+      <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Co-working en Vivo</span>
+      <h2 style="font-size: 20px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.5px;">Enfoque Compartido</h2>
+    </div>
+
+    <!-- Detalles del Compañero y Beneficio -->
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; text-align: left; display: flex; flex-direction: column; gap: 12px;">
+      <!-- Host -->
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff;"
+             [style.background]="selectedPartnerAvatar() === 'lobo' ? '#3a86f0' : '#ff007f'">
+          <i class="fa-solid" [class]="selectedPartnerAvatar() === 'lobo' ? 'fa-shield-halved' : 'fa-mask'"></i>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-size: 12.5px; font-weight: 800; color: var(--text);">Compañero: {{ selectedPartnerName() }}</span>
+          <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">🟢 Trabajando ahora mismo</span>
+        </div>
+      </div>
+
+      <!-- Explicación -->
+      <p style="font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4;">
+        Compartirás tu presencia de enfoque con <strong>{{ selectedPartnerName() }}</strong> en tiempo real. 
+        Al finalizar con éxito, obtendrás un <strong>bonus de +5 Pro Coins</strong> adicionales.
+      </p>
+
+      <div style="font-size: 10.5px; color: var(--yellow); display: flex; align-items: flex-start; gap: 6px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; margin-top: 4px;">
+        <i class="fa-solid fa-circle-info" style="margin-top: 2px;"></i>
+        <span>Serás llevado a la Arena de Enfoque para que puedas configurar tus objetivos y tiempos antes de iniciar la sesión.</span>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <button (click)="confirmJoinRoom()" 
+              style="width: 100%; border: none; padding: 12px; border-radius: 10px; background: var(--accent); color: #000; font-size: 13px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+              onmouseover="this.style.transform='scale(1.02)';"
+              onmouseout="this.style.transform='scale(1)';">
+        Entrar a la Arena
+      </button>
+      <button (click)="cancelJoinRoom()" 
+              style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 10px; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;">
+        Cancelar
+      </button>
+    </div>
+
   </div>
 </div>

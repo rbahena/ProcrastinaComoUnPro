@@ -1,7 +1,8 @@
-import { Component, signal, computed, OnDestroy } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, WritableSignal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MembershipService } from '../../services/membership.service';
 
 @Component({
   selector: 'app-enfoque',
@@ -10,11 +11,34 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './enfoque.html',
   styleUrl: './enfoque.css',
 })
-export class Enfoque implements OnDestroy {
-  currentTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>(
-    (localStorage.getItem('procrastina-theme') as any) || 'samurai'
-  );
-  userName = signal('Ramiro');
+export class Enfoque implements OnInit, OnDestroy {
+  currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
+  userName!: WritableSignal<string>;
+  selectedAvatar!: WritableSignal<'lobo' | 'leon' | 'buho' | 'zorro' | 'dragon'>;
+  Math = Math;
+
+  constructor(private router: Router, public membership: MembershipService) {
+    this.currentTheme = this.membership.selectedTheme;
+    this.userName = this.membership.userName;
+    this.selectedAvatar = this.membership.selectedAvatar;
+  }
+
+  // Acompañante de sesión compartida
+  showPaywallModal = signal<boolean>(false);
+  partnerTimeLeft = signal<number>(1500); // 25 min default
+  partnerTimeString = computed(() => {
+    const min = Math.floor(this.partnerTimeLeft() / 60);
+    const sec = this.partnerTimeLeft() % 60;
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  });
+  partnerActive = signal<boolean>(true);
+  partnerStatusText = signal<string>('Enfocado');
+  partnerSessionTicks = signal<number>(0);
+
+  // Toast Notificaciones del Acompañante
+  showPartnerNotification = signal<boolean>(false);
+  partnerNotificationMessage = signal<string>('');
+  partnerNotificationType = signal<'info' | 'warning' | 'success' | 'danger'>('info');
 
   // Escudo acústico / Ruido de fondo en vivo
   backgroundSound = signal<'off' | 'cafe' | 'lluvia' | 'reloj_pared' | 'reloj_pulsera'>('off');
@@ -24,9 +48,6 @@ export class Enfoque implements OnDestroy {
   private backgroundAudioCtx: AudioContext | null = null;
   private backgroundSource: AudioBufferSourceNode | null = null;
   private backgroundGain: GainNode | null = null;
-
-  // Mi Avatar / Guardián activo (Consistencia con Dojo)
-  selectedAvatar = signal<'lobo' | 'leon' | 'buho' | 'zorro' | 'dragon'>('zorro');
 
   // Estados de la Arena según la especificación:
   // 'setup' -> Configurando objetivo y ajustes.
@@ -59,6 +80,9 @@ export class Enfoque implements OnDestroy {
   });
   completedPomodorosArray = computed(() => Array(this.completedPomodoros()));
   totalCommunityPoints = computed(() => {
+    if (this.membership.isPremium()) {
+      return this.membership.focusPoints();
+    }
     return this.dailyAttempts().reduce((acc, attempt) => {
       if (attempt.status === 'completed') return acc + 100;
       if (attempt.status === 'abandoned') return acc - 50;
@@ -200,7 +224,32 @@ export class Enfoque implements OnDestroy {
     return 848 * (1 - pct);
   });
 
-  constructor(private router: Router) {}
+  ngOnInit() {
+    const partnerName = localStorage.getItem('shared-session-partner-name');
+    const partnerAvatar = localStorage.getItem('shared-session-partner-avatar');
+    if (partnerName && partnerAvatar) {
+      this.coworkingMode.set('partner');
+      this.partnerName.set(partnerName);
+      this.partnerAvatar.set(partnerAvatar);
+      
+      // Asignar tiempo inicial dinámico basado en cuándo iniciaron en el Dojo:
+      // Ana inició hace 3 min en sesión de 50 min => 47 min restante (2820 seg)
+      // Ramiro inició hace 1 min en sesión de 25 min => 24 min restante (1440 seg)
+      if (partnerName.toLowerCase().includes('ana')) {
+        this.partnerTimeLeft.set(2820);
+      } else if (partnerName.toLowerCase().includes('ramiro')) {
+        this.partnerTimeLeft.set(1440);
+      } else {
+        this.partnerTimeLeft.set(1500);
+      }
+
+      localStorage.removeItem('shared-session-partner-name');
+      localStorage.removeItem('shared-session-partner-avatar');
+    } else {
+      // Fallback
+      this.partnerTimeLeft.set(1500);
+    }
+  }
 
   // Iniciar Flujo: Lanza el Ritual 3-2-1
   startFocusFlow() {
@@ -211,6 +260,12 @@ export class Enfoque implements OnDestroy {
     this.stopEmergencyTimer();
     this.emergencyPauseActive.set(false);
     
+    // Resetear variables del compañero
+    this.partnerSessionTicks.set(0);
+    this.partnerActive.set(true);
+    this.partnerStatusText.set('Enfocado');
+    this.showPartnerNotification.set(false);
+
     // Configurar tiempos iniciales según setup
     this.totalSessionTime.set(this.focusDuration() * 60);
     this.timeLeft.set(this.focusDuration() * 60);
@@ -282,7 +337,6 @@ export class Enfoque implements OnDestroy {
     this.arenaState.set('summary');
   }
 
-  // Finalizar Cuestionario y Volver al Dojo
   finishSession() {
     this.stopBackgroundSound();
     this.backgroundSound.set('off');
@@ -295,6 +349,23 @@ export class Enfoque implements OnDestroy {
       const updatedAttempts = [...this.dailyAttempts(), newAttempt];
       this.dailyAttempts.set(updatedAttempts);
       localStorage.setItem('daily-attempts', JSON.stringify(updatedAttempts));
+
+      // Asignar puntos y recompensas
+      if (currentStatus === 'completed') {
+        const isShared = this.coworkingMode() === 'partner';
+        const sessionId = `session-${Date.now()}`;
+        this.membership.rewardCompletedSession(sessionId, isShared);
+        
+        // Recompensa adicional por objetivo cumplido (Pregunta 2)
+        const objCompleted = this.objectiveCompleted();
+        if (objCompleted === 'yes' || objCompleted === 'progress') {
+          const objectiveId = `obj-${Date.now()}`;
+          this.membership.rewardCompletedObjective(objectiveId);
+        }
+      } else if (currentStatus === 'abandoned' && this.membership.isPremium()) {
+        // Castigo de -50 XP por abandonar
+        this.membership.addFocusPoints(-50);
+      }
     }
 
     this.objectiveCompleted.set(null);
@@ -581,6 +652,15 @@ export class Enfoque implements OnDestroy {
     this.pomodoroTimer = setInterval(() => {
       if (this.timeLeft() > 0) {
         this.timeLeft.update(t => t - 1);
+
+        // Simulación en tiempo real del Acompañante
+        if (this.coworkingMode() === 'partner') {
+          if (this.partnerActive() && this.partnerTimeLeft() > 0) {
+            this.partnerTimeLeft.update(pt => pt - 1);
+          }
+          this.partnerSessionTicks.update(ticks => ticks + 1);
+          this.triggerPartnerSimulatedEvents();
+        }
       } else {
         // Al terminar con éxito
         this.stopTimerLoop();
@@ -666,5 +746,105 @@ export class Enfoque implements OnDestroy {
         osc.stop(audioCtx.currentTime + 0.35);
       }
     } catch(e){}
+  }
+
+  buyAvatar(avatar: string, cost: number) {
+    if (!this.membership.isPremium()) {
+      this.showPaywallModal.set(true);
+      return;
+    }
+    const success = this.membership.unlockAvatar(avatar, cost);
+    if (success) {
+      this.membership.selectedAvatar.set(avatar as any);
+      alert(`¡Felicidades! Has desbloqueado el avatar ${avatar.toUpperCase()} con éxito.`);
+    } else {
+      alert('No tienes suficientes Pro Coins. Completa más sesiones para ganar monedas.');
+    }
+  }
+
+  selectThemeOption(theme: 'samurai' | 'cyberpunk' | 'aurora' | 'zen') {
+    if (theme === 'samurai' || this.membership.unlockedThemes().includes(theme)) {
+      this.changeTheme(theme);
+      return;
+    }
+
+    if (!this.membership.isPremium()) {
+      this.showPaywallModal.set(true);
+      return;
+    }
+
+    const cost = theme === 'cyberpunk' ? 100 : theme === 'aurora' ? 150 : 200;
+    const confirmBuy = confirm(`El tema ${theme.toUpperCase()} cuesta ${cost} Pro Coins. ¿Deseas desbloquearlo? Tienes ${this.membership.proCoins()} Pro Coins.`);
+    if (confirmBuy) {
+      const success = this.membership.unlockTheme(theme, cost);
+      if (success) {
+        this.changeTheme(theme);
+        alert(`¡Tema ${theme.toUpperCase()} desbloqueado y equipado!`);
+      } else {
+        alert('No tienes suficientes Pro Coins para desbloquear este tema.');
+      }
+    }
+  }
+
+  setFocusMode(mode: 'solo' | 'partner') {
+    if (mode === 'solo') {
+      this.coworkingMode.set('solo');
+      return;
+    }
+
+    if (!this.membership.isPremium()) {
+      this.showPaywallModal.set(true);
+      return;
+    }
+
+    this.coworkingMode.set('partner');
+  }
+
+  triggerPartnerSimulatedEvents() {
+    const ticks = this.partnerSessionTicks();
+    const name = this.partnerName() || 'Tu compañero';
+
+    if (ticks === 15) {
+      this.showToast(`${name}: "¡Qué buen ritmo llevamos! ¡Mucho éxito en tu sesión!"`, 'info');
+    } else if (ticks === 45) {
+      this.partnerActive.set(false);
+      this.partnerStatusText.set('En Pausa');
+      const msg = name.toLowerCase().includes('ana') 
+        ? `⚠️ Ana ha activado Pausa de Emergencia: "¡Mucho éxito, termina pronto! Vuelvo en 2 min."`
+        : `⚠️ ${name} ha pausado su sesión: "¡No aflojes el ritmo, termina pronto!"`;
+      this.showToast(msg, 'warning');
+    } else if (ticks === 75) {
+      this.partnerActive.set(true);
+      this.partnerStatusText.set('Enfocado');
+      const msg = name.toLowerCase().includes('ana')
+        ? `🟢 Ana ha reanudado su sesión. "¡Listo, sigamos concentrados!"`
+        : `🟢 ${name} ha reanudado. "¡Seguimos dándole con todo!"`;
+      this.showToast(msg, 'success');
+    } else if (ticks === 110) {
+      if (name.toLowerCase().includes('ana')) {
+        this.partnerActive.set(false);
+        this.partnerStatusText.set('Abandonado');
+        this.showToast(`❌ Ana ha abandonado la sesión: "¡Uf! Me surgió una llamada urgente. ¡Sigue tú, no te rindas, mucha suerte!"`, 'danger');
+      } else {
+        this.showToast(`${name}: "¡Ya casi terminamos! Un último esfuerzo."`, 'info');
+      }
+    } else if (this.partnerTimeLeft() === 0 && this.partnerActive()) {
+      this.partnerActive.set(false);
+      this.partnerStatusText.set('Completado');
+      const msg = `🎉 ${name} ha completado su sesión: "¡Misión cumplida! Mucha suerte, termina pronto."`;
+      this.showToast(msg, 'success');
+    }
+  }
+
+  showToast(msg: string, type: 'info' | 'warning' | 'success' | 'danger') {
+    this.partnerNotificationMessage.set(msg);
+    this.partnerNotificationType.set(type);
+    this.showPartnerNotification.set(true);
+    
+    setTimeout(() => {
+      if (this.partnerNotificationMessage() === msg) {
+        this.showPartnerNotification.set(false);
+      }
+    }, 8000);
   }
 }
