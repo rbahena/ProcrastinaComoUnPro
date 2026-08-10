@@ -609,5 +609,220 @@
   transform: translate(-50%, 0) scale(1);
 }
 
+/* ===== REDESIGNED COMMUNITY CARDS ===== */
+
+/* Podio Card */
+.podio-card {
+  background: linear-gradient(135deg, rgba(18, 18, 24, 0.9) 0%, rgba(30, 30, 39, 0.6) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: space-between;
+  transition: border-color 0.3s ease;
+}
+
+.podio-card:hover {
+  border-color: rgba(212, 175, 55, 0.2);
+}
+
+.podio-pill-container {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 4px;
+  gap: 4px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.podio-pill-btn {
+  border: none;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.podio-pill-btn.active {
+  background: var(--accent);
+  color: #000 !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.podio-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90px;
+  transition: all 0.3s ease;
+}
+
+.podio-column:hover {
+  transform: translateY(-4px);
+}
+
+.podio-avatar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.podio-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.podio-column.first-place .podio-avatar {
+  width: 44px;
+  height: 44px;
+  border-color: #ffd700;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.25);
+}
+
+.podio-column.second-place .podio-avatar {
+  border-color: #c0c0c0;
+  box-shadow: 0 0 10px rgba(192, 192, 192, 0.15);
+}
+
+.podio-column.third-place .podio-avatar {
+  border-color: #cd7f32;
+  box-shadow: 0 0 10px rgba(205, 127, 50, 0.15);
+}
+
+.podio-bar {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 900;
+  transition: all 0.3s ease;
+}
+
+.podio-column.first-place .podio-bar {
+  height: 75px;
+  background: linear-gradient(to top, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.25) 100%);
+  border-color: rgba(212, 175, 55, 0.3);
+  color: #ffd700;
+  font-size: 16px;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+.podio-column.second-place .podio-bar {
+  height: 52px;
+  background: linear-gradient(to top, rgba(192, 192, 192, 0.03) 0%, rgba(192, 192, 192, 0.15) 100%);
+  border-color: rgba(192, 192, 192, 0.2);
+  color: #c0c0c0;
+  font-size: 13px;
+}
+
+.podio-column.third-place .podio-bar {
+  height: 38px;
+  background: linear-gradient(to top, rgba(205, 127, 50, 0.02) 0%, rgba(205, 127, 50, 0.15) 100%);
+  border-color: rgba(205, 127, 50, 0.2);
+  color: #cd7f32;
+  font-size: 12px;
+}
+
+/* Co-working Card */
+.coworking-card {
+  background: linear-gradient(135deg, rgba(18, 18, 24, 0.9) 0%, rgba(30, 30, 39, 0.6) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: space-between;
+  transition: border-color 0.3s ease;
+}
+
+.coworking-card:hover {
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.coworking-slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.coworking-slot:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.coworking-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.coworking-btn {
+  border: none;
+  background: var(--accent);
+  color: #000;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.coworking-btn:hover {
+  transform: translateY(-2px);
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.25);
+}
+
+.coworking-btn i {
+  transition: transform 0.6s ease;
+}
+
+.coworking-btn:hover i {
+  transform: rotate(180deg);
+}
+
 
 

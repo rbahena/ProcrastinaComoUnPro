@@ -29,14 +29,19 @@ export class Home implements OnInit, OnDestroy {
   liveFocusedUsersCount = signal(0); // Inicia en 0 para animación
   liveCompletedObjectivesToday = signal(0); // Inicia en 0 para animación
   
+  // Simulación de fluctuación de ranking por hora en vivo
+  private rankTimer: any = null;
+  liveRankShift = signal(0);
+  lastUpdated = signal('');
+
   rankingPosition = computed(() => {
-    if (!this.membership.isPremium()) return 42;
-    return Math.max(1, 42 - Math.floor(this.membership.focusPoints() / 30));
+    const base = !this.membership.isPremium() ? 42 : Math.max(1, 42 - Math.floor(this.membership.focusPoints() / 30));
+    return Math.max(1, base + this.liveRankShift());
   });
 
   percentageBeaten = computed(() => {
-    if (!this.membership.isPremium()) return 84;
-    return Math.min(99, 84 + Math.floor(this.membership.focusPoints() / 15));
+    const currentPos = this.rankingPosition();
+    return Math.min(99, Math.max(1, 100 - currentPos));
   });
 
   potentialReward = computed(() => {
@@ -137,7 +142,27 @@ export class Home implements OnInit, OnDestroy {
     }
   }
 
+  private updateLastUpdatedTime() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    this.lastUpdated.set(timeStr);
+  }
+
   ngOnInit() {
+    this.updateLastUpdatedTime();
+
+    // Simular fluctuación dinámica de ranking (comunidad en vivo) cada 15 segundos
+    this.rankTimer = setInterval(() => {
+      // El ranking puede fluctuar levemente hacia arriba o abajo según actividad
+      const randomShift = Math.floor(Math.random() * 3) - 1; // -1, 0, o 1
+      this.liveRankShift.update(current => {
+        const next = current + randomShift;
+        // Limitar la variación entre -3 y +3 para que sea realista
+        return Math.max(-3, Math.min(3, next));
+      });
+      this.updateLastUpdatedTime();
+    }, 15000);
+
     // Animación de conteo desde cero para ambas métricas
     const duration = 1500;
     const frameRate = 1000 / 60;
@@ -165,6 +190,9 @@ export class Home implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopTimerLoop();
+    if (this.rankTimer) {
+      clearInterval(this.rankTimer);
+    }
   }
 
   // Controles de Pomodoro
