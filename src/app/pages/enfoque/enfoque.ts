@@ -193,10 +193,10 @@ export class Enfoque implements OnInit, OnDestroy {
     return {
       logoText: 'Kaizen Focus',
       logoIcon: 'fa-yin-yang',
-      navTasks: 'Dojo',
-      navZen: 'Arena',
-      navTimer: 'Espejo',
-      navShield: 'Resultados',
+      navTasks: 'Inicio',
+      navZen: 'Zona de concentración',
+      navTimer: 'Estadísticas',
+      navShield: 'Baúl de ideas',
       navIdeas: 'Baúl de Ideas',
       title: 'La Arena',
       desc: 'Tu templo de concentración absoluta.'

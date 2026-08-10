@@ -8,7 +8,7 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.css',
 })
 export class App implements OnInit {
-  protected readonly title = signal('ProcrastinaComoUnPro');
+  protected readonly title = signal('Kaizen Focus');
 
   ngOnInit() {
     const savedTheme = localStorage.getItem('procrastina-theme') || 'samurai';

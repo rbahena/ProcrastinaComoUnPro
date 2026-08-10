@@ -25,25 +25,29 @@ interface DojoAvatar {
     <!-- SIDEBAR -->
     <div class="sidebar">
       <a routerLink="/home" class="logo">
-        <span class="logo-icon"><i class="fa-solid fa-fire" style="color: var(--accent);"></i></span>
-        <span class="logo-text">Procrastina</span>
+        <span class="logo-icon"><i class="fa-solid fa-yin-yang" style="color: var(--accent);"></i></span>
+        <span class="logo-text">Kaizen Focus</span>
       </a>
       <div class="nav">
         <a routerLink="/home" routerLinkActive="active" class="nav-item">
           <span class="nav-dot"></span>
-          Dojo
+          Inicio
         </a>
         <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
           <span class="nav-dot"></span>
-          Zen (Enfoque)
+          Zona de concentración
         </a>
         <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
           <span class="nav-dot"></span>
-          Calendario
+          Estadísticas
         </a>
-        <a routerLink="/bloqueador" routerLinkActive="active" class="nav-item">
+        <a (click)="openIdeasModal()" class="nav-item" style="cursor: pointer; display: flex; align-items: center; width: 100%;">
           <span class="nav-dot"></span>
-          Bloqueador
+          Baúl de ideas
+          <span *ngIf="capturedIdeas().length > 0" 
+                style="margin-left: auto; background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; line-height: 1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);">
+            {{ capturedIdeas().length }}
+          </span>
         </a>
         <!-- LOGOUT -->
         <a routerLink="/login" class="nav-item logout-item" style="margin-top: auto;">
@@ -396,6 +400,82 @@ interface DojoAvatar {
           <p class="toast-desc">
             Ingresa tu nombre de usuario y equipa tu avatar inicial en la sección <strong>"Mi Avatar"</strong>.
           </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE IDEAS CAPTURADAS (BAÚL DE IDEAS) -->
+    <div *ngIf="showIdeasModal()" 
+         style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; font-family: 'Space Grotesk', sans-serif;">
+      
+      <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.95) 0%, rgba(30, 30, 39, 0.9) 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 32px; width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 32px 80px rgba(0,0,0,0.6); position: relative; animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        
+        <!-- Cerrar -->
+        <button (click)="closeIdeasModal()" 
+                style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; transition: color 0.2s;"
+                onmouseover="this.style.color='var(--text)';"
+                onmouseout="this.style.color='var(--muted)';">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <!-- Header Modal -->
+        <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 14px;">
+          <i class="fa-solid fa-box-archive" style="color: var(--yellow); font-size: 20px; filter: drop-shadow(0 0 8px rgba(255,215,0,0.3));"></i>
+          <div style="text-align: left;">
+            <h3 style="font-size: 16px; font-weight: 800; color: var(--text); margin: 0; letter-spacing: -0.3px;">Baúl de Ideas Fugaces</h3>
+            <span style="font-size: 10px; color: var(--muted); font-weight: 600;">Ideas y distractores capturados para procesar luego</span>
+          </div>
+        </div>
+
+        <!-- Contenido Modal -->
+        <div style="flex: 1; min-height: 200px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px;">
+          
+          <!-- Si no hay ideas -->
+          <div *ngIf="capturedIdeas().length === 0" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; height: 200px; color: var(--muted);">
+            <i class="fa-solid fa-feather" style="font-size: 32px; opacity: 0.3;"></i>
+            <span style="font-size: 12px; font-weight: 500; font-style: italic;">El baúl está vacío. ¡Envía tus primeras ideas volando!</span>
+          </div>
+
+          <!-- Lista de ideas -->
+          <div *ngFor="let idea of capturedIdeas(); let i = index" 
+               style="display: flex; align-items: flex-start; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px 16px; gap: 12px; transition: all 0.2s;"
+               onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,215,0,0.15)';"
+               onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
+            <div style="display: flex; flex-direction: column; gap: 4px; text-align: left; flex: 1;">
+              <span style="font-size: 12.5px; color: var(--text); font-weight: 600; line-height: 1.4; word-break: break-word;">{{ idea }}</span>
+              <span style="font-size: 9px; color: var(--muted); font-weight: 500;">Capturado hoy</span>
+            </div>
+            <button (click)="removeIdea(i)" 
+                    style="background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px 8px; font-size: 11px; transition: all 0.2s;"
+                    onmouseover="this.style.color='var(--red)'; this.style.transform='scale(1.1)';"
+                    onmouseout="this.style.color='var(--muted)'; this.style.transform='scale(1)';"
+                    title="Eliminar idea del baúl">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Footer Modal -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; margin-top: 5px;">
+          <span style="font-size: 11px; color: var(--muted); font-weight: 600;">Total: {{ capturedIdeas().length }} ideas</span>
+          
+          <div style="display: flex; gap: 8px;">
+            <!-- Botón limpiar todo (solo si hay ideas) -->
+            <button *ngIf="capturedIdeas().length > 0"
+                    (click)="clearAllIdeas()"
+                    style="background: transparent; border: 1px solid rgba(239, 68, 68, 0.2); color: var(--red); padding: 8px 14px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.background='rgba(239, 68, 68, 0.05)';"
+                    onmouseout="this.style.background='transparent';">
+              Limpiar Todo
+            </button>
+
+            <button (click)="closeIdeasModal()" 
+                    style="background: var(--accent); border: none; color: #000; padding: 8px 16px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.transform='translateY(-1px)';"
+                    onmouseout="this.style.transform='translateY(0)';">
+              Entendido
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1222,6 +1302,36 @@ export class Cualidades implements OnInit {
   inputName = signal<string>('');
   usernameError = signal<string | null>(null);
 
+  showIdeasModal = signal(false);
+  capturedIdeas = signal<string[]>([]);
+
+  openIdeasModal() {
+    this.showIdeasModal.set(true);
+    this.loadIdeas();
+  }
+
+  closeIdeasModal() {
+    this.showIdeasModal.set(false);
+  }
+
+  loadIdeas() {
+    const list = JSON.parse(localStorage.getItem('captured-ideas') || '[]');
+    this.capturedIdeas.set(list);
+  }
+
+  removeIdea(index: number) {
+    const updatedList = this.capturedIdeas().filter((_, i) => i !== index);
+    this.capturedIdeas.set(updatedList);
+    localStorage.setItem('captured-ideas', JSON.stringify(updatedList));
+  }
+
+  clearAllIdeas() {
+    if (confirm('¿Estás seguro de que quieres limpiar todo el baúl de ideas?')) {
+      this.capturedIdeas.set([]);
+      localStorage.setItem('captured-ideas', '[]');
+    }
+  }
+
   // Define todos los 21 avatares en un computed signal reactivo clasificados por obtención
   allAvatars = computed(() => {
     const unlockedList = this.membership.unlockedAvatars();
@@ -1322,6 +1432,8 @@ export class Cualidades implements OnInit {
       });
     }
     this.inputName.set(this.membership.userName());
+
+    this.loadIdeas();
 
     // Mostrar el toast de bienvenida únicamente después del registro
     const justRegistered = localStorage.getItem('procrastina-just-registered') === 'true';

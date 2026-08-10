@@ -92,15 +92,44 @@ export class Home implements OnInit, OnDestroy {
   timerRunning = signal(false);
   isBreak = signal(false);
   private pomodoroTimer: any = null;
+  showIdeasModal = signal(false);
+  capturedIdeas = signal<string[]>([]);
+
+  openIdeasModal() {
+    this.showIdeasModal.set(true);
+    this.loadIdeas();
+  }
+
+  closeIdeasModal() {
+    this.showIdeasModal.set(false);
+  }
+
+  loadIdeas() {
+    const list = JSON.parse(localStorage.getItem('captured-ideas') || '[]');
+    this.capturedIdeas.set(list);
+  }
+
+  removeIdea(index: number) {
+    const updatedList = this.capturedIdeas().filter((_, i) => i !== index);
+    this.capturedIdeas.set(updatedList);
+    localStorage.setItem('captured-ideas', JSON.stringify(updatedList));
+  }
+
+  clearAllIdeas() {
+    if (confirm('¿Estás seguro de que quieres limpiar todo el baúl de ideas?')) {
+      this.capturedIdeas.set([]);
+      localStorage.setItem('captured-ideas', '[]');
+    }
+  }
 
   labels = computed(() => {
     return {
       logoText: 'Kaizen Focus',
       logoIcon: 'fa-yin-yang',
-      navTasks: 'Dojo',
-      navZen: 'Arena',
-      navTimer: 'Espejo',
-      navShield: 'Resultados',
+      navTasks: 'Inicio',
+      navZen: 'Zona de concentración',
+      navTimer: 'Estadísticas',
+      navShield: 'Baúl de ideas',
       title: 'El Dojo',
       desc: 'Tu espacio mental para declarar objetivos de alto impacto.'
     };
@@ -145,6 +174,7 @@ export class Home implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.updateLastUpdatedTime();
+    this.loadIdeas();
 
     // Simular fluctuación dinámica de ranking (comunidad en vivo) cada 15 segundos
     this.rankTimer = setInterval(() => {
