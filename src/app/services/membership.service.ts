@@ -44,7 +44,7 @@ export class MembershipService {
 
   // Cosméticos desbloqueados (por defecto los avatares iniciales)
   unlockedAvatars = signal<string[]>(
-    JSON.parse(localStorage.getItem('procrastina-unlocked-avatars') || '["gato","perro","conejo","mapache","nutria","loro","zorro","lince"]')
+    JSON.parse(localStorage.getItem('procrastina-unlocked-avatars') || '["gato","perro","conejo","loro","hamster","pez","cuyo","raton","rana"]')
   );
   unlockedThemes = signal<string[]>(
     JSON.parse(localStorage.getItem('procrastina-unlocked-themes') || '["samurai"]')
@@ -75,18 +75,19 @@ export class MembershipService {
     { id: 'gato', name: 'Gato', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
     { id: 'perro', name: 'Perro', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
     { id: 'conejo', name: 'Conejo', icon: 'fa-rabbit', color: '#ec4899', isUnlocked: true, isInitial: true },
-    { id: 'mapache', name: 'Mapache', icon: 'fa-paw', color: '#8b5cf6', isUnlocked: true, isInitial: true },
-    { id: 'nutria', name: 'Nutria', icon: 'fa-water', color: '#06b6d4', isUnlocked: true, isInitial: true },
     { id: 'loro', name: 'Loro', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
-    { id: 'zorro', name: 'Zorro', icon: 'fa-mask', color: '#f97316', isUnlocked: true, isInitial: true },
-    { id: 'lince', name: 'Lince', icon: 'fa-cat', color: '#a855f7', isUnlocked: true, isInitial: true }
+    { id: 'hamster', name: 'Hámster', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
+    { id: 'pez', name: 'Pez', icon: 'fa-fish', color: '#06b6d4', isUnlocked: true, isInitial: true },
+    { id: 'cuyo', name: 'Cuyo', icon: 'fa-paw', color: '#8b5cf6', isUnlocked: true, isInitial: true },
+    { id: 'raton', name: 'Ratón', icon: 'fa-paw', color: '#ec4899', isUnlocked: true, isInitial: true },
+    { id: 'rana', name: 'Rana', icon: 'fa-frog', color: '#22c55e', isUnlocked: true, isInitial: true }
   ]);
 
   // Catálogo completo de Cualidades (TORTUGA, HORMIGA, ÁGUILA, ABEJA, CASTOR, LOBO)
   qualitiesCatalog = signal<QualityItem[]>([
     { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 3, unlockTotal: 7 },
-    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar pequeños objetivos de manera constante.', isUnlocked: false, unlockProgress: 5, unlockTotal: 10 },
-    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar objetivos grandes que requieran varias sesiones.', isUnlocked: false, unlockProgress: 1, unlockTotal: 3 },
+    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar pequeños objetivos de manera constante.', isUnlocked: false, unlockProgress: 5, unlockTotal: 20 },
+    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar objetivos grandes que requieran varias sesiones.', isUnlocked: false, unlockProgress: 1, unlockTotal: 4 },
     { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas.', isUnlocked: false, unlockProgress: 3, unlockTotal: 5 },
     { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Trabajar progresivamente en objetivos durante varios días.', isUnlocked: false, unlockProgress: 6, unlockTotal: 10 },
     { id: 'cooperacion', animal: 'lobo', name: 'Cooperación', description: 'Avanza mejor acompañado.', unlockRequirement: 'Participar activamente ayudando/acompañando a otros usuarios.', isUnlocked: false, unlockProgress: 2, unlockTotal: 5 }
@@ -262,7 +263,7 @@ export class MembershipService {
     localStorage.removeItem('procrastina-qualities-catalog');
     localStorage.removeItem('procrastina-focus-points');
 
-    this.unlockedAvatars.set(['gato', 'perro', 'conejo', 'mapache', 'nutria', 'loro', 'zorro', 'lince']);
+    this.unlockedAvatars.set(['gato', 'perro', 'conejo', 'loro', 'hamster', 'pez', 'cuyo', 'raton', 'rana']);
     this.unlockedThemes.set(['samurai']);
     this.userName.set('Guerrero');
     this.selectedAvatar.set('gato');
@@ -270,8 +271,8 @@ export class MembershipService {
     this.proCoins.set(0);
     this.qualitiesCatalog.set([
       { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 3, unlockTotal: 7 },
-      { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar pequeños objetivos de manera constante.', isUnlocked: false, unlockProgress: 5, unlockTotal: 10 },
-      { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar objetivos grandes que requieran varias sesiones.', isUnlocked: false, unlockProgress: 1, unlockTotal: 3 },
+      { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar pequeños objetivos de manera constante.', isUnlocked: false, unlockProgress: 5, unlockTotal: 20 },
+      { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar objetivos grandes que requieran varias sesiones.', isUnlocked: false, unlockProgress: 1, unlockTotal: 4 },
       { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas.', isUnlocked: false, unlockProgress: 3, unlockTotal: 5 },
       { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Trabajar progresivamente en objetivos durante varios días.', isUnlocked: false, unlockProgress: 6, unlockTotal: 10 },
       { id: 'cooperacion', animal: 'lobo', name: 'Cooperación', description: 'Avanza mejor acompañado.', unlockRequirement: 'Participar activamente ayudando/acompañando a otros usuarios.', isUnlocked: false, unlockProgress: 2, unlockTotal: 5 }
@@ -286,7 +287,8 @@ export class MembershipService {
       lobo: 'Lobo', tortuga: 'Tortuga', hormiga: 'Hormiga', abeja: 'Abeja',
       castor: 'Castor', aguila: 'Águila', buho: 'Búho', panda: 'Panda',
       sloth: 'Perezoso', elefante: 'Elefante', octopus: 'Pulpo',
-      leon: 'León', dragon: 'Dragón'
+      leon: 'León', dragon: 'Dragón',
+      hamster: 'Hámster', pez: 'Pez', cuyo: 'Cuyo', raton: 'Ratón', rana: 'Rana'
     };
     return names[id] || 'Gato';
   }
@@ -298,7 +300,8 @@ export class MembershipService {
       lobo: '#ef4444', tortuga: '#22c55e', hormiga: '#78350f', abeja: '#eab308',
       castor: '#b45309', aguila: '#3b82f6', buho: '#6366f1', panda: '#6b7280',
       sloth: '#78716c', elefante: '#6b7280', octopus: '#ec4899',
-      leon: '#fbbf24', dragon: '#dc2626'
+      leon: '#fbbf24', dragon: '#dc2626',
+      hamster: '#f97316', pez: '#06b6d4', cuyo: '#8b5cf6', raton: '#ec4899', rana: '#22c55e'
     };
     return colors[id] || '#10b981';
   }
@@ -330,6 +333,11 @@ export class MembershipService {
       case 'castor': return '🦫';
       case 'aguila': return '🦅';
       case 'hormiga': return '🐜';
+      case 'hamster': return '🐹';
+      case 'pez': return '🐟';
+      case 'cuyo': return '🐹';
+      case 'raton': return '🐭';
+      case 'rana': return '🐸';
       default: return '🐾';
     }
   }
@@ -348,6 +356,11 @@ export class MembershipService {
       case 'sloth': return 'Calma';
       case 'leon': return 'Shogun';
       case 'dragon': return 'Guardián';
+      case 'hamster': return 'Veloz';
+      case 'pez': return 'Fluido';
+      case 'cuyo': return 'Tierno';
+      case 'raton': return 'Astuto';
+      case 'rana': return 'Saltarina';
       default: return 'Guerrero';
     }
   }

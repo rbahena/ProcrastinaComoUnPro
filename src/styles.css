@@ -137,9 +137,9 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .avatar-sprite.sprite-lobo { background-image: url('/assets/images/avatars/lobo.jpg'); }
-.avatar-sprite.sprite-zorro { background-image: url('/assets/images/avatars/zorro.jpg'); }
+.avatar-sprite.sprite-hamster { background-image: url('/assets/images/avatars/hamster.jpg'); }
 .avatar-sprite.sprite-buho { background-image: url('/assets/images/avatars/buho.jpg'); }
-.avatar-sprite.sprite-lince { background-image: url('/assets/images/avatars/lince.jpg'); }
+.avatar-sprite.sprite-pez { background-image: url('/assets/images/avatars/pez.jpg'); }
 
 .avatar-sprite.sprite-panda { background-image: url('/assets/images/avatars/panda.jpg'); }
 .avatar-sprite.sprite-sloth { background-image: url('/assets/images/avatars/sloth.jpg'); }
@@ -156,9 +156,12 @@ button { font-family: inherit; cursor: pointer; }
 .avatar-sprite.sprite-gato { background-image: url('/assets/images/avatars/gato.jpg'); }
 .avatar-sprite.sprite-perro { background-image: url('/assets/images/avatars/perro.jpg'); }
 .avatar-sprite.sprite-conejo { background-image: url('/assets/images/avatars/conejo.jpg'); }
-.avatar-sprite.sprite-mapache { background-image: url('/assets/images/avatars/mapache.jpg'); }
-.avatar-sprite.sprite-nutria { background-image: url('/assets/images/avatars/nutria.jpg'); }
+.avatar-sprite.sprite-cuyo { background-image: url('/assets/images/avatars/cuyo.jpg'); }
+.avatar-sprite.sprite-raton { background-image: url('/assets/images/avatars/raton.jpg'); }
 .avatar-sprite.sprite-loro { background-image: url('/assets/images/avatars/loro.jpg'); }
+.avatar-sprite.sprite-rana { background-image: url('/assets/images/avatars/rana.jpg'); }
+.avatar-sprite.sprite-zorro { background-image: url('/assets/images/avatars/zorro.jpg'); }
+.avatar-sprite.sprite-lince { background-image: url('/assets/images/avatars/lince.jpg'); }
 
 /* Backwards compatibility aliases */
 .avatar-sprite.sprite-leon { background-image: url('/assets/images/avatars/leon.jpg'); }
@@ -260,7 +263,7 @@ button { font-family: inherit; cursor: pointer; }
   opacity: 1 !important;
 }
 .avatar {
-  width: 30px; height: 30px;
+  width: 44px; height: 44px;
   border-radius: 50%;
   background-color: var(--accent);
   display: flex; align-items: center; justify-content: center;

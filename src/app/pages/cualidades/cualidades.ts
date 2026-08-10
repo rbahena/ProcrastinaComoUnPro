@@ -14,6 +14,7 @@ interface DojoAvatar {
   qualityId: string | null;
   qualityName?: string;
   qualityReq?: string;
+  unlockTotal?: number;
 }
 
 @Component({
@@ -1231,26 +1232,29 @@ export class Cualidades implements OnInit {
       { id: 'gato', name: 'Gato', type: 'inicial', emoji: '🐱', color: '#10b981', role: 'Ninja Ágil', cost: 0, qualityId: null },
       { id: 'perro', name: 'Perro', type: 'inicial', emoji: '🐶', color: '#3a86f0', role: 'Guardián Fiel', cost: 0, qualityId: null },
       { id: 'conejo', name: 'Conejo', type: 'inicial', emoji: '🐰', color: '#ec4899', role: 'Veloz Saltarín', cost: 0, qualityId: null },
-      { id: 'mapache', name: 'Mapache', type: 'inicial', emoji: '🦝', color: '#8b5cf6', role: 'Pícaro Astuto', cost: 0, qualityId: null },
-      { id: 'nutria', name: 'Nutria', type: 'inicial', emoji: '🦦', color: '#06b6d4', role: 'Espíritu Creativo', cost: 0, qualityId: null },
       { id: 'loro', name: 'Loro', type: 'inicial', emoji: '🦜', color: '#fbbf24', role: 'Eco Parlanchín', cost: 0, qualityId: null },
-      { id: 'zorro', name: 'Zorro', type: 'inicial', emoji: '🦊', color: '#f97316', role: 'Espía de Sombras', cost: 0, qualityId: null },
-      { id: 'lince', name: 'Lince', type: 'inicial', emoji: '🦌', color: '#a855f7', role: 'Felino Sigiloso', cost: 0, qualityId: null },
+      { id: 'hamster', name: 'Hámster', type: 'inicial', emoji: '🐹', color: '#f97316', role: 'Veloz Corredor', cost: 0, qualityId: null },
+      { id: 'pez', name: 'Pez', type: 'inicial', emoji: '🐟', color: '#06b6d4', role: 'Nadador Fluido', cost: 0, qualityId: null },
+      { id: 'cuyo', name: 'Cuyo', type: 'inicial', emoji: '🐹', color: '#8b5cf6', role: 'Pequeño Glotón', cost: 0, qualityId: null },
+      { id: 'raton', name: 'Ratón', type: 'inicial', emoji: '🐭', color: '#ec4899', role: 'Escurridizo Astuto', cost: 0, qualityId: null },
+      { id: 'rana', name: 'Rana', type: 'inicial', emoji: '🐸', color: '#22c55e', role: 'Gran Saltarina', cost: 0, qualityId: null },
 
       // GANADOS POR CUALIDADES
-      { id: 'lobo', name: 'Lobo', type: 'cualidad', emoji: '🐺', color: '#ef4444', role: 'Guía de Manada', cost: 50, qualityId: 'cooperacion' },
-      { id: 'tortuga', name: 'Tortuga', type: 'cualidad', emoji: '🐢', color: '#22c55e', role: 'Sabio Paciente', cost: 50, qualityId: 'constancia' },
-      { id: 'hormiga', name: 'Hormiga', type: 'cualidad', emoji: '🐜', color: '#78350f', role: 'Esfuerzo Diario', cost: 60, qualityId: 'disciplina' },
-      { id: 'abeja', name: 'Abeja', type: 'cualidad', emoji: '🐝', color: '#eab308', role: 'Obrero Incansable', cost: 70, qualityId: 'colaboracion' },
-      { id: 'castor', name: 'Castor', type: 'cualidad', emoji: '🦫', color: '#b45309', role: 'Constructor Feroz', cost: 80, qualityId: 'construccion' },
-      { id: 'aguila', name: 'Águila', type: 'cualidad', emoji: '🦅', color: '#3b82f6', role: 'Ojo de Halcón', cost: 200, qualityId: 'vision' },
+      { id: 'tortuga', name: 'Tortuga', type: 'cualidad', emoji: '🐢', color: '#22c55e', role: 'Sabio Paciente', cost: 50, qualityId: 'constancia', unlockTotal: 7 },
+      { id: 'hormiga', name: 'Hormiga', type: 'cualidad', emoji: '🐜', color: '#78350f', role: 'Esfuerzo Diario', cost: 60, qualityId: 'disciplina', unlockTotal: 10 },
+      { id: 'zorro', name: 'Zorro', type: 'cualidad', emoji: '🦊', color: '#f97316', role: 'Espía de Sombras', cost: 100, qualityId: 'disciplina', unlockTotal: 20 },
+      { id: 'lince', name: 'Lince', type: 'cualidad', emoji: '🦌', color: '#a855f7', role: 'Felino Sigiloso', cost: 150, qualityId: 'vision', unlockTotal: 2 },
+      { id: 'aguila', name: 'Águila', type: 'cualidad', emoji: '🦅', color: '#3b82f6', role: 'Ojo de Halcón', cost: 200, qualityId: 'vision', unlockTotal: 4 },
+      { id: 'abeja', name: 'Abeja', type: 'cualidad', emoji: '🐝', color: '#eab308', role: 'Obrero Incansable', cost: 70, qualityId: 'colaboracion', unlockTotal: 5 },
+      { id: 'castor', name: 'Castor', type: 'cualidad', emoji: '🦫', color: '#b45309', role: 'Constructor Feroz', cost: 80, qualityId: 'construccion', unlockTotal: 10 },
+      { id: 'lobo', name: 'Lobo', type: 'cualidad', emoji: '🐺', color: '#ef4444', role: 'Guía de Manada', cost: 50, qualityId: 'cooperacion', unlockTotal: 5 },
 
       // ESPECIALES DEL DOJO
+      { id: 'elefante', name: 'Elefante', type: 'especial', emoji: '🐘', color: '#6b7280', role: 'Memoria Ancestral', cost: 80, qualityId: null, qualityName: 'Sabiduría', qualityReq: 'Adquiérelo por 80 Pro Coins 🪙 analizando tus estadísticas semanales en la bitácora.' },
+      { id: 'sloth', name: 'Perezoso', type: 'especial', emoji: '🦥', color: '#78716c', role: 'Meditador Calmo', cost: 90, qualityId: null, qualityName: 'Paciencia', qualityReq: 'Adquiérelo por 90 Pro Coins 🪙 completando sesiones largas de forma constante.' },
+      { id: 'octopus', name: 'Pulpo', type: 'especial', emoji: '🐙', color: '#ec4899', role: 'Multitarea', cost: 110, qualityId: null, qualityName: 'Versatilidad', qualityReq: 'Adquiérelo por 110 Pro Coins 🪙 gestionando eficientemente múltiples proyectos simultáneos.' },
       { id: 'buho', name: 'Búho', type: 'especial', emoji: '🦉', color: '#6366f1', role: 'Estratega Sabio', cost: 120, qualityId: null, qualityName: 'Estrategia', qualityReq: 'Adquiérelo por 120 Pro Coins 🪙 planificando tus tareas en el calendario.' },
       { id: 'panda', name: 'Panda', type: 'especial', emoji: '🐼', color: '#6b7280', role: 'Maestro Zen', cost: 150, qualityId: null, qualityName: 'Serenidad', qualityReq: 'Adquiérelo por 150 Pro Coins 🪙 completando tus meditaciones y manteniendo el enfoque.' },
-      { id: 'sloth', name: 'Perezoso', type: 'especial', emoji: '🦥', color: '#78716c', role: 'Meditador Calmo', cost: 90, qualityId: null, qualityName: 'Paciencia', qualityReq: 'Adquiérelo por 90 Pro Coins 🪙 completando sesiones largas de forma constante.' },
-      { id: 'elefante', name: 'Elefante', type: 'especial', emoji: '🐘', color: '#6b7280', role: 'Memoria Ancestral', cost: 80, qualityId: null, qualityName: 'Sabiduría', qualityReq: 'Adquiérelo por 80 Pro Coins 🪙 analizando tus estadísticas semanales en la bitácora.' },
-      { id: 'octopus', name: 'Pulpo', type: 'especial', emoji: '🐙', color: '#ec4899', role: 'Multitarea', cost: 110, qualityId: null, qualityName: 'Versatilidad', qualityReq: 'Adquiérelo por 110 Pro Coins 🪙 gestionando eficientemente múltiples proyectos simultáneos.' },
       { id: 'leon', name: 'León', type: 'especial', emoji: '🦁', color: '#fbbf24', role: 'Rey del Dojo', cost: 250, qualityId: null, qualityName: 'Liderazgo', qualityReq: 'Adquiérelo por 250 Pro Coins 🪙 superando con valor tus misiones más difíciles.' },
 
       // LEGENDARIOS
@@ -1259,25 +1263,45 @@ export class Cualidades implements OnInit {
 
     return list.map(item => {
       let isUnlocked = false;
-      if (item.cost === 0 || item.id === 'zorro') {
+      const quality = item.qualityId ? qualities.find(q => q.id === item.qualityId) : null;
+      let displayReq = item.qualityReq || '';
+
+      if (item.cost === 0) {
         isUnlocked = true;
       } else if (unlockedList.includes(item.id)) {
         isUnlocked = true;
-      } else if (item.qualityId) {
-        const quality = qualities.find(q => q.id === item.qualityId);
-        if (quality && quality.isUnlocked) {
+      } else if (item.qualityId && quality) {
+        const total = item.unlockTotal || quality.unlockTotal || 0;
+        const progress = quality.unlockProgress || 0;
+
+        if (progress >= total) {
           isUnlocked = true;
         }
-      }
 
-      const quality = item.qualityId ? qualities.find(q => q.id === item.qualityId) : null;
+        let taskName = '';
+        if (item.qualityId === 'vision') {
+          taskName = `objetivo${total > 1 ? 's' : ''} grande${total > 1 ? 's' : ''}`;
+        } else if (item.qualityId === 'disciplina') {
+          taskName = `pequeño${total > 1 ? 's' : ''} objetivo${total > 1 ? 's' : ''}`;
+        } else if (item.qualityId === 'constancia') {
+          taskName = `día${total > 1 ? 's' : ''} de racha consecutiva`;
+        } else if (item.qualityId === 'colaboracion') {
+          taskName = `sesión${total > 1 ? 's' : ''} acompañada${total > 1 ? 's' : ''}`;
+        } else if (item.qualityId === 'construccion') {
+          taskName = `día${total > 1 ? 's' : ''} trabajando en objetivos`;
+        } else if (item.qualityId === 'cooperacion') {
+          taskName = `acción${total > 1 ? 's' : ''} de ayuda a otros`;
+        }
+
+        displayReq = `Demuestra la cualidad de ${quality.name}: completa ${total} ${taskName} (Progreso: ${progress}/${total}).`;
+      }
 
       return {
         ...item,
         isUnlocked,
         quality,
         displayName: item.qualityId && quality ? quality.name : (item.qualityName || ''),
-        displayReq: item.qualityId && quality ? quality.unlockRequirement : (item.qualityReq || '')
+        displayReq
       };
     });
   });
@@ -1354,13 +1378,16 @@ export class Cualidades implements OnInit {
   closeRewardFlow() {
     const quality = this.unlockedRewardQuality();
     if (quality) {
+      let maxTotal = quality.unlockTotal;
       this.membership.qualitiesCatalog.update(list => {
         return list.map(q => {
           if (q.id === quality.id) {
+            const relatedAvatars = this.allAvatars().filter(a => a.qualityId === q.id);
+            maxTotal = relatedAvatars.reduce((max, a) => Math.max(max, a.unlockTotal || 0), q.unlockTotal);
             return {
               ...q,
               isUnlocked: true,
-              unlockProgress: q.unlockTotal,
+              unlockProgress: maxTotal,
               unlockedAt: new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
             };
           }
@@ -1368,9 +1395,15 @@ export class Cualidades implements OnInit {
         });
       });
       
-      // Asegurar que también se añade a los avatares desbloqueados de la cuenta
-      if (!this.membership.unlockedAvatars().includes(quality.animal)) {
-        this.membership.unlockedAvatars.update(list => [...list, quality.animal]);
+      // Asegurar que también se añaden todos los avatares correspondientes que se desbloquean con este progreso
+      const relatedAvatars = this.allAvatars().filter(a => a.qualityId === quality.id);
+      const unlockedIds = this.membership.unlockedAvatars();
+      const newlyUnlocked = relatedAvatars
+        .filter(a => (a.unlockTotal || 0) <= maxTotal && !unlockedIds.includes(a.id))
+        .map(a => a.id);
+
+      if (newlyUnlocked.length > 0) {
+        this.membership.unlockedAvatars.update(list => [...list, ...newlyUnlocked]);
       }
     }
     this.unlockedRewardQuality.set(null);
