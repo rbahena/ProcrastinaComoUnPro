@@ -329,7 +329,6 @@ interface DojoAvatar {
               </div>
             </div>
           </div>
-
           <!-- SECCIÓN 4: LEGENDARIOS -->
           <div class="category-section" style="margin-bottom: 40px;">
             <h3 class="category-title" style="color: var(--yellow);">
@@ -1146,6 +1145,7 @@ export class Cualidades implements OnInit {
       { id: 'nutria', name: 'Nutria', type: 'inicial', emoji: '🦦', color: '#06b6d4', role: 'Espíritu Creativo', cost: 0, qualityId: null },
       { id: 'loro', name: 'Loro', type: 'inicial', emoji: '🦜', color: '#fbbf24', role: 'Eco Parlanchín', cost: 0, qualityId: null },
       { id: 'zorro', name: 'Zorro', type: 'inicial', emoji: '🦊', color: '#f97316', role: 'Espía de Sombras', cost: 0, qualityId: null },
+      { id: 'lince', name: 'Lince', type: 'inicial', emoji: '🦌', color: '#a855f7', role: 'Felino Sigiloso', cost: 0, qualityId: null },
 
       // GANADOS POR CUALIDADES
       { id: 'lobo', name: 'Lobo', type: 'cualidad', emoji: '🐺', color: '#ef4444', role: 'Guía de Manada', cost: 50, qualityId: 'cooperacion' },
@@ -1157,7 +1157,6 @@ export class Cualidades implements OnInit {
 
       // ESPECIALES DEL DOJO
       { id: 'buho', name: 'Búho', type: 'especial', emoji: '🦉', color: '#6366f1', role: 'Estratega Sabio', cost: 120, qualityId: null, qualityName: 'Estrategia', qualityReq: 'Adquiérelo por 120 Pro Coins 🪙 planificando tus tareas en el calendario.' },
-      { id: 'lince', name: 'Lince', type: 'especial', emoji: '🦌', color: '#a855f7', role: 'Felino Sigiloso', cost: 100, qualityId: null, qualityName: 'Sigilo', qualityReq: 'Adquiérelo por 100 Pro Coins 🪙 trabajando en modo silencioso y sin distracciones.' },
       { id: 'panda', name: 'Panda', type: 'especial', emoji: '🐼', color: '#6b7280', role: 'Maestro Zen', cost: 150, qualityId: null, qualityName: 'Serenidad', qualityReq: 'Adquiérelo por 150 Pro Coins 🪙 completando tus meditaciones y manteniendo el enfoque.' },
       { id: 'sloth', name: 'Perezoso', type: 'especial', emoji: '🦥', color: '#78716c', role: 'Meditador Calmo', cost: 90, qualityId: null, qualityName: 'Paciencia', qualityReq: 'Adquiérelo por 90 Pro Coins 🪙 completando sesiones largas de forma constante.' },
       { id: 'elefante', name: 'Elefante', type: 'especial', emoji: '🐘', color: '#6b7280', role: 'Memoria Ancestral', cost: 80, qualityId: null, qualityName: 'Sabiduría', qualityReq: 'Adquiérelo por 80 Pro Coins 🪙 analizando tus estadísticas semanales en la bitácora.' },

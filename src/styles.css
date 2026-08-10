@@ -164,6 +164,7 @@ button { font-family: inherit; cursor: pointer; }
 .avatar-sprite.sprite-leon { background-image: url('/assets/images/avatars/leon.jpg'); }
 .avatar-sprite.sprite-dragon { background-image: url('/assets/images/avatars/dragon.jpg'); }
 
+
 /* ===== SIDEBAR ===== */
 .sidebar {
   width: var(--sidebar);
@@ -219,7 +220,7 @@ button { font-family: inherit; cursor: pointer; }
 .avatar {
   width: 30px; height: 30px;
   border-radius: 50%;
-  background: var(--accent);
+  background-color: var(--accent);
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 11px;
   flex-shrink: 0;

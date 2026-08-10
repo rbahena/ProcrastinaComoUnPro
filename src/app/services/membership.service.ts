@@ -44,7 +44,7 @@ export class MembershipService {
 
   // Cosméticos desbloqueados (por defecto los avatares iniciales)
   unlockedAvatars = signal<string[]>(
-    JSON.parse(localStorage.getItem('procrastina-unlocked-avatars') || '["gato","perro","conejo","mapache","nutria","loro","zorro"]')
+    JSON.parse(localStorage.getItem('procrastina-unlocked-avatars') || '["gato","perro","conejo","mapache","nutria","loro","zorro","lince"]')
   );
   unlockedThemes = signal<string[]>(
     JSON.parse(localStorage.getItem('procrastina-unlocked-themes') || '["samurai"]')
@@ -70,7 +70,7 @@ export class MembershipService {
   // Control global para abrir el modal de configuración de identidad
   showSettingsModal = signal<boolean>(false);
 
-  // Catálogo completo de avatares disponibles (Gato, Perro, Conejo, Mapache, Nutria, Loro, Zorro)
+  // Catálogo completo de avatares disponibles (Gato, Perro, Conejo, Mapache, Nutria, Loro, Zorro, Lince)
   avatarsCatalog = signal<AvatarItem[]>([
     { id: 'gato', name: 'Gato', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
     { id: 'perro', name: 'Perro', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
@@ -78,7 +78,8 @@ export class MembershipService {
     { id: 'mapache', name: 'Mapache', icon: 'fa-paw', color: '#8b5cf6', isUnlocked: true, isInitial: true },
     { id: 'nutria', name: 'Nutria', icon: 'fa-water', color: '#06b6d4', isUnlocked: true, isInitial: true },
     { id: 'loro', name: 'Loro', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
-    { id: 'zorro', name: 'Zorro', icon: 'fa-mask', color: '#f97316', isUnlocked: true, isInitial: true }
+    { id: 'zorro', name: 'Zorro', icon: 'fa-mask', color: '#f97316', isUnlocked: true, isInitial: true },
+    { id: 'lince', name: 'Lince', icon: 'fa-cat', color: '#a855f7', isUnlocked: true, isInitial: true }
   ]);
 
   // Catálogo completo de Cualidades (TORTUGA, HORMIGA, ÁGUILA, ABEJA, CASTOR, LOBO)
@@ -251,16 +252,40 @@ export class MembershipService {
   }
 
   // Auxiliares globales para avatars
+  getAvatarNameById(id: string): string {
+    const names: { [key: string]: string } = {
+      gato: 'Gato', perro: 'Perro', conejo: 'Conejo', mapache: 'Mapache',
+      nutria: 'Nutria', loro: 'Loro', zorro: 'Zorro', lince: 'Lince',
+      lobo: 'Lobo', tortuga: 'Tortuga', hormiga: 'Hormiga', abeja: 'Abeja',
+      castor: 'Castor', aguila: 'Águila', buho: 'Búho', panda: 'Panda',
+      sloth: 'Perezoso', elefante: 'Elefante', octopus: 'Pulpo',
+      leon: 'León', dragon: 'Dragón'
+    };
+    return names[id] || 'Gato';
+  }
+
+  getAvatarColorById(id: string): string {
+    const colors: { [key: string]: string } = {
+      gato: '#10b981', perro: '#3a86f0', conejo: '#ec4899', mapache: '#8b5cf6',
+      nutria: '#06b6d4', loro: '#fbbf24', zorro: '#f97316', lince: '#a855f7',
+      lobo: '#ef4444', tortuga: '#22c55e', hormiga: '#78350f', abeja: '#eab308',
+      castor: '#b45309', aguila: '#3b82f6', buho: '#6366f1', panda: '#6b7280',
+      sloth: '#78716c', elefante: '#6b7280', octopus: '#ec4899',
+      leon: '#fbbf24', dragon: '#dc2626'
+    };
+    return colors[id] || '#10b981';
+  }
+
   getSelectedAvatarIcon(): string {
     const current = this.selectedAvatar();
-    const avatar = this.avatarsCatalog().find(a => a.id === current);
-    return avatar ? avatar.icon : 'fa-mask';
+    if (['buho', 'aguila'].includes(current)) return 'fa-crow';
+    if (['panda', 'sloth'].includes(current)) return 'fa-spa';
+    if (current === 'dragon') return 'fa-dragon';
+    return 'fa-paw';
   }
 
   getSelectedAvatarName(): string {
-    const current = this.selectedAvatar();
-    const avatar = this.avatarsCatalog().find(a => a.id === current);
-    return avatar ? avatar.name : 'Gato';
+    return this.getAvatarNameById(this.selectedAvatar());
   }
 
   getEmoji(id: string): string {
