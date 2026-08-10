@@ -34,8 +34,7 @@
   </div>
   <div class="sidebar-footer" routerLink="/cualidades" style="cursor: pointer;">
     <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" 
-         style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08); cursor: zoom-in;"
-         (click)="zoomAvatar(membership.selectedAvatar(), userName() + ' (' + getAvatarName() + ')', '#6366f1'); $event.stopPropagation()">
+         style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08);">
     </div>
     <div style="overflow: hidden; display: flex; flex-direction: column;">
       <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
@@ -130,7 +129,7 @@
             <div style="display: flex; align-items: center; gap: 10px;">
               <div class="coworking-avatar avatar-sprite sprite-zorro" 
                    style="border: 1.5px solid #ff9f43; cursor: zoom-in;" 
-                   (click)="zoomAvatar('zorro', 'Ramiro (Zorro)', '#ff9f43')"></div>
+                   (click)="zoomAvatar('zorro', 'Ramiro', 'Zorro', '#ff9f43', 3)"></div>
               <div style="display: flex; flex-direction: column;">
                 <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Ramiro (Zorro)</span>
                 <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
@@ -152,7 +151,7 @@
             <div style="display: flex; align-items: center; gap: 10px;">
               <div class="coworking-avatar avatar-sprite sprite-lobo" 
                    style="border: 1.5px solid #ff4757; cursor: zoom-in;" 
-                   (click)="zoomAvatar('lobo', 'Ana (Lobo)', '#ff4757')"></div>
+                   (click)="zoomAvatar('lobo', 'Ana', 'Lobo', '#ff4757', 2)"></div>
               <div style="display: flex; flex-direction: column;">
                 <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Ana (Lobo)</span>
                 <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
@@ -174,7 +173,7 @@
             <div style="display: flex; align-items: center; gap: 10px;">
               <div class="coworking-avatar avatar-sprite sprite-panda" 
                    style="border: 1.5px solid #a4b0be; cursor: zoom-in;" 
-                   (click)="zoomAvatar('panda', 'Carlos (Panda)', '#a4b0be')"></div>
+                   (click)="zoomAvatar('panda', 'Carlos', 'Panda', '#a4b0be', 1)"></div>
               <div style="display: flex; flex-direction: column;">
                 <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Carlos (Panda)</span>
                 <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
@@ -196,7 +195,7 @@
             <div style="display: flex; align-items: center; gap: 10px;">
               <div class="coworking-avatar avatar-sprite sprite-aguila" 
                    style="border: 1.5px solid #54a0ff; cursor: zoom-in;" 
-                   (click)="zoomAvatar('aguila', 'Sofía (Águila)', '#54a0ff')"></div>
+                   (click)="zoomAvatar('aguila', 'Sofía', 'Águila', '#54a0ff', 0)"></div>
               <div style="display: flex; flex-direction: column;">
                 <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Sofía (Águila)</span>
                 <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
@@ -254,7 +253,8 @@
         <div style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 160px; margin-top: 10px; padding-bottom: 5px;">
           
           <!-- 2º Puesto (Izquierda) -->
-          <div class="podio-column second-place">
+          <div class="podio-column second-place custom-tooltip-host" 
+               [attr.data-tooltip]="rankingData()[0].name + ' consiguió ' + rankingData()[0].value + ' hoy'">
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
               <div class="podio-avatar" [style.background]="rankingData()[0].color">
@@ -267,7 +267,8 @@
           </div>
 
           <!-- 1º Puesto (Centro) -->
-          <div class="podio-column first-place">
+          <div class="podio-column first-place custom-tooltip-host" 
+               [attr.data-tooltip]="rankingData()[1].name + ' lidera con ' + rankingData()[1].value + ' hoy'">
             <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 11px; margin-bottom: 2px; filter: drop-shadow(0 0 3px rgba(255,215,0,0.4));"></i>
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
@@ -281,7 +282,8 @@
           </div>
 
           <!-- 3º Puesto (Derecha) -->
-          <div class="podio-column third-place">
+          <div class="podio-column third-place custom-tooltip-host" 
+               [attr.data-tooltip]="rankingData()[2].name + ' consiguió ' + rankingData()[2].value + ' hoy'">
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
               <div class="podio-avatar" [style.background]="rankingData()[2].color">
@@ -317,27 +319,22 @@
         </div>
         <div class="card-sub-desc">están trabajando.</div>
         
-        <!-- Avatares de Animales Ninja Apilados (Solo animales) -->
+        <!-- Avatares de Animales Ninja Apilados -->
         <div class="avatar-stack-container" style="margin-top: 6px;">
           <div class="avatar-stack-list">
-            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; display: flex; align-items: center; justify-content: center;">
-              🐺
+            <div class="avatar-stack-item avatar-sprite sprite-lobo" (click)="zoomAvatar('lobo', 'Alejandro', 'Lobo', '#3a86f0', 3)">
               <span class="avatar-tooltip">Lobo Samurai</span>
             </div>
-            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-              🦊
+            <div class="avatar-stack-item avatar-sprite sprite-zorro" (click)="zoomAvatar('zorro', 'Beatriz', 'Zorro', '#ff007f', 4)">
               <span class="avatar-tooltip">Zorro Ninja</span>
             </div>
-            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-              🦁
+            <div class="avatar-stack-item avatar-sprite sprite-leon" (click)="zoomAvatar('leon', 'Cristian', 'León', '#e67e22', 2)">
               <span class="avatar-tooltip">León Shogun</span>
             </div>
-            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-              🦉
+            <div class="avatar-stack-item avatar-sprite sprite-buho" (click)="zoomAvatar('buho', 'Diana', 'Búho', '#9b59b6', 1)">
               <span class="avatar-tooltip">Búho Estratega</span>
             </div>
-            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-              🐼
+            <div class="avatar-stack-item avatar-sprite sprite-panda" (click)="zoomAvatar('panda', 'Eduardo', 'Panda', '#2ecc71', 0)">
               <span class="avatar-tooltip">Panda Ninja</span>
             </div>
           </div>
@@ -360,31 +357,26 @@
         </div>
         <div class="card-sub-desc">sesiones completadas.</div>
         
-        <!-- Iconos de Recompensa (Solo animales) -->
+        <!-- Iconos de Recompensa (Avatares Ninja) -->
         <div class="avatar-stack-container" style="margin-top: 6px;">
           <div class="avatar-stack-list">
-            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; display: flex; align-items: center; justify-content: center;">
-              🐯
-              <span class="avatar-tooltip">Tigre Guerrero</span>
-            </div>
-            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-              🐨
-              <span class="avatar-tooltip">Koala Sabio</span>
-            </div>
-            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-              🐻
-              <span class="avatar-tooltip">Oso Foco</span>
-            </div>
-            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-              🐸
-              <span class="avatar-tooltip">Rana Productiva</span>
-            </div>
-            <div class="avatar-stack-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 22px; height: 22px; font-size: 13px; margin-left: -6px; display: flex; align-items: center; justify-content: center;">
-              🐱
+            <div class="avatar-stack-item avatar-sprite sprite-gato" (click)="zoomAvatar('gato', 'Gabriela', 'Gato', '#1abc9c', 2)">
               <span class="avatar-tooltip">Gato Constante</span>
             </div>
+            <div class="avatar-stack-item avatar-sprite sprite-perro" (click)="zoomAvatar('perro', 'Hugo', 'Perro', '#3498db', 1)">
+              <span class="avatar-tooltip">Perro Fiel</span>
+            </div>
+            <div class="avatar-stack-item avatar-sprite sprite-conejo" (click)="zoomAvatar('conejo', 'Isabel', 'Conejo', '#9ca3af', 5)">
+              <span class="avatar-tooltip">Conejo Veloz</span>
+            </div>
+            <div class="avatar-stack-item avatar-sprite sprite-rana" (click)="zoomAvatar('rana', 'Javier', 'Rana', '#2ecc71', 0)">
+              <span class="avatar-tooltip">Rana Enfocada</span>
+            </div>
+            <div class="avatar-stack-item avatar-sprite sprite-hamster" (click)="zoomAvatar('hamster', 'Laura', 'Hámster', '#f1c40f', 3)">
+              <span class="avatar-tooltip">Hámster Ninja</span>
+            </div>
           </div>
-          <span class="card-title-text" style="color: var(--muted); font-weight: 500; margin-left: 4px;">Guerreros</span>
+          <span class="card-title-text" style="color: var(--muted); font-weight: 500; margin-left: 4px;">usuarios</span>
         </div>
       </div>
 
@@ -747,10 +739,46 @@
          [style.--glow-color]="zoomAvatarColor() + '40'">
     </div>
 
-    <!-- Información del Guardián -->
+    <!-- Información del Avatar -->
     <div>
       <h3 style="font-size: 16px; font-weight: 800; color: var(--text); margin: 0;">{{ zoomAvatarName() }}</h3>
       <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0 0;">Avanzando hacia sus objetivos ahora mismo.</p>
+    </div>
+
+    <!-- MEDALLAS DEL USUARIO EN ZOOM -->
+    <div *ngIf="zoomAvatarWins() > 0" 
+         style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 12px;">
+      <span style="font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Logros de Podio ({{ zoomAvatarWins() }})</span>
+      <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+        <!-- Bronce -->
+        <div *ngIf="zoomAvatarWins() >= 1" 
+             class="custom-tooltip-host"
+             data-tooltip="Medalla de Bronce: 1er podio conquistado"
+             style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: rgba(205, 127, 50, 0.15); border: 1px solid #cd7f32; border-radius: 50%; color: #cd7f32; cursor: pointer;">
+          <i class="fa-solid fa-medal" style="font-size: 12px;"></i>
+        </div>
+        <!-- Plata -->
+        <div *ngIf="zoomAvatarWins() >= 2" 
+             class="custom-tooltip-host"
+             data-tooltip="Medalla de Plata: 2 podios conquistados"
+             style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: rgba(192, 192, 192, 0.15); border: 1px solid #c0c0c0; border-radius: 50%; color: #c0c0c0; cursor: pointer;">
+          <i class="fa-solid fa-medal" style="font-size: 12px;"></i>
+        </div>
+        <!-- Oro -->
+        <div *ngIf="zoomAvatarWins() >= 3" 
+             class="custom-tooltip-host"
+             data-tooltip="Medalla de Oro: 3 podios conquistados"
+             style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: rgba(255, 215, 0, 0.15); border: 1px solid #ffd700; border-radius: 50%; color: #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.2); cursor: pointer;">
+          <i class="fa-solid fa-trophy" style="font-size: 10px;"></i>
+        </div>
+        <!-- Extra +X -->
+        <div *ngIf="zoomAvatarWins() > 3" 
+             class="custom-tooltip-host"
+             [attr.data-tooltip]="'Campeón del Dojo: ' + zoomAvatarWins() + ' podios conquistados'"
+             style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; border-radius: 50%; color: #a855f7; cursor: pointer;">
+          <span style="font-size: 9px; font-weight: 900;">+{{ zoomAvatarWins() - 3 }}</span>
+        </div>
+      </div>
     </div>
 
     <!-- Botón de Acción Cerrar -->

@@ -509,8 +509,10 @@
 }
 
 .avatar-stack-item:hover {
-  transform: translateY(-5px) scale(1.4) !important; /* Grow larger */
+  transform: translateY(-6px) scale(1.5) !important;
   z-index: 100 !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), 0 0 10px rgba(99, 102, 241, 0.4);
+  border-color: #ffffff !important;
 }
 
 .avatar-stack-item:hover .avatar-tooltip {

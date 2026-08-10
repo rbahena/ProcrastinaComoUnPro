@@ -294,12 +294,16 @@ export class Home implements OnInit, OnDestroy {
   showAvatarZoomModal = signal(false);
   zoomAvatarId = signal('');
   zoomAvatarName = signal('');
+  zoomAvatarGuardian = signal('');
   zoomAvatarColor = signal('');
+  zoomAvatarWins = signal(0);
 
-  zoomAvatar(avatarId: string, name: string, color: string = '#ffd700') {
+  zoomAvatar(avatarId: string, name: string, guardian: string, color: string, winsCount: number = 0) {
     this.zoomAvatarId.set(avatarId);
     this.zoomAvatarName.set(name);
+    this.zoomAvatarGuardian.set(guardian);
     this.zoomAvatarColor.set(color);
+    this.zoomAvatarWins.set(winsCount);
     this.showAvatarZoomModal.set(true);
   }
 

@@ -61,6 +61,11 @@ export class MembershipService {
     (localStorage.getItem('procrastina-theme') as any) || 'samurai'
   );
 
+  // Medallas ganadas en podios
+  podiumWins = signal<number>(
+    parseInt(localStorage.getItem('procrastina-podium-wins') || '3', 10)
+  );
+
   // Estado de onboarding completado
   onboardingCompleted = signal<boolean>(
     localStorage.getItem('procrastina-onboarding-completed') === 'true' ||

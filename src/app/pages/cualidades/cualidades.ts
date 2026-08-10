@@ -85,6 +85,58 @@ interface DojoAvatar {
               <i class="fa-solid fa-medal badge-accent-icon"></i>
               <span>{{ previewAvatar().name }}</span>
             </div>
+
+            <!-- MEDALLAS DE PODIO GANADAS -->
+            <div class="podium-medals-container" style="margin-top: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 12px;">
+              <span style="font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Medallas de Podio ({{ membership.podiumWins() }})</span>
+              
+              <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                <!-- Si no tiene victorias -->
+                <div *ngIf="membership.podiumWins() === 0" style="font-size: 11px; color: var(--muted); font-style: italic;">
+                  Sin medallas de podio aún. ¡Compite hoy!
+                </div>
+
+                <!-- Medalla 1: Bronce -->
+                <div *ngIf="membership.podiumWins() >= 1" 
+                     class="podium-medal-badge bronze custom-tooltip-host"
+                     data-tooltip="Medalla de Bronce: 1er podio conquistado"
+                     style="position: relative; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(205, 127, 50, 0.15); border: 1px solid #cd7f32; border-radius: 50%; color: #cd7f32; cursor: pointer; transition: all 0.2s;"
+                     onmouseover="this.style.transform='scale(1.15)';"
+                     onmouseout="this.style.transform='scale(1)';">
+                  <i class="fa-solid fa-medal" style="font-size: 13px;"></i>
+                </div>
+
+                <!-- Medalla 2: Plata -->
+                <div *ngIf="membership.podiumWins() >= 2" 
+                     class="podium-medal-badge silver custom-tooltip-host"
+                     data-tooltip="Medalla de Plata: 2 podios conquistados"
+                     style="position: relative; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(192, 192, 192, 0.15); border: 1px solid #c0c0c0; border-radius: 50%; color: #c0c0c0; cursor: pointer; transition: all 0.2s;"
+                     onmouseover="this.style.transform='scale(1.15)';"
+                     onmouseout="this.style.transform='scale(1)';">
+                  <i class="fa-solid fa-medal" style="font-size: 13px;"></i>
+                </div>
+
+                <!-- Medalla 3: Oro -->
+                <div *ngIf="membership.podiumWins() >= 3" 
+                     class="podium-medal-badge gold custom-tooltip-host"
+                     data-tooltip="Medalla de Oro: 3 podios conquistados"
+                     style="position: relative; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(255, 215, 0, 0.15); border: 1px solid #ffd700; border-radius: 50%; color: #ffd700; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.25);"
+                     onmouseover="this.style.transform='scale(1.15)';"
+                     onmouseout="this.style.transform='scale(1)';">
+                  <i class="fa-solid fa-trophy" style="font-size: 11px;"></i>
+                </div>
+
+                <!-- Medallas extra si tiene más de 3 victorias -->
+                <div *ngIf="membership.podiumWins() > 3" 
+                     class="podium-medal-badge champion custom-tooltip-host"
+                     [attr.data-tooltip]="'Campeón del Dojo: ' + membership.podiumWins() + ' podios conquistados'"
+                     style="position: relative; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; border-radius: 50%; color: #a855f7; cursor: pointer; transition: all 0.2s;"
+                     onmouseover="this.style.transform='scale(1.15)';"
+                     onmouseout="this.style.transform='scale(1)';">
+                  <span style="font-size: 9px; font-weight: 900;">+{{ membership.podiumWins() - 3 }}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- EDITOR DE NOMBRE INLINE -->
