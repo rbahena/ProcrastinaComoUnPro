@@ -16,14 +16,14 @@ export class Login {
     event.preventDefault();
     if (email.trim() === 'demo@focusapp.com' && pass === 'demo12345') {
       this.loginError.set(false);
-      this.router.navigate(['/enfoque']);
+      this.router.navigate(['/home']);
     } else {
       this.loginError.set(true);
     }
   }
 
   loginWithGoogle() {
-    this.router.navigate(['/enfoque']);
+    this.router.navigate(['/home']);
   }
 
   prefill(emailInput: HTMLInputElement, passwordInput: HTMLInputElement) {
