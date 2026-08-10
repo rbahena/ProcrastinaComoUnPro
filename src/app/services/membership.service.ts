@@ -251,6 +251,33 @@ export class MembershipService {
     return true;
   }
 
+  // Restablecer cuenta para nuevo registro desde cero
+  resetNewUserAccount() {
+    localStorage.removeItem('procrastina-unlocked-avatars');
+    localStorage.removeItem('procrastina-unlocked-themes');
+    localStorage.removeItem('procrastina-user-name');
+    localStorage.removeItem('procrastina-avatar');
+    localStorage.removeItem('procrastina-theme');
+    localStorage.removeItem('procrastina-pro-coins');
+    localStorage.removeItem('procrastina-qualities-catalog');
+    localStorage.removeItem('procrastina-focus-points');
+
+    this.unlockedAvatars.set(['gato', 'perro', 'conejo', 'mapache', 'nutria', 'loro', 'zorro', 'lince']);
+    this.unlockedThemes.set(['samurai']);
+    this.userName.set('Guerrero');
+    this.selectedAvatar.set('gato');
+    this.selectedTheme.set('samurai');
+    this.proCoins.set(0);
+    this.qualitiesCatalog.set([
+      { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 3, unlockTotal: 7 },
+      { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar pequeños objetivos de manera constante.', isUnlocked: false, unlockProgress: 5, unlockTotal: 10 },
+      { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar objetivos grandes que requieran varias sesiones.', isUnlocked: false, unlockProgress: 1, unlockTotal: 3 },
+      { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas.', isUnlocked: false, unlockProgress: 3, unlockTotal: 5 },
+      { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Trabajar progresivamente en objetivos durante varios días.', isUnlocked: false, unlockProgress: 6, unlockTotal: 10 },
+      { id: 'cooperacion', animal: 'lobo', name: 'Cooperación', description: 'Avanza mejor acompañado.', unlockRequirement: 'Participar activamente ayudando/acompañando a otros usuarios.', isUnlocked: false, unlockProgress: 2, unlockTotal: 5 }
+    ]);
+  }
+
   // Auxiliares globales para avatars
   getAvatarNameById(id: string): string {
     const names: { [key: string]: string } = {

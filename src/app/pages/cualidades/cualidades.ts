@@ -44,11 +44,9 @@ interface DojoAvatar {
           <span class="nav-dot"></span>
           Bloqueador
         </a>
-        <a routerLink="/cualidades" routerLinkActive="active" class="nav-item">
-          <span class="nav-dot" style="background: var(--accent);"></span>
-          Cualidades <span class="badge-new" style="background: var(--accent); color: #000; font-size: 8px; padding: 1px 4px; border-radius: 4px; margin-left: 4px; font-weight: 900;">NUEVO</span>
-        </a>
-        <a routerLink="/login" class="nav-item" style="margin-top: auto; opacity: 0.65;">
+        <!-- LOGOUT -->
+        <a routerLink="/login" class="nav-item logout-item" style="margin-top: auto;">
+          <i class="fa-solid fa-right-from-bracket" style="font-size: 13px;"></i>
           Cerrar Sesión
         </a>
       </div>
@@ -61,6 +59,7 @@ interface DojoAvatar {
             {{ membership.getSelectedAvatarName() }}
           </div>
         </div>
+        <i class="fa-solid fa-gear" style="margin-left: auto; font-size: 14px; color: var(--muted); opacity: 0.65; transition: all 0.3s ease; padding-right: 4px;"></i>
       </div>
     </div>
 
@@ -85,13 +84,13 @@ interface DojoAvatar {
 
           <!-- EDITOR DE NOMBRE INLINE -->
           <div class="username-inline-container">
-            <span class="username-input-label">Nombre de Guerrero</span>
+            <span class="username-input-label">Nombre de usuario</span>
             <div class="username-input-wrapper">
               <input 
                 type="text" 
                 [value]="inputName()"
                 (input)="onUsernameInput($event)"
-                placeholder="Nombre de Guerrero"
+                placeholder="Nombre de usuario"
                 class="username-field-inline"
                 [class.has-changes]="inputName().trim() !== membership.userName()"
                 [class.has-error]="usernameError()"
@@ -194,7 +193,7 @@ interface DojoAvatar {
                   <span class="stat-value">{{ getUnlockedAvatarsCount() }} / 21</span>
                 </div>
                 <div class="stat-row">
-                  <span class="stat-name">Cualidades Demostradas:</span>
+                  <span class="stat-name">Avatares con Cualidades:</span>
                   <span class="stat-value">{{ getUnlockedQualities().length }} / 6</span>
                 </div>
                 <div class="stat-row">
@@ -227,7 +226,7 @@ interface DojoAvatar {
         <div class="catalog-main-panel">
           
           <div class="minimal-header">
-            <h1 class="minimal-title">Identidad del Dojo</h1>
+            <h1 class="minimal-title">Configurar mi avatar</h1>
             <p class="minimal-subtitle">Selecciona tu avatar guardián o desbloquea nuevas criaturas mediante tu esfuerzo.</p>
           </div>
 
@@ -383,6 +382,20 @@ interface DojoAvatar {
         <button (click)="closeRewardFlow()" class="btn-equip-now-action">
           Excelente <i class="fa-solid fa-circle-check"></i>
         </button>
+      </div>
+    </div>
+
+    <!-- TOAST DE BIENVENIDA AL DOJO -->
+    <div class="welcome-toast-overlay" *ngIf="showWelcomeAlert()" (click)="showWelcomeAlert.set(false)" style="cursor: pointer;">
+      <div class="welcome-toast-card">
+        <div class="toast-accent-bar"></div>
+        <div class="toast-content-wrapper">
+          <span class="toast-badge">✨ ¡BIENVENIDO AL DOJO!</span>
+          <h4 class="toast-title">Comienza tu viaje de enfoque</h4>
+          <p class="toast-desc">
+            Ingresa tu nombre de usuario y equipa tu avatar inicial en la sección <strong>"Mi Avatar"</strong>.
+          </p>
+        </div>
       </div>
     </div>
   `,
@@ -1117,6 +1130,82 @@ interface DojoAvatar {
         top: 0;
       }
     }
+    .welcome-toast-overlay {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 2000;
+      animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes toastSlideIn {
+      from { opacity: 0; transform: translateX(50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .welcome-toast-card {
+      background: rgba(15, 15, 20, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.15);
+      backdrop-filter: blur(12px);
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+    .toast-accent-bar {
+      width: 5px;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .toast-content-wrapper {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-sizing: border-box;
+      width: 100%;
+      text-align: left;
+    }
+    .toast-badge {
+      font-size: 8.5px;
+      font-weight: 900;
+      color: var(--yellow);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .toast-title {
+      font-size: 13px;
+      font-weight: 850;
+      color: #fff;
+      margin: 0;
+    }
+    .toast-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .toast-dismiss-btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 10.5px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+    }
+    .toast-dismiss-btn:hover {
+      filter: brightness(1.15);
+    }
   `]
 })
 export class Cualidades implements OnInit {
@@ -1126,6 +1215,7 @@ export class Cualidades implements OnInit {
 
   selectedLockedAvatar = signal<any | null>(null);
   unlockedRewardQuality = signal<QualityItem | null>(null);
+  showWelcomeAlert = signal<boolean>(false);
 
   // Edit Name signals
   inputName = signal<string>('');
@@ -1208,6 +1298,18 @@ export class Cualidades implements OnInit {
       });
     }
     this.inputName.set(this.membership.userName());
+
+    // Mostrar el toast de bienvenida únicamente después del registro
+    const justRegistered = localStorage.getItem('procrastina-just-registered') === 'true';
+    if (justRegistered) {
+      this.showWelcomeAlert.set(true);
+      localStorage.removeItem('procrastina-just-registered');
+
+      // Desaparecer automáticamente después de 6 segundos
+      setTimeout(() => {
+        this.showWelcomeAlert.set(false);
+      }, 6000);
+    }
   }
 
   getAvatarsByType(type: 'inicial' | 'cualidad' | 'especial' | 'legendario') {
