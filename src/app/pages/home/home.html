@@ -47,22 +47,32 @@
 
 <!-- MAIN WORKSPACE -->
 <div class="main">
-  <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
+  <div class="page-header" style="position: relative; z-index: 100; border-bottom: 1px solid var(--border); padding-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
     <div>
-      <h1 class="page-title">{{ labels().title }}</h1>
-      <p class="page-sub">{{ labels().desc }}</p>
-      
-      <!-- Mensaje de bienvenida premium con avatar destacado -->
-      <div style="display: flex; align-items: center; gap: 10px; margin-top: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 30px; padding: 6px 16px 6px 8px; width: fit-content; box-shadow: 0 4px 15px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05); backdrop-filter: blur(10px);">
-        <!-- Círculo del avatar con glow dinámico basado en el color del animal -->
-        <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()"
-             style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--avatar-color); transition: all 0.3s ease;"
-             [style.--avatar-color]="getSelectedAvatarColor()"
-             [style.boxShadow]="'0 0 12px ' + getSelectedAvatarColor() + '60'">
+      <h1 class="page-title">¡Bienvenido, {{ userName() }}!</h1>
+      <p class="page-sub" style="margin-bottom: 12px;">Listo para tu próximo paso en Kaizen Focus. Define tus objetivos y mantén el enfoque.</p>
+
+      <!-- Puntos e Coins Panel (Minimalista con Tooltips) -->
+      <div class="currency-panel">
+        <!-- Puntos de Enfoque -->
+        <div class="currency-badge-minimal focus-points-badge" 
+             data-tooltip="Puntos de Enfoque: Se ganan completando pomodoros y avanzando en tus objetivos. Acumúlalos para subir en el ranking y competir por el podio semanal de la comunidad.">
+          <i class="fa-solid fa-bullseye"></i>
+          <span class="badge-value">
+            {{ membership.isPremium() ? membership.focusPoints() : '—' }}
+            <i *ngIf="!membership.isPremium()" class="fa-solid fa-lock badge-lock"></i>
+          </span>
         </div>
-        <span style="font-size: 12.5px; color: var(--muted); font-weight: 600;">
-          Bienvenido, <strong style="color: var(--text); letter-spacing: 0.2px;">{{ userName() }}</strong>
-        </span>
+
+        <!-- Pro Coins -->
+        <div class="currency-badge-minimal pro-coins-badge" 
+             data-tooltip="Pro Coins: Gánalas manteniendo rachas, completando sesiones efectivas y superando retos. Úsalas para desbloquear nuevos avatares y recompensas.">
+          <i class="fa-solid fa-coins"></i>
+          <span class="badge-value gold-text">
+            {{ membership.isPremium() ? membership.proCoins() : '—' }}
+            <i *ngIf="!membership.isPremium()" class="fa-solid fa-lock badge-lock"></i>
+          </span>
+        </div>
       </div>
     </div>
 
@@ -77,24 +87,6 @@
         <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-star'"></i>
         <span>{{ membership.isPremium() ? 'Premium' : 'Gratis' }}</span>
       </button>
-
-      <!-- Puntos e Coins -->
-      <div style="display: flex; gap: 8px;">
-        <!-- Puntos de Enfoque -->
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: flex-end; min-width: 70px;">
-          <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
-          <span style="font-size: 13.5px; font-weight: 900; color: var(--text);">
-            {{ membership.isPremium() ? membership.focusPoints() : '—' }}
-          </span>
-        </div>
-        <!-- Pro Coins -->
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: flex-end; min-width: 70px;">
-          <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pro Coins</span>
-          <span style="font-size: 13.5px; font-weight: 900; color: var(--yellow);">
-            {{ membership.isPremium() ? membership.proCoins() : '—' }}
-          </span>
-        </div>
-      </div>
     </div>
   </div>
 

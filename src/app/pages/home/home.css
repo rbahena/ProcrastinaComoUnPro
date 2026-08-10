@@ -824,5 +824,113 @@
   transform: rotate(180deg);
 }
 
+/* ===== MINIMALIST CURRENCY BADGES ===== */
+.currency-panel {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.currency-badge-minimal {
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.currency-badge-minimal:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.focus-points-badge {
+  color: #818cf8;
+}
+
+.pro-coins-badge {
+  color: #fbbf24;
+}
+
+.badge-value {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gold-text {
+  color: #fbbf24 !important;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
+}
+
+.badge-lock {
+  font-size: 8.5px;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+/* Tooltip Custom Styles - Positioned Below and Aligned Left */
+.currency-badge-minimal::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 135%;
+  left: 0;
+  transform: translateY(-4px) scale(0.9);
+  background: rgba(10, 10, 14, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: normal;
+  width: 230px;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  text-align: left;
+}
+
+.currency-badge-minimal::after {
+  content: '';
+  position: absolute;
+  top: 120%;
+  left: 15px;
+  transform: scale(0);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent rgba(10, 10, 14, 0.95) transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.15s ease;
+  z-index: 999;
+}
+
+.currency-badge-minimal:hover::before {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.currency-badge-minimal:hover::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
 
 
