@@ -33,6 +33,10 @@ export const routes: Routes = [
   {
     path: 'bloqueador',
     loadComponent: () => import('./pages/bloqueador/bloqueador').then(m => m.Bloqueador)
+  },
+  {
+    path: 'cualidades',
+    loadComponent: () => import('./pages/cualidades/cualidades').then(m => m.Cualidades)
   }
 ];
 

@@ -2,18 +2,19 @@ import { Component, signal, computed, OnInit, OnDestroy, WritableSignal } from '
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
+import { IdentitySettings } from '../../components/identity-settings';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, IdentitySettings],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
 export class Home implements OnInit, OnDestroy {
   currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
   userName!: WritableSignal<string>;
-  selectedAvatar!: WritableSignal<'lobo' | 'leon' | 'buho' | 'zorro' | 'dragon'>;
+  selectedAvatar!: WritableSignal<any>;
   Math = Math;
 
   constructor(public membership: MembershipService, private router: Router) {
@@ -122,24 +123,18 @@ export class Home implements OnInit, OnDestroy {
 
   // Auxiliar para obtener el icono de mi avatar
   getAvatarIcon() {
-    switch (this.selectedAvatar()) {
-      case 'lobo': return 'fa-shield-halved';
-      case 'leon': return 'fa-crown';
-      case 'buho': return 'fa-glasses';
-      case 'dragon': return 'fa-dragon';
-      default: return 'fa-mask';
-    }
+    return this.membership.getSelectedAvatarIcon();
   }
 
   // Auxiliar para obtener el nombre de mi avatar
   getAvatarName() {
-    switch (this.selectedAvatar()) {
-      case 'lobo': return 'Lobo Samurai';
-      case 'leon': return 'León Shogun';
-      case 'buho': return 'Búho Estratega';
-      case 'dragon': return 'Dragón Guardián';
-      default: return 'Zorro Ninja';
-    }
+    return this.membership.getSelectedAvatarName();
+  }
+
+  getSelectedAvatarColor(): string {
+    const current = this.selectedAvatar();
+    const avatar = this.membership.avatarsCatalog().find(a => a.id === current);
+    return avatar ? avatar.color : 'var(--accent)';
   }
 
   private updateLastUpdatedTime() {

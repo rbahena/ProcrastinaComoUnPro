@@ -3,18 +3,19 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
+import { IdentitySettings } from '../../components/identity-settings';
 
 @Component({
   selector: 'app-enfoque',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, IdentitySettings],
   templateUrl: './enfoque.html',
   styleUrl: './enfoque.css',
 })
 export class Enfoque implements OnInit, OnDestroy {
   currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
   userName!: WritableSignal<string>;
-  selectedAvatar!: WritableSignal<'lobo' | 'leon' | 'buho' | 'zorro' | 'dragon'>;
+  selectedAvatar!: WritableSignal<any>;
   Math = Math;
 
   constructor(private router: Router, public membership: MembershipService) {
@@ -232,6 +233,12 @@ export class Enfoque implements OnInit, OnDestroy {
       this.partnerName.set(partnerName);
       this.partnerAvatar.set(partnerAvatar);
       
+      // Mostrar toast de entrada con el emoji del animal correspondiente
+      const emoji = partnerAvatar === 'lobo' ? '🐺' : (partnerAvatar === 'zorro' ? '🦊' : '🐾');
+      setTimeout(() => {
+        this.showToast(`👥 ${emoji} ${partnerName} se unió a tu sesión.`, 'info');
+      }, 1000);
+      
       // Asignar tiempo inicial dinámico basado en cuándo iniciaron en el Dojo:
       // Ana inició hace 3 min en sesión de 50 min => 47 min restante (2820 seg)
       // Ramiro inició hace 1 min en sesión de 25 min => 24 min restante (1440 seg)
@@ -399,23 +406,21 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Auxiliares de navegación sidebar
   getAvatarIcon() {
-    switch (this.selectedAvatar()) {
-      case 'lobo': return 'fa-shield-halved';
-      case 'leon': return 'fa-crown';
-      case 'buho': return 'fa-glasses';
-      case 'dragon': return 'fa-dragon';
-      default: return 'fa-mask';
-    }
+    return this.membership.getSelectedAvatarIcon();
   }
 
   getAvatarName() {
-    switch (this.selectedAvatar()) {
-      case 'lobo': return 'Lobo Samurai';
-      case 'leon': return 'León Shogun';
-      case 'buho': return 'Búho Estratega';
-      case 'dragon': return 'Dragón Guardián';
-      default: return 'Zorro Ninja';
-    }
+    return this.membership.getSelectedAvatarName();
+  }
+
+  getPartnerIcon(id: string) {
+    const avatar = this.membership.avatarsCatalog().find(a => a.id === id);
+    return avatar ? avatar.icon : 'fa-mask';
+  }
+
+  getPartnerColor(id: string) {
+    const avatar = this.membership.avatarsCatalog().find(a => a.id === id);
+    return avatar ? avatar.color : '#ff007f';
   }
 
   // Cambiar tema global

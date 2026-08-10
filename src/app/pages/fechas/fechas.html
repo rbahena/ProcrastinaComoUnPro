@@ -22,16 +22,25 @@
       {{ labels().navShield }}
     </a>
 
+    <!-- CONFIGURACIÓN DE IDENTIDAD -->
+    <a routerLink="/cualidades" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      Cualidades <span class="badge-new" style="background: var(--accent); color: #000; font-size: 8px; padding: 1px 4px; border-radius: 4px; margin-left: auto; font-weight: 900;">NUEVO</span>
+    </a>
+
     <!-- LOGOUT -->
     <a routerLink="/login" class="nav-item" style="margin-top: auto; opacity: 0.65;">
       Cerrar Sesión
     </a>
   </div>
-  <div class="sidebar-footer">
-    <div class="avatar" style="background: var(--accent); color: #fff;">{{ userName().substring(0, 2).toUpperCase() }}</div>
+  <div class="sidebar-footer" routerLink="/cualidades" style="cursor: pointer;">
+    <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08);">
+    </div>
     <div style="overflow: hidden; display: flex; flex-direction: column;">
       <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
-      <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">Guerrero</div>
+      <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">
+        {{ getAvatarName() }}
+      </div>
     </div>
   </div>
 </div>
@@ -49,3 +58,6 @@
     Área en blanco lista para diseñar.
   </div>
 </div>
+
+<!-- Modal de Identidad/Onboarding -->
+<app-identity-settings *ngIf="!membership.onboardingCompleted() || membership.showSettingsModal()" [onboardingMode]="!membership.onboardingCompleted()"></app-identity-settings>

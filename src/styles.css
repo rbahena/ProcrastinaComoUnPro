@@ -129,6 +129,41 @@ app-root {
 a { text-decoration: none; color: inherit; }
 button { font-family: inherit; cursor: pointer; }
 
+/* ===== INDIVIDUAL IMAGES AVATARS ===== */
+.avatar-sprite {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.avatar-sprite.sprite-lobo { background-image: url('/assets/images/avatars/lobo.jpg'); }
+.avatar-sprite.sprite-zorro { background-image: url('/assets/images/avatars/zorro.jpg'); }
+.avatar-sprite.sprite-buho { background-image: url('/assets/images/avatars/buho.jpg'); }
+.avatar-sprite.sprite-lince { background-image: url('/assets/images/avatars/lince.jpg'); }
+
+.avatar-sprite.sprite-panda { background-image: url('/assets/images/avatars/panda.jpg'); }
+.avatar-sprite.sprite-sloth { background-image: url('/assets/images/avatars/sloth.jpg'); }
+.avatar-sprite.sprite-tortuga { background-image: url('/assets/images/avatars/tortuga.jpg'); }
+.avatar-sprite.sprite-abeja { background-image: url('/assets/images/avatars/abeja.jpg'); }
+
+.avatar-sprite.sprite-castor { background-image: url('/assets/images/avatars/castor.jpg'); }
+.avatar-sprite.sprite-octopus { background-image: url('/assets/images/avatars/octopus.jpg'); }
+.avatar-sprite.sprite-aguila { background-image: url('/assets/images/avatars/aguila.jpg'); }
+.avatar-sprite.sprite-hormiga { background-image: url('/assets/images/avatars/hormiga.jpg'); }
+.avatar-sprite.sprite-elefante { background-image: url('/assets/images/avatars/elefante.jpg'); }
+
+/* New Avatars */
+.avatar-sprite.sprite-gato { background-image: url('/assets/images/avatars/gato.jpg'); }
+.avatar-sprite.sprite-perro { background-image: url('/assets/images/avatars/perro.jpg'); }
+.avatar-sprite.sprite-conejo { background-image: url('/assets/images/avatars/conejo.jpg'); }
+.avatar-sprite.sprite-mapache { background-image: url('/assets/images/avatars/mapache.jpg'); }
+.avatar-sprite.sprite-nutria { background-image: url('/assets/images/avatars/nutria.jpg'); }
+.avatar-sprite.sprite-loro { background-image: url('/assets/images/avatars/loro.jpg'); }
+
+/* Backwards compatibility aliases */
+.avatar-sprite.sprite-leon { background-image: url('/assets/images/avatars/leon.jpg'); }
+.avatar-sprite.sprite-dragon { background-image: url('/assets/images/avatars/dragon.jpg'); }
+
 /* ===== SIDEBAR ===== */
 .sidebar {
   width: var(--sidebar);

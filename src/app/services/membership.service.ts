@@ -1,5 +1,28 @@
 import { Injectable, signal, effect } from '@angular/core';
 
+export interface AvatarItem {
+  id: string;
+  name: string;
+  quality?: string;
+  slogan?: string;
+  icon: string;
+  color: string;
+  isUnlocked: boolean;
+  isInitial?: boolean;
+}
+
+export interface QualityItem {
+  id: string;
+  animal: string;
+  name: string;
+  description: string;
+  unlockRequirement: string;
+  isUnlocked: boolean;
+  unlockProgress: number;
+  unlockTotal: number;
+  unlockedAt?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -19,9 +42,9 @@ export class MembershipService {
     parseInt(localStorage.getItem('procrastina-pro-coins') || '0', 10)
   );
 
-  // Cosméticos desbloqueados
+  // Cosméticos desbloqueados (por defecto los avatares iniciales)
   unlockedAvatars = signal<string[]>(
-    JSON.parse(localStorage.getItem('procrastina-unlocked-avatars') || '["zorro"]')
+    JSON.parse(localStorage.getItem('procrastina-unlocked-avatars') || '["gato","perro","conejo","mapache","nutria","loro","zorro"]')
   );
   unlockedThemes = signal<string[]>(
     JSON.parse(localStorage.getItem('procrastina-unlocked-themes') || '["samurai"]')
@@ -31,12 +54,42 @@ export class MembershipService {
   userName = signal<string>(
     localStorage.getItem('procrastina-user-name') || 'Ramiro'
   );
-  selectedAvatar = signal<'lobo' | 'leon' | 'buho' | 'zorro' | 'dragon'>(
-    (localStorage.getItem('procrastina-avatar') as any) || 'zorro'
+  selectedAvatar = signal<string>(
+    localStorage.getItem('procrastina-avatar') || 'gato'
   );
   selectedTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>(
     (localStorage.getItem('procrastina-theme') as any) || 'samurai'
   );
+
+  // Estado de onboarding completado
+  onboardingCompleted = signal<boolean>(
+    localStorage.getItem('procrastina-onboarding-completed') === 'true' ||
+    (localStorage.getItem('procrastina-user-name') !== null && localStorage.getItem('procrastina-user-name') !== 'Ramiro')
+  );
+
+  // Control global para abrir el modal de configuración de identidad
+  showSettingsModal = signal<boolean>(false);
+
+  // Catálogo completo de avatares disponibles (Gato, Perro, Conejo, Mapache, Nutria, Loro, Zorro)
+  avatarsCatalog = signal<AvatarItem[]>([
+    { id: 'gato', name: 'Gato', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
+    { id: 'perro', name: 'Perro', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
+    { id: 'conejo', name: 'Conejo', icon: 'fa-rabbit', color: '#ec4899', isUnlocked: true, isInitial: true },
+    { id: 'mapache', name: 'Mapache', icon: 'fa-paw', color: '#8b5cf6', isUnlocked: true, isInitial: true },
+    { id: 'nutria', name: 'Nutria', icon: 'fa-water', color: '#06b6d4', isUnlocked: true, isInitial: true },
+    { id: 'loro', name: 'Loro', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
+    { id: 'zorro', name: 'Zorro', icon: 'fa-mask', color: '#f97316', isUnlocked: true, isInitial: true }
+  ]);
+
+  // Catálogo completo de Cualidades (TORTUGA, HORMIGA, ÁGUILA, ABEJA, CASTOR, LOBO)
+  qualitiesCatalog = signal<QualityItem[]>([
+    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 3, unlockTotal: 7 },
+    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar pequeños objetivos de manera constante.', isUnlocked: false, unlockProgress: 5, unlockTotal: 10 },
+    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar objetivos grandes que requieran varias sesiones.', isUnlocked: false, unlockProgress: 1, unlockTotal: 3 },
+    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas.', isUnlocked: false, unlockProgress: 3, unlockTotal: 5 },
+    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Trabajar progresivamente en objetivos durante varios días.', isUnlocked: false, unlockProgress: 6, unlockTotal: 10 },
+    { id: 'cooperacion', animal: 'lobo', name: 'Cooperación', description: 'Avanza mejor acompañado.', unlockRequirement: 'Participar activamente ayudando/acompañando a otros usuarios.', isUnlocked: false, unlockProgress: 2, unlockTotal: 5 }
+  ]);
 
   // Registro de sesiones procesadas para idempotencia
   private rewardedSessions = new Set<string>(
@@ -69,6 +122,38 @@ export class MembershipService {
     effect(() => {
       localStorage.setItem('procrastina-theme', this.selectedTheme());
     });
+    effect(() => {
+      localStorage.setItem('procrastina-onboarding-completed', String(this.onboardingCompleted()));
+    });
+  }
+
+  // Obtener avatares dinámicamente con su estado de bloqueo actualizado
+  getAvatars(): AvatarItem[] {
+    const unlocked = this.unlockedAvatars();
+    return this.avatarsCatalog().map(avatar => {
+      const isUnlocked = avatar.isInitial || unlocked.includes(avatar.id);
+      return { ...avatar, isUnlocked };
+    });
+  }
+
+  // Simulación de persistencia en Supabase (profiles table)
+  async saveSupabaseProfile(username: string, avatarId: string): Promise<{ success: boolean; error?: string }> {
+    console.log(`[SUPABASE API MOCK] UPDATE profiles SET username = '${username}', avatar_id = '${avatarId}' WHERE id = auth.uid()`);
+    
+    // Simular retraso de red
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Validar nombres ocupados en simulación
+    const busyNames = ['admin', 'administrator', 'support', 'system', 'moderator', 'ocupado', 'ramiro_admin'];
+    if (busyNames.includes(username.toLowerCase())) {
+      return { success: false, error: 'Este nombre ya está ocupado o no está permitido. Prueba con otro.' };
+    }
+
+    this.userName.set(username);
+    this.selectedAvatar.set(avatarId as any);
+    this.onboardingCompleted.set(true);
+
+    return { success: true };
   }
 
   // Activar/desactivar Premium
@@ -163,5 +248,55 @@ export class MembershipService {
     this.proCoins.update(c => c - cost);
     this.unlockedThemes.update(list => [...list, theme]);
     return true;
+  }
+
+  // Auxiliares globales para avatars
+  getSelectedAvatarIcon(): string {
+    const current = this.selectedAvatar();
+    const avatar = this.avatarsCatalog().find(a => a.id === current);
+    return avatar ? avatar.icon : 'fa-mask';
+  }
+
+  getSelectedAvatarName(): string {
+    const current = this.selectedAvatar();
+    const avatar = this.avatarsCatalog().find(a => a.id === current);
+    return avatar ? avatar.name : 'Gato';
+  }
+
+  getEmoji(id: string): string {
+    switch (id) {
+      case 'lobo': return '🐺';
+      case 'zorro': return '🦊';
+      case 'buho': return '🦉';
+      case 'lince': return '🦌';
+      case 'panda': return '🐼';
+      case 'sloth': return '🦥';
+      case 'leon': return '🦁';
+      case 'dragon': return '🐉';
+      case 'tortuga': return '🐢';
+      case 'abeja': return '🐝';
+      case 'castor': return '🦫';
+      case 'aguila': return '🦅';
+      case 'hormiga': return '🐜';
+      default: return '🐾';
+    }
+  }
+
+  getSelectedAvatarEmoji(): string {
+    return this.getEmoji(this.selectedAvatar());
+  }
+
+  getAvatarTitle(id: string): string {
+    switch (id) {
+      case 'lobo': return 'Samurai';
+      case 'zorro': return 'Ninja';
+      case 'buho': return 'Estratega';
+      case 'lince': return 'Explorador';
+      case 'panda': return 'Zen';
+      case 'sloth': return 'Calma';
+      case 'leon': return 'Shogun';
+      case 'dragon': return 'Guardián';
+      default: return 'Guerrero';
+    }
   }
 }
