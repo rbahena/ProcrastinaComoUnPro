@@ -230,68 +230,61 @@
           </div>
         </div>
 
-        <!-- Selector de Periodo (Día, Mes, Año) -->
-        <div class="podio-pill-container">
-          <button (click)="activeRankingFilter.set('dia')"
-                  class="podio-pill-btn"
-                  [class.active]="activeRankingFilter() === 'dia'">
-            Día
-          </button>
-          <button (click)="activeRankingFilter.set('mes')"
-                  class="podio-pill-btn"
-                  [class.active]="activeRankingFilter() === 'mes'">
-            Mes
-          </button>
-          <button (click)="activeRankingFilter.set('anio')"
-                  class="podio-pill-btn"
-                  [class.active]="activeRankingFilter() === 'anio'">
-            Año
-          </button>
+        <!-- Rango de Semana Anterior -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 5px 12px; border-radius: 20px; margin: 10px auto 4px auto; width: fit-content; font-size: 10.5px; font-weight: 700; color: var(--yellow);">
+          <i class="fa-solid fa-calendar-days" style="font-size: 9.5px; opacity: 0.85;"></i>
+          <span>Podio de la semana: 2 de Ago - 8 de Ago, 2026</span>
         </div>
 
         <!-- Podio (Vista en Hilera) -->
-        <div style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 160px; margin-top: 10px; padding-bottom: 5px;">
+        <div style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 250px; margin-top: 10px; padding-bottom: 5px;">
           
           <!-- 2º Puesto (Izquierda) -->
           <div class="podio-column second-place custom-tooltip-host" 
-               [attr.data-tooltip]="rankingData()[0].name + ' consiguió ' + rankingData()[0].value + ' hoy'">
+               [attr.data-tooltip]="rankingData()[0].name + ' consiguió ' + rankingData()[0].value + ' la semana anterior'">
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
-              <div class="podio-avatar" [style.background]="rankingData()[0].color">
-                <i class="fa-solid" [class]="rankingData()[0].avatar"></i>
+              <div class="podio-avatar avatar-sprite sprite-lobo" 
+                   [style.background-color]="rankingData()[0].color"
+                   style="cursor: zoom-in;"
+                   (click)="zoomAvatar('lobo', 'Lobo Samurai', 'Lobo', '#3a86f0', 3)">
               </div>
             </div>
-            <span style="font-size: 10.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[0].name }}</span>
-            <span style="font-size: 9.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[0].value }}</span>
+            <span style="font-size: 12px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[0].name }}</span>
+            <span style="font-size: 10.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[0].value }}</span>
             <div class="podio-bar">2º</div>
           </div>
 
           <!-- 1º Puesto (Centro) -->
           <div class="podio-column first-place custom-tooltip-host" 
-               [attr.data-tooltip]="rankingData()[1].name + ' lidera con ' + rankingData()[1].value + ' hoy'">
-            <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 11px; margin-bottom: 2px; filter: drop-shadow(0 0 3px rgba(255,215,0,0.4));"></i>
+               [attr.data-tooltip]="rankingData()[1].name + ' lidera con ' + rankingData()[1].value + ' la semana anterior'">
+            <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 14px; margin-bottom: 4px; filter: drop-shadow(0 0 4px rgba(255,215,0,0.5));"></i>
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
-              <div class="podio-avatar" [style.background]="rankingData()[1].color">
-                <i class="fa-solid" [class]="rankingData()[1].avatar"></i>
+              <div class="podio-avatar avatar-sprite sprite-dragon" 
+                   [style.background-color]="rankingData()[1].color"
+                   style="cursor: zoom-in;"
+                   (click)="zoomAvatar('dragon', 'Dragón Imperial', 'Dragón', '#a855f7', 5)">
               </div>
             </div>
-            <span style="font-size: 11px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[1].name }}</span>
-            <span style="font-size: 10px; color: var(--yellow); font-weight: 800; margin-bottom: 6px;">{{ rankingData()[1].value }}</span>
+            <span style="font-size: 13px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[1].name }}</span>
+            <span style="font-size: 11.5px; color: var(--yellow); font-weight: 800; margin-bottom: 6px;">{{ rankingData()[1].value }}</span>
             <div class="podio-bar">1º</div>
           </div>
 
           <!-- 3º Puesto (Derecha) -->
           <div class="podio-column third-place custom-tooltip-host" 
-               [attr.data-tooltip]="rankingData()[2].name + ' consiguió ' + rankingData()[2].value + ' hoy'">
+               [attr.data-tooltip]="rankingData()[2].name + ' consiguió ' + rankingData()[2].value + ' la semana anterior'">
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
-              <div class="podio-avatar" [style.background]="rankingData()[2].color">
-                <i class="fa-solid" [class]="rankingData()[2].avatar"></i>
+              <div class="podio-avatar avatar-sprite sprite-buho" 
+                   [style.background-color]="rankingData()[2].color"
+                   style="cursor: zoom-in;"
+                   (click)="zoomAvatar('buho', 'Búho Sabio', 'Búho', '#10b981', 1)">
               </div>
             </div>
-            <span style="font-size: 10.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[2].name }}</span>
-            <span style="font-size: 9.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[2].value }}</span>
+            <span style="font-size: 12px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[2].name }}</span>
+            <span style="font-size: 10.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[2].value }}</span>
             <div class="podio-bar">3º</div>
           </div>
 
@@ -433,6 +426,44 @@
             Podrías superar al {{ percentageBeaten() }}% de la comunidad hoy
           </div>
           
+          <!-- Rivalidad en Vivo en Vista Free -->
+          <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 4px;">
+            <span style="font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Ranking del Día</span>
+            
+            <!-- Rival Arriba (Ana) -->
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() - 1 }}</span>
+                <div class="avatar-sprite sprite-lobo" 
+                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                     (click)="zoomAvatar('lobo', 'Ana', 'Lobo', '#ff4757', 2)"></div>
+                <span style="color: var(--text);">Ana</span>
+              </div>
+            </div>
+
+            <!-- Tú (Resaltado) -->
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(99, 102, 241, 0.08); border: 1.2px solid var(--accent); border-radius: 6px; padding: 4px 6px; font-size: 11px; font-weight: 700; box-shadow: 0 0 8px rgba(99, 102, 241, 0.15);">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="color: var(--accent); width: 22px;">#{{ rankingPosition() }}</span>
+                <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" 
+                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                     (click)="zoomAvatar(membership.selectedAvatar(), userName(), membership.getSelectedAvatarName(), '#ffd700', membership.podiumWins())"></div>
+                <span style="color: #fff;">{{ userName() }} (Tú)</span>
+              </div>
+            </div>
+            
+            <!-- Rival Abajo (Carlos) -->
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() + 1 }}</span>
+                <div class="avatar-sprite sprite-panda" 
+                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                     (click)="zoomAvatar('panda', 'Carlos', 'Panda', '#a4b0be', 1)"></div>
+                <span style="color: var(--text);">Carlos</span>
+              </div>
+            </div>
+          </div>
+
           <button (click)="showPaywallModal.set(true)" 
                   style="border: none; background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 6px; padding: 5px; color: var(--yellow); font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 4px;"
                   onmouseover="this.style.background='rgba(212,175,55,0.18)'"
@@ -475,6 +506,44 @@
           <!-- Superado Comunidad (Discreto) -->
           <div style="font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px; width: 100%;">
             Superaste al {{ percentageBeaten() }}% de la comunidad hoy
+          </div>
+
+          <!-- Rivalidad en Vivo en Vista Premium -->
+          <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 4px; width: 100%;">
+            <span style="font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; text-align: left;">Ranking del Día</span>
+            
+            <!-- Rival Arriba (Ana) -->
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() - 1 }}</span>
+                <div class="avatar-sprite sprite-lobo" 
+                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                     (click)="zoomAvatar('lobo', 'Ana', 'Lobo', '#ff4757', 2)"></div>
+                <span style="color: var(--text);">Ana</span>
+              </div>
+            </div>
+
+            <!-- Tú (Resaltado) -->
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(99, 102, 241, 0.08); border: 1.2px solid var(--accent); border-radius: 6px; padding: 4px 6px; font-size: 11px; font-weight: 700; box-shadow: 0 0 8px rgba(99, 102, 241, 0.15);">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="color: var(--accent); width: 22px;">#{{ rankingPosition() }}</span>
+                <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" 
+                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                     (click)="zoomAvatar(membership.selectedAvatar(), userName(), membership.getSelectedAvatarName(), '#ffd700', membership.podiumWins())"></div>
+                <span style="color: #fff;">{{ userName() }} (Tú)</span>
+              </div>
+            </div>
+
+            <!-- Rival Abajo (Carlos) -->
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() + 1 }}</span>
+                <div class="avatar-sprite sprite-panda" 
+                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                     (click)="zoomAvatar('panda', 'Carlos', 'Panda', '#a4b0be', 1)"></div>
+                <span style="color: var(--text);">Carlos</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -775,7 +844,7 @@
         <div *ngIf="zoomAvatarWins() > 3" 
              class="custom-tooltip-host"
              [attr.data-tooltip]="'Campeón del Dojo: ' + zoomAvatarWins() + ' podios conquistados'"
-             style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; border-radius: 50%; color: #a855f7; cursor: pointer;">
+             style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; border-radius: 50%; color: #a855f7; cursor: pointer; font-weight: 700;">
           <span style="font-size: 9px; font-weight: 900;">+{{ zoomAvatarWins() - 3 }}</span>
         </div>
       </div>

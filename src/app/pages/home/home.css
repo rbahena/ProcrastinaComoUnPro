@@ -665,7 +665,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 90px;
+  width: 120px;
   transition: all 0.3s ease;
 }
 
@@ -682,8 +682,8 @@
 }
 
 .podio-avatar {
-  width: 38px;
-  height: 38px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   color: #fff;
   display: flex;
@@ -696,8 +696,8 @@
 }
 
 .podio-column.first-place .podio-avatar {
-  width: 44px;
-  height: 44px;
+  width: 60px;
+  height: 60px;
   border-color: #ffd700;
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.25);
 }
@@ -726,28 +726,28 @@
 }
 
 .podio-column.first-place .podio-bar {
-  height: 75px;
+  height: 115px;
   background: linear-gradient(to top, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.25) 100%);
   border-color: rgba(212, 175, 55, 0.3);
   color: #ffd700;
-  font-size: 16px;
+  font-size: 18px;
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
 }
 
 .podio-column.second-place .podio-bar {
-  height: 52px;
+  height: 80px;
   background: linear-gradient(to top, rgba(192, 192, 192, 0.03) 0%, rgba(192, 192, 192, 0.15) 100%);
   border-color: rgba(192, 192, 192, 0.2);
   color: #c0c0c0;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .podio-column.third-place .podio-bar {
-  height: 38px;
+  height: 55px;
   background: linear-gradient(to top, rgba(205, 127, 50, 0.02) 0%, rgba(205, 127, 50, 0.15) 100%);
   border-color: rgba(205, 127, 50, 0.2);
   color: #cd7f32;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 /* Co-working Card */

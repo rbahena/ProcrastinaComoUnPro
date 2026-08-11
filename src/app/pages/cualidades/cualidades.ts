@@ -1420,7 +1420,8 @@ export class Cualidades implements OnInit {
       { id: 'leon', name: 'León', type: 'especial', emoji: '🦁', color: '#fbbf24', role: 'Rey del Dojo', cost: 250, qualityId: null, qualityName: 'Liderazgo', qualityReq: 'Adquiérelo por 250 Pro Coins 🪙 superando con valor tus misiones más difíciles.' },
 
       // LEGENDARIOS
-      { id: 'dragon', name: 'Dragón', type: 'legendario', emoji: '🐉', color: '#dc2626', role: 'Emperador Fuego', cost: 500, qualityId: null, qualityName: 'Trascendencia', qualityReq: 'Adquiérelo por 500 Pro Coins 🪙 dominando el arte supremo del enfoque Zen.' }
+      { id: 'dragon', name: 'Dragón', type: 'legendario', emoji: '🐉', color: '#dc2626', role: 'Emperador Fuego', cost: 500, qualityId: null, qualityName: 'Trascendencia', qualityReq: 'Adquiérelo por 500 Pro Coins 🪙 dominando el arte supremo del enfoque Zen.' },
+      { id: 'fenix', name: 'Fénix', type: 'legendario', emoji: '🔥', color: '#f97316', role: 'Inmortal de Fuego', cost: 500, qualityId: null, qualityName: 'Resurrección', qualityReq: 'Adquiérelo por 500 Pro Coins 🪙 renaciendo de tus cenizas en momentos de procrastinación.' }
     ];
 
     return list.map(item => {

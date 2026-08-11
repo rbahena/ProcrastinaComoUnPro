@@ -166,6 +166,12 @@ button { font-family: inherit; cursor: pointer; }
 /* Backwards compatibility aliases */
 .avatar-sprite.sprite-leon { background-image: url('/assets/images/avatars/leon.webp'); }
 .avatar-sprite.sprite-dragon { background-image: url('/assets/images/avatars/dragon.webp'); }
+.avatar-sprite.sprite-fenix { background-image: url('/assets/images/avatars/fenix.webp'); }
+
+/* Medals and Trophy Assets */
+.avatar-sprite.sprite-medalla-bronce { background-image: url('/assets/images/avatars/medalla_bronce.jpg'); }
+.avatar-sprite.sprite-medalla-plata { background-image: url('/assets/images/avatars/medalla_plata.jpg'); }
+.avatar-sprite.sprite-trofeo-oro { background-image: url('/assets/images/avatars/trofeo_oro.jpg'); }
 
 
 /* ===== SIDEBAR ===== */

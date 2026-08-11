@@ -292,7 +292,7 @@ export class MembershipService {
       lobo: 'Lobo', tortuga: 'Tortuga', hormiga: 'Hormiga', abeja: 'Abeja',
       castor: 'Castor', aguila: 'Águila', buho: 'Búho', panda: 'Panda',
       sloth: 'Perezoso', elefante: 'Elefante', octopus: 'Pulpo',
-      leon: 'León', dragon: 'Dragón',
+      leon: 'León', dragon: 'Dragón', fenix: 'Fénix',
       hamster: 'Hámster', pez: 'Pez', cuyo: 'Cuyo', raton: 'Ratón', rana: 'Rana'
     };
     return names[id] || 'Gato';
@@ -305,7 +305,7 @@ export class MembershipService {
       lobo: '#ef4444', tortuga: '#22c55e', hormiga: '#78350f', abeja: '#eab308',
       castor: '#b45309', aguila: '#3b82f6', buho: '#6366f1', panda: '#6b7280',
       sloth: '#78716c', elefante: '#6b7280', octopus: '#ec4899',
-      leon: '#fbbf24', dragon: '#dc2626',
+      leon: '#fbbf24', dragon: '#dc2626', fenix: '#ef4444',
       hamster: '#f97316', pez: '#06b6d4', cuyo: '#8b5cf6', raton: '#ec4899', rana: '#22c55e'
     };
     return colors[id] || '#10b981';
@@ -313,7 +313,7 @@ export class MembershipService {
 
   getSelectedAvatarIcon(): string {
     const current = this.selectedAvatar();
-    if (['buho', 'aguila'].includes(current)) return 'fa-crow';
+    if (['buho', 'aguila', 'fenix'].includes(current)) return 'fa-crow';
     if (['panda', 'sloth'].includes(current)) return 'fa-spa';
     if (current === 'dragon') return 'fa-dragon';
     return 'fa-paw';
@@ -333,6 +333,7 @@ export class MembershipService {
       case 'sloth': return '🦥';
       case 'leon': return '🦁';
       case 'dragon': return '🐉';
+      case 'fenix': return '🔥';
       case 'tortuga': return '🐢';
       case 'abeja': return '🐝';
       case 'castor': return '🦫';
@@ -361,6 +362,7 @@ export class MembershipService {
       case 'sloth': return 'Calma';
       case 'leon': return 'Shogun';
       case 'dragon': return 'Guardián';
+      case 'fenix': return 'Inmortal';
       case 'hamster': return 'Veloz';
       case 'pez': return 'Fluido';
       case 'cuyo': return 'Tierno';
