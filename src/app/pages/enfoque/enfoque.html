@@ -91,7 +91,7 @@
     <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE DOS COLUMNAS) -->
     <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 480px; padding: 20px; width: 100%; max-width: 1000px; margin: 0 auto;">
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 40px; width: 100%; align-items: center;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 40px; width: 100%; align-items: start;">
         
         <!-- COLUMNA IZQUIERDA: Círculo de Presentación y Arranque -->
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;">
@@ -491,17 +491,21 @@
                   <i class="fa-solid fa-crosshairs" style="color: var(--accent);"></i>
                   Estrategia de Concentración
                 </h3>
-                 <p style="font-size: 10.5px; color: var(--muted); margin: 6px 0 0 0; line-height: 1.4; text-transform: none; letter-spacing: 0;">
-                  <span *ngIf="activeMethodology() === 'sapo'">Complementa tu Pomodoro con la técnica del Sapo.</span>
-                  <span *ngIf="activeMethodology() === 'pareto'">Complementa tu Pomodoro con la técnica de Pareto.</span>
-                  <span *ngIf="activeMethodology() === 'normal'">Dedica tu Pomodoro a un objetivo claro.</span>
-                 </p>
                </div>
 
               <!-- DECLARACIÓN DE OBJETIVO (MÉTODO SAPO / PARETO 80/20) -->
               <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 16px;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
-                  <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tu Objetivo Enfocado <span style="font-size: 9px; color: var(--yellow); opacity: 0.85; text-transform: none; font-weight: 600;">(Opcional)</span></span>
+                  <span style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                    Definir objetivo 
+                    <span style="font-size: 9px; color: var(--yellow); opacity: 0.85; text-transform: none; font-weight: 600;">(Opcional)</span>
+                    <i class="fa-regular fa-circle-question" 
+                       style="cursor: pointer; font-size: 12px; color: var(--muted); transition: color 0.2s;"
+                       onmouseover="this.style.color='var(--accent)'"
+                       onmouseout="this.style.color='var(--muted)'"
+                       [attr.data-tooltip]="activeMethodology() === 'sapo' ? 'Cómete el Sapo: Dedica esta sesión a la tarea de mayor resistencia mental. Completarla romperá la procrastinación para el resto del día.' : (activeMethodology() === 'pareto' ? 'Principio de Pareto: Enfócate en el 20% clave de tu trabajo. Evita distractores de bajo retorno para maximizar tu impacto hoy.' : 'Enfoque Estándar: Trabaja de forma tradicional en tu tarea del momento a ritmo constante. Ideal para avanzar rutinas o tareas menores.')">
+                    </i>
+                  </span>
                   
                   <!-- Selector de Metodología Sutil -->
                   <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
@@ -509,21 +513,22 @@
                             style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
                             [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.15)' : 'transparent'"
                             [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--muted)'"
-                            title="Metodología Cómete el Sapo: la tarea más difícil e importante de tu día.">
+                            [attr.data-tooltip]="'Metodología Cómete el Sapo: la tarea más difícil e importante de tu día.'">
                       Sapo
                     </button>
                     <button (click)="selectMethodology('pareto')"
                             style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
                             [style.background]="activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.15)' : 'transparent'"
                             [style.color]="activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)'"
-                            title="Filtro Pareto 80/20: el 20% del esfuerzo que genera el 80% del impacto real.">
+                            [attr.data-tooltip]="'Filtro Pareto 80/20: el 20% del esfuerzo que genera el 80% del impacto real.'">
                       Pareto
                     </button>
                     <button (click)="selectMethodology('normal')"
                             style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
                             [style.background]="activeMethodology() === 'normal' ? 'rgba(255, 255, 255, 0.08)' : 'transparent'"
                             [style.color]="activeMethodology() === 'normal' ? 'var(--text)' : 'var(--muted)'"
-                            title="Sesión de Enfoque Estándar: enfócate en una tarea tradicional a tu propio ritmo.">
+                            [attr.data-tooltip]="'Sesión de Enfoque Estándar: enfócate en una tarea tradicional a tu propio ritmo.'"
+                            [attr.data-tooltip-align]="'left'">
                       Estándar
                     </button>
                   </div>
@@ -542,20 +547,6 @@
                      [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-pen-clip')" 
                      [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')"
                      style="position: absolute; right: 14px; font-size: 14px; pointer-events: none;"></i>
-                </div>
-                
-                <!-- Tip dinámico según la metodología -->
-                <div style="font-size: 10.5px; color: var(--muted); line-height: 1.4; display: flex; align-items: flex-start; gap: 6px;">
-                  <i class="fa-solid fa-lightbulb" style="color: var(--yellow); margin-top: 2px;"></i>
-                  <span *ngIf="activeMethodology() === 'sapo'">
-                    <strong>Cómete el Sapo:</strong> Dedica esta sesión a la tarea de mayor resistencia mental. Completarla romperá la procrastinación para el resto del día.
-                  </span>
-                  <span *ngIf="activeMethodology() === 'pareto'">
-                    <strong>Principio de Pareto:</strong> Enfócate en el 20% clave de tu trabajo. Evita distractores de bajo retorno para maximizar tu impacto hoy.
-                  </span>
-                  <span *ngIf="activeMethodology() === 'normal'">
-                    <strong>Enfoque Estándar:</strong> Trabaja de forma tradicional en tu tarea del momento a ritmo constante. Ideal para avanzar rutinas o tareas menores.
-                  </span>
                 </div>
               </div>
 
@@ -593,52 +584,7 @@
                 </p>
               </div>
 
-            </div> <!-- Cierra Caja de Estrategias -->
-
-            <!-- SECCIÓN DE IDEAS FUGACES -->
-            <div class="distractions-card" [class.flying]="isNoteFlying()" style="position: relative; border: 1px solid var(--border); border-top: 2.5px solid var(--accent); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow: hidden;">
-              
-              <!-- Contenido del card que se oculta al volar -->
-              <div [style.opacity]="isNoteFlying() ? 0 : 1" style="transition: opacity 0.2s; display: flex; flex-direction: column; gap: 12px; width: 100%;">
-                <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
-                  <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-meteor" style="color: var(--accent);"></i>
-                    Ideas Fugaces & Notas
-                  </h3>
-                </div>
-                
-                <p style="font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4;">
-                  ¿Te vino una idea brillante o distracción? Apúntala aquí para sacarla de tu mente y revisarla después.
-                </p>
-
-                <div style="position: relative; width: 100%;">
-                  <textarea class="distractions-textarea" 
-                            [ngModel]="currentDraftIdea()" 
-                            (ngModelChange)="currentDraftIdea.set($event)"
-                            placeholder="Ej: Comprar café, llamar a mamá, revisar los reportes..."
-                            style="min-height: 80px; padding-bottom: 38px;"></textarea>
-                  
-                  <!-- Botón de enviar sutil abajo a la derecha de la textarea -->
-                  <button (click)="sendDraftIdea()"
-                          [disabled]="!currentDraftIdea().trim()"
-                          style="position: absolute; right: 10px; bottom: 10px; background: var(--accent); border: none; border-radius: 6px; padding: 6px 12px; font-size: 11px; font-weight: 800; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;"
-                          [style.opacity]="currentDraftIdea().trim() ? 1 : 0.4"
-                          [style.cursor]="currentDraftIdea().trim() ? 'pointer' : 'not-allowed'"
-                          onmouseover="if(this.style.opacity==='1') { this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 10px rgba(99, 102, 241, 0.45)'; }"
-                          onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
-                    <i class="fa-solid fa-paper-plane" style="font-size: 10px;"></i>
-                    <span>Enviar</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Superposición del avión de papel durante el vuelo animado -->
-              <div *ngIf="isNoteFlying()" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; animation: planeGlow 1s infinite alternate;">
-                <i class="fa-solid fa-paper-plane" style="font-size: 48px; color: var(--accent);"></i>
-                <span style="font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-top: 12px;">¡Idea volando!</span>
-              </div>
-
-            </div>
+            </div><!-- Cierra Caja de Estrategias -->
 
           </ng-container>
 

@@ -113,8 +113,6 @@ export class Enfoque implements OnInit, OnDestroy {
   showSetupSettings = signal(false);
 
   // Notas rápidas / Ideas fugaces
-  currentDraftIdea = signal('');
-  isNoteFlying = signal(false);
   showIdeasModal = signal(false);
 
   openIdeasModal() {
@@ -129,19 +127,6 @@ export class Enfoque implements OnInit, OnDestroy {
     if (confirm('¿Estás seguro de que quieres limpiar todo el baúl de ideas?')) {
       this.membership.clearAllIdeas();
     }
-  }
-
-  sendDraftIdea() {
-    const idea = this.currentDraftIdea().trim();
-    if (!idea) return;
-
-    this.isNoteFlying.set(true);
-    this.membership.addIdea(idea);
-    this.currentDraftIdea.set('');
-
-    setTimeout(() => {
-      this.isNoteFlying.set(false);
-    }, 2000);
   }
 
   removeIdea(index: number) {
@@ -190,8 +175,8 @@ export class Enfoque implements OnInit, OnDestroy {
       navTimer: 'Estadísticas',
       navShield: 'Baúl de ideas',
       navIdeas: 'Baúl de Ideas',
-      title: 'La Arena',
-      desc: 'Tu templo de concentración absoluta.'
+      title: 'Zona de concentración',
+      desc: 'Antes de comenzar tu viaje de enfoque, personaliza tu sesión y declara la misión que conquistarás hoy.'
     };
   });
 
