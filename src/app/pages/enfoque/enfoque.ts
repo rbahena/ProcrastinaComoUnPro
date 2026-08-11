@@ -80,6 +80,17 @@ export class Enfoque implements OnInit, OnDestroy {
     return this.dailyAttempts().filter(a => a.status === 'completed').length;
   });
   completedPomodorosArray = computed(() => Array(this.completedPomodoros()));
+  limitedDailyAttempts = computed(() => {
+    const attempts = this.dailyAttempts();
+    if (attempts.length <= 8) {
+      return attempts;
+    }
+    return attempts.slice(0, 7);
+  });
+  moreAttemptsCount = computed(() => {
+    const len = this.dailyAttempts().length;
+    return len > 8 ? len - 7 : 0;
+  });
   totalCommunityPoints = computed(() => {
     if (this.membership.isPremium()) {
       return this.membership.focusPoints();
@@ -178,6 +189,26 @@ export class Enfoque implements OnInit, OnDestroy {
       .slice(0, 5);
   });
 
+  // Modal de Mensaje de Apoyo
+  showSupportMessageModal = signal(false);
+  predefinedSupportMessages = [
+    '⚡ ¡Fuerza en este bloque! A darle con todo.',
+    '🧠 Concentración absoluta. ¡Cero distracciones!',
+    '🤝 Sincronización activada. ¡Hagamos que valga la pena!',
+    '🎯 Tu futuro yo te agradecerá este enfoque. ¡Adelante!'
+  ];
+  selectedSupportMessage = signal('⚡ ¡Fuerza en este bloque! A darle con todo.');
+
+  // Modal de Mensaje Post-Sesión (al salir y dejar a tu compañero)
+  showPostSessionSupportModal = signal(false);
+  predefinedPostSessionMessages = [
+    '⚡ ¡Tú puedes con el cierre! Te espero en el dojo.',
+    '🧠 ¡No aflojes ahora! Ya casi lo tienes.',
+    '🎯 ¡Último esfuerzo! Termina con broche de oro.',
+    '👋 ¡Sigue enfocado! Nos vemos en el próximo bloque.'
+  ];
+  selectedPostSessionMessage = signal('⚡ ¡Tú puedes con el cierre! Te espero en el dojo.');
+
   // Resultados del Cuestionario Post-Sesión
   sessionEndingStatus = signal<'completed' | 'interrupted' | 'abandoned'>('completed');
   objectiveCompleted = signal<'yes' | 'no' | 'progress' | null>(null);
@@ -252,7 +283,14 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Iniciar Flujo: Lanza el Ritual 3-2-1
-  startFocusFlow() {
+  startFocusFlow(bypassModal = false) {
+    // Si nos estamos uniendo a una sesión y no hemos confirmado el mensaje de apoyo, mostramos el modal primero
+    if (this.coworkingMode() === 'join' && this.partnerName() && !bypassModal) {
+      this.showSupportMessageModal.set(true);
+      return;
+    }
+
+    this.showSupportMessageModal.set(false);
     this.manuallyAbandoned.set(false);
     this.interruptedByPause.set(false);
     this.objectiveCompleted.set(null);
@@ -291,6 +329,17 @@ export class Enfoque implements OnInit, OnDestroy {
         this.playTone(440, 'triangle', 0.15, 0.3);
       }
     }, 1000);
+  }
+
+  confirmSupportMessageAndStart() {
+    this.showSupportMessageModal.set(false);
+    
+    // Guardamos en localStorage el mensaje enviado para simular persistencia
+    const msg = this.selectedSupportMessage();
+    localStorage.setItem('last-sent-support-message', msg);
+    
+    // Arrancamos el pomodoro saltándonos la validación del modal
+    this.startFocusFlow(true);
   }
 
   // Pausa de Emergencia (Botón de Pánico)
@@ -362,12 +411,30 @@ export class Enfoque implements OnInit, OnDestroy {
           const objectiveId = `obj-${Date.now()}`;
           this.membership.rewardCompletedObjective(objectiveId);
         }
+
+        // Si estamos en coworking (join) y el compañero aún no ha terminado, mostramos la modal post-sesión
+        if (this.coworkingMode() === 'join' && this.partnerName() && !this.showPostSessionSupportModal()) {
+          this.showPostSessionSupportModal.set(true);
+          return;
+        }
       } else if (currentStatus === 'abandoned' && this.membership.isPremium()) {
         // Castigo de -50 XP por abandonar
         this.membership.addFocusPoints(-50);
       }
     }
 
+    this.objectiveCompleted.set(null);
+    this.arenaState.set('setup');
+    this.router.navigate(['/home']);
+  }
+
+  confirmPostSessionMessageAndExit() {
+    this.showPostSessionSupportModal.set(false);
+    
+    // Guardamos en localStorage el mensaje enviado para simular persistencia
+    const msg = this.selectedPostSessionMessage();
+    localStorage.setItem('last-sent-post-session-message', msg);
+    
     this.objectiveCompleted.set(null);
     this.arenaState.set('setup');
     this.router.navigate(['/home']);
@@ -907,5 +974,19 @@ export class Enfoque implements OnInit, OnDestroy {
         this.showPartnerNotification.set(false);
       }
     }, 8000);
+  }
+
+  getPartnerSupportMessage() {
+    const name = this.partnerName().toLowerCase();
+    if (name.includes('ana')) {
+      return '🧠 Concentración absoluta. ¡Cero distracciones!';
+    } else if (name.includes('ramiro')) {
+      return '⚡ ¡Fuerza en este bloque! A darle con todo.';
+    } else if (name.includes('sofía')) {
+      return '🤝 Sincronización activada. ¡Hagamos que valga la pena!';
+    } else if (name.includes('carlos')) {
+      return '🎯 Tu futuro yo te agradecerá este enfoque. ¡Adelante!';
+    }
+    return '⚡ ¡Fuerza en este bloque! A darle con todo.';
   }
 }
