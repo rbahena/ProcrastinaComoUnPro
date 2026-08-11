@@ -606,3 +606,61 @@
   opacity: 1;
   transform: translateX(-50%) scale(1);
 }
+
+/* ===== MINIMALIST CURRENCY BADGES (REPLICADO DE INICIO) ===== */
+.currency-panel {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.currency-badge-minimal {
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--muted);
+}
+
+.currency-badge-minimal:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.focus-points-badge i {
+  color: #818cf8;
+}
+
+.pro-coins-badge i {
+  color: #fbbf24;
+}
+
+.badge-value {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gold-text {
+  color: #fbbf24 !important;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
+}
+
+.badge-lock {
+  font-size: 8.5px;
+  color: var(--muted);
+  opacity: 0.7;
+}

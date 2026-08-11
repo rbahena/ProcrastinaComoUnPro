@@ -386,6 +386,15 @@ export class Enfoque implements OnInit, OnDestroy {
     this.arenaState.set('summary');
   }
 
+  simulateCompletion() {
+    this.timeLeft.set(0);
+    this.stopTimerLoop();
+    this.stopEmergencyTimer();
+    this.sessionEndingStatus.set('completed');
+    this.arenaState.set('summary');
+    this.playAlarmTone();
+  }
+
   finishSession() {
     this.stopBackgroundSound();
     this.backgroundSound.set('off');

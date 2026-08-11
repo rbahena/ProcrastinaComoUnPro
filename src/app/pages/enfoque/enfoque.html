@@ -53,7 +53,30 @@
     <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
       <div>
         <h1 class="page-title">{{ labels().title }}</h1>
-        <p class="page-sub">{{ labels().desc }}</p>
+        <p class="page-sub" style="margin-bottom: 12px;">{{ labels().desc }}</p>
+
+        <!-- Puntos e Coins Panel (Replicado de Inicio) -->
+        <div class="currency-panel">
+          <!-- Puntos de Enfoque -->
+          <div class="currency-badge-minimal focus-points-badge" 
+               data-tooltip="Puntos de Enfoque: Se ganan completando pomodoros y avanzando en tus objetivos. Acumúlalos para subir en el ranking y competir por el podio semanal de la comunidad.">
+            <i class="fa-solid fa-bullseye"></i>
+            <span class="badge-value">
+              {{ membership.isPremium() ? membership.focusPoints() : '—' }}
+              <i *ngIf="!membership.isPremium()" class="fa-solid fa-lock badge-lock"></i>
+            </span>
+          </div>
+
+          <!-- Pro Coins -->
+          <div class="currency-badge-minimal pro-coins-badge" 
+               data-tooltip="Pro Coins: Gánalas manteniendo rachas, completando sesiones efectivas y superando retos. Úsalas para desbloquear nuevos avatares y recompensas.">
+            <i class="fa-solid fa-coins"></i>
+            <span class="badge-value gold-text">
+              {{ membership.isPremium() ? membership.proCoins() : '—' }}
+              <i *ngIf="!membership.isPremium()" class="fa-solid fa-lock badge-lock"></i>
+            </span>
+          </div>
+        </div>
       </div>
 
       <!-- BALANCES DE USUARIO (PREMIUM VS GRATUITO) -->
@@ -67,24 +90,6 @@
           <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-star'"></i>
           <span>{{ membership.isPremium() ? 'Premium' : 'Gratis' }}</span>
         </button>
-
-        <!-- Puntos e Coins -->
-        <div style="display: flex; gap: 8px;">
-          <!-- Puntos de Enfoque -->
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: flex-end; min-width: 70px;">
-            <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
-            <span style="font-size: 13.5px; font-weight: 900; color: var(--text);">
-              {{ membership.isPremium() ? membership.focusPoints() : '—' }}
-            </span>
-          </div>
-          <!-- Pro Coins -->
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: flex-end; min-width: 70px;">
-            <span style="font-size: 8.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pro Coins</span>
-            <span style="font-size: 13.5px; font-weight: 900; color: var(--yellow);">
-              {{ membership.isPremium() ? membership.proCoins() : '—' }}
-            </span>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -854,13 +859,25 @@
         <span>{{ emergencyPauseActive() ? 'Reanudar Enfoque' : 'Pausa de Emergencia' }}</span>
       </button>
 
-      <!-- Abandonar (Muy Discreto) -->
-      <button (click)="abandonSession()" 
-              style="background: transparent; border: none; color: rgba(255,255,255,0.25); padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.2s; text-decoration: underline; letter-spacing: 0.2px;"
-              onmouseover="this.style.color='var(--red)';"
-              onmouseout="this.style.color='rgba(255,255,255,0.25)';">
-        Abandonar sesión de enfoque
-      </button>
+      <!-- Abandonar y Simular (Discretos) -->
+      <div style="display: flex; align-items: center; gap: 14px; margin-top: 4px;">
+        <button (click)="abandonSession()" 
+                style="background: transparent; border: none; color: rgba(255,255,255,0.25); padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.2s; text-decoration: underline; letter-spacing: 0.2px; font-family: inherit;"
+                onmouseover="this.style.color='var(--red)';"
+                onmouseout="this.style.color='rgba(255,255,255,0.25)';">
+          Abandonar sesión
+        </button>
+
+        <span style="color: rgba(255,255,255,0.1); font-size: 10px;">|</span>
+
+        <button (click)="simulateCompletion()" 
+                style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;"
+                onmouseover="this.style.opacity='1'; this.style.textDecoration='underline';"
+                onmouseout="this.style.opacity='0.5'; this.style.textDecoration='none';">
+          <i class="fa-solid fa-forward" style="font-size: 9px;"></i>
+          <span>Simular Completar</span>
+        </button>
+      </div>
     </div>
 
   </div>
@@ -928,7 +945,8 @@
         </button>
 
         <!-- Botón Interrumpida Amarillo -->
-        <button [disabled]="manuallyAbandoned()"
+        <button *ngIf="timeLeft() > 0"
+                [disabled]="manuallyAbandoned()"
                 (click)="sessionEndingStatus.set('interrupted')" 
                 style="width: 100%; border: 1px solid rgba(245, 158, 11, 0.2); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
                 [style.background]="sessionEndingStatus() === 'interrupted' ? 'rgba(245, 158, 11, 0.08)' : 'transparent'"
@@ -943,7 +961,8 @@
         </button>
 
         <!-- Botón Abandonada Rojo -->
-        <button [disabled]="interruptedByPause()"
+        <button *ngIf="timeLeft() > 0"
+                [disabled]="interruptedByPause()"
                 (click)="sessionEndingStatus.set('abandoned')" 
                 style="width: 100%; border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
                 [style.background]="sessionEndingStatus() === 'abandoned' ? 'rgba(239, 68, 68, 0.08)' : 'transparent'"
