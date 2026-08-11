@@ -258,13 +258,13 @@
           <!-- 1º Puesto (Centro) -->
           <div class="podio-column first-place custom-tooltip-host" 
                [attr.data-tooltip]="rankingData()[1].name + ' lidera con ' + rankingData()[1].value + ' la semana anterior'">
-            <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 14px; margin-bottom: 4px; filter: drop-shadow(0 0 4px rgba(255,215,0,0.5));"></i>
+            <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 14px; margin-bottom: 4px;"></i>
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
               <div class="podio-avatar avatar-sprite sprite-dragon" 
                    [style.background-color]="rankingData()[1].color"
                    style="cursor: zoom-in;"
-                   (click)="zoomAvatar('dragon', 'Dragón Imperial', 'Dragón', '#a855f7', 5)">
+                   (click)="zoomAvatar('dragon', 'Dragón del Ego', 'Dragón del Ego', '#d946ef', 5)">
               </div>
             </div>
             <span style="font-size: 13px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[1].name }}</span>

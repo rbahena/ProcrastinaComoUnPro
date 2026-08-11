@@ -66,7 +66,7 @@ export class Home implements OnInit, OnDestroy {
   rankingData = computed(() => {
     return [
       { position: 2, name: 'Lobo Samurai', avatar: 'lobo', color: '#3a86f0', value: '3,800 puntos', place: '2º' },
-      { position: 1, name: 'Dragón Imperial', avatar: 'dragon', color: '#a855f7', value: '4,500 puntos', place: '1º' },
+      { position: 1, name: 'Dragón del Ego', avatar: 'dragon', color: '#d946ef', value: '4,500 puntos', place: '1º' },
       { position: 3, name: 'Búho Sabio', avatar: 'buho', color: '#10b981', value: '3,100 puntos', place: '3º' }
     ];
   });

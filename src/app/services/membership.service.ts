@@ -292,7 +292,7 @@ export class MembershipService {
       lobo: 'Lobo', tortuga: 'Tortuga', hormiga: 'Hormiga', abeja: 'Abeja',
       castor: 'Castor', aguila: 'Águila', buho: 'Búho', panda: 'Panda',
       sloth: 'Perezoso', elefante: 'Elefante', octopus: 'Pulpo',
-      leon: 'León', dragon: 'Dragón', fenix: 'Fénix',
+      leon: 'León', dragon: 'Dragón del Ego', fenix: 'Fénix',
       hamster: 'Hámster', pez: 'Pez', cuyo: 'Cuyo', raton: 'Ratón', rana: 'Rana'
     };
     return names[id] || 'Gato';
@@ -305,7 +305,7 @@ export class MembershipService {
       lobo: '#ef4444', tortuga: '#22c55e', hormiga: '#78350f', abeja: '#eab308',
       castor: '#b45309', aguila: '#3b82f6', buho: '#6366f1', panda: '#6b7280',
       sloth: '#78716c', elefante: '#6b7280', octopus: '#ec4899',
-      leon: '#fbbf24', dragon: '#dc2626', fenix: '#ef4444',
+      leon: '#fbbf24', dragon: '#d946ef', fenix: '#ef4444',
       hamster: '#f97316', pez: '#06b6d4', cuyo: '#8b5cf6', raton: '#ec4899', rana: '#22c55e'
     };
     return colors[id] || '#10b981';
@@ -361,7 +361,7 @@ export class MembershipService {
       case 'panda': return 'Zen';
       case 'sloth': return 'Calma';
       case 'leon': return 'Shogun';
-      case 'dragon': return 'Guardián';
+      case 'dragon': return 'Señor del Ego';
       case 'fenix': return 'Inmortal';
       case 'hamster': return 'Veloz';
       case 'pez': return 'Fluido';
