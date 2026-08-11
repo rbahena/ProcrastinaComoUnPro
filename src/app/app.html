@@ -1,1 +1,58 @@
 <router-outlet></router-outlet>
+
+<!-- WIDGET PRO DE NOTAS FUGACES -->
+<div class="fleeting-notes-widget" [class.success-firing]="isAnimatingSuccess()">
+  
+  <!-- Contenedor del Input Expandible -->
+  <div class="fleeting-input-panel" [class.expanded]="showFloatingInput()">
+    <div class="panel-header">
+      <span class="panel-tag"><i class="fa-solid fa-bolt"></i> Nota Fugaz</span>
+      <span class="shortcut-tag">Alt + I</span>
+    </div>
+    <div class="panel-body">
+      <input #ideaInput
+             type="text" 
+             placeholder="Escribe una idea brillante antes de que escape..." 
+             [value]="ideaText()" 
+             (input)="onInputChange($event)"
+             (keydown)="onInputKeydown($event)" />
+      <button class="submit-btn" (click)="submitIdea()" [disabled]="!ideaText().trim()">
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+    <div class="panel-footer">
+      <span>Presiona <strong>Enter</strong> para guardar o <strong>Esc</strong> para cerrar</span>
+    </div>
+  </div>
+
+  <!-- Botón Flotante (FAB) -->
+  <button class="fleeting-fab" 
+          (click)="toggleFloatingInput()" 
+          [class.active]="showFloatingInput()"
+          [attr.data-tooltip]="showFloatingInput() ? 'Cerrar capturador' : 'Capturar nota fugaz (Alt + I)'">
+    <div class="fab-icon-wrapper">
+      <i class="fa-solid fa-meteor" *ngIf="!showFloatingInput()"></i>
+      <i class="fa-solid fa-xmark" *ngIf="showFloatingInput()"></i>
+    </div>
+    
+    <!-- Indicador de cantidad de ideas en el baúl -->
+    <div class="ideas-count-badge" *ngIf="membership.capturedIdeas().length > 0">
+      {{ membership.capturedIdeas().length }}
+    </div>
+  </button>
+  
+  <!-- Efecto de Partículas / Destello de Éxito -->
+  <div class="success-particle-emitter" *ngIf="isAnimatingSuccess()">
+    <div class="particle p1"></div>
+    <div class="particle p2"></div>
+    <div class="particle p3"></div>
+    <div class="particle p4"></div>
+    <div class="particle p5"></div>
+  </div>
+
+  <!-- Cometa Fugaz volando hacia el Baúl de Ideas -->
+  <div class="shooting-star-spark" *ngIf="isShootingStarFlying()">
+    <div class="star-tail"></div>
+    <div class="star-head"><i class="fa-solid fa-meteor"></i></div>
+  </div>
+</div>

@@ -1,0 +1,357 @@
+/* ===== FLEETING NOTES WIDGET ===== */
+.fleeting-notes-widget {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  pointer-events: none; /* Let clicks pass through widget container area */
+}
+
+.fleeting-notes-widget * {
+  pointer-events: auto; /* Re-enable clicks for items */
+}
+
+/* FAB (Floating Action Button) */
+.fleeting-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--bg2, #1b1b22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fleeting-fab:hover {
+  transform: scale(1.1) translateY(-2px);
+  border-color: var(--accent, #6366f1);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(99, 102, 241, 0.35);
+}
+
+.fleeting-fab.active {
+  background: var(--accent, #6366f1);
+  color: #000;
+  border-color: var(--accent, #6366f1);
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+}
+
+.fab-icon-wrapper {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+/* Badge count */
+.ideas-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ea580c; /* Fire orange */
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 7px;
+  border-radius: 12px;
+  line-height: 1;
+  box-shadow: 0 0 8px rgba(234, 88, 12, 0.6);
+  border: 1.5px solid var(--bg, #0b0b0f);
+  animation: bounceBadge 1.2s infinite alternate;
+}
+
+@keyframes bounceBadge {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-3px); }
+}
+
+/* Input Panel */
+.fleeting-input-panel {
+  background: rgba(18, 18, 24, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 14px 18px;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(99, 102, 241, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: all 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+  transform: translateX(30px) scale(0.95);
+}
+
+.fleeting-input-panel.expanded {
+  width: 380px;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0) scale(1);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-tag {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--accent, #6366f1);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.panel-tag i {
+  font-size: 10px;
+  animation: flashIcon 1s infinite alternate;
+}
+
+@keyframes flashIcon {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.shortcut-tag {
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: var(--muted, #8e92a2);
+}
+
+.panel-body {
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 4px 6px 4px 12px;
+  align-items: center;
+  transition: border-color 0.3s ease;
+}
+
+.panel-body:focus-within {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.1);
+}
+
+.panel-body input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 13.5px;
+  font-family: inherit;
+  outline: none;
+  flex: 1;
+  padding: 6px 0;
+}
+
+.panel-body input::placeholder {
+  color: var(--muted, #6b7280);
+  font-style: italic;
+  font-size: 13px;
+}
+
+.submit-btn {
+  background: var(--accent, #6366f1);
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: scale(1.08);
+  filter: brightness(1.15);
+}
+
+.submit-btn:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted, #6b7280);
+  cursor: not-allowed;
+}
+
+.panel-footer {
+  font-size: 9px;
+  color: var(--muted, #8e92a2);
+  display: flex;
+  justify-content: space-between;
+}
+
+.panel-footer strong {
+  color: #fff;
+}
+
+/* Particle Emitter success animation */
+.success-particle-emitter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent, #6366f1);
+  box-shadow: 0 0 10px var(--accent, #6366f1);
+  opacity: 0;
+}
+
+.success-firing .particle {
+  animation: explodeParticle 0.85s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+.particle.p1 { animation-delay: 0s; --dx: -35px; --dy: -45px; }
+.particle.p2 { animation-delay: 0.05s; --dx: 45px; --dy: -35px; }
+.particle.p3 { animation-delay: 0.1s; --dx: -50px; --dy: 25px; }
+.particle.p4 { animation-delay: 0.08s; --dx: 35px; --dy: 45px; }
+.particle.p5 { animation-delay: 0.12s; --dx: 0px; --dy: -65px; }
+
+@keyframes explodeParticle {
+  0% {
+    transform: translate(0, 0) scale(0.2);
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Pulse trigger animation on entire widget when saved */
+.success-firing .fleeting-fab {
+  animation: fabSuccessPulse 0.85s ease;
+}
+
+@keyframes fabSuccessPulse {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.2); background: #10b981; border-color: #10b981; color: #fff; }
+  100% { transform: scale(1); }
+}
+
+/* Tooltip standard utility */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  right: 0;
+  background: #0b0b0f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 10.5px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(10px) scale(0.95);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  font-family: sans-serif;
+  z-index: 100000;
+}
+
+[data-tooltip]:hover::before {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ===== ESTRELLA FUGAZ VIAJERA ===== */
+.shooting-star-spark {
+  position: fixed;
+  z-index: 100000;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: shootStar 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.star-head {
+  color: #fbbf24; /* Dorado brillante */
+  font-size: 18px;
+  filter: drop-shadow(0 0 8px #fbbf24) drop-shadow(0 0 16px #f59e0b) drop-shadow(0 0 24px #ef4444);
+  transform: rotate(71deg); /* Rotar 71deg para alinear la cola integrada con la cola larga trasera a 26deg */
+  display: inline-block;
+  z-index: 2;
+}
+
+.star-tail {
+  position: absolute;
+  width: 140px;
+  height: 4px;
+  /* Cola de fuego estelar que se estira detrás */
+  background: linear-gradient(to right, rgba(251, 191, 36, 0.95) 0%, rgba(245, 158, 11, 0.5) 45%, rgba(239, 68, 68, 0.1) 80%, transparent 100%);
+  left: 12px; /* Inicia en el centro de la cabeza del cometa */
+  top: 10px; /* Centrado verticalmente */
+  transform: rotate(26deg); /* Rotar la cola para alinearla con la trayectoria de la cola del icono */
+  transform-origin: left center;
+  z-index: 1;
+}
+
+@keyframes shootStar {
+  0% {
+    left: calc(100vw - 60px);
+    top: calc(100vh - 60px);
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.0);
+  }
+  100% {
+    left: 80px;
+    top: 220px; /* Destino: icono del baúl en la barra lateral */
+    opacity: 0;
+    transform: scale(0.1);
+  }
+}

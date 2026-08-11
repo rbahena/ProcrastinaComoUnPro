@@ -1,14 +1,25 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MembershipService } from './services/membership.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App implements OnInit {
   protected readonly title = signal('Kaizen Focus');
+  
+  showFloatingInput = signal(false);
+  ideaText = signal('');
+  isAnimatingSuccess = signal(false);
+  isShootingStarFlying = signal(false);
+
+  @ViewChild('ideaInput') ideaInputRef?: ElementRef<HTMLInputElement>;
+
+  constructor(public membership: MembershipService) {}
 
   ngOnInit() {
     const savedTheme = localStorage.getItem('procrastina-theme') || 'samurai';
@@ -21,5 +32,63 @@ export class App implements OnInit {
     });
     // Add current theme
     body.classList.add(`theme-${savedTheme}`);
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent) {
+    // Detectar Alt + I (con tolerancias para teclados con ñ u otros layouts)
+    if (event.altKey && (event.key === 'i' || event.key === 'I' || event.code === 'KeyI')) {
+      event.preventDefault();
+      this.toggleFloatingInput();
+    }
+  }
+
+  toggleFloatingInput() {
+    const nextState = !this.showFloatingInput();
+    this.showFloatingInput.set(nextState);
+    if (nextState) {
+      this.ideaText.set('');
+      setTimeout(() => {
+        this.ideaInputRef?.nativeElement?.focus();
+      }, 50);
+    }
+  }
+
+  closeFloatingInput() {
+    this.showFloatingInput.set(false);
+  }
+
+  submitIdea() {
+    const text = this.ideaText().trim();
+    if (!text) return;
+    
+    this.membership.addIdea(text);
+    
+    // Disparar animación de éxito y estrella fugaz
+    this.isAnimatingSuccess.set(true);
+    this.isShootingStarFlying.set(true);
+    
+    setTimeout(() => {
+      this.isAnimatingSuccess.set(false);
+      this.showFloatingInput.set(false);
+      this.ideaText.set('');
+    }, 850);
+
+    setTimeout(() => {
+      this.isShootingStarFlying.set(false);
+    }, 1300);
+  }
+
+  onInputKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.submitIdea();
+    } else if (event.key === 'Escape') {
+      this.closeFloatingInput();
+    }
+  }
+
+  onInputChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.ideaText.set(target.value);
   }
 }

@@ -14,40 +14,29 @@ import { IdentitySettings } from '../../components/identity-settings';
 export class Fechas implements OnInit {
   userName!: any;
   showIdeasModal = signal(false);
-  capturedIdeas = signal<string[]>([]);
 
   constructor(public membership: MembershipService) {
     this.userName = this.membership.userName;
   }
 
   ngOnInit() {
-    this.loadIdeas();
   }
 
   openIdeasModal() {
     this.showIdeasModal.set(true);
-    this.loadIdeas();
   }
 
   closeIdeasModal() {
     this.showIdeasModal.set(false);
   }
 
-  loadIdeas() {
-    const list = JSON.parse(localStorage.getItem('captured-ideas') || '[]');
-    this.capturedIdeas.set(list);
-  }
-
   removeIdea(index: number) {
-    const updatedList = this.capturedIdeas().filter((_, i) => i !== index);
-    this.capturedIdeas.set(updatedList);
-    localStorage.setItem('captured-ideas', JSON.stringify(updatedList));
+    this.membership.removeIdea(index);
   }
 
   clearAllIdeas() {
     if (confirm('¿Estás seguro de que quieres limpiar todo el baúl de ideas?')) {
-      this.capturedIdeas.set([]);
-      localStorage.setItem('captured-ideas', '[]');
+      this.membership.clearAllIdeas();
     }
   }
 

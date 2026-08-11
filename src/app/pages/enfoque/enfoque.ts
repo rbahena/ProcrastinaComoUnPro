@@ -114,7 +114,6 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Notas rápidas / Ideas fugaces
   currentDraftIdea = signal('');
-  capturedIdeas = signal<string[]>(JSON.parse(localStorage.getItem('captured-ideas') || '[]'));
   isNoteFlying = signal(false);
   showIdeasModal = signal(false);
 
@@ -128,8 +127,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   clearAllIdeas() {
     if (confirm('¿Estás seguro de que quieres limpiar todo el baúl de ideas?')) {
-      this.capturedIdeas.set([]);
-      localStorage.setItem('captured-ideas', '[]');
+      this.membership.clearAllIdeas();
     }
   }
 
@@ -138,11 +136,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (!idea) return;
 
     this.isNoteFlying.set(true);
-
-    const updatedList = [...this.capturedIdeas(), idea];
-    this.capturedIdeas.set(updatedList);
-    localStorage.setItem('captured-ideas', JSON.stringify(updatedList));
-
+    this.membership.addIdea(idea);
     this.currentDraftIdea.set('');
 
     setTimeout(() => {
@@ -151,9 +145,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   removeIdea(index: number) {
-    const updatedList = this.capturedIdeas().filter((_, i) => i !== index);
-    this.capturedIdeas.set(updatedList);
-    localStorage.setItem('captured-ideas', JSON.stringify(updatedList));
+    this.membership.removeIdea(index);
   }
 
   // Objetivo Activo (La batalla de hoy) e Integración Metodológica

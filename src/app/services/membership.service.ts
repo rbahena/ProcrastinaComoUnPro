@@ -75,6 +75,11 @@ export class MembershipService {
   // Control global para abrir el modal de configuración de identidad
   showSettingsModal = signal<boolean>(false);
 
+  // Baúl de ideas global compartido
+  capturedIdeas = signal<string[]>(
+    JSON.parse(localStorage.getItem('captured-ideas') || '[]')
+  );
+
   // Catálogo completo de avatares disponibles (Gato, Perro, Conejo, Mapache, Nutria, Loro, Zorro, Lince)
   avatarsCatalog = signal<AvatarItem[]>([
     { id: 'gato', name: 'Gato', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
@@ -132,6 +137,24 @@ export class MembershipService {
     effect(() => {
       localStorage.setItem('procrastina-onboarding-completed', String(this.onboardingCompleted()));
     });
+    effect(() => {
+      localStorage.setItem('captured-ideas', JSON.stringify(this.capturedIdeas()));
+    });
+  }
+
+  addIdea(idea: string) {
+    if (!idea.trim()) return;
+    const current = this.capturedIdeas();
+    this.capturedIdeas.set([idea.trim(), ...current]);
+  }
+
+  removeIdea(index: number) {
+    const current = this.capturedIdeas();
+    this.capturedIdeas.set(current.filter((_, i) => i !== index));
+  }
+
+  clearAllIdeas() {
+    this.capturedIdeas.set([]);
   }
 
   // Obtener avatares dinámicamente con su estado de bloqueo actualizado
