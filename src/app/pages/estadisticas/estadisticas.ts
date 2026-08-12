@@ -100,7 +100,7 @@ export class Estadisticas implements OnInit {
 
   labels = computed(() => {
     return {
-      logoText: 'Kaizen Focus',
+      logoText: 'COFU',
       logoIcon: 'fa-yin-yang',
       navTasks: 'Inicio',
       navZen: 'Zona de concentración',
@@ -122,9 +122,9 @@ export class Estadisticas implements OnInit {
 
   shareOnLinkedIn() {
     const text = encodeURIComponent(
-      `🎯 ¡He alcanzado el rango de Guerrero de Enfoque en Kaizen Focus! 🧠🔥\n\n` +
+      `🎯 ¡He alcanzado el rango de Guerrero de Enfoque en COFU! 🧠🔥\n\n` +
       `He completado con éxito ${this.annualTotal()} pomodoros de concentración y mantengo una racha activa de ${this.longestStreak} días venciendo la procrastinación.\n\n` +
-      `Compite conmigo en el dojo de concentración y lleva tu enfoque al siguiente nivel: https://kaizenfocus.app`
+      `Compite conmigo en el dojo de concentración y lleva tu enfoque al siguiente nivel: https://cofu.app`
     );
     window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}`, '_blank');
     this.showShareModal.set(false);

@@ -2,7 +2,7 @@
 <header class="landing-header">
   <a routerLink="/landing" class="logo" style="padding: 0; text-decoration: none; display: flex; align-items: center; gap: 8px;">
     <span class="logo-icon"><i class="fa-solid fa-yin-yang" style="color: var(--accent);"></i></span>
-    <span class="logo-text">Kaizen Focus</span>
+    <span class="logo-text">COFU</span>
   </a>
   <div style="display: flex; gap: 10px; align-items: center;">
     <a routerLink="/login">
@@ -34,7 +34,7 @@
 
     @if (loginError()) {
       <div style="background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 18px; color: var(--red); font-size: 12.5px; text-align: center; font-weight: 500;">
-        Las credenciales de acceso ingresadas son incorrectas.
+        {{ errorMessage() || 'Las credenciales de acceso ingresadas son incorrectas.' }}
       </div>
     }
 

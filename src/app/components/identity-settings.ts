@@ -132,7 +132,7 @@ import { MembershipService, AvatarItem, QualityItem } from '../services/membersh
               </span>
               
               <p style="font-size: 11.5px; color: var(--text); max-width: 240px; margin: 10px auto; line-height: 1.4;">
-                Has demostrado la cualidad de {{ (unlockedRewardQuality()?.name || '') | lowercase }} en Kaizen Focus al cumplir la condición.
+                Has demostrado la cualidad de {{ (unlockedRewardQuality()?.name || '') | lowercase }} en COFU al cumplir la condición.
               </p>
               
               <button (click)="closeRewardFlow()" class="btn-equip-now" style="background: #84cc16; margin-top: 14px;">

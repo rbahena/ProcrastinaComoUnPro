@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 
@@ -9,42 +9,40 @@ import { MembershipService } from '../../services/membership.service';
   styleUrl: './registro.css',
 })
 export class Registro {
+  registroError = signal<string | null>(null);
+
   constructor(private router: Router, private membership: MembershipService) {}
 
-  onSubmit(event: Event) {
+  onSubmit(event: Event, email: string, pass: string) {
     event.preventDefault();
     
-    // Obtener el valor del correo ingresado en el formulario
-    const form = event.target as HTMLFormElement;
-    const emailInput = form.querySelector('#email') as HTMLInputElement;
-    const email = emailInput?.value || '';
-    
-    // El nombre predeterminado es la parte anterior al arroba (@)
-    let defaultUsername = 'Usuario';
-    if (email && email.includes('@')) {
-      defaultUsername = email.split('@')[0];
+    const result = this.membership.registerUser(email, pass);
+    if (result.success) {
+      this.registroError.set(null);
+      localStorage.setItem('procrastina-just-registered', 'true');
+      // Redirigir a la pantalla de cualidades e identidad
+      this.router.navigate(['/cualidades']);
+    } else {
+      this.registroError.set(result.error || 'Ocurrió un error en el registro.');
     }
-
-    // Resetear el estado para arrancar los datos completamente desde cero
-    this.membership.resetNewUserAccount();
-    
-    // Guardar el nombre de usuario predeterminado derivado del correo
-    this.membership.userName.set(defaultUsername);
-
-    localStorage.setItem('procrastina-just-registered', 'true');
-    // Simular registro exitoso redirigiendo a la pantalla de cualidades e identidad
-    this.router.navigate(['/cualidades']);
   }
 
   registerWithGoogle() {
-    // Resetear el estado para arrancar los datos completamente desde cero
-    this.membership.resetNewUserAccount();
+    const googleEmail = 'google_guerrero@focusapp.com';
+    const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
+    const exists = users.some((u: any) => u.email.toLowerCase() === googleEmail.toLowerCase());
     
-    // Simular un nombre predeterminado para el flujo de Google
-    this.membership.userName.set('guerrero_dojo');
+    if (!exists) {
+      this.membership.registerUser(googleEmail, 'google12345');
+    } else {
+      this.membership.loginUser(googleEmail, 'google12345');
+    }
+    
+    if (this.membership.userName() === 'google_guerrero') {
+      this.membership.userName.set('guerrero_dojo');
+    }
 
     localStorage.setItem('procrastina-just-registered', 'true');
-    // Simular registro con Google redirigiendo a la pantalla de cualidades e identidad
     this.router.navigate(['/cualidades']);
   }
 }

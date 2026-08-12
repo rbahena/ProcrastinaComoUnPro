@@ -50,7 +50,7 @@ export class Fechas implements OnInit {
 
   labels = computed(() => {
     return {
-      logoText: 'Kaizen Focus',
+      logoText: 'COFU',
       logoIcon: 'fa-yin-yang',
       navTasks: 'Inicio',
       navZen: 'Zona de concentración',

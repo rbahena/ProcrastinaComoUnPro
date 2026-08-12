@@ -10,7 +10,7 @@ import { MembershipService } from './services/membership.service';
   styleUrl: './app.css',
 })
 export class App implements OnInit {
-  protected readonly title = signal('Kaizen Focus');
+  protected readonly title = signal('COFU');
   
   showFloatingInput = signal(false);
   ideaText = signal('');

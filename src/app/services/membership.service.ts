@@ -23,52 +23,94 @@ export interface QualityItem {
   unlockedAt?: string;
 }
 
+function getUserKeyStatic(key: string): string {
+  const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+  return `user:${email}:${key}`;
+}
+
+function getMigratedValue(key: string, defaultValue: string): string {
+  const userKey = getUserKeyStatic(key);
+  const userVal = localStorage.getItem(userKey);
+  if (userVal !== null) {
+    return userVal;
+  }
+  const globalKey = `procrastina-${key}`;
+  const globalVal = localStorage.getItem(globalKey);
+  if (globalVal !== null) {
+    localStorage.setItem(userKey, globalVal);
+    return globalVal;
+  }
+  return defaultValue;
+}
+
+function getMigratedValueJSON<T>(key: string, defaultValue: T, legacyKeyPrefix = 'procrastina-'): T {
+  const userKey = getUserKeyStatic(key);
+  const userVal = localStorage.getItem(userKey);
+  if (userVal !== null) {
+    try {
+      return JSON.parse(userVal);
+    } catch (e) {
+      return defaultValue;
+    }
+  }
+  const legacyKey = key === 'captured-ideas' ? 'captured-ideas' : `${legacyKeyPrefix}${key}`;
+  const globalVal = localStorage.getItem(legacyKey);
+  if (globalVal !== null) {
+    try {
+      const parsed = JSON.parse(globalVal);
+      localStorage.setItem(userKey, globalVal);
+      return parsed;
+    } catch (e) {}
+  }
+  return defaultValue;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class MembershipService {
   // Estado de membresía
   isPremium = signal<boolean>(
-    localStorage.getItem('procrastina-premium') === 'true'
+    getMigratedValue('premium', 'false') === 'true'
   );
 
   // Puntos de enfoque (para ranking)
   focusPoints = signal<number>(
-    parseInt(localStorage.getItem('procrastina-focus-points') || '0', 10)
+    parseInt(getMigratedValue('focus-points', '0'), 10)
   );
 
   // Pro Coins (para comprar desbloqueables)
   proCoins = signal<number>(
-    parseInt(localStorage.getItem('procrastina-pro-coins') || '0', 10)
+    parseInt(getMigratedValue('pro-coins', '0'), 10)
   );
 
   // Cosméticos desbloqueados (por defecto los avatares iniciales)
   unlockedAvatars = signal<string[]>(
-    JSON.parse(localStorage.getItem('procrastina-unlocked-avatars') || '["gato","perro","conejo","loro","hamster","pez","cuyo","raton","rana"]')
+    getMigratedValueJSON('unlocked-avatars', ['gato','perro','conejo','loro','hamster','pez','cuyo','raton','rana'])
   );
   unlockedThemes = signal<string[]>(
-    JSON.parse(localStorage.getItem('procrastina-unlocked-themes') || '["samurai"]')
+    getMigratedValueJSON('unlocked-themes', ['samurai'])
   );
 
   // Perfil del usuario
   userName = signal<string>(
-    localStorage.getItem('procrastina-user-name') || 'Ramiro'
+    getMigratedValue('user-name', 'Ramiro')
   );
   selectedAvatar = signal<string>(
-    localStorage.getItem('procrastina-avatar') || 'gato'
+    getMigratedValue('avatar', 'gato')
   );
   selectedTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>(
-    (localStorage.getItem('procrastina-theme') as any) || 'samurai'
+    getMigratedValue('theme', 'samurai') as any
   );
 
   // Medallas ganadas en podios
   podiumWins = signal<number>(
-    parseInt(localStorage.getItem('procrastina-podium-wins') || '3', 10)
+    parseInt(getMigratedValue('podium-wins', '3'), 10)
   );
 
   // Estado de onboarding completado
   onboardingCompleted = signal<boolean>(
-    localStorage.getItem('procrastina-onboarding-completed') === 'true' ||
+    getMigratedValue('onboarding-completed', 'false') === 'true' ||
     (localStorage.getItem('procrastina-user-name') !== null && localStorage.getItem('procrastina-user-name') !== 'Ramiro')
   );
 
@@ -77,7 +119,7 @@ export class MembershipService {
 
   // Baúl de ideas global compartido
   capturedIdeas = signal<string[]>(
-    JSON.parse(localStorage.getItem('captured-ideas') || '[]')
+    getMigratedValueJSON('captured-ideas', [] as string[])
   );
 
   // Catálogo completo de avatares disponibles (Gato, Perro, Conejo, Mapache, Nutria, Loro, Zorro, Lince)
@@ -105,40 +147,70 @@ export class MembershipService {
 
   // Registro de sesiones procesadas para idempotencia
   private rewardedSessions = new Set<string>(
-    JSON.parse(localStorage.getItem('procrastina-rewarded-sessions') || '[]')
+    getMigratedValueJSON('rewarded-sessions', [] as string[])
   );
 
   constructor() {
     // Sincronizar automáticamente con localStorage al cambiar valores
     effect(() => {
-      localStorage.setItem('procrastina-premium', String(this.isPremium()));
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = String(this.isPremium());
+      localStorage.setItem('procrastina-premium', val);
+      localStorage.setItem(`user:${email}:premium`, val);
     });
     effect(() => {
-      localStorage.setItem('procrastina-focus-points', String(this.focusPoints()));
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = String(this.focusPoints());
+      localStorage.setItem('procrastina-focus-points', val);
+      localStorage.setItem(`user:${email}:focus-points`, val);
     });
     effect(() => {
-      localStorage.setItem('procrastina-pro-coins', String(this.proCoins()));
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = String(this.proCoins());
+      localStorage.setItem('procrastina-pro-coins', val);
+      localStorage.setItem(`user:${email}:pro-coins`, val);
     });
     effect(() => {
-      localStorage.setItem('procrastina-unlocked-avatars', JSON.stringify(this.unlockedAvatars()));
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = JSON.stringify(this.unlockedAvatars());
+      localStorage.setItem('procrastina-unlocked-avatars', val);
+      localStorage.setItem(`user:${email}:unlocked-avatars`, val);
     });
     effect(() => {
-      localStorage.setItem('procrastina-unlocked-themes', JSON.stringify(this.unlockedThemes()));
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = JSON.stringify(this.unlockedThemes());
+      localStorage.setItem('procrastina-unlocked-themes', val);
+      localStorage.setItem(`user:${email}:unlocked-themes`, val);
     });
     effect(() => {
-      localStorage.setItem('procrastina-user-name', this.userName());
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = this.userName();
+      localStorage.setItem('procrastina-user-name', val);
+      localStorage.setItem(`user:${email}:user-name`, val);
     });
     effect(() => {
-      localStorage.setItem('procrastina-avatar', this.selectedAvatar());
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = this.selectedAvatar();
+      localStorage.setItem('procrastina-avatar', val);
+      localStorage.setItem(`user:${email}:avatar`, val);
     });
     effect(() => {
-      localStorage.setItem('procrastina-theme', this.selectedTheme());
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = this.selectedTheme();
+      localStorage.setItem('procrastina-theme', val);
+      localStorage.setItem(`user:${email}:theme`, val);
     });
     effect(() => {
-      localStorage.setItem('procrastina-onboarding-completed', String(this.onboardingCompleted()));
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = String(this.onboardingCompleted());
+      localStorage.setItem('procrastina-onboarding-completed', val);
+      localStorage.setItem(`user:${email}:onboarding-completed`, val);
     });
     effect(() => {
-      localStorage.setItem('captured-ideas', JSON.stringify(this.capturedIdeas()));
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = JSON.stringify(this.capturedIdeas());
+      localStorage.setItem('captured-ideas', val);
+      localStorage.setItem(`user:${email}:captured-ideas`, val);
     });
   }
 
@@ -216,8 +288,9 @@ export class MembershipService {
 
     // Registrar sesión
     this.rewardedSessions.add(sessionId);
+    const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
     localStorage.setItem(
-      'procrastina-rewarded-sessions',
+      `user:${email}:rewarded-sessions`,
       JSON.stringify(Array.from(this.rewardedSessions))
     );
 
@@ -242,8 +315,9 @@ export class MembershipService {
     }
 
     this.rewardedSessions.add(key);
+    const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
     localStorage.setItem(
-      'procrastina-rewarded-sessions',
+      `user:${email}:rewarded-sessions`,
       JSON.stringify(Array.from(this.rewardedSessions))
     );
 
@@ -280,23 +354,152 @@ export class MembershipService {
     return true;
   }
 
+  // Registrar un nuevo usuario
+  registerUser(email: string, pass: string): { success: boolean; error?: string } {
+    if (!email || !pass) {
+      return { success: false, error: 'Por favor, completa todos los campos.' };
+    }
+    
+    const emailLower = email.toLowerCase().trim();
+    if (!emailLower.includes('@')) {
+      return { success: false, error: 'El correo electrónico no es válido.' };
+    }
+
+    if (pass.length < 8) {
+      return { success: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
+    }
+
+    const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
+    
+    // El correo demo está reservado
+    if (emailLower === 'demo@focusapp.com') {
+      return { success: false, error: 'Este correo electrónico de demostración ya está en uso.' };
+    }
+
+    const exists = users.some((u: any) => u.email.toLowerCase() === emailLower);
+    if (exists) {
+      return { success: false, error: 'Este correo electrónico ya está registrado.' };
+    }
+
+    // Guardar el nuevo usuario en el listado
+    users.push({ email: emailLower, password: pass });
+    localStorage.setItem('procrastina-registered-users', JSON.stringify(users));
+
+    // Inicializar los datos del nuevo usuario en localStorage
+    const defaultUsername = emailLower.split('@')[0];
+    localStorage.setItem(`user:${emailLower}:user-name`, defaultUsername);
+    localStorage.setItem(`user:${emailLower}:avatar`, 'gato');
+    localStorage.setItem(`user:${emailLower}:theme`, 'samurai');
+    localStorage.setItem(`user:${emailLower}:premium`, 'false');
+    localStorage.setItem(`user:${emailLower}:focus-points`, '0');
+    localStorage.setItem(`user:${emailLower}:pro-coins`, '0');
+    localStorage.setItem(`user:${emailLower}:unlocked-avatars`, JSON.stringify(['gato','perro','conejo','loro','hamster','pez','cuyo','raton','rana']));
+    localStorage.setItem(`user:${emailLower}:unlocked-themes`, JSON.stringify(['samurai']));
+    localStorage.setItem(`user:${emailLower}:onboarding-completed`, 'false');
+    localStorage.setItem(`user:${emailLower}:captured-ideas`, JSON.stringify([]));
+    localStorage.setItem(`user:${emailLower}:rewarded-sessions`, JSON.stringify([]));
+
+    // Loguear e iniciar el sitio con el nuevo usuario
+    this.loadUserData(emailLower);
+
+    return { success: true };
+  }
+
+  // Iniciar sesión
+  loginUser(email: string, pass: string): { success: boolean; error?: string } {
+    const emailLower = email.toLowerCase().trim();
+
+    // Validar contra demo o registrados
+    if (emailLower === 'demo@focusapp.com') {
+      if (pass === 'demo12345') {
+        // Inicializar demo@focusapp.com en localStorage si es la primera vez que se accede
+        if (localStorage.getItem(`user:demo@focusapp.com:user-name`) === null) {
+          localStorage.setItem(`user:demo@focusapp.com:user-name`, 'Ramiro');
+          localStorage.setItem(`user:demo@focusapp.com:avatar`, 'gato');
+          localStorage.setItem(`user:demo@focusapp.com:theme`, 'samurai');
+          localStorage.setItem(`user:demo@focusapp.com:premium`, 'false');
+          localStorage.setItem(`user:demo@focusapp.com:focus-points`, '0');
+          localStorage.setItem(`user:demo@focusapp.com:pro-coins`, '0');
+          localStorage.setItem(`user:demo@focusapp.com:unlocked-avatars`, JSON.stringify(['gato','perro','conejo','loro','hamster','pez','cuyo','raton','rana']));
+          localStorage.setItem(`user:demo@focusapp.com:unlocked-themes`, JSON.stringify(['samurai']));
+          localStorage.setItem(`user:demo@focusapp.com:onboarding-completed`, 'true');
+        }
+        this.loadUserData(emailLower);
+        return { success: true };
+      } else {
+        return { success: false, error: 'Contraseña incorrecta para la cuenta demo.' };
+      }
+    }
+
+    const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
+    const user = users.find((u: any) => u.email.toLowerCase() === emailLower);
+
+    if (user && user.password === pass) {
+      this.loadUserData(emailLower);
+      return { success: true };
+    }
+
+    return { success: false, error: 'Correo o contraseña incorrectos.' };
+  }
+
+  // Cargar datos de usuario
+  loadUserData(email: string) {
+    localStorage.setItem('procrastina-current-user-email', email);
+
+    // Leer valores de localStorage con su prefijo, o usar valores por defecto
+    const isPremiumVal = localStorage.getItem(`user:${email}:premium`) === 'true';
+    const focusPointsVal = parseInt(localStorage.getItem(`user:${email}:focus-points`) || '0', 10);
+    const proCoinsVal = parseInt(localStorage.getItem(`user:${email}:pro-coins`) || '0', 10);
+    const unlockedAvatarsVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-avatars`) || '["gato","perro","conejo","loro","hamster","pez","cuyo","raton","rana"]');
+    const unlockedThemesVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-themes`) || '["samurai"]');
+    const userNameVal = localStorage.getItem(`user:${email}:user-name`) || email.split('@')[0];
+    const selectedAvatarVal = localStorage.getItem(`user:${email}:avatar`) || 'gato';
+    const selectedThemeVal = (localStorage.getItem(`user:${email}:theme`) as any) || 'samurai';
+    const podiumWinsVal = parseInt(localStorage.getItem(`user:${email}:podium-wins`) || '3', 10);
+    const onboardingCompletedVal = localStorage.getItem(`user:${email}:onboarding-completed`) === 'true';
+    const capturedIdeasVal = JSON.parse(localStorage.getItem(`user:${email}:captured-ideas`) || '[]');
+
+    this.rewardedSessions = new Set<string>(
+      JSON.parse(localStorage.getItem(`user:${email}:rewarded-sessions`) || '[]')
+    );
+
+    // Actualizar señales (los efectos las guardarán en el prefijo correcto)
+    this.isPremium.set(isPremiumVal);
+    this.focusPoints.set(focusPointsVal);
+    this.proCoins.set(proCoinsVal);
+    this.unlockedAvatars.set(unlockedAvatarsVal);
+    this.unlockedThemes.set(unlockedThemesVal);
+    this.userName.set(userNameVal);
+    this.selectedAvatar.set(selectedAvatarVal);
+    this.selectedTheme.set(selectedThemeVal);
+    this.podiumWins.set(podiumWinsVal);
+    this.onboardingCompleted.set(onboardingCompletedVal);
+    this.capturedIdeas.set(capturedIdeasVal);
+  }
+
   // Restablecer cuenta para nuevo registro desde cero
   resetNewUserAccount() {
-    localStorage.removeItem('procrastina-unlocked-avatars');
-    localStorage.removeItem('procrastina-unlocked-themes');
-    localStorage.removeItem('procrastina-user-name');
-    localStorage.removeItem('procrastina-avatar');
-    localStorage.removeItem('procrastina-theme');
-    localStorage.removeItem('procrastina-pro-coins');
-    localStorage.removeItem('procrastina-qualities-catalog');
-    localStorage.removeItem('procrastina-focus-points');
+    const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+    
+    localStorage.removeItem(`user:${email}:unlocked-avatars`);
+    localStorage.removeItem(`user:${email}:unlocked-themes`);
+    localStorage.removeItem(`user:${email}:user-name`);
+    localStorage.removeItem(`user:${email}:avatar`);
+    localStorage.removeItem(`user:${email}:theme`);
+    localStorage.removeItem(`user:${email}:pro-coins`);
+    localStorage.removeItem(`user:${email}:qualities-catalog`);
+    localStorage.removeItem(`user:${email}:focus-points`);
+    localStorage.removeItem(`user:${email}:rewarded-sessions`);
 
     this.unlockedAvatars.set(['gato', 'perro', 'conejo', 'loro', 'hamster', 'pez', 'cuyo', 'raton', 'rana']);
     this.unlockedThemes.set(['samurai']);
-    this.userName.set('Guerrero');
+    this.userName.set(email.split('@')[0]);
     this.selectedAvatar.set('gato');
     this.selectedTheme.set('samurai');
     this.proCoins.set(0);
+    this.focusPoints.set(0);
+    this.rewardedSessions.clear();
+    // Reestablecer cualidades
     this.qualitiesCatalog.set([
       { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 3, unlockTotal: 7 },
       { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar pequeños objetivos de manera constante.', isUnlocked: false, unlockProgress: 5, unlockTotal: 20 },

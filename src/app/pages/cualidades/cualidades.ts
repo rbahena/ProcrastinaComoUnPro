@@ -26,7 +26,7 @@ interface DojoAvatar {
     <div class="sidebar">
       <a routerLink="/home" class="logo">
         <span class="logo-icon"><i class="fa-solid fa-yin-yang" style="color: var(--accent);"></i></span>
-        <span class="logo-text">Kaizen Focus</span>
+        <span class="logo-text">COFU</span>
       </a>
       <div class="nav">
         <a routerLink="/home" routerLinkActive="active" class="nav-item">
