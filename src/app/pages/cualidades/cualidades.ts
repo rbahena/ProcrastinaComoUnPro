@@ -25,7 +25,7 @@ interface DojoAvatar {
     <!-- SIDEBAR -->
     <div class="sidebar">
       <a routerLink="/home" class="logo">
-        <span class="logo-icon"><i class="fa-solid fa-yin-yang" style="color: var(--accent);"></i></span>
+        <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
         <span class="logo-text">COFU</span>
       </a>
       <div class="nav">
