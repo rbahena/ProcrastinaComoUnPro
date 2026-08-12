@@ -1,0 +1,454 @@
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <a routerLink="/home" class="logo">
+    <span class="logo-icon"><i class="fa-solid" [class]="labels().logoIcon" style="color: var(--accent);"></i></span>
+    <span class="logo-text">{{ labels().logoText }}</span>
+  </a>
+  <div class="nav">
+    <a routerLink="/home" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      {{ labels().navTasks }}
+    </a>
+    <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      {{ labels().navZen }}
+    </a>
+    <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      {{ labels().navTimer }}
+    </a>
+    <a (click)="openIdeasModal()" class="nav-item" style="cursor: pointer; display: flex; align-items: center; width: 100%;">
+      <span class="nav-dot"></span>
+      {{ labels().navShield }}
+      <span *ngIf="membership.capturedIdeas().length > 0" 
+            style="margin-left: auto; background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; line-height: 1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);">
+        {{ membership.capturedIdeas().length }}
+      </span>
+    </a>
+
+    <!-- LOGOUT -->
+    <a routerLink="/login" class="nav-item logout-item" style="margin-top: auto;">
+      <i class="fa-solid fa-right-from-bracket" style="font-size: 13px;"></i>
+      Cerrar Sesión
+    </a>
+  </div>
+  <div class="sidebar-footer" routerLink="/cualidades" style="cursor: pointer;">
+    <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08);">
+    </div>
+    <div style="overflow: hidden; display: flex; flex-direction: column;">
+      <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
+      <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">
+        {{ getAvatarName() }}
+      </div>
+    </div>
+    <i class="fa-solid fa-gear" style="margin-left: auto; font-size: 14px; color: var(--muted); opacity: 0.65; transition: all 0.3s ease; padding-right: 4px;"></i>
+  </div>
+</div>
+
+<!-- MAIN WORKSPACE -->
+<div class="main">
+  <div class="stats-container">
+    <!-- Cabecera de Sección -->
+    <header class="stats-header">
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 16px;">
+        <div class="header-title">
+          <h1 class="page-title">Estadísticas de Productividad</h1>
+          <p class="page-sub" style="margin-bottom: 12px;">Métricas de tu camino de concentración y control sobre la procrastinación</p>
+        </div>
+        <!-- Botón Compartir LinkedIn -->
+        <button (click)="openShareModal()" class="linkedin-share-btn">
+          <i class="fa-brands fa-linkedin"></i>
+          <span>Compartir Insignia</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Tarjetas de Métricas Generales -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="card-icon blue">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div class="card-info">
+          <span class="metric-label">Enfoque de Hoy</span>
+          <h3 class="metric-value">{{ todayCompletedCount() }} <span class="unit">pomodoros</span></h3>
+          <p class="metric-footer">Realizados con éxito hoy</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="card-icon gold">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div class="card-info">
+          <span class="metric-label">Pomodoros Totales</span>
+          <h3 class="metric-value">{{ annualTotal() }} <span class="unit">sesiones</span></h3>
+          <p class="metric-footer">Completados con éxito en total</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="card-icon green">
+          <i class="fa-solid fa-fire"></i>
+        </div>
+        <div class="card-info">
+          <span class="metric-label">Racha de Enfoque</span>
+          <h3 class="metric-value">{{ longestStreak }} <span class="unit">días</span></h3>
+          <p class="metric-footer">Tu récord actual de días activos</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="card-icon purple">
+          <i class="fa-solid fa-bullseye"></i>
+        </div>
+        <div class="card-info">
+          <span class="metric-label">Objetivos Cumplidos</span>
+          <h3 class="metric-value">{{ completedObjectivesTotal }} <span class="unit">objetivos</span></h3>
+          <p class="metric-footer">Metas completadas en tus sesiones</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenedor Principal de Gráficos -->
+    <div class="charts-container">
+      
+      <!-- Fila Superior: Calendario y Semanal -->
+      <div class="charts-row">
+        <!-- Tarjeta: Calendario de Hábito Mensual -->
+        <div class="chart-card daily-distribution-card">
+          <div class="chart-header">
+            <h3>Calendario de Enfoque Diario</h3>
+            <span>Registro de pomodoros completados en el mes de Agosto</span>
+          </div>
+          
+          <!-- Contenedor del Calendario Grid -->
+          <div class="calendar-wrapper">
+            <!-- Encabezados de días de la semana -->
+            <div class="calendar-weekdays">
+              <span *ngFor="let label of calendarWeekdays">{{ label }}</span>
+            </div>
+
+            <!-- Celdas de días -->
+            <div class="calendar-grid">
+              <div *ngFor="let day of calendarDays()" 
+                   class="calendar-cell"
+                   [class.offset]="day.dayNumber === null"
+                   [class.today]="day.isToday"
+                   [class.future]="day.isFuture"
+                   [class.has-pomodoros]="day.pomodoros > 0"
+                   [class.level-1]="day.pomodoros > 0 && day.pomodoros <= 2"
+                   [class.level-2]="day.pomodoros > 2 && day.pomodoros <= 4"
+                   [class.level-3]="day.pomodoros > 4"
+                   [attr.data-tooltip]="day.dayNumber ? ('Día ' + day.dayNumber + ': ' + (day.pomodoros === 0 ? 'Sin sesiones' : day.pomodoros + (day.pomodoros === 1 ? ' pomodoro' : ' pomodoros') + ' realizados')) : null">
+                
+                <span class="day-number">{{ day.dayNumber }}</span>
+                
+                <!-- Puntos o número de pomodoros en la celda -->
+                <div class="pomodoro-dots" *ngIf="day.pomodoros > 0">
+                  <span class="dot-indicator"></span>
+                  <span class="pomodoro-count">{{ day.pomodoros }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Leyenda del Calendario -->
+          <div class="calendar-legend">
+            <span class="legend-title">Nivel de Enfoque:</span>
+            <div class="legend-items">
+              <div class="legend-item"><span class="legend-box level-0"></span> 0</div>
+              <div class="legend-item"><span class="legend-box level-1"></span> 1 - 2</div>
+              <div class="legend-item"><span class="legend-box level-2"></span> 3 - 4</div>
+              <div class="legend-item"><span class="legend-box level-3"></span> 5+ pomodoros</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta: Rendimiento Semanal -->
+        <div class="chart-card weekly-chart-card">
+          <div class="chart-header">
+            <h3>Rendimiento Semanal</h3>
+            <span>Pomodoros completados en la semana actual (Total: {{ weeklyTotal() }} pomodoros)</span>
+          </div>
+
+          <div class="svg-container">
+            <svg viewBox="0 0 500 200" width="100%" height="100%">
+              <!-- Grid Lines -->
+              <line x1="40" y1="30" x2="480" y2="30" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3" />
+              <line x1="40" y1="90" x2="480" y2="90" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3" />
+              <line x1="40" y1="150" x2="480" y2="150" stroke="rgba(255,255,255,0.05)" />
+
+              <!-- Gradients Definition -->
+              <defs>
+                <linearGradient id="weekly-bar-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="1" />
+                  <stop offset="100%" stop-color="rgba(99, 102, 241, 0.2)" stop-opacity="0.3" />
+                </linearGradient>
+                <linearGradient id="today-bar-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="var(--yellow)" stop-opacity="1" />
+                  <stop offset="100%" stop-color="rgba(245, 158, 11, 0.2)" stop-opacity="0.3" />
+                </linearGradient>
+              </defs>
+
+              <!-- Columnas / Barras -->
+              <g *ngFor="let val of weeklyData(); let i = index">
+                <!-- Barra -->
+                <rect [attr.x]="55 + i * 60" 
+                      [attr.y]="150 - (val / weeklyMax() * 110)" 
+                      width="32" 
+                      [attr.height]="val / weeklyMax() * 110" 
+                      [attr.fill]="i === 6 ? 'url(#today-bar-grad)' : 'url(#weekly-bar-grad)'" 
+                      rx="4"
+                      class="bar-rect" />
+
+                <!-- Valor encima de la barra -->
+                <text [attr.x]="71 + i * 60" 
+                      [attr.y]="142 - (val / weeklyMax() * 110)" 
+                      text-anchor="middle" 
+                      fill="var(--text)" 
+                      font-size="10" 
+                      font-weight="800">
+                  {{ val }}
+                </text>
+
+                <!-- Etiqueta debajo del eje X -->
+                <text [attr.x]="71 + i * 60" 
+                      y="170" 
+                      text-anchor="middle" 
+                      [attr.fill]="i === 6 ? 'var(--yellow)' : 'var(--muted)'" 
+                      font-size="10.5" 
+                      [attr.font-weight]="i === 6 ? '800' : '500'">
+                  {{ weeklyLabels[i] }}
+                </text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila Inferior: Tendencia Anual -->
+      <div class="chart-card annual-chart-card">
+        <div class="chart-header">
+          <h3>Historial y Tendencia Anual</h3>
+          <span>Producción mensual de sesiones completadas de enfoque (Total anual: {{ annualTotal() }} pomodoros)</span>
+        </div>
+
+        <div class="svg-container-large">
+          <svg viewBox="0 0 800 220" width="100%" height="100%">
+            <!-- Grid Lines -->
+            <line x1="40" y1="30" x2="760" y2="30" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3" />
+            <line x1="40" y1="100" x2="760" y2="100" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3" />
+            <line x1="40" y1="170" x2="760" y2="170" stroke="rgba(255,255,255,0.05)" />
+
+            <!-- Gradients -->
+            <defs>
+              <linearGradient id="annual-bar-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="1" />
+                <stop offset="100%" stop-color="rgba(16, 185, 129, 0.15)" stop-opacity="0.2" />
+              </linearGradient>
+              <linearGradient id="current-month-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="var(--yellow)" stop-opacity="1" />
+                <stop offset="100%" stop-color="rgba(245, 158, 11, 0.15)" stop-opacity="0.2" />
+              </linearGradient>
+            </defs>
+
+            <!-- Columnas -->
+            <g *ngFor="let val of annualData(); let i = index">
+              <!-- Barra mensual -->
+              <rect [attr.x]="60 + i * 58" 
+                    [attr.y]="170 - (val / annualMax() * 125)" 
+                    width="30" 
+                    [attr.height]="val / annualMax() * 125" 
+                    [attr.fill]="i === 7 ? 'url(#current-month-grad)' : 'url(#annual-bar-grad)'" 
+                    rx="3"
+                    class="bar-rect" />
+
+              <!-- Valor encima de la barra -->
+              <text [attr.x]="75 + i * 58" 
+                    [attr.y]="162 - (val / annualMax() * 125)" 
+                    text-anchor="middle" 
+                    fill="var(--text)" 
+                    font-size="10" 
+                    font-weight="700">
+                {{ val }}
+              </text>
+
+              <!-- Mes abajo del eje X -->
+              <text [attr.x]="75 + i * 58" 
+                    y="190" 
+                    text-anchor="middle" 
+                    [attr.fill]="i === 7 ? 'var(--yellow)' : 'var(--muted)'" 
+                    font-size="10" 
+                    [attr.font-weight]="i === 7 ? '800' : '500'">
+                {{ annualLabels[i] }}
+              </text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer Motivacional -->
+    <footer class="stats-motivational-footer">
+      <i class="fa-solid fa-award award-icon"></i>
+      <div class="quote-text">
+        <h4>"La maestría es el resultado de pequeños esfuerzos repetidos día tras día."</h4>
+        <p>Has cortocircuitado la procrastinación en múltiples batallas. Cada sesión de enfoque es una victoria para tu mente y tu disciplina.</p>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- MODAL DE IDEAS CAPTURADAS (BAÚL DE IDEAS) -->
+<div *ngIf="showIdeasModal()" 
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; font-family: 'Space Grotesk', sans-serif;">
+  
+  <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.95) 0%, rgba(30, 30, 39, 0.9) 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 32px; width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 32px 80px rgba(0,0,0,0.6); position: relative; animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+    
+    <!-- Cerrar -->
+    <button (click)="closeIdeasModal()" 
+            style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; transition: color 0.2s;"
+            onmouseover="this.style.color='var(--text)';"
+            onmouseout="this.style.color='var(--muted)';">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Header Modal -->
+    <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 14px;">
+      <i class="fa-solid fa-box-archive" style="color: var(--yellow); font-size: 20px; filter: drop-shadow(0 0 8px rgba(255,215,0,0.3));"></i>
+      <div style="text-align: left;">
+        <h3 style="font-size: 16px; font-weight: 800; color: var(--text); margin: 0; letter-spacing: -0.3px;">Baúl de Ideas Fugaces</h3>
+        <span style="font-size: 10px; color: var(--muted); font-weight: 600;">Ideas y distractores capturados para procesar luego</span>
+      </div>
+    </div>
+
+    <!-- Contenido Modal -->
+    <div style="flex: 1; min-height: 200px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px;">
+      
+      <!-- Si no hay ideas -->
+      <div *ngIf="membership.capturedIdeas().length === 0" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; height: 200px; color: var(--muted);">
+        <i class="fa-solid fa-feather" style="font-size: 32px; opacity: 0.3;"></i>
+        <span style="font-size: 12px; font-weight: 500; font-style: italic;">El baúl está vacío. ¡Envía tus primeras ideas volando!</span>
+      </div>
+
+      <!-- Lista de ideas -->
+      <div *ngFor="let idea of membership.capturedIdeas(); let i = index" 
+           style="display: flex; align-items: flex-start; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px 16px; gap: 12px; transition: all 0.2s;"
+           onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,215,0,0.15)';"
+           onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
+        <div style="display: flex; flex-direction: column; gap: 4px; text-align: left; flex: 1;">
+          <span style="font-size: 12.5px; color: var(--text); font-weight: 600; line-height: 1.4; word-break: break-word;">{{ idea }}</span>
+          <span style="font-size: 9px; color: var(--muted); font-weight: 500;">Capturado hoy</span>
+        </div>
+        <button (click)="removeIdea(i)" 
+                style="background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px 8px; font-size: 11px; transition: all 0.2s;"
+                onmouseover="this.style.color='var(--red)'; this.style.transform='scale(1.1)';"
+                onmouseout="this.style.color='var(--muted)'; this.style.transform='scale(1)';"
+                title="Eliminar idea del baúl">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer Modal -->
+    <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; margin-top: 5px;">
+      <span style="font-size: 11px; color: var(--muted); font-weight: 600;">Total: {{ membership.capturedIdeas().length }} ideas</span>
+      
+      <div style="display: flex; gap: 8px;">
+        <!-- Botón limpiar todo -->
+        <button *ngIf="membership.capturedIdeas().length > 0"
+                (click)="clearAllIdeas()"
+                style="background: transparent; border: 1px solid rgba(239, 68, 68, 0.2); color: var(--red); padding: 8px 14px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
+                onmouseover="this.style.background='rgba(239, 68, 68, 0.05)';"
+                onmouseout="this.style.background='transparent';">
+          Limpiar Todo
+        </button>
+
+        <button (click)="closeIdeasModal()" 
+                style="background: var(--accent); border: none; color: #000; padding: 8px 16px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                onmouseover="this.style.transform='translateY(-1px)';"
+                onmouseout="this.style.transform='translateY(0)';">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE COMPARTIR LOGROS (INSIGNIA EN LINKEDIN) -->
+<div *ngIf="showShareModal()" 
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; font-family: inherit;">
+  
+  <div style="background: linear-gradient(135deg, rgba(15, 15, 25, 0.98) 0%, rgba(25, 25, 35, 0.95) 100%); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 24px; box-shadow: 0 32px 80px rgba(0,0,0,0.7); position: relative; text-align: center; animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+    
+    <!-- Cerrar -->
+    <button (click)="closeShareModal()" 
+            style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 18px;">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <div>
+      <h3 style="font-size: 18px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.5px;">Tu Insignia de Enfoque Dojo</h3>
+      <p style="font-size: 11.5px; color: var(--muted); margin: 4px 0 0 0;">Certifica tus logros de productividad en tu red profesional</p>
+    </div>
+
+    <!-- INSIGNIA GRAFICA MOCKUP -->
+    <div class="share-badge-card" style="background: linear-gradient(145deg, #161623 0%, #0d0d15 100%); border: 2px dashed rgba(212, 175, 55, 0.3); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); position: relative; overflow: hidden;">
+      <!-- Glow de fondo -->
+      <div style="position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%); pointer-events: none;"></div>
+      <div style="position: absolute; bottom: -50px; right: -50px; width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0) 70%); pointer-events: none;"></div>
+
+      <!-- Escudo Insignia -->
+      <div class="badge-shield" style="width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, rgba(20,20,30,0.9) 0%, rgba(10,10,15,0.95) 100%); border: 3px solid var(--yellow); display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);">
+        <i class="fa-solid fa-yin-yang" style="color: var(--yellow); font-size: 44px; filter: drop-shadow(0 0 8px rgba(255,215,0,0.35));"></i>
+        <div style="position: absolute; bottom: -6px; background: var(--accent); color: #fff; font-size: 8px; font-weight: 900; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px; text-transform: uppercase;">PRO</div>
+      </div>
+
+      <!-- Info de Insignia -->
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <span style="font-size: 15px; font-weight: 900; color: var(--text); letter-spacing: -0.3px;">Guerrero del Enfoque</span>
+        <span style="font-size: 11px; color: var(--muted); font-weight: 500;">Otorgado a: <strong style="color: var(--yellow);">{{ userName() }}</strong></span>
+      </div>
+
+      <!-- Stats en la insignia -->
+      <div style="display: flex; gap: 20px; background: rgba(0,0,0,0.2); padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);">
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 14px; font-weight: 900; color: var(--accent);">{{ annualTotal() }}</span>
+          <span style="font-size: 8.5px; color: var(--muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.3px;">Pomodoros</span>
+        </div>
+        <div style="width: 1px; background: rgba(255,255,255,0.08);"></div>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 14px; font-weight: 900; color: var(--green);">{{ longestStreak }}d</span>
+          <span style="font-size: 8.5px; color: var(--muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.3px;">Racha</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Post Preview -->
+    <div style="text-align: left; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 12px 14px; font-size: 11px; color: var(--muted); line-height: 1.4;">
+      <strong style="color: var(--text); display: block; margin-bottom: 4px;">Mensaje que se publicará:</strong>
+      "🎯 ¡He alcanzado el rango de Guerrero de Enfoque en Kaizen Focus! He completado con éxito {{ annualTotal() }} pomodoros y mantengo una racha de {{ longestStreak }} días..."
+    </div>
+
+    <!-- Acciones -->
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <button (click)="shareOnLinkedIn()" 
+              style="width: 100%; border: none; padding: 12.5px; border-radius: 10px; background: #0077b5; color: #fff; font-size: 12.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s;"
+              onmouseover="this.style.transform='scale(1.015)'; this.style.boxShadow='0 0 15px rgba(0,119,181,0.45)';"
+              onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+        <i class="fa-brands fa-linkedin" style="font-size: 16px;"></i>
+        Publicar en LinkedIn
+      </button>
+      <button (click)="closeShareModal()" 
+              style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.08); padding: 10.5px; border-radius: 10px; color: var(--muted); font-size: 11.5px; font-weight: 700; cursor: pointer;">
+        Volver
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal de Identidad/Onboarding -->
+<app-identity-settings *ngIf="!membership.onboardingCompleted() || membership.showSettingsModal()" [onboardingMode]="!membership.onboardingCompleted()"></app-identity-settings>

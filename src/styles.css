@@ -188,6 +188,17 @@ button { font-family: inherit; cursor: pointer; }
   }
 }
 
+/* Disable custom animations, shadows, and borders for locked dragon avatar */
+.locked .sprite-dragon,
+.locked-card .sprite-dragon,
+.locked-card.legendary-card .sprite-dragon {
+  animation: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  filter: grayscale(1) brightness(0.35) contrast(0.9) !important;
+  opacity: 0.75 !important;
+}
+
 /* Disable legendary glows, custom borders, and animations on podium avatars globally */
 .podio-avatar.avatar-sprite {
   animation: none !important;

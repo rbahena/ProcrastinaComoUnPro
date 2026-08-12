@@ -81,14 +81,18 @@
 
       <!-- BALANCES DE USUARIO (PREMIUM VS GRATUITO) -->
       <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
-        <!-- Badge Premium / Free (Botón interactivo que abre el simulador de Paywall) -->
-        <button (click)="showPaywallModal.set(true)" 
-                style="border: none; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.25s;"
-                [style.background]="membership.isPremium() ? 'linear-gradient(135deg, #ffd700 0%, #f59e0b 100%)' : 'rgba(255,255,255,0.05)'"
-                [style.border]="membership.isPremium() ? 'none' : '1px solid rgba(255,255,255,0.1)'"
-                [style.color]="membership.isPremium() ? '#000' : 'var(--muted)'">
-          <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-star'"></i>
-          <span>{{ membership.isPremium() ? 'Premium' : 'Gratis' }}</span>
+        <!-- Badge Premium / Free (Sutil y Kaizen Pro) -->
+        <button routerLink="/membresia" 
+                style="border-radius: 12px; font-family: inherit; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.25s; padding: 6px 14px;"
+                [style.background]="membership.isPremium() ? 'rgba(245,158,11,0.03)' : 'rgba(255,255,255,0.02)'"
+                [style.border]="membership.isPremium() ? '1.5px solid rgba(245,158,11,0.2)' : '1.5px solid rgba(255,255,255,0.06)'"
+                [style.color]="membership.isPremium() ? 'var(--yellow)' : 'var(--muted)'"
+                [style.text-shadow]="membership.isPremium() ? '0 0 8px rgba(245,158,11,0.2)' : 'none'"
+                onmouseover="this.style.transform='translateY(-1px)';"
+                onmouseout="this.style.transform='translateY(0)';"
+                title="Ver detalles de Membresía">
+          <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-star'" [style.color]="membership.isPremium() ? 'var(--yellow)' : 'var(--muted)'"></i>
+          <span>{{ membership.isPremium() ? 'Pro' : 'Gratuito' }}</span>
         </button>
       </div>
     </div>
@@ -1043,7 +1047,7 @@
         <p style="font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4;">
           Con Premium habrías obtenido **+10 Puntos** y **+5 Pro Coins** para el ranking del Dojo y la Tienda de Cosméticos.
         </p>
-        <button (click)="showPaywallModal.set(true)" 
+        <button routerLink="/membresia" 
                 style="border: none; background: var(--accent); color: #000; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-family: inherit;"
                 onmouseover="this.style.transform='translateY(-0.5px)';"
                 onmouseout="this.style.transform='translateY(0)';">
@@ -1186,15 +1190,23 @@
 
     <!-- Acciones -->
     <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+      <!-- Botón de Suscripción Real (Redirección a Membresía) -->
+      <button routerLink="/membresia" (click)="showPaywallModal.set(false)"
+              style="width: 100%; border: none; padding: 12.5px; border-radius: 10px; background: var(--accent); color: #000; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px;"
+              onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 15px rgba(99,102,241,0.45)';"
+              onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+        <i class="fa-solid fa-crown"></i>
+        Ir por mi suscripción Pro
+      </button>
       <!-- Toggle Premium Simulador -->
       <button (click)="membership.setPremium(!membership.isPremium()); showPaywallModal.set(false)" 
-              style="width: 100%; border: none; padding: 12px; border-radius: 10px; background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%); color: #000; font-size: 13px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit;"
-              onmouseover="this.style.transform='scale(1.02)';"
-              onmouseout="this.style.transform='scale(1)';">
-        {{ membership.isPremium() ? 'Volver a Cuenta Gratuita' : 'Simular Premium Gratis (+200 XP, +100 Coins)' }}
+              style="width: 100%; background: transparent; border: 1.5px solid rgba(245, 158, 11, 0.35); padding: 10.5px; border-radius: 10px; color: var(--yellow); font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+              onmouseover="this.style.background='rgba(245, 158, 11, 0.06)';"
+              onmouseout="this.style.background='transparent';">
+        {{ membership.isPremium() ? 'Revertir a plan Gratuito' : 'Probar por 7 días gratis' }}
       </button>
       <button (click)="showPaywallModal.set(false)" 
-              style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 10px; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;">
+              style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 10px; color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;">
         Seguir como Guerrero Gratuito
       </button>
     </div>

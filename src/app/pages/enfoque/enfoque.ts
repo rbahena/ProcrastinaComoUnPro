@@ -353,14 +353,17 @@ export class Enfoque implements OnInit, OnDestroy {
       // Activar pausa
       this.stopTimerLoop();
       this.emergencyPauseActive.set(true);
-      this.emergencyTimeLeft.set(120); // Reset a 2 min
+      
+      const limitSeconds = this.membership.isPremium() ? 180 : 120;
+      this.emergencyTimeLeft.set(limitSeconds);
 
       this.emergencyTimer = setInterval(() => {
         if (this.emergencyTimeLeft() > 0) {
           this.emergencyTimeLeft.update(t => t - 1);
           
           // Simular que a la mitad del tiempo de pausa Sofía "abandona" para motivarte
-          if (this.emergencyTimeLeft() === 60 && (this.coworkingMode() === 'join' || this.coworkingMode() === 'host')) {
+          const halfTime = this.membership.isPremium() ? 90 : 60;
+          if (this.emergencyTimeLeft() === halfTime && (this.coworkingMode() === 'join' || this.coworkingMode() === 'host')) {
             this.partnerStatus.set('left');
           }
         } else {

@@ -1,0 +1,542 @@
+/* ===== KAIZEN MEMBERSHIP COMPARISON FIRST STYLES ===== */
+
+.main-container {
+  padding: 20px 40px;
+  width: 100%;
+  max-width: 1050px;
+  margin: 0 auto;
+  min-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle decorative glow at top of the page */
+.main-container::before {
+  content: '';
+  position: absolute;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.06) 0%, rgba(245, 158, 11, 0.02) 60%, transparent 100%);
+  filter: blur(80px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* CABECERA */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transition: color 0.2s, transform 0.2s;
+  width: fit-content;
+}
+
+.back-link:hover {
+  color: var(--accent);
+  transform: translateX(-2px);
+}
+
+.back-link i {
+  font-size: 11px;
+}
+
+.pricing-badge {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 12px;
+  width: fit-content;
+  margin-top: 10px;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.6px;
+}
+
+.page-sub {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* SELECTOR DE PLAN (TOGGLE) */
+.toggle-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.plan-toggle {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 30px;
+  padding: 4px;
+  display: inline-flex;
+}
+
+.plan-btn {
+  background: transparent;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 25px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.plan-btn.active {
+  background: var(--text);
+  color: #000;
+}
+
+.save-tag {
+  background: var(--yellow);
+  color: #000;
+  font-size: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+/* CONTENEDOR PRINCIPAL TABLA */
+.pricing-table-card {
+  background: rgba(24, 24, 38, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+/* ESTILOS DE CABECERA DE TABLA */
+.comparison-table th {
+  padding: 24px 20px;
+  vertical-align: top;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.feature-header-col {
+  width: 44%;
+}
+
+.header-feature-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding-top: 15px;
+}
+
+.header-feature-info h3 {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.header-feature-info p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.plan-header-col {
+  width: 28%;
+  background: rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.plan-header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-name {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+}
+
+.gold-text {
+  color: var(--yellow) !important;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.price-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  color: var(--text);
+  gap: 2px;
+}
+
+.price-display .currency {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.price-display .amount {
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+.price-display .period {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+.billing-info {
+  font-size: 9.5px;
+  color: var(--muted);
+  margin: 0;
+  min-height: 28px;
+  line-height: 1.3;
+}
+
+/* BOTONES CTA DE PLAN */
+.plan-cta-btn {
+  width: 100%;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 8px;
+  font-family: inherit;
+}
+
+.free-tier-btn {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+}
+
+.free-tier-btn:hover:not(.current-active) {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.free-tier-btn.current-active {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  cursor: default;
+}
+
+.premium-tier-btn {
+  background: var(--accent);
+  color: #000;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.premium-tier-btn:hover:not(.active-premium) {
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px var(--accent);
+}
+
+.premium-tier-btn.active-premium {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1.5px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  box-shadow: none;
+}
+
+.premium-tier-btn.active-premium:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+}
+
+/* COLUMNA KAIZEN PRO DESTACADA */
+.highlight-header-col {
+  background: rgba(245, 158, 11, 0.025) !important;
+  border-left: 1.5px solid rgba(245, 158, 11, 0.2) !important;
+  border-right: 1.5px solid rgba(245, 158, 11, 0.2) !important;
+  border-top: 1.5px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+.popular-badge {
+  background: var(--yellow);
+  color: #000;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  margin-bottom: 2px;
+  display: inline-block;
+}
+
+/* ESTILOS DE CELDA DE TABLA (FILAS) */
+.comparison-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.comparison-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.comparison-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.comparison-table .feature-info {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.comparison-table .feature-info strong {
+  font-size: 13px;
+  color: var(--text);
+  letter-spacing: -0.1px;
+}
+
+.comparison-table .feature-info span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Celdas del plan destacado */
+.comparison-table .highlight-cell {
+  background: rgba(245, 158, 11, 0.01) !important;
+  border-left: 1.5px solid rgba(245, 158, 11, 0.2) !important;
+  border-right: 1.5px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+.comparison-table tbody tr:last-child .highlight-cell {
+  border-bottom: 1.5px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+/* ICONOGRAFÍA Y TEXTOS DE TABLA */
+.check-icon {
+  font-size: 15px;
+}
+
+.check-icon.green {
+  color: #10b981;
+}
+
+.check-icon.gold {
+  color: #fbbf24;
+  text-shadow: 0 0 6px rgba(251, 191, 36, 0.3);
+}
+
+.cross-icon {
+  color: rgba(255, 255, 255, 0.12);
+  font-size: 14.5px;
+}
+
+.value-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.value-text.bold-yellow {
+  color: var(--yellow);
+  font-weight: 800;
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.2);
+}
+
+/* SECCIÓN PROTECCIÓN / GARANTÍA */
+.protection-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.protection-icon {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* TOAST DE ÉXITO */
+.success-toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #10b982;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 130, 0.3);
+  border-radius: 12px;
+  padding: 16px 24px;
+  z-index: 10000;
+  animation: slideUpToast 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes slideUpToast {
+  from { bottom: -100px; opacity: 0; }
+  to { bottom: 30px; opacity: 1; }
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #fff;
+}
+
+.toast-icon {
+  font-size: 28px;
+  color: #fff;
+}
+
+.toast-text h4 {
+  font-size: 13.5px;
+  font-weight: 800;
+  margin: 0 0 2px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.toast-text p {
+  font-size: 12px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* ===== SECCIÓN DE PREGUNTAS FRECUENTES (FAQ) ===== */
+.faq-section {
+  margin-top: 36px;
+  padding-top: 30px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.faq-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0 0 6px 0;
+  text-align: center;
+  letter-spacing: -0.4px;
+}
+
+.faq-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 30px 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.faq-card {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.22s ease;
+}
+
+.faq-card:hover {
+  background: rgba(255, 255, 255, 0.025);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.faq-card h4 {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.faq-card p {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* RESPONSIVE LAYOUT */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 20px 16px;
+  }
+  .pricing-table-card {
+    padding: 12px;
+  }
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+}

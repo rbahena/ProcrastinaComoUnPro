@@ -1028,6 +1028,16 @@ interface DojoAvatar {
       border-color: var(--yellow) !important;
       box-shadow: 0 0 22px rgba(245, 158, 11, 0.5) !important;
     }
+    .avatar-minimal-card.legendary-card.locked {
+      background: rgba(0, 0, 0, 0.18) !important;
+      border-color: rgba(255, 255, 255, 0.02) !important;
+      box-shadow: none !important;
+    }
+    .avatar-minimal-card.legendary-card.locked:hover {
+      border-color: rgba(239, 68, 68, 0.25) !important;
+      background: rgba(239, 68, 68, 0.01) !important;
+      box-shadow: none !important;
+    }
     .avatar-sprite.sprite-thumb {
       width: 58px;
       height: 58px;

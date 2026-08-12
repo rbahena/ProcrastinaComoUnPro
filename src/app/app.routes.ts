@@ -28,7 +28,7 @@ export const routes: Routes = [
   },
   {
     path: 'fechas',
-    loadComponent: () => import('./pages/fechas/fechas').then(m => m.Fechas)
+    loadComponent: () => import('./pages/estadisticas/estadisticas').then(m => m.Estadisticas)
   },
   {
     path: 'bloqueador',
@@ -37,6 +37,14 @@ export const routes: Routes = [
   {
     path: 'cualidades',
     loadComponent: () => import('./pages/cualidades/cualidades').then(m => m.Cualidades)
+  },
+  {
+    path: 'membresia',
+    loadComponent: () => import('./pages/membresia/membresia').then(m => m.Membresia)
+  },
+  {
+    path: 'estadisticas',
+    loadComponent: () => import('./pages/estadisticas/estadisticas').then(m => m.Estadisticas)
   }
 ];
 
