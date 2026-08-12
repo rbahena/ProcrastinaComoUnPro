@@ -4,303 +4,388 @@
     <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
     <span class="logo-text">COFU</span>
   </a>
-  <div style="display: flex; gap: 10px; align-items: center;">
+  
+  <nav class="landing-nav-links" style="display: flex; gap: 28px; align-items: center;">
+    <a href="#como-funciona" class="nav-link" style="color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; transition: color 0.2s;">Cómo funciona</a>
+    <a href="#diagnostico" class="nav-link" style="color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; transition: color 0.2s;">Diagnóstico</a>
+    <a href="#desafio" class="nav-link" style="color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; transition: color 0.2s;">Reto de 7 Días</a>
+    <a href="#maestria" class="nav-link" style="color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; transition: color 0.2s;">Camino del Guerrero</a>
+  </nav>
+
+  <div style="display: flex; gap: 12px; align-items: center;">
     <a routerLink="/login">
       <button class="btn btn-ghost btn-sm">Iniciar sesión</button>
     </a>
     <a routerLink="/registro">
-      <button class="btn btn-accent btn-sm">Registrarte</button>
+      <button class="btn btn-accent btn-sm">Empezar gratis</button>
     </a>
   </div>
 </header>
 
 <main>
-  <!-- HERO SECTION -->
-  <section class="hero-section landing-container">
-    <div class="hero-badge"><i class="fa-solid fa-brain" style="margin-right: 6px;"></i> COFU: Enfócate. Conecta. Avanza.</div>
-    <h1 class="hero-title">Deja de procrastinar. Empieza a terminar lo que comienzas</h1>
-    <p class="hero-subtitle">
-      Si la disciplina, las listas de tareas y las aplicaciones de productividad ya te fallaron, quizá el problema nunca fue la falta de ganas. Diseñamos una forma diferente de ayudarte a empezar, mantener el enfoque y terminar lo que realmente importa.
-    </p>
-    <div class="hero-btns">
-      <a routerLink="/registro">
-        <button class="btn btn-accent" style="padding: 12px 24px; font-size: 14px;"><i class="fa-solid fa-rocket"></i> Iniciar</button>
-      </a>
-      <a href="#widget" (click)="scrollToWidget($event)">
-        <button class="btn btn-ghost" style="padding: 12px 24px; font-size: 14px;"><i class="fa-solid fa-circle-question"></i> Diagnosticar mi Estado</button>
-      </a>
+  <!-- SPACIOUS CENTRED HERO SECTION -->
+  <section class="hero-section-premium" id="como-funciona">
+    <div class="hero-background-effects">
+      <div class="orbital-glow-ring"></div>
+      <div class="ambient-glow"></div>
     </div>
-  </section>
-
-  <!-- SECTION: ¿QUÉ ES Y QUÉ ENCONTRARÁS? -->
-  <section class="about-section">
-    <div class="landing-container about-grid">
-      <div class="about-left">
-        <div class="about-tag">
-          <i class="fa-solid fa-circle-info"></i> ¿Qué es esto?
-        </div>
-        <h2 class="about-title">¿Qué es COFU?</h2>
-        <p class="about-desc">
-          <strong>COFU</strong> no es otra lista de tareas aburrida ni una agenda que terminarás ignorando. Es un <strong>entrenador conductual y de enfoque comunitario</strong> basado en neurociencia aplicada que rediseña tu relación con el trabajo y el enfoque.
-        </p>
-        <p class="about-desc">
-          La ciencia demuestra que procrastinar no es pereza ni falta de disciplina; es una <strong>dificultad para regular las emociones</strong> asociadas a una tarea (aburrimiento, frustración o miedo al fracaso).
-        </p>
-        <p class="about-desc">
-          Aquí te ayudamos a desarmar esa resistencia mental mediante <strong>herramientas interactivas</strong> que reducen la carga cognitiva y crean fricción en tus distracciones habituales.
-        </p>
-        <div style="margin-top: 32px;">
-          <a routerLink="/registro">
-            <button class="btn btn-accent" style="padding: 12px 24px; font-size: 14px;">
-              <i class="fa-solid fa-user-plus"></i> Empieza Gratis
-            </button>
-          </a>
-        </div>
+    
+    <div class="landing-container hero-premium-content">
+      <div class="hero-badge-glow">
+        <i class="fa-solid fa-bolt" style="margin-right: 6px; color: var(--accent);"></i> 
+        SISTEMA DE ENTRENAMIENTO CONDUCTUAL
+      </div>
+      
+      <h1 class="hero-premium-title">
+        El espacio donde tu enfoque fluye sin esfuerzo.
+      </h1>
+      
+      <p class="hero-premium-subtitle">
+        Sincronízate con la comunidad en dojos de concentración, añade fricción física a tus distractores y domina tu autodisciplina con un sistema gamificado de avatares.
+      </p>
+      
+      <div class="hero-premium-btns">
+        <a routerLink="/registro">
+          <button class="btn btn-accent btn-lg" style="box-shadow: 0 0 35px rgba(0, 242, 254, 0.3);">
+            Iniciar Mi Dojo Gratis <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
+          </button>
+        </a>
+        <a href="#desafio" (click)="scrollToWidget($event)">
+          <button class="btn btn-ghost btn-lg">
+            Ver el Desafío de 7 Días
+          </button>
+        </a>
       </div>
 
-      <div class="about-right">
-        <h3 class="about-subtitle">¿Qué podrás encontrar en nuestra página?</h3>
-        <p class="about-desc" style="font-size: 14px; margin-bottom: 24px;">
-          Hemos diseñado un kit de supervivencia digital completo para tu cerebro:
-        </p>
-
-        <div class="about-features-grid">
-          <!-- Card 1 -->
-          <div class="about-feature-item">
-            <div class="about-feature-icon-wrapper" style="--accent-color: var(--accent);">
-              <i class="fa-solid fa-brain"></i>
-            </div>
-            <div>
-              <h4 class="about-feature-title">Diagnóstico Inmediato</h4>
-              <p class="about-feature-text">
-                Identifica qué excusa o emoción está saboteando tu enfoque justo ahora y obtén una táctica conductual específica en 5 segundos.
-              </p>
-            </div>
-          </div>
-
-          <!-- Card 2 -->
-          <div class="about-feature-item">
-            <div class="about-feature-icon-wrapper" style="--accent-color: var(--green);">
-              <i class="fa-solid fa-headphones"></i>
-            </div>
-            <div>
-              <h4 class="about-feature-title">Aislamiento Sensorial</h4>
-              <p class="about-feature-text">
-                Generador de frecuencias continuas (ruido café y lluvia sintetizada) para silenciar la corteza auditiva y entrar en estado de flujo.
-              </p>
-            </div>
-          </div>
-
-          <!-- Card 3 -->
-          <div class="about-feature-item">
-            <div class="about-feature-icon-wrapper" style="--accent-color: var(--red);">
-              <i class="fa-solid fa-shield-halved"></i>
-            </div>
-            <div>
-              <h4 class="about-feature-title">Escudo de Fricción</h4>
-              <p class="about-feature-text">
-                Bloqueador de sitios web configurado para frenar las salidas automáticas de tu cerebro hacia redes sociales o sitios dopaminérgicos.
-              </p>
-            </div>
-          </div>
-
-          <!-- Card 4 -->
-          <div class="about-feature-item">
-            <div class="about-feature-icon-wrapper" style="--accent-color: var(--yellow);">
-              <i class="fa-solid fa-hourglass-half"></i>
-            </div>
-            <div>
-              <h4 class="about-feature-title">Urgencia Visual Real</h4>
-              <p class="about-feature-text">
-                Cuentas regresivas precisas en días, horas y minutos para forzar a la corteza prefrontal a actuar hoy y vencer la Ley de Parkinson.
-              </p>
-            </div>
-          </div>
+      <!-- Quick Metrics Grid -->
+      <div class="hero-metrics-grid">
+        <div class="hero-metric-card">
+          <span class="num">1,284</span>
+          <span class="lbl">Enfocados Ahora</span>
+        </div>
+        <div class="hero-metric-card">
+          <span class="num">128.4K</span>
+          <span class="lbl">Sesiones Listas</span>
+        </div>
+        <div class="hero-metric-card">
+          <span class="num">32.8K</span>
+          <span class="lbl">Metas Logradas</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- INTERACTIVE WIDGET SECTION -->
-  <section class="widget-section" id="widget">
+  <!-- SECTION: THE ESCANER CONDUCTUAL (DIAGNOSTIC WIDGET) -->
+  <section class="widget-section-premium" id="diagnostico" style="padding: 100px 0; border-top: 1px solid var(--border);">
     <div class="landing-container">
-      <div class="widget-card">
-        <div class="widget-title">Diagnóstico Conductual Inmediato</div>
-        <div class="widget-sub">Identifica qué sensación o excusa sabotea tu enfoque en este momento y obtén una solución de diseño de comportamiento.</div>
+      <div style="text-align: center; margin-bottom: 60px;">
+        <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 800; color: var(--text); margin-bottom: 16px; letter-spacing: -0.8px;">Diagnostica y neutraliza tu resistencia.</h2>
+        <p style="font-size: 15.5px; color: var(--muted); max-width: 600px; margin: 0 auto; line-height: 1.6;">
+          Identifica qué sensación sabotea tu mente en este momento y obtén una solución conductual instantánea.
+        </p>
+      </div>
 
-        <div class="excuse-options">
-          <button class="excuse-btn" [class.selected]="selectedExcuseKey() === 'perfect'" (click)="selectExcuse('perfect')">
-            <i class="fa-solid fa-face-grimace" style="font-size: 22px; color: var(--accent);"></i>
-            <div>
-              <div>"Tengo miedo de que no salga bien"</div>
-              <div style="font-size:10px; color:var(--muted); font-weight:normal; margin-top:2px">Parálisis por perfeccionismo</div>
+      <div class="scanner-container">
+        <!-- Excuse Button Selectors -->
+        <div class="excuse-selectors-grid">
+          <button class="scanner-btn" [class.selected]="selectedExcuseKey() === 'perfect'" (click)="selectExcuse('perfect')">
+            <div class="scanner-icon"><i class="fa-solid fa-face-grimace"></i></div>
+            <div class="scanner-info">
+              <span class="title">"Tengo miedo de fallar"</span>
+              <span class="tag">Parálisis por perfeccionismo</span>
             </div>
           </button>
 
-          <button class="excuse-btn" [class.selected]="selectedExcuseKey() === 'bored'" (click)="selectExcuse('bored')">
-            <i class="fa-solid fa-face-tired" style="font-size: 22px; color: var(--accent);"></i>
-            <div>
-              <div>"La tarea es aburrida o enorme"</div>
-              <div style="font-size:10px; color:var(--muted); font-weight:normal; margin-top:2px">Sobrecarga y apatía cognitiva</div>
+          <button class="scanner-btn" [class.selected]="selectedExcuseKey() === 'bored'" (click)="selectExcuse('bored')">
+            <div class="scanner-icon"><i class="fa-solid fa-face-tired"></i></div>
+            <div class="scanner-info">
+              <span class="title">"La tarea es aburrida o enorme"</span>
+              <span class="tag">Sobrecarga y apatía cognitiva</span>
             </div>
           </button>
 
-          <button class="excuse-btn" [class.selected]="selectedExcuseKey() === 'time'" (click)="selectExcuse('time')">
-            <i class="fa-solid fa-hourglass-half" style="font-size: 22px; color: var(--accent);"></i>
-            <div>
-              <div>"Siento que aún me queda tiempo"</div>
-              <div style="font-size:10px; color:var(--muted); font-weight:normal; margin-top:2px">Optimismo sesgado (Present Bias)</div>
+          <button class="scanner-btn" [class.selected]="selectedExcuseKey() === 'time'" (click)="selectExcuse('time')">
+            <div class="scanner-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+            <div class="scanner-info">
+              <span class="title">"Siento que aún tengo tiempo"</span>
+              <span class="tag">Sesgo del presente (Optimismo)</span>
             </div>
           </button>
 
-          <button class="excuse-btn" [class.selected]="selectedExcuseKey() === 'distract'" (click)="selectExcuse('distract')">
-            <i class="fa-solid fa-mobile-screen-button" style="font-size: 22px; color: var(--accent);"></i>
-            <div>
-              <div>"Abro redes sociales por inercia"</div>
-              <div style="font-size:10px; color:var(--muted); font-weight:normal; margin-top:2px">Falta de barreras ambientales</div>
+          <button class="scanner-btn" [class.selected]="selectedExcuseKey() === 'distract'" (click)="selectExcuse('distract')">
+            <div class="scanner-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+            <div class="scanner-info">
+              <span class="title">"Abro redes sociales por inercia"</span>
+              <span class="tag">Impulso dopaminérgico automático</span>
             </div>
           </button>
         </div>
 
-        <!-- CONTENEDOR DE RESULTADO DINÁMICO -->
-        <div class="result-box" id="resultBox" [class.visible]="selectedExcuse()">
-          <div class="result-header">
-            @if (selectedExcuse()?.emoji) {
-              <i [class]="selectedExcuse()?.emoji" style="font-size: 22px; color: var(--green);"></i>
+        <!-- Result Box styled as a terminal readout -->
+        <div class="scanner-readout-card" id="resultBox" [class.visible]="selectedExcuse()">
+          <div class="readout-header">
+            <div class="readout-dots"><span></span><span></span><span></span></div>
+            <span class="readout-title">DIAGNÓSTICO NEUROCONDUCTUAL</span>
+            @if (selectedExcuse()) {
+              <span class="readout-tag">{{ selectedExcuse()?.tag }}</span>
             }
-            <span id="resultTitle">{{ selectedExcuse()?.title }}</span>
           </div>
-          <div class="result-desc" id="resultDesc">{{ selectedExcuse()?.desc }}</div>
-          <div class="result-action">
-            <span class="result-tag" id="resultTag">{{ selectedExcuse()?.tag }}</span>
-            <a [routerLink]="selectedExcuse()?.link">
-              <button class="btn btn-green btn-sm" id="resultBtnText">{{ selectedExcuse()?.btnText }} <i class="fa-solid fa-chevron-right" style="margin-left: 4px;"></i></button>
+          
+          @if (selectedExcuse()) {
+            <div class="readout-body">
+              <h3 class="readout-headline">
+                <i [class]="selectedExcuse()?.emoji"></i> {{ selectedExcuse()?.title }}
+              </h3>
+              <p class="readout-text font-serif">
+                {{ selectedExcuse()?.desc }}
+              </p>
+              <div class="readout-action">
+                <a [routerLink]="selectedExcuse()?.link">
+                  <button class="btn btn-accent btn-sm">
+                    {{ selectedExcuse()?.btnText }} <i class="fa-solid fa-circle-play" style="margin-left: 6px;"></i>
+                  </button>
+                </a>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: THE 7-DAY FOCUS CHALLENGE INTERACTIVE MAP -->
+  <section class="challenge-section-premium" id="desafio" style="padding: 100px 0; background: rgba(15, 23, 42, 0.2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="landing-container">
+      <div style="text-align: center; margin-bottom: 60px;">
+        <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 800; color: var(--text); margin-bottom: 16px; letter-spacing: -0.8px;">Entrenamiento Conductual: Reto de 7 Días</h2>
+        <p style="font-size: 15.5px; color: var(--muted); max-width: 600px; margin: 0 auto; line-height: 1.6;">
+          Tu mente se reconfigura por hábitos. Selecciona los días a continuación para inspeccionar el itinerario de entrenamiento de COFU.
+        </p>
+      </div>
+
+      <div class="challenge-interactive-box">
+        <!-- Horizontal Tabs -->
+        <div class="challenge-tabs-row">
+          @for (day of challengeDays; track day.num; let i = $index) {
+            <button class="challenge-tab-btn" [class.active]="selectedChallengeDayIndex() === i" (click)="selectChallengeDay(i)">
+              <span class="day-number">{{ day.num }}</span>
+              <span class="day-label">{{ day.label }}</span>
+            </button>
+          }
+        </div>
+
+        <!-- Dynamic Challenge Content Card -->
+        <div class="challenge-content-card">
+          <div class="challenge-card-left">
+            <h3 class="challenge-day-headline">{{ selectedChallengeDay().title }}</h3>
+            <p class="challenge-day-description">{{ selectedChallengeDay().desc }}</p>
+            
+            <div class="challenge-metrics-row">
+              <div class="metric-pill"><i class="fa-solid fa-circle-check"></i> {{ selectedChallengeDay().metric1 }}</div>
+              <div class="metric-pill"><i class="fa-solid fa-shield-halved"></i> {{ selectedChallengeDay().metric2 }}</div>
+            </div>
+
+            <a [routerLink]="selectedChallengeDay().link">
+              <button class="btn btn-accent btn-sm" style="margin-top: 10px;">
+                {{ selectedChallengeDay().btnText }} <i class="fa-solid fa-chevron-right" style="margin-left: 6px;"></i>
+              </button>
             </a>
           </div>
-        </div>
 
+          <div class="challenge-card-right">
+            <!-- Simulated progression graphic -->
+            <div class="challenge-graphic-visual">
+              <div class="progression-node" [style.height.%]="(selectedChallengeDayIndex() + 1) * 14">
+                <span class="badge-num">Día {{ selectedChallengeDayIndex() + 1 }}</span>
+                <span class="badge-percent">{{ getChallengeProgressPercent() }}% Completado</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- SECTION: EL ENFOQUE CIENTÍFICO -->
-  <section class="science-section landing-container">
-    <div class="science-grid">
-      <div class="science-content">
-        <h2>La neurobiología detrás de tu inacción</h2>
-        <p>
-          Cuando te enfrentas a una tarea pesada o abrumadora, tu amígdala (el centro emocional de tu cerebro) la percibe como una amenaza directa. Esto detona una respuesta de huida involuntaria: tu cerebro busca alivio inmediato en actividades de gratificación instantánea (como redes sociales) para inundarse de dopamina rápida.
+  <!-- SECTION: RPG LEVELING SKILL TREE (CAMINO DEL GUERRERO FOCUS) -->
+  <section class="leveling-section-premium" id="maestria" style="padding: 100px 0;">
+    <div class="landing-container">
+      <div style="text-align: center; margin-bottom: 60px;">
+        <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 800; color: var(--text); margin-bottom: 16px; letter-spacing: -0.8px;">El Camino de la Maestría Focus</h2>
+        <p style="font-size: 15.5px; color: var(--muted); max-width: 600px; margin: 0 auto; line-height: 1.6;">
+          Evoluciona tu disciplina como en un RPG. Cada minuto de enfoque suma puntos de experiencia para subir tu nivel y desbloquear avatares.
         </p>
-        <p>
-          Para vencer este ciclo repetitivo no necesitas regaños ni agendas complicadas. Necesitas cambiar el diseño de tu entorno digital usando tres principios conductuales validados:
+      </div>
+
+      <div class="skill-tree-path">
+        <!-- Path segment 1 -->
+        <div class="skill-node-row">
+          <div class="skill-avatar-box">
+            <div class="avatar-sprite sprite-zorro skill-sprite" style="border: 2px solid #ff9f43;"></div>
+            <div class="badge-level">Nivel 1</div>
+          </div>
+          <div class="skill-info-card">
+            <h4>Iniciado (Zorro)</h4>
+            <p>Comienzas tu entrenamiento. Vences la inercia inicial y completas tu primer bloque de 15 minutos sin interrupciones.</p>
+          </div>
+        </div>
+
+        <div class="skill-connector-line"></div>
+
+        <!-- Path segment 2 -->
+        <div class="skill-node-row reverse">
+          <div class="skill-avatar-box">
+            <div class="avatar-sprite sprite-lobo skill-sprite" style="border: 2px solid #ff4757;"></div>
+            <div class="badge-level">Nivel 5</div>
+          </div>
+          <div class="skill-info-card">
+            <h4>Guerrero (Lobo)</h4>
+            <p>Dominas el escudo de fricción. Logras mantener una racha diaria de 7 días, bloqueando los accesos dopaminérgicos automáticos.</p>
+          </div>
+        </div>
+
+        <div class="skill-connector-line"></div>
+
+        <!-- Path segment 3 -->
+        <div class="skill-node-row">
+          <div class="skill-avatar-box">
+            <div class="avatar-sprite sprite-panda skill-sprite" style="border: 2px solid #a4b0be;"></div>
+            <div class="badge-level">Nivel 10</div>
+          </div>
+          <div class="skill-info-card">
+            <h4>Guardián (Panda)</h4>
+            <p>Inercia de flujo activada. Entras al estado de concentración de forma consciente utilizando enmascaramiento auditivo.</p>
+          </div>
+        </div>
+
+        <div class="skill-connector-line"></div>
+
+        <!-- Path segment 4 -->
+        <div class="skill-node-row reverse">
+          <div class="skill-avatar-box">
+            <div class="avatar-sprite sprite-dragon skill-sprite" style="border: 2px solid var(--accent);"></div>
+            <div class="badge-level">Nivel 20</div>
+          </div>
+          <div class="skill-info-card">
+            <h4>Maestro Focus (Dragón)</h4>
+            <p>Disciplina legendaria. Has reprogramado tu sistema de recompensas. El enfoque óptimo es ahora tu respuesta por defecto.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: LIVE DOJO CARD (COMMUNITY PAIRING PREVIEW) -->
+  <section class="live-dojo-section-premium" style="padding: 100px 0; background: rgba(15, 23, 42, 0.3); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="landing-container live-dojo-premium-grid">
+      <!-- Left Info -->
+      <div style="display: flex; flex-direction: column; justify-content: center;">
+        <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 800; color: var(--text); margin-bottom: 20px; line-height: 1.15; letter-spacing: -0.8px;">
+          Entrena en equipo. Trabajar solo es aburrido.
+        </h2>
+        <p style="font-size: 16px; color: var(--muted); line-height: 1.6; margin-bottom: 32px;">
+          Empareja tus sesiones en salas de co-working silenciosas en tiempo real. Sincroniza tus Pomodoros con el grupo y siente el empuje de la productividad colectiva.
         </p>
+        <a routerLink="/registro" style="width: fit-content;">
+          <button class="btn btn-accent" style="padding: 14px 28px; font-size: 14.5px; font-weight: 700;">
+            Ingresar al Dojo <i class="fa-solid fa-users" style="margin-left: 8px;"></i>
+          </button>
+        </a>
       </div>
 
-      <div>
-        <div class="science-pill">
-          <div class="science-pill-title"><i class="fa-solid fa-frog" style="color: var(--green);"></i> 1. Mitigación del Peso Emocional (Eat the Frog)</div>
-          <div class="science-pill-desc">Afrontar la tarea de mayor peso cognitivo al principio de tu jornada libera espacio mental y disminuye drásticamente el estrés de fondo del resto de tu día.</div>
-        </div>
-        <div class="science-pill">
-          <div class="science-pill-title"><i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i> 2. Arquitectura de Fricción Activa</div>
-          <div class="science-pill-desc">Si acceder a tus distractores habituales requiere al menos 3 acciones o segundos adicionales, la corteza prefrontal retoma el control sobre los impulsos automáticos.</div>
-        </div>
-        <div class="science-pill">
-          <div class="science-pill-title"><i class="fa-solid fa-headphones" style="color: var(--accent);"></i> 3. Enmascaramiento Auditivo Inducido</div>
-          <div class="science-pill-desc">El cerebro filtra y descarta los estímulos aleatorios cuando es expuesto a frecuencias continuas sintetizadas (ruido café/rosa), atenuando los pensamientos intrusivos.</div>
+      <!-- Right Active List Card -->
+      <div style="display: flex; justify-content: center; align-items: center;">
+        <div class="coworking-card-hero" style="max-width: 440px; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 242, 254, 0.04);">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="live-dot-pulse"></span>
+              <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Salas de Enfoque Activas</span>
+            </div>
+            <span style="font-size: 10px; color: var(--green); font-weight: 800;">3 dojos abiertos</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 8px;">
+            <!-- Slot 1: Ramiro -->
+            <div class="coworking-slot">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="coworking-avatar avatar-sprite sprite-zorro" style="border: 1.5px solid #ff9f43;"></div>
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Ramiro (Zorro)</span>
+                  <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Nivel 5 • Enfoque: 25 min</span>
+                </div>
+              </div>
+              <a routerLink="/registro" class="coworking-btn" style="text-decoration: none;">
+                <span>Unirme</span>
+                <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
+              </a>
+            </div>
+
+            <!-- Slot 2: Ana -->
+            <div class="coworking-slot">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="coworking-avatar avatar-sprite sprite-lobo" style="border: 1.5px solid #ff4757;"></div>
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Ana (Lobo)</span>
+                  <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Nivel 3 • Enfoque: 50 min</span>
+                </div>
+              </div>
+              <a routerLink="/registro" class="coworking-btn" style="text-decoration: none;">
+                <span>Unirme</span>
+                <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
+              </a>
+            </div>
+
+            <!-- Slot 3: Carlos -->
+            <div class="coworking-slot">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="coworking-avatar avatar-sprite sprite-panda" style="border: 1.5px solid #a4b0be;"></div>
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Carlos (Panda)</span>
+                  <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Nivel 1 • Enfoque: 25 min</span>
+                </div>
+              </div>
+              <a routerLink="/registro" class="coworking-btn" style="text-decoration: none;">
+                <span>Unirme</span>
+                <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SECTION: EL CICLO REAL DE LA MOTIVACIÓN -->
-  <section class="motivation-section landing-container">
-    <div class="section-header">
-      <h2 class="section-title">El ciclo real de la motivación</h2>
-      <p class="section-subtitle">No esperes a "sentir ganas" para empezar. La neurociencia demuestra que la motivación no es la causa de la acción, sino su consecuencia directa.</p>
-    </div>
-
-    <div class="motivation-flow">
-      <!-- Paso 1 -->
-      <div class="motivation-step">
-        <div class="step-badge">1</div>
-        <div class="step-icon"><i class="fa-solid fa-compress"></i></div>
-        <h3 class="step-title">Micro-Acción</h3>
-        <p class="step-text"><strong>La Regla de los 2 Minutos (James Clear)</strong>: Comprométete con un paso absurdamente fácil. Abre el archivo o lee un solo párrafo. Al reducir el esfuerzo, desarmas el miedo inconsciente a empezar.</p>
-      </div>
-
-      <!-- Arrow -->
-      <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-
-      <!-- Paso 2 -->
-      <div class="motivation-step">
-        <div class="step-badge">2</div>
-        <div class="step-icon"><i class="fa-solid fa-stopwatch-20"></i></div>
-        <h3 class="step-title">Disparador</h3>
-        <p class="step-text"><strong>Ritual de Activación (Mel Robbins)</strong>: Cuenta 3, 2, 1 en voz alta y realiza un movimiento físico. Esto silencia la duda en la amígdala y transfiere el control a tu corteza motora.</p>
-      </div>
-
-      <!-- Arrow -->
-      <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-
-      <!-- Paso 3 -->
-      <div class="motivation-step">
-        <div class="step-badge">3</div>
-        <div class="step-icon"><i class="fa-solid fa-award"></i></div>
-        <h3 class="step-title">Dopamina</h3>
-        <p class="step-text"><strong>Éxito Percibido</strong>: Al completar el micro-paso de 2 minutos, tu cerebro registra una victoria inmediata, liberando una pequeña dosis de dopamina en tu circuito de recompensa.</p>
-      </div>
-
-      <!-- Arrow -->
-      <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-
-      <!-- Paso 4 -->
-      <div class="motivation-step">
-        <div class="step-badge">4</div>
-        <div class="step-icon"><i class="fa-solid fa-rotate-right"></i></div>
-        <h3 class="step-title">Motivación</h3>
-        <p class="step-text"><strong>Inercia de Enfoque</strong>: La dopamina activa el deseo de continuar. La barrera de inicio ha desaparecido, y entras en estado de flujo sin esfuerzo consciente.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- SECTION: HERRAMIENTAS CLAVE -->
-  <section class="features-section landing-container">
-    <div class="section-header">
-      <h2 class="section-title">Tu kit de herramientas conductuales</h2>
-      <p class="section-subtitle">Módulos prácticos e integrados diseñados para estructurar y proteger tus sesiones de enfoque óptimo.</p>
-    </div>
-
-    <div class="features-grid">
-      <!-- Tarjeta 1 -->
-      <div class="feature-card">
-        <i class="fa-regular fa-clock feature-icon" style="color: var(--accent); font-size: 32px; display: block; margin-bottom: 20px;"></i>
-        <div class="feature-name">Foco por Bloques</div>
-        <div class="feature-desc">Establece lapsos de concentración protegidos con descansos obligatorios diseñados para restaurar tu energía atencional y evitar la fatiga mental.</div>
-      </div>
-      <!-- Tarjeta 2 -->
-      <div class="feature-card">
-        <i class="fa-solid fa-shield-halved feature-icon" style="color: var(--accent); font-size: 32px; display: block; margin-bottom: 20px;"></i>
-        <div class="feature-name">Fricción de Navegador</div>
-        <div class="feature-desc">Aísla tu entorno de trabajo de plataformas dopaminérgicas. Crea un cortafuegos físico que frena tus impulsos automáticos de distracción.</div>
-      </div>
-      <!-- Tarjeta 3 -->
-      <div class="feature-card">
-        <i class="fa-solid fa-headphones feature-icon" style="color: var(--accent); font-size: 32px; display: block; margin-bottom: 20px;"></i>
-        <div class="feature-name">Sintetizador Sensorial</div>
-        <div class="feature-desc">Generador integrado de ruido coloreado (lluvia, bosque, ruido café) sintetizado en tiempo real para aislar tu corteza auditiva y propiciar ondas alfa.</div>
-      </div>
-      <!-- Tarjeta 4 -->
-      <div class="feature-card">
-        <i class="fa-solid fa-hourglass-empty feature-icon" style="color: var(--accent); font-size: 32px; display: block; margin-bottom: 20px;"></i>
-        <div class="feature-name">Urgencia Visual Sana</div>
-        <div class="feature-desc">Contadores visuales dinámicos que muestran el avance real de tus plazos, destruyendo la Ley de Parkinson que expande y posterga tus pendientes.</div>
-      </div>
+  <!-- FINAL TESTIMONIAL & RETO CTA -->
+  <section class="footer-cta-section" style="border-top: 1px solid var(--border); background: radial-gradient(circle at center, #0c1630 0%, #050811 100%); padding: 110px 0; text-align: center;">
+    <div class="landing-container" style="max-width: 800px; display: flex; flex-direction: column; align-items: center; gap: 28px;">
+      <div style="font-size: 20px; color: var(--yellow); letter-spacing: 2px;">⭐⭐⭐⭐⭐</div>
+      <p class="zen-quote" style="font-size: 20px; line-height: 1.6; color: var(--text); max-width: 700px; margin: 0 auto;">
+        "Desde que uso COFU, me cuesta mucho menos empezar. El emparejamiento conductual y las rachas hacen toda la diferencia."
+      </p>
+      <span style="font-size: 11.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px;">— Usuario Pro del Dojo</span>
+      
+      <div style="width: 60px; height: 1.5px; background: var(--border); margin: 10px 0;"></div>
+      
+      <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 38px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -1px; line-height: 1.1;">
+        Tu yo del futuro te lo va a agradecer.
+      </h2>
+      <p style="font-size: 16px; color: var(--muted); max-width: 500px; margin: 0; line-height: 1.5;">
+        Comienza hoy con 25 minutos. No requieres tarjeta de crédito.
+      </p>
+      
+      <a routerLink="/registro">
+        <button class="btn btn-accent" style="padding: 14px 38px; font-size: 15px; font-weight: 700; box-shadow: 0 0 30px rgba(0, 242, 254, 0.25);">
+          Crear mi cuenta gratis <i class="fa-solid fa-arrow-right" style="margin-left: 6px;"></i>
+        </button>
+      </a>
+      
+      <span style="font-size: 11.5px; color: var(--muted); font-weight: 500;">
+        Registro en 1 minuto • Desbloqueo inmediato
+      </span>
     </div>
   </section>
 </main>
 
 <!-- FOOTER -->
-<footer class="landing-footer">
-  <p>© 2026 COFU. Desarrollado bajo principios y metodologías de la psicología cognitiva conductual.</p>
+<footer class="landing-footer" style="padding: 24px; text-align: center; border-top: 1px solid rgba(255,255,255,0.03); background: #050811;">
+  <p style="font-size: 12px; color: var(--muted);">© 2026 COFU. Diseñado bajo principios de diseño conductual y neurociencia aplicada.</p>
 </footer>

@@ -162,9 +162,13 @@ export class Landing {
     this.selectedChallengeDayIndex.set(index);
   }
 
+  getChallengeProgressPercent(): number {
+    return Math.round((this.selectedChallengeDayIndex() + 1) / 7 * 100);
+  }
+
   scrollToWidget(event: Event) {
     event.preventDefault();
-    const element = document.getElementById('widget');
+    const element = document.getElementById('desafio');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }

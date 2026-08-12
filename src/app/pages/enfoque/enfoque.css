@@ -67,6 +67,7 @@
 }
 
 .quote-text {
+  font-family: 'Lora', Georgia, serif;
   font-size: 13.5px;
   font-style: italic;
   color: var(--text);
