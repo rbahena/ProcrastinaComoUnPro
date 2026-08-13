@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from './services/membership.service';
 
@@ -19,7 +19,7 @@ export class App implements OnInit {
 
   @ViewChild('ideaInput') ideaInputRef?: ElementRef<HTMLInputElement>;
 
-  constructor(public membership: MembershipService) {}
+  constructor(public membership: MembershipService, private router: Router) {}
 
   ngOnInit() {
     const savedTheme = localStorage.getItem('procrastina-theme') || 'samurai';
@@ -34,8 +34,14 @@ export class App implements OnInit {
     body.classList.add(`theme-${savedTheme}`);
   }
 
+  isLandingOrAuthRoute(): boolean {
+    const url = this.router.url;
+    return url.includes('/landing') || url.includes('/login') || url.includes('/registro') || url === '/';
+  }
+
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
+    if (this.isLandingOrAuthRoute()) return;
     // Detectar Alt + I (con tolerancias para teclados con ñ u otros layouts)
     if (event.altKey && (event.key === 'i' || event.key === 'I' || event.code === 'KeyI')) {
       event.preventDefault();

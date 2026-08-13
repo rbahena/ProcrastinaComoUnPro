@@ -1,6 +1,6 @@
 <router-outlet></router-outlet>
 
-<div class="fleeting-notes-widget" [class.success-firing]="isAnimatingSuccess()">
+<div class="fleeting-notes-widget" *ngIf="!isLandingOrAuthRoute()" [class.success-firing]="isAnimatingSuccess()">
   
   <!-- Contenedor del Input Expandible -->
   <div class="fleeting-input-panel" [class.expanded]="showFloatingInput()">

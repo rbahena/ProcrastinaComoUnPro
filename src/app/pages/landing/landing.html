@@ -1,78 +1,145 @@
 <!-- HEADER -->
 <header class="landing-header">
-  <a routerLink="/landing" class="logo" style="padding: 0; text-decoration: none;">
+  <a routerLink="/landing" class="logo" style="padding: 0; text-decoration: none; display: flex; align-items: center; gap: 10px;">
     <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
-    <span class="logo-text">COFU</span>
+    <div style="display: flex; flex-direction: column; line-height: 1.15; align-items: flex-start;">
+      <span class="logo-text" style="font-size: 16.5px; margin: 0;">COFU</span>
+      <span style="font-size: 9px; color: var(--accent); font-weight: 700; letter-spacing: 0.3px; margin-top: 1px;">Enfócate. Conecta. Avanza.</span>
+    </div>
   </a>
   
-  <nav class="landing-nav-links" style="display: flex; gap: 28px; align-items: center;">
-    <a href="#como-funciona" class="nav-link" style="color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; transition: color 0.2s;">Cómo funciona</a>
-    <a href="#diagnostico" class="nav-link" style="color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; transition: color 0.2s;">Diagnóstico</a>
-    <a href="#desafio" class="nav-link" style="color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; transition: color 0.2s;">Reto de 7 Días</a>
-    <a href="#maestria" class="nav-link" style="color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; transition: color 0.2s;">Camino del Guerrero</a>
-  </nav>
 
   <div style="display: flex; gap: 12px; align-items: center;">
     <a routerLink="/login">
       <button class="btn btn-ghost btn-sm">Iniciar sesión</button>
     </a>
     <a routerLink="/registro">
-      <button class="btn btn-accent btn-sm">Empezar gratis</button>
+      <button class="btn btn-accent btn-sm">Registrarme</button>
     </a>
   </div>
 </header>
 
 <main>
-  <!-- SPACIOUS CENTRED HERO SECTION -->
+  <!-- SPACIOUS PREMIUM HERO SECTION -->
   <section class="hero-section-premium" id="como-funciona">
     <div class="hero-background-effects">
       <div class="orbital-glow-ring"></div>
       <div class="ambient-glow"></div>
     </div>
     
-    <div class="landing-container hero-premium-content">
-      <div class="hero-badge-glow">
-        <i class="fa-solid fa-bolt" style="margin-right: 6px; color: var(--accent);"></i> 
-        SISTEMA DE ENTRENAMIENTO CONDUCTUAL
-      </div>
-      
-      <h1 class="hero-premium-title">
-        El espacio donde tu enfoque fluye sin esfuerzo.
-      </h1>
-      
-      <p class="hero-premium-subtitle">
-        Sincronízate con la comunidad en dojos de concentración, añade fricción física a tus distractores y domina tu autodisciplina con un sistema gamificado de avatares.
-      </p>
-      
-      <div class="hero-premium-btns">
-        <a routerLink="/registro">
-          <button class="btn btn-accent btn-lg" style="box-shadow: 0 0 35px rgba(0, 242, 254, 0.3);">
-            Iniciar Mi Dojo Gratis <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
-          </button>
-        </a>
-        <a href="#desafio" (click)="scrollToWidget($event)">
-          <button class="btn btn-ghost btn-lg">
-            Ver el Desafío de 7 Días
-          </button>
-        </a>
+    <div class="landing-container hero-premium-grid">
+      <!-- Left Column: Content -->
+      <div class="hero-premium-left">
+        <!-- Social Proof Avatar Stack -->
+        <div class="hero-avatar-social-proof">
+          <div class="avatar-stack">
+            <div class="avatar-stack-emoji" style="border-color: #ff9f43; z-index: 5;">🦊</div>
+            <div class="avatar-stack-emoji" style="border-color: #ff4757; z-index: 4;">🐺</div>
+            <div class="avatar-stack-emoji" style="border-color: #a4b0be; z-index: 3;">🐼</div>
+            <div class="avatar-stack-emoji" style="border-color: #54a0ff; z-index: 2;">🦉</div>
+            <div class="avatar-stack-emoji" style="border-color: var(--accent); z-index: 1;">🐉</div>
+          </div>
+          <div class="social-proof-info">
+            <span class="live-dot-pulse" style="width: 7px; height: 7px; background: var(--green); margin: 0;"></span>
+            <span class="proof-text"><strong>{{ focusedNowCount() }}</strong> enfocados ahora</span>
+          </div>
+        </div>
+        
+        <h1 class="hero-premium-title">
+          El espacio donde tu enfoque fluye sin esfuerzo.
+        </h1>
+        
+        <p class="hero-premium-subtitle">
+          Sincronízate con la comunidad en sesiones de concentración, añade fricción física a tus distractores y domina tu autodisciplina con un sistema gamificado de avatares.
+        </p>
+        
+        <div class="hero-premium-btns">
+          <a routerLink="/login">
+            <button class="btn btn-accent btn-lg">
+              Iniciar sesión <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
+            </button>
+          </a>
+        </div>
       </div>
 
-      <!-- Quick Metrics Grid -->
+      <!-- Right Column: Holographic Dojo Podium Preview -->
+      <div class="hero-premium-right">
+        <div class="hero-hologram-podium">
+          <div class="podium-header-hologram" style="flex-direction: column; gap: 4px; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="pulse-dot-green"></span>
+              <span>¡COMPITE POR EL PODIO SEMANAL!</span>
+            </div>
+            <span style="font-size: 12px; color: var(--muted); font-weight: 500; text-shadow: none; letter-spacing: 0.3px; text-transform: none; text-align: center; margin-top: 6px; max-width: 320px; display: inline-block; line-height: 1.5;">
+              Genera puntos con cada sesión de concentración y sube de rango en tiempo real.
+            </span>
+          </div>
+          
+          <div class="podium-base-wrapper">
+            <!-- 2nd Place -->
+            <div class="podium-column-holo second">
+              <span class="holo-name">Ana</span>
+              <span class="holo-pts">320 pts</span>
+              <div class="holo-avatar">🐺</div>
+              <div class="holo-bar">2º</div>
+            </div>
+            
+            <!-- 1st Place -->
+            <div class="podium-column-holo first">
+              <span class="holo-name">Ramiro</span>
+              <span class="holo-pts">450 pts</span>
+              <div class="holo-avatar-crown">
+                <i class="fa-solid fa-crown holo-crown"></i>
+                <div class="holo-avatar">🐉</div>
+              </div>
+              <div class="holo-bar">1º</div>
+            </div>
+            
+            <!-- 3rd Place -->
+            <div class="podium-column-holo third">
+              <span class="holo-name">Carlos</span>
+              <span class="holo-pts">280 pts</span>
+              <div class="holo-avatar">🦉</div>
+              <div class="holo-bar">3º</div>
+            </div>
+          </div>
+          
+          <!-- Holographic projector base line -->
+          <div class="projector-glow-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Metrics Grid -->
+    <div class="landing-container" style="max-width: 1100px; position: relative; z-index: 2;">
       <div class="hero-metrics-grid">
         <div class="hero-metric-card">
-          <span class="num">1,284</span>
+          <span class="num">{{ focusedNowCount() }}</span>
           <span class="lbl">Enfocados Ahora</span>
         </div>
         <div class="hero-metric-card">
-          <span class="num">128.4K</span>
+          <span class="num">{{ sessionsCount() }}</span>
           <span class="lbl">Sesiones Listas</span>
         </div>
         <div class="hero-metric-card">
-          <span class="num">32.8K</span>
+          <span class="num">{{ goalsCount() }}</span>
           <span class="lbl">Metas Logradas</span>
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- SLOGAN BANNER SECTION -->
+  <section class="slogan-banner-section" style="padding: 44px 0; background: linear-gradient(to right, rgba(0, 242, 254, 0.03) 0%, rgba(0, 242, 254, 0) 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+    <div class="landing-container" style="text-align: center; z-index: 2; position: relative;">
+      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 4px; margin: 0 0 8px 0; text-shadow: 0 0 15px rgba(0, 242, 254, 0.35);">
+        Procrastina como un Pro
+      </h3>
+      <p style="font-size: 13.5px; color: var(--muted); margin: 0; font-weight: 500; letter-spacing: 0.5px;">
+        Entrena tu mente, reprograma tu resistencia y evoluciona tu disciplina diaria.
+      </p>
+    </div>
+    <div style="position: absolute; width: 300px; height: 100px; background: radial-gradient(circle, rgba(0, 242, 254, 0.05) 0%, transparent 70%); filter: blur(40px); left: 50%; transform: translateX(-50%); top: 50%; transform: translate(-50%, -50%); pointer-events: none;"></div>
   </section>
 
   <!-- SECTION: THE ESCANER CONDUCTUAL (DIAGNOSTIC WIDGET) -->
@@ -153,58 +220,6 @@
     </div>
   </section>
 
-  <!-- SECTION: THE 7-DAY FOCUS CHALLENGE INTERACTIVE MAP -->
-  <section class="challenge-section-premium" id="desafio" style="padding: 100px 0; background: rgba(15, 23, 42, 0.2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
-    <div class="landing-container">
-      <div style="text-align: center; margin-bottom: 60px;">
-        <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 800; color: var(--text); margin-bottom: 16px; letter-spacing: -0.8px;">Entrenamiento Conductual: Reto de 7 Días</h2>
-        <p style="font-size: 15.5px; color: var(--muted); max-width: 600px; margin: 0 auto; line-height: 1.6;">
-          Tu mente se reconfigura por hábitos. Selecciona los días a continuación para inspeccionar el itinerario de entrenamiento de COFU.
-        </p>
-      </div>
-
-      <div class="challenge-interactive-box">
-        <!-- Horizontal Tabs -->
-        <div class="challenge-tabs-row">
-          @for (day of challengeDays; track day.num; let i = $index) {
-            <button class="challenge-tab-btn" [class.active]="selectedChallengeDayIndex() === i" (click)="selectChallengeDay(i)">
-              <span class="day-number">{{ day.num }}</span>
-              <span class="day-label">{{ day.label }}</span>
-            </button>
-          }
-        </div>
-
-        <!-- Dynamic Challenge Content Card -->
-        <div class="challenge-content-card">
-          <div class="challenge-card-left">
-            <h3 class="challenge-day-headline">{{ selectedChallengeDay().title }}</h3>
-            <p class="challenge-day-description">{{ selectedChallengeDay().desc }}</p>
-            
-            <div class="challenge-metrics-row">
-              <div class="metric-pill"><i class="fa-solid fa-circle-check"></i> {{ selectedChallengeDay().metric1 }}</div>
-              <div class="metric-pill"><i class="fa-solid fa-shield-halved"></i> {{ selectedChallengeDay().metric2 }}</div>
-            </div>
-
-            <a [routerLink]="selectedChallengeDay().link">
-              <button class="btn btn-accent btn-sm" style="margin-top: 10px;">
-                {{ selectedChallengeDay().btnText }} <i class="fa-solid fa-chevron-right" style="margin-left: 6px;"></i>
-              </button>
-            </a>
-          </div>
-
-          <div class="challenge-card-right">
-            <!-- Simulated progression graphic -->
-            <div class="challenge-graphic-visual">
-              <div class="progression-node" [style.height.%]="(selectedChallengeDayIndex() + 1) * 14">
-                <span class="badge-num">Día {{ selectedChallengeDayIndex() + 1 }}</span>
-                <span class="badge-percent">{{ getChallengeProgressPercent() }}% Completado</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- SECTION: RPG LEVELING SKILL TREE (CAMINO DEL GUERRERO FOCUS) -->
   <section class="leveling-section-premium" id="maestria" style="padding: 100px 0;">
@@ -220,7 +235,7 @@
         <!-- Path segment 1 -->
         <div class="skill-node-row">
           <div class="skill-avatar-box">
-            <div class="avatar-sprite sprite-zorro skill-sprite" style="border: 2px solid #ff9f43;"></div>
+            <div class="avatar-emoji-node" style="border: 2px solid #ff9f43;">🦊</div>
             <div class="badge-level">Nivel 1</div>
           </div>
           <div class="skill-info-card">
@@ -234,7 +249,7 @@
         <!-- Path segment 2 -->
         <div class="skill-node-row reverse">
           <div class="skill-avatar-box">
-            <div class="avatar-sprite sprite-lobo skill-sprite" style="border: 2px solid #ff4757;"></div>
+            <div class="avatar-emoji-node" style="border: 2px solid #ff4757;">🐺</div>
             <div class="badge-level">Nivel 5</div>
           </div>
           <div class="skill-info-card">
@@ -248,7 +263,7 @@
         <!-- Path segment 3 -->
         <div class="skill-node-row">
           <div class="skill-avatar-box">
-            <div class="avatar-sprite sprite-panda skill-sprite" style="border: 2px solid #a4b0be;"></div>
+            <div class="avatar-emoji-node" style="border: 2px solid #a4b0be;">🐼</div>
             <div class="badge-level">Nivel 10</div>
           </div>
           <div class="skill-info-card">
@@ -262,7 +277,7 @@
         <!-- Path segment 4 -->
         <div class="skill-node-row reverse">
           <div class="skill-avatar-box">
-            <div class="avatar-sprite sprite-dragon skill-sprite" style="border: 2px solid var(--accent);"></div>
+            <div class="avatar-emoji-node" style="border: 2px solid var(--accent);">🐉</div>
             <div class="badge-level">Nivel 20</div>
           </div>
           <div class="skill-info-card">
@@ -300,16 +315,16 @@
               <span class="live-dot-pulse"></span>
               <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Salas de Enfoque Activas</span>
             </div>
-            <span style="font-size: 10px; color: var(--green); font-weight: 800;">3 dojos abiertos</span>
+            <span style="font-size: 10px; color: var(--green); font-weight: 800;">3 sesiones abiertas</span>
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 8px;">
             <!-- Slot 1: Ramiro -->
             <div class="coworking-slot">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="coworking-avatar avatar-sprite sprite-zorro" style="border: 1.5px solid #ff9f43;"></div>
+                <div class="coworking-avatar-emoji" style="border: 1.5px solid #ff9f43;">🦊</div>
                 <div style="display: flex; flex-direction: column;">
-                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Ramiro (Zorro)</span>
+                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Ramiro</span>
                   <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Nivel 5 • Enfoque: 25 min</span>
                 </div>
               </div>
@@ -322,9 +337,9 @@
             <!-- Slot 2: Ana -->
             <div class="coworking-slot">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="coworking-avatar avatar-sprite sprite-lobo" style="border: 1.5px solid #ff4757;"></div>
+                <div class="coworking-avatar-emoji" style="border: 1.5px solid #ff4757;">🐺</div>
                 <div style="display: flex; flex-direction: column;">
-                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Ana (Lobo)</span>
+                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Ana</span>
                   <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Nivel 3 • Enfoque: 50 min</span>
                 </div>
               </div>
@@ -337,9 +352,9 @@
             <!-- Slot 3: Carlos -->
             <div class="coworking-slot">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="coworking-avatar avatar-sprite sprite-panda" style="border: 1.5px solid #a4b0be;"></div>
+                <div class="coworking-avatar-emoji" style="border: 1.5px solid #a4b0be;">🐼</div>
                 <div style="display: flex; flex-direction: column;">
-                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Carlos (Panda)</span>
+                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Carlos</span>
                   <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Nivel 1 • Enfoque: 25 min</span>
                 </div>
               </div>
@@ -373,8 +388,8 @@
       </p>
       
       <a routerLink="/registro">
-        <button class="btn btn-accent" style="padding: 14px 38px; font-size: 15px; font-weight: 700; box-shadow: 0 0 30px rgba(0, 242, 254, 0.25);">
-          Crear mi cuenta gratis <i class="fa-solid fa-arrow-right" style="margin-left: 6px;"></i>
+        <button class="btn btn-accent" style="padding: 14px 38px; font-size: 15px; font-weight: 700;">
+          Registrarme <i class="fa-solid fa-arrow-right" style="margin-left: 6px;"></i>
         </button>
       </a>
       

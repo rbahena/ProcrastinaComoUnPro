@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 interface ExcuseDetail {
@@ -27,7 +27,8 @@ interface ChallengeDay {
   templateUrl: './landing.html',
   styleUrl: './landing.css',
 })
-export class Landing {
+export class Landing implements OnInit, OnDestroy {
+  private timerId?: any;
   private readonly EXCUSES: Record<string, ExcuseDetail> = {
     perfect: {
       title: 'Parálisis por Perfeccionismo (Miedo al fallo)',
@@ -138,6 +139,46 @@ export class Landing {
 
   selectedExcuseKey = signal<string | null>(null);
   selectedChallengeDayIndex = signal<number>(0);
+
+  focusedNowCount = signal<number>(Math.floor(Math.random() * 80) + 110); // 110 to 189 (less than 200)
+  sessionsCount = signal<number>(Math.floor(Math.random() * 30) + 60);   // 60 to 89 (less than 100)
+  goalsCount = signal<number>(Math.floor(Math.random() * 150) + 320);    // 320 to 469 (less than 500)
+
+  ngOnInit() {
+    this.timerId = setInterval(() => {
+      this.simulateFluctuations();
+    }, 30000);
+  }
+
+  ngOnDestroy() {
+    if (this.timerId) {
+      clearInterval(this.timerId);
+    }
+  }
+
+  simulateFluctuations() {
+    // 1. Focused now: fluctuates (-3 to +3), capped at 199, min 100
+    const currentFocused = this.focusedNowCount();
+    const diffFocused = Math.floor(Math.random() * 7) - 3;
+    let nextFocused = currentFocused + diffFocused;
+    if (nextFocused >= 200) nextFocused = 199;
+    if (nextFocused < 100) nextFocused = 100;
+    this.focusedNowCount.set(nextFocused);
+
+    // 2. Sessions: increments (+0 or +1), capped at 99
+    const currentSessions = this.sessionsCount();
+    const diffSessions = Math.random() > 0.45 ? 1 : 0;
+    let nextSessions = currentSessions + diffSessions;
+    if (nextSessions >= 100) nextSessions = 99;
+    this.sessionsCount.set(nextSessions);
+
+    // 3. Goals: increments (+0 or +1), capped at 499
+    const currentGoals = this.goalsCount();
+    const diffGoals = Math.random() > 0.5 ? 1 : 0;
+    let nextGoals = currentGoals + diffGoals;
+    if (nextGoals >= 500) nextGoals = 499;
+    this.goalsCount.set(nextGoals);
+  }
 
   selectedExcuse = computed(() => {
     const key = this.selectedExcuseKey();
