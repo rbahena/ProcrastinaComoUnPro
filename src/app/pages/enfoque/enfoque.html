@@ -81,7 +81,7 @@
 
       <!-- BALANCES DE USUARIO (PREMIUM VS GRATUITO) -->
       <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
-        <!-- Badge Premium / Free (Sutil y Kaizen Pro) -->
+        <!-- Badge Premium / Free (Sutil y COFU Pro) -->
         <button routerLink="/membresia" 
                 style="border-radius: 12px; font-family: inherit; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.25s; padding: 6px 14px;"
                 [style.background]="membership.isPremium() ? 'rgba(245,158,11,0.03)' : 'rgba(255,255,255,0.02)'"
@@ -379,112 +379,6 @@
               </div>
             </div>
 
-            <!-- TIENDA PREMIUM DE DESBLOQUEABLES (STORE) -->
-            <div style="height: 1px; background: rgba(255,255,255,0.03); margin: 0;"></div>
-
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <span style="font-size: 11px; font-weight: 700; color: var(--yellow); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-store"></i> Tienda de Cosméticos
-              </span>
-              
-              <div style="display: flex; flex-direction: column; gap: 6px;">
-                <span style="font-size: 9.5px; color: var(--muted); font-weight: 700;">Avatares Guardián</span>
-                
-                <div style="display: grid; grid-template-columns: 1fr; gap: 6px;">
-                  <!-- Zorro Ninja (Gratis) -->
-                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text);">
-                      <i class="fa-solid fa-mask" style="color: var(--accent); font-size: 11px;"></i>
-                      <span>Zorro Ninja</span>
-                    </div>
-                    <button *ngIf="selectedAvatar() !== 'zorro'" 
-                            (click)="membership.selectedAvatar.set('zorro')"
-                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; color: var(--text); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                      Equipar
-                    </button>
-                    <span *ngIf="selectedAvatar() === 'zorro'" style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase;">Activo</span>
-                  </div>
-
-                  <!-- Lobo Carmesí (50 Coins) -->
-                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text);">
-                      <i class="fa-solid fa-shield-halved" style="color: #3a86f0; font-size: 11px;"></i>
-                      <span>Lobo Carmesí</span>
-                    </div>
-                    <button *ngIf="!membership.unlockedAvatars().includes('lobo')" 
-                            (click)="buyAvatar('lobo', 50)"
-                            style="background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 4px; padding: 3px 8px; color: var(--yellow); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                      50 🪙
-                    </button>
-                    <button *ngIf="membership.unlockedAvatars().includes('lobo') && selectedAvatar() !== 'lobo'" 
-                            (click)="membership.selectedAvatar.set('lobo')"
-                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; color: var(--text); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                      Equipar
-                    </button>
-                    <span *ngIf="selectedAvatar() === 'lobo'" style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase;">Activo</span>
-                  </div>
-
-                  <!-- Elefante (80 Coins) -->
-                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text);">
-                      <i class="fa-solid fa-elephant" style="color: #f59e0b; font-size: 11px;"></i>
-                      <span>Elefante</span>
-                    </div>
-                    <button *ngIf="!membership.unlockedAvatars().includes('elefante')" 
-                            (click)="buyAvatar('elefante', 80)"
-                            style="background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 4px; padding: 3px 8px; color: var(--yellow); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                      80 🪙
-                    </button>
-                    <button *ngIf="membership.unlockedAvatars().includes('elefante') && selectedAvatar() !== 'elefante'" 
-                            (click)="membership.selectedAvatar.set('elefante')"
-                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; color: var(--text); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                      Equipar
-                    </button>
-                    <span *ngIf="selectedAvatar() === 'elefante'" style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase;">Activo</span>
-                  </div>
-
-                  <!-- Búho Estratega (120 Coins) -->
-                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text);">
-                      <i class="fa-solid fa-glasses" style="color: #10b981; font-size: 11px;"></i>
-                      <span>Búho Estratega</span>
-                    </div>
-                    <button *ngIf="!membership.unlockedAvatars().includes('buho')" 
-                            (click)="buyAvatar('buho', 120)"
-                            style="background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 4px; padding: 3px 8px; color: var(--yellow); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                      120 🪙
-                    </button>
-                    <button *ngIf="membership.unlockedAvatars().includes('buho') && selectedAvatar() !== 'buho'" 
-                            (click)="membership.selectedAvatar.set('buho')"
-                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; color: var(--text); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                      Equipar
-                    </button>
-                    <span *ngIf="selectedAvatar() === 'buho'" style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase;">Activo</span>
-                  </div>
-
-                  <!-- Águila (200 Coins) -->
-                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text);">
-                      <i class="fa-solid fa-paper-plane" style="color: #a855f7; font-size: 11px;"></i>
-                      <span>Águila</span>
-                    </div>
-                    <button *ngIf="!membership.unlockedAvatars().includes('aguila')" 
-                            (click)="buyAvatar('aguila', 200)"
-                            style="background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 4px; padding: 3px 8px; color: var(--yellow); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                      200 🪙
-                    </button>
-                    <button *ngIf="membership.unlockedAvatars().includes('aguila') && selectedAvatar() !== 'aguila'" 
-                            (click)="membership.selectedAvatar.set('aguila')"
-                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 8px; color: var(--text); font-size: 9.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                      Equipar
-                    </button>
-                    <span *ngIf="selectedAvatar() === 'aguila'" style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase;">Activo</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style="height: 1px; background: rgba(255,255,255,0.03); margin: 0;"></div>
 
             <!-- BOTÓN APLICAR CAMBIOS / GUARDAR PREFERENCIAS -->
             <button (click)="showSetupSettings.set(false)"
@@ -1045,7 +939,7 @@
            style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
         <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">⭐ Conviértete en Pro</span>
         <p style="font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4;">
-          Con Premium habrías obtenido **+10 Puntos** y **+5 Pro Coins** para el ranking del Dojo y la Tienda de Cosméticos.
+          Con Premium habrías obtenido **+10 Puntos** y **+5 Pro Coins** para el ranking del Dojo y la Tienda de Avatares.
         </p>
         <button routerLink="/membresia" 
                 style="border: none; background: var(--accent); color: #000; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-family: inherit;"

@@ -802,9 +802,21 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   z-index: 100;
 }
 
+.landing-header .logo-img {
+  width: 48px;
+  height: 48px;
+  border-width: 2px;
+  transition: all 0.2s ease;
+}
+
+
 @media (max-width: 768px) {
   .landing-header {
     padding: 14px 16px;
+  }
+  .landing-header .logo-img {
+    width: 38px;
+    height: 38px;
   }
   .landing-header .btn-sm {
     padding: 6px 10px;
