@@ -1,8 +1,13 @@
 <!-- HEADER -->
 <header class="landing-header">
-  <a routerLink="/landing" class="logo" style="padding: 0; text-decoration: none;">
+  <a routerLink="/landing" class="logo" style="padding: 0; text-decoration: none; display: flex; align-items: center; gap: 10px;">
     <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
-    <span class="logo-text">COFU</span>
+    <div style="display: flex; flex-direction: column; line-height: 1.1;">
+      <span class="logo-text" style="font-size: 20px; font-weight: 900; letter-spacing: -0.5px; line-height: 1;">COFU</span>
+      <span class="logo-slogan" style="font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 0.5px; margin-top: 3px; text-transform: uppercase;">
+        Enfócate. Conecta. Avanza.
+      </span>
+    </div>
   </a>
   <div style="display: flex; gap: 10px; align-items: center;">
     <a routerLink="/login">
