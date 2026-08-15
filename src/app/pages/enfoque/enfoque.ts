@@ -121,19 +121,6 @@ export class Enfoque implements OnInit, OnDestroy {
   soundOptions: ('zen' | 'digital' | 'chime')[] = ['zen', 'chime', 'digital'];
   themeOptions: ('samurai' | 'cyberpunk' | 'aurora' | 'zen')[] = ['samurai', 'cyberpunk', 'aurora', 'zen'];
 
-  // Ajustes de Fondos Lo-Fi
-  selectedLofiBg = signal<'off' | 'room' | 'cafe' | 'drive' | 'forest'>('off');
-  showLofiQuickMenu = signal(false);
-
-  toggleLofiQuickMenu() {
-    this.showLofiQuickMenu.set(!this.showLofiQuickMenu());
-  }
-
-  updateLofiBg(bg: any) {
-    this.selectedLofiBg.set(bg);
-    localStorage.setItem('lofi-bg', bg);
-  }
-
   toggleSidebar() {
     this.membership.toggleSidebar();
   }
@@ -268,11 +255,6 @@ export class Enfoque implements OnInit, OnDestroy {
   });
 
   ngOnInit() {
-    const savedBg = localStorage.getItem('lofi-bg') as 'off' | 'room' | 'cafe' | 'drive' | 'forest';
-    if (savedBg && ['off', 'room', 'cafe', 'drive', 'forest'].includes(savedBg)) {
-      this.selectedLofiBg.set(savedBg);
-    }
-
     const partnerName = localStorage.getItem('shared-session-partner-name');
     const partnerAvatar = localStorage.getItem('shared-session-partner-avatar');
     if (partnerName && partnerAvatar) {

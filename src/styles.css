@@ -230,6 +230,53 @@ button { font-family: inherit; cursor: pointer; }
   padding: 24px 14px;
   position: fixed;
   height: 100vh;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+/* Sidebar Toggle Button pegado a la barra lateral */
+.sidebar-toggle-btn {
+  position: absolute;
+  top: 30px;
+  right: -14px; /* Mitad afuera, mitad adentro */
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg); /* Fondo sólido */
+  border: 1px solid var(--border);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 110;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 242, 254, 0.1);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-toggle-btn:hover {
+  background: var(--bg2);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 4px 12px rgba(0, 242, 254, 0.25);
+  transform: scale(1.05);
+}
+
+/* Cuando la barra lateral está colapsada, reposicionamos el botón para que sea completamente visible en la pantalla */
+.sidebar.collapsed .sidebar-toggle-btn {
+  right: -28px; /* Se desplaza hacia afuera para quedar pegado al borde izquierdo de la pantalla */
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 242, 254, 0.1);
+}
+
+/* Ocultar en dispositivos móviles */
+@media (max-width: 768px) {
+  .sidebar-toggle-btn {
+    display: none !important;
+  }
 }
 
 .logo {
@@ -334,6 +381,7 @@ button { font-family: inherit; cursor: pointer; }
   display: flex;
   flex-direction: column;
   gap: 28px;
+  transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ===== PAGE HEADER ===== */
