@@ -1,5 +1,11 @@
 <!-- SIDEBAR -->
-<div class="sidebar">
+<div class="sidebar" [class.collapsed]="sidebarCollapsed()">
+  <!-- Toggle Sidebar Button -->
+  <button (click)="toggleSidebar()" 
+          class="sidebar-toggle-btn"
+          [title]="sidebarCollapsed() ? 'Expandir barra lateral' : 'Contraer barra lateral'">
+    <i class="fa-solid" [class]="sidebarCollapsed() ? 'fa-angles-right' : 'fa-angles-left'" style="font-size: 11px;"></i>
+  </button>
   <a routerLink="/home" class="logo">
     <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
     <span class="logo-text">{{ labels().logoText }}</span>
@@ -46,7 +52,7 @@
 </div>
 
 <!-- MAIN WORKSPACE -->
-<div class="main">
+<div class="main" [style.marginLeft]="sidebarCollapsed() ? '0px' : 'var(--sidebar)'">
   <div class="stats-container">
     <!-- Cabecera de Sección -->
     <header class="stats-header">

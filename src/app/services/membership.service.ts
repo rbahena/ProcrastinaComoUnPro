@@ -74,6 +74,16 @@ export class MembershipService {
     getMigratedValue('premium', 'false') === 'true'
   );
 
+  // Estado del sidebar global
+  sidebarCollapsed = signal<boolean>(
+    localStorage.getItem('sidebar-collapsed') === 'true'
+  );
+
+  toggleSidebar() {
+    this.sidebarCollapsed.set(!this.sidebarCollapsed());
+    localStorage.setItem('sidebar-collapsed', String(this.sidebarCollapsed()));
+  }
+
   // Puntos de enfoque (para ranking)
   focusPoints = signal<number>(
     parseInt(getMigratedValue('focus-points', '0'), 10)

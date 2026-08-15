@@ -14,9 +14,14 @@ import { IdentitySettings } from '../../components/identity-settings';
 export class Fechas implements OnInit {
   userName!: any;
   showIdeasModal = signal(false);
+  sidebarCollapsed!: any;
+  toggleSidebar() {
+    this.membership.toggleSidebar();
+  }
 
   constructor(public membership: MembershipService) {
     this.userName = this.membership.userName;
+    this.sidebarCollapsed = this.membership.sidebarCollapsed;
   }
 
   ngOnInit() {

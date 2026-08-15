@@ -37,12 +37,17 @@ export class Estadisticas implements OnInit {
   showIdeasModal = signal(false);
   showShareModal = signal(false);
   userName!: any;
+  sidebarCollapsed!: any;
+  toggleSidebar() {
+    this.membership.toggleSidebar();
+  }
 
   // Objetivos completados simulados
   completedObjectivesTotal = 18;
 
   constructor(public membership: MembershipService) {
     this.userName = this.membership.userName;
+    this.sidebarCollapsed = this.membership.sidebarCollapsed;
   }
 
   ngOnInit() {

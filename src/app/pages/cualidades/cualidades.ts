@@ -23,7 +23,13 @@ interface DojoAvatar {
   imports: [CommonModule, RouterModule],
   template: `
     <!-- SIDEBAR -->
-    <div class="sidebar">
+    <div class="sidebar" [class.collapsed]="sidebarCollapsed()">
+      <!-- Toggle Sidebar Button -->
+      <button (click)="toggleSidebar()" 
+              class="sidebar-toggle-btn"
+              [title]="sidebarCollapsed() ? 'Expandir barra lateral' : 'Contraer barra lateral'">
+        <i class="fa-solid" [class]="sidebarCollapsed() ? 'fa-angles-right' : 'fa-angles-left'" style="font-size: 11px;"></i>
+      </button>
       <a routerLink="/home" class="logo">
         <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
         <span class="logo-text">COFU</span>
@@ -69,7 +75,7 @@ interface DojoAvatar {
     </div>
 
     <!-- MAIN PANEL -->
-    <div class="main">
+    <div class="main" [style.marginLeft]="sidebarCollapsed() ? '0px' : 'var(--sidebar)'">
       <div class="minimal-grid">
         
         <!-- COLUMNA IZQUIERDA: PERFIL Y DETALLES (ANCLADO/MINIMALISTA) -->
@@ -1469,7 +1475,14 @@ export class Cualidades implements OnInit {
     });
   });
 
-  constructor(public membership: MembershipService) {}
+  sidebarCollapsed!: any;
+  toggleSidebar() {
+    this.membership.toggleSidebar();
+  }
+
+  constructor(public membership: MembershipService) {
+    this.sidebarCollapsed = this.membership.sidebarCollapsed;
+  }
 
   ngOnInit() {
     const currentAvatarId = this.membership.selectedAvatar();

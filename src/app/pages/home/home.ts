@@ -16,11 +16,16 @@ export class Home implements OnInit, OnDestroy {
   userName!: WritableSignal<string>;
   selectedAvatar!: WritableSignal<any>;
   Math = Math;
+  sidebarCollapsed!: any;
+  toggleSidebar() {
+    this.membership.toggleSidebar();
+  }
 
   constructor(public membership: MembershipService, private router: Router) {
     this.currentTheme = this.membership.selectedTheme;
     this.userName = this.membership.userName;
     this.selectedAvatar = this.membership.selectedAvatar;
+    this.sidebarCollapsed = this.membership.sidebarCollapsed;
   }
 
   // Métricas de la Comunidad (Reducido a máximo 100 usuarios activos para una comunidad íntima)

@@ -665,3 +665,273 @@
   color: var(--muted);
   opacity: 0.7;
 }
+
+/* ==========================================================================
+   LO-FI BACKGROUNDS AND RETRO ANIMATIONS
+   ========================================================================== */
+
+/* Lo-Fi Background Container */
+.lofi-bg-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Base style for the pseudo-element background (handles animations without scaling container boundary) */
+.lofi-bg-container::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.8s ease-in-out;
+  z-index: 0;
+}
+
+/* Ambient dark overlay to keep text readable */
+.lofi-bg-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 15, 0.45);
+  z-index: 1;
+}
+
+/* Specific background images and animations on the background pseudo-element */
+.lofi-bg-container.lofi-room::before {
+  background-image: url('/assets/images/lofi_room.jpg');
+  animation: lofiBreathing 14s ease-in-out infinite alternate;
+}
+
+.lofi-bg-container.lofi-cafe::before {
+  background-image: url('/assets/images/lofi_cafe.jpg');
+  animation: lofiBreathing 18s ease-in-out infinite alternate;
+}
+
+.lofi-bg-container.lofi-drive::before {
+  background-image: url('/assets/images/lofi_drive.jpg');
+  animation: spaceGlow 10s ease-in-out infinite alternate;
+}
+
+.lofi-bg-container.lofi-forest::before {
+  background-image: url('/assets/images/lofi_forest.jpg');
+  animation: forestCampfire 8s ease-in-out infinite alternate;
+}
+
+/* Animations on the pseudo-elements (leaves outer container unaffected to prevent scrolls) */
+@keyframes lofiBreathing {
+  0% {
+    transform: scale(1);
+    filter: brightness(0.85) contrast(1);
+  }
+  100% {
+    transform: scale(1.03);
+    filter: brightness(0.95) contrast(1.04);
+  }
+}
+
+@keyframes spaceGlow {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: hue-rotate(0deg) brightness(0.8);
+  }
+  100% {
+    transform: scale(1.03) rotate(0.4deg);
+    filter: hue-rotate(8deg) brightness(0.92);
+  }
+}
+
+@keyframes forestCampfire {
+  0% {
+    transform: scale(1);
+    filter: sepia(0.08) brightness(0.85);
+  }
+  50% {
+    filter: sepia(0.18) brightness(1.02) saturate(1.08);
+  }
+  100% {
+    transform: scale(1.015);
+    filter: sepia(0.08) brightness(0.9);
+  }
+}
+
+/* Retro screen scanline + subtle noise overlay */
+.lofi-noise-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%),
+    linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+  background-size: 100% 3px, 3px 100%;
+  opacity: 0.35;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   LO-FI DYNAMIC MOVEMENT LAYERS
+   ========================================================================== */
+
+/* 1. Rain Overlay (Cozy Rainy window effect) */
+.lofi-rain-overlay {
+  position: absolute;
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><path d="M10 10 L15 32 M30 40 L35 62 M50 20 L55 42 M70 50 L75 72" stroke="rgba(174, 219, 255, 0.14)" stroke-width="1.2" stroke-linecap="round"/></svg>');
+  z-index: 3;
+  opacity: 0.85;
+  animation: rainAnimation 0.9s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rainAnimation {
+  0% { background-position: 0px 0px; }
+  100% { background-position: 80px 320px; }
+}
+
+/* 2. Coffee Steam Overlay (Cafetería) */
+.lofi-steam-container {
+  position: absolute;
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.steam {
+  position: absolute;
+  width: 14px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.08);
+  filter: blur(4px);
+  border-radius: 50% 50% 0 0;
+  opacity: 0;
+}
+
+/* Precise mug alignment in the new lofi_cafe study desk scene */
+.steam.s1 { left: 61.5%; bottom: 15%; animation: floatSteam 4s infinite 0s ease-in-out; }
+.steam.s2 { left: 62.2%; bottom: 15%; animation: floatSteam 4s infinite 2.2s ease-in-out; }
+
+@keyframes floatSteam {
+  0% {
+    transform: translateY(0) scaleX(0.7) skewX(0deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.45;
+  }
+  70% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(-28px) scaleX(1.4) skewX(12deg);
+    opacity: 0;
+  }
+}
+
+/* 3. Campfire Embers Overlay (Bosque Zen) */
+.lofi-embers-container {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 240px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.ember {
+  position: absolute;
+  bottom: 0;
+  width: 3.5px;
+  height: 3.5px;
+  background: #ff8c00;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ff3700, 0 0 10px #ffbb00;
+  opacity: 0;
+}
+
+.ember.e1 { left: 32%; animation: floatEmber 3s infinite 0s ease-in-out; --x: -28px; }
+.ember.e2 { left: 46%; animation: floatEmber 4s infinite 1s ease-in-out; --x: 16px; }
+.ember.e3 { left: 58%; animation: floatEmber 3.5s infinite 0.5s ease-in-out; --x: -12px; }
+.ember.e4 { left: 36%; animation: floatEmber 4.5s infinite 2s ease-in-out; --x: 22px; }
+.ember.e5 { left: 54%; animation: floatEmber 3s infinite 1.5s ease-in-out; --x: -16px; }
+.ember.e6 { left: 49%; animation: floatEmber 5s infinite 0.7s ease-in-out; --x: 32px; }
+
+@keyframes floatEmber {
+  0% {
+    transform: translateY(0) scale(1) translateX(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  75% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-170px) scale(0.35) translateX(var(--x));
+    opacity: 0;
+  }
+}
+
+/* 4. Twinkling Stars (Cabina Espacial y Noche) */
+.lofi-stars-container {
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  right: 15%;
+  height: 48%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.star-spark {
+  position: absolute;
+  width: 2.5px;
+  height: 2.5px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ffffff, 0 0 12px var(--accent);
+  opacity: 0;
+  animation: starTwinkle 4.5s infinite ease-in-out;
+}
+
+.star-spark.ss1 { top: 22%; left: 28%; animation-delay: 0s; }
+.star-spark.ss2 { top: 38%; left: 68%; animation-delay: 1.6s; }
+.star-spark.ss3 { top: 58%; left: 44%; animation-delay: 0.9s; }
+.star-spark.ss4 { top: 28%; left: 78%; animation-delay: 2.4s; }
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.3);
+  }
+}
+
+

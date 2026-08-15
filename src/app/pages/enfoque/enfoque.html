@@ -1,7 +1,39 @@
 <!-- ESTADO 1: SETUP (PANTALLA DE CONFIGURACIÓN CON SIDEBAR) -->
 <ng-container *ngIf="arenaState() === 'setup'">
+  <!-- Capa de fondo Lo-Fi específica para el estado setup -->
+  <div *ngIf="selectedLofiBg() !== 'off'" 
+       class="lofi-bg-container lofi-{{ selectedLofiBg() }}"
+       style="z-index: -1;">
+    <div class="lofi-noise-overlay"></div>
+    <div *ngIf="selectedLofiBg() === 'cafe'" class="lofi-rain-overlay"></div>
+    <div *ngIf="selectedLofiBg() === 'cafe'" class="lofi-steam-container">
+      <div class="steam s1"></div>
+      <div class="steam s2"></div>
+    </div>
+    <div *ngIf="selectedLofiBg() === 'forest'" class="lofi-embers-container">
+      <div class="ember e1"></div>
+      <div class="ember e2"></div>
+      <div class="ember e3"></div>
+      <div class="ember e4"></div>
+      <div class="ember e5"></div>
+      <div class="ember e6"></div>
+    </div>
+    <div *ngIf="selectedLofiBg() === 'drive' || selectedLofiBg() === 'room'" class="lofi-stars-container">
+      <div class="star-spark ss1"></div>
+      <div class="star-spark ss2"></div>
+      <div class="star-spark ss3"></div>
+      <div class="star-spark ss4"></div>
+    </div>
+  </div>
+
   <!-- SIDEBAR -->
-  <div class="sidebar">
+  <div class="sidebar" [class.collapsed]="sidebarCollapsed()">
+    <!-- Toggle Sidebar Button -->
+    <button (click)="toggleSidebar()" 
+            class="sidebar-toggle-btn"
+            [title]="sidebarCollapsed() ? 'Expandir barra lateral' : 'Contraer barra lateral'">
+      <i class="fa-solid" [class]="sidebarCollapsed() ? 'fa-angles-right' : 'fa-angles-left'" style="font-size: 11px;"></i>
+    </button>
     <a routerLink="/home" class="logo">
       <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
       <span class="logo-text">{{ labels().logoText }}</span>
@@ -49,11 +81,12 @@
   </div>
 
   <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
-  <div class="main" style="display: flex; flex-direction: column;">
+  <div class="main" style="display: flex; flex-direction: column;" [style.marginLeft]="sidebarCollapsed() ? '0px' : 'var(--sidebar)'">
     <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
-      <div>
-        <h1 class="page-title">{{ labels().title }}</h1>
-        <p class="page-sub" style="margin-bottom: 12px;">{{ labels().desc }}</p>
+        <div>
+          <h1 class="page-title" style="margin: 0;">{{ labels().title }}</h1>
+          <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">{{ labels().desc }}</p>
+        </div>
 
         <!-- Puntos e Coins Panel (Replicado de Inicio) -->
         <div class="currency-panel">
@@ -77,7 +110,6 @@
             </span>
           </div>
         </div>
-      </div>
 
       <!-- BALANCES DE USUARIO (PREMIUM VS GRATUITO) -->
       <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
