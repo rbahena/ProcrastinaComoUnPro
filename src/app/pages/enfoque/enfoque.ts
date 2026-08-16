@@ -116,6 +116,9 @@ export class Enfoque implements OnInit, OnDestroy {
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'join' | 'host'>('solo');
+  useFairyBackground = signal<boolean>(
+    localStorage.getItem('focus-fairy-bg') !== 'false'
+  );
 
   // Opciones de sonido para evitar errores de tipado estricto en plantillas Angular
   soundOptions: ('zen' | 'digital' | 'chime')[] = ['zen', 'chime', 'digital'];
@@ -724,6 +727,12 @@ export class Enfoque implements OnInit, OnDestroy {
   setSoundType(type: 'zen' | 'digital' | 'chime') {
     this.soundType.set(type);
     this.playAlarmTone();
+  }
+
+  // Setter auxiliar de fondo de pantalla Fairy World
+  setFairyBackground(value: boolean) {
+    this.useFairyBackground.set(value);
+    localStorage.setItem('focus-fairy-bg', value ? 'true' : 'false');
   }
 
   private startTimerLoop() {
