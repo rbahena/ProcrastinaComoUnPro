@@ -115,7 +115,7 @@ export class Enfoque implements OnInit, OnDestroy {
   interruptedByPause = signal(false);
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
-  coworkingMode = signal<'solo' | 'join' | 'host'>('solo');
+  coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
   useFairyBackground = signal<boolean>(
     localStorage.getItem('focus-fairy-bg') !== 'false'
   );
@@ -176,26 +176,54 @@ export class Enfoque implements OnInit, OnDestroy {
   emergencyTimeLeft = signal(120); // 2 minutos en segundos
   private emergencyTimer: any = null;
 
-  // Datos del Co-worker asignado (Modo Acompañado)
+  // Datos del Co-worker asignado (Compatibilidad)
   partnerName = signal('');
   partnerAvatar = signal('');
   partnerStatus = signal<'focused' | 'left'>('focused');
 
-  // Listado de compañeros activos en el dojo (Simulación)
-  onlinePartners = signal([
-    { name: 'Ana', avatar: 'lobo', remainingMinutes: 47 },
-    { name: 'Ramiro', avatar: 'zorro', remainingMinutes: 24 },
-    { name: 'Sofía', avatar: 'aguila', remainingMinutes: 30 },
-    { name: 'Carlos', avatar: 'panda', remainingMinutes: 15 },
-    { name: 'Juan', avatar: 'lobo', remainingMinutes: 3 } // Menos de 5 minutos, filtrado
-  ]);
+  // Templo de Enfoque Comunitario
+  dojoUsers = signal<any[]>([]);
+  dojoViewStyle = signal<'cards' | 'desks' | 'floating'>('cards');
+  dojoViewOptions: ('cards' | 'desks' | 'floating')[] = ['cards', 'desks', 'floating'];
+  dojoEvents = signal<any[]>([]);
+  userActiveReaction = signal<string>('');
+  globalFocusedCount = signal<number>(74);
+  communityInterval: any = null;
+  dojoPanelExpanded = signal<boolean>(false);
 
-  // Compañeros visibles (Filtrados: al menos 20 minutos restantes, máximo 5)
-  visiblePartners = computed(() => {
-    return this.onlinePartners()
-      .filter(p => p.remainingMinutes >= 20)
-      .slice(0, 5);
-  });
+  private initialDojoUsers = [
+    { name: 'Ana', avatar: 'lobo', status: 'focused', mission: 'Refactorizando el dashboard en Angular', timeLeft: 1200, percentage: 40 },
+    { name: 'Ramiro', avatar: 'zorro', status: 'focused', mission: 'Escribiendo post sobre procrastinación', timeLeft: 600, percentage: 80 },
+    { name: 'Sofía', avatar: 'aguila', status: 'focused', mission: 'Diseñando pantallas en Figma', timeLeft: 1500, percentage: 20 },
+    { name: 'Carlos', avatar: 'panda', status: 'break', mission: 'Pausa activa y estiramientos', timeLeft: 180, percentage: 40 },
+    { name: 'Mateo', avatar: 'hamster', status: 'focused', mission: 'Optimizando consultas SQL pesadas', timeLeft: 900, percentage: 50 },
+    { name: 'Valentina', avatar: 'buho', status: 'focused', mission: 'Preparando presentación de negocio', timeLeft: 300, percentage: 90 },
+    { name: 'Lucas', avatar: 'pez', status: 'idle', mission: 'Planeando tareas de la semana', timeLeft: 0, percentage: 100 },
+    { name: 'Clara', avatar: 'tortuga', status: 'focused', mission: 'Resolviendo bugs de renderizado CSS', timeLeft: 1350, percentage: 30 },
+    { name: 'Esteban', avatar: 'abeja', status: 'focused', mission: 'Escribiendo pruebas unitarias con Vitest', timeLeft: 720, percentage: 60 },
+    { name: 'Laura', avatar: 'castor', status: 'break', mission: 'Tomando café e hidratación', timeLeft: 240, percentage: 20 }
+  ];
+
+  private namesPool = ['Sofía', 'Alejandro', 'Valeria', 'Daniel', 'Mariana', 'Santiago', 'Camila', 'Mateo', 'Gabriela', 'Sebastián', 'Isabella', 'Nicolás', 'Lucía', 'Diego', 'Victoria', 'Felipe', 'Emma', 'Samuel', 'Elena', 'Tomás'];
+  
+  private missionsPool = [
+    'Refactorizando componentes en Angular',
+    'Escribiendo documentación técnica',
+    'Optimizando base de datos PostgreSQL',
+    'Estudiando algoritmos de búsqueda',
+    'Diseñando wireframes en Figma',
+    'Depurando fugas de memoria en JS',
+    'Desarrollando API REST con Express',
+    'Corrigiendo errores de linting',
+    'Maquetando layouts con Flexbox',
+    'Preparando presentación ejecutiva',
+    'Investigando arquitectura limpia',
+    'Configurando Webpack y Vite',
+    'Escribiendo pruebas de integración',
+    'Revisando Pull Requests en GitHub',
+    'Analizando métricas de rendimiento',
+    'Redactando post de blog técnico'
+  ];
 
   // Modal de Mensaje de Apoyo
   showSupportMessageModal = signal(false);
@@ -258,46 +286,14 @@ export class Enfoque implements OnInit, OnDestroy {
   });
 
   ngOnInit() {
-    const partnerName = localStorage.getItem('shared-session-partner-name');
-    const partnerAvatar = localStorage.getItem('shared-session-partner-avatar');
-    if (partnerName && partnerAvatar) {
-      this.coworkingMode.set('join');
-      this.partnerName.set(partnerName);
-      this.partnerAvatar.set(partnerAvatar);
-      
-      // Mostrar toast de entrada con el emoji del animal correspondiente
-      const emoji = partnerAvatar === 'lobo' ? '🐺' : (partnerAvatar === 'zorro' ? '🦊' : '🐾');
-      setTimeout(() => {
-        this.showToast(`👥 ${emoji} ${partnerName} se unió a tu sesión.`, 'info');
-      }, 1000);
-      
-      // Asignar tiempo inicial dinámico basado en cuándo iniciaron en el Dojo:
-      // Ana inició hace 3 min en sesión de 50 min => 47 min restante (2820 seg)
-      // Ramiro inició hace 1 min en sesión de 25 min => 24 min restante (1440 seg)
-      if (partnerName.toLowerCase().includes('ana')) {
-        this.partnerTimeLeft.set(2820);
-      } else if (partnerName.toLowerCase().includes('ramiro')) {
-        this.partnerTimeLeft.set(1440);
-      } else {
-        this.partnerTimeLeft.set(1500);
-      }
-
-      localStorage.removeItem('shared-session-partner-name');
-      localStorage.removeItem('shared-session-partner-avatar');
-    } else {
-      // Fallback
-      this.partnerTimeLeft.set(1500);
-    }
+    this.initializeDojoUsers();
+    this.communityInterval = setInterval(() => {
+      this.tickCommunity();
+    }, 4000);
   }
 
   // Iniciar Flujo: Lanza el Ritual 3-2-1
   startFocusFlow(bypassModal = false) {
-    // Si nos estamos uniendo a una sesión y no hemos confirmado el mensaje de apoyo, mostramos el modal primero
-    if (this.coworkingMode() === 'join' && this.partnerName() && !bypassModal) {
-      this.showSupportMessageModal.set(true);
-      return;
-    }
-
     this.showSupportMessageModal.set(false);
     this.manuallyAbandoned.set(false);
     this.interruptedByPause.set(false);
@@ -369,10 +365,10 @@ export class Enfoque implements OnInit, OnDestroy {
         if (this.emergencyTimeLeft() > 0) {
           this.emergencyTimeLeft.update(t => t - 1);
           
-          // Simular que a la mitad del tiempo de pausa Sofía "abandona" para motivarte
+          // Ocasionalmente alertar en el feed que estás en pausa
           const halfTime = this.membership.isPremium() ? 90 : 60;
-          if (this.emergencyTimeLeft() === halfTime && (this.coworkingMode() === 'join' || this.coworkingMode() === 'host')) {
-            this.partnerStatus.set('left');
+          if (this.emergencyTimeLeft() === halfTime && this.coworkingMode() === 'comunitario') {
+            this.addDojoEvent('⚠️ Varios compañeros notaron tu pausa. ¡Reanuda pronto!', 'reaction');
           }
         } else {
           // Se acabó el tiempo de pausa -> Sesión Interrumpida automáticamente
@@ -421,7 +417,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
       // Asignar puntos y recompensas
       if (currentStatus === 'completed') {
-        const isShared = this.coworkingMode() === 'join' || this.coworkingMode() === 'host';
+        const isShared = this.coworkingMode() === 'comunitario';
         const sessionId = `session-${Date.now()}`;
         this.membership.rewardCompletedSession(sessionId, isShared);
         
@@ -432,8 +428,8 @@ export class Enfoque implements OnInit, OnDestroy {
           this.membership.rewardCompletedObjective(objectiveId);
         }
 
-        // Si estamos en coworking (join) y el compañero aún no ha terminado, mostramos la modal post-sesión
-        if (this.coworkingMode() === 'join' && this.partnerName() && !this.showPostSessionSupportModal()) {
+        // Si estamos en dojo comunitario, mostramos la modal post-sesión para dejar un mensaje de motivación en el muro
+        if (this.coworkingMode() === 'comunitario' && !this.showPostSessionSupportModal()) {
           this.showPostSessionSupportModal.set(true);
           return;
         }
@@ -679,6 +675,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.stopEmergencyTimer();
     this.stopBackgroundSound();
     if (this.countdownTimer) clearInterval(this.countdownTimer);
+    if (this.communityInterval) clearInterval(this.communityInterval);
   }
 
   // Controles del Temporizador en Setup
@@ -744,13 +741,9 @@ export class Enfoque implements OnInit, OnDestroy {
       if (this.timeLeft() > 0) {
         this.timeLeft.update(t => t - 1);
 
-        // Simulación en tiempo real del Acompañante
-        if (this.coworkingMode() === 'join' || this.coworkingMode() === 'host') {
-          if (this.partnerActive() && this.partnerTimeLeft() > 0) {
-            this.partnerTimeLeft.update(pt => pt - 1);
-          }
+        // Simulación en tiempo real del Templo Comunitario
+        if (this.coworkingMode() === 'comunitario') {
           this.partnerSessionTicks.update(ticks => ticks + 1);
-          this.triggerPartnerSimulatedEvents();
         }
       } else {
         // Al terminar con éxito
@@ -877,9 +870,10 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   }
 
-  setFocusMode(mode: 'solo' | 'join' | 'host') {
+  setFocusMode(mode: 'solo' | 'comunitario') {
     if (mode === 'solo') {
-      this.disconnectPartner();
+      this.coworkingMode.set('solo');
+      this.showToast('👤 Has vuelto a enfocarte en solitario.', 'info');
       return;
     }
 
@@ -888,105 +882,252 @@ export class Enfoque implements OnInit, OnDestroy {
       return;
     }
 
-    this.coworkingMode.set(mode);
-    if (mode === 'host') {
-      this.partnerName.set('');
-      this.partnerAvatar.set('');
-      this.partnerActive.set(false);
-    }
+    this.coworkingMode.set('comunitario');
+    this.showToast('👥 Te has unido al Templo de Enfoque Comunitario.', 'info');
   }
 
-  connectPartner(name: string, avatar: string) {
-    if (!this.membership.isPremium()) {
-      this.showPaywallModal.set(true);
-      return;
-    }
-    this.coworkingMode.set('join');
-    this.partnerName.set(name);
-    this.partnerAvatar.set(avatar);
-    this.partnerActive.set(true);
-    this.partnerStatus.set('focused');
-    this.partnerStatusText.set('Enfocado');
-
-    const emoji = avatar === 'lobo' ? '🐺' : (avatar === 'zorro' ? '🦊' : (avatar === 'panda' ? '🐼' : '🐾'));
-    this.showToast(`👥 ${emoji} Conectado con ${name}. ¡Listos para enfocarse!`, 'info');
-
-    // Asignar tiempo inicial dinámico basado en cuándo iniciaron en el Dojo:
-    if (name.toLowerCase().includes('ana')) {
-      this.partnerTimeLeft.set(2820);
-    } else if (name.toLowerCase().includes('ramiro')) {
-      this.partnerTimeLeft.set(1440);
-    } else if (name.toLowerCase().includes('carlos')) {
-      this.partnerTimeLeft.set(900);
-    } else {
-      this.partnerTimeLeft.set(1500);
-    }
+  initializeDojoUsers() {
+    const seeded = this.initialDojoUsers.map((u, index) => ({
+      ...u,
+      x: Math.floor(Math.random() * 75) + 10,
+      y: Math.floor(Math.random() * 65) + 15,
+      desk: index + 1,
+      reaction: ''
+    }));
+    this.dojoUsers.set(seeded);
+    // Generar un par de eventos iniciales
+    this.addDojoEvent('⚔️ El Dojo de Concentración está activo.', 'join');
+    this.addDojoEvent('👥 Hay 10 guerreros trabajando en la sala.', 'join');
   }
 
-  disconnectPartner() {
-    this.coworkingMode.set('solo');
-    this.partnerName.set('');
-    this.partnerAvatar.set('');
-    this.partnerActive.set(false);
-    this.showToast(`👤 Has vuelto a enfocarte en solitario.`, 'info');
+  addDojoEvent(text: string, type: 'join' | 'complete' | 'break' | 'reaction') {
+    const current = this.dojoEvents();
+    const newEvent = { id: Date.now() + Math.random(), text, type };
+    this.dojoEvents.set([newEvent, ...current].slice(0, 8));
   }
 
-  triggerPartnerSimulatedEvents() {
-    const ticks = this.partnerSessionTicks();
+  formatTime(seconds: number): string {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  getRandomMission(): string {
+    return this.missionsPool[Math.floor(Math.random() * this.missionsPool.length)];
+  }
+
+  simulateUserJoining() {
+    const currentNames = this.dojoUsers().map(u => u.name);
+    const availableNames = this.namesPool.filter(n => !currentNames.includes(n));
+    if (availableNames.length === 0) return;
     
-    // Si estamos en modo host y todavía nadie se ha unido, simulamos que Ana se une a los 15 segundos
-    if (this.coworkingMode() === 'host' && !this.partnerName()) {
-      if (ticks === 15) {
-        this.partnerName.set('Ana');
-        this.partnerAvatar.set('lobo');
-        this.partnerTimeLeft.set(this.timeLeft());
-        this.partnerActive.set(true);
-        this.partnerStatus.set('focused');
-        this.partnerStatusText.set('Enfocado');
-        
-        // Simular notificación en consola/UI
-        const emoji = '🐺';
-        this.showToast(`👥 ${emoji} Ana se unió a tu sesión pública.`, 'info');
+    const name = availableNames[Math.floor(Math.random() * availableNames.length)];
+    const avatars = ['lobo', 'zorro', 'buho', 'panda', 'tortuga', 'abeja', 'castor', 'hamster', 'pez', 'sloth'];
+    const avatar = avatars[Math.floor(Math.random() * avatars.length)];
+    const mission = this.getRandomMission();
+    
+    const takenDesks = this.dojoUsers().map(u => u.desk);
+    let desk = 1;
+    for (let i = 1; i <= 12; i++) {
+      if (!takenDesks.includes(i)) {
+        desk = i;
+        break;
       }
-      return;
     }
 
-    const name = this.partnerName() || 'Tu compañero';
+    const newUser = {
+      name,
+      avatar,
+      status: 'focused' as const,
+      mission,
+      timeLeft: 1500,
+      percentage: 0,
+      x: Math.floor(Math.random() * 75) + 10,
+      y: Math.floor(Math.random() * 65) + 15,
+      desk,
+      reaction: ''
+    };
 
-    if (ticks === 15 || (this.coworkingMode() === 'host' && ticks === 30)) {
-      this.showToast(`${name}: "¡Qué buen ritmo llevamos! ¡Mucho éxito en tu sesión!"`, 'info');
-    } else if (ticks === 45) {
-      this.partnerActive.set(false);
-      this.partnerStatusText.set('En Pausa');
-      const msg = name.toLowerCase().includes('ana') 
-        ? `⚠️ Ana ha activado Pausa de Emergencia: "¡Mucho éxito, termina pronto! Vuelvo en 2 min."`
-        : `⚠️ ${name} ha pausado su sesión: "¡No aflojes el ritmo, termina pronto!"`;
-      this.showToast(msg, 'warning');
-    } else if (ticks === 75) {
-      this.partnerActive.set(true);
-      this.partnerStatusText.set('Enfocado');
-      const msg = name.toLowerCase().includes('ana')
-        ? `🟢 Ana ha reanudado su sesión. "¡Listo, sigamos concentrados!"`
-        : `🟢 ${name} ha reanudado. "¡Seguimos dándole con todo!"`;
-      this.showToast(msg, 'success');
-    } else if (ticks === 110) {
-      if (name.toLowerCase().includes('ana')) {
-        this.partnerActive.set(false);
-        this.partnerStatusText.set('Abandonado');
-        this.showToast(`❌ Ana ha abandonado la sesión: "¡Uf! Me surgió una llamada urgente. ¡Sigue tú, no te rindas, mucha suerte!"`, 'danger');
-      } else {
-        this.showToast(`${name}: "¡Ya casi terminamos! Un último esfuerzo."`, 'info');
+    this.dojoUsers.update(users => [...users, newUser]);
+    this.addDojoEvent(`👥 ${name} se unió al Templo de Enfoque.`, 'join');
+  }
+
+  simulateUserLeaving() {
+    const users = this.dojoUsers();
+    if (users.length <= 4) return;
+    const candidates = users.filter(u => u.status === 'idle' || u.status === 'break');
+    const target = candidates.length > 0 
+      ? candidates[Math.floor(Math.random() * candidates.length)]
+      : users[Math.floor(Math.random() * users.length)];
+      
+    this.dojoUsers.update(list => list.filter(u => u.name !== target.name));
+    this.addDojoEvent(`👋 ${target.name} salió del Templo.`, 'break');
+  }
+
+  simulateIncomingReaction() {
+    const activeUsers = this.dojoUsers().filter(u => u.status === 'focused');
+    if (activeUsers.length === 0) return;
+    
+    const sender = activeUsers[Math.floor(Math.random() * activeUsers.length)];
+    const emojis = ['💪', '🔥', '👏', '🧠'];
+    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+    
+    this.userActiveReaction.set(emoji);
+    this.addDojoEvent(`¡${sender.name} te envió energía! ${emoji}`, 'reaction');
+    
+    if (this.arenaState() !== 'active') {
+      this.showToast(`¡${sender.name} te envió apoyo! ${emoji}`, 'info');
+    }
+    
+    setTimeout(() => {
+      if (this.userActiveReaction() === emoji) {
+        this.userActiveReaction.set('');
       }
-    } else if (this.partnerTimeLeft() === 0 && this.partnerActive()) {
-      this.partnerActive.set(false);
-      this.partnerStatusText.set('Completado');
-      const msg = `🎉 ${name} ha completado su sesión: "¡Misión cumplida! Mucha suerte, termina pronto."`;
-      this.showToast(msg, 'success');
+    }, 3000);
+  }
+
+  sendSupportToUser(userName: string, emoji: string) {
+    this.addDojoEvent(`Le enviaste ${emoji} a ${userName}`, 'reaction');
+    
+    const updated = this.dojoUsers().map(u => {
+      if (u.name === userName) {
+        return { ...u, reaction: emoji };
+      }
+      return u;
+    });
+    this.dojoUsers.set(updated);
+    
+    setTimeout(() => {
+      const reset = this.dojoUsers().map(u => {
+        if (u.name === userName && u.reaction === emoji) {
+          return { ...u, reaction: '' };
+        }
+        return u;
+      });
+      this.dojoUsers.set(reset);
+    }, 3000);
+
+    setTimeout(() => {
+      const user = this.dojoUsers().find(u => u.name === userName);
+      if (user) {
+        const replyEmoji = '💖';
+        const updatedWithReply = this.dojoUsers().map(u => {
+          if (u.name === userName) {
+            return { ...u, reaction: replyEmoji };
+          }
+          return u;
+        });
+        this.dojoUsers.set(updatedWithReply);
+        
+        this.addDojoEvent(`¡${userName} te agradece el apoyo! 💖`, 'reaction');
+
+        setTimeout(() => {
+          const finalReset = this.dojoUsers().map(u => {
+            if (u.name === userName && u.reaction === replyEmoji) {
+              return { ...u, reaction: '' };
+            }
+            return u;
+          });
+          this.dojoUsers.set(finalReset);
+        }, 3000);
+      }
+    }, 2000);
+  }
+
+  tickCommunity() {
+    const updatedUsers = this.dojoUsers().map(u => {
+      if (u.status === 'focused') {
+        const newTime = Math.max(0, u.timeLeft - 4);
+        const total = 1500;
+        const pct = Math.floor((1 - (newTime / total)) * 100);
+        
+        if (newTime === 0) {
+          setTimeout(() => {
+            this.addDojoEvent(`🎉 ¡${u.name} completó su pomodoro de enfoque!`, 'complete');
+            this.globalFocusedCount.update(c => Math.max(10, c - 1));
+          }, 0);
+          return {
+            ...u,
+            status: 'break' as const,
+            timeLeft: 300,
+            percentage: 0
+          };
+        }
+        return {
+          ...u,
+          timeLeft: newTime,
+          percentage: pct
+        };
+      } else if (u.status === 'break') {
+        const newTime = Math.max(0, u.timeLeft - 4);
+        const total = 300;
+        const pct = Math.floor((1 - (newTime / total)) * 100);
+        
+        if (newTime === 0) {
+          setTimeout(() => {
+            this.addDojoEvent(`☕ ¡${u.name} terminó su descanso y está listo para enfocar!`, 'join');
+          }, 0);
+          return {
+            ...u,
+            status: 'focused' as const,
+            timeLeft: 1500,
+            percentage: 0,
+            mission: this.getRandomMission()
+          };
+        }
+        return {
+          ...u,
+          timeLeft: newTime,
+          percentage: pct
+        };
+      }
+      return u;
+    });
+
+    this.dojoUsers.set(updatedUsers);
+
+    const idleCount = this.dojoUsers().filter(u => u.status === 'idle').length;
+    if (idleCount > 0 && Math.random() < 0.2) {
+      const idles = this.dojoUsers().filter(u => u.status === 'idle');
+      const lucky = idles[Math.floor(Math.random() * idles.length)];
+      const updated = this.dojoUsers().map(u => {
+        if (u.name === lucky.name) {
+          const mission = this.getRandomMission();
+          setTimeout(() => {
+            this.addDojoEvent(`⚔️ ${u.name} inició su misión: "${mission}"`, 'join');
+          }, 0);
+          return {
+            ...u,
+            status: 'focused' as const,
+            timeLeft: 1500,
+            percentage: 0,
+            mission
+          };
+        }
+        return u;
+      });
+      this.dojoUsers.set(updated);
+    }
+
+    if (Math.random() < 0.4) {
+      const change = Math.random() < 0.5 ? 1 : -1;
+      this.globalFocusedCount.update(c => Math.max(10, Math.min(150, c + change)));
+    }
+
+    if (this.dojoUsers().length < 12 && Math.random() < 0.15) {
+      this.simulateUserJoining();
+    }
+
+    if (this.dojoUsers().length > 6 && Math.random() < 0.08) {
+      this.simulateUserLeaving();
+    }
+
+    if (this.arenaState() === 'active' && this.coworkingMode() === 'comunitario' && Math.random() < 0.1) {
+      this.simulateIncomingReaction();
     }
   }
 
   showToast(msg: string, type: 'info' | 'warning' | 'success' | 'danger') {
-    // Si estamos en la sesión activa de Pomodoro, se silencian las notificaciones para evitar cualquier distracción
     if (this.arenaState() === 'active') {
       return;
     }
@@ -1003,16 +1144,6 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   getPartnerSupportMessage() {
-    const name = this.partnerName().toLowerCase();
-    if (name.includes('ana')) {
-      return '🧠 Concentración absoluta. ¡Cero distracciones!';
-    } else if (name.includes('ramiro')) {
-      return '⚡ ¡Fuerza en este bloque! A darle con todo.';
-    } else if (name.includes('sofía')) {
-      return '🤝 Sincronización activada. ¡Hagamos que valga la pena!';
-    } else if (name.includes('carlos')) {
-      return '🎯 Tu futuro yo te agradecerá este enfoque. ¡Adelante!';
-    }
     return '⚡ ¡Fuerza en este bloque! A darle con todo.';
   }
 }

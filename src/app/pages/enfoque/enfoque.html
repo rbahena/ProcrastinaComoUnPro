@@ -481,12 +481,30 @@
                 </div>
               </div>
 
-              <!-- CO-WORKING / TRABAJAR ACOMPAÑADO (PREMIUM) -->
+              <!-- CO-WORKING / TRABAJAR ACOMPAÑADO (SALA DE ENFOQUE COMUNITARIA) -->
               <div style="display: flex; flex-direction: column; gap: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 16px;">
                 <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Modo de Enfoque</span>
 
-                <!-- Tarjetas del selector de modo (3 columnas) -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <!-- Selector de Modo: Dojo Comunitario vs Solo (2 columnas) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <!-- Tarjeta Dojo Comunitario -->
+                  <div (click)="setFocusMode('comunitario')"
+                       style="border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(0,0,0,0.15); position: relative;"
+                       [style.borderColor]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--border)'"
+                       [style.background]="coworkingMode() === 'comunitario' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                       onmouseover="this.style.borderColor='var(--accent)'"
+                       onmouseout="if(this.coworkingMode() !== 'comunitario') { this.style.borderColor='var(--border)' }">
+                    <i class="fa-solid fa-users" style="font-size: 14px;" [style.color]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--muted)'"></i>
+                    <div style="text-align: center;">
+                      <div style="font-size: 10px; font-weight: 800; color: var(--text);">Dojo Comunitario</div>
+                      <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">Enfoque compartido</div>
+                    </div>
+                    <!-- Corona Premium si es Free -->
+                    <i class="fa-solid fa-crown" 
+                       style="position: absolute; top: 4px; right: 4px; font-size: 7px; color: var(--yellow);" 
+                       *ngIf="!membership.isPremium()"></i>
+                  </div>
+
                   <!-- Tarjeta Solo -->
                   <div (click)="setFocusMode('solo')"
                        style="border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(0,0,0,0.15);"
@@ -494,107 +512,38 @@
                        [style.background]="coworkingMode() === 'solo' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.15)'"
                        onmouseover="this.style.borderColor='var(--text)'"
                        onmouseout="if(this.coworkingMode() !== 'solo') { this.style.borderColor='var(--border)' }">
-                    <i class="fa-solid fa-user" style="font-size: 14px;" [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'"></i>
+                    <i class="fa-solid fa-user-slash" style="font-size: 14px;" [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'"></i>
                     <div style="text-align: center;">
                       <div style="font-size: 10px; font-weight: 800; color: var(--text);">En Solitario</div>
-                      <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">Privado</div>
+                      <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">100% Privado</div>
                     </div>
-                  </div>
-
-                  <!-- Tarjeta Unirme -->
-                  <div (click)="setFocusMode('join')"
-                       style="border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(0,0,0,0.15); position: relative;"
-                       [style.borderColor]="coworkingMode() === 'join' ? 'var(--accent)' : 'var(--border)'"
-                       [style.background]="coworkingMode() === 'join' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                       onmouseover="this.style.borderColor='var(--accent)'"
-                       onmouseout="if(this.coworkingMode() !== 'join') { this.style.borderColor='var(--border)' }">
-                    <i class="fa-solid fa-users" style="font-size: 14px;" [style.color]="coworkingMode() === 'join' ? 'var(--accent)' : 'var(--muted)'"></i>
-                    <div style="text-align: center;">
-                      <div style="font-size: 10px; font-weight: 800; color: var(--text);">Unirme</div>
-                      <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">Buscar socio</div>
-                    </div>
-                    <!-- Corona Premium si es Free -->
-                    <i class="fa-solid fa-crown" 
-                       style="position: absolute; top: 4px; right: 4px; font-size: 7px; color: var(--yellow);" 
-                       *ngIf="!membership.isPremium()"></i>
-                  </div>
-
-                  <!-- Tarjeta Hospedar (Crear Sala) -->
-                  <div (click)="setFocusMode('host')"
-                       style="border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(0,0,0,0.15); position: relative;"
-                       [style.borderColor]="coworkingMode() === 'host' ? 'var(--accent)' : 'var(--border)'"
-                       [style.background]="coworkingMode() === 'host' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                       onmouseover="this.style.borderColor='var(--accent)'"
-                       onmouseout="if(this.coworkingMode() !== 'host') { this.style.borderColor='var(--border)' }">
-                    <i class="fa-solid fa-satellite-dish" style="font-size: 14px;" [style.color]="coworkingMode() === 'host' ? 'var(--accent)' : 'var(--muted)'"></i>
-                    <div style="text-align: center;">
-                      <div style="font-size: 10px; font-weight: 800; color: var(--text);">Hospedar</div>
-                      <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">Crear sala</div>
-                    </div>
-                    <!-- Corona Premium si es Free -->
-                    <i class="fa-solid fa-crown" 
-                       style="position: absolute; top: 4px; right: 4px; font-size: 7px; color: var(--yellow);" 
-                       *ngIf="!membership.isPremium()"></i>
                   </div>
                 </div>
 
-                <!-- Contenido Condicional del Modo -->
-                
                 <!-- CASO 1: MODO SOLO -->
                 <div *ngIf="coworkingMode() === 'solo'" style="font-size: 10px; color: var(--muted); line-height: 1.4; display: flex; align-items: center; gap: 6px; margin-top: 2px;">
                   <i class="fa-solid fa-eye-slash" style="color: var(--muted); font-size: 10px;"></i>
                   <span>Trabajarás en tu propio templo sin interrupciones ni salas públicas.</span>
                 </div>
 
-                <!-- CASO 2: MODO UNIRME (Muestra la lista de compañeros seleccionables, máx 5) -->
-                <div *ngIf="coworkingMode() === 'join'" style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
-                  <span style="font-size: 9px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px;">Salas públicas (mín. 20 min restantes):</span>
+                <!-- CASO 2: MODO COMUNITARIO -->
+                <!-- CONTENIDO DEL TEMPLO COMUNITARIO (SÓLO EL CONTADOR DE GUERREROS CONCENTRADOS) -->
+                <div *ngIf="coworkingMode() === 'comunitario'" style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
                   
-                  <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <div *ngFor="let p of visiblePartners()"
-                         (click)="connectPartner(p.name, p.avatar)"
-                         style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.15); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; transition: all 0.2s;"
-                         [style.borderColor]="partnerName() === p.name ? 'var(--accent)' : 'var(--border)'"
-                         [style.background]="partnerName() === p.name ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                         onmouseover="this.style.borderColor='var(--accent)'"
-                         onmouseout="if(this.partnerName() !== p.name) { this.style.borderColor='var(--border)' }">
-                      
-                      <div style="display: flex; align-items: center; gap: 8px;">
-                        <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.08); background-size: cover; background-position: center;"></div>
-                        <div style="display: flex; flex-direction: column;">
-                          <span style="font-size: 11px; font-weight: 700; color: var(--text);">{{ p.name }}</span>
-                          <span style="font-size: 8.5px; color: var(--muted);">Quedan {{ p.remainingMinutes }} min</span>
-                        </div>
-                      </div>
-                      
-                      <!-- Indicador de Seleccionado o Conectar -->
-                      <div style="display: flex; align-items: center; gap: 4px;">
-                        <i class="fa-solid fa-circle-check" style="color: var(--accent); font-size: 14px;" *ngIf="partnerName() === p.name"></i>
-                        <span style="font-size: 8px; color: var(--muted); font-weight: 800; text-transform: uppercase; padding: 2px 6px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px;" *ngIf="partnerName() !== p.name">Conectar</span>
-                      </div>
+                  <!-- Indicador Minimalista del Dojo Comunitario -->
+                  <div style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.1); border-radius: 10px; padding: 16px; display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 2px;">
+                    <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(99, 102, 241, 0.1); border-radius: 50%;">
+                      <i class="fa-solid fa-users" style="color: var(--accent); font-size: 16px;"></i>
+                      <span style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: var(--green); border-radius: 50%; border: 1.5px solid var(--bg3); animation: pulseGreen 1.5s infinite;"></span>
                     </div>
-                  </div>
-                </div>
-
-                <!-- CASO 3: MODO HOSPEDAR (Crear Sala Pública) -->
-                <div *ngIf="coworkingMode() === 'host'" style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
-                  <div style="background: rgba(99,102,241,0.04); border: 1px solid rgba(99,102,241,0.1); border-radius: 8px; padding: 10px; display: flex; align-items: flex-start; gap: 8px;">
-                    <i class="fa-solid fa-broadcast-tower" style="color: var(--accent); font-size: 14px; margin-top: 2px; animation: blink 2s infinite;"></i>
-                    <div style="display: flex; flex-direction: column; gap: 2px; text-align: left;">
-                      <span style="font-size: 10px; font-weight: 800; color: var(--text);">Publicar mi sesión de enfoque</span>
-                      <p style="font-size: 9px; color: var(--muted); margin: 0; line-height: 1.35;">
-                        Al arrancar tu Pomodoro, tu sesión se publicará en la cartelera de la comunidad para que otros usuarios se unan a trabajar contigo.
-                      </p>
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;">
+                      <span style="font-size: 12.5px; font-weight: 800; color: var(--text);">Dojo Compartido Activo</span>
+                      <span style="font-size: 10.5px; color: var(--muted); font-weight: 600;">
+                        Hay <strong style="color: var(--accent);">{{ globalFocusedCount() }} guerreros</strong> concentrándose ahora mismo.
+                      </span>
                     </div>
                   </div>
                   
-                  <!-- Configuración rápida de la sala -->
-                  <div style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.12); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02); font-size: 9.5px;">
-                    <span style="color: var(--green); font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
-                      <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-                      Listo para Emitir
-                    </span>
-                  </div>
                 </div>
               </div>
 
@@ -653,35 +602,18 @@
 
 
 
-    <!-- PÍLDORA DE CO-WORKING (TRASLADADA ARRIBA DEL CIRCULO) -->
-    <div *ngIf="coworkingMode() === 'join' || (coworkingMode() === 'host' && partnerName())" 
+    <!-- PÍLDORA DE CO-WORKING COMUNITARIO (SALA COMPARTIDA) -->
+    <div *ngIf="coworkingMode() === 'comunitario'" 
          style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 0 auto 8px auto; z-index: 2;">
-      
-      <!-- Píldora de Sincronización mediana -->
+      <!-- Píldora de Sincronización en Vivo -->
       <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-        <!-- Tú -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" style="width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--accent); background-size: cover; background-position: center;"></div>
-          <span style="font-size: 11.5px; font-weight: 700; color: var(--muted);">Tú</span>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="width: 6px; height: 6px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
+          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--green); letter-spacing: 0.5px;">Dojo de Enfoque Activo</span>
         </div>
-
-        <!-- Conector -->
-        <i class="fa-solid fa-circle" style="font-size: 4px; color: rgba(255,255,255,0.15); margin: 0 4px;"></i>
-
-        <!-- Compañero -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div [class]="'avatar-sprite sprite-' + partnerAvatar()" style="width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #3a86f0; background-size: cover; background-position: center;" [style.borderColor]="partnerStatus() === 'focused' ? '#3a86f0' : 'var(--red)'"></div>
-          <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">{{ partnerName() }}</span>
-          <span style="font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;" [style.color]="partnerStatus() === 'focused' ? 'var(--green)' : 'var(--red)'">
-            {{ partnerStatus() === 'focused' ? 'Enfocado' : 'Abandonó' }}
-          </span>
-        </div>
+        <i class="fa-solid fa-circle" style="font-size: 4px; color: rgba(255,255,255,0.15);"></i>
+        <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">{{ globalFocusedCount() }} guerreros enfocándose contigo</span>
       </div>
-
-      <!-- Alerta discreta si el compañero abandona -->
-      <span *ngIf="partnerStatus() === 'left'" style="font-size: 9.5px; color: var(--red); font-weight: 700; letter-spacing: 0.5px; animation: scalePulse 2s infinite alternate;">
-        ⚠️ {{ partnerName() }} se ha desconectado. ¡Mantén tu ritmo!
-      </span>
     </div>
 
     <!-- AREA CENTRAL: RELOJ GRANDE FLOTANTE -->
@@ -764,7 +696,95 @@
 
     </div>
 
+    <!-- BOTÓN DE DOJO COMUNITARIO COLAPSABLE -->
+    <button *ngIf="coworkingMode() === 'comunitario'"
+            (click)="dojoPanelExpanded.set(!dojoPanelExpanded())"
+            style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); padding: 8px 18px; border-radius: 20px; color: var(--text); font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 2; transition: all 0.25s ease;"
+            [style.borderColor]="dojoPanelExpanded() ? 'var(--accent)' : 'rgba(255,255,255,0.06)'"
+            [style.background]="dojoPanelExpanded() ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)'"
+            onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='var(--accent)';"
+            onmouseout="if(!this.dojoPanelExpanded()) { this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.06)' }">
+      <i class="fa-solid fa-users"></i>
+      <span>{{ dojoPanelExpanded() ? 'Ocultar Compañeros' : 'Ver Compañeros (' + (dojoUsers().length) + ')' }}</span>
+      <i class="fa-solid" [class.fa-chevron-down]="dojoPanelExpanded()" [class.fa-chevron-up]="!dojoPanelExpanded()"></i>
+    </button>
 
+    <!-- VENTANA COLAPSABLE DEL DOJO (Solo visible al expandir) -->
+    <div *ngIf="coworkingMode() === 'comunitario'"
+         style="width: 100%; max-width: 680px; z-index: 2; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; gap: 10px; align-items: center; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); overflow: hidden; margin-top: 10px;"
+         [style.maxHeight]="dojoPanelExpanded() ? '380px' : '0px'"
+         [style.opacity]="dojoPanelExpanded() ? '1' : '0'"
+         [style.padding]="dojoPanelExpanded() ? '16px' : '0px'"
+         [style.borderWidth]="dojoPanelExpanded() ? '1px' : '0px'">
+      
+      <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px;">
+        ⚔️ Guerreros enfocados contigo:
+      </span>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 8px; width: 100%; justify-content: center;">
+        
+        <!-- Tu propio Avatar -->
+        <div style="background: rgba(99, 102, 241, 0.08); border: 1.5px solid var(--accent); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; position: relative;">
+          <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--accent); background-size: cover; background-position: center;"></div>
+          <div style="text-align: center;">
+            <span style="font-size: 10px; font-weight: 800; color: var(--text);">Tú (Guerrero)</span>
+            <div style="font-size: 8px; color: var(--accent); font-weight: 700; margin-top: 1px;">Concentrado</div>
+          </div>
+          <!-- Reacción flotante si alguien te envía una -->
+          <div *ngIf="userActiveReaction()" 
+               style="position: absolute; top: -15px; font-size: 18px; animation: floatEmoji 1.5s ease-out forwards; z-index: 99;">
+            {{ userActiveReaction() }}
+          </div>
+        </div>
+
+        <!-- Compañeros aleatorios activos (4 compañeros en vivo) -->
+        <div *ngFor="let p of dojoUsers().slice(0, 4)" 
+             style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; position: relative; transition: all 0.2s;"
+             onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='var(--accent)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
+          
+          <!-- Avatar con halo de estado -->
+          <div [class]="'avatar-sprite sprite-' + p.avatar" 
+               style="width: 28px; height: 28px; border-radius: 50%; background-size: cover; background-position: center; border: 1.5px solid;"
+               [style.borderColor]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')">
+          </div>
+          
+          <div style="text-align: center; overflow: hidden; width: 100%;">
+            <span style="font-size: 10px; font-weight: 700; color: var(--text); display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ p.name }}</span>
+            <div style="font-size: 8px; font-weight: 700; margin-top: 1px;"
+                 [style.color]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')">
+              {{ p.status === 'focused' ? 'T: ' + formatTime(p.timeLeft) : (p.status === 'break' ? '☕ Recreo' : '💤 Inactivo') }}
+            </div>
+          </div>
+
+          <!-- Reacción flotante si tiene una activa -->
+          <div *ngIf="p.reaction" 
+               style="position: absolute; top: -15px; font-size: 18px; animation: floatEmoji 1.5s ease-out forwards; z-index: 99;">
+            {{ p.reaction }}
+          </div>
+
+          <!-- Botón de enviar apoyo rápido (Hover state overlay) -->
+          <div style="display: flex; gap: 4px; margin-top: 1px;">
+            <button (click)="sendSupportToUser(p.name, '🔥')" 
+                    style="border: none; background: rgba(255,255,255,0.05); color: var(--text); font-size: 8px; padding: 1px 4px; border-radius: 3px; cursor: pointer; transition: background 0.15s;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.12)'"
+                    onmouseout="this.style.background='rgba(255,255,255,0.05)'"
+                    title="Enviar energía 🔥">
+              🔥
+            </button>
+            <button (click)="sendSupportToUser(p.name, '💪')" 
+                    style="border: none; background: rgba(255,255,255,0.05); color: var(--text); font-size: 8px; padding: 1px 4px; border-radius: 3px; cursor: pointer; transition: background 0.15s;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.12)'"
+                    onmouseout="this.style.background='rgba(255,255,255,0.05)'"
+                    title="Enviar fuerza 💪">
+              💪
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
 
     <!-- BOTONES DE ACCIÓN MÁS LIMPIOS -->
     <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 320px; z-index: 2; margin-bottom: 10px;">
@@ -797,6 +817,19 @@
           <i class="fa-solid fa-forward" style="font-size: 9px;"></i>
           <span>Simular Completar</span>
         </button>
+      </div>
+    </div>
+
+    <!-- FEED DE EVENTOS EN VIVO EN ESQUINA INFERIOR IZQUIERDA -->
+    <div *ngIf="coworkingMode() === 'comunitario' && dojoEvents().length > 0" 
+         style="position: fixed; bottom: 20px; left: 20px; z-index: 1001; display: flex; flex-direction: column; gap: 6px; pointer-events: none; max-width: 320px;">
+      <div *ngFor="let ev of dojoEvents().slice(0, 3)" 
+           style="background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(8px); border: 1.5px solid rgba(255, 255, 255, 0.05); border-left: 3px solid var(--accent); border-radius: 6px; padding: 8px 12px; font-size: 10px; font-weight: 700; color: var(--text); animation: slideInLeft 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid" 
+           [class]="ev.type === 'join' ? 'fa-user-plus' : (ev.type === 'complete' ? 'fa-trophy' : (ev.type === 'break' ? 'fa-mug-hot' : 'fa-comment-dots'))"
+           [style.color]="ev.type === 'join' ? 'var(--accent)' : (ev.type === 'complete' ? 'var(--yellow)' : (ev.type === 'break' ? 'var(--green)' : 'var(--accent)'))">
+        </i>
+        <span>{{ ev.text }}</span>
       </div>
     </div>
 
@@ -837,14 +870,14 @@
         <h2 style="font-size: 20px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.4px;">¿Cómo terminó esta sesión?</h2>
       </div>
 
-      <!-- Tarjeta de Mensaje de Apoyo Recibido del Acompañante -->
-      <div *ngIf="(coworkingMode() === 'join' || coworkingMode() === 'host') && partnerName() && sessionEndingStatus() === 'completed'" 
+      <!-- Mensaje de motivación de la comunidad -->
+      <div *ngIf="coworkingMode() === 'comunitario' && sessionEndingStatus() === 'completed'" 
            style="background: rgba(99, 102, 241, 0.05); border: 1.5px dashed rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 12px 14px; text-align: left; display: flex; flex-direction: column; gap: 4px; margin: -10px 0 0 0;">
         <span style="font-size: 8.5px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 4px;">
-          <i class="fa-solid fa-comment-dots"></i> Mensaje de apoyo de {{ partnerName() }}
+          <i class="fa-solid fa-comment-dots"></i> Mensaje de motivación del Dojo
         </span>
         <p style="font-size: 11.5px; color: var(--text); font-style: italic; font-weight: 600; margin: 0; line-height: 1.4;">
-          "{{ getPartnerSupportMessage() }}"
+          "¡Enhorabuena por completar este bloque! Cada paso cuenta en tu camino de guerrero."
         </p>
       </div>
 
@@ -949,11 +982,11 @@
           </div>
           <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--text);">
             <i class="fa-solid fa-coins" style="color: var(--yellow);"></i>
-            <span>+{{ (coworkingMode() === 'join' || coworkingMode() === 'host') ? '10' : '5' }} Coins</span>
+            <span>+{{ coworkingMode() === 'comunitario' ? '10' : '5' }} Coins</span>
           </div>
         </div>
-        <span *ngIf="coworkingMode() === 'join' || coworkingMode() === 'host'" style="font-size: 9px; color: var(--green); font-weight: 700; text-align: center;">
-          🚀 ¡Incluye bonus de +5 Pro Coins por sesión compartida!
+        <span *ngIf="coworkingMode() === 'comunitario'" style="font-size: 9px; color: var(--green); font-weight: 700; text-align: center;">
+          🚀 ¡Incluye bonus de +5 Pro Coins por sesión en Dojo Comunitario!
         </span>
       </div>
 
@@ -1247,7 +1280,7 @@
       </div>
       <h2 style="font-size: 18px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.5px;">¡Sesión Completada!</h2>
       <p style="font-size: 11.5px; color: var(--muted); margin: 6px 0 0 0; line-height: 1.4;">
-        Te retiras de la sesión, pero <strong>{{ partnerName() }}</strong> sigue enfocándose. Déjale un último mensaje de aliento para motivarle en su cierre.
+        ¡Has dominado tu enfoque! Deja un mensaje de aliento en el muro del Dojo para motivar al resto de tus compañeros.
       </p>
     </div>
 
