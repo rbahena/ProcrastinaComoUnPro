@@ -696,94 +696,92 @@
 
     </div>
 
-    <!-- BOTÓN DE DOJO COMUNITARIO COLAPSABLE -->
+    <!-- BOTÓN FLOTANTE EN LA ESQUINA INFERIOR IZQUIERDA PARA ABRIR EL DOJO -->
     <button *ngIf="coworkingMode() === 'comunitario'"
             (click)="dojoPanelExpanded.set(!dojoPanelExpanded())"
-            style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); padding: 8px 18px; border-radius: 20px; color: var(--text); font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 2; transition: all 0.25s ease;"
+            style="position: fixed; bottom: 24px; left: 24px; z-index: 1002; background: rgba(18, 18, 24, 0.9); backdrop-filter: blur(8px); border: 1.5px solid rgba(255,255,255,0.06); padding: 10px 18px; border-radius: 30px; color: var(--text); font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);"
             [style.borderColor]="dojoPanelExpanded() ? 'var(--accent)' : 'rgba(255,255,255,0.06)'"
-            [style.background]="dojoPanelExpanded() ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)'"
-            onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='var(--accent)';"
-            onmouseout="if(!this.dojoPanelExpanded()) { this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.06)' }">
-      <i class="fa-solid fa-users"></i>
-      <span>{{ dojoPanelExpanded() ? 'Ocultar Compañeros' : 'Ver Compañeros (' + (dojoUsers().length) + ')' }}</span>
-      <i class="fa-solid" [class.fa-chevron-down]="dojoPanelExpanded()" [class.fa-chevron-up]="!dojoPanelExpanded()"></i>
+            onmouseover="this.style.transform='scale(1.05) translateY(-2px)'; this.style.borderColor='var(--accent)';"
+            onmouseout="this.style.transform='scale(1) translateY(0)'; if(!this.dojoPanelExpanded()) { this.style.borderColor='rgba(255,255,255,0.06)' }">
+      <i class="fa-solid fa-users" style="color: var(--accent);"></i>
+      <span>Compañeros ({{ dojoUsers().length }})</span>
+      <span style="width: 6px; height: 6px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
     </button>
 
-    <!-- VENTANA COLAPSABLE DEL DOJO (Solo visible al expandir) -->
+    <!-- PANEL FLOTANTE DE COMPAÑEROS (DOJO COMUNITARIO) -->
     <div *ngIf="coworkingMode() === 'comunitario'"
-         style="width: 100%; max-width: 680px; z-index: 2; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; gap: 10px; align-items: center; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); overflow: hidden; margin-top: 10px;"
-         [style.maxHeight]="dojoPanelExpanded() ? '380px' : '0px'"
+         style="position: fixed; bottom: 80px; left: 24px; width: 250px; height: 300px; z-index: 1001; background: rgba(10, 10, 12, 0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.5); display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 14px; text-align: left;"
+         [style.transform]="dojoPanelExpanded() ? 'translateY(0)' : 'translateY(15px)'"
          [style.opacity]="dojoPanelExpanded() ? '1' : '0'"
-         [style.padding]="dojoPanelExpanded() ? '16px' : '0px'"
-         [style.borderWidth]="dojoPanelExpanded() ? '1px' : '0px'">
+         [style.pointerEvents]="dojoPanelExpanded() ? 'all' : 'none'">
       
-      <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px;">
-        ⚔️ Guerreros enfocados contigo:
-      </span>
-      
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 8px; width: 100%; justify-content: center;">
+      <!-- Cabecera del Panel -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-graduation-cap" style="color: var(--accent); font-size: 14px;"></i>
+          <span style="font-size: 11px; font-weight: 900; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">Dojo de Enfoque</span>
+        </div>
+        <button (click)="dojoPanelExpanded.set(false)" 
+                style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; transition: color 0.15s;"
+                onmouseover="this.style.color='var(--text)';"
+                onmouseout="this.style.color='var(--muted)';">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Lista de compañeros con scroll vertical -->
+      <div class="no-scrollbar" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; padding-right: 4px;">
         
-        <!-- Tu propio Avatar -->
-        <div style="background: rgba(99, 102, 241, 0.08); border: 1.5px solid var(--accent); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; position: relative;">
-          <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--accent); background-size: cover; background-position: center;"></div>
-          <div style="text-align: center;">
+        <!-- Tu Ficha -->
+        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid var(--accent); border-radius: 10px; padding: 8px 10px; display: flex; align-items: center; gap: 8px; position: relative;">
+          <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--accent); background-size: cover; background-position: center; flex-shrink: 0;"></div>
+          <div style="display: flex; flex-direction: column; overflow: hidden; width: 100%;">
             <span style="font-size: 10px; font-weight: 800; color: var(--text);">Tú (Guerrero)</span>
-            <div style="font-size: 8px; color: var(--accent); font-weight: 700; margin-top: 1px;">Concentrado</div>
+            <span style="font-size: 8px; color: var(--accent); font-weight: 700; margin-top: 1px;">Enfoque Activo</span>
           </div>
           <!-- Reacción flotante si alguien te envía una -->
           <div *ngIf="userActiveReaction()" 
-               style="position: absolute; top: -15px; font-size: 18px; animation: floatEmoji 1.5s ease-out forwards; z-index: 99;">
+               style="position: absolute; top: 8px; right: 8px; font-size: 16px; animation: floatEmoji 1.5s ease-out forwards; z-index: 99;">
             {{ userActiveReaction() }}
           </div>
         </div>
 
-        <!-- Compañeros aleatorios activos (4 compañeros en vivo) -->
-        <div *ngFor="let p of dojoUsers().slice(0, 4)" 
-             style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; position: relative; transition: all 0.2s;"
+        <!-- Compañeros del Dojo -->
+        <div *ngFor="let p of dojoUsers().slice(0, 10)" 
+             style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; position: relative; transition: all 0.2s;"
              onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='var(--accent)';"
              onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
           
-          <!-- Avatar con halo de estado -->
-          <div [class]="'avatar-sprite sprite-' + p.avatar" 
-               style="width: 28px; height: 28px; border-radius: 50%; background-size: cover; background-position: center; border: 1.5px solid;"
-               [style.borderColor]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')">
-          </div>
-          
-          <div style="text-align: center; overflow: hidden; width: 100%;">
-            <span style="font-size: 10px; font-weight: 700; color: var(--text); display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ p.name }}</span>
-            <div style="font-size: 8px; font-weight: 700; margin-top: 1px;"
-                 [style.color]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')">
-              {{ p.status === 'focused' ? 'T: ' + formatTime(p.timeLeft) : (p.status === 'break' ? '☕ Recreo' : '💤 Inactivo') }}
+          <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; flex: 1; padding-right: 6px;">
+            <!-- Avatar con halo de estado -->
+            <div [class]="'avatar-sprite sprite-' + p.avatar" 
+                 style="width: 26px; height: 26px; border-radius: 50%; background-size: cover; background-position: center; border: 1.5px solid; flex-shrink: 0;"
+                 [style.borderColor]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')">
+            </div>
+            
+            <div style="display: flex; flex-direction: column; overflow: hidden;">
+              <span style="font-size: 10px; font-weight: 750; color: var(--text); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ p.name }}</span>
+              <span style="font-size: 8px; color: var(--muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                {{ p.status === 'focused' ? p.mission : 'Pausa de descanso' }}
+              </span>
             </div>
           </div>
 
+          <!-- Temporizador del compañero -->
+          <span style="font-size: 9px; font-weight: 800; font-family: monospace; color: var(--text); flex-shrink: 0;">
+            {{ p.status === 'focused' ? formatTime(p.timeLeft) : '☕ 5:00' }}
+          </span>
+
           <!-- Reacción flotante si tiene una activa -->
           <div *ngIf="p.reaction" 
-               style="position: absolute; top: -15px; font-size: 18px; animation: floatEmoji 1.5s ease-out forwards; z-index: 99;">
+               style="position: absolute; top: 6px; right: 6px; font-size: 16px; animation: floatEmoji 1.5s ease-out forwards; z-index: 99;">
             {{ p.reaction }}
-          </div>
-
-          <!-- Botón de enviar apoyo rápido (Hover state overlay) -->
-          <div style="display: flex; gap: 4px; margin-top: 1px;">
-            <button (click)="sendSupportToUser(p.name, '🔥')" 
-                    style="border: none; background: rgba(255,255,255,0.05); color: var(--text); font-size: 8px; padding: 1px 4px; border-radius: 3px; cursor: pointer; transition: background 0.15s;"
-                    onmouseover="this.style.background='rgba(255,255,255,0.12)'"
-                    onmouseout="this.style.background='rgba(255,255,255,0.05)'"
-                    title="Enviar energía 🔥">
-              🔥
-            </button>
-            <button (click)="sendSupportToUser(p.name, '💪')" 
-                    style="border: none; background: rgba(255,255,255,0.05); color: var(--text); font-size: 8px; padding: 1px 4px; border-radius: 3px; cursor: pointer; transition: background 0.15s;"
-                    onmouseover="this.style.background='rgba(255,255,255,0.12)'"
-                    onmouseout="this.style.background='rgba(255,255,255,0.05)'"
-                    title="Enviar fuerza 💪">
-              💪
-            </button>
           </div>
 
         </div>
 
       </div>
+
     </div>
 
     <!-- BOTONES DE ACCIÓN MÁS LIMPIOS -->
@@ -820,18 +818,7 @@
       </div>
     </div>
 
-    <!-- FEED DE EVENTOS EN VIVO EN ESQUINA INFERIOR IZQUIERDA -->
-    <div *ngIf="coworkingMode() === 'comunitario' && dojoEvents().length > 0" 
-         style="position: fixed; bottom: 20px; left: 20px; z-index: 1001; display: flex; flex-direction: column; gap: 6px; pointer-events: none; max-width: 320px;">
-      <div *ngFor="let ev of dojoEvents().slice(0, 3)" 
-           style="background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(8px); border: 1.5px solid rgba(255, 255, 255, 0.05); border-left: 3px solid var(--accent); border-radius: 6px; padding: 8px 12px; font-size: 10px; font-weight: 700; color: var(--text); animation: slideInLeft 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 8px;">
-        <i class="fa-solid" 
-           [class]="ev.type === 'join' ? 'fa-user-plus' : (ev.type === 'complete' ? 'fa-trophy' : (ev.type === 'break' ? 'fa-mug-hot' : 'fa-comment-dots'))"
-           [style.color]="ev.type === 'join' ? 'var(--accent)' : (ev.type === 'complete' ? 'var(--yellow)' : (ev.type === 'break' ? 'var(--green)' : 'var(--accent)'))">
-        </i>
-        <span>{{ ev.text }}</span>
-      </div>
-    </div>
+
 
   </div>
 </ng-container>
