@@ -101,133 +101,382 @@
     </div>
   </div>
 
-  <!-- CONTENEDOR PRINCIPAL EN DOS COLUMNAS -->
-  <div class="dashboard-grid">
+  <!-- ROW 1: MÉTRICAS SUPERIORES (3 COLUMNAS) -->
+  <div class="metrics-top-row">
     
-    <!-- COLUMNA IZQUIERDA (Principal - Enfoque y Podio) -->
+    <!-- CARD 1: Personas Enfocadas -->
+    <div class="metric-card-premium card-focused-now" style="--card-accent: var(--green); margin: 0; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+      
+      <!-- CABECERA -->
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span class="pulse-green-dot"></span>
+          <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Ahora mismo</span>
+        </div>
+        <span class="card-title-text" style="color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 1px 5px; border-radius: 3px;">En vivo</span>
+      </div>
+      
+      <!-- CONTENIDO CENTRAL -->
+      <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: center; margin: 12px 0;">
+        <div class="card-large-value">
+          {{ liveFocusedUsersCount() }} personas
+        </div>
+        <div class="card-sub-desc">están trabajando.</div>
+        
+        <!-- Status de Dojo activo -->
+        <div style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.08); border-radius: 6px; padding: 6px; font-size: 9px; color: var(--green); display: flex; align-items: center; gap: 6px; margin-top: 6px; text-align: left;">
+          <i class="fa-solid fa-yin-yang" style="animation: spin 8s infinite linear; font-size: 10px;"></i>
+          <span>Atmósfera colectiva activa. ¡Únete al Dojo!</span>
+        </div>
+      </div>
+      
+      <!-- FOOTER: Avatares -->
+      <div class="avatar-stack-container" style="border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+        <div class="avatar-stack-list">
+          <div class="avatar-stack-item avatar-sprite sprite-lobo" (click)="zoomAvatar('lobo', 'Alejandro', 'Lobo', '#3a86f0', 3)">
+            <span class="avatar-tooltip">Lobo Samurai</span>
+          </div>
+          <div class="avatar-stack-item avatar-sprite sprite-zorro" (click)="zoomAvatar('zorro', 'Beatriz', 'Zorro', '#ff007f', 4)">
+            <span class="avatar-tooltip">Zorro Ninja</span>
+          </div>
+          <div class="avatar-stack-item avatar-sprite sprite-leon" (click)="zoomAvatar('leon', 'Cristian', 'León', '#e67e22', 2)">
+            <span class="avatar-tooltip">León Shogun</span>
+          </div>
+          <div class="avatar-stack-item avatar-sprite sprite-buho" (click)="zoomAvatar('buho', 'Diana', 'Búho', '#9b59b6', 1)">
+            <span class="avatar-tooltip">Búho Estratega</span>
+          </div>
+          <div class="avatar-stack-item avatar-sprite sprite-panda" (click)="zoomAvatar('panda', 'Eduardo', 'Panda', '#2ecc71', 0)">
+            <span class="avatar-tooltip">Panda Ninja</span>
+          </div>
+        </div>
+        <span class="card-title-text" style="color: var(--muted); font-weight: 500; font-size: 8.5px;">en directo</span>
+      </div>
+
+    </div>
+
+    <!-- CARD 2: Objetivos Cumplidos -->
+    <div class="metric-card-premium card-objectives-done" style="--card-accent: var(--accent); margin: 0; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+      
+      <!-- CABECERA -->
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-circle-check" style="font-size: 10px; color: var(--accent);"></i>
+          <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Hoy</span>
+        </div>
+        <span class="card-title-text" style="color: var(--accent); font-weight: 700; background: rgba(99, 102, 241, 0.08); padding: 1px 5px; border-radius: 3px;">Red</span>
+      </div>
+      
+      <!-- CONTENIDO CENTRAL -->
+      <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: center; margin: 12px 0;">
+        <div class="card-large-value">
+          {{ liveCompletedObjectivesToday() }}
+        </div>
+        <div class="card-sub-desc">sesiones completadas.</div>
+
+        <!-- Barra de Progreso meta diaria -->
+        <div style="margin-top: 8px; width: 100%;">
+          <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); margin-bottom: 3px; font-weight: 700;">
+            <span>Meta Diaria</span>
+            <span>{{ liveCompletedObjectivesToday() }}/4 Pomodoros</span>
+          </div>
+          <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; border: 0.5px solid rgba(255,255,255,0.02);">
+            <div [style.width]="(liveCompletedObjectivesToday() >= 4 ? 100 : (liveCompletedObjectivesToday() * 25)) + '%'" 
+                 style="height: 100%; background: var(--accent); transition: width 0.5s ease; box-shadow: 0 0 6px var(--accent);">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- FOOTER: Avatares -->
+      <div class="avatar-stack-container" style="border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+        <div class="avatar-stack-list">
+          <div class="avatar-stack-item avatar-sprite sprite-gato" (click)="zoomAvatar('gato', 'Gabriela', 'Gato', '#1abc9c', 2)">
+            <span class="avatar-tooltip">Gato Constante</span>
+          </div>
+          <div class="avatar-stack-item avatar-sprite sprite-perro" (click)="zoomAvatar('perro', 'Hugo', 'Perro', '#3498db', 1)">
+            <span class="avatar-tooltip">Perro Fiel</span>
+          </div>
+          <div class="avatar-stack-item avatar-sprite sprite-conejo" (click)="zoomAvatar('conejo', 'Isabel', 'Conejo', '#9ca3af', 5)">
+            <span class="avatar-tooltip">Conejo Veloz</span>
+          </div>
+          <div class="avatar-stack-item avatar-sprite sprite-rana" (click)="zoomAvatar('rana', 'Javier', 'Rana', '#2ecc71', 0)">
+            <span class="avatar-tooltip">Rana Enfocada</span>
+          </div>
+          <div class="avatar-stack-item avatar-sprite sprite-hamster" (click)="zoomAvatar('hamster', 'Laura', 'Hámster', '#f1c40f', 3)">
+            <span class="avatar-tooltip">Hámster Ninja</span>
+          </div>
+        </div>
+        <span class="card-title-text" style="color: var(--muted); font-weight: 500; font-size: 8.5px;">usuarios</span>
+      </div>
+
+    </div>
+
+    <!-- CARD 3: Ranking Global / Tu Desempeño -->
+    <div class="metric-card-premium card-user-rank" style="--card-accent: var(--yellow); margin: 0; min-height: 155px; display: flex; flex-direction: column; justify-content: space-between;">
+      
+      <!-- CABECERA -->
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-trophy" style="font-size: 10px; color: var(--yellow);"></i>
+          <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Desempeño de Hoy</span>
+        </div>
+        <span class="card-title-text" style="color: var(--yellow); font-weight: 700;" *ngIf="membership.isPremium()">
+          Top {{ 100 - percentageBeaten() }}%
+        </span>
+        <span class="card-title-text" style="color: var(--muted); font-weight: 700;" *ngIf="!membership.isPremium()">
+          Clasificación
+        </span>
+      </div>
+
+      <!-- VISTA GRATUITA: RANKING DUMMY CON INVITACIÓN PREMIUM -->
+      <div *ngIf="!membership.isPremium()" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px; flex: 1; justify-content: center;">
+        <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 6px; opacity: 0.7;">
+          <!-- Posición Actual -->
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <span class="card-large-value" style="font-size: 18px !important; margin-top: 0; color: var(--text);">#{{ rankingPosition() }}</span>
+              <span *ngIf="liveRankShift() !== 0" 
+                    [style.color]="liveRankShift() < 0 ? 'var(--green)' : '#ef4444'" 
+                    style="font-size: 8px; font-weight: 900; display: inline-flex; align-items: center; gap: 1px;">
+                <i class="fa-solid" [class]="liveRankShift() < 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- Puntos por Enfoque -->
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
+            <span class="card-large-value" style="font-size: 16px !important; margin-top: 0; color: var(--muted);">🔒</span>
+          </div>
+
+          <!-- Recompensa Monedas -->
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Monedas</span>
+            <span style="font-size: 14px; font-weight: 700; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 3px;">
+              🔒
+            </span>
+          </div>
+        </div>
+        
+        <!-- Superado Comunidad (Discreto) -->
+        <div style="font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px; width: 100%;">
+          Podrías superar al {{ percentageBeaten() }}% de la comunidad hoy
+        </div>
+        
+        <!-- Rivalidad en Vivo en Vista Free -->
+        <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 4px;">
+          <span style="font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Ranking del Día</span>
+          
+          <!-- Rival Arriba (Ana) -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() - 1 }}</span>
+              <div class="avatar-sprite sprite-lobo" 
+                   style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                   (click)="zoomAvatar('lobo', 'Ana', 'Lobo', '#ff4757', 2)"></div>
+              <span style="color: var(--text);">Ana</span>
+            </div>
+          </div>
+
+          <!-- Tú (Resaltado) -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(99, 102, 241, 0.08); border: 1.2px solid var(--accent); border-radius: 6px; padding: 4px 6px; font-size: 11px; font-weight: 700; box-shadow: 0 0 8px rgba(99, 102, 241, 0.15);">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="color: var(--accent); width: 22px;">#{{ rankingPosition() }}</span>
+              <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" 
+                   style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                   (click)="zoomAvatar(membership.selectedAvatar(), userName(), membership.getSelectedAvatarName(), '#ffd700', membership.podiumWins())"></div>
+              <span style="color: #fff;">{{ userName() }} (Tú)</span>
+            </div>
+          </div>
+          
+          <!-- Rival Abajo (Carlos) -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() + 1 }}</span>
+              <div class="avatar-sprite sprite-panda" 
+                   style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                   (click)="zoomAvatar('panda', 'Carlos', 'Panda', '#a4b0be', 1)"></div>
+              <span style="color: var(--text);">Carlos</span>
+            </div>
+          </div>
+        </div>
+
+        <button routerLink="/membresia" 
+                style="border: none; background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 6px; padding: 5px; color: var(--yellow); font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 4px;"
+                onmouseover="this.style.background='rgba(212,175,55,0.18)'"
+                onmouseout="this.style.background='rgba(212,175,55,0.1)'">
+          Desbloquear Dojo Premium
+        </button>
+      </div>
+
+      <!-- VISTA PREMIUM: ESTADÍSTICAS DETALLADAS DE COMPETENCIA -->
+      <div *ngIf="membership.isPremium()" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px; flex: 1;">
+        <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 6px;">
+          <!-- Posición Actual -->
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <span class="card-large-value" style="font-size: 18px !important; margin-top: 0;">#{{ rankingPosition() }}</span>
+              <span *ngIf="liveRankShift() !== 0" 
+                    [style.color]="liveRankShift() < 0 ? 'var(--green)' : '#ef4444'" 
+                    style="font-size: 8px; font-weight: 900; display: inline-flex; align-items: center; gap: 1px;">
+                <i class="fa-solid" [class]="liveRankShift() < 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- Puntos por Enfoque -->
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
+            <span class="card-large-value" style="font-size: 18px !important; margin-top: 0; color: var(--green);">+{{ membership.focusPoints() }}</span>
+          </div>
+
+          <!-- Recompensa Monedas -->
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Monedas</span>
+            <span style="font-size: 14px; font-weight: 700; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 3px;">
+              <i class="fa-solid fa-coins" style="font-size: 10px; opacity: 0.7;"></i> +{{ potentialReward() }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Superado Comunidad -->
+        <div style="font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px; width: 100%;">
+          Superaste al {{ percentageBeaten() }}% de la comunidad hoy
+        </div>
+
+        <!-- Rivalidad en Vivo en Vista Premium -->
+        <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 4px; width: 100%;">
+          <span style="font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; text-align: left;">Ranking del Día</span>
+          
+          <!-- Rival Arriba (Ana) -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() - 1 }}</span>
+              <div class="avatar-sprite sprite-lobo" 
+                   style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                   (click)="zoomAvatar('lobo', 'Ana', 'Lobo', '#ff4757', 2)"></div>
+              <span style="color: var(--text);">Ana</span>
+            </div>
+          </div>
+
+          <!-- Tú (Resaltado) -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(99, 102, 241, 0.08); border: 1.2px solid var(--accent); border-radius: 6px; padding: 4px 6px; font-size: 11px; font-weight: 700; box-shadow: 0 0 8px rgba(99, 102, 241, 0.15);">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="color: var(--accent); width: 22px;">#{{ rankingPosition() }}</span>
+              <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" 
+                   style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                   (click)="zoomAvatar(membership.selectedAvatar(), userName(), membership.getSelectedAvatarName(), '#ffd700', membership.podiumWins())"></div>
+              <span style="color: #fff;">{{ userName() }} (Tú)</span>
+            </div>
+          </div>
+          
+          <!-- Rival Abajo (Carlos) -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() + 1 }}</span>
+              <div class="avatar-sprite sprite-panda" 
+                   style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
+                   (click)="zoomAvatar('panda', 'Carlos', 'Panda', '#a4b0be', 1)"></div>
+              <span style="color: var(--text);">Carlos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indicador de Sincronización en Vivo -->
+      <div style="font-size: 10px; color: var(--muted); text-align: center; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 4px; opacity: 0.8; border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 6px; width: 100%;">
+        <span class="pulse-green-dot" style="width: 4px; height: 4px; box-shadow: 0 0 4px var(--green);"></span>
+        <span>En vivo • Sincronizado: {{ lastUpdated() }}</span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ROW 2: CONTENEDOR INFERIOR EN DOS COLUMNAS -->
+  <div class="dashboard-grid" style="margin-top: 24px;">
+    
+    <!-- COLUMNA IZQUIERDA: TEMPLO DE ENFOQUE COLECTIVO -->
     <div class="dashboard-main-column">
       
-      <!-- CARD: SESIONES DE ENFOQUE ACTIVAS (COMUNIDAD) -->
-      <div class="coworking-card">
+      <!-- CARD: TEMPLO DE ENFOQUE COLECTIVO (DOJO COMUNITARIO) -->
+      <div class="coworking-card" style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
         
         <!-- Cabecera -->
         <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-users" style="color: var(--accent); font-size: 14px;"></i>
+            <i class="fa-solid fa-graduation-cap" style="color: var(--accent); font-size: 14px;"></i>
             <div>
               <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
-                Usuarios en Enfoque
+                Dojo Comunitario
                 <span class="flashy-help-badge" 
-                      data-tooltip="Mira quién se está concentrando ahora mismo. Únete a una sesión para sincronizar tu Pomodoro y trabajar juntos en silencio, sin chats ni distracciones.">
+                      data-tooltip="El Dojo Comunitario es un templo de estudio colectivo. Al entrar, te sincronizas con decenas de guerreros enfocados en tiempo real bajo la misma atmósfera Zen.">
                   <i class="fa-solid fa-circle-question"></i>
                 </span>
               </h4>
-              <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Usuarios que acaban de iniciar una sesión de enfoque. ¡Únete!</p>
+              <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Trabaja en sincronía y vence a la procrastinación en grupo.</p>
             </div>
           </div>
-          <!-- Corona Premium si es gratis -->
-          <span *ngIf="!membership.isPremium()" style="font-size: 9px; color: var(--yellow); font-weight: 800; background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.15); padding: 2px 6px; border-radius: 10px; display: flex; align-items: center; gap: 3px;">
-            <i class="fa-solid fa-crown"></i> PRO
+          <!-- Indicador en vivo -->
+          <span style="font-size: 9px; color: var(--green); font-weight: 800; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 10px; display: flex; align-items: center; gap: 4px;">
+            <span style="width: 4px; height: 4px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
+            EN VIVO
           </span>
         </div>
 
-        <!-- Lista de salas activas -->
-        <div style="display: flex; flex-direction: column; gap: 10px; min-height: 140px; justify-content: center;">
+        <!-- Contenido Central del Dojo -->
+        <div style="display: flex; flex-direction: column; gap: 14px; padding: 6px 0;">
           
-          <!-- Sala 1: Ramiro (Zorro) -->
-          <div class="coworking-slot">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div class="coworking-avatar avatar-sprite sprite-zorro" 
-                   style="border: 1.5px solid #ff9f43; cursor: zoom-in;" 
-                   (click)="zoomAvatar('zorro', 'Ramiro', 'Zorro', '#ff9f43', 3)"></div>
-              <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Ramiro</span>
-                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
-                  <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-                  En línea y concentrado ahora
-                </span>
-              </div>
+          <!-- Grid de Métricas del Dojo -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;">
+              <span style="font-size: 18px; font-weight: 900; color: var(--accent);">{{ liveFocusedUsersCount() }}</span>
+              <span style="font-size: 9.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px;">Guerreros Activos</span>
             </div>
-            <button (click)="joinSharedSession('Ramiro', 'zorro')" 
-                    class="coworking-btn"
-                    title="Unirme a Ramiro">
-              <span>Unirme</span>
-              <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
-            </button>
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;">
+              <span style="font-size: 18px; font-weight: 900; color: var(--yellow);">{{ liveCompletedObjectivesToday() }}</span>
+              <span style="font-size: 9.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px;">Objetivos Hoy</span>
+            </div>
           </div>
 
-          <!-- Sala 2: Ana (Lobo) -->
-          <div class="coworking-slot">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div class="coworking-avatar avatar-sprite sprite-lobo" 
-                   style="border: 1.5px solid #ff4757; cursor: zoom-in;" 
-                   (click)="zoomAvatar('lobo', 'Ana', 'Lobo', '#ff4757', 2)"></div>
-              <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Ana</span>
-                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
-                  <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-                  En línea y concentrado ahora
-                </span>
-              </div>
+          <!-- Preview de Compañeros (Avatar Stack y Texto descriptivo) -->
+          <div style="background: rgba(99, 102, 241, 0.03); border: 1px solid rgba(99, 102, 241, 0.08); border-radius: 12px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div style="display: flex; flex-direction: column; gap: 2px; text-align: left;">
+              <span style="font-size: 11px; font-weight: 800; color: var(--text);">Estudia en Compañía</span>
+              <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Ana, Ramiro, Sofía y 70+ guerreros ya están enfocándose.</span>
             </div>
-            <button (click)="joinSharedSession('Ana', 'lobo')" 
-                    class="coworking-btn"
-                    title="Unirme a Ana">
-              <span>Unirme</span>
-              <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
-            </button>
-          </div>
-
-          <!-- Sala 3: Carlos (Panda) -->
-          <div class="coworking-slot">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div class="coworking-avatar avatar-sprite sprite-panda" 
-                   style="border: 1.5px solid #a4b0be; cursor: zoom-in;" 
-                   (click)="zoomAvatar('panda', 'Carlos', 'Panda', '#a4b0be', 1)"></div>
-              <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Carlos</span>
-                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
-                  <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-                  En línea y concentrado ahora
-                </span>
-              </div>
+            
+            <!-- Stack de Avatares -->
+            <div style="display: flex; align-items: center; position: relative; height: 28px; width: 80px; flex-shrink: 0;">
+              <div class="avatar-sprite sprite-lobo" style="width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 0; z-index: 4; background-size: cover; background-position: center;"></div>
+              <div class="avatar-sprite sprite-zorro" style="width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 16px; z-index: 3; background-size: cover; background-position: center;"></div>
+              <div class="avatar-sprite sprite-aguila" style="width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 32px; z-index: 2; background-size: cover; background-position: center;"></div>
+              <div style="width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 48px; z-index: 1; background: var(--accent); color: #000; font-size: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">+70</div>
             </div>
-            <button (click)="joinSharedSession('Carlos', 'panda')" 
-                    class="coworking-btn"
-                    title="Unirme a Carlos">
-              <span>Unirme</span>
-              <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
-            </button>
-          </div>
-
-          <!-- Sala 4: Sofía (Águila) -->
-          <div class="coworking-slot">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div class="coworking-avatar avatar-sprite sprite-aguila" 
-                   style="border: 1.5px solid #54a0ff; cursor: zoom-in;" 
-                   (click)="zoomAvatar('aguila', 'Sofía', 'Águila', '#54a0ff', 0)"></div>
-              <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Sofía (Águila)</span>
-                <span style="font-size: 9.5px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
-                  <span style="width: 5px; height: 5px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-                  En línea y concentrado ahora
-                </span>
-              </div>
-            </div>
-            <button (click)="joinSharedSession('Sofía', 'aguila')" 
-                    class="coworking-btn"
-                    title="Unirme a Sofía">
-              <span>Unirme</span>
-              <i class="fa-solid fa-yin-yang" style="font-size: 8px;"></i>
-            </button>
           </div>
 
         </div>
 
+        <!-- Botón de Acción Principal -->
+        <a routerLink="/enfoque" 
+           class="coworking-btn" 
+           style="width: 100%; justify-content: center; padding: 12px; font-size: 12px; text-decoration: none; box-sizing: border-box; text-align: center; border-radius: 10px; display: inline-flex;"
+           title="Entrar al Templo Colectivo de Enfoque">
+          <span>Entrar al Templo</span>
+          <i class="fa-solid fa-yin-yang" style="font-size: 10px;"></i>
+        </a>
+
       </div>
 
+    </div>
+
+    <!-- COLUMNA DERECHA: PODIO DE LÍDERES (TOP 3) -->
+    <div class="dashboard-sidebar-column">
+      
       <!-- CARD: PODIO DE LÍDERES (TOP 3) -->
-      <div class="podio-card">
+      <div class="podio-card" style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
         
         <!-- Cabecera -->
         <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
@@ -235,7 +484,7 @@
             <i class="fa-solid fa-trophy" style="color: var(--yellow); font-size: 14px;"></i>
             <div>
               <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Podio del Dojo</h4>
-              <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Top 3 mejores concentradores de la comunidad</p>
+              <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Top 3 concentradores</p>
             </div>
           </div>
         </div>
@@ -243,11 +492,11 @@
         <!-- Rango de Semana Anterior -->
         <div style="display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 5px 12px; border-radius: 20px; margin: 10px auto 4px auto; width: fit-content; font-size: 10.5px; font-weight: 700; color: var(--yellow);">
           <i class="fa-solid fa-calendar-days" style="font-size: 9.5px; opacity: 0.85;"></i>
-          <span>Podio de la semana: 2 de Ago - 8 de Ago, 2026</span>
+          <span>Podio de la semana anterior</span>
         </div>
 
         <!-- Podio (Vista en Hilera) -->
-        <div style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 250px; margin-top: 10px; padding-bottom: 5px;">
+        <div style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 180px; margin-top: 10px; padding-bottom: 5px;">
           
           <!-- 2º Puesto (Izquierda) -->
           <div class="podio-column second-place custom-tooltip-host" 
@@ -260,13 +509,14 @@
                    (click)="zoomAvatar('lobo', 'Lobo Samurai', 'Lobo', '#3a86f0', 3)">
               </div>
             </div>
-            <span style="font-size: 12px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[0].name }}</span>
-            <span style="font-size: 10.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[0].value }}</span>
+            <span style="font-size: 11.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[0].name }}</span>
+            <span style="font-size: 10px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[0].value }}</span>
             <div class="podio-bar">2º</div>
           </div>
 
           <!-- 1º Puesto (Centro) -->
           <div class="podio-column first-place custom-tooltip-host" 
+               style="transform: scale(1.05);"
                [attr.data-tooltip]="rankingData()[1].name + ' lidera con ' + rankingData()[1].value + ' la semana anterior'">
             <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 14px; margin-bottom: 4px; filter: drop-shadow(0 0 4px rgba(255,215,0,0.5));"></i>
             <!-- Avatar -->
@@ -277,8 +527,8 @@
                    (click)="zoomAvatar('dragon', 'Dragón Imperial', 'Dragón', '#a855f7', 5)">
               </div>
             </div>
-            <span style="font-size: 13px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[1].name }}</span>
-            <span style="font-size: 11.5px; color: var(--yellow); font-weight: 800; margin-bottom: 6px;">{{ rankingData()[1].value }}</span>
+            <span style="font-size: 12.5px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[1].name }}</span>
+            <span style="font-size: 11px; color: var(--yellow); font-weight: 800; margin-bottom: 6px;">{{ rankingData()[1].value }}</span>
             <div class="podio-bar">1º</div>
           </div>
 
@@ -293,274 +543,11 @@
                    (click)="zoomAvatar('buho', 'Búho Sabio', 'Búho', '#10b981', 1)">
               </div>
             </div>
-            <span style="font-size: 12px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[2].name }}</span>
-            <span style="font-size: 10.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[2].value }}</span>
+            <span style="font-size: 11.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[2].name }}</span>
+            <span style="font-size: 10px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[2].value }}</span>
             <div class="podio-bar">3º</div>
           </div>
 
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- COLUMNA DERECHA (Secundaria - Métricas y Desempeño) -->
-    <div class="dashboard-sidebar-column">
-      
-      <!-- CARD 1: Personas Enfocadas -->
-      <div class="metric-card-premium card-focused-now" style="--card-accent: var(--green);">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <span class="pulse-green-dot"></span>
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Ahora mismo</span>
-          </div>
-          <span class="card-title-text" style="color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 1px 5px; border-radius: 3px;">En vivo</span>
-        </div>
-        
-        <div class="card-large-value">
-          {{ liveFocusedUsersCount() }} personas
-        </div>
-        <div class="card-sub-desc">están trabajando.</div>
-        
-        <!-- Avatares de Animales Ninja Apilados -->
-        <div class="avatar-stack-container" style="margin-top: 6px;">
-          <div class="avatar-stack-list">
-            <div class="avatar-stack-item avatar-sprite sprite-lobo" (click)="zoomAvatar('lobo', 'Alejandro', 'Lobo', '#3a86f0', 3)">
-              <span class="avatar-tooltip">Lobo Samurai</span>
-            </div>
-            <div class="avatar-stack-item avatar-sprite sprite-zorro" (click)="zoomAvatar('zorro', 'Beatriz', 'Zorro', '#ff007f', 4)">
-              <span class="avatar-tooltip">Zorro Ninja</span>
-            </div>
-            <div class="avatar-stack-item avatar-sprite sprite-leon" (click)="zoomAvatar('leon', 'Cristian', 'León', '#e67e22', 2)">
-              <span class="avatar-tooltip">León Shogun</span>
-            </div>
-            <div class="avatar-stack-item avatar-sprite sprite-buho" (click)="zoomAvatar('buho', 'Diana', 'Búho', '#9b59b6', 1)">
-              <span class="avatar-tooltip">Búho Estratega</span>
-            </div>
-            <div class="avatar-stack-item avatar-sprite sprite-panda" (click)="zoomAvatar('panda', 'Eduardo', 'Panda', '#2ecc71', 0)">
-              <span class="avatar-tooltip">Panda Ninja</span>
-            </div>
-          </div>
-          <span class="card-title-text" style="color: var(--muted); font-weight: 500; margin-left: 4px;">en directo</span>
-        </div>
-      </div>
-
-      <!-- CARD 2: Objetivos Cumplidos -->
-      <div class="metric-card-premium card-objectives-done" style="--card-accent: var(--accent);">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <i class="fa-solid fa-circle-check" style="font-size: 10px; color: var(--accent);"></i>
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Hoy</span>
-          </div>
-          <span class="card-title-text" style="color: var(--accent); font-weight: 700; background: rgba(99, 102, 241, 0.08); padding: 1px 5px; border-radius: 3px;">Red</span>
-        </div>
-        
-        <div class="card-large-value">
-          {{ liveCompletedObjectivesToday() }}
-        </div>
-        <div class="card-sub-desc">sesiones completadas.</div>
-        
-        <!-- Iconos de Recompensa (Avatares Ninja) -->
-        <div class="avatar-stack-container" style="margin-top: 6px;">
-          <div class="avatar-stack-list">
-            <div class="avatar-stack-item avatar-sprite sprite-gato" (click)="zoomAvatar('gato', 'Gabriela', 'Gato', '#1abc9c', 2)">
-              <span class="avatar-tooltip">Gato Constante</span>
-            </div>
-            <div class="avatar-stack-item avatar-sprite sprite-perro" (click)="zoomAvatar('perro', 'Hugo', 'Perro', '#3498db', 1)">
-              <span class="avatar-tooltip">Perro Fiel</span>
-            </div>
-            <div class="avatar-stack-item avatar-sprite sprite-conejo" (click)="zoomAvatar('conejo', 'Isabel', 'Conejo', '#9ca3af', 5)">
-              <span class="avatar-tooltip">Conejo Veloz</span>
-            </div>
-            <div class="avatar-stack-item avatar-sprite sprite-rana" (click)="zoomAvatar('rana', 'Javier', 'Rana', '#2ecc71', 0)">
-              <span class="avatar-tooltip">Rana Enfocada</span>
-            </div>
-            <div class="avatar-stack-item avatar-sprite sprite-hamster" (click)="zoomAvatar('hamster', 'Laura', 'Hámster', '#f1c40f', 3)">
-              <span class="avatar-tooltip">Hámster Ninja</span>
-            </div>
-          </div>
-          <span class="card-title-text" style="color: var(--muted); font-weight: 500; margin-left: 4px;">usuarios</span>
-        </div>
-      </div>
-
-      <!-- CARD 3: Ranking Global / Tu Desempeño (Dinámico Premium vs Free) -->
-      <div class="metric-card-premium card-user-rank" style="--card-accent: var(--yellow); min-height: 155px; display: flex; flex-direction: column; justify-content: space-between;">
-        
-        <!-- CABECERA -->
-        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <i class="fa-solid fa-trophy" style="font-size: 10px; color: var(--yellow);"></i>
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Desempeño de Hoy</span>
-          </div>
-          <span class="card-title-text" style="color: var(--yellow); font-weight: 700;" *ngIf="membership.isPremium()">
-            Top {{ 100 - percentageBeaten() }}%
-          </span>
-          <span class="card-title-text" style="color: var(--muted); font-weight: 700;" *ngIf="!membership.isPremium()">
-            Clasificación
-          </span>
-        </div>
-
-        <!-- VISTA GRATUITA: RANKING DUMMY CON INVITACIÓN PREMIUM -->
-        <div *ngIf="!membership.isPremium()" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px; flex: 1; justify-content: center;">
-          <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 6px; opacity: 0.7;">
-            <!-- Posición Actual -->
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
-              <div style="display: flex; align-items: center; gap: 4px;">
-                <span class="card-large-value" style="font-size: 18px !important; margin-top: 0; color: var(--text);">#{{ rankingPosition() }}</span>
-                <span *ngIf="liveRankShift() !== 0" 
-                      [style.color]="liveRankShift() < 0 ? 'var(--green)' : '#ef4444'" 
-                      style="font-size: 8px; font-weight: 900; display: inline-flex; align-items: center; gap: 1px;">
-                  <i class="fa-solid" [class]="liveRankShift() < 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
-                </span>
-              </div>
-            </div>
-
-            <!-- Puntos por Enfoque -->
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
-              <span class="card-large-value" style="font-size: 16px !important; margin-top: 0; color: var(--muted);">🔒</span>
-            </div>
-
-            <!-- Recompensa Monedas -->
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Monedas</span>
-              <span style="font-size: 14px; font-weight: 700; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 3px;">
-                🔒
-              </span>
-            </div>
-          </div>
-          
-          <!-- Superado Comunidad (Discreto) -->
-          <div style="font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px; width: 100%;">
-            Podrías superar al {{ percentageBeaten() }}% de la comunidad hoy
-          </div>
-          
-          <!-- Rivalidad en Vivo en Vista Free -->
-          <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 4px;">
-            <span style="font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Ranking del Día</span>
-            
-            <!-- Rival Arriba (Ana) -->
-            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() - 1 }}</span>
-                <div class="avatar-sprite sprite-lobo" 
-                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
-                     (click)="zoomAvatar('lobo', 'Ana', 'Lobo', '#ff4757', 2)"></div>
-                <span style="color: var(--text);">Ana</span>
-              </div>
-            </div>
-
-            <!-- Tú (Resaltado) -->
-            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(99, 102, 241, 0.08); border: 1.2px solid var(--accent); border-radius: 6px; padding: 4px 6px; font-size: 11px; font-weight: 700; box-shadow: 0 0 8px rgba(99, 102, 241, 0.15);">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="color: var(--accent); width: 22px;">#{{ rankingPosition() }}</span>
-                <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" 
-                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
-                     (click)="zoomAvatar(membership.selectedAvatar(), userName(), membership.getSelectedAvatarName(), '#ffd700', membership.podiumWins())"></div>
-                <span style="color: #fff;">{{ userName() }} (Tú)</span>
-              </div>
-            </div>
-            
-            <!-- Rival Abajo (Carlos) -->
-            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() + 1 }}</span>
-                <div class="avatar-sprite sprite-panda" 
-                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
-                     (click)="zoomAvatar('panda', 'Carlos', 'Panda', '#a4b0be', 1)"></div>
-                <span style="color: var(--text);">Carlos</span>
-              </div>
-            </div>
-          </div>
-
-          <button routerLink="/membresia" 
-                  style="border: none; background: rgba(212,175,55,0.1); border: 1px solid var(--yellow); border-radius: 6px; padding: 5px; color: var(--yellow); font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 4px;"
-                  onmouseover="this.style.background='rgba(212,175,55,0.18)'"
-                  onmouseout="this.style.background='rgba(212,175,55,0.1)'">
-            Desbloquear Dojo Premium
-          </button>
-        </div>
-
-        <!-- VISTA PREMIUM: ESTADÍSTICAS DETALLADAS DE COMPETENCIA -->
-        <div *ngIf="membership.isPremium()" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px; flex: 1;">
-          <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 6px;">
-            <!-- Posición Actual -->
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
-              <div style="display: flex; align-items: center; gap: 4px;">
-                <span class="card-large-value" style="font-size: 18px !important; margin-top: 0;">#{{ rankingPosition() }}</span>
-                <span *ngIf="liveRankShift() !== 0" 
-                      [style.color]="liveRankShift() < 0 ? 'var(--green)' : '#ef4444'" 
-                      style="font-size: 8px; font-weight: 900; display: inline-flex; align-items: center; gap: 1px;">
-                  <i class="fa-solid" [class]="liveRankShift() < 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
-                </span>
-              </div>
-            </div>
-
-            <!-- Puntos por Enfoque -->
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
-              <span class="card-large-value" style="font-size: 18px !important; margin-top: 0; color: var(--green);">+{{ membership.focusPoints() }}</span>
-            </div>
-
-            <!-- Recompensa Monedas (Discretas) -->
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Monedas</span>
-              <span style="font-size: 14px; font-weight: 700; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 3px;">
-                <i class="fa-solid fa-coins" style="font-size: 10px; opacity: 0.7;"></i> +{{ potentialReward() }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Superado Comunidad (Discreto) -->
-          <div style="font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px; width: 100%;">
-            Superaste al {{ percentageBeaten() }}% de la comunidad hoy
-          </div>
-
-          <!-- Rivalidad en Vivo en Vista Premium -->
-          <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 4px; width: 100%;">
-            <span style="font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; text-align: left;">Ranking del Día</span>
-            
-            <!-- Rival Arriba (Ana) -->
-            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() - 1 }}</span>
-                <div class="avatar-sprite sprite-lobo" 
-                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
-                     (click)="zoomAvatar('lobo', 'Ana', 'Lobo', '#ff4757', 2)"></div>
-                <span style="color: var(--text);">Ana</span>
-              </div>
-            </div>
-
-            <!-- Tú (Resaltado) -->
-            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(99, 102, 241, 0.08); border: 1.2px solid var(--accent); border-radius: 6px; padding: 4px 6px; font-size: 11px; font-weight: 700; box-shadow: 0 0 8px rgba(99, 102, 241, 0.15);">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="color: var(--accent); width: 22px;">#{{ rankingPosition() }}</span>
-                <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" 
-                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
-                     (click)="zoomAvatar(membership.selectedAvatar(), userName(), membership.getSelectedAvatarName(), '#ffd700', membership.podiumWins())"></div>
-                <span style="color: #fff;">{{ userName() }} (Tú)</span>
-              </div>
-            </div>
-
-            <!-- Rival Abajo (Carlos) -->
-            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border-radius: 4px; padding: 4px 6px; font-size: 10.5px;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-weight: 700; color: var(--muted); width: 22px;">#{{ rankingPosition() + 1 }}</span>
-                <div class="avatar-sprite sprite-panda" 
-                     style="width: 14px; height: 14px; border-radius: 50%; cursor: zoom-in;"
-                     (click)="zoomAvatar('panda', 'Carlos', 'Panda', '#a4b0be', 1)"></div>
-                <span style="color: var(--text);">Carlos</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Indicador de Sincronización en Vivo -->
-        <div style="font-size: 10px; color: var(--muted); text-align: center; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 4px; opacity: 0.8; border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 6px; width: 100%;">
-          <span class="pulse-green-dot" style="width: 4px; height: 4px; box-shadow: 0 0 4px var(--green);"></span>
-          <span>En vivo • Sincronizado: {{ lastUpdated() }}</span>
         </div>
 
       </div>
