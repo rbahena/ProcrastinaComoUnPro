@@ -441,7 +441,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
     this.objectiveCompleted.set(null);
     this.arenaState.set('setup');
-    this.router.navigate(['/home']);
+    this.router.navigate(['/enfoque']);
   }
 
   confirmPostSessionMessageAndExit() {
@@ -453,7 +453,7 @@ export class Enfoque implements OnInit, OnDestroy {
     
     this.objectiveCompleted.set(null);
     this.arenaState.set('setup');
-    this.router.navigate(['/home']);
+    this.router.navigate(['/enfoque']);
   }
 
   resetDailyAttempts() {
