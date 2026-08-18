@@ -143,6 +143,8 @@ export class Enfoque implements OnInit, OnDestroy {
 
   showSettingsPanel = signal(false);
   showSetupSettings = signal(false);
+  showCelebration = signal<boolean>(false);
+  celebrationPieces = signal<any[]>([]);
 
   // Notas rápidas / Ideas fugaces
   showIdeasModal = signal(false);
@@ -413,6 +415,46 @@ export class Enfoque implements OnInit, OnDestroy {
     this.sessionEndingStatus.set('completed');
     this.arenaState.set('summary');
     this.playAlarmTone();
+    this.triggerCelebration();
+  }
+
+  triggerCelebration() {
+    const pieces: any[] = [];
+    const colors = ['#ff5376', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6', '#ffeedd'];
+    
+    // Generar 100 pedacitos de confeti y serpentinas
+    for (let i = 0; i < 100; i++) {
+      const isStreamer = Math.random() > 0.6; // 40% serpentinas, 60% confeti
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const left = (Math.random() * 100).toFixed(2) + '%';
+      const delay = (Math.random() * 2).toFixed(2) + 's';
+      const duration = isStreamer 
+        ? (Math.random() * 3 + 4).toFixed(2) + 's' 
+        : (Math.random() * 2.5 + 2.5).toFixed(2) + 's';
+      
+      const width = isStreamer ? '4px' : (Math.random() * 6 + 6) + 'px';
+      const height = isStreamer ? (Math.random() * 15 + 20) + 'px' : (Math.random() * 6 + 6) + 'px';
+      const animName = isStreamer ? 'fallStreamer' : 'fallConfetti';
+      
+      pieces.push({
+        left,
+        color,
+        class: isStreamer ? 'streamer-piece' : 'confetti-piece',
+        animation: `${animName} ${duration} ${delay} linear 1 forwards`,
+        transform: `rotate(${Math.random() * 360}deg)`,
+        width,
+        height
+      });
+    }
+    
+    this.celebrationPieces.set(pieces);
+    this.showCelebration.set(true);
+    
+    // Ocultar después de 8 segundos
+    setTimeout(() => {
+      this.showCelebration.set(false);
+      this.celebrationPieces.set([]);
+    }, 8000);
   }
 
   finishSession() {
@@ -766,6 +808,7 @@ export class Enfoque implements OnInit, OnDestroy {
           this.sessionEndingStatus.set('completed');
           this.arenaState.set('summary');
           this.playAlarmTone();
+          this.triggerCelebration();
         } else {
           // Fin del descanso, vuelve a enfoque setup
           this.arenaState.set('setup');
