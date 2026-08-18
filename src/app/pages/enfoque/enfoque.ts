@@ -116,11 +116,11 @@ export class Enfoque implements OnInit, OnDestroy {
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
-  activeBackground = signal<'off' | 'fairy' | 'casa' | 'lofi_room' | 'lofi_street' | 'lofi_study_desktop' | 'lofi_moons'>(
+  activeBackground = signal<'off' | 'fairy' | 'casa' | 'lofi_room' | 'lofi_street' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain'>(
     (localStorage.getItem('focus-active-bg') as any) || 'off'
   );
-  backgroundOptions: ('off' | 'fairy' | 'casa' | 'lofi_room' | 'lofi_street' | 'lofi_study_desktop' | 'lofi_moons')[] = [
-    'off', 'fairy', 'casa', 'lofi_room', 'lofi_street', 'lofi_study_desktop', 'lofi_moons'
+  backgroundOptions: ('off' | 'fairy' | 'casa' | 'lofi_room' | 'lofi_street' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain')[] = [
+    'off', 'fairy', 'casa', 'lofi_room', 'lofi_street', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain'
   ];
   backgroundUrl = computed(() => {
     const bg = this.activeBackground();
@@ -130,6 +130,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_street') return 'assets/images/lofi_street.webp';
     if (bg === 'lofi_study_desktop') return 'assets/images/lofi_study_desktop.webp';
     if (bg === 'lofi_moons') return 'assets/images/lofi_moons.webp';
+    if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain.webp';
     return '';
   });
   useFairyBackground = computed(() => this.activeBackground() !== 'off');
@@ -783,7 +784,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Setter de fondo de pantalla Zen
-  setBackground(bg: 'off' | 'fairy' | 'casa' | 'lofi_room' | 'lofi_street' | 'lofi_study_desktop' | 'lofi_moons') {
+  setBackground(bg: 'off' | 'fairy' | 'casa' | 'lofi_room' | 'lofi_street' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain') {
     this.activeBackground.set(bg);
     localStorage.setItem('focus-active-bg', bg);
   }
