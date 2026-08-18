@@ -116,9 +116,22 @@ export class Enfoque implements OnInit, OnDestroy {
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
-  useFairyBackground = signal<boolean>(
-    localStorage.getItem('focus-fairy-bg') !== 'false'
+  activeBackground = signal<'off' | 'fairy' | 'casa' | 'lofi_room' | 'lofi_street' | 'lofi_study_desktop'>(
+    (localStorage.getItem('focus-active-bg') as any) || 'off'
   );
+  backgroundOptions: ('off' | 'fairy' | 'casa' | 'lofi_room' | 'lofi_street' | 'lofi_study_desktop')[] = [
+    'off', 'fairy', 'casa', 'lofi_room', 'lofi_street', 'lofi_study_desktop'
+  ];
+  backgroundUrl = computed(() => {
+    const bg = this.activeBackground();
+    if (bg === 'fairy') return 'assets/images/fairy_world.webp';
+    if (bg === 'casa') return 'assets/images/casa.webp';
+    if (bg === 'lofi_room') return 'assets/images/lofi_room.webp';
+    if (bg === 'lofi_street') return 'assets/images/lofi_street.webp';
+    if (bg === 'lofi_study_desktop') return 'assets/images/lofi_study_desktop.webp';
+    return '';
+  });
+  useFairyBackground = computed(() => this.activeBackground() !== 'off');
 
   // Opciones de sonido para evitar errores de tipado estricto en plantillas Angular
   soundOptions: ('zen' | 'digital' | 'chime')[] = ['zen', 'chime', 'digital'];
@@ -726,10 +739,10 @@ export class Enfoque implements OnInit, OnDestroy {
     this.playAlarmTone();
   }
 
-  // Setter auxiliar de fondo de pantalla Fairy World
-  setFairyBackground(value: boolean) {
-    this.useFairyBackground.set(value);
-    localStorage.setItem('focus-fairy-bg', value ? 'true' : 'false');
+  // Setter de fondo de pantalla Zen
+  setBackground(bg: 'off' | 'fairy' | 'casa' | 'lofi_room' | 'lofi_street' | 'lofi_study_desktop') {
+    this.activeBackground.set(bg);
+    localStorage.setItem('focus-active-bg', bg);
   }
 
   private startTimerLoop() {

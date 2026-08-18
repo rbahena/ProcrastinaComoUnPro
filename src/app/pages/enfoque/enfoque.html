@@ -55,8 +55,14 @@
     </div>
   </div>
 
+  <!-- Fondo de Pantalla Zen Dinámico (Fijo detrás de la interfaz para evitar cortes y scrolls) -->
+  <div *ngIf="useFairyBackground()"
+       style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; overflow: hidden; transition: background 0.3s ease;"
+       [style.background]="'linear-gradient(rgba(10, 10, 12, 0.9), rgba(10, 10, 12, 0.9)), url(\'' + backgroundUrl() + '\') no-repeat center center / cover'">
+  </div>
+
   <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
-  <div class="main" style="display: flex; flex-direction: column;" [style.background]="useFairyBackground() ? 'linear-gradient(rgba(10, 10, 12, 0.9), rgba(10, 10, 12, 0.9)), url(\'assets/images/fairy_world.webp\') no-repeat center center / cover fixed' : ''" [style.marginLeft]="sidebarCollapsed() ? '0px' : 'var(--sidebar)'">
+  <div class="main" style="display: flex; flex-direction: column; position: relative; z-index: 1;" [style.marginLeft]="sidebarCollapsed() ? '0px' : ''">
     <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
         <div>
           <h1 class="page-title" style="margin: 0;">{{ labels().title }}</h1>
@@ -390,13 +396,19 @@
 
             <!-- 4. FONDO DE PANTALLA ZEN -->
             <div style="display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Fondo de Pantalla Zen</span>
-                <input type="checkbox" [ngModel]="useFairyBackground()" (ngModelChange)="setFairyBackground($event)" 
-                       style="width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; border-radius: 4px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Fondo de Pantalla Zen</span>
+              <div style="display: flex; gap: 4px; width: 100%; flex-wrap: wrap;">
+                <button *ngFor="let bg of backgroundOptions"
+                        (click)="setBackground(bg)"
+                        style="flex: 1 1 30%; border: 1px solid var(--border); padding: 6px 2px; border-radius: 4px; background: transparent; cursor: pointer; font-size: 9px; font-weight: 700; font-family: inherit; color: var(--muted); transition: all 0.2s;"
+                        [style.background]="activeBackground() === bg ? 'rgba(255,255,255,0.03)' : 'transparent'"
+                        [style.borderColor]="activeBackground() === bg ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
+                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'casa' ? 'Casa' : (bg === 'lofi_room' ? 'Cuarto' : (bg === 'lofi_street' ? 'Calle' : 'Estudio')))) }}
+                </button>
               </div>
               <span style="font-size: 9.5px; color: var(--muted); line-height: 1.3;">
-                {{ useFairyBackground() ? 'Fondo "Fairy World" activo con aura sutil' : 'Fondo por defecto del tema activo' }}
+                {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'casa' ? 'Casa' : (activeBackground() === 'lofi_room' ? 'Cuarto' : (activeBackground() === 'lofi_street' ? 'Calle' : 'Estudio')))) + '" activo con aura sutil' }}
               </span>
             </div>
 
@@ -561,8 +573,8 @@
 
 <!-- ESTADO 2: COUNTDOWN RITUAL 3-2-1 (PANTALLA COMPLETA OSCURA TOTAL) -->
 <ng-container *ngIf="arenaState() === 'countdown'">
-  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif;"
-       [style.background]="useFairyBackground() ? 'linear-gradient(rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.88)), url(\'assets/images/fairy_world.webp\') no-repeat center center / cover' : '#000'">
+  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; font-family: 'Space Grotesk', sans-serif;"
+       [style.background]="useFairyBackground() ? 'linear-gradient(rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.88)), url(\'' + backgroundUrl() + '\') no-repeat center center / cover' : '#000'">
     <span style="font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 20px;">Preparando tu mente</span>
     
     <!-- Número gigante de cuenta regresiva -->
@@ -578,8 +590,8 @@
 
 <!-- ESTADO 3: ACTIVE FOCUS (PANTALLA COMPLETA OSCURA ABSOLUTA #0a0a0c SIN SIDEBAR) -->
 <ng-container *ngIf="arenaState() === 'active'">
-  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000; display: flex; flex-direction: column; overflow-y: auto; padding: 20px 24px; justify-content: space-between; align-items: center; font-family: 'Space Grotesk', sans-serif;"
-       [style.background]="useFairyBackground() ? 'linear-gradient(rgba(10, 10, 12, 0.82), rgba(10, 10, 12, 0.82)), url(\'assets/images/fairy_world.webp\') no-repeat center center / cover' : '#0a0a0c'">
+  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; padding: 20px 24px; justify-content: space-between; align-items: center; font-family: 'Space Grotesk', sans-serif;"
+       [style.background]="useFairyBackground() ? 'linear-gradient(rgba(10, 10, 12, 0.82), rgba(10, 10, 12, 0.82)), url(\'' + backgroundUrl() + '\') no-repeat center center / cover' : '#0a0a0c'">
     
     <!-- Luz de respiración sutil en el fondo -->
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 440px; height: 440px; background: var(--accent); opacity: 0.03; filter: blur(90px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
@@ -826,8 +838,8 @@
 
 <!-- ESTADO 4: SUMMARY / CIERRE DOPAMÍNICO (CELEBRACIÓN Y CUESTIONARIO POST-SESIÓN) -->
 <ng-container *ngIf="arenaState() === 'summary'">
-  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; font-family: 'Space Grotesk', sans-serif;"
-       [style.background]="useFairyBackground() ? 'linear-gradient(rgba(7, 7, 9, 0.85), rgba(7, 7, 9, 0.85)), url(\'assets/images/fairy_world.webp\') no-repeat center center / cover' : '#070709'">
+  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; overflow-x: hidden; padding: 24px; font-family: 'Space Grotesk', sans-serif;"
+       [style.background]="useFairyBackground() ? 'linear-gradient(rgba(7, 7, 9, 0.85), rgba(7, 7, 9, 0.85)), url(\'' + backgroundUrl() + '\') no-repeat center center / cover' : '#070709'">
     
     <!-- Partículas minimalistas en el fondo (efectos de color) -->
     <div style="position: absolute; top: 25%; left: 30%; width: 140px; height: 140px; background: var(--green); opacity: 0.04; filter: blur(50px); border-radius: 50%;"></div>
