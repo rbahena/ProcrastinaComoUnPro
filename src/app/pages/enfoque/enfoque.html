@@ -423,7 +423,7 @@
                     
                     <!-- Imagen de Fondo para la Miniatura -->
                     <img *ngIf="bg !== 'off'"
-                         [src]="bg === 'fairy' ? 'assets/images/fairy_world.webp' : (bg === 'casa' ? 'assets/images/casa.webp' : (bg === 'lofi_room' ? 'assets/images/lofi_room.webp' : (bg === 'lofi_street' ? 'assets/images/lofi_street.webp' : 'assets/images/lofi_study_desktop.webp')))"
+                         [src]="bg === 'fairy' ? 'assets/images/fairy_world.webp' : (bg === 'casa' ? 'assets/images/casa.webp' : (bg === 'lofi_room' ? 'assets/images/lofi_room.webp' : (bg === 'lofi_street' ? 'assets/images/lofi_street.webp' : (bg === 'lofi_study_desktop' ? 'assets/images/lofi_study_desktop.webp' : 'assets/images/lofi_moons.webp'))))"
                          alt="Fondo {{ bg }}"
                          style="width: 100%; height: 100%; object-fit: cover; display: block;" />
                     
@@ -444,12 +444,12 @@
                   <span class="thumb-label"
                         style="font-size: 9.5px; font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
                         [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
-                    {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'casa' ? 'Casa' : (bg === 'lofi_room' ? 'Cuarto' : (bg === 'lofi_street' ? 'Calle' : 'Estudio')))) }}
+                    {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'casa' ? 'Casa' : (bg === 'lofi_room' ? 'Cuarto' : (bg === 'lofi_street' ? 'Calle' : (bg === 'lofi_study_desktop' ? 'Estudio' : 'Luna'))))) }}
                   </span>
                 </div>
               </div>
               <span style="font-size: 9.5px; color: var(--muted); line-height: 1.3; margin-top: 2px;">
-                {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'casa' ? 'Casa' : (activeBackground() === 'lofi_room' ? 'Cuarto' : (activeBackground() === 'lofi_street' ? 'Calle' : 'Estudio')))) + '" activo con aura sutil' }}
+                {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'casa' ? 'Casa' : (activeBackground() === 'lofi_room' ? 'Cuarto' : (activeBackground() === 'lofi_street' ? 'Calle' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : 'Luna'))))) + '" activo con aura sutil' }}
               </span>
             </div>
 
