@@ -113,13 +113,13 @@
     <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE DOS COLUMNAS) -->
     <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 480px; padding: 20px; width: 100%; max-width: 1000px; margin: 0 auto;">
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 40px; width: 100%; align-items: start;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 40px; width: 100%; align-items: start;">
         
         <!-- COLUMNA IZQUIERDA: Círculo de Presentación y Arranque -->
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;">
-          <div style="position: relative; width: 380px; height: 380px; display: flex; align-items: center; justify-content: center;">
+          <div style="position: relative; width: min(440px, 85vw); height: min(440px, 85vw); display: flex; align-items: center; justify-content: center;">
             <!-- Fondo decorativo con auras suaves -->
-            <div style="position: absolute; width: 400px; height: 400px; background: var(--accent); opacity: 0.04; filter: blur(50px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
+            <div style="position: absolute; width: 480px; height: 480px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
             
             <!-- Anillo SVG estático para el Setup (Mostrando círculo completo según la duración) -->
             <svg viewBox="0 0 300 300" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); z-index: 2;">
@@ -133,10 +133,10 @@
 
             <!-- Contenido Interno del Círculo (Reloj y Botón Play) -->
             <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 3; gap: 8px;">
-              <span style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 3px;">
+              <span style="font-size: clamp(13px, 3vw, 16px); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 3px;">
                 Listo para Enfoque
               </span>
-              <span style="font-size: 72px; font-weight: 900; color: var(--text); line-height: 1.1; letter-spacing: -3px; margin-bottom: 12px;">
+              <span style="font-size: clamp(72px, 15vw, 92px); font-weight: 900; color: var(--text); line-height: 1.1; letter-spacing: -3px; margin-bottom: 12px;">
                 {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
               </span>
               
@@ -423,7 +423,7 @@
                     
                     <!-- Imagen de Fondo para la Miniatura -->
                     <img *ngIf="bg !== 'off'"
-                         [src]="bg === 'fairy' ? 'assets/images/fairy_world.webp' : (bg === 'casa' ? 'assets/images/casa.webp' : (bg === 'lofi_room' ? 'assets/images/lofi_room.webp' : (bg === 'lofi_street' ? 'assets/images/lofi_street.webp' : (bg === 'lofi_study_desktop' ? 'assets/images/lofi_study_desktop.webp' : (bg === 'lofi_moons' ? 'assets/images/lofi_moons.webp' : 'assets/images/lofi_study_rain.webp')))))"
+                         [src]="bg === 'fairy' ? 'assets/images/fairy_world.webp' : (bg === 'lofi_study_desktop' ? 'assets/images/lofi_study_desktop.webp' : (bg === 'lofi_moons' ? 'assets/images/lofi_moons.webp' : 'assets/images/lofi_study_rain.webp'))"
                          alt="Fondo {{ bg }}"
                          style="width: 100%; height: 100%; object-fit: cover; display: block;" />
                     
@@ -444,12 +444,12 @@
                   <span class="thumb-label"
                         style="font-size: 9.5px; font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
                         [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
-                    {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'casa' ? 'Casa' : (bg === 'lofi_room' ? 'Cuarto' : (bg === 'lofi_street' ? 'Calle' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : 'Lluvia')))))) }}
+                    {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : 'Lluvia'))) }}
                   </span>
                 </div>
               </div>
               <span style="font-size: 9.5px; color: var(--muted); line-height: 1.3; margin-top: 2px;">
-                {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'casa' ? 'Casa' : (activeBackground() === 'lofi_room' ? 'Cuarto' : (activeBackground() === 'lofi_street' ? 'Calle' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : 'Lluvia')))))) + '" activo con aura sutil' }}
+                {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : 'Lluvia'))) + '" activo con aura sutil' }}
               </span>
             </div>
 
@@ -635,7 +635,7 @@
        [style.background]="useFairyBackground() ? 'linear-gradient(rgba(10, 10, 12, 0.45), rgba(10, 10, 12, 0.45)), url(\'' + backgroundUrl() + '\') no-repeat center center / 100% 100%' : '#0a0a0c'">
     
     <!-- Luz de respiración sutil en el fondo -->
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 440px; height: 440px; background: var(--accent); opacity: 0.03; filter: blur(90px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 580px; height: 580px; background: var(--accent); opacity: 0.03; filter: blur(120px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
     <!-- AREA SUPERIOR: OBJETIVO CENTRADO Y GRANDE (Sólo si hay un objetivo definido) -->
     <div *ngIf="activeObjective() && activeObjective().trim()" 
@@ -673,7 +673,7 @@
     <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 2; margin: 8px 0;">
       
       <!-- Círculo SVG de Progreso -->
-      <div style="position: relative; width: 310px; height: 310px; display: flex; align-items: center; justify-content: center;">
+      <div style="position: relative; width: min(440px, 80vw); height: min(440px, 80vw); display: flex; align-items: center; justify-content: center;">
         <svg viewBox="0 0 300 300" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg);">
           <circle cx="150" cy="150" r="135" style="fill: none; stroke: rgba(255,255,255,0.02); stroke-width: 5;"></circle>
           <!-- Circunferencia = 848 -->
@@ -684,29 +684,29 @@
         </svg>
 
         <!-- Reloj interno digital -->
-        <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
           <!-- Si no hay pausa de emergencia -->
           <ng-container *ngIf="!emergencyPauseActive()">
-            <span style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;">
+            <span style="font-size: clamp(13px, 3vw, 17px); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;">
               {{ isBreak() ? 'Descanso' : 'Enfoque' }}
             </span>
-            <span style="font-size: 64px; font-weight: 900; color: var(--text); line-height: 1.1; margin: 4px 0; letter-spacing: -2px;">
+            <span style="font-size: clamp(64px, 15vw, 92px); font-weight: 900; color: var(--text); line-height: 1.1; margin: 4px 0; letter-spacing: -2px;">
               {{ timeString() }}
             </span>
-            <span style="font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; animation: blink 1.5s infinite;">
+            <span style="font-size: clamp(11px, 2.5vw, 14px); color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; animation: blink 1.5s infinite;">
               Concentrado
             </span>
           </ng-container>
 
           <!-- Si la pausa de emergencia está corriendo -->
           <ng-container *ngIf="emergencyPauseActive()">
-            <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--red); letter-spacing: 1.5px;">
+            <span style="font-size: clamp(11px, 2.5vw, 14px); font-weight: 800; text-transform: uppercase; color: var(--red); letter-spacing: 1.5px;">
               Pausa de Emergencia
             </span>
-            <span style="font-size: 54px; font-weight: 900; color: var(--red); line-height: 1.1; margin: 6px 0; letter-spacing: -1px;">
+            <span style="font-size: clamp(54px, 12vw, 76px); font-weight: 900; color: var(--red); line-height: 1.1; margin: 6px 0; letter-spacing: -1px;">
               {{ emergencyTimeString() }}
             </span>
-            <span style="font-size: 10px; color: var(--muted); max-width: 160px; line-height: 1.3;">
+            <span style="font-size: clamp(10px, 2vw, 12px); color: var(--muted); max-width: clamp(160px, 45vw, 220px); line-height: 1.3;">
               Presiona Reanudar para evitar penalización
             </span>
           </ng-container>
