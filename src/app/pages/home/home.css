@@ -764,6 +764,8 @@
   gap: 16px;
   justify-content: space-between;
   transition: border-color 0.3s ease;
+  position: relative;
+  z-index: 3; /* Asegura que la tarjeta del dojo y sus elementos floten por encima de los bloques superiores */
 }
 
 .coworking-card:hover {
@@ -885,57 +887,7 @@
   opacity: 0.7;
 }
 
-/* Tooltip Custom Styles - Positioned Below and Aligned Left */
-.currency-badge-minimal::before {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: 135%;
-  left: 0;
-  transform: translateY(-4px) scale(0.9);
-  background: rgba(10, 10, 14, 0.95);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.5;
-  white-space: normal;
-  width: 230px;
-  pointer-events: none;
-  opacity: 0;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  text-align: left;
-}
 
-.currency-badge-minimal::after {
-  content: '';
-  position: absolute;
-  top: 120%;
-  left: 15px;
-  transform: scale(0);
-  border-width: 5px;
-  border-style: solid;
-  border-color: transparent transparent rgba(10, 10, 14, 0.95) transparent;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.15s ease;
-  z-index: 999;
-}
-
-.currency-badge-minimal:hover::before {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.currency-badge-minimal:hover::after {
-  opacity: 1;
-  transform: scale(1);
-}
 
 /* ===== HORIZONTAL TOP METRICS ROW ===== */
 .metrics-top-row {
@@ -960,6 +912,8 @@
   margin-top: 24px;
   width: 100%;
   align-items: stretch;
+  position: relative;
+  z-index: 2; /* Eleva la cuadrícula del dojo sobre los elementos superiores para evitar superposiciones de tooltips */
 }
 
 .dashboard-main-column {
@@ -1007,62 +961,33 @@
   100% { transform: scale(1); filter: drop-shadow(0 0 0px var(--accent)); }
 }
 
-.flashy-help-badge::before {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 140%;
-  left: 50%;
-  transform: translateX(-50%) translateY(4px) scale(0.9);
-  background: rgba(10, 10, 14, 0.96);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.5;
-  white-space: normal;
-  width: 250px;
-  pointer-events: none;
-  opacity: 0;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  text-transform: none;
-  text-align: left;
-}
 
-.flashy-help-badge::after {
-  content: '';
-  position: absolute;
-  bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%) scale(0);
-  border-width: 5px;
-  border-style: solid;
-  border-color: rgba(10, 10, 14, 0.96) transparent transparent transparent;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.15s ease;
-  z-index: 999;
-}
-
-.flashy-help-badge:hover::before {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0) scale(1);
-}
-
-.flashy-help-badge:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) scale(1);
-}
 
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
+/* Posicionar los tooltips de las monedas hacia abajo, flotando sobre la tarjeta Ahora Mismo */
+.currency-badge-minimal[data-tooltip]::before {
+  top: 135% !important;
+  bottom: auto !important;
+  left: 0 !important;
+  transform: translate(0, -10px) scale(0.95) !important;
+}
 
+.currency-badge-minimal[data-tooltip]::after {
+  top: calc(135% - 10px) !important;
+  bottom: auto !important;
+  left: 15px !important;
+  transform: translate(0, -10px) scale(0.95) !important;
+  border-width: 5px !important;
+  border-style: solid !important;
+  border-color: transparent transparent rgba(18, 18, 26, 0.92) transparent !important;
+}
 
+.currency-badge-minimal[data-tooltip]:hover::before,
+.currency-badge-minimal[data-tooltip]:hover::after {
+  transform: translate(0, 0) scale(1) !important;
+  opacity: 1 !important;
+}
