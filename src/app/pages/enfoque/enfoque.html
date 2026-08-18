@@ -149,13 +149,17 @@
                 <span>Iniciar</span>
               </button>
 
-              <!-- Botón Engrane de Configuración debajo de Iniciar -->
+              <!-- Botón Engrane de Configuración debajo de Iniciar (Más visible y premium) -->
               <button (click)="showSetupSettings.set(!showSetupSettings())"
-                      style="background: transparent; border: none; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: all 0.3s ease; margin-top: 4px;"
-                      onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.color='var(--accent)';"
-                      onmouseout="this.style.background='transparent'; this.style.color='var(--muted)';"
+                      style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; transition: all 0.3s ease; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);"
+                      [style.borderColor]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.12)'"
+                      [style.color]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.7)'"
+                      [style.background]="showSetupSettings() ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)'"
+                      onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'; this.style.transform='scale(1.08)';"
+                      onmouseout="this.style.background=this.getAttribute('data-active') === 'true' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)'; this.style.borderColor=this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'rgba(255,255,255,0.12)'; this.style.color=this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'rgba(255,255,255,0.7)'; this.style.transform='scale(1)';"
+                      [attr.data-active]="showSetupSettings()"
                       title="Configurar duración de Pomodoro, sonidos y temas">
-                <i class="fa-solid fa-gear" [style.color]="showSetupSettings() ? 'var(--accent)' : 'var(--muted)'" style="font-size: 16px; transition: transform 0.5s;" [style.transform]="showSetupSettings() ? 'rotate(90deg)' : 'rotate(0deg)'"></i>
+                <i class="fa-solid fa-gear" style="font-size: 19px; transition: transform 0.5s;" [style.transform]="showSetupSettings() ? 'rotate(90deg)' : 'rotate(0deg)'"></i>
               </button>
             </div>
           </div>
@@ -204,7 +208,7 @@
           <!-- SECCIÓN DE AJUSTES AVANZADOS (Se muestra únicamente cuando showSetupSettings() es true) -->
           <div *ngIf="showSetupSettings()" 
                class="custom-scrollbar"
-               style="background: rgba(18, 18, 24, 0.55); border: 1.5px solid var(--accent); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; animation: slideDown 0.25s ease; max-height: calc(100vh - 160px); overflow-y: auto; overflow-x: hidden;">
+               style="background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--accent); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; animation: slideDown 0.25s ease; max-height: calc(100vh - 160px); overflow-y: auto; overflow-x: hidden; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);">
             
             <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
               <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
@@ -429,7 +433,7 @@
           <ng-container *ngIf="!showSetupSettings()">
             
             <!-- CAJA DE ESTRATEGIAS -->
-            <div style="background: rgba(18, 18, 24, 0.45); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+            <div style="background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);">
             
               <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
                 <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
