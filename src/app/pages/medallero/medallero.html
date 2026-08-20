@@ -1,0 +1,382 @@
+<!-- CONTENEDOR PRINCIPAL CON SIDEBAR COMPARTIDO -->
+<div style="display: flex; min-height: 100vh; background: #0a0a0c; color: var(--text); font-family: 'Space Grotesk', sans-serif;">
+  
+  <!-- SIDEBAR -->
+  <div class="sidebar" [class.collapsed]="sidebarCollapsed()">
+    <!-- Toggle Sidebar Button -->
+    <button (click)="toggleSidebar()" 
+            class="sidebar-toggle-btn"
+            [title]="sidebarCollapsed() ? 'Expandir barra lateral' : 'Contraer barra lateral'">
+      <i class="fa-solid" [class]="sidebarCollapsed() ? 'fa-angles-right' : 'fa-angles-left'" style="font-size: 11px;"></i>
+    </button>
+    <a routerLink="/home" class="logo">
+      <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
+      <span class="logo-text">{{ labels().logoText }}</span>
+    </a>
+    <div class="nav">
+      <a routerLink="/home" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navTasks }}
+      </a>
+      <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navZen }}
+      </a>
+      <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navTimer }}
+      </a>
+      <a routerLink="/bestiario" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        👹 Bestiario Dojo
+      </a>
+      <a routerLink="/medallero" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        🏆 Medallero de Honor
+      </a>
+
+      <!-- LOGOUT -->
+      <a routerLink="/login" class="nav-item logout-item" style="margin-top: auto;">
+        <i class="fa-solid fa-right-from-bracket" style="font-size: 13px;"></i>
+        Cerrar Sesión
+      </a>
+    </div>
+    <div class="sidebar-footer" routerLink="/cualidades" style="cursor: pointer;">
+      <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08);">
+      </div>
+      <div style="overflow: hidden; display: flex; flex-direction: column;">
+        <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
+        <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">
+          {{ getAvatarName() }}
+        </div>
+      </div>
+      <i class="fa-solid fa-gear" style="margin-left: auto; font-size: 14px; color: var(--muted); opacity: 0.65; transition: all 0.3s ease; padding-right: 4px;"></i>
+    </div>
+  </div>
+
+  <!-- MAIN WORKSPACE -->
+  <div class="main" [class.main-collapsed]="sidebarCollapsed()" style="display: flex; flex-direction: column; flex: 1; padding: 32px 40px; overflow-y: auto;">
+    
+    <!-- Cabecera de Página -->
+    <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
+      <div>
+        <h1 class="page-title" style="margin: 0; display: flex; align-items: center; gap: 12px;">
+          <span>🏆</span> Medallero de Honor & Leyendas
+        </h1>
+        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">El salón de honor del Dojo. Conoce a los guerreros con mayor enfoque, aportes de daño y objetivos completados.</p>
+      </div>
+
+      <!-- Métricas Personales Rápidas -->
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <div class="metric-mini-badge" style="background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.18); color: var(--green); padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-brain"></i>
+          <span>{{ membership.focusPoints() }} Pts</span>
+        </div>
+        <div class="metric-mini-badge" style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.18); color: #ef4444; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-burst"></i>
+          <span>{{ bossService.userDamageDealt() }} Daño Raid</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS DE NAVEGACIÓN DE RANKING -->
+    <div class="leaderboard-tabs" style="display: flex; gap: 8px; margin-top: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; width: 100%; overflow-x: auto;">
+      <button (click)="activeTab.set('objectives')"
+              [class.active]="activeTab() === 'objectives'"
+              class="tab-btn">
+        <i class="fa-solid fa-circle-check"></i> Más Objetivos
+      </button>
+      <button (click)="activeTab.set('pomodoros')"
+              [class.active]="activeTab() === 'pomodoros'"
+              class="tab-btn">
+        <i class="fa-solid fa-clock"></i> Más Pomodoros
+      </button>
+      <button (click)="activeTab.set('streaks')"
+              [class.active]="activeTab() === 'streaks'"
+              class="tab-btn">
+        <i class="fa-solid fa-fire"></i> Mejor Racha
+      </button>
+      <button (click)="activeTab.set('boss')"
+              [class.active]="activeTab() === 'boss'"
+              class="tab-btn">
+        <i class="fa-solid fa-skull"></i> Aporte a Villanos
+      </button>
+    </div>
+
+    <!-- DISEÑO GRID PRINCIPAL -->
+    <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; margin-top: 32px; width: 100%; align-items: start;">
+      
+      <!-- COLUMNA IZQUIERDA: EL PODIO Y LA TABLA (EL RANKING) -->
+      <div style="display: flex; flex-direction: column; gap: 32px;">
+        
+        <!-- SECCIÓN 1: VISTA VISUAL DEL PODIO (1º, 2º, 3º) -->
+        <div class="arcade-podium-container" style="background: rgba(18, 18, 24, 0.4); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; align-items: center; position: relative; overflow: hidden;">
+          <div class="podium-bg-glow"></div>
+          
+          <h2 style="font-size: 13.5px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 1.5px; margin: 0; text-align: center; font-family: monospace;">
+            *** EL PODIO DE CAMPEONES ***
+          </h2>
+
+          <div style="display: flex; align-items: flex-end; justify-content: center; gap: 16px; width: 100%; max-width: 480px; margin-top: 20px; min-height: 180px;">
+            
+            <!-- SEGUNDO LUGAR (2º) -->
+            <div class="podium-pillar-wrapper second" style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <!-- Info del usuario 2º -->
+              <ng-container *ngIf="getPodiumUser(2); let second">
+                <div class="podium-user-info" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; text-align: center;">
+                  <div class="podium-avatar-circle" [style.borderColor]="second.isSelf ? 'var(--accent)' : 'rgba(255,255,255,0.1)'" style="background: rgba(255, 255, 255, 0.05); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 2.5px solid #a1a1aa; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                    {{ second.avatar ? membership.getEmoji(second.avatar) : '🐾' }}
+                  </div>
+                  <span class="podium-name" [style.color]="second.isSelf ? 'var(--accent)' : 'var(--text)'" style="font-size: 11px; font-weight: 700; margin-top: 4px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {{ second.name }}
+                  </span>
+                  <span style="font-size: 10px; color: var(--muted); font-weight: 800; font-family: monospace; margin-top: 2px;">
+                    {{ second.value }}
+                  </span>
+                </div>
+              </ng-container>
+              <!-- Pilar Físico -->
+              <div class="pillar" style="background: linear-gradient(180deg, #a1a1aa 0%, rgba(161, 161, 170, 0.25) 100%); width: 100%; height: 75px; border-radius: 8px 8px 0 0; border: 1.5px solid #a1a1aa; border-bottom: none; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 5px rgba(255,255,255,0.1);">
+                <span style="font-size: 24px; font-weight: 900; color: rgba(0,0,0,0.8); font-family: 'Space Grotesk', sans-serif;">2</span>
+              </div>
+            </div>
+
+            <!-- PRIMER LUGAR (1º) -->
+            <div class="podium-pillar-wrapper first" style="display: flex; flex-direction: column; align-items: center; flex: 1.2; position: relative;">
+              <!-- Corona flotante -->
+              <i class="fa-solid fa-crown" style="color: var(--yellow); font-size: 16px; position: absolute; top: -20px; filter: drop-shadow(0 0 5px rgba(245,158,11,0.5)); transform: rotate(-5deg);"></i>
+              <!-- Info del usuario 1º -->
+              <ng-container *ngIf="getPodiumUser(1); let first">
+                <div class="podium-user-info" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; text-align: center;">
+                  <div class="podium-avatar-circle" [style.borderColor]="first.isSelf ? 'var(--accent)' : 'rgba(255,255,255,0.1)'" style="background: rgba(255, 255, 255, 0.05); width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 3px solid var(--yellow); box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);">
+                    {{ first.avatar ? membership.getEmoji(first.avatar) : '🐉' }}
+                  </div>
+                  <span class="podium-name" [style.color]="first.isSelf ? 'var(--accent)' : 'var(--text)'" style="font-size: 12px; font-weight: 800; margin-top: 4px; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {{ first.name }}
+                  </span>
+                  <span style="font-size: 11px; color: var(--yellow); font-weight: 900; font-family: monospace; margin-top: 2px;">
+                    {{ first.value }}
+                  </span>
+                </div>
+              </ng-container>
+              <!-- Pilar Físico -->
+              <div class="pillar" style="background: linear-gradient(180deg, var(--yellow) 0%, rgba(245, 158, 11, 0.25) 100%); width: 100%; height: 105px; border-radius: 8px 8px 0 0; border: 1.5px solid var(--yellow); border-bottom: none; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 5px rgba(255,255,255,0.2);">
+                <span style="font-size: 32px; font-weight: 900; color: rgba(0,0,0,0.85); font-family: 'Space Grotesk', sans-serif;">1</span>
+              </div>
+            </div>
+
+            <!-- TERCER LUGAR (3º) -->
+            <div class="podium-pillar-wrapper third" style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <!-- Info del usuario 3º -->
+              <ng-container *ngIf="getPodiumUser(3); let third">
+                <div class="podium-user-info" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; text-align: center;">
+                  <div class="podium-avatar-circle" [style.borderColor]="third.isSelf ? 'var(--accent)' : 'rgba(255,255,255,0.1)'" style="background: rgba(255, 255, 255, 0.05); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 2.5px solid #cd7f32; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                    {{ third.avatar ? membership.getEmoji(third.avatar) : '🦉' }}
+                  </div>
+                  <span class="podium-name" [style.color]="third.isSelf ? 'var(--accent)' : 'var(--text)'" style="font-size: 11px; font-weight: 700; margin-top: 4px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {{ third.name }}
+                  </span>
+                  <span style="font-size: 10px; color: var(--muted); font-weight: 800; font-family: monospace; margin-top: 2px;">
+                    {{ third.value }}
+                  </span>
+                </div>
+              </ng-container>
+              <!-- Pilar Físico -->
+              <div class="pillar" style="background: linear-gradient(180deg, #cd7f32 0%, rgba(205, 127, 50, 0.25) 100%); width: 100%; height: 55px; border-radius: 8px 8px 0 0; border: 1.5px solid #cd7f32; border-bottom: none; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 5px rgba(255,255,255,0.1);">
+                <span style="font-size: 20px; font-weight: 900; color: rgba(0,0,0,0.8); font-family: 'Space Grotesk', sans-serif;">3</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2: TABLA DE POSICIONES COMPLETA (THE TOP 10) -->
+        <div style="background: rgba(18, 18, 24, 0.5); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+          <h3 style="font-size: 14px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-list-ol" style="color: var(--accent);"></i>
+            Clasificación Completa (Top 10)
+          </h3>
+
+          <!-- Contenedor de la Tabla -->
+          <div style="overflow-x: auto;">
+            <table class="arcade-leaderboard-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); color: var(--muted); font-family: monospace; font-weight: 800; font-size: 11.5px; text-transform: uppercase;">
+                  <th style="padding: 12px 8px; width: 60px;">Pos</th>
+                  <th style="padding: 12px 8px;">Guerrero</th>
+                  <th style="padding: 12px 8px;">Rango / Cualidad</th>
+                  
+                  <!-- Cabecera Variable según el Tab -->
+                  <th *ngIf="activeTab() === 'objectives'" style="padding: 12px 8px; text-align: right; width: 120px;">Objetivos</th>
+                  <th *ngIf="activeTab() === 'pomodoros'" style="padding: 12px 8px; text-align: right; width: 120px;">Pomodoros</th>
+                  <th *ngIf="activeTab() === 'streaks'" style="padding: 12px 8px; text-align: right; width: 120px;">Racha Máxima</th>
+                  <th *ngIf="activeTab() === 'boss'" style="padding: 12px 8px; text-align: right; width: 120px;">Daño Infligido</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+                <!-- 1. OBJETIVOS -->
+                <ng-container *ngIf="activeTab() === 'objectives'">
+                  <tr *ngFor="let p of rankingObjectives()" 
+                      [class.self-row]="p.isSelf"
+                      style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: all 0.2s;">
+                    <td style="padding: 14px 8px; font-weight: 900; font-family: monospace;">
+                      <span [class]="'rank-badge r' + p.rank">{{ p.rank.toString().padStart(2, '0') }}</span>
+                    </td>
+                    <td style="padding: 14px 8px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                      <span style="font-size: 20px;">{{ membership.getEmoji(p.avatar) }}</span>
+                      <span [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</span>
+                    </td>
+                    <td style="padding: 14px 8px; color: var(--muted); font-size: 12.5px;">{{ p.rankName }}</td>
+                    <td style="padding: 14px 8px; text-align: right; font-weight: 800; font-family: monospace; color: var(--yellow);">{{ p.objectives }} completados</td>
+                  </tr>
+                </ng-container>
+
+                <!-- 2. POMODOROS -->
+                <ng-container *ngIf="activeTab() === 'pomodoros'">
+                  <tr *ngFor="let p of rankingPomodoros()" 
+                      [class.self-row]="p.isSelf"
+                      style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: all 0.2s;">
+                    <td style="padding: 14px 8px; font-weight: 900; font-family: monospace;">
+                      <span [class]="'rank-badge r' + p.rank">{{ p.rank.toString().padStart(2, '0') }}</span>
+                    </td>
+                    <td style="padding: 14px 8px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                      <span style="font-size: 20px;">{{ membership.getEmoji(p.avatar) }}</span>
+                      <span [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</span>
+                    </td>
+                    <td style="padding: 14px 8px; color: var(--muted); font-size: 12.5px;">{{ p.title }}</td>
+                    <td style="padding: 14px 8px; text-align: right; font-weight: 800; font-family: monospace; color: var(--accent);">{{ p.pomodoros }} bloques</td>
+                  </tr>
+                </ng-container>
+
+                <!-- 3. RACHAS -->
+                <ng-container *ngIf="activeTab() === 'streaks'">
+                  <tr *ngFor="let p of rankingStreaks()" 
+                      [class.self-row]="p.isSelf"
+                      style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: all 0.2s;">
+                    <td style="padding: 14px 8px; font-weight: 900; font-family: monospace;">
+                      <span [class]="'rank-badge r' + p.rank">{{ p.rank.toString().padStart(2, '0') }}</span>
+                    </td>
+                    <td style="padding: 14px 8px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                      <span style="font-size: 20px;">{{ membership.getEmoji(p.avatar) }}</span>
+                      <span [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</span>
+                    </td>
+                    <td style="padding: 14px 8px; color: var(--muted); font-size: 12.5px;">{{ p.tag }}</td>
+                    <td style="padding: 14px 8px; text-align: right; font-weight: 800; font-family: monospace; color: #fbbf24;">{{ p.streakCount }} días</td>
+                  </tr>
+                </ng-container>
+
+                <!-- 4. APORTE A VILLANOS -->
+                <ng-container *ngIf="activeTab() === 'boss'">
+                  <tr *ngFor="let p of rankingBoss()" 
+                      [class.self-row]="p.isSelf"
+                      style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: all 0.2s;">
+                    <td style="padding: 14px 8px; font-weight: 900; font-family: monospace;">
+                      <span [class]="'rank-badge r' + p.rank">{{ p.rank.toString().padStart(2, '0') }}</span>
+                    </td>
+                    <td style="padding: 14px 8px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                      <span style="font-size: 20px;">{{ membership.getEmoji(p.avatar) }}</span>
+                      <span [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</span>
+                    </td>
+                    <td style="padding: 14px 8px; color: var(--muted); font-size: 12.5px;">{{ p.label }}</td>
+                    <td style="padding: 14px 8px; text-align: right; font-weight: 800; font-family: monospace; color: #ef4444;">{{ p.damage }} HP</td>
+                  </tr>
+                </ng-container>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: EXPLICATIVO Y GLOSARIO DE PREMIOS (MEDALLAS PÚBLICAS) -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        
+        <!-- EXPLICACIÓN RETRO DEL SALÓN -->
+        <div style="background: rgba(18, 18, 24, 0.5); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+          <h3 style="font-size: 14px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px; font-family: monospace;">
+            🏆 SISTEMA DE RECOMPENSAS
+          </h3>
+          <p style="font-size: 12.5px; line-height: 1.6; color: var(--muted); margin: 0;">
+            El ranking se actualiza en tiempo real de forma pública para incentivar la sana competencia del Dojo. Para subir posiciones, tu constancia diaria es clave.
+          </p>
+
+          <!-- Tarjetas explicativas de las insignias -->
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+            
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(245,158,11,0.15); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: flex-start;">
+              <span style="font-size: 24px;">🥇</span>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 12.5px; font-weight: 800; color: var(--yellow);">Puntos de Enfoque (XP)</span>
+                <span style="font-size: 11.5px; color: var(--muted); line-height: 1.4;">Obtenidos al completar bloques Pomodoro. Define el rango jerárquico dentro de la Clasificación General del Dojo.</span>
+              </div>
+            </div>
+
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(239,68,68,0.15); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: flex-start;">
+              <span style="font-size: 24px;">💥</span>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 12.5px; font-weight: 800; color: #ef4444;">Aporte de Daño (Raids)</span>
+                <span style="font-size: 11.5px; color: var(--muted); line-height: 1.4;">Calcula la sumatoria del daño hecho a los Jefes (como el Kraken o la Sirena). Demuestra quién ha estado más activo en las misiones comunitarias cooperativas.</span>
+              </div>
+            </div>
+
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(16,185,129,0.15); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: flex-start;">
+              <span style="font-size: 24px;">🎯</span>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 12.5px; font-weight: 800; color: var(--green);">Objetivos Completados</span>
+                <span style="font-size: 11.5px; color: var(--muted); line-height: 1.4;">Registra el número acumulado de tareas cerradas. Un reflejo del valor de tu ejecución sobre la planeación.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ARCADE HIGH SCORE PANEL (THE KING OF FIGHTERS VIBE) -->
+        <div style="background: linear-gradient(135deg, #111 0%, #000 100%); border: 2px solid #ef4444; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.25); font-family: monospace; position: relative;">
+          <!-- Decoración lateral de gabinete arcade -->
+          <div style="position: absolute; right: 12px; top: 12px; font-size: 10px; color: #ef4444; font-weight: 800; letter-spacing: 1px;">COFU-98</div>
+          
+          <h4 style="margin: 0; font-size: 13px; font-weight: 900; color: #f59e0b; letter-spacing: 2px; text-shadow: 0 0 5px rgba(245, 158, 11, 0.5); text-align: center;">
+            🔥 K.O.F. SPECIAL LEADERBOARD 🔥
+          </h4>
+          
+          <p style="font-size: 11px; line-height: 1.5; color: #ccc; margin: 0;">
+            En honor a las salas de recreativa clásicas, aquí están los <strong>Guerreros del Templo</strong> con las rachas de enfoque más prolongadas sin interrupción.
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; font-size: 11.5px;">
+              <span style="color: #ef4444;">1ST . ANA</span>
+              <span style="color: #00FF9D;">RACHA 12 DÍAS</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; font-size: 11.5px;">
+              <span style="color: #eab308;">2ND . SOFIA</span>
+              <span style="color: #00FF9D;">RACHA 15 DÍAS</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; font-size: 11.5px;">
+              <span style="color: #3b82f6;">3RD . LAURA</span>
+              <span style="color: #00FF9D;">RACHA 10 DÍAS</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; font-size: 11.5px;">
+              <span style="color: #aaa;">4TH . VALERIA</span>
+              <span style="color: #00FF9D;">RACHA 9 DÍAS</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding-bottom: 4px; font-size: 11.5px;">
+              <span style="color: #aaa;">5TH . RAMIRO (TÚ)</span>
+              <span style="color: #00FF9D;">RACHA 7 DÍAS</span>
+            </div>
+          </div>
+          
+          <div style="font-size: 9px; color: #666; text-align: center; margin-top: 6px;">
+            INSERT COIN TO CONTINUE - COFU DOJO 2026
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

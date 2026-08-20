@@ -49,6 +49,10 @@ export const routes: Routes = [
   {
     path: 'bestiario',
     loadComponent: () => import('./pages/bestiario/bestiario').then(m => m.Bestiario)
+  },
+  {
+    path: 'medallero',
+    loadComponent: () => import('./pages/medallero/medallero').then(m => m.Medallero)
   }
 ];
 

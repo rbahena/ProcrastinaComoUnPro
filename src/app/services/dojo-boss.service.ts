@@ -85,6 +85,9 @@ export class DojoBossService {
     '👾 La Hidra del Abrumamiento ha invadido la Zona de Enfoque.'
   ]);
 
+  // Accrued boss damage dealt by the user
+  userDamageDealt = signal<number>(1450);
+
   // Compute percentage of Boss HP
   hpPercent = computed(() => {
     const boss = this.activeBoss();
@@ -105,6 +108,7 @@ export class DojoBossService {
         this.activeBoss.set(parsed.boss);
         this.dojoShield.set(parsed.shield || 850);
         if (parsed.logs) this.bossLogs.set(parsed.logs);
+        if (parsed.userDamageDealt !== undefined) this.userDamageDealt.set(parsed.userDamageDealt);
       } catch (e) {
         // Fallback to default
       }
@@ -119,7 +123,8 @@ export class DojoBossService {
     localStorage.setItem('dojo-boss-state', JSON.stringify({
       boss: this.activeBoss(),
       shield: this.dojoShield(),
-      logs: this.bossLogs()
+      logs: this.bossLogs(),
+      userDamageDealt: this.userDamageDealt()
     }));
   }
 
@@ -171,6 +176,9 @@ export class DojoBossService {
     if (this.membership.isPremium()) {
       finalAmount = Math.round(finalAmount * 1.25); // +25% premium damage
     }
+
+    // Increment user damage dealt
+    this.userDamageDealt.update(d => d + finalAmount);
 
     this.activeBoss.update(boss => {
       if (boss.status === 'defeated') return boss;

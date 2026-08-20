@@ -60,6 +60,10 @@ interface DojoAvatar {
           <span class="nav-dot"></span>
           👹 Bestiario Dojo
         </a>
+        <a routerLink="/medallero" routerLinkActive="active" class="nav-item">
+          <span class="nav-dot"></span>
+          🏆 Medallero de Honor
+        </a>
         <!-- LOGOUT -->
         <a routerLink="/login" class="nav-item logout-item" style="margin-top: auto;">
           <i class="fa-solid fa-right-from-bracket" style="font-size: 13px;"></i>
