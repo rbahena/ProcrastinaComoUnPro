@@ -45,6 +45,10 @@ export const routes: Routes = [
   {
     path: 'estadisticas',
     loadComponent: () => import('./pages/estadisticas/estadisticas').then(m => m.Estadisticas)
+  },
+  {
+    path: 'bestiario',
+    loadComponent: () => import('./pages/bestiario/bestiario').then(m => m.Bestiario)
   }
 ];
 

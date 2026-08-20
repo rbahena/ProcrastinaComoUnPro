@@ -34,6 +34,10 @@
           {{ membership.capturedIdeas().length }}
         </span>
       </a>
+      <a routerLink="/bestiario" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        👹 Bestiario Dojo
+      </a>
 
       
       <!-- LOGOUT -->
@@ -667,6 +671,74 @@
         <i class="fa-solid fa-circle" style="font-size: 4px; color: rgba(255,255,255,0.15);"></i>
         <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">{{ globalFocusedCount() }} guerreros enfocándose contigo</span>
       </div>
+    </div>
+
+    <!-- SECCIÓN DE RAID DEL DOJO BOSS (COOPERATIVO PREMIUM) -->
+    <div *ngIf="coworkingMode() === 'comunitario'" 
+         style="width: 100%; max-width: 440px; background: rgba(10, 10, 12, 0.8); border: 1.5px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05); z-index: 3; margin-bottom: 12px; transition: border-color 0.3s;"
+         [style.borderColor]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : (bossService.dojoShield() < 300 ? 'var(--red)' : 'rgba(255, 255, 255, 0.05)')">
+      
+      <!-- Cabecera del Combate -->
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <!-- Icono del Monstruo según el tema -->
+          <div style="width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+            <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'aurora'" src="/assets/images/avatars/boss_quimera.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'siren'" src="/assets/images/avatars/boss_sirena.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'werewolf'" src="/assets/images/avatars/boss_lobo.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'vampire'" src="/assets/images/avatars/boss_vampiro.jpg" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 1.5px;">Raid Activa del Dojo</span>
+            <span style="font-size: 13.5px; font-weight: 800; color: var(--text);">{{ bossService.activeBoss().name }}</span>
+          </div>
+        </div>
+        
+        <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
+          <span style="font-size: 12px; font-weight: 900; font-family: monospace; color: var(--text);">
+            {{ bossService.activeBoss().currentHp }} / {{ bossService.activeBoss().maxHp }} HP
+          </span>
+          <span style="font-size: 9px; font-weight: 700;" [style.color]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'var(--muted)'">
+            {{ bossService.activeBoss().status === 'defeated' ? 'Derrotado' : bossService.hpPercent() + '% restante' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Barra de HP del Jefe -->
+      <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+        <div style="height: 100%; border-radius: 4px; transition: width 0.3s ease-out;"
+             [style.width.%]="bossService.hpPercent()"
+             [style.background]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'linear-gradient(90deg, var(--red) 0%, var(--accent) 100%)'">
+        </div>
+      </div>
+
+      <!-- Fila Inferior: Escudo del Dojo y Logs de Batalla -->
+      <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 8px;">
+        <span style="display: flex; align-items: center; gap: 4px; font-weight: 700;"
+              [style.color]="bossService.dojoShield() < 300 ? 'var(--red)' : 'var(--muted)'">
+          🛡️ Escudo: {{ bossService.dojoShield() }}/1000
+        </span>
+        
+        <!-- Registro de eventos giratorio/simple o botón para abrir logs -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 9.5px; font-weight: 700; color: var(--accent); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 200px;"
+                title="{{ bossService.bossLogs()[0] }}">
+            {{ bossService.bossLogs()[0] }}
+          </span>
+        </div>
+      </div>
+      
+      <!-- Si el Jefe fue derrotado, botón para revivir/resetear (para pruebas del usuario y demo) -->
+      <button *ngIf="bossService.activeBoss().status === 'defeated'"
+              (click)="bossService.resetBoss()"
+              style="width: 100%; border: none; background: rgba(16, 185, 129, 0.1); border: 1px dashed var(--green); color: var(--green); padding: 6px; border-radius: 6px; font-size: 10.5px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+              onmouseover="this.style.background='rgba(16, 185, 129, 0.18)'"
+              onmouseout="this.style.background='rgba(16, 185, 129, 0.1)'">
+        🔄 Invocar nuevo Jefe (Reset)
+      </button>
     </div>
 
     <!-- AREA CENTRAL: RELOJ GRANDE FLOTANTE -->
@@ -1363,6 +1435,216 @@
 
 <!-- Modal de Identidad/Onboarding -->
 <app-identity-settings *ngIf="!membership.onboardingCompleted() || membership.showSettingsModal()" [onboardingMode]="!membership.onboardingCompleted()"></app-identity-settings>
+
+<!-- Modal de Guía de Raid, Bestiario y Villanos -->
+<div *ngIf="showRaidGuideModal()" 
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(5,5,7,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10001; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: 'Space Grotesk', sans-serif;">
+  
+  <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.94) 0%, rgba(24, 24, 33, 0.9) 100%); border: 1.5px solid rgba(255,255,255,0.06); border-radius: 20px; width: 100%; max-width: 600px; height: 520px; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.65); overflow: hidden; position: relative;">
+    
+    <!-- Botón de Cerrar (X) -->
+    <button (click)="showRaidGuideModal.set(false)" 
+            style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: var(--muted); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: all 0.2s;"
+            onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--text)';"
+            onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--muted)';">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Cabecera del Modal -->
+    <div style="padding: 24px 24px 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 26px;">⛩️</span>
+      <div style="display: flex; flex-direction: column;">
+        <span style="font-size: 9.5px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px;">Manual del Templo</span>
+        <h2 style="font-size: 20px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.5px;">Raid del Dojo y Villanos</h2>
+      </div>
+    </div>
+
+    <!-- Navegación por Pestañas (Tabs) -->
+    <div style="display: flex; gap: 4px; padding: 12px 24px; background: rgba(0,0,0,0.12); border-bottom: 1px solid rgba(255,255,255,0.03);">
+      <button (click)="activeRaidTab.set('guide')" 
+              style="border: none; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+              [style.background]="activeRaidTab() === 'guide' ? 'rgba(99,102,241,0.12)' : 'transparent'"
+              [style.color]="activeRaidTab() === 'guide' ? 'var(--accent)' : 'var(--muted)'"
+              [style.border]="activeRaidTab() === 'guide' ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent'">
+        📖 ¿Cómo Jugar?
+      </button>
+      <button (click)="activeRaidTab.set('bestiary')" 
+              style="border: none; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+              [style.background]="activeRaidTab() === 'bestiary' ? 'rgba(99,102,241,0.12)' : 'transparent'"
+              [style.color]="activeRaidTab() === 'bestiary' ? 'var(--accent)' : 'var(--muted)'"
+              [style.border]="activeRaidTab() === 'bestiary' ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent'">
+        👾 Bestiario
+      </button>
+      <button (click)="activeRaidTab.set('stats')" 
+              style="border: none; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+              [style.background]="activeRaidTab() === 'stats' ? 'rgba(99,102,241,0.12)' : 'transparent'"
+              [style.color]="activeRaidTab() === 'stats' ? 'var(--accent)' : 'var(--muted)'"
+              [style.border]="activeRaidTab() === 'stats' ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent'">
+        📊 Estadísticas
+      </button>
+    </div>
+
+    <!-- Área de Contenido con scroll -->
+    <div class="custom-scrollbar" style="flex: 1; padding: 24px; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.05);">
+      
+      <!-- CONTENIDO PESTAÑA 1: ¿CÓMO JUGAR? -->
+      <div *ngIf="activeRaidTab() === 'guide'" style="display: flex; flex-direction: column; gap: 16px;">
+        <p style="font-size: 12.5px; line-height: 1.5; color: var(--text); margin: 0;">
+          La <strong>Raid del Dojo</strong> es una dinámica cooperativa en tiempo real donde luchas contra tus peores hábitos de distracción en equipo. Para participar, simplemente inicia tu temporizador en modo <strong>"Dojo Comunitario"</strong>.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
+          <!-- Carta de Daño -->
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">⚔️ Ataque (Tu Enfoque)</span>
+            <ul style="margin: 0; padding-left: 14px; font-size: 11.5px; line-height: 1.5; color: var(--muted); display: flex; flex-direction: column; gap: 4px;">
+              <li><strong>1 daño/seg:</strong> Daño constante mientras te mantienes enfocado en la pantalla.</li>
+              <li><strong>100 de daño:</strong> Al completar con éxito tus 25 min de pomodoro.</li>
+              <li><strong>300 de daño (Crítico):</strong> Al vencer al <strong>Sapo</strong> del día en una sesión.</li>
+            </ul>
+          </div>
+
+          <!-- Carta de Curación -->
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 11px; font-weight: 800; color: var(--red); text-transform: uppercase; letter-spacing: 0.5px;">🩸 Contraataque (Distracción)</span>
+            <ul style="margin: 0; padding-left: 14px; font-size: 11.5px; line-height: 1.5; color: var(--muted); display: flex; flex-direction: column; gap: 4px;">
+              <li><strong>Curación del Jefe:</strong> Si abandonas o te quedas sin tiempo de pausa, el villano sana <strong>+2% de su vida</strong>.</li>
+              <li><strong>Daño al Escudo:</strong> Restará <strong>40 de escudo comunitario</strong>.</li>
+              <li><strong>Historial:</strong> Un aviso alertará a tus compañeros de tu distracción. ¡Mantén tu disciplina por el equipo!</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="background: rgba(99,102,241,0.05); border: 1.5px dashed rgba(99,102,241,0.2); border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+          <span style="font-size: 16px;">👑</span>
+          <p style="font-size: 11px; line-height: 1.4; color: var(--text); margin: 0;">
+            <strong>Ventaja Premium Pro:</strong> Los usuarios Pro infligen un <strong>+25% de daño adicional</strong> y pueden comprar sables/boosters en la armería con sus Pro Coins para liderar el daño grupal.
+          </p>
+        </div>
+      </div>
+
+      <!-- CONTENIDO PESTAÑA 2: BESTIARIO (VILLANOS) -->
+      <div *ngIf="activeRaidTab() === 'bestiary'" style="display: flex; flex-direction: column; gap: 12px;">
+        
+        <!-- Oni del Ocio -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: start;">
+          <span style="font-size: 26px; line-height: 1;">👺</span>
+          <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: var(--text);">El Oni del Ocio</h4>
+              <span style="font-size: 9px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">HP: 5000 (Samurái)</span>
+            </div>
+            <p style="margin: 0; font-size: 11.5px; line-height: 1.4; color: var(--muted);">Un demonio ancestral que se alimenta de la procrastinación en tareas de alta resistencia mental.</p>
+            <span style="font-size: 10.5px; font-weight: 700; color: var(--green); margin-top: 2px;">⚡ Debilidad: Sesiones con técnica Sapo (daño crítico x3).</span>
+          </div>
+        </div>
+
+        <!-- Virus BlackOut -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: start;">
+          <span style="font-size: 26px; line-height: 1;">👾</span>
+          <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: var(--text);">El Virus BlackOut</h4>
+              <span style="font-size: 9px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">HP: 4000 (Cyberpunk)</span>
+            </div>
+            <p style="margin: 0; font-size: 11.5px; line-height: 1.4; color: var(--muted);">Un programa malware digital diseñado para saturar tus sentidos con falsas notificaciones, clics repetitivos y scroll infinito.</p>
+            <span style="font-size: 10.5px; font-weight: 700; color: var(--green); margin-top: 2px;">⚡ Debilidad: Frecuencias de fondo (enmascaramiento acústico con Lluvia Zen).</span>
+          </div>
+        </div>
+
+        <!-- Mono de la Mente -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: start;">
+          <span style="font-size: 26px; line-height: 1;">🐒</span>
+          <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: var(--text);">El Mono de la Mente</h4>
+              <span style="font-size: 9px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">HP: 3000 (Zen)</span>
+            </div>
+            <p style="margin: 0; font-size: 11.5px; line-height: 1.4; color: var(--muted);">Una criatura inquieta que salta constantemente entre pensamientos aleatorios, impidiendo la inmersión profunda y la quietud.</p>
+            <span style="font-size: 10.5px; font-weight: 700; color: var(--green); margin-top: 2px;">⚡ Debilidad: Frenos cognitivos y micro-meditación S.O.S de respiración.</span>
+          </div>
+        </div>
+
+        <!-- Agujero Negro -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: start;">
+          <span style="font-size: 26px; line-height: 1;">🌀</span>
+          <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: var(--text);">El Agujero Negro del Presente</h4>
+              <span style="font-size: 9px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">HP: 6000 (Aurora)</span>
+            </div>
+            <p style="margin: 0; font-size: 11.5px; line-height: 1.4; color: var(--muted);">Una fuerza de distorsión temporal que devalúa los beneficios futuros a cambio de la inacción instantánea.</p>
+            <span style="font-size: 10.5px; font-weight: 700; color: var(--green); margin-top: 2px;">⚡ Debilidad: Presión de sincronización en el Dojo Comunitario.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CONTENIDO PESTAÑA 3: ESTADÍSTICAS DEL DOJO -->
+      <div *ngIf="activeRaidTab() === 'stats'" style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <!-- Estadística 1 -->
+          <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 18px;">🔥</span>
+            <span style="font-size: 22px; font-weight: 900; color: var(--accent);">184</span>
+            <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Jefes Derrotados</span>
+          </div>
+          
+          <!-- Estadística 2 -->
+          <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 18px;">🛡️</span>
+            <span style="font-size: 22px; font-weight: 900; color: var(--accent);">85%</span>
+            <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Resistencia del Escudo</span>
+          </div>
+
+          <!-- Estadística 3 -->
+          <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 18px;">⌛</span>
+            <span style="font-size: 22px; font-weight: 900; color: var(--accent);">92.4k</span>
+            <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Minutos de Enfoque</span>
+          </div>
+
+          <!-- Estadística 4 -->
+          <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 18px;">🪙</span>
+            <span style="font-size: 22px; font-weight: 900; color: var(--accent);">27.6k</span>
+            <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Coins Repartidas</span>
+          </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px;">
+          <h5 style="margin: 0; font-size: 11px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">⚔️ Tabla de Honor de la Temporada</h5>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px; font-size: 11.5px;">
+            <div style="display: flex; justify-content: space-between; color: var(--text);">
+              <span>1. ⚔️ Musashi_Focus (Pro)</span>
+              <strong style="color: var(--yellow);">4,820 pts</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: var(--muted);">
+              <span>2. 🧠 Neo_Netrunner (Pro)</span>
+              <strong>3,950 pts</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: var(--muted);">
+              <span>3. 🐒 Bonsai_Master</span>
+              <strong>3,100 pts</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Pie del Modal -->
+    <div style="padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: flex-end;">
+      <button (click)="showRaidGuideModal.set(false)" 
+              style="border: none; background: var(--accent); color: #000; padding: 8px 20px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+              onmouseover="this.style.transform='scale(1.02)'"
+              onmouseout="this.style.transform='scale(1)'">
+        Cerrar Guía
+      </button>
+    </div>
+
+  </div>
+</div>
 
 <!-- Efecto de Celebración (Confeti y Serpentinas) -->
 <div *ngIf="showCelebration()" 

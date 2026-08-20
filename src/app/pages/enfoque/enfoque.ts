@@ -1,8 +1,9 @@
-import { Component, signal, computed, OnInit, OnDestroy, WritableSignal } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, WritableSignal, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
+import { DojoBossService } from '../../services/dojo-boss.service';
 import { IdentitySettings } from '../../components/identity-settings';
 
 @Component({
@@ -19,11 +20,18 @@ export class Enfoque implements OnInit, OnDestroy {
   sidebarCollapsed!: any;
   Math = Math;
 
-  constructor(private router: Router, public membership: MembershipService) {
+  constructor(
+    private router: Router, 
+    public membership: MembershipService,
+    public bossService: DojoBossService
+  ) {
     this.currentTheme = this.membership.selectedTheme;
     this.userName = this.membership.userName;
     this.selectedAvatar = this.membership.selectedAvatar;
     this.sidebarCollapsed = this.membership.sidebarCollapsed;
+
+    // Initialize Dojo Boss theme
+    this.bossService.updateBossTheme(this.currentTheme());
   }
 
   // Acompañante de sesión compartida
@@ -259,6 +267,10 @@ export class Enfoque implements OnInit, OnDestroy {
   ];
   selectedPostSessionMessage = signal('⚡ ¡Tú puedes con el cierre! Te espero en el dojo.');
 
+  // Modal de Guía de Raid y Bestiario
+  showRaidGuideModal = signal(false);
+  activeRaidTab = signal<'guide' | 'bestiary' | 'stats'>('guide');
+
   // Resultados del Cuestionario Post-Sesión
   sessionEndingStatus = signal<'completed' | 'interrupted' | 'abandoned'>('completed');
   objectiveCompleted = signal<'yes' | 'no' | 'progress' | null>(null);
@@ -391,6 +403,12 @@ export class Enfoque implements OnInit, OnDestroy {
           this.interruptedByPause.set(true);
           this.arenaState.set('summary');
           this.playTone(150, 'sawtooth', 0.15, 0.5);
+
+          // Cura al jefe por agotarse la pausa en dojo comunitario
+          if (this.coworkingMode() === 'comunitario') {
+            this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
+            this.addDojoEvent(`💔 ${this.userName() || 'Un Guerrero'} se distrajo por demasiado tiempo. ¡El Oni recupera fuerzas!`, 'reaction');
+          }
         }
       }, 1000);
     }
@@ -405,6 +423,12 @@ export class Enfoque implements OnInit, OnDestroy {
     this.sessionEndingStatus.set('abandoned');
     this.manuallyAbandoned.set(true);
     this.arenaState.set('summary');
+
+    // Cura al jefe por abandono en dojo comunitario
+    if (this.coworkingMode() === 'comunitario') {
+      this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
+      this.addDojoEvent(`💔 ${this.userName() || 'Un Guerrero'} ha abandonado la sesión de enfoque. ¡El Oni se fortalece!`, 'reaction');
+    }
   }
 
   simulateCompletion() {
@@ -474,6 +498,18 @@ export class Enfoque implements OnInit, OnDestroy {
         const isShared = this.coworkingMode() === 'comunitario';
         const sessionId = `session-${Date.now()}`;
         this.membership.rewardCompletedSession(sessionId, isShared);
+        
+        // Daño adicional al Boss por completar el Pomodoro en el Dojo
+        if (isShared) {
+          const isCritical = this.activeMethodology() === 'sapo';
+          const damage = isCritical ? 300 : 100;
+          this.bossService.dealDamage(damage, isCritical);
+          
+          const eventText = isCritical 
+            ? `🔥 ¡CRÍTICO! ${this.userName()} completó su Sapo e infligió ${damage} de daño al Boss.`
+            : `🗡️ ${this.userName()} completó su Pomodoro e infligió ${damage} de daño al Boss.`;
+          this.addDojoEvent(eventText, 'complete');
+        }
         
         // Recompensa adicional por objetivo cumplido (Pregunta 2)
         const objCompleted = this.objectiveCompleted();
@@ -564,6 +600,7 @@ export class Enfoque implements OnInit, OnDestroy {
       }
     });
     body.classList.add(`theme-${theme}`);
+    this.bossService.updateBossTheme(theme);
   }
 
   // Generadores de Ruido (Web Audio API)
@@ -795,9 +832,24 @@ export class Enfoque implements OnInit, OnDestroy {
       if (this.timeLeft() > 0) {
         this.timeLeft.update(t => t - 1);
 
-        // Simulación en tiempo real del Templo Comunitario
+        // Simulación en tiempo real del Templo Comunitario y daño del Jefe
         if (this.coworkingMode() === 'comunitario') {
           this.partnerSessionTicks.update(ticks => ticks + 1);
+          if (!this.isBreak() && this.bossService.activeBoss().status === 'active') {
+            // El usuario inflige 1 de daño continuo por segundo
+            this.bossService.activeBoss.update(boss => {
+              if (boss.status === 'defeated') return boss;
+              const nextHp = Math.max(0, boss.currentHp - 1);
+              if (nextHp === 0) {
+                setTimeout(() => {
+                  this.bossService.addLog(`🏆 ¡VICTORIA! Has asestado el golpe final a ${boss.name}.`);
+                  this.membership.proCoins.update(c => c + 150);
+                }, 0);
+                return { ...boss, currentHp: 0, status: 'defeated' };
+              }
+              return { ...boss, currentHp: nextHp };
+            });
+          }
         }
       } else {
         // Al terminar con éxito
@@ -1090,6 +1142,13 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   tickCommunity() {
+    // Daño continuo del resto de usuarios en el Dojo Comunitario al Boss
+    if (this.coworkingMode() === 'comunitario' && this.arenaState() === 'active' && !this.isBreak()) {
+      const activePartnersCount = this.dojoUsers().filter(u => u.status === 'focused').length;
+      // Cada compañero inflige 4 de daño (1 por segundo durante 4 segundos)
+      this.bossService.tickContinuousDamage(activePartnersCount * 4);
+    }
+
     const updatedUsers = this.dojoUsers().map(u => {
       if (u.status === 'focused') {
         const newTime = Math.max(0, u.timeLeft - 4);

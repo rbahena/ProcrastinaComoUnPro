@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MembershipService, AvatarItem, QualityItem } from '../../services/membership.service';
+import { DojoBossService } from '../../services/dojo-boss.service';
 
 interface DojoAvatar {
   id: string;
@@ -54,6 +55,10 @@ interface DojoAvatar {
                 style="margin-left: auto; background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; line-height: 1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);">
             {{ membership.capturedIdeas().length }}
           </span>
+        </a>
+        <a routerLink="/bestiario" routerLinkActive="active" class="nav-item">
+          <span class="nav-dot"></span>
+          👹 Bestiario Dojo
         </a>
         <!-- LOGOUT -->
         <a routerLink="/login" class="nav-item logout-item" style="margin-top: auto;">
@@ -283,6 +288,8 @@ interface DojoAvatar {
 
           </div>
 
+
+
         </div>
 
         <!-- COLUMNA DERECHA: CATÁLOGO DE AVATARES SECCIONADO (MINIMALISTA) -->
@@ -422,6 +429,44 @@ interface DojoAvatar {
                   </span>
                   <span class="tooltip-qual-req">{{ avatar.displayReq }}</span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 5: ARMAS DE AUTODISCIPLINA -->
+          <div class="category-section" style="margin-bottom: 40px;">
+            <h3 class="category-title" style="color: var(--accent); display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-shield-halved"></i> Mis Armas y Equipamiento
+            </h3>
+            <p style="font-size: 11.5px; color: var(--muted); margin: -4px 0 16px 0;">
+              Haz clic en tus sables o lanzas desbloqueadas para equiparlas y multiplicar tu daño en las Raids del Dojo.
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px;">
+              <div *ngFor="let weapon of weapons" 
+                   (click)="isWeaponUnlocked(weapon.id) ? equipWeapon(weapon.id) : null"
+                   style="background: rgba(0, 0, 0, 0.25); border: 1.5px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 16px 14px; display: flex; flex-direction: column; gap: 8px; position: relative; transition: all 0.2s;"
+                   [style.borderColor]="isWeaponUnlocked(weapon.id) ? (bossService.activeWeaponId() === weapon.id ? 'var(--green)' : 'rgba(255,255,255,0.06)') : 'rgba(255,255,255,0.02)'"
+                   [style.opacity]="isWeaponUnlocked(weapon.id) ? '1' : '0.4'"
+                   [style.cursor]="isWeaponUnlocked(weapon.id) ? 'pointer' : 'default'"
+                   onmouseover="if(this.style.opacity === '1') { this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(99, 102, 241, 0.4)'; }"
+                   onmouseout="if(this.style.borderColor !== 'var(--green)') { this.style.borderColor='rgba(255,255,255,0.06)'; } else { this.style.borderColor='var(--green)'; } this.style.transform='translateY(0)';"
+              >
+                <!-- Checkmark badge if equipped -->
+                <div *ngIf="isWeaponUnlocked(weapon.id) && bossService.activeWeaponId() === weapon.id" 
+                     style="position: absolute; top: 10px; right: 10px; background: var(--green); color: #000; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);">
+                  ✓
+                </div>
+
+                <!-- Lock icon if locked -->
+                <div *ngIf="!isWeaponUnlocked(weapon.id)" 
+                     style="position: absolute; top: 10px; right: 10px; color: var(--red); font-size: 11px;">
+                  <i class="fa-solid fa-lock"></i>
+                </div>
+                
+                <div style="font-size: 32px; text-align: center; margin-top: 6px; margin-bottom: 2px;">{{ weapon.emoji }}</div>
+                <span style="font-size: 12.5px; font-weight: 800; color: #fff; text-align: center; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ weapon.name }}</span>
+                <span style="font-size: 9.5px; color: var(--muted); text-align: center; display: block; line-height: 1.3;">{{ weapon.desc }}</span>
               </div>
             </div>
           </div>
@@ -1480,8 +1525,39 @@ export class Cualidades implements OnInit {
     this.membership.toggleSidebar();
   }
 
-  constructor(public membership: MembershipService) {
+  constructor(
+    public membership: MembershipService,
+    public bossService: DojoBossService
+  ) {
     this.sidebarCollapsed = this.membership.sidebarCollapsed;
+  }
+
+  weapons = [
+    { id: 'katana_wood', name: 'Bokken de Entrenamiento', emoji: '🪵', desc: 'Arma inicial (+10% daño)' },
+    { id: 'katana_steel', name: 'Katana del Altar', emoji: '⚔️', desc: 'Forja de acero (+25% daño)' },
+    { id: 'laser_saber', name: 'Sable de Luz Neón', emoji: '🚨', desc: 'Corte de plasma (+30% daño)' },
+    { id: 'sage_staff', name: 'Bastón de Bambú', emoji: '🎋', desc: 'Equilibrio mental (+20% daño)' },
+    { id: 'solar_spear', name: 'Lanza del Alba', emoji: '🔱', desc: 'Fuerza solar (+40% daño)' }
+  ];
+
+  isWeaponUnlocked(id: string): boolean {
+    if (id === 'katana_wood') return true; // Initial weapon is always unlocked
+    const saved = localStorage.getItem('unlocked-weapons');
+    if (saved) {
+      try {
+        const ids = JSON.parse(saved);
+        return ids.includes(id);
+      } catch (e) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  equipWeapon(id: string) {
+    if (this.isWeaponUnlocked(id)) {
+      this.bossService.equipWeapon(id);
+    }
   }
 
   ngOnInit() {

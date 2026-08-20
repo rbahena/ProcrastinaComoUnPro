@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MembershipService, AvatarItem, QualityItem } from '../services/membership.service';
+import { DojoBossService } from '../services/dojo-boss.service';
 
 @Component({
   selector: 'app-identity-settings',
@@ -246,6 +247,54 @@ import { MembershipService, AvatarItem, QualityItem } from '../services/membersh
               </div>
             </div>
           </div>
+
+           <!-- SECCIÓN ARMAS Y EQUIPAMIENTO -->
+           <div class="catalog-section" style="margin-top: 18px;">
+             <div class="catalog-header">
+               <label>MIS ARMAS ADQUIRIDAS</label>
+               <span class="catalog-sub">Elige tu arma activa para tus Raids de Enfoque.</span>
+             </div>
+             
+             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+               <div *ngFor="let weapon of weapons" 
+                    style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.2s;"
+                    [style.borderColor]="isWeaponUnlocked(weapon.id) ? (bossService.activeWeaponId() === weapon.id ? 'var(--green)' : 'rgba(255,255,255,0.08)') : 'rgba(255,255,255,0.03)'"
+                    [style.opacity]="isWeaponUnlocked(weapon.id) ? '1' : '0.4'">
+                 
+                 <div style="display: flex; align-items: center; gap: 12px;">
+                   <span style="font-size: 20px;">{{ weapon.emoji }}</span>
+                   <div style="display: flex; flex-direction: column; text-align: left;">
+                     <span style="font-size: 12px; font-weight: 700; color: #fff;">{{ weapon.name }}</span>
+                     <span style="font-size: 9.5px; color: var(--muted);">{{ weapon.desc }}</span>
+                   </div>
+                 </div>
+
+                 <div>
+                   <!-- Bloqueado -->
+                   <div *ngIf="!isWeaponUnlocked(weapon.id)" 
+                        style="font-size: 10px; color: var(--red); font-weight: 700; display: flex; align-items: center; gap: 4px; padding-right: 8px;">
+                     <i class="fa-solid fa-lock" style="font-size: 9px;"></i> Bloqueado
+                   </div>
+
+                   <!-- Desbloqueado y Equipado -->
+                   <div *ngIf="isWeaponUnlocked(weapon.id) && bossService.activeWeaponId() === weapon.id" 
+                        style="font-size: 9.5px; color: var(--green); font-weight: 800; text-transform: uppercase; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); padding: 4px 10px; border-radius: 6px; letter-spacing: 0.5px;">
+                     ✨ Equipado
+                   </div>
+
+                   <!-- Desbloqueado pero no Equipado (Botón para equipar) -->
+                   <button *ngIf="isWeaponUnlocked(weapon.id) && bossService.activeWeaponId() !== weapon.id" 
+                           (click)="equipWeapon(weapon.id)"
+                           style="border: none; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 4px 10px; border-radius: 6px; font-size: 9.5px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                           onmouseover="this.style.background='rgba(255, 255, 255, 0.1)'"
+                           onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'">
+                     Equipar
+                   </button>
+                 </div>
+
+               </div>
+             </div>
+           </div>
 
           <!-- BOTONES DE ACCIÓN -->
           <div class="action-footer" style="margin-top: 24px;">
@@ -1001,7 +1050,38 @@ export class IdentitySettings implements OnInit {
   selectedUnlockedQuality = signal<QualityItem | null>(null);
   unlockedRewardQuality = signal<QualityItem | null>(null);
 
-  constructor(public membership: MembershipService) {}
+  constructor(
+    public membership: MembershipService,
+    public bossService: DojoBossService
+  ) {}
+
+  weapons = [
+    { id: 'katana_wood', name: 'Bokken de Entrenamiento', emoji: '🪵', desc: 'Arma inicial (+10% daño)' },
+    { id: 'katana_steel', name: 'Katana del Altar', emoji: '⚔️', desc: 'Forja de acero (+25% daño)' },
+    { id: 'laser_saber', name: 'Sable de Luz Neón', emoji: '🚨', desc: 'Corte de plasma (+30% daño)' },
+    { id: 'sage_staff', name: 'Bastón de Bambú', emoji: '🎋', desc: 'Equilibrio mental (+20% daño)' },
+    { id: 'solar_spear', name: 'Lanza del Alba', emoji: '🔱', desc: 'Fuerza solar (+40% daño)' }
+  ];
+
+  isWeaponUnlocked(id: string): boolean {
+    if (id === 'katana_wood') return true; // Initial weapon is always unlocked
+    const saved = localStorage.getItem('unlocked-weapons');
+    if (saved) {
+      try {
+        const ids = JSON.parse(saved);
+        return ids.includes(id);
+      } catch (e) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  equipWeapon(id: string) {
+    if (this.isWeaponUnlocked(id)) {
+      this.bossService.equipWeapon(id);
+    }
+  }
 
   ngOnInit() {
     // Prefill data with current settings

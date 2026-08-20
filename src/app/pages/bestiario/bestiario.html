@@ -1,0 +1,443 @@
+<!-- CONTENEDOR PRINCIPAL CON SIDEBAR COMPARTIDO -->
+<div style="display: flex; min-height: 100vh; background: #0a0a0c; color: var(--text); font-family: 'Space Grotesk', sans-serif;">
+  
+  <!-- SIDEBAR (Mismo de las demás páginas) -->
+  <div class="sidebar" [class.collapsed]="sidebarCollapsed()">
+    <!-- Toggle Sidebar Button -->
+    <button (click)="toggleSidebar()" 
+            class="sidebar-toggle-btn"
+            [title]="sidebarCollapsed() ? 'Expandir barra lateral' : 'Contraer barra lateral'">
+      <i class="fa-solid" [class]="sidebarCollapsed() ? 'fa-angles-right' : 'fa-angles-left'" style="font-size: 11px;"></i>
+    </button>
+    <a routerLink="/home" class="logo">
+      <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
+      <span class="logo-text">{{ labels().logoText }}</span>
+    </a>
+    <div class="nav">
+      <a routerLink="/home" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navTasks }}
+      </a>
+      <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navZen }}
+      </a>
+      <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        {{ labels().navTimer }}
+      </a>
+      <a routerLink="/bestiario" routerLinkActive="active" class="nav-item">
+        <span class="nav-dot"></span>
+        👹 Bestiario Dojo
+      </a>
+
+      <!-- LOGOUT -->
+      <a routerLink="/login" class="nav-item logout-item" style="margin-top: auto;">
+        <i class="fa-solid fa-right-from-bracket" style="font-size: 13px;"></i>
+        Cerrar Sesión
+      </a>
+    </div>
+    <div class="sidebar-footer" routerLink="/cualidades" style="cursor: pointer;">
+      <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08);">
+      </div>
+      <div style="overflow: hidden; display: flex; flex-direction: column;">
+        <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
+        <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">
+          {{ getAvatarName() }}
+        </div>
+      </div>
+      <i class="fa-solid fa-gear" style="margin-left: auto; font-size: 14px; color: var(--muted); opacity: 0.65; transition: all 0.3s ease; padding-right: 4px;"></i>
+    </div>
+  </div>
+
+  <!-- MAIN WORKSPACE -->
+  <div class="main" [class.main-collapsed]="sidebarCollapsed()" style="display: flex; flex-direction: column; flex: 1; padding: 32px 40px; overflow-y: auto;">
+    
+    <!-- Cabecera de Página -->
+    <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
+      <div>
+        <h1 class="page-title" style="margin: 0; display: flex; align-items: center; gap: 12px;">
+          <span>⛩️</span> Templo del Dojo & Bestiario
+        </h1>
+        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">Entiende a tus enemigos de la procrastinación, equipa tu armería y lidera el Dojo.</p>
+      </div>
+
+      <!-- Panel de Recompensas -->
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="currency-badge" style="background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.18); color: var(--yellow); padding: 8px 16px; border-radius: 12px; font-weight: 800; font-size: 12.5px; display: flex; align-items: center; gap: 8px;" title="Tus Pro Coins actuales">
+          <i class="fa-solid fa-coins"></i>
+          <span>{{ membership.proCoins() }} Pro Coins</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AREA CENTRAL DE CONTENIDO: DISEÑO GRID DOS COLUMNAS -->
+    <div style="display: grid; grid-template-columns: 1.4fr 1.1fr; gap: 32px; margin-top: 32px; width: 100%; align-items: start;">
+      
+      <!-- COLUMNA IZQUIERDA: BESTIARIO (VILLANOS DETALLADOS Y LORE) -->
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <div style="background: rgba(18, 18, 24, 0.5); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+          <h2 style="font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-book-skull" style="color: var(--accent);"></i>
+            Libro de las Sombras (Bestiario)
+          </h2>
+          <p style="font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 0;">
+            Cada villano representa una trampa neurobiológica del cerebro para evadir el esfuerzo consciente. Conoce sus fortalezas y explota sus debilidades para vencer la resistencia.
+           <!-- Grid de Selección de Villanos (7 botones) -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 12px; margin-top: 8px;">
+            
+            <!-- 1. El Kraken (Caos y exceso de pendientes) -->
+            <div (click)="selectVillain('cyberpunk')" 
+                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                 [style.borderColor]="selectedVillainId() === 'cyberpunk' ? 'var(--accent)' : 'var(--border)'"
+                 [style.background]="selectedVillainId() === 'cyberpunk' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                 onmouseover="this.style.borderColor='var(--accent)';"
+                 onmouseout="if(this.selectedVillainId() !== 'cyberpunk') { this.style.borderColor='var(--border)' }">
+              <img src="/assets/images/avatars/boss_kraken.jpg" alt="El Kraken" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">El Kraken</span>
+            </div>
+
+            <!-- 2. La Sirena (Distracciones) -->
+            <div (click)="selectVillain('siren')" 
+                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                 [style.borderColor]="selectedVillainId() === 'siren' ? 'var(--accent)' : 'var(--border)'"
+                 [style.background]="selectedVillainId() === 'siren' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                 onmouseover="this.style.borderColor='var(--accent)';"
+                 onmouseout="if(this.selectedVillainId() !== 'siren') { this.style.borderColor='var(--border)' }">
+              <img src="/assets/images/avatars/boss_sirena_beautiful.jpg" alt="La Sirena" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">La Sirena</span>
+            </div>
+
+            <!-- 3. El Basilisco (Parálisis / bloqueo) -->
+            <div (click)="selectVillain('zen')" 
+                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                 [style.borderColor]="selectedVillainId() === 'zen' ? 'var(--accent)' : 'var(--border)'"
+                 [style.background]="selectedVillainId() === 'zen' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                 onmouseover="this.style.borderColor='var(--accent)';"
+                 onmouseout="if(this.selectedVillainId() !== 'zen') { this.style.borderColor='var(--border)' }">
+              <img src="/assets/images/avatars/boss_basilisco.jpg" alt="El Basilisco" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">El Basilisco</span>
+            </div>
+
+            <!-- 4. La Hidra (Tareas interminables) -->
+            <div (click)="selectVillain('samurai')" 
+                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                 [style.borderColor]="selectedVillainId() === 'samurai' ? 'var(--accent)' : 'var(--border)'"
+                 [style.background]="selectedVillainId() === 'samurai' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                 onmouseover="this.style.borderColor='var(--accent)';"
+                 onmouseout="if(this.selectedVillainId() !== 'samurai') { this.style.borderColor='var(--border)' }">
+              <img src="/assets/images/avatars/boss_hidra.jpg" alt="La Hidra" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">La Hidra</span>
+            </div>
+
+            <!-- 5. La Quimera (Multitarea) -->
+            <div (click)="selectVillain('aurora')" 
+                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                 [style.borderColor]="selectedVillainId() === 'aurora' ? 'var(--accent)' : 'var(--border)'"
+                 [style.background]="selectedVillainId() === 'aurora' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                 onmouseover="this.style.borderColor='var(--accent)';"
+                 onmouseout="if(this.selectedVillainId() !== 'aurora') { this.style.borderColor='var(--border)' }">
+              <img src="/assets/images/avatars/boss_quimera.jpg" alt="La Quimera" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">La Quimera</span>
+            </div>
+
+            <!-- 6. El Hombre Lobo (Procrastinación Nocturna) -->
+            <div (click)="selectVillain('werewolf')" 
+                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                 [style.borderColor]="selectedVillainId() === 'werewolf' ? 'var(--accent)' : 'var(--border)'"
+                 [style.background]="selectedVillainId() === 'werewolf' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                 onmouseover="this.style.borderColor='var(--accent)';"
+                 onmouseout="if(this.selectedVillainId() !== 'werewolf') { this.style.borderColor='var(--border)' }">
+              <img src="/assets/images/avatars/boss_lobo.jpg" alt="Hombre Lobo" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">Hombre Lobo</span>
+            </div>
+
+            <!-- 7. El Vampiro (Insomnio / Doomscrolling) -->
+            <div (click)="selectVillain('vampire')" 
+                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                 [style.borderColor]="selectedVillainId() === 'vampire' ? 'var(--accent)' : 'var(--border)'"
+                 [style.background]="selectedVillainId() === 'vampire' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                 onmouseover="this.style.borderColor='var(--accent)';"
+                 onmouseout="if(this.selectedVillainId() !== 'vampire') { this.style.borderColor='var(--border)' }">
+              <img src="/assets/images/avatars/boss_vampiro.jpg" alt="El Vampiro" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">El Vampiro</span>
+            </div>
+
+          </div>
+
+          <!-- FICHA DE DETALLE DEL VILLANO SELECCIONADO -->
+          <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 24px; margin-top: 10px; display: flex; flex-direction: column; gap: 16px;">
+            
+            <!-- 1. El Kraken (Caos y exceso de pendientes) -->
+            <ng-container *ngIf="selectedVillainId() === 'cyberpunk'">
+              <div style="display: flex; align-items: center; gap: 24px; border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 20px; flex-wrap: wrap;">
+                <img src="/assets/images/avatars/boss_kraken.jpg" alt="El Kraken" style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3.5px solid var(--accent); box-shadow: 0 0 25px rgba(99,102,241,0.55); flex-shrink: 0;">
+                <div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 200px;">
+                  <span style="font-size: 9.5px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.2px;">Villano del Templo</span>
+                  <h3 style="margin: 0; font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: 0.5px;">El Kraken del Caos</h3>
+                  <span style="font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Caos y Exceso de Pendientes</span>
+                  <div>
+                    <span style="font-size: 11px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.15); padding: 5px 14px; border-radius: 20px; text-transform: uppercase; display: inline-block; margin-top: 6px;">HP: 10,000</span>
+                  </div>
+                </div>
+              </div>
+              <p style="font-size: 13.5px; line-height: 1.6; color: var(--muted); margin: 0;">
+                Este monstruo de las profundidades digitales emerge cuando tu lista de pendientes se vuelve caótica y masiva. Genera un estado de agobio y parálisis por sobrecarga cognitiva, haciendo que te sientas incapaz de decidir por dónde comenzar.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.01); border-radius: 8px; padding: 12px; border: 1.5px solid rgba(16, 185, 129, 0.15);">
+                <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">💥 Punto Débil (Debilidad)</span>
+                <span style="font-size: 12px; color: var(--text); line-height: 1.4;">
+                  **Enfoque de Cabeza Única (Método Sapo):** Ignorar el ruido circundante y priorizar una única tarea crítica (el Sapo del Día) para asestar un golpe de enfoque y reducir su HP de forma drástica.
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- 2. La Sirena (Distracciones) -->
+            <ng-container *ngIf="selectedVillainId() === 'siren'">
+              <div style="display: flex; align-items: center; gap: 24px; border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 20px; flex-wrap: wrap;">
+                <img [src]="sirenRevealed() ? '/assets/images/avatars/boss_sirena_scary.jpg' : '/assets/images/avatars/boss_sirena_beautiful.jpg'" 
+                     alt="La Sirena" 
+                     (click)="toggleSirenReveal()"
+                     style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3.5px solid rgba(16, 185, 129, 0.45); cursor: pointer; transition: all 0.3s ease-in-out; flex-shrink: 0;"
+                     [style.boxShadow]="sirenRevealed() ? '0 0 25px rgba(239, 68, 68, 0.85)' : '0 0 25px rgba(16, 185, 129, 0.45)'"
+                     [style.borderColor]="sirenRevealed() ? 'rgba(239, 68, 68, 0.65)' : 'rgba(16, 185, 129, 0.45)'">
+                <div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 200px;">
+                  <span style="font-size: 9.5px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 1.2px; display: flex; align-items: center; gap: 8px;">
+                    Villano del Templo
+                    <span style="font-size: 8px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.12); padding: 3px 8px; border-radius: 12px; cursor: pointer; text-transform: uppercase;" (click)="toggleSirenReveal()">
+                      👁️ Revelar Forma Real
+                    </span>
+                  </span>
+                  <h3 style="margin: 0; font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: 0.5px;">La Sirena de las Distracciones</h3>
+                  <span style="font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Distracciones Digitales e Inmediatas</span>
+                  <div>
+                    <span style="font-size: 11px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.15); padding: 5px 14px; border-radius: 20px; text-transform: uppercase; display: inline-block; margin-top: 6px;">HP: 9,000</span>
+                  </div>
+                </div>
+              </div>
+              <p style="font-size: 13.5px; line-height: 1.6; color: var(--muted); margin: 0;">
+                Con su canto dulce y constante, la Sirena atrae tu atención hacia notificaciones, redes sociales y videos cortos. Su objetivo es secuestrar tu dopamina mediante loops infinitos de ocio pasivo que devoran tus horas útiles.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.01); border-radius: 8px; padding: 12px; border: 1.5px solid rgba(16, 185, 129, 0.15);">
+                <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">💥 Punto Débil (Debilidad)</span>
+                <span style="font-size: 12px; color: var(--text); line-height: 1.4;">
+                  **Cortafuegos Acústico y Silenciador:** Activar el protector acústico (Ruido Zen/Lluvia) silencia su canto hipnótico, cortando sus tentáculos sonoros de distracción de inmediato.
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- 3. El Basilisco (Parálisis / bloqueo) -->
+            <ng-container *ngIf="selectedVillainId() === 'zen'">
+              <div style="display: flex; align-items: center; gap: 24px; border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 20px; flex-wrap: wrap;">
+                <img src="/assets/images/avatars/boss_basilisco.jpg" alt="El Basilisco" style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3.5px solid #eab308; box-shadow: 0 0 25px rgba(234, 179, 8, 0.5); flex-shrink: 0;">
+                <div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 200px;">
+                  <span style="font-size: 9.5px; font-weight: 800; color: #eab308; text-transform: uppercase; letter-spacing: 1.2px;">Villano del Templo</span>
+                  <h3 style="margin: 0; font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: 0.5px;">El Basilisco del Bloqueo</h3>
+                  <span style="font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Parálisis de Inicio y Miedo al Fallo</span>
+                  <div>
+                    <span style="font-size: 11px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.15); padding: 5px 14px; border-radius: 20px; text-transform: uppercase; display: inline-block; margin-top: 6px;">HP: 8,000</span>
+                  </div>
+                </div>
+              </div>
+              <p style="font-size: 13.5px; line-height: 1.6; color: var(--muted); margin: 0;">
+                Este reptil petrifica tus manos e impide que des el primer paso. Se alimenta de tu miedo al fracaso o de la necesidad insana de hacer todo perfecto desde el principio, congelando tu capacidad de acción.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.01); border-radius: 8px; padding: 12px; border: 1.5px solid rgba(16, 185, 129, 0.15);">
+                <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">💥 Punto Débil (Debilidad)</span>
+                <span style="font-size: 12px; color: var(--text); line-height: 1.4;">
+                  **Ritual 3-2-1 de Acción Imperfecta:** Arrancar sin juzgar la calidad. El movimiento bruto y tosco rompe su petrificación mental y reduce instantáneamente su salud en un 30%.
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- 4. La Hidra (Tareas interminables) -->
+            <ng-container *ngIf="selectedVillainId() === 'samurai'">
+              <div style="display: flex; align-items: center; gap: 24px; border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 20px; flex-wrap: wrap;">
+                <img src="/assets/images/avatars/boss_hidra.jpg" alt="La Hidra" style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3.5px solid #ef4444; box-shadow: 0 0 25px rgba(239, 68, 68, 0.55); flex-shrink: 0;">
+                <div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 200px;">
+                  <span style="font-size: 9.5px; font-weight: 800; color: #ef4444; text-transform: uppercase; letter-spacing: 1.2px;">Villano del Templo</span>
+                  <h3 style="margin: 0; font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: 0.5px;">La Hidra de Tareas Interminables</h3>
+                  <span style="font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Tareas Interminables y Falta de Cierre</span>
+                  <div>
+                    <span style="font-size: 11px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.15); padding: 5px 14px; border-radius: 20px; text-transform: uppercase; display: inline-block; margin-top: 6px;">HP: 12,000</span>
+                  </div>
+                </div>
+              </div>
+              <p style="font-size: 13.5px; line-height: 1.6; color: var(--muted); margin: 0;">
+                Cada vez que intentas terminar con un pendiente, la Hidra hace brotar dos cabezas más de trabajo secundario o revisiones innecesarias, haciéndote sentir que el esfuerzo es inútil porque la tarea nunca tiene fin.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.01); border-radius: 8px; padding: 12px; border: 1.5px solid rgba(16, 185, 129, 0.15);">
+                <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">💥 Punto Débil (Debilidad)</span>
+                <span style="font-size: 12px; color: var(--text); line-height: 1.4;">
+                  **Pomodoros de Enfoque Corto:** Trabajar en bloques de tiempo estrictos y celebrar cada avance pequeño sin buscar el final absoluto del proyecto en una sola sesión.
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- 5. La Quimera (Multitarea) -->
+            <ng-container *ngIf="selectedVillainId() === 'aurora'">
+              <div style="display: flex; align-items: center; gap: 24px; border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 20px; flex-wrap: wrap;">
+                <img src="/assets/images/avatars/boss_quimera.jpg" alt="La Quimera" style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3.5px solid #06b6d4; box-shadow: 0 0 25px rgba(6, 182, 212, 0.55); flex-shrink: 0;">
+                <div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 200px;">
+                  <span style="font-size: 9.5px; font-weight: 800; color: #06b6d4; text-transform: uppercase; letter-spacing: 1.2px;">Villano del Templo</span>
+                  <h3 style="margin: 0; font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: 0.5px;">La Quimera de la Multitarea</h3>
+                  <span style="font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase;">El Error Cognitivo de la Multitarea</span>
+                  <div>
+                    <span style="font-size: 11px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.15); padding: 5px 14px; border-radius: 20px; text-transform: uppercase; display: inline-block; margin-top: 6px;">HP: 15,000</span>
+                  </div>
+                </div>
+              </div>
+              <p style="font-size: 13.5px; line-height: 1.6; color: var(--muted); margin: 0;">
+                Con múltiples cabezas pensando a la vez, esta criatura te tienta a saltar de tarea en tarea. Esto sabotea el rendimiento real de tu cerebro al sobrecalentar tu corteza prefrontal y diluir la calidad de tu trabajo.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.01); border-radius: 8px; padding: 12px; border: 1.5px solid rgba(16, 185, 129, 0.15);">
+                <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">💥 Punto Débil (Debilidad)</span>
+                <span style="font-size: 12px; color: var(--text); line-height: 1.4;">
+                  **Dojo de Enfoque Social:** La presencia visible de otros miembros del Dojo erradica la ilusión de que saltar entre tareas es productivo, forzándote a mantenerte en una sola.
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- 6. El Hombre Lobo (Procrastinación Nocturna) -->
+            <ng-container *ngIf="selectedVillainId() === 'werewolf'">
+              <div style="display: flex; align-items: center; gap: 24px; border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 20px; flex-wrap: wrap;">
+                <img src="/assets/images/avatars/boss_lobo.jpg" alt="Hombre Lobo" style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3.5px solid #f59e0b; box-shadow: 0 0 25px rgba(245, 158, 11, 0.55); flex-shrink: 0;">
+                <div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 200px;">
+                  <span style="font-size: 9.5px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 1.2px;">Jefe Nocturno del Dojo</span>
+                  <h3 style="margin: 0; font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: 0.5px;">El Hombre Lobo de la Madrugada</h3>
+                  <span style="font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Venganza de Sueño (Bedtime Procrastination)</span>
+                  <div>
+                    <span style="font-size: 11px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.15); padding: 5px 14px; border-radius: 20px; text-transform: uppercase; display: inline-block; margin-top: 6px;">HP: 16,000</span>
+                  </div>
+                </div>
+              </div>
+              <p style="font-size: 13.5px; line-height: 1.6; color: var(--muted); margin: 0;">
+                Esta bestia se despierta cuando el sol se oculta. Representa la <strong>venganza del sueño</strong>: posponer ir a dormir para recuperar el "tiempo libre" que sentiste que no tuviste durante el día, saboteando tus horas de descanso y tu salud del día siguiente.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.01); border-radius: 8px; padding: 12px; border: 1.5px solid rgba(16, 185, 129, 0.15);">
+                <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">💥 Punto Débil (Debilidad)</span>
+                <span style="font-size: 12px; color: var(--text); line-height: 1.4;">
+                  **Toque de Queda Kiai:** Implementar un ritual de apagado digital absoluto a las 11:00 PM. Vencer el impulso inicial de abrir otra pestaña asesta un impacto crítico y aturde al lobo.
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- 7. El Vampiro (Doomscrolling nocturno) -->
+            <ng-container *ngIf="selectedVillainId() === 'vampire'">
+              <div style="display: flex; align-items: center; gap: 24px; border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 20px; flex-wrap: wrap;">
+                <img src="/assets/images/avatars/boss_vampiro.jpg" alt="El Vampiro" style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3.5px solid #ef4444; box-shadow: 0 0 25px rgba(239, 68, 68, 0.55); flex-shrink: 0;">
+                <div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 200px;">
+                  <span style="font-size: 9.5px; font-weight: 800; color: #ef4444; text-transform: uppercase; letter-spacing: 1.2px;">Jefe Nocturno del Dojo</span>
+                  <h3 style="margin: 0; font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: 0.5px;">El Vampiro del Insomnio</h3>
+                  <span style="font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Doomscrolling en la Oscuridad</span>
+                  <div>
+                    <span style="font-size: 11px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.15); padding: 5px 14px; border-radius: 20px; text-transform: uppercase; display: inline-block; margin-top: 6px;">HP: 18,000</span>
+                  </div>
+                </div>
+              </div>
+              <p style="font-size: 13.5px; line-height: 1.6; color: var(--muted); margin: 0;">
+                El Vampiro succiona tu energía vital a través de la luz azul de tu pantalla. Representa el **doomscrolling nocturno**: consumir contenido alarmante, noticias o redes sociales en la cama en vez de dormir, dejándote exhausto y vulnerable al día siguiente.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.01); border-radius: 8px; padding: 12px; border: 1.5px solid rgba(16, 185, 129, 0.15);">
+                <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">💥 Punto Débil (Debilidad)</span>
+                <span style="font-size: 12px; color: var(--text); line-height: 1.4;">
+                  **Modo Bloqueo Strict:** Bloquear las aplicaciones de entretenimiento y noticias a partir de las 10:30 PM en tu dispositivo para obligarte a descansar.
+                </span>
+              </div>
+            </ng-container>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: LA ARMERÍA DEL TEMPLO (BOOSTERS Y LORE) -->
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- PANEL DE LA ARMERÍA -->
+        <div style="background: rgba(18, 18, 24, 0.5); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+          <h2 style="font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i>
+            Armería del Templo
+          </h2>
+          <p style="font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 0;">
+            Adquiere sables y reliquias de autodisciplina. Al desbloquearlos con tus <strong>Pro Coins</strong>, se equipan de forma pasiva y multiplican el daño continuo que infliges en las Raids cooperativas.
+          </p>
+
+          <!-- Listado de Armas de la Armería -->
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+            <div *ngFor="let w of weapons()" 
+                 style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.2s;"
+                 [style.borderColor]="w.unlocked ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255,255,255,0.04)'">
+              
+              <!-- Detalles del Arma -->
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 26px;">{{ w.emoji }}</span>
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 12.5px; font-weight: 800; color: var(--text);">{{ w.name }}</span>
+                    <span style="font-size: 8.5px; font-weight: 800; color: var(--green); background: rgba(16, 185, 129, 0.15); padding: 1px 5px; border-radius: 4px;">{{ w.damageBoost }}</span>
+                  </div>
+                  <span style="font-size: 10px; color: var(--muted); line-height: 1.2; max-width: 190px;">{{ w.desc }}</span>
+                </div>
+              </div>
+
+              <!-- Botón Adquirir / Equipar / Equipado -->
+              <div>
+                <!-- 1. Es el arma activa actual -->
+                <button *ngIf="w.unlocked && bossService.activeWeaponId() === w.id" 
+                        disabled
+                        style="border: none; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); color: var(--green); padding: 8px 14px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Equipado
+                </button>
+                
+                <!-- 2. Está desbloqueada pero no activa -->
+                <button *ngIf="w.unlocked && bossService.activeWeaponId() !== w.id" 
+                        (click)="bossService.equipWeapon(w.id)"
+                        style="border: none; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 8px 14px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+                        onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                  Equipar
+                </button>
+                
+                <!-- 3. Bloqueada -->
+                <button *ngIf="!w.unlocked" 
+                        (click)="buyWeapon(w)"
+                        style="border: none; background: var(--accent); color: #000; padding: 8px 14px; border-radius: 8px; font-size: 10.5px; font-weight: 900; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;"
+                        onmouseover="this.style.transform='scale(1.04)'"
+                        onmouseout="this.style.transform='scale(1)'">
+                  <i class="fa-solid fa-coins" style="font-size: 9px;"></i>
+                  {{ w.cost }}
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- INFO CARD: CÓMO OBTENER PRO COINS -->
+          <div style="background: rgba(99, 102, 241, 0.03); border: 1.5px dashed rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; margin-top: 12px; text-align: left;">
+            <span style="font-size: 12px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-circle-question"></i> ¿Cómo adquirir armas?
+            </span>
+            <p style="font-size: 11.5px; line-height: 1.45; color: var(--muted); margin: 0;">
+              Las armas se forjan usando <strong>Pro Coins</strong>. Los guerreros del templo obtienen estas monedas mediante las siguientes acciones:
+            </p>
+            <ul style="margin: 0; padding-left: 16px; font-size: 11px; line-height: 1.5; color: var(--muted); display: flex; flex-direction: column; gap: 4px;">
+              <li><strong>Completar Pomodoros (Premium):</strong> Otorga <strong>+5 Pro Coins</strong> (+10 si es en Dojo Comunitario).</li>
+              <li><strong>Completar Objetivos Diarios:</strong> Otorga <strong>+15 Pro Coins</strong>.</li>
+              <li><strong>Derrotar Jefes de Raid (Todos):</strong> Vencer a un jefe cooperativo otorga <strong>+150 Pro Coins</strong> a todos los miembros activos.</li>
+              <li><strong>Regalo de bienvenida:</strong> Todos los nuevos usuarios inician con un kit básico de <strong>100 Pro Coins</strong> de cortesía.</li>
+            </ul>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
