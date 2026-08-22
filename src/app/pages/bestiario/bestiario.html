@@ -63,7 +63,7 @@
         <h1 class="page-title" style="margin: 0; display: flex; align-items: center; gap: 12px;">
           <span>⛩️</span> Templo del Dojo & Bestiario
         </h1>
-        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">Entiende a tus enemigos de la procrastinación, equipa tu armería y lidera el Dojo.</p>
+        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">Entiende a tus enemigos de la procrastinación, domina tu autodisciplina y lidera el Dojo.</p>
       </div>
 
       <!-- Panel de Recompensas -->
@@ -76,9 +76,9 @@
     </div>
 
     <!-- AREA CENTRAL DE CONTENIDO: DISEÑO GRID DOS COLUMNAS -->
-    <div style="display: grid; grid-template-columns: 1.4fr 1.1fr; gap: 32px; margin-top: 32px; width: 100%; align-items: start;">
+    <div style="display: grid; grid-template-columns: 1.1fr 1.3fr; gap: 32px; margin-top: 32px; width: 100%; align-items: start;">
       
-      <!-- COLUMNA IZQUIERDA: BESTIARIO (VILLANOS DETALLADOS Y LORE) -->
+      <!-- COLUMNA IZQUIERDA: SELECCIÓN DE VILLANOS -->
       <div style="display: flex; flex-direction: column; gap: 20px;">
         
         <div style="background: rgba(18, 18, 24, 0.5); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
@@ -88,90 +88,186 @@
           </h2>
           <p style="font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 0;">
             Cada villano representa una trampa neurobiológica del cerebro para evadir el esfuerzo consciente. Conoce sus fortalezas y explota sus debilidades para vencer la resistencia.
-           <!-- Grid de Selección de Villanos (7 botones) -->
+          <!-- Grid de Selección de Villanos (7 botones) -->
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 12px; margin-top: 8px;">
             
-            <!-- 1. El Kraken (Caos y exceso de pendientes) -->
-            <div (click)="selectVillain('cyberpunk')" 
-                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
-                 [style.borderColor]="selectedVillainId() === 'cyberpunk' ? 'var(--accent)' : 'var(--border)'"
-                 [style.background]="selectedVillainId() === 'cyberpunk' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                 onmouseover="this.style.borderColor='var(--accent)';"
-                 onmouseout="if(this.selectedVillainId() !== 'cyberpunk') { this.style.borderColor='var(--border)' }">
-              <img src="/assets/images/avatars/boss_kraken.jpg" alt="El Kraken" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">El Kraken</span>
-            </div>
+            <!-- 1. La Sirena (Distracciones) -->
+            <ng-container *ngIf="bossService.activeBoss().type === 'siren'; else lockedSiren">
+              <div (click)="selectVillain('siren')" 
+                   class="siren-card"
+                   style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                   [style.borderColor]="selectedVillainId() === 'siren' ? 'var(--accent)' : 'var(--border)'"
+                   [style.background]="selectedVillainId() === 'siren' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                   onmouseover="this.style.borderColor='var(--accent)';"
+                   onmouseout="if(this.selectedVillainId() !== 'siren') { this.style.borderColor='var(--border)' }">
+                <!-- Contenedor animado de imágenes de la Sirena -->
+                <div class="siren-image-container" style="width: 76px; height: 76px; position: relative; border-radius: 50%; overflow: hidden; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;">
+                  <!-- Forma bonita -->
+                  <img class="sirena-beautiful" src="/assets/images/avatars/boss_sirena_beautiful.jpg" alt="La Sirena Bonita" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.4s ease-in-out; opacity: 1;">
+                  <!-- Forma monstruosa -->
+                  <img class="sirena-scary" src="/assets/images/avatars/boss_sirena_scary.jpg" alt="La Sirena Fea" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.4s ease-in-out; opacity: 0;">
+                </div>
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">La Sirena</span>
+              </div>
+            </ng-container>
+            <ng-template #lockedSiren>
+              <div style="border: 2px dashed rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; background: rgba(0,0,0,0.25); color: var(--muted); cursor: not-allowed;"
+                   title="Este jefe está bloqueado. Vence al jefe actual para desbloquear nuevos desafíos.">
+                <div style="width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 2.5px dashed rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 14px rgba(0,0,0,0.2);">
+                  <span style="font-size: 32px; font-weight: 900; color: rgba(255,255,255,0.15);">?</span>
+                </div>
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--muted); text-align: center; line-height: 1.2;">Bloqueado</span>
+              </div>
+            </ng-template>
 
-            <!-- 2. La Sirena (Distracciones) -->
-            <div (click)="selectVillain('siren')" 
-                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
-                 [style.borderColor]="selectedVillainId() === 'siren' ? 'var(--accent)' : 'var(--border)'"
-                 [style.background]="selectedVillainId() === 'siren' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                 onmouseover="this.style.borderColor='var(--accent)';"
-                 onmouseout="if(this.selectedVillainId() !== 'siren') { this.style.borderColor='var(--border)' }">
-              <img src="/assets/images/avatars/boss_sirena_beautiful.jpg" alt="La Sirena" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">La Sirena</span>
-            </div>
+            <!-- 2. El Kraken (Caos y exceso de pendientes) -->
+            <ng-container *ngIf="bossService.activeBoss().type === 'cyberpunk'; else lockedKraken">
+              <div (click)="selectVillain('cyberpunk')" 
+                   style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                   [style.borderColor]="selectedVillainId() === 'cyberpunk' ? 'var(--accent)' : 'var(--border)'"
+                   [style.background]="selectedVillainId() === 'cyberpunk' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                   onmouseover="this.style.borderColor='var(--accent)';"
+                   onmouseout="if(this.selectedVillainId() !== 'cyberpunk') { this.style.borderColor='var(--border)' }">
+                <img src="/assets/images/avatars/boss_kraken.jpg" alt="El Kraken" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">El Kraken</span>
+              </div>
+            </ng-container>
+            <ng-template #lockedKraken>
+              <div style="border: 2px dashed rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; background: rgba(0,0,0,0.25); color: var(--muted); cursor: not-allowed;"
+                   title="Este jefe está bloqueado. Vence al jefe actual para desbloquear nuevos desafíos.">
+                <div style="width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 2.5px dashed rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 14px rgba(0,0,0,0.2);">
+                  <span style="font-size: 32px; font-weight: 900; color: rgba(255,255,255,0.15);">?</span>
+                </div>
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--muted); text-align: center; line-height: 1.2;">Bloqueado</span>
+              </div>
+            </ng-template>
 
             <!-- 3. El Basilisco (Parálisis / bloqueo) -->
-            <div (click)="selectVillain('zen')" 
-                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
-                 [style.borderColor]="selectedVillainId() === 'zen' ? 'var(--accent)' : 'var(--border)'"
-                 [style.background]="selectedVillainId() === 'zen' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                 onmouseover="this.style.borderColor='var(--accent)';"
-                 onmouseout="if(this.selectedVillainId() !== 'zen') { this.style.borderColor='var(--border)' }">
-              <img src="/assets/images/avatars/boss_basilisco.jpg" alt="El Basilisco" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">El Basilisco</span>
-            </div>
+            <ng-container *ngIf="bossService.activeBoss().type === 'zen'; else lockedZen">
+              <div (click)="selectVillain('zen')" 
+                   style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                   [style.borderColor]="selectedVillainId() === 'zen' ? 'var(--accent)' : 'var(--border)'"
+                   [style.background]="selectedVillainId() === 'zen' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                   onmouseover="this.style.borderColor='var(--accent)';"
+                   onmouseout="if(this.selectedVillainId() !== 'zen') { this.style.borderColor='var(--border)' }">
+                <img src="/assets/images/avatars/boss_basilisco.jpg" alt="El Basilisco" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">El Basilisco</span>
+              </div>
+            </ng-container>
+            <ng-template #lockedZen>
+              <div style="border: 2px dashed rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; background: rgba(0,0,0,0.25); color: var(--muted); cursor: not-allowed;"
+                   title="Este jefe está bloqueado. Vence al jefe actual para desbloquear nuevos desafíos.">
+                <div style="width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 2.5px dashed rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 14px rgba(0,0,0,0.2);">
+                  <span style="font-size: 32px; font-weight: 900; color: rgba(255,255,255,0.15);">?</span>
+                </div>
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--muted); text-align: center; line-height: 1.2;">Bloqueado</span>
+              </div>
+            </ng-template>
 
             <!-- 4. La Hidra (Tareas interminables) -->
-            <div (click)="selectVillain('samurai')" 
-                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
-                 [style.borderColor]="selectedVillainId() === 'samurai' ? 'var(--accent)' : 'var(--border)'"
-                 [style.background]="selectedVillainId() === 'samurai' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                 onmouseover="this.style.borderColor='var(--accent)';"
-                 onmouseout="if(this.selectedVillainId() !== 'samurai') { this.style.borderColor='var(--border)' }">
-              <img src="/assets/images/avatars/boss_hidra.jpg" alt="La Hidra" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">La Hidra</span>
-            </div>
+            <ng-container *ngIf="bossService.activeBoss().type === 'samurai'; else lockedSamurai">
+              <div (click)="selectVillain('samurai')" 
+                   style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                   [style.borderColor]="selectedVillainId() === 'samurai' ? 'var(--accent)' : 'var(--border)'"
+                   [style.background]="selectedVillainId() === 'samurai' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                   onmouseover="this.style.borderColor='var(--accent)';"
+                   onmouseout="if(this.selectedVillainId() !== 'samurai') { this.style.borderColor='var(--border)' }">
+                <img src="/assets/images/avatars/boss_hidra.jpg" alt="La Hidra" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">La Hidra</span>
+              </div>
+            </ng-container>
+            <ng-template #lockedSamurai>
+              <div style="border: 2px dashed rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; background: rgba(0,0,0,0.25); color: var(--muted); cursor: not-allowed;"
+                   title="Este jefe está bloqueado. Vence al jefe actual para desbloquear nuevos desafíos.">
+                <div style="width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 2.5px dashed rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 14px rgba(0,0,0,0.2);">
+                  <span style="font-size: 32px; font-weight: 900; color: rgba(255,255,255,0.15);">?</span>
+                </div>
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--muted); text-align: center; line-height: 1.2;">Bloqueado</span>
+              </div>
+            </ng-template>
 
             <!-- 5. La Quimera (Multitarea) -->
-            <div (click)="selectVillain('aurora')" 
-                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
-                 [style.borderColor]="selectedVillainId() === 'aurora' ? 'var(--accent)' : 'var(--border)'"
-                 [style.background]="selectedVillainId() === 'aurora' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                 onmouseover="this.style.borderColor='var(--accent)';"
-                 onmouseout="if(this.selectedVillainId() !== 'aurora') { this.style.borderColor='var(--border)' }">
-              <img src="/assets/images/avatars/boss_quimera.jpg" alt="La Quimera" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">La Quimera</span>
-            </div>
+            <ng-container *ngIf="bossService.activeBoss().type === 'aurora'; else lockedAurora">
+              <div (click)="selectVillain('aurora')" 
+                   style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                   [style.borderColor]="selectedVillainId() === 'aurora' ? 'var(--accent)' : 'var(--border)'"
+                   [style.background]="selectedVillainId() === 'aurora' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                   onmouseover="this.style.borderColor='var(--accent)';"
+                   onmouseout="if(this.selectedVillainId() !== 'aurora') { this.style.borderColor='var(--border)' }">
+                <img src="/assets/images/avatars/boss_quimera.jpg" alt="La Quimera" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">La Quimera</span>
+              </div>
+            </ng-container>
+            <ng-template #lockedAurora>
+              <div style="border: 2px dashed rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; background: rgba(0,0,0,0.25); color: var(--muted); cursor: not-allowed;"
+                   title="Este jefe está bloqueado. Vence al jefe actual para desbloquear nuevos desafíos.">
+                <div style="width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 2.5px dashed rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 14px rgba(0,0,0,0.2);">
+                  <span style="font-size: 32px; font-weight: 900; color: rgba(255,255,255,0.15);">?</span>
+                </div>
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--muted); text-align: center; line-height: 1.2;">Bloqueado</span>
+              </div>
+            </ng-template>
 
             <!-- 6. El Hombre Lobo (Procrastinación Nocturna) -->
-            <div (click)="selectVillain('werewolf')" 
-                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
-                 [style.borderColor]="selectedVillainId() === 'werewolf' ? 'var(--accent)' : 'var(--border)'"
-                 [style.background]="selectedVillainId() === 'werewolf' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                 onmouseover="this.style.borderColor='var(--accent)';"
-                 onmouseout="if(this.selectedVillainId() !== 'werewolf') { this.style.borderColor='var(--border)' }">
-              <img src="/assets/images/avatars/boss_lobo.jpg" alt="Hombre Lobo" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">Hombre Lobo</span>
-            </div>
+            <ng-container *ngIf="bossService.activeBoss().type === 'werewolf'; else lockedWerewolf">
+              <div (click)="selectVillain('werewolf')" 
+                   style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                   [style.borderColor]="selectedVillainId() === 'werewolf' ? 'var(--accent)' : 'var(--border)'"
+                   [style.background]="selectedVillainId() === 'werewolf' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                   onmouseover="this.style.borderColor='var(--accent)';"
+                   onmouseout="if(this.selectedVillainId() !== 'werewolf') { this.style.borderColor='var(--border)' }">
+                <img src="/assets/images/avatars/boss_lobo.jpg" alt="Hombre Lobo" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">Hombre Lobo</span>
+              </div>
+            </ng-container>
+            <ng-template #lockedWerewolf>
+              <div style="border: 2px dashed rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; background: rgba(0,0,0,0.25); color: var(--muted); cursor: not-allowed;"
+                   title="Este jefe está bloqueado. Vence al jefe actual para desbloquear nuevos desafíos.">
+                <div style="width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 2.5px dashed rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 14px rgba(0,0,0,0.2);">
+                  <span style="font-size: 32px; font-weight: 900; color: rgba(255,255,255,0.15);">?</span>
+                </div>
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--muted); text-align: center; line-height: 1.2;">Bloqueado</span>
+              </div>
+            </ng-template>
 
             <!-- 7. El Vampiro (Insomnio / Doomscrolling) -->
-            <div (click)="selectVillain('vampire')" 
-                 style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
-                 [style.borderColor]="selectedVillainId() === 'vampire' ? 'var(--accent)' : 'var(--border)'"
-                 [style.background]="selectedVillainId() === 'vampire' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                 onmouseover="this.style.borderColor='var(--accent)';"
-                 onmouseout="if(this.selectedVillainId() !== 'vampire') { this.style.borderColor='var(--border)' }">
-              <img src="/assets/images/avatars/boss_vampiro.jpg" alt="El Vampiro" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-              <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">El Vampiro</span>
-            </div>
+            <ng-container *ngIf="bossService.activeBoss().type === 'vampire'; else lockedVampire">
+              <div (click)="selectVillain('vampire')" 
+                   style="border: 2px solid var(--border); border-radius: 12px; padding: 16px 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; position: relative;"
+                   [style.borderColor]="selectedVillainId() === 'vampire' ? 'var(--accent)' : 'var(--border)'"
+                   [style.background]="selectedVillainId() === 'vampire' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                   onmouseover="this.style.borderColor='var(--accent)';"
+                   onmouseout="if(this.selectedVillainId() !== 'vampire') { this.style.borderColor='var(--border)' }">
+                <img src="/assets/images/avatars/boss_vampiro.jpg" alt="El Vampiro" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.1); box-shadow: 0 6px 14px rgba(0,0,0,0.45); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-align: center; line-height: 1.2;">El Vampiro</span>
+              </div>
+            </ng-container>
+            <ng-template #lockedVampire>
+              <div style="border: 2px dashed rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; background: rgba(0,0,0,0.25); color: var(--muted); cursor: not-allowed;"
+                   title="Este jefe está bloqueado. Vence al jefe actual para desbloquear nuevos desafíos.">
+                <div style="width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 2.5px dashed rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 14px rgba(0,0,0,0.2);">
+                  <span style="font-size: 32px; font-weight: 900; color: rgba(255,255,255,0.15);">?</span>
+                </div>
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--muted); text-align: center; line-height: 1.2;">Bloqueado</span>
+              </div>
+            </ng-template>
 
           </div>
 
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: DETALLE DEL ENEMIGO -->
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <div style="background: rgba(18, 18, 24, 0.5); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px; min-height: 540px;">
+          <h2 style="font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-circle-info" style="color: var(--accent);"></i>
+            Ficha de Combate (Detalles)
+          </h2>
+          
           <!-- FICHA DE DETALLE DEL VILLANO SELECCIONADO -->
-          <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 24px; margin-top: 10px; display: flex; flex-direction: column; gap: 16px;">
+          <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; flex: 1;">
             
             <!-- 1. El Kraken (Caos y exceso de pendientes) -->
             <ng-container *ngIf="selectedVillainId() === 'cyberpunk'">
@@ -200,12 +296,27 @@
             <!-- 2. La Sirena (Distracciones) -->
             <ng-container *ngIf="selectedVillainId() === 'siren'">
               <div style="display: flex; align-items: center; gap: 24px; border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 20px; flex-wrap: wrap;">
-                <img [src]="sirenRevealed() ? '/assets/images/avatars/boss_sirena_scary.jpg' : '/assets/images/avatars/boss_sirena_beautiful.jpg'" 
-                     alt="La Sirena" 
+                <!-- Contenedor animado de la Sirena en detalle -->
+                <div [class.siren-detail-container]="!sirenRevealed()"
                      (click)="toggleSirenReveal()"
-                     style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3.5px solid rgba(16, 185, 129, 0.45); cursor: pointer; transition: all 0.3s ease-in-out; flex-shrink: 0;"
+                     style="width: 130px; height: 130px; position: relative; border-radius: 50%; overflow: hidden; cursor: pointer; transition: all 0.3s ease-in-out; flex-shrink: 0;"
                      [style.boxShadow]="sirenRevealed() ? '0 0 25px rgba(239, 68, 68, 0.85)' : '0 0 25px rgba(16, 185, 129, 0.45)'"
-                     [style.borderColor]="sirenRevealed() ? 'rgba(239, 68, 68, 0.65)' : 'rgba(16, 185, 129, 0.45)'">
+                     [style.borderColor]="sirenRevealed() ? 'rgba(239, 68, 68, 0.65)' : 'rgba(16, 185, 129, 0.45)'"
+                     [style.border-style]="'solid'"
+                     [style.border-width.px]="3.5">
+                  <!-- Bonita (visible unless revealed or hovered) -->
+                  <img class="sirena-beautiful-detail" 
+                       src="/assets/images/avatars/boss_sirena_beautiful.jpg" 
+                       alt="La Sirena Bonita" 
+                       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease-in-out;"
+                       [style.opacity]="sirenRevealed() ? 0 : 1">
+                  <!-- Fea (visible if revealed or hovered) -->
+                  <img class="sirena-scary-detail" 
+                       src="/assets/images/avatars/boss_sirena_scary.jpg" 
+                       alt="La Sirena Fea" 
+                       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease-in-out;"
+                       [style.opacity]="sirenRevealed() ? 1 : 0">
+                </div>
                 <div style="display: flex; flex-direction: column; gap: 6px; flex-grow: 1; min-width: 200px;">
                   <span style="font-size: 9.5px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 1.2px; display: flex; align-items: center; gap: 8px;">
                     Villano del Templo
@@ -224,10 +335,16 @@
                 Con su canto dulce y constante, la Sirena atrae tu atención hacia notificaciones, redes sociales y videos cortos. Su objetivo es secuestrar tu dopamina mediante loops infinitos de ocio pasivo que devoran tus horas útiles.
               </p>
               <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.01); border-radius: 8px; padding: 12px; border: 1.5px solid rgba(16, 185, 129, 0.15);">
-                <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">💥 Punto Débil (Debilidad)</span>
-                <span style="font-size: 12px; color: var(--text); line-height: 1.4;">
-                  **Cortafuegos Acústico y Silenciador:** Activar el protector acústico (Ruido Zen/Lluvia) silencia su canto hipnótico, cortando sus tentáculos sonoros de distracción de inmediato.
-                </span>
+                <!-- Sugerencias para vencer las distracciones -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">💥 Estrategias Anti-Distracción</span>
+                  <ul style="margin: 0; padding-left: 14px; font-size: 11px; line-height: 1.45; color: var(--muted); display: flex; flex-direction: column; gap: 4px;">
+                    <li><strong>Regla de los 20 segundos:</strong> Añade fricción física alejando tu teléfono o dispositivos móviles a otra habitación o fuera de tu alcance visual mientras trabajas.</li>
+                    <li><strong>Ayuno dopaminérgico digital:</strong> Pon tu teléfono en modo "No molestar" y desactiva las notificaciones automáticas de redes sociales y apps de mensajería.</li>
+                    <li><strong>Fricción mediante software:</strong> Usa el bloqueador de sitios integrado en el dojo o extensiones para bloquear el acceso a feeds infinitos durante los bloques de enfoque.</li>
+                    <li><strong>Enfoque en bloques rígidos:</strong> Recuerda que la distracción surge cuando la mente duda del siguiente paso; decide tu subtarea exacta antes de iniciar tu Pomodoro.</li>
+                  </ul>
+                </div>
               </div>
             </ng-container>
 
@@ -351,89 +468,6 @@
               </div>
             </ng-container>
 
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- COLUMNA DERECHA: LA ARMERÍA DEL TEMPLO (BOOSTERS Y LORE) -->
-      <div style="display: flex; flex-direction: column; gap: 20px;">
-        
-        <!-- PANEL DE LA ARMERÍA -->
-        <div style="background: rgba(18, 18, 24, 0.5); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
-          <h2 style="font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i>
-            Armería del Templo
-          </h2>
-          <p style="font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 0;">
-            Adquiere sables y reliquias de autodisciplina. Al desbloquearlos con tus <strong>Pro Coins</strong>, se equipan de forma pasiva y multiplican el daño continuo que infliges en las Raids cooperativas.
-          </p>
-
-          <!-- Listado de Armas de la Armería -->
-          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
-            <div *ngFor="let w of weapons()" 
-                 style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.2s;"
-                 [style.borderColor]="w.unlocked ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255,255,255,0.04)'">
-              
-              <!-- Detalles del Arma -->
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 26px;">{{ w.emoji }}</span>
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="font-size: 12.5px; font-weight: 800; color: var(--text);">{{ w.name }}</span>
-                    <span style="font-size: 8.5px; font-weight: 800; color: var(--green); background: rgba(16, 185, 129, 0.15); padding: 1px 5px; border-radius: 4px;">{{ w.damageBoost }}</span>
-                  </div>
-                  <span style="font-size: 10px; color: var(--muted); line-height: 1.2; max-width: 190px;">{{ w.desc }}</span>
-                </div>
-              </div>
-
-              <!-- Botón Adquirir / Equipar / Equipado -->
-              <div>
-                <!-- 1. Es el arma activa actual -->
-                <button *ngIf="w.unlocked && bossService.activeWeaponId() === w.id" 
-                        disabled
-                        style="border: none; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); color: var(--green); padding: 8px 14px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
-                  Equipado
-                </button>
-                
-                <!-- 2. Está desbloqueada pero no activa -->
-                <button *ngIf="w.unlocked && bossService.activeWeaponId() !== w.id" 
-                        (click)="bossService.equipWeapon(w.id)"
-                        style="border: none; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 8px 14px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: all 0.2s;"
-                        onmouseover="this.style.background='rgba(255,255,255,0.1)'"
-                        onmouseout="this.style.background='rgba(255,255,255,0.04)'">
-                  Equipar
-                </button>
-                
-                <!-- 3. Bloqueada -->
-                <button *ngIf="!w.unlocked" 
-                        (click)="buyWeapon(w)"
-                        style="border: none; background: var(--accent); color: #000; padding: 8px 14px; border-radius: 8px; font-size: 10.5px; font-weight: 900; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;"
-                        onmouseover="this.style.transform='scale(1.04)'"
-                        onmouseout="this.style.transform='scale(1)'">
-                  <i class="fa-solid fa-coins" style="font-size: 9px;"></i>
-                  {{ w.cost }}
-                </button>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- INFO CARD: CÓMO OBTENER PRO COINS -->
-          <div style="background: rgba(99, 102, 241, 0.03); border: 1.5px dashed rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; margin-top: 12px; text-align: left;">
-            <span style="font-size: 12px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
-              <i class="fa-solid fa-circle-question"></i> ¿Cómo adquirir armas?
-            </span>
-            <p style="font-size: 11.5px; line-height: 1.45; color: var(--muted); margin: 0;">
-              Las armas se forjan usando <strong>Pro Coins</strong>. Los guerreros del templo obtienen estas monedas mediante las siguientes acciones:
-            </p>
-            <ul style="margin: 0; padding-left: 16px; font-size: 11px; line-height: 1.5; color: var(--muted); display: flex; flex-direction: column; gap: 4px;">
-              <li><strong>Completar Pomodoros (Premium):</strong> Otorga <strong>+5 Pro Coins</strong> (+10 si es en Dojo Comunitario).</li>
-              <li><strong>Completar Objetivos Diarios:</strong> Otorga <strong>+15 Pro Coins</strong>.</li>
-              <li><strong>Derrotar Jefes de Raid (Todos):</strong> Vencer a un jefe cooperativo otorga <strong>+150 Pro Coins</strong> a todos los miembros activos.</li>
-              <li><strong>Regalo de bienvenida:</strong> Todos los nuevos usuarios inician con un kit básico de <strong>100 Pro Coins</strong> de cortesía.</li>
-            </ul>
           </div>
 
         </div>

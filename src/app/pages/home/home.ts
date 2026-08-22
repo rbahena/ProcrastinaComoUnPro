@@ -3,6 +3,7 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
 import { IdentitySettings } from '../../components/identity-settings';
+import { DojoBossService } from '../../services/dojo-boss.service';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,11 @@ export class Home implements OnInit, OnDestroy {
     this.membership.toggleSidebar();
   }
 
-  constructor(public membership: MembershipService, private router: Router) {
+  constructor(
+    public membership: MembershipService,
+    private router: Router,
+    public bossService: DojoBossService
+  ) {
     this.currentTheme = this.membership.selectedTheme;
     this.userName = this.membership.userName;
     this.selectedAvatar = this.membership.selectedAvatar;

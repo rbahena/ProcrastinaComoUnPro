@@ -1038,7 +1038,7 @@ export class IdentitySettings implements OnInit {
 
   inputName = signal<string>('');
   previewAvatar = signal<AvatarItem>({
-    id: 'gato', name: 'Gato', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true
+    id: 'gato', name: 'Gato Lancero', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true
   });
   
   usernameError = signal<string | null>(null);

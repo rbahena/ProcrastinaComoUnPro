@@ -1408,7 +1408,7 @@ interface DojoAvatar {
 })
 export class Cualidades implements OnInit {
   previewAvatar = signal<AvatarItem>({
-    id: 'gato', name: 'Gato', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true
+    id: 'gato', name: 'Gato Lancero', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true
   });
 
   selectedLockedAvatar = signal<any | null>(null);
@@ -1446,8 +1446,8 @@ export class Cualidades implements OnInit {
 
     const list: DojoAvatar[] = [
       // LIBRES DESDE EL INICIO
-      { id: 'gato', name: 'Gato', type: 'inicial', emoji: '🐱', color: '#10b981', role: 'Ninja Ágil', cost: 0, qualityId: null },
-      { id: 'perro', name: 'Perro', type: 'inicial', emoji: '🐶', color: '#3a86f0', role: 'Guardián Fiel', cost: 0, qualityId: null },
+      { id: 'gato', name: 'Gato Lancero', type: 'inicial', emoji: '🐱', color: '#10b981', role: 'Centinela del Dojo', cost: 0, qualityId: null },
+      { id: 'perro', name: 'Perro Lancero', type: 'inicial', emoji: '🐶', color: '#3a86f0', role: 'Guardia del Dojo', cost: 0, qualityId: null },
       { id: 'conejo', name: 'Conejo', type: 'inicial', emoji: '🐰', color: '#9ca3af', role: 'Veloz Saltarín', cost: 0, qualityId: null },
       { id: 'loro', name: 'Loro', type: 'inicial', emoji: '🦜', color: '#fbbf24', role: 'Eco Parlanchín', cost: 0, qualityId: null },
       { id: 'hamster', name: 'Hámster', type: 'inicial', emoji: '🐹', color: '#f97316', role: 'Veloz Corredor', cost: 0, qualityId: null },

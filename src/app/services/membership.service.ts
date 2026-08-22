@@ -134,8 +134,8 @@ export class MembershipService {
 
   // Catálogo completo de avatares disponibles (Gato, Perro, Conejo, Mapache, Nutria, Loro, Zorro, Lince)
   avatarsCatalog = signal<AvatarItem[]>([
-    { id: 'gato', name: 'Gato', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
-    { id: 'perro', name: 'Perro', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
+    { id: 'gato', name: 'Gato Lancero', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
+    { id: 'perro', name: 'Perro Lancero', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
     { id: 'conejo', name: 'Conejo', icon: 'fa-rabbit', color: '#9ca3af', isUnlocked: true, isInitial: true },
     { id: 'loro', name: 'Loro', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
     { id: 'hamster', name: 'Hámster', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
@@ -523,7 +523,7 @@ export class MembershipService {
   // Auxiliares globales para avatars
   getAvatarNameById(id: string): string {
     const names: { [key: string]: string } = {
-      gato: 'Gato', perro: 'Perro', conejo: 'Conejo', mapache: 'Mapache',
+      gato: 'Gato Lancero', perro: 'Perro Lancero', conejo: 'Conejo', mapache: 'Mapache',
       nutria: 'Nutria', loro: 'Loro', zorro: 'Zorro', lince: 'Lince',
       lobo: 'Lobo', tortuga: 'Tortuga', hormiga: 'Hormiga', abeja: 'Abeja',
       castor: 'Castor', aguila: 'Águila', buho: 'Búho', panda: 'Panda',

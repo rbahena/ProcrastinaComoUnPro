@@ -30,3 +30,30 @@
     border-color: rgba(245, 158, 11, 0.35);
   }
 }
+
+/* Sirena Hover Transformation effect in Grid */
+.siren-card:hover .sirena-beautiful {
+  opacity: 0 !important;
+}
+
+.siren-card:hover .sirena-scary {
+  opacity: 1 !important;
+}
+
+.siren-card:hover .siren-image-container {
+  transform: scale(1.06);
+}
+
+/* Siren Detail Hover effect in Ficha */
+.siren-detail-container:hover .sirena-beautiful-detail {
+  opacity: 0 !important;
+}
+
+.siren-detail-container:hover .sirena-scary-detail {
+  opacity: 1 !important;
+}
+
+.siren-detail-container:hover {
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.85) !important;
+  border-color: rgba(239, 68, 68, 0.65) !important;
+}

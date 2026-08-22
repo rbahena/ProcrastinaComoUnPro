@@ -56,10 +56,10 @@ export class DojoBossService {
 
   // State signals
   activeBoss = signal<DojoBoss>({
-    name: 'La Hidra del Abrumamiento',
-    maxHp: 12000,
-    currentHp: 8940,
-    type: 'samurai',
+    name: 'La Sirena de las Distracciones',
+    maxHp: 9000,
+    currentHp: 6750,
+    type: 'siren',
     status: 'active'
   });
 
@@ -82,7 +82,7 @@ export class DojoBossService {
   // Logs of events in the Dojo Raid
   bossLogs = signal<string[]>([
     '⚔️ ¡El Dojo de Concentración está activo!',
-    '👾 La Hidra del Abrumamiento ha invadido la Zona de Enfoque.'
+    '👾 La Sirena de las Distracciones ha invadido la Zona de Enfoque.'
   ]);
 
   // Accrued boss damage dealt by the user
@@ -105,13 +105,19 @@ export class DojoBossService {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        this.activeBoss.set(parsed.boss);
-        this.dojoShield.set(parsed.shield || 850);
-        if (parsed.logs) this.bossLogs.set(parsed.logs);
-        if (parsed.userDamageDealt !== undefined) this.userDamageDealt.set(parsed.userDamageDealt);
+        if (parsed.boss && parsed.boss.type === 'siren') {
+          this.activeBoss.set(parsed.boss);
+          this.dojoShield.set(parsed.shield || 850);
+          if (parsed.logs) this.bossLogs.set(parsed.logs);
+          if (parsed.userDamageDealt !== undefined) this.userDamageDealt.set(parsed.userDamageDealt);
+        } else {
+          this.saveState();
+        }
       } catch (e) {
         // Fallback to default
       }
+    } else {
+      this.saveState();
     }
 
     // Load active weapon

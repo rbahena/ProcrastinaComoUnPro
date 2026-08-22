@@ -8,8 +8,6 @@
   background: transparent;
   position: relative;
   overflow: hidden;
-  --accent: var(--accent);
-  --border: var(--border);
 }
 
 .auth-container::before {
@@ -145,9 +143,15 @@
   font-size: 14px;
   font-weight: 700;
   border-radius: 12px;
-  border: none;
+  border: 1px solid var(--accent) !important;
+  background: rgba(6, 8, 19, 0.45) !important;
+  color: var(--accent) !important;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.btn.w-100:hover {
+  background: rgba(6, 8, 19, 0.75) !important;
 }
 
 .terms-disclaimer {

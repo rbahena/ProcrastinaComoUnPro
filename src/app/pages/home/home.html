@@ -162,59 +162,90 @@
 
     </div>
 
-    <!-- CARD 2: Objetivos Cumplidos -->
-    <div class="metric-card-premium card-objectives-done" style="--card-accent: var(--accent); margin: 0; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+    <!-- CARD 2: Jefe de Raid del Dojo -->
+    <div class="metric-card-premium card-boss" style="--card-accent: var(--red); --card-accent-rgb: 239, 68, 68; background-image: radial-gradient(circle at 85% 85%, rgba(239, 68, 68, 0.05) 0%, transparent 65%), linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px); margin: 0; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
       
       <!-- CABECERA -->
       <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
         <div style="display: flex; align-items: center; gap: 6px;">
-          <i class="fa-solid fa-circle-check" style="font-size: 10px; color: var(--accent);"></i>
-          <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Hoy</span>
+          <i class="fa-solid fa-dragon" style="font-size: 10px; color: var(--red);"></i>
+          <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Jefe del Dojo</span>
+          <!-- Enlace de información del jefe -->
+          <a routerLink="/bestiario" 
+             style="color: var(--muted); font-size: 9.5px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 13px; height: 13px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); transition: all 0.2s;"
+             onmouseover="this.style.color='var(--red)'; this.style.borderColor='rgba(239, 68, 68, 0.3)'; this.style.background='rgba(239, 68, 68, 0.05)';" 
+             onmouseout="this.style.color='var(--muted)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.background='rgba(255,255,255,0.03)';"
+             title="¿Qué es el Jefe del Dojo? Ver bestiario">
+            <i class="fa-solid fa-circle-info"></i>
+          </a>
         </div>
-        <span class="card-title-text" style="color: var(--accent); font-weight: 700; background: rgba(99, 102, 241, 0.08); padding: 1px 5px; border-radius: 3px;">Red</span>
+        <span class="card-title-text" 
+              [style.color]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'var(--red)'" 
+              [style.background]="bossService.activeBoss().status === 'defeated' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)'" 
+              style="padding: 1px 5px; border-radius: 3px; font-weight: 700;">
+          {{ bossService.activeBoss().status === 'defeated' ? 'Derrotado' : 'Activo' }}
+        </span>
       </div>
       
       <!-- CONTENIDO CENTRAL -->
       <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: center; margin: 12px 0;">
-        <div class="card-large-value">
-          {{ liveCompletedObjectivesToday() }}
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <!-- Avatar circular del Jefe -->
+          <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 1.5px solid var(--red); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);">
+            <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'aurora'" src="/assets/images/avatars/boss_quimera.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'siren'" src="/assets/images/avatars/boss_sirena.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'werewolf'" src="/assets/images/avatars/boss_lobo.jpg" style="width:100%; height:100%; object-fit:cover;">
+            <img *ngIf="bossService.activeBoss().type === 'vampire'" src="/assets/images/avatars/boss_vampiro.jpg" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+          <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
+            <div class="card-large-value" style="font-size: 20px !important;">
+              {{ bossService.hpPercent() }}% HP
+            </div>
+            <div class="card-sub-desc" style="font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="bossService.activeBoss().name">
+              {{ bossService.activeBoss().name }}
+            </div>
+          </div>
         </div>
-        <div class="card-sub-desc">sesiones completadas.</div>
 
-        <!-- Barra de Progreso meta diaria -->
+        <!-- Barra de Progreso HP del Jefe -->
         <div style="margin-top: 8px; width: 100%;">
           <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); margin-bottom: 3px; font-weight: 700;">
-            <span>Meta Diaria</span>
-            <span>{{ liveCompletedObjectivesToday() }}/4 Pomodoros</span>
+            <span>Vida Restante</span>
+            <span>{{ bossService.activeBoss().currentHp }}/{{ bossService.activeBoss().maxHp }} HP</span>
           </div>
           <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; border: 0.5px solid rgba(255,255,255,0.02);">
-            <div [style.width]="(liveCompletedObjectivesToday() >= 4 ? 100 : (liveCompletedObjectivesToday() * 25)) + '%'" 
-                 style="height: 100%; background: var(--accent); transition: width 0.5s ease; box-shadow: 0 0 6px var(--accent);">
+            <div [style.width.%]="bossService.hpPercent()" 
+                 [style.background]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'linear-gradient(90deg, var(--red) 0%, var(--accent) 100%)'"
+                 style="height: 100%; transition: width 0.5s ease; box-shadow: 0 0 6px var(--red);">
+            </div>
+          </div>
+          <!-- Enlace explicativo / CTA -->
+          <div style="margin-top: 8px; padding: 5px 8px; background: rgba(239, 68, 68, 0.03); border: 1px dashed rgba(239, 68, 68, 0.15); border-radius: 6px; font-size: 9px; line-height: 1.35; color: var(--muted); text-align: center; display: flex; flex-direction: column; gap: 2px;">
+            <span>¡Únete a la comunidad y ayuda a vencer al jefe del dojo!</span>
+            <div>
+              <a routerLink="/bestiario" 
+                 style="color: var(--red); font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 2px;"
+                 onmouseover="this.style.textDecoration='underline'"
+                 onmouseout="this.style.textDecoration='none'">
+                Descubre cómo <i class="fa-solid fa-arrow-right" style="font-size: 8px;"></i>
+              </a>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- FOOTER: Avatares -->
-      <div class="avatar-stack-container" style="border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-        <div class="avatar-stack-list">
-          <div class="avatar-stack-item avatar-sprite sprite-gato" (click)="zoomAvatar('gato', 'Gabriela', 'Gato', '#1abc9c', 2)">
-            <span class="avatar-tooltip">Gato Constante</span>
-          </div>
-          <div class="avatar-stack-item avatar-sprite sprite-perro" (click)="zoomAvatar('perro', 'Hugo', 'Perro', '#3498db', 1)">
-            <span class="avatar-tooltip">Perro Fiel</span>
-          </div>
-          <div class="avatar-stack-item avatar-sprite sprite-conejo" (click)="zoomAvatar('conejo', 'Isabel', 'Conejo', '#9ca3af', 5)">
-            <span class="avatar-tooltip">Conejo Veloz</span>
-          </div>
-          <div class="avatar-stack-item avatar-sprite sprite-rana" (click)="zoomAvatar('rana', 'Javier', 'Rana', '#2ecc71', 0)">
-            <span class="avatar-tooltip">Rana Enfocada</span>
-          </div>
-          <div class="avatar-stack-item avatar-sprite sprite-hamster" (click)="zoomAvatar('hamster', 'Laura', 'Hámster', '#f1c40f', 3)">
-            <span class="avatar-tooltip">Hámster Ninja</span>
-          </div>
-        </div>
-        <span class="card-title-text" style="color: var(--muted); font-weight: 500; font-size: 8.5px;">usuarios</span>
+      <!-- FOOTER: Escudo y Logs -->
+      <div style="border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%; font-size: 9px; color: var(--muted);">
+        <span style="display: flex; align-items: center; gap: 4px; font-weight: 700;"
+              [style.color]="bossService.dojoShield() < 300 ? 'var(--red)' : 'var(--muted)'">
+          🛡️ Escudo: {{ bossService.dojoShield() }}/1000
+        </span>
+        <span class="card-title-text" style="color: var(--muted); font-weight: 500; font-size: 8.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;" [title]="bossService.bossLogs()[0]">
+          {{ bossService.bossLogs()[0] }}
+        </span>
       </div>
 
     </div>

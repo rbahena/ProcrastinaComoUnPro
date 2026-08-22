@@ -162,6 +162,8 @@ button { font-family: inherit; cursor: pointer; }
 .avatar-sprite.sprite-rana { background-image: url('/assets/images/avatars/rana.webp'); }
 .avatar-sprite.sprite-zorro { background-image: url('/assets/images/avatars/zorro.webp'); }
 .avatar-sprite.sprite-lince { background-image: url('/assets/images/avatars/lince.webp'); }
+.avatar-sprite.sprite-tigre { background-image: url('/assets/images/avatars/tigre.webp'); }
+.avatar-sprite.sprite-oso { background-image: url('/assets/images/avatars/oso.webp'); }
 
 /* Backwards compatibility aliases */
 .avatar-sprite.sprite-leon { background-image: url('/assets/images/avatars/leon.webp'); }
