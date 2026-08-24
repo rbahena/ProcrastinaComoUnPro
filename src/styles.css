@@ -139,7 +139,6 @@ button { font-family: inherit; cursor: pointer; }
 .avatar-sprite.sprite-lobo { background-image: url('/assets/images/avatars/lobo.webp'); }
 .avatar-sprite.sprite-hamster { background-image: url('/assets/images/avatars/hamster.webp'); }
 .avatar-sprite.sprite-buho { background-image: url('/assets/images/avatars/buho.webp'); }
-.avatar-sprite.sprite-pez { background-image: url('/assets/images/avatars/pez.webp'); }
 
 .avatar-sprite.sprite-panda { background-image: url('/assets/images/avatars/panda.webp'); }
 .avatar-sprite.sprite-sloth { background-image: url('/assets/images/avatars/sloth.webp'); }

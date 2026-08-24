@@ -1451,7 +1451,6 @@ export class Cualidades implements OnInit {
       { id: 'conejo', name: 'Conejo Lancero', type: 'inicial', emoji: '🐰', color: '#9ca3af', role: 'Explorador del Dojo', cost: 0, qualityId: null },
       { id: 'loro', name: 'Loro Lancero', type: 'inicial', emoji: '🦜', color: '#fbbf24', role: 'Centinela Alado', cost: 0, qualityId: null },
       { id: 'hamster', name: 'Hámster Lancero', type: 'inicial', emoji: '🐹', color: '#f97316', role: 'Guardián Veloz', cost: 0, qualityId: null },
-      { id: 'pez', name: 'Pez Lancero', type: 'inicial', emoji: '🐟', color: '#06b6d4', role: 'Guardián de Foso', cost: 0, qualityId: null },
       { id: 'cuyo', name: 'Cuyo Lancero', type: 'inicial', emoji: '🐹', color: '#8b5cf6', role: 'Centinela Lanudo', cost: 0, qualityId: null },
       { id: 'raton', name: 'Ratón Lancero', type: 'inicial', emoji: '🐭', color: '#ec4899', role: 'Explorador Sigiloso', cost: 0, qualityId: null },
       { id: 'rana', name: 'Rana Lancera', type: 'inicial', emoji: '🐸', color: '#22c55e', role: 'Centinela del Estanque', cost: 0, qualityId: null },

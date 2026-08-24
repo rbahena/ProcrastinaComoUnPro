@@ -220,7 +220,7 @@ export class Enfoque implements OnInit, OnDestroy {
     { name: 'Carlos', avatar: 'panda', status: 'break', mission: 'Pausa activa y estiramientos', timeLeft: 180, percentage: 40 },
     { name: 'Mateo', avatar: 'hamster', status: 'focused', mission: 'Optimizando consultas SQL pesadas', timeLeft: 900, percentage: 50 },
     { name: 'Valentina', avatar: 'buho', status: 'focused', mission: 'Preparando presentación de negocio', timeLeft: 300, percentage: 90 },
-    { name: 'Lucas', avatar: 'pez', status: 'idle', mission: 'Planeando tareas de la semana', timeLeft: 0, percentage: 100 },
+    { name: 'Lucas', avatar: 'rana', status: 'idle', mission: 'Planeando tareas de la semana', timeLeft: 0, percentage: 100 },
     { name: 'Clara', avatar: 'tortuga', status: 'focused', mission: 'Resolviendo bugs de renderizado CSS', timeLeft: 1350, percentage: 30 },
     { name: 'Esteban', avatar: 'abeja', status: 'focused', mission: 'Escribiendo pruebas unitarias con Vitest', timeLeft: 720, percentage: 60 },
     { name: 'Laura', avatar: 'castor', status: 'break', mission: 'Tomando café e hidratación', timeLeft: 240, percentage: 20 }
@@ -1029,7 +1029,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (availableNames.length === 0) return;
     
     const name = availableNames[Math.floor(Math.random() * availableNames.length)];
-    const avatars = ['lobo', 'zorro', 'buho', 'panda', 'tortuga', 'abeja', 'castor', 'hamster', 'pez', 'sloth'];
+    const avatars = ['lobo', 'zorro', 'buho', 'panda', 'tortuga', 'abeja', 'castor', 'hamster', 'rana', 'sloth'];
     const avatar = avatars[Math.floor(Math.random() * avatars.length)];
     const mission = this.getRandomMission();
     

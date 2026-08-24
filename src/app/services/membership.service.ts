@@ -96,7 +96,7 @@ export class MembershipService {
 
   // Cosméticos desbloqueados (por defecto los avatares iniciales)
   unlockedAvatars = signal<string[]>(
-    getMigratedValueJSON('unlocked-avatars', ['gato','perro','conejo','loro','hamster','pez','cuyo','raton','rana'])
+    getMigratedValueJSON('unlocked-avatars', ['gato','perro','conejo','loro','hamster','cuyo','raton','rana'])
   );
   unlockedThemes = signal<string[]>(
     getMigratedValueJSON('unlocked-themes', ['samurai'])
@@ -139,7 +139,6 @@ export class MembershipService {
     { id: 'conejo', name: 'Conejo Lancero', icon: 'fa-rabbit', color: '#9ca3af', isUnlocked: true, isInitial: true },
     { id: 'loro', name: 'Loro Lancero', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
     { id: 'hamster', name: 'Hámster Lancero', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
-    { id: 'pez', name: 'Pez Lancero', icon: 'fa-fish', color: '#06b6d4', isUnlocked: true, isInitial: true },
     { id: 'cuyo', name: 'Cuyo Lancero', icon: 'fa-paw', color: '#8b5cf6', isUnlocked: true, isInitial: true },
     { id: 'raton', name: 'Ratón Lancero', icon: 'fa-paw', color: '#ec4899', isUnlocked: true, isInitial: true },
     { id: 'rana', name: 'Rana Lancera', icon: 'fa-frog', color: '#22c55e', isUnlocked: true, isInitial: true }
@@ -403,7 +402,7 @@ export class MembershipService {
     localStorage.setItem(`user:${emailLower}:premium`, 'false');
     localStorage.setItem(`user:${emailLower}:focus-points`, '0');
     localStorage.setItem(`user:${emailLower}:pro-coins`, '0');
-    localStorage.setItem(`user:${emailLower}:unlocked-avatars`, JSON.stringify(['gato','perro','conejo','loro','hamster','pez','cuyo','raton','rana']));
+    localStorage.setItem(`user:${emailLower}:unlocked-avatars`, JSON.stringify(['gato','perro','conejo','loro','hamster','cuyo','raton','rana']));
     localStorage.setItem(`user:${emailLower}:unlocked-themes`, JSON.stringify(['samurai']));
     localStorage.setItem(`user:${emailLower}:onboarding-completed`, 'false');
     localStorage.setItem(`user:${emailLower}:captured-ideas`, JSON.stringify([]));
@@ -430,7 +429,7 @@ export class MembershipService {
           localStorage.setItem(`user:demo@focusapp.com:premium`, 'false');
           localStorage.setItem(`user:demo@focusapp.com:focus-points`, '0');
           localStorage.setItem(`user:demo@focusapp.com:pro-coins`, '0');
-          localStorage.setItem(`user:demo@focusapp.com:unlocked-avatars`, JSON.stringify(['gato','perro','conejo','loro','hamster','pez','cuyo','raton','rana']));
+          localStorage.setItem(`user:demo@focusapp.com:unlocked-avatars`, JSON.stringify(['gato','perro','conejo','loro','hamster','cuyo','raton','rana']));
           localStorage.setItem(`user:demo@focusapp.com:unlocked-themes`, JSON.stringify(['samurai']));
           localStorage.setItem(`user:demo@focusapp.com:onboarding-completed`, 'true');
         }
@@ -460,7 +459,7 @@ export class MembershipService {
     const isPremiumVal = localStorage.getItem(`user:${email}:premium`) === 'true';
     const focusPointsVal = parseInt(localStorage.getItem(`user:${email}:focus-points`) || '0', 10);
     const proCoinsVal = parseInt(localStorage.getItem(`user:${email}:pro-coins`) || '0', 10);
-    const unlockedAvatarsVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-avatars`) || '["gato","perro","conejo","loro","hamster","pez","cuyo","raton","rana"]');
+    const unlockedAvatarsVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-avatars`) || '["gato","perro","conejo","loro","hamster","cuyo","raton","rana"]');
     const unlockedThemesVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-themes`) || '["samurai"]');
     const userNameVal = localStorage.getItem(`user:${email}:user-name`) || email.split('@')[0];
     const selectedAvatarVal = localStorage.getItem(`user:${email}:avatar`) || 'gato';
@@ -501,7 +500,7 @@ export class MembershipService {
     localStorage.removeItem(`user:${email}:focus-points`);
     localStorage.removeItem(`user:${email}:rewarded-sessions`);
 
-    this.unlockedAvatars.set(['gato', 'perro', 'conejo', 'loro', 'hamster', 'pez', 'cuyo', 'raton', 'rana']);
+    this.unlockedAvatars.set(['gato', 'perro', 'conejo', 'loro', 'hamster', 'cuyo', 'raton', 'rana']);
     this.unlockedThemes.set(['samurai']);
     this.userName.set(email.split('@')[0]);
     this.selectedAvatar.set('gato');
@@ -529,7 +528,7 @@ export class MembershipService {
       castor: 'Castor', aguila: 'Águila', buho: 'Búho', panda: 'Panda',
       sloth: 'Perezoso', elefante: 'Elefante', octopus: 'Pulpo',
       leon: 'León', dragon: 'Dragón del Ego', fenix: 'Fénix',
-      hamster: 'Hámster Lancero', pez: 'Pez Lancero', cuyo: 'Cuyo Lancero', raton: 'Ratón Lancero', rana: 'Rana Lancera'
+      hamster: 'Hámster Lancero', cuyo: 'Cuyo Lancero', raton: 'Ratón Lancero', rana: 'Rana Lancera'
     };
     return names[id] || 'Gato';
   }
@@ -542,7 +541,7 @@ export class MembershipService {
       castor: '#b45309', aguila: '#3b82f6', buho: '#6366f1', panda: '#6b7280',
       sloth: '#78716c', elefante: '#6b7280', octopus: '#ec4899',
       leon: '#fbbf24', dragon: '#d946ef', fenix: '#ef4444',
-      hamster: '#f97316', pez: '#06b6d4', cuyo: '#8b5cf6', raton: '#ec4899', rana: '#22c55e'
+      hamster: '#f97316', cuyo: '#8b5cf6', raton: '#ec4899', rana: '#22c55e'
     };
     return colors[id] || '#10b981';
   }
@@ -583,7 +582,6 @@ export class MembershipService {
       case 'nutria': return '🦦';
       case 'loro': return '🦜';
       case 'hamster': return '🐹';
-      case 'pez': return '🐟';
       case 'cuyo': return '🐹';
       case 'raton': return '🐭';
       case 'rana': return '🐸';
@@ -607,7 +605,6 @@ export class MembershipService {
       case 'dragon': return 'Señor del Ego';
       case 'fenix': return 'Inmortal';
       case 'hamster': return 'Veloz';
-      case 'pez': return 'Fluido';
       case 'cuyo': return 'Tierno';
       case 'raton': return 'Astuto';
       case 'rana': return 'Saltarina';
