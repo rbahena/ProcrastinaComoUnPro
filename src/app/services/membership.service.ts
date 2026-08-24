@@ -136,13 +136,13 @@ export class MembershipService {
   avatarsCatalog = signal<AvatarItem[]>([
     { id: 'gato', name: 'Gato Lancero', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
     { id: 'perro', name: 'Perro Lancero', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
-    { id: 'conejo', name: 'Conejo', icon: 'fa-rabbit', color: '#9ca3af', isUnlocked: true, isInitial: true },
-    { id: 'loro', name: 'Loro', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
-    { id: 'hamster', name: 'Hámster', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
-    { id: 'pez', name: 'Pez', icon: 'fa-fish', color: '#06b6d4', isUnlocked: true, isInitial: true },
-    { id: 'cuyo', name: 'Cuyo', icon: 'fa-paw', color: '#8b5cf6', isUnlocked: true, isInitial: true },
-    { id: 'raton', name: 'Ratón', icon: 'fa-paw', color: '#ec4899', isUnlocked: true, isInitial: true },
-    { id: 'rana', name: 'Rana', icon: 'fa-frog', color: '#22c55e', isUnlocked: true, isInitial: true }
+    { id: 'conejo', name: 'Conejo Lancero', icon: 'fa-rabbit', color: '#9ca3af', isUnlocked: true, isInitial: true },
+    { id: 'loro', name: 'Loro Lancero', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
+    { id: 'hamster', name: 'Hámster Lancero', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
+    { id: 'pez', name: 'Pez Lancero', icon: 'fa-fish', color: '#06b6d4', isUnlocked: true, isInitial: true },
+    { id: 'cuyo', name: 'Cuyo Lancero', icon: 'fa-paw', color: '#8b5cf6', isUnlocked: true, isInitial: true },
+    { id: 'raton', name: 'Ratón Lancero', icon: 'fa-paw', color: '#ec4899', isUnlocked: true, isInitial: true },
+    { id: 'rana', name: 'Rana Lancera', icon: 'fa-frog', color: '#22c55e', isUnlocked: true, isInitial: true }
   ]);
 
   // Catálogo completo de Cualidades (TORTUGA, HORMIGA, ÁGUILA, ABEJA, CASTOR, LOBO)
@@ -523,13 +523,13 @@ export class MembershipService {
   // Auxiliares globales para avatars
   getAvatarNameById(id: string): string {
     const names: { [key: string]: string } = {
-      gato: 'Gato Lancero', perro: 'Perro Lancero', conejo: 'Conejo', mapache: 'Mapache',
-      nutria: 'Nutria', loro: 'Loro', zorro: 'Zorro', lince: 'Lince',
+      gato: 'Gato Lancero', perro: 'Perro Lancero', conejo: 'Conejo Lancero', mapache: 'Mapache',
+      nutria: 'Nutria', loro: 'Loro Lancero', zorro: 'Zorro', lince: 'Lince',
       lobo: 'Lobo', tortuga: 'Tortuga', hormiga: 'Hormiga', abeja: 'Abeja',
       castor: 'Castor', aguila: 'Águila', buho: 'Búho', panda: 'Panda',
       sloth: 'Perezoso', elefante: 'Elefante', octopus: 'Pulpo',
       leon: 'León', dragon: 'Dragón del Ego', fenix: 'Fénix',
-      hamster: 'Hámster', pez: 'Pez', cuyo: 'Cuyo', raton: 'Ratón', rana: 'Rana'
+      hamster: 'Hámster Lancero', pez: 'Pez Lancero', cuyo: 'Cuyo Lancero', raton: 'Ratón Lancero', rana: 'Rana Lancera'
     };
     return names[id] || 'Gato';
   }
@@ -575,6 +575,13 @@ export class MembershipService {
       case 'castor': return '🦫';
       case 'aguila': return '🦅';
       case 'hormiga': return '🐜';
+      case 'elefante': return '🐘';
+      case 'gato': return '🐱';
+      case 'perro': return '🐶';
+      case 'conejo': return '🐰';
+      case 'mapache': return '🦝';
+      case 'nutria': return '🦦';
+      case 'loro': return '🦜';
       case 'hamster': return '🐹';
       case 'pez': return '🐟';
       case 'cuyo': return '🐹';

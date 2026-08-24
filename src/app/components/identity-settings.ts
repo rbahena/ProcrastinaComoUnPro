@@ -1223,6 +1223,10 @@ export class IdentitySettings implements OnInit {
       case 'mapache': return '🦝';
       case 'nutria': return '🦦';
       case 'loro': return '🦜';
+      case 'hamster': return '🐹';
+      case 'cuyo': return '🐹';
+      case 'raton': return '🐭';
+      case 'rana': return '🐸';
       default: return '🐾';
     }
   }
