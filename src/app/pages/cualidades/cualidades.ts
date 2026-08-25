@@ -1455,6 +1455,8 @@ export class Cualidades implements OnInit {
 
       // GANADOS POR CUALIDADES (Retos)
       { id: 'tortuga', name: 'Tortuga', type: 'cualidad', emoji: '🐢', color: '#22c55e', role: 'Sabio Paciente', cost: 50, qualityId: 'constancia', unlockTotal: 7 },
+      // { id: 'tortuga_evolved', name: 'Tortuga Rúnica (Fase 2)', type: 'cualidad', emoji: '🐢', color: '#22c55e', role: 'Gran Sabio Rúnico', cost: 100, qualityId: 'disciplina', unlockTotal: 100 },
+      // { id: 'tortuga_phase3', name: 'Místico Tortuga (Fase 3)', type: 'cualidad', emoji: '🐢', color: '#22c55e', role: 'Avatar Místico', cost: 200, qualityId: 'disciplina', unlockTotal: 250 },
       { id: 'hormiga', name: 'Hormiga', type: 'cualidad', emoji: '🐜', color: '#78350f', role: 'Esfuerzo Diario', cost: 60, qualityId: 'disciplina', unlockTotal: 15 },
       { id: 'buho', name: 'Búho', type: 'cualidad', emoji: '🦉', color: '#6366f1', role: 'Estratega Sabio', cost: 120, qualityId: 'sabiduria', unlockTotal: 5 },
       { id: 'rana', name: 'Rana', type: 'cualidad', emoji: '🐸', color: '#22c55e', role: 'Saltarina Saltadora', cost: 50, qualityId: 'superacion', unlockTotal: 5 },
@@ -1488,7 +1490,11 @@ export class Cualidades implements OnInit {
         isUnlocked = true;
       } else if (item.qualityId && quality) {
         const total = item.unlockTotal || quality.unlockTotal || 0;
-        const progress = quality.unlockProgress || 0;
+        let progress = quality.unlockProgress || 0;
+
+        if (item.id === 'tortuga_evolved' || item.id === 'tortuga_phase3') {
+          progress = this.membership.getTotalCompletedPomodoros();
+        }
 
         if (progress >= total) {
           isUnlocked = true;

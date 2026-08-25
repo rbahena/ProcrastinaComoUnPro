@@ -150,6 +150,8 @@ export class MembershipService {
     { id: 'hamster', name: 'Hámster Lancero', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
     { id: 'raton', name: 'Ratón Lancero', icon: 'fa-paw', color: '#ec4899', isUnlocked: true, isInitial: true },
     { id: 'tortuga', name: 'Tortuga', icon: 'fa-turtle', color: '#22c55e', isUnlocked: false },
+    // { id: 'tortuga_evolved', name: 'Tortuga Rúnica (Fase 2)', icon: 'fa-turtle', color: '#22c55e', isUnlocked: false },
+    // { id: 'tortuga_phase3', name: 'Místico Tortuga (Fase 3)', icon: 'fa-turtle', color: '#22c55e', isUnlocked: false },
     { id: 'hormiga', name: 'Hormiga', icon: 'fa-bug', color: '#78350f', isUnlocked: false },
     { id: 'buho', name: 'Búho', icon: 'fa-owl', color: '#6366f1', isUnlocked: false },
     { id: 'rana', name: 'Rana', icon: 'fa-frog', color: '#22c55e', isUnlocked: false },
@@ -185,6 +187,13 @@ export class MembershipService {
   );
 
   constructor() {
+    // DESBLOQUEAR TODO AUTOMÁTICAMENTE PARA PRUEBAS
+    this.unlockedAvatars.set([
+      'gato', 'perro', 'conejo', 'loro', 'hamster', 'raton', 'tortuga', /* 'tortuga_evolved', 'tortuga_phase3', */ 'hormiga', 'buho', 'rana', 
+      'aguila', 'abeja', 'castor', 'zorro', 'lince', 'panda', 'oso', 'elefante', 'leon', 'tigre', 
+      'dragon', 'fenix'
+    ]);
+
     // Sincronizar automáticamente con localStorage al cambiar valores
     effect(() => {
       const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
@@ -252,6 +261,10 @@ export class MembershipService {
       localStorage.setItem('captured-ideas', val);
       localStorage.setItem(`user:${email}:captured-ideas`, val);
     });
+  }
+
+  getTotalCompletedPomodoros(): number {
+    return Array.from(this.rewardedSessions).filter(id => id.startsWith('session-')).length;
   }
 
   addIdea(idea: string) {
@@ -411,6 +424,15 @@ export class MembershipService {
 
     // 7. Constancia (Tortuga) - Racha de 7 días.
     this.updateStreakProgress();
+
+    // 8. Evolución de Tortuga (Fase 2 y Fase 3) - OCULTO DE MOMENTO
+    // const totalSessions = Array.from(this.rewardedSessions).filter(id => id.startsWith('session-')).length;
+    // if (totalSessions >= 100 && !this.unlockedAvatars().includes('tortuga_evolved')) {
+    //   this.unlockedAvatars.update(unlocked => [...unlocked, 'tortuga_evolved']);
+    // }
+    // if (totalSessions >= 250 && !this.unlockedAvatars().includes('tortuga_phase3')) {
+    //   this.unlockedAvatars.update(unlocked => [...unlocked, 'tortuga_phase3']);
+    // }
   }
 
   private updateQualityProgress(id: string, amount: number) {

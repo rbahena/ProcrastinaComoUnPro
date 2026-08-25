@@ -138,18 +138,24 @@ button { font-family: inherit; cursor: pointer; }
 
 .avatar-sprite.sprite-lobo { background-image: url('/assets/images/avatars/lobo.webp'); }
 .avatar-sprite.sprite-hamster { background-image: url('/assets/images/avatars/hamster.jpg'); }
-.avatar-sprite.sprite-buho { background-image: url('/assets/images/avatars/buho.webp'); }
+.avatar-sprite.sprite-buho { background-image: url('/assets/images/avatars/buho.jpg'); }
 
 .avatar-sprite.sprite-panda { background-image: url('/assets/images/avatars/panda.webp'); }
 .avatar-sprite.sprite-sloth { background-image: url('/assets/images/avatars/sloth.webp'); }
 .avatar-sprite.sprite-tortuga { background-image: url('/assets/images/avatars/tortuga.jpg'); }
-.avatar-sprite.sprite-abeja { background-image: url('/assets/images/avatars/abeja.webp'); }
+.avatar-sprite.sprite-tortuga_evolved { background-image: url('/assets/images/avatars/tortuga_evolved.jpg'); }
+.avatar-sprite.sprite-tortuga_phase3 { background-image: url('/assets/images/avatars/tortuga_phase3.jpg'); }
+.avatar-sprite.sprite-abeja { background-image: url('/assets/images/avatars/abeja.jpg'); }
 
-.avatar-sprite.sprite-castor { background-image: url('/assets/images/avatars/castor.webp'); }
+.avatar-sprite.sprite-castor { background-image: url('/assets/images/avatars/castor.jpg'); }
 .avatar-sprite.sprite-octopus { background-image: url('/assets/images/avatars/octopus.webp'); }
-.avatar-sprite.sprite-aguila { background-image: url('/assets/images/avatars/aguila.webp'); }
-.avatar-sprite.sprite-hormiga { background-image: url('/assets/images/avatars/hormiga.webp'); }
+.avatar-sprite.sprite-aguila { background-image: url('/assets/images/avatars/aguila.jpg'); }
+.avatar-sprite.sprite-hormiga { background-image: url('/assets/images/avatars/hormiga.jpg'); }
 .avatar-sprite.sprite-elefante { background-image: url('/assets/images/avatars/elefante.webp'); }
+
+.avatar-sprite.sprite-abeja_evolved { background-image: url('/assets/images/avatars/abeja_evolved.jpg'); }
+.avatar-sprite.sprite-castor_evolved { background-image: url('/assets/images/avatars/castor_evolved.jpg'); }
+.avatar-sprite.sprite-aguila_evolved { background-image: url('/assets/images/avatars/aguila_evolved.jpg'); }
 
 /* New Avatars */
 .avatar-sprite.sprite-gato { background-image: url('/assets/images/avatars/gato.webp'); }
@@ -158,10 +164,10 @@ button { font-family: inherit; cursor: pointer; }
 .avatar-sprite.sprite-cuyo { background-image: url('/assets/images/avatars/cuyo.webp'); }
 .avatar-sprite.sprite-raton { background-image: url('/assets/images/avatars/raton.webp'); }
 .avatar-sprite.sprite-loro { background-image: url('/assets/images/avatars/loro.webp'); }
-.avatar-sprite.sprite-rana { background-image: url('/assets/images/avatars/rana.webp'); }
-.avatar-sprite.sprite-zorro { background-image: url('/assets/images/avatars/zorro.webp'); }
-.avatar-sprite.sprite-lince { background-image: url('/assets/images/avatars/lince.webp'); }
-.avatar-sprite.sprite-tigre { background-image: url('/assets/images/avatars/tigre.webp'); }
+.avatar-sprite.sprite-rana { background-image: url('/assets/images/avatars/rana.jpg'); }
+.avatar-sprite.sprite-zorro { background-image: url('/assets/images/avatars/zorro.jpg'); }
+.avatar-sprite.sprite-lince { background-image: url('/assets/images/avatars/lince.jpg'); }
+.avatar-sprite.sprite-tigre { background-image: url('/assets/images/avatars/tigre.jpg'); }
 .avatar-sprite.sprite-oso { background-image: url('/assets/images/avatars/oso.webp'); }
 
 /* Backwards compatibility aliases */
@@ -172,7 +178,7 @@ button { font-family: inherit; cursor: pointer; }
   border: 2px solid #d946ef !important;
   animation: dragon-legendary-glow 3s infinite alternate;
 }
-.avatar-sprite.sprite-fenix { background-image: url('/assets/images/avatars/fenix.webp'); }
+.avatar-sprite.sprite-fenix { background-image: url('/assets/images/avatars/fenix.jpg'); }
 
 @keyframes dragon-legendary-glow {
   0% {
