@@ -179,7 +179,7 @@ import { DojoBossService } from '../services/dojo-boss.service';
             
             <div class="avatar-grid" style="max-height: 220px; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px;">
               <div 
-                *ngFor="let avatar of membership.avatarsCatalog()"
+                *ngFor="let avatar of getUnlockedAvatars()"
                 class="avatar-card"
                 [class.selected]="previewAvatar().id === avatar.id"
                 (click)="selectAvatar(avatar)"
@@ -1156,6 +1156,12 @@ export class IdentitySettings implements OnInit {
 
     // Success
     this.usernameError.set(null);
+  }
+  getUnlockedAvatars(): AvatarItem[] {
+    const unlockedIds = this.membership.unlockedAvatars();
+    return this.membership.avatarsCatalog().filter(avatar => 
+      avatar.isInitial || unlockedIds.includes(avatar.id)
+    );
   }
 
   selectAvatar(avatar: AvatarItem) {

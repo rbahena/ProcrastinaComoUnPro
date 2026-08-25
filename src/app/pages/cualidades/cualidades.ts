@@ -368,10 +368,10 @@ interface DojoAvatar {
             </div>
           </div>
 
-          <!-- SECCIÓN 3: ESPECIALES DEL DOJO -->
+          <!-- SECCIÓN 3: BESTIAS DEL DOJO -->
           <div class="category-section">
             <h3 class="category-title">
-              Especiales del Dojo
+              Bestias del Dojo 🦁
             </h3>
             <div class="avatar-minimal-grid">
               <div 
@@ -1451,31 +1451,30 @@ export class Cualidades implements OnInit {
       { id: 'conejo', name: 'Conejo Lancero', type: 'inicial', emoji: '🐰', color: '#9ca3af', role: 'Explorador del Dojo', cost: 0, qualityId: null },
       { id: 'loro', name: 'Loro Lancero', type: 'inicial', emoji: '🦜', color: '#fbbf24', role: 'Centinela Alado', cost: 0, qualityId: null },
       { id: 'hamster', name: 'Hámster Lancero', type: 'inicial', emoji: '🐹', color: '#f97316', role: 'Guardián Veloz', cost: 0, qualityId: null },
-      { id: 'cuyo', name: 'Cuyo Lancero', type: 'inicial', emoji: '🐹', color: '#8b5cf6', role: 'Centinela Lanudo', cost: 0, qualityId: null },
       { id: 'raton', name: 'Ratón Lancero', type: 'inicial', emoji: '🐭', color: '#ec4899', role: 'Explorador Sigiloso', cost: 0, qualityId: null },
-      { id: 'rana', name: 'Rana Lancera', type: 'inicial', emoji: '🐸', color: '#22c55e', role: 'Centinela del Estanque', cost: 0, qualityId: null },
 
-      // GANADOS POR CUALIDADES
+      // GANADOS POR CUALIDADES (Retos)
       { id: 'tortuga', name: 'Tortuga', type: 'cualidad', emoji: '🐢', color: '#22c55e', role: 'Sabio Paciente', cost: 50, qualityId: 'constancia', unlockTotal: 7 },
-      { id: 'hormiga', name: 'Hormiga', type: 'cualidad', emoji: '🐜', color: '#78350f', role: 'Esfuerzo Diario', cost: 60, qualityId: 'disciplina', unlockTotal: 10 },
-      { id: 'zorro', name: 'Zorro', type: 'cualidad', emoji: '🦊', color: '#f97316', role: 'Espía de Sombras', cost: 100, qualityId: 'disciplina', unlockTotal: 20 },
-      { id: 'lince', name: 'Lince', type: 'cualidad', emoji: '🦌', color: '#a855f7', role: 'Felino Sigiloso', cost: 150, qualityId: 'vision', unlockTotal: 2 },
-      { id: 'aguila', name: 'Águila', type: 'cualidad', emoji: '🦅', color: '#3b82f6', role: 'Ojo de Halcón', cost: 200, qualityId: 'vision', unlockTotal: 4 },
+      { id: 'hormiga', name: 'Hormiga', type: 'cualidad', emoji: '🐜', color: '#78350f', role: 'Esfuerzo Diario', cost: 60, qualityId: 'disciplina', unlockTotal: 15 },
+      { id: 'buho', name: 'Búho', type: 'cualidad', emoji: '🦉', color: '#6366f1', role: 'Estratega Sabio', cost: 120, qualityId: 'sabiduria', unlockTotal: 5 },
+      { id: 'rana', name: 'Rana', type: 'cualidad', emoji: '🐸', color: '#22c55e', role: 'Saltarina Saltadora', cost: 50, qualityId: 'superacion', unlockTotal: 5 },
+      { id: 'aguila', name: 'Águila', type: 'cualidad', emoji: '🦅', color: '#3b82f6', role: 'Ojo de Halcón', cost: 200, qualityId: 'vision', unlockTotal: 5 },
       { id: 'abeja', name: 'Abeja', type: 'cualidad', emoji: '🐝', color: '#eab308', role: 'Obrero Incansable', cost: 70, qualityId: 'colaboracion', unlockTotal: 5 },
-      { id: 'castor', name: 'Castor', type: 'cualidad', emoji: '🦫', color: '#b45309', role: 'Constructor Feroz', cost: 80, qualityId: 'construccion', unlockTotal: 10 },
-      { id: 'lobo', name: 'Lobo', type: 'cualidad', emoji: '🐺', color: '#ef4444', role: 'Guía de Manada', cost: 50, qualityId: 'cooperacion', unlockTotal: 5 },
+      { id: 'castor', name: 'Castor', type: 'cualidad', emoji: '🦫', color: '#b45309', role: 'Constructor Feroz', cost: 80, qualityId: 'construccion', unlockTotal: 3 },
 
-      // ESPECIALES DEL DOJO
-      { id: 'elefante', name: 'Elefante', type: 'especial', emoji: '🐘', color: '#6b7280', role: 'Memoria Ancestral', cost: 80, qualityId: null, qualityName: 'Sabiduría', qualityReq: 'Adquiérelo por 80 Pro Coins 🪙 analizando tus estadísticas semanales en la bitácora.' },
-      { id: 'sloth', name: 'Perezoso', type: 'especial', emoji: '🦥', color: '#78716c', role: 'Meditador Calmo', cost: 90, qualityId: null, qualityName: 'Paciencia', qualityReq: 'Adquiérelo por 90 Pro Coins 🪙 completando sesiones largas de forma constante.' },
-      { id: 'octopus', name: 'Pulpo', type: 'especial', emoji: '🐙', color: '#ec4899', role: 'Multitarea', cost: 110, qualityId: null, qualityName: 'Versatilidad', qualityReq: 'Adquiérelo por 110 Pro Coins 🪙 gestionando eficientemente múltiples proyectos simultáneos.' },
-      { id: 'buho', name: 'Búho', type: 'especial', emoji: '🦉', color: '#6366f1', role: 'Estratega Sabio', cost: 120, qualityId: null, qualityName: 'Estrategia', qualityReq: 'Adquiérelo por 120 Pro Coins 🪙 planificando tus tareas en el calendario.' },
-      { id: 'panda', name: 'Panda', type: 'especial', emoji: '🐼', color: '#6b7280', role: 'Maestro Zen', cost: 150, qualityId: null, qualityName: 'Serenidad', qualityReq: 'Adquiérelo por 150 Pro Coins 🪙 completando tus meditaciones y manteniendo el enfoque.' },
-      { id: 'leon', name: 'León', type: 'especial', emoji: '🦁', color: '#fbbf24', role: 'Rey del Dojo', cost: 250, qualityId: null, qualityName: 'Liderazgo', qualityReq: 'Adquiérelo por 250 Pro Coins 🪙 superando con valor tus misiones más difíciles.' },
+      // BESTIAS DEL DOJO (Monedas)
+      { id: 'zorro', name: 'Zorro', type: 'especial', emoji: '🦊', color: '#f97316', role: 'Espía de Sombras', cost: 100, qualityId: null, qualityName: 'Astucia', qualityReq: 'Adquiérelo por 100 Pro Coins 🪙 aplicando inteligencia y estrategia en tus estudios.' },
+      { id: 'lince', name: 'Lince', type: 'especial', emoji: '🐆', color: '#a855f7', role: 'Felino Sigiloso', cost: 180, qualityId: null, qualityName: 'Precisión', qualityReq: 'Adquiérelo por 180 Pro Coins 🪙 entrenando tu enfoque y puntería mental.' },
+      { id: 'panda', name: 'Panda', type: 'especial', emoji: '🐼', color: '#6b7280', role: 'Maestro Zen', cost: 150, qualityId: null, qualityName: 'Serenidad', qualityReq: 'Adquiérelo por 150 Pro Coins 🪙 manteniendo el enfoque y la paz mental contra la ansiedad.' },
+      { id: 'oso', name: 'Oso', type: 'especial', emoji: '🐻', color: '#78350f', role: 'Fuerza Inquebrantable', cost: 200, qualityId: null, qualityName: 'Resistencia', qualityReq: 'Adquiérelo por 200 Pro Coins 🪙 resistiendo a distractores y manteniéndote firme.' },
+      { id: 'elefante', name: 'Elefante', type: 'especial', emoji: '🐘', color: '#6b7280', role: 'Memoria Ancestral', cost: 220, qualityId: null, qualityName: 'Estabilidad', qualityReq: 'Adquiérelo por 220 Pro Coins 🪙 sosteniendo tu esfuerzo y recordando tus metas.' },
+      { id: 'leon', name: 'León', type: 'especial', emoji: '🦁', color: '#fbbf24', role: 'Rey del Dojo', cost: 250, qualityId: null, qualityName: 'Liderazgo', qualityReq: 'Adquiérelo por 250 Pro Coins 🪙 liderando tus tareas y venciendo el miedo al fracaso.' },
+      { id: 'tigre', name: 'Tigre', type: 'especial', emoji: '🐯', color: '#f97316', role: 'Fuerza de Voluntad', cost: 300, qualityId: null, qualityName: 'Determinación', qualityReq: 'Adquiérelo por 300 Pro Coins 🪙 mostrando coraje individual en cada meta.' },
+      { id: 'lobo', name: 'Lobo', type: 'especial', emoji: '🐺', color: '#ef4444', role: 'Guía de Manada', cost: 350, qualityId: null, qualityName: 'Perseverancia', qualityReq: 'Adquiérelo por 350 Pro Coins 🪙 demostrando lealtad y consistencia en el Dojo.' },
 
       // LEGENDARIOS
-      { id: 'dragon', name: 'Dragón del Ego', type: 'legendario', emoji: '🐉', color: '#d946ef', role: 'Señor del Ego', cost: 500, qualityId: null, qualityName: 'Trascendencia', qualityReq: 'Desbloquea el misterioso poder del Dragón del Ego por 500 Pro Coins 🪙 dominando el arte supremo del enfoque Zen.' },
-      { id: 'fenix', name: 'Fénix', type: 'legendario', emoji: '🔥', color: '#f97316', role: 'Inmortal de Fuego', cost: 500, qualityId: null, qualityName: 'Resurrección', qualityReq: 'Adquiérelo por 500 Pro Coins 🪙 renaciendo de tus cenizas en momentos de procrastinación.' }
+      { id: 'dragon', name: 'Dragón del Ego', type: 'legendario', emoji: '🐉', color: '#d946ef', role: 'Señor del Ego', cost: 600, qualityId: null, qualityName: 'Maestría', qualityReq: 'Desbloquea el poder supremo del Dragón del Ego por 600 Pro Coins 🪙 dominando el tiempo y tu mente.' },
+      { id: 'fenix', name: 'Fénix', type: 'legendario', emoji: '🔥', color: '#f97316', role: 'Inmortal de Fuego', cost: 500, qualityId: null, qualityName: 'Resiliencia', qualityReq: 'Adquiérelo por 500 Pro Coins 🪙 renaciendo de tus cenizas en momentos de procrastinación.' }
     ];
 
     return list.map(item => {
@@ -1497,17 +1496,19 @@ export class Cualidades implements OnInit {
 
         let taskName = '';
         if (item.qualityId === 'vision') {
-          taskName = `objetivo${total > 1 ? 's' : ''} grande${total > 1 ? 's' : ''}`;
+          taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Normal`;
         } else if (item.qualityId === 'disciplina') {
-          taskName = `pequeño${total > 1 ? 's' : ''} objetivo${total > 1 ? 's' : ''}`;
+          taskName = `pomodoro${total > 1 ? 's' : ''} en total`;
         } else if (item.qualityId === 'constancia') {
           taskName = `día${total > 1 ? 's' : ''} de racha consecutiva`;
         } else if (item.qualityId === 'colaboracion') {
-          taskName = `sesión${total > 1 ? 's' : ''} acompañada${total > 1 ? 's' : ''}`;
+          taskName = `pomodoro${total > 1 ? 's' : ''} en modo comunitario`;
         } else if (item.qualityId === 'construccion') {
-          taskName = `día${total > 1 ? 's' : ''} trabajando en objetivos`;
-        } else if (item.qualityId === 'cooperacion') {
-          taskName = `acción${total > 1 ? 's' : ''} de ayuda a otros`;
+          taskName = `meta${total > 1 ? 's' : ''} completada con 3 pomodoros consecutivos el mismo día`;
+        } else if (item.qualityId === 'sabiduria') {
+          taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Pareto (80/20)`;
+        } else if (item.qualityId === 'superacion') {
+          taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Sapo/Rana (tarea difícil) completado`;
         }
 
         displayReq = `Demuestra la cualidad de ${quality.name}: completa ${total} ${taskName} (Progreso: ${progress}/${total}).`;

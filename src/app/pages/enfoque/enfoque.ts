@@ -518,6 +518,14 @@ export class Enfoque implements OnInit, OnDestroy {
           this.membership.rewardCompletedObjective(objectiveId);
         }
 
+        // Seguir el progreso del reto / cualidades para desbloquear avatares
+        this.membership.trackChallengeProgress(
+          this.activeMethodology(),
+          isShared,
+          objCompleted === 'yes',
+          this.activeObjective()
+        );
+
         // Si estamos en dojo comunitario, mostramos la modal post-sesión para dejar un mensaje de motivación en el muro
         if (this.coworkingMode() === 'comunitario' && !this.showPostSessionSupportModal()) {
           this.showPostSessionSupportModal.set(true);

@@ -137,7 +137,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .avatar-sprite.sprite-lobo { background-image: url('/assets/images/avatars/lobo.webp'); }
-.avatar-sprite.sprite-hamster { background-image: url('/assets/images/avatars/hamster.webp'); }
+.avatar-sprite.sprite-hamster { background-image: url('/assets/images/avatars/hamster.jpg'); }
 .avatar-sprite.sprite-buho { background-image: url('/assets/images/avatars/buho.webp'); }
 
 .avatar-sprite.sprite-panda { background-image: url('/assets/images/avatars/panda.webp'); }
@@ -154,7 +154,7 @@ button { font-family: inherit; cursor: pointer; }
 /* New Avatars */
 .avatar-sprite.sprite-gato { background-image: url('/assets/images/avatars/gato.webp'); }
 .avatar-sprite.sprite-perro { background-image: url('/assets/images/avatars/perro.webp'); }
-.avatar-sprite.sprite-conejo { background-image: url('/assets/images/avatars/conejo.webp'); }
+.avatar-sprite.sprite-conejo { background-image: url('/assets/images/avatars/conejo.jpg'); }
 .avatar-sprite.sprite-cuyo { background-image: url('/assets/images/avatars/cuyo.webp'); }
 .avatar-sprite.sprite-raton { background-image: url('/assets/images/avatars/raton.webp'); }
 .avatar-sprite.sprite-loro { background-image: url('/assets/images/avatars/loro.webp'); }
@@ -370,6 +370,13 @@ button { font-family: inherit; cursor: pointer; }
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 11px;
   flex-shrink: 0;
+  overflow: hidden;
+  background-clip: padding-box;
+}
+.avatar.avatar-sprite {
+  background-color: transparent !important;
+  background-size: cover !important;
+  background-position: center !important;
 }
 .user-name  { font-size: 13px; font-weight: 600; }
 .user-sub   { font-size: 11px; color: var(--muted); }
