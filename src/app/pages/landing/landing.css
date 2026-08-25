@@ -648,7 +648,7 @@
 .hero-section-premium {
   position: relative;
   text-align: center;
-  padding: 120px 0 100px;
+  padding: 180px 0 100px;
   overflow: hidden;
 }
 
@@ -1490,13 +1490,14 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.04);
   border: 1.5px solid var(--border);
-  margin-left: -10px;
+  margin-left: -7px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   line-height: 1;
+  position: relative;
   transition: all 0.2s ease;
   cursor: default;
 }
@@ -1606,6 +1607,10 @@
   font-weight: 600;
   margin-top: 2px;
   margin-bottom: 8px;
+}
+
+.podium-column-holo.first .holo-pts {
+  margin-bottom: 24px;
 }
 
 .holo-avatar {
