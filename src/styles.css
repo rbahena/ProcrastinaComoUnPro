@@ -142,7 +142,7 @@ button { font-family: inherit; cursor: pointer; }
 
 .avatar-sprite.sprite-panda { background-image: url('/assets/images/avatars/panda.webp'); }
 .avatar-sprite.sprite-sloth { background-image: url('/assets/images/avatars/sloth.webp'); }
-.avatar-sprite.sprite-tortuga { background-image: url('/assets/images/avatars/tortuga.webp'); }
+.avatar-sprite.sprite-tortuga { background-image: url('/assets/images/avatars/tortuga.jpg'); }
 .avatar-sprite.sprite-abeja { background-image: url('/assets/images/avatars/abeja.webp'); }
 
 .avatar-sprite.sprite-castor { background-image: url('/assets/images/avatars/castor.webp'); }
