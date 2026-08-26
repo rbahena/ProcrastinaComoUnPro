@@ -1708,11 +1708,37 @@
 .live-dojo-section-premium {
   position: relative;
   padding: 120px 0;
-  background-image: linear-gradient(rgba(6, 8, 19, 0.82), rgba(6, 8, 19, 0.82)), url('/assets/images/landing_boss_bg.jpg');
+  background-image: url('/assets/images/landing_boss_bg.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   z-index: 1;
+  overflow: hidden;
+}
+
+.live-dojo-section-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(6, 8, 19, 0.82);
+  z-index: -1;
+  animation: boss-pulse 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes boss-pulse {
+  0%, 100% {
+    background: rgba(6, 8, 19, 0.84);
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
+  }
+  50% {
+    background: rgba(15, 12, 35, 0.74);
+    box-shadow: inset 0 0 150px rgba(239, 68, 68, 0.08);
+  }
 }
