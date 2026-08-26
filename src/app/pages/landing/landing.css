@@ -1726,19 +1726,19 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(6, 8, 19, 0.82);
+  background: linear-gradient(to bottom, #060813 0%, rgba(6, 8, 19, 0.82) 15%, rgba(6, 8, 19, 0.82) 85%, #060813 100%);
   z-index: -1;
-  animation: boss-pulse 8s ease-in-out infinite;
+  animation: boss-pulse-opacity 8s ease-in-out infinite;
   pointer-events: none;
 }
 
-@keyframes boss-pulse {
+@keyframes boss-pulse-opacity {
   0%, 100% {
-    background: rgba(6, 8, 19, 0.84);
+    opacity: 0.98;
     box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
   }
   50% {
-    background: rgba(15, 12, 35, 0.74);
+    opacity: 0.84;
     box-shadow: inset 0 0 150px rgba(239, 68, 68, 0.08);
   }
 }

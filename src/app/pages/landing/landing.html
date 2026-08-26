@@ -163,6 +163,103 @@
     </div>
   </section>
 
+  <!-- SECTION: LIVE DOJO CARD (COMMUNITY PAIRING PREVIEW) -->
+  <section class="live-dojo-section-premium">
+    <div class="landing-container live-dojo-premium-grid">
+      <!-- Left Info -->
+      <div style="display: flex; flex-direction: column; justify-content: center;">
+        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 1.5px; margin-bottom: 12px; display: inline-block;">
+          Una de las dinámicas favoritas para motivarte
+        </span>
+        <h2
+          style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 800; color: var(--text); margin-bottom: 20px; line-height: 1.15; letter-spacing: -0.8px;">
+          Vence en Comunidad a los Jefes de Conductas Procrastinadoras
+        </h2>
+        <p style="font-size: 16px; color: var(--muted); line-height: 1.6; margin-bottom: 32px;">
+          Enfréntate de manera colaborativa a las bestias conductuales de la procrastinación. Sincroniza tus Pomodoros para infligir daño grupal en tiempo real a jefes legendarios como el Kraken, la Sirena o la Hidra.
+        </p>
+        <a routerLink="/registro" style="width: fit-content;">
+          <button class="btn btn-outline-accent" style="padding: 14px 28px; font-size: 14.5px; font-weight: 700;">
+            Unirme <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
+          </button>
+        </a>
+      </div>
+
+      <!-- Right Active List Card: Live Boss Fight -->
+      <div style="display: flex; justify-content: center; align-items: center;">
+        <div class="coworking-card-hero"
+          style="max-width: 440px; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 242, 254, 0.04); background: rgba(6, 8, 19, 0.85); backdrop-filter: blur(20px);">
+          
+          <!-- Card Header: Active Boss Status -->
+          <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 14px; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="live-dot-pulse" style="background: #ef4444; box-shadow: 0 0 10px #ef4444;"></span>
+                <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #ef4444;">Jefe Activo</span>
+              </div>
+              <span style="font-size: 10px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Batalla Semanal</span>
+            </div>
+            
+            <!-- Boss HP & Info Row -->
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 46px; height: 46px; border-radius: 50%; border: 2px solid #ef4444; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(239, 68, 68, 0.35); flex-shrink: 0;">
+                <i class="fa-solid fa-skull-crossbones" style="font-size: 18px; color: #ef4444;"></i>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                  <span style="font-size: 14.5px; font-weight: 800; color: var(--text); letter-spacing: -0.3px;">La Hidra de la Multitarea</span>
+                  <span style="font-size: 11px; font-weight: 700; color: #f87171;">45% HP</span>
+                </div>
+                <!-- Health Bar -->
+                <div style="width: 100%; height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px; overflow: hidden;">
+                  <div style="width: 45%; height: 100%; background: linear-gradient(to right, #ef4444, #f87171); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Body: Active Attackers -->
+          <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 2px;">Miembros en combate</span>
+            
+            <!-- Slot 1: Ramiro -->
+            <div class="coworking-slot">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="coworking-avatar-emoji" style="border: 1.5px solid #ff9f43;">🦊</div>
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Ramiro (Zorro)</span>
+                  <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Puntos de Ataque: +45 AP</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slot 2: Ana -->
+            <div class="coworking-slot">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="coworking-avatar-emoji" style="border: 1.5px solid #ff4757;">🐺</div>
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Ana (Lobo)</span>
+                  <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Puntos de Ataque: +35 AP</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slot 3: Carlos -->
+            <div class="coworking-slot">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="coworking-avatar-emoji" style="border: 1.5px solid #a4b0be;">🐼</div>
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Carlos (Panda)</span>
+                  <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Puntos de Ataque: +50 AP</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- SECTION: THE ESCANER CONDUCTUAL (DIAGNOSTIC WIDGET) -->
   <section class="widget-section-premium" id="diagnostico"
     style="padding: 100px 0; border-top: 1px solid var(--border);">
@@ -306,99 +403,6 @@
     </div>
   </section>
 
-  <!-- SECTION: LIVE DOJO CARD (COMMUNITY PAIRING PREVIEW) -->
-  <section class="live-dojo-section-premium">
-    <div class="landing-container live-dojo-premium-grid">
-      <!-- Left Info -->
-      <div style="display: flex; flex-direction: column; justify-content: center;">
-        <h2
-          style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 800; color: var(--text); margin-bottom: 20px; line-height: 1.15; letter-spacing: -0.8px;">
-          Vence en Comunidad a los Jefes de Conductas Procrastinadoras
-        </h2>
-        <p style="font-size: 16px; color: var(--muted); line-height: 1.6; margin-bottom: 32px;">
-          Enfréntate de manera colaborativa a las bestias conductuales de la procrastinación. Sincroniza tus Pomodoros para infligir daño grupal en tiempo real a jefes legendarios como el Kraken, la Sirena o la Hidra.
-        </p>
-        <a routerLink="/registro" style="width: fit-content;">
-          <button class="btn btn-outline-accent" style="padding: 14px 28px; font-size: 14.5px; font-weight: 700;">
-            Unirme <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
-          </button>
-        </a>
-      </div>
-
-      <!-- Right Active List Card: Live Boss Fight -->
-      <div style="display: flex; justify-content: center; align-items: center;">
-        <div class="coworking-card-hero"
-          style="max-width: 440px; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 242, 254, 0.04); background: rgba(6, 8, 19, 0.85); backdrop-filter: blur(20px);">
-          
-          <!-- Card Header: Active Boss Status -->
-          <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 14px; margin-bottom: 14px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="live-dot-pulse" style="background: #ef4444; box-shadow: 0 0 10px #ef4444;"></span>
-                <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #ef4444;">Jefe Activo</span>
-              </div>
-              <span style="font-size: 10px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Batalla Semanal</span>
-            </div>
-            
-            <!-- Boss HP & Info Row -->
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div style="width: 46px; height: 46px; border-radius: 50%; border: 2px solid #ef4444; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(239, 68, 68, 0.35); flex-shrink: 0;">
-                <i class="fa-solid fa-skull-crossbones" style="font-size: 18px; color: #ef4444;"></i>
-              </div>
-              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                  <span style="font-size: 14.5px; font-weight: 800; color: var(--text); letter-spacing: -0.3px;">La Hidra de la Multitarea</span>
-                  <span style="font-size: 11px; font-weight: 700; color: #f87171;">45% HP</span>
-                </div>
-                <!-- Health Bar -->
-                <div style="width: 100%; height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px; overflow: hidden;">
-                  <div style="width: 45%; height: 100%; background: linear-gradient(to right, #ef4444, #f87171); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card Body: Active Attackers -->
-          <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
-            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 2px;">Miembros en combate</span>
-            
-            <!-- Slot 1: Ramiro -->
-            <div class="coworking-slot">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="coworking-avatar-emoji" style="border: 1.5px solid #ff9f43;">🦊</div>
-                <div style="display: flex; flex-direction: column;">
-                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Ramiro (Zorro)</span>
-                  <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Puntos de Ataque: +45 AP</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Slot 2: Ana -->
-            <div class="coworking-slot">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="coworking-avatar-emoji" style="border: 1.5px solid #ff4757;">🐺</div>
-                <div style="display: flex; flex-direction: column;">
-                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Ana (Lobo)</span>
-                  <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Puntos de Ataque: +35 AP</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Slot 3: Carlos -->
-            <div class="coworking-slot">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="coworking-avatar-emoji" style="border: 1.5px solid #a4b0be;">🐼</div>
-                <div style="display: flex; flex-direction: column;">
-                  <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Carlos (Panda)</span>
-                  <span style="font-size: 9.5px; color: var(--green); font-weight: 600;">Puntos de Ataque: +50 AP</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- FINAL TESTIMONIAL & RETO CTA -->
   <section class="footer-cta-section"
