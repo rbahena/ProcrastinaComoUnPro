@@ -137,7 +137,7 @@ export class Landing implements OnInit, OnDestroy {
     }
   ];
 
-  selectedExcuseKey = signal<string | null>(null);
+  selectedExcuseKey = signal<string | null>('perfect');
   selectedChallengeDayIndex = signal<number>(0);
 
   focusedNowCount = signal<number>(Math.floor(Math.random() * 80) + 110); // 110 to 189 (less than 200)

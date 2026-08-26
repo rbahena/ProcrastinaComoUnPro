@@ -421,6 +421,19 @@ button { font-family: inherit; cursor: pointer; }
 }
 .btn:hover   { opacity: 0.8; }
 .btn-accent  { background: var(--accent); color: #fff; }
+.btn-outline-accent {
+  background: rgba(0, 242, 254, 0.05);
+  border: 1.5px solid rgba(0, 242, 254, 0.35) !important;
+  color: var(--accent) !important;
+  font-weight: 700;
+  transition: all 0.25s ease;
+}
+.btn-outline-accent:hover {
+  background: rgba(0, 242, 254, 0.12) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+  transform: translateY(-1px);
+}
 .btn-ghost   { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
 .btn-green   { background: var(--green); color: #000; font-weight: 700; }
 .btn-sm      { padding: 6px 12px; font-size: 12px; }

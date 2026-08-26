@@ -1225,6 +1225,11 @@
   gap: 44px;
   position: relative;
   z-index: 2;
+  margin-bottom: 48px;
+}
+
+.skill-node-row:last-child {
+  margin-bottom: 0;
 }
 
 .skill-node-row.reverse {
@@ -1488,7 +1493,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.04);
+  background: #0f132a;
   border: 1.5px solid var(--border);
   margin-left: -7px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
@@ -1508,7 +1513,7 @@
 
 .avatar-stack-emoji:hover {
   transform: translateY(-4px) scale(1.15);
-  background: rgba(255, 255, 255, 0.08);
+  background: #181d3f;
   z-index: 10 !important;
 }
 
