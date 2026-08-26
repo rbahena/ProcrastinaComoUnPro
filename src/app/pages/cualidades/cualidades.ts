@@ -51,8 +51,7 @@ interface DojoAvatar {
         <a routerLink="/ideas" routerLinkActive="active" class="nav-item">
           <span class="nav-dot"></span>
           ideas
-          <span *ngIf="membership.capturedIdeas().length > 0" 
-                style="margin-left: 6px; background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; line-height: 1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);">
+          <span *ngIf="membership.capturedIdeas().length > 0" class="ideas-badge">
             {{ membership.capturedIdeas().length }}
           </span>
         </a>

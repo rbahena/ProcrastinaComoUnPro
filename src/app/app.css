@@ -286,7 +286,7 @@
   color: #d1d5db; /* Gris plata para el asteroide rocoso */
   font-size: 18px;
   filter: drop-shadow(0 0 6px #d1d5db) drop-shadow(0 0 12px rgba(209, 213, 219, 0.4)); /* Resplandor plateado puro */
-  transform: rotate(4deg); /* Alinear la cabeza del cometa con el vector de viaje exacto (apuntando a ideas) */
+  transform: rotate(94deg); /* Rotar el icono para unir su propia cola con la cola larga a 49 grados */
   display: inline-block;
   z-index: 2;
 }

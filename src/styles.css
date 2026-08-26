@@ -1052,3 +1052,18 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 [data-tooltip-align="left"]:hover::after {
   transform: translate(0, 0) scale(1);
 }
+
+/* Badge indicador de ideas/objetivos en el menú superior */
+.ideas-badge {
+  margin-left: 6px;
+  background: var(--yellow, #ffd700);
+  color: #050508 !important;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6.5px;
+  border-radius: 10px;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.45);
+}
