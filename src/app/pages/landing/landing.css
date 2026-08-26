@@ -1707,12 +1707,12 @@
 
 .live-dojo-section-premium {
   position: relative;
-  padding: 120px 0;
+  padding: 160px 0;
   background-image: url('/assets/images/landing_boss_bg.jpg');
   background-size: cover;
-  background-position: center;
+  background-position: center 30%;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-attachment: scroll;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   z-index: 1;
@@ -1726,7 +1726,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, #060813 0%, rgba(6, 8, 19, 0.82) 15%, rgba(6, 8, 19, 0.82) 85%, #060813 100%);
+  background: linear-gradient(to bottom, #060813 0%, rgba(6, 8, 19, 0.82) 8%, rgba(6, 8, 19, 0.82) 92%, #060813 100%);
   z-index: -1;
   animation: boss-pulse-opacity 8s ease-in-out infinite;
   pointer-events: none;
@@ -1741,4 +1741,30 @@
     opacity: 0.84;
     box-shadow: inset 0 0 150px rgba(239, 68, 68, 0.08);
   }
+}
+
+.leveling-section-premium {
+  position: relative;
+  padding: 140px 0;
+  background-image: url('/assets/images/landing_boss_bg.jpg');
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  z-index: 1;
+  overflow: hidden;
+}
+
+.leveling-section-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, #060813 0%, rgba(6, 8, 19, 0.88) 12%, rgba(6, 8, 19, 0.88) 88%, #060813 100%);
+  z-index: -1;
+  pointer-events: none;
 }
