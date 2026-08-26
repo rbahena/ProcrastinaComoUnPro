@@ -13,7 +13,6 @@ import { IdentitySettings } from '../../components/identity-settings';
 })
 export class Bloqueador implements OnInit {
   userName!: any;
-  showIdeasModal = signal(false);
   sidebarCollapsed!: any;
   toggleSidebar() {
     this.membership.toggleSidebar();
@@ -27,23 +26,6 @@ export class Bloqueador implements OnInit {
   ngOnInit() {
   }
 
-  openIdeasModal() {
-    this.showIdeasModal.set(true);
-  }
-
-  closeIdeasModal() {
-    this.showIdeasModal.set(false);
-  }
-
-  removeIdea(index: number) {
-    this.membership.removeIdea(index);
-  }
-
-  clearAllIdeas() {
-    if (confirm('¿Estás seguro de que quieres limpiar todo el baúl de ideas?')) {
-      this.membership.clearAllIdeas();
-    }
-  }
 
   getAvatarIcon() {
     return this.membership.getSelectedAvatarIcon();

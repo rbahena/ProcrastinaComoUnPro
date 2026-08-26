@@ -614,6 +614,12 @@
   gap: 8px;
   align-items: center;
   margin-top: 8px;
+  opacity: 0.35;
+  transition: opacity 0.3s ease;
+}
+
+.currency-panel:hover {
+  opacity: 1;
 }
 
 .currency-badge-minimal {
@@ -643,6 +649,10 @@
 
 .pro-coins-badge i {
   color: #fbbf24;
+}
+
+.tomato-badge i {
+  color: #f87171;
 }
 
 .badge-value {
@@ -719,12 +729,11 @@
 /* Corrección de ancho para evitar scroll lateral en laptops y pantallas grandes */
 @media (min-width: 769px) {
   .main {
-    width: calc(100% - var(--sidebar)) !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    overflow: hidden !important;
+    width: 100% !important;
+    height: calc(100vh - 60px) !important;
+    max-height: calc(100vh - 60px) !important;
+    overflow-y: auto !important;
     box-sizing: border-box;
-    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
   .main.main-collapsed {
     width: 100% !important;

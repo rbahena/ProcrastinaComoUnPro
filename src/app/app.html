@@ -5,13 +5,13 @@
   <!-- Contenedor del Input Expandible -->
   <div class="fleeting-input-panel" [class.expanded]="showFloatingInput()">
     <div class="panel-header">
-      <span class="panel-tag"><i class="fa-solid fa-bolt"></i> Nota Fugaz</span>
+      <span class="panel-tag"><i class="fa-solid fa-bolt"></i> Idea u Objetivo</span>
       <span class="shortcut-tag">Alt + I</span>
     </div>
     <div class="panel-body">
       <input #ideaInput
              type="text" 
-             placeholder="Escribe una idea brillante antes de que escape..." 
+             placeholder="Escribe una idea u objetivo antes de que escape..." 
              [value]="ideaText()" 
              (input)="onInputChange($event)"
              (keydown)="onInputKeydown($event)" />
@@ -28,7 +28,7 @@
   <button class="fleeting-fab" 
           (click)="toggleFloatingInput()" 
           [class.active]="showFloatingInput()"
-          [attr.data-tooltip]="showFloatingInput() ? 'Cerrar capturador' : 'Capturar nota fugaz (Alt + I)'">
+          [attr.data-tooltip]="showFloatingInput() ? 'Cerrar capturador' : 'Capturar idea u objetivo (Alt + I)'">
     <div class="fab-icon-wrapper">
       <i class="fa-solid fa-meteor" *ngIf="!showFloatingInput()"></i>
       <i class="fa-solid fa-xmark" *ngIf="showFloatingInput()"></i>

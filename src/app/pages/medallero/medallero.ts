@@ -19,6 +19,7 @@ export class Medallero {
   sidebarCollapsed = this.membership.sidebarCollapsed;
   userName = this.membership.userName;
 
+
   toggleSidebar() {
     this.membership.toggleSidebar();
   }

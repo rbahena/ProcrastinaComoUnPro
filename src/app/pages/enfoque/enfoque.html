@@ -1,5 +1,5 @@
-<!-- ESTADO 1: SETUP (PANTALLA DE CONFIGURACIÓN CON SIDEBAR) -->
-<ng-container *ngIf="arenaState() === 'setup'">
+<!-- ESTADO 1: SETUP Y ENFOQUE ACTIVO (PANTALLA INTEGRADA CON SIDEBAR Y COMPONENTES VISIBLES) -->
+<ng-container *ngIf="arenaState() === 'setup' || arenaState() === 'active' || arenaState() === 'countdown'">
 
   <!-- SIDEBAR -->
   <div class="sidebar" [class.collapsed]="sidebarCollapsed()">
@@ -16,50 +16,69 @@
     <div class="nav">
       <a routerLink="/home" routerLinkActive="active" class="nav-item">
         <span class="nav-dot"></span>
-        {{ labels().navTasks }}
+        Inicio
       </a>
       <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
         <span class="nav-dot"></span>
-        {{ labels().navZen }}
+        Concentrarme
       </a>
       <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
         <span class="nav-dot"></span>
-        {{ labels().navTimer }}
+        estadisticas
       </a>
-      <a (click)="openIdeasModal()" class="nav-item" style="cursor: pointer; display: flex; align-items: center; width: 100%;">
+      <a routerLink="/ideas" routerLinkActive="active" class="nav-item">
         <span class="nav-dot"></span>
-        {{ labels().navShield }}
+        ideas
         <span *ngIf="membership.capturedIdeas().length > 0" 
-              style="margin-left: auto; background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; line-height: 1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);">
+              style="margin-left: 6px; background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; line-height: 1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);">
           {{ membership.capturedIdeas().length }}
         </span>
       </a>
       <a routerLink="/bestiario" routerLinkActive="active" class="nav-item">
         <span class="nav-dot"></span>
-        👹 Bestiario Dojo
+        Retos
       </a>
       <a routerLink="/medallero" routerLinkActive="active" class="nav-item">
         <span class="nav-dot"></span>
-        🏆 Medallero de Honor
+        Hazañas
       </a>
 
       
-      <!-- LOGOUT -->
-      <a routerLink="/login" class="nav-item logout-item" style="margin-top: auto;">
-        <i class="fa-solid fa-right-from-bracket" style="font-size: 13px;"></i>
-        Cerrar Sesión
-      </a>
     </div>
-    <div class="sidebar-footer" routerLink="/cualidades" style="cursor: pointer;">
-      <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08);">
-      </div>
-      <div style="overflow: hidden; display: flex; flex-direction: column;">
-        <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
-        <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">
-          {{ getAvatarName() }}
+    
+    <!-- CONTENEDOR DE PERFIL CON MENU DESPLEGABLE -->
+    <div style="position: relative; z-index: 1010;">
+      <div class="sidebar-footer" (click)="membership.toggleAvatarMenu($event)" style="cursor: pointer;">
+        <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08);">
         </div>
+        <div style="overflow: hidden; display: flex; flex-direction: column;">
+          <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
+          <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">
+            {{ getAvatarName() }}
+          </div>
+        </div>
+        <i class="fa-solid" [class]="membership.avatarMenuOpen() ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left: auto; font-size: 11px; color: var(--muted); opacity: 0.65; padding-right: 4px;"></i>
       </div>
-      <i class="fa-solid fa-gear" style="margin-left: auto; font-size: 14px; color: var(--muted); opacity: 0.65; transition: all 0.3s ease; padding-right: 4px;"></i>
+
+      <!-- Menú Desplegable -->
+      <div *ngIf="membership.avatarMenuOpen()"
+           style="position: absolute; top: 48px; right: 0; background: rgba(15, 15, 20, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 12px; width: 160px; padding: 6px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1020;">
+        <a routerLink="/cualidades" (click)="membership.closeAvatarMenu()"
+           style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text); transition: all 0.2s;"
+           onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='var(--accent)';"
+           onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">
+          <i class="fa-solid fa-user" style="font-size: 11px; width: 14px; text-align: center;"></i>
+          <span>Mi Perfil</span>
+        </a>
+        <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 4px 6px;"></div>
+        <a routerLink="/login" (click)="membership.closeAvatarMenu()"
+           style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: #f87171; transition: all 0.2s;"
+           onmouseover="this.style.background='rgba(239, 68, 68, 0.08)';"
+           onmouseout="this.style.background='transparent';">
+          <i class="fa-solid fa-right-from-bracket" style="font-size: 11px; width: 14px; text-align: center;"></i>
+          <span>Cerrar Sesión</span>
+        </a>
+      </div>
     </div>
   </div>
 
@@ -70,11 +89,10 @@
   </div>
 
   <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
-  <div class="main" [class.main-collapsed]="sidebarCollapsed()" style="display: flex; flex-direction: column; position: relative; z-index: 1;" [style.marginLeft]="sidebarCollapsed() ? '0px' : ''">
+  <div class="main custom-scrollbar" [class.main-collapsed]="sidebarCollapsed()" style="display: flex; flex-direction: column; position: relative; z-index: 1;" [style.marginLeft]="sidebarCollapsed() ? '0px' : ''">
     <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
         <div>
           <h1 class="page-title" style="margin: 0;">{{ labels().title }}</h1>
-          <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">{{ labels().desc }}</p>
         </div>
 
         <!-- Puntos e Coins Panel (Replicado de Inicio) -->
@@ -91,10 +109,9 @@
 
           <!-- Tomates -->
           <div class="currency-badge-minimal tomato-badge" 
-               style="background: rgba(239, 68, 68, 0.08); border: 1.5px solid rgba(239, 68, 68, 0.15); color: #ef4444; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700; height: 26px;"
                data-tooltip="Tomates de Enfoque: Se gana 1 tomate por cada Pomodoro completado. Representa tus sesiones totales de concentración.">
             <i class="fa-solid fa-apple-whole"></i>
-            <span class="badge-value" style="color: #ef4444;">
+            <span class="badge-value">
               {{ membership.focusTomatoes() }}
             </span>
           </div>
@@ -132,91 +149,109 @@
       
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 40px; width: 100%; align-items: start;">
         
-        <!-- COLUMNA IZQUIERDA: Círculo de Presentación y Arranque -->
+        <!-- COLUMNA IZQUIERDA: Reloj Digital de Alta Concentración -->
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;">
-          <div style="position: relative; width: min(440px, 85vw); height: min(440px, 85vw); display: flex; align-items: center; justify-content: center;">
-            <!-- Fondo decorativo con auras suaves -->
-            <div style="position: absolute; width: 480px; height: 480px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
+          <div style="position: relative; width: 100%; max-width: 440px; background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); min-height: 380px;">
             
-            <!-- Anillo SVG estático para el Setup (Mostrando círculo completo según la duración) -->
-            <svg viewBox="0 0 300 300" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); z-index: 2;">
-              <circle cx="150" cy="150" r="135" style="fill: none; stroke: rgba(255,255,255,0.02); stroke-width: 5;"></circle>
-              <!-- Anillo completo para setup -->
-              <circle cx="150" cy="150" r="135" 
-                      style="fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; opacity: 0.35;"
-                      stroke-dasharray="848"
-                      stroke-dashoffset="0"></circle>
-            </svg>
+            <!-- Fondo decorativo con auras suaves -->
+            <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.03; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
-            <!-- Contenido Interno del Círculo (Reloj y Botón Play) -->
-            <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 3; gap: 8px;">
-              <span style="font-size: clamp(13px, 3vw, 16px); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 3px;">
-                Listo para Enfoque
+            <!-- Cabecera de Estado -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2;">
+              <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 3px;"
+                    [style.color]="arenaState() === 'active' ? 'var(--accent)' : 'var(--muted)'">
+                {{ arenaState() === 'setup' ? 'Listo para Enfoque' : (arenaState() === 'countdown' ? 'Preparando Mente' : (emergencyPauseActive() ? 'Pausa de Emergencia' : (isBreak() ? 'Descanso Zen' : 'Enfoque Activo'))) }}
               </span>
-              <span style="font-size: clamp(72px, 15vw, 92px); font-weight: 900; color: var(--text); line-height: 1.1; letter-spacing: -3px; margin-bottom: 12px;">
+            </div>
+
+            <!-- Reloj Digital con Números Gigantes -->
+            <div style="z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%;">
+              
+              <!-- CASO 1: SETUP -->
+              <span *ngIf="arenaState() === 'setup'"
+                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                 {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
               </span>
-              
-              <!-- Botón de Iniciar en Cápsula Premium -->
-              <button (click)="startFocusFlow()" 
-                      style="border: none; background: var(--accent); color: #000; padding: 10px 24px; border-radius: 20px; font-size: 13.5px; font-weight: 900; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35); margin-top: 4px; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
-                      onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px var(--accent)';"
-                      onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.35)';"
-                      title="Iniciar Sesión de Enfoque">
-                <span>Iniciar</span>
-              </button>
 
-              <!-- Botón Engrane de Configuración debajo de Iniciar (Más visible y premium) -->
-              <button (click)="showSetupSettings.set(!showSetupSettings())"
-                      style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; transition: all 0.3s ease; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);"
-                      [style.borderColor]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.12)'"
-                      [style.color]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.7)'"
-                      [style.background]="showSetupSettings() ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)'"
-                      onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'; this.style.transform='scale(1.08)';"
-                      onmouseout="this.style.background=this.getAttribute('data-active') === 'true' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)'; this.style.borderColor=this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'rgba(255,255,255,0.12)'; this.style.color=this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'rgba(255,255,255,0.7)'; this.style.transform='scale(1)';"
-                      [attr.data-active]="showSetupSettings()"
-                      title="Configurar duración de Pomodoro, sonidos y temas">
-                <i class="fa-solid fa-gear" style="font-size: 19px; transition: transform 0.5s;" [style.transform]="showSetupSettings() ? 'rotate(90deg)' : 'rotate(0deg)'"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Indicador de Pomodoros y Intentos por Día -->
-          <div *ngIf="dailyAttempts().length > 0" 
-               style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 24px 0 12px 0; width: 100%;">
-            <!-- Badge de Trofeo -->
-            <div [attr.data-tooltip]="attemptsTooltipText()"
-                 style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.15); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: all 0.2s;"
-                 onmouseover="this.style.background='rgba(0,0,0,0.25)'; this.style.borderColor='rgba(255,255,255,0.08)';"
-                 onmouseout="this.style.background='rgba(0,0,0,0.15)'; this.style.borderColor='rgba(255,255,255,0.03)';">
-              <i class="fa-solid fa-trophy" style="color: var(--yellow); font-size: 13px;"></i>
-              <span style="font-size: 11px; font-weight: 800; color: var(--yellow); text-transform: uppercase; letter-spacing: 1px;">
-                {{ totalCommunityPoints() >= 0 ? '+' : '' }}{{ totalCommunityPoints() }} pts
+              <!-- CASO 2: COUNTDOWN -->
+              <span *ngIf="arenaState() === 'countdown'"
+                    class="countdown-pulse"
+                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; color: var(--accent); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 0 25px rgba(99, 102, 241, 0.4);">
+                00:0{{ countdownValue() }}
               </span>
+
+              <!-- CASO 3: ACTIVE -->
+              <span *ngIf="arenaState() === 'active'"
+                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
+                    [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
+                {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
+              </span>
+
             </div>
-            
-            <!-- Historial de Puntos de Colores -->
-            <div style="display: flex; gap: 8px; align-items: center; justify-content: center; max-width: 320px; background: rgba(0,0,0,0.12); padding: 8px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); width: auto;">
-                <div *ngFor="let attempt of limitedDailyAttempts()" 
-                     style="display: flex; align-items: center; justify-content: center;"
-                     [attr.data-tooltip]="attempt.status === 'completed' ? 'Completado (+100 pts)' : (attempt.status === 'abandoned' ? 'Abandonado (-50 pts)' : 'Pausado (-20 pts)')">
-                  <span style="display: inline-block; animation: scaleUp 0.3s ease;">
-                    <i class="fa-solid fa-circle" 
-                       [style.color]="attempt.status === 'completed' ? 'var(--green)' : (attempt.status === 'abandoned' ? 'var(--red)' : (attempt.status === 'interrupted' ? 'var(--yellow)' : 'var(--muted)'))" 
-                       style="font-size: 7px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.05));"></i>
-                  </span>
-                </div>
-                
-                <!-- Badge indicador de más pomodoros (si aplica) -->
-                <span *ngIf="moreAttemptsCount() > 0"
-                      style="font-size: 8px; font-weight: 800; color: var(--muted); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; height: 14px; margin-left: 2px;"
-                      [attr.data-tooltip]="'Hay ' + moreAttemptsCount() + ' sesiones más registradas hoy.'">
-                  +{{ moreAttemptsCount() }}
-                </span>
+
+            <!-- Controles de Acción Minimalistas -->
+            <div style="z-index: 2; width: 100%; max-width: 280px; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
+              
+              <div style="display: flex; gap: 10px; width: 100%;">
+                <!-- Iniciar (en setup) -->
+                <button *ngIf="arenaState() === 'setup'" 
+                        (click)="startFocusFlow()" 
+                        style="flex: 1; border: none; background: var(--accent); color: #000; padding: 12px 24px; border-radius: 12px; font-size: 13.5px; font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px var(--accent)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.3)';"
+                        title="Iniciar Sesión de Enfoque">
+                  <i class="fa-solid fa-play"></i>
+                  <span>Iniciar</span>
+                </button>
+
+                <!-- Ajustes (en setup) -->
+                <button *ngIf="arenaState() === 'setup'" 
+                        (click)="showSetupSettings.set(!showSetupSettings())"
+                        style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; transition: all 0.2s;"
+                        [style.borderColor]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+                        [style.color]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.8)'"
+                        onmouseover="this.style.background='rgba(255,255,255,0.05)';"
+                        onmouseout="this.style.background='rgba(255,255,255,0.02)';"
+                        title="Configuración de Pomodoro">
+                  <i class="fa-solid fa-gear" style="font-size: 16px;"></i>
+                </button>
+
+                <!-- Pausa (en active) -->
+                <button *ngIf="arenaState() === 'active'" 
+                        (click)="toggleEmergencyPause()" 
+                        style="flex: 1; border: 1px solid var(--border); padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+                        [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
+                        [style.borderColor]="emergencyPauseActive() ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="emergencyPauseActive() ? '#000' : 'var(--text)'"
+                        onmouseover="this.style.background='rgba(255,255,255,0.06)';"
+                        onmouseout="this.style.background=this.emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)';">
+                  <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Pausa' }}</span>
+                </button>
+
+                <!-- Abandonar (en active) -->
+                <button *ngIf="arenaState() === 'active'" 
+                        (click)="abandonSession()" 
+                        style="flex: 1; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+                        onmouseover="this.style.background='rgba(239, 68, 68, 0.1)';"
+                        onmouseout="this.style.background='rgba(239, 68, 68, 0.05)';"
+                        title="Abandonar sesión">
+                  <span>Abandonar</span>
+                </button>
               </div>
+
+              <!-- Simular completar (en active) -->
+              <button *ngIf="arenaState() === 'active'"
+                      (click)="simulateCompletion()" 
+                      style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: 10px; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;"
+                      onmouseover="this.style.opacity='1'; this.style.textDecoration='underline';"
+                      onmouseout="this.style.opacity='0.5'; this.style.textDecoration='none';"
+                      title="Simular completar la sesión de enfoque">
+                <i class="fa-solid fa-forward" style="font-size: 9px;"></i>
+                <span>Simular Completar</span>
+              </button>
             </div>
 
-
+          </div>
         </div>
 
         <!-- COLUMNA DERECHA: CONFIGURACIÓN E IDEAS -->
@@ -484,482 +519,267 @@
           <!-- SECCIONES PRINCIPALES (Ocultas cuando showSetupSettings() es true) -->
           <ng-container *ngIf="!showSetupSettings()">
             
-            <!-- CAJA DE ESTRATEGIAS -->
-            <div style="background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);">
-            
-              <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
-                <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
-                  <i class="fa-solid fa-crosshairs" style="color: var(--accent);"></i>
+            <!-- VISTA SETUP: ESTRATEGIA Y PLANIFICACIÓN -->
+            <ng-container *ngIf="arenaState() === 'setup'">
+              <!-- BOTÓN PARA MOSTRAR/OCULTAR ESTRATEGIA -->
+              <button (click)="showStrategyCard.set(!showStrategyCard())"
+                      style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; display: inline-flex; align-items: center; justify-content: space-between; width: 100%; font-family: inherit; margin-bottom: 12px;"
+                      onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='var(--accent)';"
+                      onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.08)';">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-crosshairs" [style.color]="showStrategyCard() ? 'var(--accent)' : 'var(--muted)'"></i>
                   Estrategia de Concentración
-                </h3>
-               </div>
+                </span>
+                <span style="font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                  {{ showStrategyCard() ? 'Ocultar' : 'Mostrar' }}
+                  <i class="fa-solid" [class]="showStrategyCard() ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left: 4px; font-size: 9px;"></i>
+                </span>
+              </button>
 
-              <!-- DECLARACIÓN DE OBJETIVO (MÉTODO SAPO / PARETO 80/20) -->
-              <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 16px;">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                  <span style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">
-                    Definir objetivo 
-                    <span style="font-size: 9px; color: var(--yellow); opacity: 0.85; text-transform: none; font-weight: 600;">(Opcional)</span>
-                    <i class="fa-regular fa-circle-question" 
-                       style="cursor: pointer; font-size: 12px; color: var(--muted); transition: color 0.2s;"
-                       onmouseover="this.style.color='var(--accent)'"
-                       onmouseout="this.style.color='var(--muted)'"
-                       [attr.data-tooltip]="activeMethodology() === 'sapo' ? 'Cómete el Sapo: Dedica esta sesión a la tarea de mayor resistencia mental. Completarla romperá la procrastinación para el resto del día.' : (activeMethodology() === 'pareto' ? 'Principio de Pareto: Enfócate en el 20% clave de tu trabajo. Evita distractores de bajo retorno para maximizar tu impacto hoy.' : 'Enfoque Estándar: Trabaja de forma tradicional en tu tarea del momento a ritmo constante. Ideal para avanzar rutinas o tareas menores.')">
-                    </i>
-                  </span>
-                  
-                  <!-- Selector de Metodología Sutil -->
-                  <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
-                    <button (click)="selectMethodology('sapo')"
-                            style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
-                            [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.15)' : 'transparent'"
-                            [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--muted)'"
-                            [attr.data-tooltip]="'Metodología Cómete el Sapo: la tarea más difícil e importante de tu día.'">
-                      Sapo
-                    </button>
-                    <button (click)="selectMethodology('pareto')"
-                            style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
-                            [style.background]="activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.15)' : 'transparent'"
-                            [style.color]="activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)'"
-                            [attr.data-tooltip]="'Filtro Pareto 80/20: el 20% del esfuerzo que genera el 80% del impacto real.'">
-                      Pareto
-                    </button>
-                    <button (click)="selectMethodology('normal')"
-                            style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
-                            [style.background]="activeMethodology() === 'normal' ? 'rgba(255, 255, 255, 0.08)' : 'transparent'"
-                            [style.color]="activeMethodology() === 'normal' ? 'var(--text)' : 'var(--muted)'"
-                            [attr.data-tooltip]="'Sesión de Enfoque Estándar: enfócate en una tarea tradicional a tu propio ritmo.'"
-                            [attr.data-tooltip-align]="'left'">
-                      Estándar
-                    </button>
+              <!-- CAJA DE ESTRATEGIAS -->
+              <div *ngIf="showStrategyCard()" style="background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); animation: slideDown 0.2s ease;">
+                
+                <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
+                  <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-crosshairs" style="color: var(--accent);"></i>
+                    Estrategia de Concentración
+                  </h3>
+                </div>
+
+                <!-- DECLARACIÓN DE OBJETIVO (MÉTODO SAPO / PARETO 80/20) -->
+                <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 16px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                      Definir objetivo 
+                      <span style="font-size: 9px; color: var(--yellow); opacity: 0.85; text-transform: none; font-weight: 600;">(Opcional)</span>
+                      <i class="fa-regular fa-circle-question" 
+                         style="cursor: pointer; font-size: 12px; color: var(--muted); transition: color 0.2s;"
+                         onmouseover="this.style.color='var(--accent)'"
+                         onmouseout="this.style.color='var(--muted)'"
+                         [attr.data-tooltip]="activeMethodology() === 'sapo' ? 'Cómete el Sapo: Dedica esta sesión a la tarea de mayor resistencia mental. Completarla romperá la procrastinación para el resto del día.' : (activeMethodology() === 'pareto' ? 'Principio de Pareto: Enfócate en el 20% clave de tu trabajo. Evita distractores de bajo retorno para maximizar tu impacto hoy.' : 'Enfoque Estándar: Trabaja de forma tradicional en tu tarea del momento a ritmo constante. Ideal para avanzar rutinas o tareas menores.')">
+                      </i>
+                    </span>
+                    
+                    <!-- Selector de Metodología Sutil -->
+                    <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
+                      <button (click)="selectMethodology('sapo')"
+                              style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                              [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.15)' : 'transparent'"
+                              [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--muted)'"
+                              [attr.data-tooltip]="'Metodología Cómete el Sapo: la tarea más difícil e importante de tu día.'">
+                        Sapo
+                      </button>
+                      <button (click)="selectMethodology('pareto')"
+                              style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                              [style.background]="activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.15)' : 'transparent'"
+                              [style.color]="activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)'"
+                              [attr.data-tooltip]="'Filtro Pareto 80/20: el 20% del esfuerzo que genera el 80% del impacto real.'">
+                        Pareto
+                      </button>
+                      <button (click)="selectMethodology('normal')"
+                              style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                              [style.background]="activeMethodology() === 'normal' ? 'rgba(255, 255, 255, 0.08)' : 'transparent'"
+                              [style.color]="activeMethodology() === 'normal' ? 'var(--text)' : 'var(--muted)'"
+                              [attr.data-tooltip]="'Sesión de Enfoque Estándar: enfócate en una tarea tradicional a tu propio ritmo.'"
+                              [attr.data-tooltip-align]="'left'">
+                        Estándar
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Campo de Texto para el Objetivo -->
+                  <div style="position: relative; display: flex; align-items: center;">
+                    <input type="text" 
+                           [ngModel]="activeObjective()" 
+                           (ngModelChange)="activeObjective.set($event)"
+                           [placeholder]="activeMethodology() === 'sapo' ? '¿Qué tarea gigante vas a vencer hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave hoy?' : '¿Qué tarea vas a realizar en esta sesión?')"
+                           style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px; padding-right: 40px; color: var(--text); font-size: 12.5px; font-weight: 600; outline: none; transition: all 0.2s; font-family: inherit;"
+                           onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 10px rgba(99, 102, 241, 0.25)';"
+                           onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
+                    <i class="fa-solid" 
+                       [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-pen-clip')" 
+                       [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')"
+                       style="position: absolute; right: 14px; font-size: 14px; pointer-events: none;"></i>
                   </div>
                 </div>
 
-                <!-- Campo de Texto para el Objetivo -->
-                <div style="position: relative; display: flex; align-items: center;">
-                  <input type="text" 
-                         [ngModel]="activeObjective()" 
-                         (ngModelChange)="activeObjective.set($event)"
-                         [placeholder]="activeMethodology() === 'sapo' ? '¿Qué tarea gigante vas a vencer hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave hoy?' : '¿Qué tarea vas a realizar en esta sesión?')"
-                         style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px; padding-right: 40px; color: var(--text); font-size: 12.5px; font-weight: 600; outline: none; transition: all 0.2s; font-family: inherit;"
-                         onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 10px rgba(99, 102, 241, 0.25)';"
-                         onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
-                  <i class="fa-solid" 
-                     [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-pen-clip')" 
-                     [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')"
-                     style="position: absolute; right: 14px; font-size: 14px; pointer-events: none;"></i>
+                <!-- CO-WORKING / TRABAJAR ACOMPAÑADO (SALA DE ENFOQUE COMUNITARIA) -->
+                <div style="display: flex; flex-direction: column; gap: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 16px;">
+                  <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Modo de Enfoque</span>
+
+                  <!-- Selector de Modo: Dojo Comunitario vs Solo (2 columnas) -->
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <!-- Tarjeta Dojo Comunitario -->
+                    <div (click)="setFocusMode('comunitario')"
+                         style="border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(0,0,0,0.15); position: relative;"
+                         [style.borderColor]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--border)'"
+                         [style.background]="coworkingMode() === 'comunitario' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
+                         onmouseover="this.style.borderColor='var(--accent)'"
+                         onmouseout="if(this.coworkingMode() !== 'comunitario') { this.style.borderColor='var(--border)' }">
+                      <i class="fa-solid fa-users" style="font-size: 14px;" [style.color]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--muted)'"></i>
+                      <div style="text-align: center;">
+                        <div style="font-size: 10px; font-weight: 800; color: var(--text);">Dojo Comunitario</div>
+                        <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">Enfoque compartido</div>
+                      </div>
+                      <i class="fa-solid fa-crown" 
+                         style="position: absolute; top: 4px; right: 4px; font-size: 7px; color: var(--yellow);" 
+                         *ngIf="!membership.isPremium()"></i>
+                    </div>
+
+                    <!-- Tarjeta Solo -->
+                    <div (click)="setFocusMode('solo')"
+                         style="border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(0,0,0,0.15);"
+                         [style.borderColor]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--border)'"
+                         [style.background]="coworkingMode() === 'solo' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.15)'"
+                         onmouseover="this.style.borderColor='var(--text)'"
+                         onmouseout="if(this.coworkingMode() !== 'solo') { this.style.borderColor='var(--border)' }">
+                      <i class="fa-solid fa-user-slash" style="font-size: 14px;" [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'"></i>
+                      <div style="text-align: center;">
+                        <div style="font-size: 10px; font-weight: 800; color: var(--text);">En Solitario</div>
+                        <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">100% Privado</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- CASO 1: MODO SOLO -->
+                  <div *ngIf="coworkingMode() === 'solo'" style="font-size: 10px; color: var(--muted); line-height: 1.4; display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                    <i class="fa-solid fa-eye-slash" style="color: var(--muted); font-size: 10px;"></i>
+                    <span>Trabajarás en tu propio templo sin interrupciones ni salas públicas.</span>
+                  </div>
+
+                  <!-- CASO 2: MODO COMUNITARIO -->
+                  <div *ngIf="coworkingMode() === 'comunitario'" style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
+                    <!-- Indicador Minimalista del Dojo Comunitario -->
+                    <div style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.1); border-radius: 10px; padding: 16px; display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 2px;">
+                      <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(99, 102, 241, 0.1); border-radius: 50%;">
+                        <i class="fa-solid fa-users" style="color: var(--accent); font-size: 16px;"></i>
+                        <span style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: var(--green); border-radius: 50%; border: 1.5px solid var(--bg3); animation: pulseGreen 1.5s infinite;"></span>
+                      </div>
+                      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;">
+                        <span style="font-size: 12.5px; font-weight: 800; color: var(--text);">Dojo Compartido Activo</span>
+                        <span style="font-size: 10.5px; color: var(--muted); font-weight: 600;">
+                          Hay <strong style="color: var(--accent);">{{ globalFocusedCount() }} guerreros</strong> concentrándose ahora mismo.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </ng-container>
+
+            <!-- VISTA ENFOQUE ACTIVO: OBJETIVO -->
+            <ng-container *ngIf="arenaState() === 'active' || arenaState() === 'countdown'">
+              <!-- Tarjeta de Objetivo Activo -->
+              <div *ngIf="activeObjective() && activeObjective().trim()" 
+                   style="background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); text-align: center;">
+                <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;"
+                     [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.08)' : (activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255, 255, 255, 0.05)')"
+                     [style.border]="activeMethodology() === 'sapo' ? '1px solid rgba(16, 185, 129, 0.15)' : (activeMethodology() === 'pareto' ? '1px solid rgba(99, 102, 241, 0.15)' : '1px solid rgba(255, 255, 255, 0.1)')"
+                     [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')">
+                  <i class="fa-solid" [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-bolt')"></i>
+                  <span>{{ activeMethodology() === 'sapo' ? 'Misión Sapo (Comer la Rana)' : (activeMethodology() === 'pareto' ? 'Filtro Pareto 80/20' : 'Enfoque Estándar') }}</span>
+                </div>
+                <h2 style="font-size: 16px; font-weight: 800; color: var(--text); margin: 0; letter-spacing: -0.5px; line-height: 1.35;">
+                  "{{ activeObjective() }}"
+                </h2>
+              </div>
+            </ng-container>
+
+            <!-- ELEMENTOS DEL DOJO: SIEMPRE VISIBLES DESDE EL INICIO SI MODO COMUNITARIO ESTÁ ACTIVO -->
+            <!-- Combate de Jefe (si estamos en Dojo Comunitario) -->
+            <div *ngIf="coworkingMode() === 'comunitario'" 
+                 style="width: 100%; background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); transition: border-color 0.3s;"
+                 [style.borderColor]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : (bossService.dojoShield() < 300 ? 'var(--red)' : 'var(--border)')">
+              
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                    <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="width:100%; height:100%; object-fit:cover;">
+                    <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="width:100%; height:100%; object-fit:cover;">
+                    <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="width:100%; height:100%; object-fit:cover;">
+                    <img *ngIf="bossService.activeBoss().type === 'aurora'" src="/assets/images/avatars/boss_quimera.jpg" style="width:100%; height:100%; object-fit:cover;">
+                    <img *ngIf="bossService.activeBoss().type === 'siren'" src="/assets/images/avatars/boss_sirena.jpg" style="width:100%; height:100%; object-fit:cover;">
+                    <img *ngIf="bossService.activeBoss().type === 'werewolf'" src="/assets/images/avatars/boss_lobo.jpg" style="width:100%; height:100%; object-fit:cover;">
+                    <img *ngIf="bossService.activeBoss().type === 'vampire'" src="/assets/images/avatars/boss_vampiro.jpg" style="width:100%; height:100%; object-fit:cover;">
+                  </div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 8.5px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 1px;">Raid del Dojo</span>
+                    <span style="font-size: 13px; font-weight: 800; color: var(--text);">{{ bossService.activeBoss().name }}</span>
+                  </div>
+                </div>
+                <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
+                  <span style="font-size: 11.5px; font-weight: 900; font-family: monospace; color: var(--text);">{{ bossService.activeBoss().currentHp }} / {{ bossService.activeBoss().maxHp }} HP</span>
+                  <span style="font-size: 8.5px; font-weight: 700;" [style.color]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'var(--muted)'">
+                    {{ bossService.activeBoss().status === 'defeated' ? 'Derrotado' : bossService.hpPercent() + '% HP' }}
+                  </span>
                 </div>
               </div>
 
-              <!-- CO-WORKING / TRABAJAR ACOMPAÑADO (SALA DE ENFOQUE COMUNITARIA) -->
-              <div style="display: flex; flex-direction: column; gap: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 16px;">
-                <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Modo de Enfoque</span>
+              <div style="width: 100%; height: 6px; background: rgba(255, 255, 255, 0.03); border-radius: 3px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="height: 100%; border-radius: 3px; transition: width 0.3s ease-out;"
+                     [style.width.%]="bossService.hpPercent()"
+                     [style.background]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'linear-gradient(90deg, var(--red) 0%, var(--accent) 100%)'">
+                </div>
+              </div>
 
-                <!-- Selector de Modo: Dojo Comunitario vs Solo (2 columnas) -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                  <!-- Tarjeta Dojo Comunitario -->
-                  <div (click)="setFocusMode('comunitario')"
-                       style="border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(0,0,0,0.15); position: relative;"
-                       [style.borderColor]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--border)'"
-                       [style.background]="coworkingMode() === 'comunitario' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                       onmouseover="this.style.borderColor='var(--accent)'"
-                       onmouseout="if(this.coworkingMode() !== 'comunitario') { this.style.borderColor='var(--border)' }">
-                    <i class="fa-solid fa-users" style="font-size: 14px;" [style.color]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--muted)'"></i>
-                    <div style="text-align: center;">
-                      <div style="font-size: 10px; font-weight: 800; color: var(--text);">Dojo Comunitario</div>
-                      <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">Enfoque compartido</div>
-                    </div>
-                    <!-- Corona Premium si es Free -->
-                    <i class="fa-solid fa-crown" 
-                       style="position: absolute; top: 4px; right: 4px; font-size: 7px; color: var(--yellow);" 
-                       *ngIf="!membership.isPremium()"></i>
-                  </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 6px; margin-top: 2px;">
+                <span style="font-weight: 700;" [style.color]="bossService.dojoShield() < 300 ? 'var(--red)' : 'var(--muted)'">
+                  🛡️ Escudo: {{ bossService.dojoShield() }}/1000
+                </span>
+                <span style="font-size: 9px; font-weight: 700; color: var(--accent); max-width: 180px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                  {{ bossService.bossLogs()[0] }}
+                </span>
+              </div>
+            </div>
 
-                  <!-- Tarjeta Solo -->
-                  <div (click)="setFocusMode('solo')"
-                       style="border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(0,0,0,0.15);"
-                       [style.borderColor]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--border)'"
-                       [style.background]="coworkingMode() === 'solo' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.15)'"
-                       onmouseover="this.style.borderColor='var(--text)'"
-                       onmouseout="if(this.coworkingMode() !== 'solo') { this.style.borderColor='var(--border)' }">
-                    <i class="fa-solid fa-user-slash" style="font-size: 14px;" [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'"></i>
-                    <div style="text-align: center;">
-                      <div style="font-size: 10px; font-weight: 800; color: var(--text);">En Solitario</div>
-                      <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">100% Privado</div>
-                    </div>
+            <!-- Lista de Compañeros Conectados -->
+            <div *ngIf="coworkingMode() === 'comunitario'"
+                 style="width: 100%; background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);">
+              <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-users" style="color: var(--accent); font-size: 13px;"></i>
+                  <span style="font-size: 11px; font-weight: 900; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">Guerreros Enfocados ({{ dojoUsers().length }})</span>
+                </div>
+              </div>
+              <div class="no-scrollbar" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;">
+                <!-- Tu Ficha -->
+                <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid var(--accent); border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; gap: 8px; position: relative;">
+                  <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--accent); background-size: cover; background-position: center; flex-shrink: 0;"></div>
+                  <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; text-align: left;">
+                    <span style="font-size: 10.5px; font-weight: 800; color: var(--text);">Tú (Guerrero)</span>
+                    <span style="font-size: 8.5px; color: var(--accent); font-weight: 700; margin-top: 1px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ activeObjective() && activeObjective().trim() ? activeObjective() : 'Enfoque Activo' }}</span>
                   </div>
                 </div>
 
-                <!-- CASO 1: MODO SOLO -->
-                <div *ngIf="coworkingMode() === 'solo'" style="font-size: 10px; color: var(--muted); line-height: 1.4; display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-                  <i class="fa-solid fa-eye-slash" style="color: var(--muted); font-size: 10px;"></i>
-                  <span>Trabajarás en tu propio templo sin interrupciones ni salas públicas.</span>
-                </div>
-
-                <!-- CASO 2: MODO COMUNITARIO -->
-                <!-- CONTENIDO DEL TEMPLO COMUNITARIO (SÓLO EL CONTADOR DE GUERREROS CONCENTRADOS) -->
-                <div *ngIf="coworkingMode() === 'comunitario'" style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
-                  
-                  <!-- Indicador Minimalista del Dojo Comunitario -->
-                  <div style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.1); border-radius: 10px; padding: 16px; display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 2px;">
-                    <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(99, 102, 241, 0.1); border-radius: 50%;">
-                      <i class="fa-solid fa-users" style="color: var(--accent); font-size: 16px;"></i>
-                      <span style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: var(--green); border-radius: 50%; border: 1.5px solid var(--bg3); animation: pulseGreen 1.5s infinite;"></span>
+                <!-- Compañeros -->
+                <div *ngFor="let p of dojoUsers().slice(0, 10)" 
+                     style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; position: relative; text-align: left;">
+                  <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; flex: 1; padding-right: 6px;">
+                    <div [class]="'avatar-sprite sprite-' + p.avatar" 
+                         style="width: 28px; height: 28px; border-radius: 50%; background-size: cover; background-position: center; border: 1.5px solid; flex-shrink: 0;"
+                         [style.borderColor]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')">
                     </div>
-                    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;">
-                      <span style="font-size: 12.5px; font-weight: 800; color: var(--text);">Dojo Compartido Activo</span>
-                      <span style="font-size: 10.5px; color: var(--muted); font-weight: 600;">
-                        Hay <strong style="color: var(--accent);">{{ globalFocusedCount() }} guerreros</strong> concentrándose ahora mismo.
+                    <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
+                      <span style="font-size: 10.5px; font-weight: 800; color: var(--text); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ p.name }}</span>
+                      <span style="font-size: 8.5px; color: var(--muted); line-height: 1.3; font-weight: 500; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                        {{ p.status === 'focused' ? p.mission : 'Pausa de descanso' }}
                       </span>
                     </div>
                   </div>
-                  
+                  <span style="font-size: 10.5px; font-weight: 800; font-family: monospace; color: var(--text); flex-shrink: 0; margin-left: 2px;">
+                    {{ p.status === 'focused' ? formatTime(p.timeLeft) : '☕ 5:00' }}
+                  </span>
                 </div>
               </div>
-
-            </div><!-- Cierra Caja de Estrategias -->
-
-          </ng-container>
-
-        </div>
-
-      </div>
-    </div>
-  </div>
-</ng-container>
-
-
-<!-- ESTADO 2: COUNTDOWN RITUAL 3-2-1 (PANTALLA COMPLETA OSCURA TOTAL) -->
-<ng-container *ngIf="arenaState() === 'countdown'">
-  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; font-family: 'Space Grotesk', sans-serif;"
-       [style.background]="useFairyBackground() ? 'linear-gradient(rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.88)), url(\'' + backgroundUrl() + '\') no-repeat center center / 100% 100%' : '#000'">
-    <span style="font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 20px;">Preparando tu mente</span>
-    
-    <!-- Número gigante de cuenta regresiva -->
-    <div class="countdown-pulse" style="font-size: 140px; font-weight: 900; line-height: 1; text-shadow: 0 0 40px rgba(255,255,255,0.15);">
-      {{ countdownValue() }}
-    </div>
-
-    <!-- Mensaje motivador breve -->
-    <span style="font-size: 13px; color: var(--muted); margin-top: 30px; font-weight: 500;">Respira hondo. Vence la inercia mental.</span>
-  </div>
-</ng-container>
-
-
-<!-- ESTADO 3: ACTIVE FOCUS (PANTALLA COMPLETA OSCURA ABSOLUTA #0a0a0c SIN SIDEBAR) -->
-<ng-container *ngIf="arenaState() === 'active'">
-  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; padding: 20px 24px; justify-content: space-between; align-items: center; font-family: 'Space Grotesk', sans-serif;"
-       [style.background]="useFairyBackground() ? 'linear-gradient(rgba(10, 10, 12, 0.45), rgba(10, 10, 12, 0.45)), url(\'' + backgroundUrl() + '\') no-repeat center center / 100% 100%' : '#0a0a0c'">
-    
-    <!-- Luz de respiración sutil en el fondo -->
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 580px; height: 580px; background: var(--accent); opacity: 0.03; filter: blur(120px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
-
-    <!-- AREA SUPERIOR: OBJETIVO CENTRADO Y GRANDE (Sólo si hay un objetivo definido) -->
-    <div *ngIf="activeObjective() && activeObjective().trim()" 
-         style="text-align: center; z-index: 2; margin-top: 5px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-      <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;"
-           [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.08)' : (activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255, 255, 255, 0.05)')"
-           [style.border]="activeMethodology() === 'sapo' ? '1px solid rgba(16, 185, 129, 0.15)' : (activeMethodology() === 'pareto' ? '1px solid rgba(99, 102, 241, 0.15)' : '1px solid rgba(255, 255, 255, 0.1)')"
-           [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')">
-        <i class="fa-solid" [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-bolt')"></i>
-        <span>{{ activeMethodology() === 'sapo' ? 'Misión Sapo (Comer la Rana)' : (activeMethodology() === 'pareto' ? 'Filtro Pareto 80/20' : 'Enfoque Estándar') }}</span>
-      </div>
-      <h1 style="font-size: 21px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.5px; max-width: 700px; line-height: 1.35;">
-        "{{ activeObjective() }}"
-      </h1>
-    </div>
-
-
-
-
-    <!-- PÍLDORA DE CO-WORKING COMUNITARIO (SALA COMPARTIDA) -->
-    <div *ngIf="coworkingMode() === 'comunitario'" 
-         style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 0 auto 8px auto; z-index: 2;">
-      <!-- Píldora de Sincronización en Vivo -->
-      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="width: 6px; height: 6px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--green); letter-spacing: 0.5px;">Dojo de Enfoque Activo</span>
-        </div>
-        <i class="fa-solid fa-circle" style="font-size: 4px; color: rgba(255,255,255,0.15);"></i>
-        <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">{{ globalFocusedCount() }} guerreros enfocándose contigo</span>
-      </div>
-    </div>
-
-    <!-- SECCIÓN DE RAID DEL DOJO BOSS (COOPERATIVO PREMIUM) -->
-    <div *ngIf="coworkingMode() === 'comunitario'" 
-         style="width: 100%; max-width: 440px; background: rgba(10, 10, 12, 0.8); border: 1.5px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05); z-index: 3; margin-bottom: 12px; transition: border-color 0.3s;"
-         [style.borderColor]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : (bossService.dojoShield() < 300 ? 'var(--red)' : 'rgba(255, 255, 255, 0.05)')">
-      
-      <!-- Cabecera del Combate -->
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <!-- Icono del Monstruo según el tema -->
-          <div style="width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-            <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="width:100%; height:100%; object-fit:cover;">
-            <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="width:100%; height:100%; object-fit:cover;">
-            <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="width:100%; height:100%; object-fit:cover;">
-            <img *ngIf="bossService.activeBoss().type === 'aurora'" src="/assets/images/avatars/boss_quimera.jpg" style="width:100%; height:100%; object-fit:cover;">
-            <img *ngIf="bossService.activeBoss().type === 'siren'" src="/assets/images/avatars/boss_sirena.jpg" style="width:100%; height:100%; object-fit:cover;">
-            <img *ngIf="bossService.activeBoss().type === 'werewolf'" src="/assets/images/avatars/boss_lobo.jpg" style="width:100%; height:100%; object-fit:cover;">
-            <img *ngIf="bossService.activeBoss().type === 'vampire'" src="/assets/images/avatars/boss_vampiro.jpg" style="width:100%; height:100%; object-fit:cover;">
-          </div>
-          <div style="display: flex; flex-direction: column;">
-            <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 1.5px;">Raid Activa del Dojo</span>
-            <span style="font-size: 13.5px; font-weight: 800; color: var(--text);">{{ bossService.activeBoss().name }}</span>
-          </div>
-        </div>
-        
-        <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
-          <span style="font-size: 12px; font-weight: 900; font-family: monospace; color: var(--text);">
-            {{ bossService.activeBoss().currentHp }} / {{ bossService.activeBoss().maxHp }} HP
-          </span>
-          <span style="font-size: 9px; font-weight: 700;" [style.color]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'var(--muted)'">
-            {{ bossService.activeBoss().status === 'defeated' ? 'Derrotado' : bossService.hpPercent() + '% restante' }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Barra de HP del Jefe -->
-      <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
-        <div style="height: 100%; border-radius: 4px; transition: width 0.3s ease-out;"
-             [style.width.%]="bossService.hpPercent()"
-             [style.background]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'linear-gradient(90deg, var(--red) 0%, var(--accent) 100%)'">
-        </div>
-      </div>
-
-      <!-- Fila Inferior: Escudo del Dojo y Logs de Batalla -->
-      <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 8px;">
-        <span style="display: flex; align-items: center; gap: 4px; font-weight: 700;"
-              [style.color]="bossService.dojoShield() < 300 ? 'var(--red)' : 'var(--muted)'">
-          🛡️ Escudo: {{ bossService.dojoShield() }}/1000
-        </span>
-        
-        <!-- Registro de eventos giratorio/simple o botón para abrir logs -->
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="font-size: 9.5px; font-weight: 700; color: var(--accent); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 200px;"
-                title="{{ bossService.bossLogs()[0] }}">
-            {{ bossService.bossLogs()[0] }}
-          </span>
-        </div>
-      </div>
-      
-      <!-- Si el Jefe fue derrotado, botón para revivir/resetear (para pruebas del usuario y demo) -->
-      <button *ngIf="bossService.activeBoss().status === 'defeated'"
-              (click)="bossService.resetBoss()"
-              style="width: 100%; border: none; background: rgba(16, 185, 129, 0.1); border: 1px dashed var(--green); color: var(--green); padding: 6px; border-radius: 6px; font-size: 10.5px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
-              onmouseover="this.style.background='rgba(16, 185, 129, 0.18)'"
-              onmouseout="this.style.background='rgba(16, 185, 129, 0.1)'">
-        🔄 Invocar nuevo Jefe (Reset)
-      </button>
-    </div>
-
-    <!-- AREA CENTRAL: RELOJ GRANDE FLOTANTE -->
-    <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 2; margin: 8px 0;">
-      
-      <!-- Círculo SVG de Progreso -->
-      <div style="position: relative; width: min(440px, 80vw); height: min(440px, 80vw); display: flex; align-items: center; justify-content: center;">
-        <svg viewBox="0 0 300 300" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg);">
-          <circle cx="150" cy="150" r="135" style="fill: none; stroke: rgba(255,255,255,0.02); stroke-width: 5;"></circle>
-          <!-- Circunferencia = 848 -->
-          <circle cx="150" cy="150" r="135" 
-                  style="fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear;"
-                  stroke-dasharray="848"
-                  [attr.stroke-dashoffset]="strokeDashoffset()"></circle>
-        </svg>
-
-        <!-- Reloj interno digital -->
-        <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
-          <!-- Si no hay pausa de emergencia -->
-          <ng-container *ngIf="!emergencyPauseActive()">
-            <span style="font-size: clamp(13px, 3vw, 17px); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;">
-              {{ isBreak() ? 'Descanso' : 'Enfoque' }}
-            </span>
-            <span style="font-size: clamp(64px, 15vw, 92px); font-weight: 900; color: var(--text); line-height: 1.1; margin: 4px 0; letter-spacing: -2px;">
-              {{ timeString() }}
-            </span>
-            <span style="font-size: clamp(11px, 2.5vw, 14px); color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; animation: blink 1.5s infinite;">
-              Concentrado
-            </span>
-          </ng-container>
-
-          <!-- Si la pausa de emergencia está corriendo -->
-          <ng-container *ngIf="emergencyPauseActive()">
-            <span style="font-size: clamp(11px, 2.5vw, 14px); font-weight: 800; text-transform: uppercase; color: var(--red); letter-spacing: 1.5px;">
-              Pausa de Emergencia
-            </span>
-            <span style="font-size: clamp(54px, 12vw, 76px); font-weight: 900; color: var(--red); line-height: 1.1; margin: 6px 0; letter-spacing: -1px;">
-              {{ emergencyTimeString() }}
-            </span>
-            <span style="font-size: clamp(10px, 2vw, 12px); color: var(--muted); max-width: clamp(160px, 45vw, 220px); line-height: 1.3;">
-              Presiona Reanudar para evitar penalización
-            </span>
-          </ng-container>
-        </div>
-      </div>
-
-      <!-- Indicador de Pomodoros y Intentos por Día en la sesión activa -->
-      <div *ngIf="dailyAttempts().length > 0" 
-           style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 10px 0 0 0; width: 100%;">
-        <!-- Badge de Trofeo -->
-        <div [attr.data-tooltip]="attemptsTooltipText()"
-             style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.15); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: all 0.2s;"
-             onmouseover="this.style.background='rgba(0,0,0,0.25)'; this.style.borderColor='rgba(255,255,255,0.08)';"
-             onmouseout="this.style.background='rgba(0,0,0,0.15)'; this.style.borderColor='rgba(255,255,255,0.03)';">
-          <i class="fa-solid fa-trophy" style="color: var(--yellow); font-size: 13px;"></i>
-          <span style="font-size: 11px; font-weight: 800; color: var(--yellow); text-transform: uppercase; letter-spacing: 1px;">
-            {{ totalCommunityPoints() >= 0 ? '+' : '' }}{{ totalCommunityPoints() }} pts
-          </span>
-        </div>
-        <!-- Historial de Puntos de Colores -->
-        <div style="display: flex; gap: 8px; align-items: center; justify-content: center; max-width: 320px; background: rgba(0,0,0,0.12); padding: 8px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); width: auto;">
-          <div *ngFor="let attempt of limitedDailyAttempts()" 
-               style="display: flex; align-items: center; justify-content: center;"
-               [attr.data-tooltip]="attempt.status === 'completed' ? 'Completado (+100 pts)' : (attempt.status === 'abandoned' ? 'Abandonado (-50 pts)' : 'Pausado (-20 pts)')">
-            <span style="display: inline-block; animation: scaleUp 0.3s ease;">
-              <i class="fa-solid fa-circle" 
-                 [style.color]="attempt.status === 'completed' ? 'var(--green)' : (attempt.status === 'abandoned' ? 'var(--red)' : (attempt.status === 'interrupted' ? 'var(--yellow)' : 'var(--muted)'))" 
-                 style="font-size: 7px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.05));"></i>
-            </span>
-          </div>
-          
-          <!-- Badge indicador de más pomodoros (si aplica) -->
-          <span *ngIf="moreAttemptsCount() > 0"
-                style="font-size: 8px; font-weight: 800; color: var(--muted); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; height: 14px; margin-left: 2px;"
-                [attr.data-tooltip]="'Hay ' + moreAttemptsCount() + ' sesiones más registradas hoy.'">
-            +{{ moreAttemptsCount() }}
-          </span>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- BOTÓN FLOTANTE EN LA ESQUINA INFERIOR IZQUIERDA PARA ABRIR EL DOJO -->
-    <button *ngIf="coworkingMode() === 'comunitario'"
-            (click)="dojoPanelExpanded.set(!dojoPanelExpanded())"
-            style="position: fixed; bottom: 24px; left: 24px; z-index: 1002; background: rgba(18, 18, 24, 0.9); backdrop-filter: blur(8px); border: 1.5px solid rgba(255,255,255,0.06); padding: 10px 18px; border-radius: 30px; color: var(--text); font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);"
-            [style.borderColor]="dojoPanelExpanded() ? 'var(--accent)' : 'rgba(255,255,255,0.06)'"
-            onmouseover="this.style.transform='scale(1.05) translateY(-2px)'; this.style.borderColor='var(--accent)';"
-            onmouseout="this.style.transform='scale(1) translateY(0)'; if(!this.dojoPanelExpanded()) { this.style.borderColor='rgba(255,255,255,0.06)' }">
-      <i class="fa-solid fa-users" style="color: var(--accent);"></i>
-      <span>Compañeros ({{ dojoUsers().length }})</span>
-      <span style="width: 6px; height: 6px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-    </button>
-
-    <!-- PANEL FLOTANTE DE COMPAÑEROS (DOJO COMUNITARIO) -->
-    <div *ngIf="coworkingMode() === 'comunitario'"
-         style="position: fixed; bottom: 80px; left: 24px; width: 340px; height: 440px; z-index: 1001; background: rgba(10, 10, 12, 0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 12px 32px rgba(0,0,0,0.5); display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 16px; text-align: left;"
-         [style.transform]="dojoPanelExpanded() ? 'translateY(0)' : 'translateY(15px)'"
-         [style.opacity]="dojoPanelExpanded() ? '1' : '0'"
-         [style.pointerEvents]="dojoPanelExpanded() ? 'all' : 'none'">
-      
-      <!-- Cabecera del Panel -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <i class="fa-solid fa-graduation-cap" style="color: var(--accent); font-size: 14px;"></i>
-          <span style="font-size: 11px; font-weight: 900; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">Dojo de Enfoque</span>
-        </div>
-        <button (click)="dojoPanelExpanded.set(false)" 
-                style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; transition: color 0.15s;"
-                onmouseover="this.style.color='var(--text)';"
-                onmouseout="this.style.color='var(--muted)';">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Lista de compañeros con scroll vertical -->
-      <div class="no-scrollbar" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; padding-right: 4px;">
-        
-        <!-- Tu Ficha -->
-        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid var(--accent); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; position: relative;">
-          <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" style="width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--accent); background-size: cover; background-position: center; flex-shrink: 0;"></div>
-          <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
-            <span style="font-size: 11px; font-weight: 800; color: var(--text);">Tú (Guerrero)</span>
-            <span style="font-size: 9px; color: var(--accent); font-weight: 700; margin-top: 1px; line-height: 1.2;">{{ activeObjective() && activeObjective().trim() ? activeObjective() : 'Enfoque Activo' }}</span>
-          </div>
-          <!-- Reacción flotante si alguien te envía una -->
-          <div *ngIf="userActiveReaction()" 
-               style="position: absolute; top: 8px; right: 8px; font-size: 16px; animation: floatEmoji 1.5s ease-out forwards; z-index: 99;">
-            {{ userActiveReaction() }}
-          </div>
-        </div>
-
-        <!-- Compañeros del Dojo -->
-        <div *ngFor="let p of dojoUsers().slice(0, 10)" 
-             style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; position: relative; transition: all 0.2s;"
-             onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='var(--accent)';"
-             onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
-          
-          <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; flex: 1; padding-right: 8px;">
-            <!-- Avatar con halo de estado -->
-            <div [class]="'avatar-sprite sprite-' + p.avatar" 
-                 style="width: 32px; height: 32px; border-radius: 50%; background-size: cover; background-position: center; border: 1.5px solid; flex-shrink: 0;"
-                 [style.borderColor]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')">
             </div>
-            
-            <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
-              <span style="font-size: 11px; font-weight: 800; color: var(--text); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ p.name }}</span>
-              <span style="font-size: 9.5px; color: var(--muted); line-height: 1.3; font-weight: 500;">
-                {{ p.status === 'focused' ? p.mission : 'Pausa de descanso' }}
-              </span>
-            </div>
-          </div>
 
-          <!-- Temporizador del compañero -->
-          <span style="font-size: 11px; font-weight: 800; font-family: monospace; color: var(--text); flex-shrink: 0; margin-left: 4px;">
-            {{ p.status === 'focused' ? formatTime(p.timeLeft) : '☕ 5:00' }}
-          </span>
-
-          <!-- Reacción flotante si tiene una activa -->
-          <div *ngIf="p.reaction" 
-               style="position: absolute; top: 6px; right: 6px; font-size: 16px; animation: floatEmoji 1.5s ease-out forwards; z-index: 99;">
-            {{ p.reaction }}
-          </div>
+          </ng-container>
 
         </div>
 
       </div>
-
     </div>
-
-    <!-- BOTONES DE ACCIÓN MÁS LIMPIOS -->
-    <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 320px; z-index: 2; margin-bottom: 10px;">
-      <!-- Play/Pause (Botón de Pánico) -->
-      <button (click)="toggleEmergencyPause()" 
-              style="width: 100%; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; letter-spacing: 0.5px;"
-              [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
-              [style.borderColor]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.1)'"
-              [style.color]="emergencyPauseActive() ? '#000' : 'var(--text)'"
-              onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='var(--accent)';"
-              onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.1)';">
-        <span>{{ emergencyPauseActive() ? 'Reanudar Enfoque' : 'Pausa de Emergencia' }}</span>
-      </button>
-
-      <!-- Abandonar y Simular (Discretos) -->
-      <div style="display: flex; align-items: center; gap: 14px; margin-top: 4px;">
-        <button (click)="abandonSession()" 
-                style="background: transparent; border: 1.5px solid rgba(239, 68, 68, 0.4); color: rgba(239, 68, 68, 0.85); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
-                onmouseover="this.style.background='rgba(239, 68, 68, 0.08)'; this.style.borderColor='var(--red)'; this.style.color='var(--red)';"
-                onmouseout="this.style.background='transparent'; this.style.borderColor='rgba(239, 68, 68, 0.4)'; this.style.color='rgba(239, 68, 68, 0.85)';"
-                title="Abandonar esta sesión de enfoque">
-          <i class="fa-solid fa-arrow-right-from-bracket" style="font-size: 9.5px;"></i>
-          <span>Abandonar sesión</span>
-        </button>
-
-        <span style="color: rgba(255,255,255,0.1); font-size: 10px;">|</span>
-
-        <button (click)="simulateCompletion()" 
-                style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;"
-                onmouseover="this.style.opacity='1'; this.style.textDecoration='underline';"
-                onmouseout="this.style.opacity='0.5'; this.style.textDecoration='none';">
-          <i class="fa-solid fa-forward" style="font-size: 9px;"></i>
-          <span>Simular Completar</span>
-        </button>
-      </div>
-    </div>
-
-
-
   </div>
 </ng-container>
 
@@ -1142,82 +962,7 @@
   </div>
 </ng-container>
 
-<!-- MODAL DE IDEAS CAPTURADAS (BAÚL DE IDEAS) -->
-<div *ngIf="showIdeasModal()" 
-     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; font-family: 'Space Grotesk', sans-serif;">
-  
-  <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.95) 0%, rgba(30, 30, 39, 0.9) 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 32px; width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 32px 80px rgba(0,0,0,0.6); position: relative; animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-    
-    <!-- Cerrar -->
-    <button (click)="closeIdeasModal()" 
-            style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; transition: color 0.2s;"
-            onmouseover="this.style.color='var(--text)';"
-            onmouseout="this.style.color='var(--muted)';">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
 
-    <!-- Header Modal -->
-    <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 14px;">
-      <i class="fa-solid fa-box-archive" style="color: var(--yellow); font-size: 20px; filter: drop-shadow(0 0 8px rgba(255,215,0,0.3));"></i>
-      <div style="text-align: left;">
-        <h3 style="font-size: 16px; font-weight: 800; color: var(--text); margin: 0; letter-spacing: -0.3px;">Baúl de Ideas Fugaces</h3>
-        <span style="font-size: 10px; color: var(--muted); font-weight: 600;">Ideas y distractores capturados para procesar luego</span>
-      </div>
-    </div>
-
-    <!-- Contenido Modal -->
-    <div style="flex: 1; min-height: 200px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px;">
-      
-      <!-- Si no hay ideas -->
-      <div *ngIf="membership.capturedIdeas().length === 0" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; height: 200px; color: var(--muted);">
-        <i class="fa-solid fa-feather" style="font-size: 32px; opacity: 0.3;"></i>
-        <span style="font-size: 12px; font-weight: 500; font-style: italic;">El baúl está vacío. ¡Envía tus primeras ideas volando!</span>
-      </div>
-
-      <!-- Lista de ideas -->
-      <div *ngFor="let idea of membership.capturedIdeas(); let i = index" 
-           style="display: flex; align-items: flex-start; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px 16px; gap: 12px; transition: all 0.2s;"
-           onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,215,0,0.15)';"
-           onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
-        <div style="display: flex; flex-direction: column; gap: 4px; text-align: left; flex: 1;">
-          <span style="font-size: 12.5px; color: var(--text); font-weight: 600; line-height: 1.4; word-break: break-word;">{{ idea }}</span>
-          <span style="font-size: 9px; color: var(--muted); font-weight: 500;">Capturado hoy</span>
-        </div>
-        <button (click)="removeIdea(i)" 
-                style="background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px 8px; font-size: 11px; transition: all 0.2s;"
-                onmouseover="this.style.color='var(--red)'; this.style.transform='scale(1.1)';"
-                onmouseout="this.style.color='var(--muted)'; this.style.transform='scale(1)';"
-                title="Eliminar idea del baúl">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- Footer Modal -->
-    <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; margin-top: 5px;">
-      <span style="font-size: 11px; color: var(--muted); font-weight: 600;">Total: {{ membership.capturedIdeas().length }} ideas</span>
-      
-      <div style="display: flex; gap: 8px;">
-        <!-- Botón limpiar todo (solo si hay ideas) -->
-        <button *ngIf="membership.capturedIdeas().length > 0"
-                (click)="clearAllIdeas()"
-                style="background: transparent; border: 1px solid rgba(239, 68, 68, 0.2); color: var(--red); padding: 8px 14px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
-                onmouseover="this.style.background='rgba(239, 68, 68, 0.05)';"
-                onmouseout="this.style.background='transparent';">
-          Limpiar Todo
-        </button>
-
-        <button (click)="closeIdeasModal()" 
-                style="background: var(--accent); border: none; color: #000; padding: 8px 16px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
-                onmouseover="this.style.transform='translateY(-1px)';"
-                onmouseout="this.style.transform='translateY(0)';">
-          Listo
-        </button>
-      </div>
-    </div>
-
-  </div>
-</div>
 
 <!-- MODAL PREMIUM PAYWALL -->
 <div *ngIf="showPaywallModal()" 

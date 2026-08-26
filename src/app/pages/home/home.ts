@@ -87,25 +87,6 @@ export class Home implements OnInit, OnDestroy {
   timerRunning = signal(false);
   isBreak = signal(false);
   private pomodoroTimer: any = null;
-  showIdeasModal = signal(false);
-
-  openIdeasModal() {
-    this.showIdeasModal.set(true);
-  }
-
-  closeIdeasModal() {
-    this.showIdeasModal.set(false);
-  }
-
-  removeIdea(index: number) {
-    this.membership.removeIdea(index);
-  }
-
-  clearAllIdeas() {
-    if (confirm('¿Estás seguro de que quieres limpiar todo el baúl de ideas?')) {
-      this.membership.clearAllIdeas();
-    }
-  }
 
   labels = computed(() => {
     return {

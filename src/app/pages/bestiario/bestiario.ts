@@ -22,6 +22,7 @@ export class Bestiario {
   selectedAvatar!: WritableSignal<any>;
   sidebarCollapsed!: any;
 
+
   // Selected villain for detail view
   selectedVillainId = signal<string>('samurai');
   sirenRevealed = signal<boolean>(false);

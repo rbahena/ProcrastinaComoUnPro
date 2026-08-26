@@ -84,6 +84,18 @@ export class MembershipService {
     localStorage.setItem('sidebar-collapsed', String(this.sidebarCollapsed()));
   }
 
+  // Estado del menú desplegable del avatar (perfil/cerrar sesión)
+  avatarMenuOpen = signal<boolean>(false);
+
+  toggleAvatarMenu(event: Event) {
+    event.stopPropagation();
+    this.avatarMenuOpen.set(!this.avatarMenuOpen());
+  }
+
+  closeAvatarMenu() {
+    this.avatarMenuOpen.set(false);
+  }
+
   // Puntos de enfoque (para ranking)
   focusPoints = signal<number>(
     parseInt(getMigratedValue('focus-points', '0'), 10)
@@ -187,6 +199,13 @@ export class MembershipService {
   );
 
   constructor() {
+    // Cerrar menú de avatar al hacer click fuera
+    if (typeof document !== 'undefined') {
+      document.addEventListener('click', () => {
+        this.closeAvatarMenu();
+      });
+    }
+
     // DESBLOQUEAR TODO AUTOMÁTICAMENTE PARA PRUEBAS
     this.unlockedAvatars.set([
       'gato', 'perro', 'conejo', 'loro', 'hamster', 'raton', 'tortuga', /* 'tortuga_evolved', 'tortuga_phase3', */ 'hormiga', 'buho', 'rana', 

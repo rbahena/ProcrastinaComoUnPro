@@ -1,0 +1,157 @@
+<!-- SIDEBAR / TOPBAR -->
+<div class="sidebar" [class.collapsed]="sidebarCollapsed()">
+  <button (click)="toggleSidebar()" 
+          class="sidebar-toggle-btn"
+          [title]="sidebarCollapsed() ? 'Expandir barra lateral' : 'Contraer barra lateral'">
+    <i class="fa-solid" [class]="sidebarCollapsed() ? 'fa-angles-right' : 'fa-angles-left'" style="font-size: 11px;"></i>
+  </button>
+  <a routerLink="/home" class="logo">
+    <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
+    <span class="logo-text">COFU</span>
+  </a>
+  <div class="nav">
+    <a routerLink="/home" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      Inicio
+    </a>
+    <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      Concentrarme
+    </a>
+    <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      estadisticas
+    </a>
+    <a routerLink="/ideas" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      ideas
+      <span *ngIf="membership.capturedIdeas().length > 0" 
+            style="margin-left: 6px; background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; line-height: 1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);">
+        {{ membership.capturedIdeas().length }}
+      </span>
+    </a>
+    <a routerLink="/bestiario" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      Retos
+    </a>
+    <a routerLink="/medallero" routerLinkActive="active" class="nav-item">
+      <span class="nav-dot"></span>
+      Hazañas
+    </a>
+  </div>
+  
+  <!-- CONTENEDOR DE PERFIL CON MENU DESPLEGABLE -->
+  <div style="position: relative; z-index: 1010;">
+    <div class="sidebar-footer" (click)="membership.toggleAvatarMenu($event)" style="cursor: pointer;">
+      <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08);">
+      </div>
+      <div style="overflow: hidden; display: flex; flex-direction: column;">
+        <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
+        <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">
+          {{ getAvatarName() }}
+        </div>
+      </div>
+      <i class="fa-solid" [class]="membership.avatarMenuOpen() ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left: auto; font-size: 11px; color: var(--muted); opacity: 0.65; padding-right: 4px;"></i>
+    </div>
+
+    <!-- Menú Desplegable -->
+    <div *ngIf="membership.avatarMenuOpen()"
+         style="position: absolute; top: 48px; right: 0; background: rgba(15, 15, 20, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 12px; width: 160px; padding: 6px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1020;">
+      <a routerLink="/cualidades" (click)="membership.closeAvatarMenu()"
+         style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text); transition: all 0.2s;"
+         onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='var(--accent)';"
+         onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">
+        <i class="fa-solid fa-user" style="font-size: 11px; width: 14px; text-align: center;"></i>
+        <span>Mi Perfil</span>
+      </a>
+      <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 4px 6px;"></div>
+      <a routerLink="/login" (click)="membership.closeAvatarMenu()"
+         style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: #f87171; transition: all 0.2s;"
+         onmouseover="this.style.background='rgba(239, 68, 68, 0.08)';"
+         onmouseout="this.style.background='transparent';">
+        <i class="fa-solid fa-right-from-bracket" style="font-size: 11px; width: 14px; text-align: center;"></i>
+        <span>Cerrar Sesión</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- WORKSPACE -->
+<div class="main" [style.marginLeft]="sidebarCollapsed() ? '0px' : 'var(--sidebar)'">
+  <div class="ideas-container">
+    
+    <!-- HEADER -->
+    <div class="ideas-header">
+      <div class="header-icon-wrapper">
+        <i class="fa-solid fa-box-archive header-icon"></i>
+      </div>
+      <div class="header-text-group">
+        <h1 class="ideas-title">Baúl de Ideas u Objetivos</h1>
+        <p class="ideas-subtitle">Libera tu mente capturando ideas, distractores u objetivos para procesarlos más tarde.</p>
+      </div>
+      
+      <!-- BOTÓN DE ACCIÓN COMPACTO -->
+      <button *ngIf="membership.capturedIdeas().length > 0" 
+              class="clear-all-btn" 
+              (click)="clearAllIdeas()">
+        <i class="fa-solid fa-dumpster"></i> Vaciar Baúl
+      </button>
+    </div>
+
+    <!-- FORMULARIO DE CAPTURA RÁPIDA DENTRO DE LA VISTA -->
+    <div class="ideas-input-card">
+      <div class="input-glow"></div>
+      <input type="text" 
+             placeholder="¿Tienes otra idea u objetivo en mente? Captúralo aquí..." 
+             [value]="newIdeaText()" 
+             (input)="onInputChange($event)"
+             (keydown.enter)="addIdea()"
+             class="quick-idea-input" />
+      <button class="add-idea-btn" (click)="addIdea()" [disabled]="!newIdeaText().trim()">
+        <i class="fa-solid fa-feather"></i> Capturar
+      </button>
+    </div>
+
+    <!-- LISTA DE IDEAS -->
+    <div class="ideas-content">
+      
+      <!-- Estado vacío -->
+      <div class="empty-ideas-state" *ngIf="membership.capturedIdeas().length === 0">
+        <div class="empty-icon-circle">
+          <i class="fa-solid fa-feather empty-icon"></i>
+        </div>
+        <h3 class="empty-title">El baúl está vacío</h3>
+        <p class="empty-desc">No tienes ideas u objetivos capturados. ¡Usa el botón flotante en la esquina o presiona <strong>Alt + I</strong> desde cualquier pantalla para enviarlos aquí instantáneamente!</p>
+      </div>
+
+      <!-- Grid de Tarjetas de Ideas -->
+      <div class="ideas-grid" *ngIf="membership.capturedIdeas().length > 0">
+        <div class="idea-card" *ngFor="let idea of membership.capturedIdeas(); let i = index">
+          <div class="idea-card-glow"></div>
+          
+          <div class="idea-body">
+            <p class="idea-text">{{ idea }}</p>
+            <div class="idea-meta">
+              <span class="meta-tag"><i class="fa-solid fa-clock"></i> Capturado hoy</span>
+            </div>
+          </div>
+
+          <div class="idea-actions">
+            <button class="action-btn convert-btn" 
+                    (click)="convertToObjective(idea, i)"
+                    title="Convertir esta idea en tu objetivo de enfoque activo">
+              <i class="fa-solid fa-yin-yang"></i> Concentrarme
+            </button>
+            <button class="action-btn delete-btn" 
+                    (click)="removeIdea(i)"
+                    title="Eliminar idea definitivamente">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

@@ -33,8 +33,7 @@ export class Estadisticas implements OnInit {
   // Datos históricos para el año (Ene - Dic)
   annualHistorical = signal<number[]>([85, 92, 110, 95, 104, 118, 125, 98, 0, 0, 0, 0]);
 
-  // Estado del modal de ideas y de compartir en LinkedIn
-  showIdeasModal = signal(false);
+  // Estado del modal de compartir en LinkedIn
   showShareModal = signal(false);
   userName!: any;
   sidebarCollapsed!: any;
@@ -76,24 +75,6 @@ export class Estadisticas implements OnInit {
     }
   }
 
-  // --- MÉTODOS DEL SIDEBAR Y BAÚL DE IDEAS ---
-  openIdeasModal() {
-    this.showIdeasModal.set(true);
-  }
-
-  closeIdeasModal() {
-    this.showIdeasModal.set(false);
-  }
-
-  removeIdea(index: number) {
-    this.membership.removeIdea(index);
-  }
-
-  clearAllIdeas() {
-    if (confirm('¿Estás seguro de que quieres limpiar todo el baúl de ideas?')) {
-      this.membership.clearAllIdeas();
-    }
-  }
 
   getAvatarIcon() {
     return this.membership.getSelectedAvatarIcon();

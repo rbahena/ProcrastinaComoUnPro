@@ -39,6 +39,19 @@ export class App implements OnInit {
     return url.includes('/landing') || url.includes('/login') || url.includes('/registro') || url === '/';
   }
 
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    if (typeof window !== 'undefined') {
+      const isScrolled = window.scrollY > 10;
+      const body = document.body;
+      if (isScrolled) {
+        body.classList.add('window-scrolled');
+      } else {
+        body.classList.remove('window-scrolled');
+      }
+    }
+  }
+
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
     if (this.isLandingOrAuthRoute()) return;

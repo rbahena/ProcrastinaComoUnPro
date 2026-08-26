@@ -150,29 +150,10 @@ export class Enfoque implements OnInit, OnDestroy {
 
   showSettingsPanel = signal(false);
   showSetupSettings = signal(false);
+  showStrategyCard = signal(false);
   showCelebration = signal<boolean>(false);
   celebrationPieces = signal<any[]>([]);
 
-  // Notas rápidas / Ideas fugaces
-  showIdeasModal = signal(false);
-
-  openIdeasModal() {
-    this.showIdeasModal.set(true);
-  }
-
-  closeIdeasModal() {
-    this.showIdeasModal.set(false);
-  }
-
-  clearAllIdeas() {
-    if (confirm('¿Estás seguro de que quieres limpiar todo el baúl de ideas?')) {
-      this.membership.clearAllIdeas();
-    }
-  }
-
-  removeIdea(index: number) {
-    this.membership.removeIdea(index);
-  }
 
   // Objetivo Activo (La batalla de hoy) e Integración Metodológica
   activeObjective = signal('');
@@ -316,6 +297,12 @@ export class Enfoque implements OnInit, OnDestroy {
     this.communityInterval = setInterval(() => {
       this.tickCommunity();
     }, 4000);
+
+    const draft = localStorage.getItem('activeObjectiveDraft');
+    if (draft) {
+      this.activeObjective.set(draft);
+      localStorage.removeItem('activeObjectiveDraft');
+    }
   }
 
   // Iniciar Flujo: Lanza el Ritual 3-2-1
