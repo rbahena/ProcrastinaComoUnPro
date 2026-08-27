@@ -31,8 +31,8 @@ export class Enfoque implements OnInit, OnDestroy {
     this.selectedAvatar = this.membership.selectedAvatar;
     this.sidebarCollapsed = this.membership.sidebarCollapsed;
 
-    // Initialize Comunidad Boss theme
-    this.bossService.updateBossTheme(this.currentTheme());
+    // Initialize Comunidad Boss theme to Siren of Distractions
+    this.bossService.updateBossTheme('siren');
   }
 
   // Acompañante de sesión compartida
@@ -599,7 +599,7 @@ export class Enfoque implements OnInit, OnDestroy {
       }
     });
     body.classList.add(`theme-${theme}`);
-    this.bossService.updateBossTheme(theme);
+    this.bossService.updateBossTheme('siren');
   }
 
   // Generadores de Ruido (Web Audio API)
@@ -1143,9 +1143,36 @@ export class Enfoque implements OnInit, OnDestroy {
   tickCommunity() {
     // Daño continuo del resto de usuarios en el Comunidad al Boss
     if (this.coworkingMode() === 'comunitario' && this.arenaState() === 'active' && !this.isBreak()) {
-      const activePartnersCount = this.comunidadUsers().filter(u => u.status === 'focused').length;
+      const activePartners = this.comunidadUsers().filter(u => u.status === 'focused');
+      const activePartnersCount = activePartners.length;
       // Cada compañero inflige 4 de daño (1 por segundo durante 4 segundos)
       this.bossService.tickContinuousDamage(activePartnersCount * 4);
+
+      // Simular eventos de combate detallados con iconos específicos (incluyendo poder premium)
+      if (activePartnersCount > 0 && Math.random() < 0.65) {
+        const luckyPartner = activePartners[Math.floor(Math.random() * activePartnersCount)];
+        const suffix = ['bah11', 'dev23', 'boss99', 'pro', 'ninja', 'app', '77', '12', 'focus', 'zen'][Math.floor(Math.random() * 10)];
+        const username = luckyPartner.name.toLowerCase() + '.' + suffix;
+        
+        const eventRand = Math.random();
+        if (eventRand < 0.35) {
+          // 1.- atacó al jefe con puntos (Espada)
+          const damagePoints = Math.floor(Math.random() * 80) + 15; // 15 a 95 DMG
+          this.bossService.addLog(`⚔️ ${username} atacó al jefe con ${damagePoints} puntos`);
+        } else if (eventRand < 0.5) {
+          // 4.- Poder Premium (Rayo) - Atacó severamente
+          const damagePoints = Math.floor(Math.random() * 200) + 200; // 200 a 400 DMG (daño severo)
+          this.bossService.addLog(`⚡ ${username} atacó severamente con ${damagePoints} puntos`);
+        } else if (eventRand < 0.75) {
+          // 2.- abandonó, jefe gana +puntos puntos (Gota)
+          const healPoints = Math.floor(Math.random() * 120) + 80;
+          this.bossService.addLog(`🩸 ${username} abandonó, jefe gana +${healPoints} puntos`);
+        } else {
+          // 3.- interrumpe, jefe gana +puntos puntos (Advertencia)
+          const healPoints = Math.floor(Math.random() * 60) + 40;
+          this.bossService.addLog(`⚠️ ${username} interrumpe, jefe gana +${healPoints} puntos`);
+        }
+      }
     }
 
     const updatedUsers = this.comunidadUsers().map(u => {
@@ -1254,6 +1281,52 @@ export class Enfoque implements OnInit, OnDestroy {
         this.showPartnerNotification.set(false);
       }
     }, 8000);
+  }
+
+  triggerDemoAttack(event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    const names = ['ramiro', 'sofia', 'carlos', 'mateo', 'lucas', 'ana', 'jose', 'elena', 'diego', 'julia'];
+    const suffixes = ['bah11', 'dev23', 'boss99', 'pro', 'ninja', 'app', '77', '12', 'focus', 'zen'];
+    const name = names[Math.floor(Math.random() * names.length)];
+    const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+    const username = `${name}.${suffix}`;
+    
+    const eventRand = Math.random();
+    if (eventRand < 0.35) {
+      // 1.- atacó al jefe con puntos (Espada)
+      const damagePoints = Math.floor(Math.random() * 80) + 15; // De 15 a 95 DMG
+      this.bossService.activeBoss.update(boss => {
+        const nextHp = Math.max(0, boss.currentHp - damagePoints);
+        return { ...boss, currentHp: nextHp, status: nextHp === 0 ? 'defeated' : 'active' };
+      });
+      this.bossService.addLog(`⚔️ ${username} atacó al jefe con ${damagePoints} puntos`);
+    } else if (eventRand < 0.5) {
+      // 4.- Premium Power Attack (Rayo)
+      const damagePoints = Math.floor(Math.random() * 200) + 200; // De 200 a 400 DMG
+      this.bossService.activeBoss.update(boss => {
+        const nextHp = Math.max(0, boss.currentHp - damagePoints);
+        return { ...boss, currentHp: nextHp, status: nextHp === 0 ? 'defeated' : 'active' };
+      });
+      this.bossService.addLog(`⚡ ${username} atacó severamente con ${damagePoints} puntos`);
+    } else if (eventRand < 0.75) {
+      // 2.- abandonó, jefe gana +puntos puntos (Gota)
+      const healPoints = Math.floor(Math.random() * 120) + 80;
+      this.bossService.activeBoss.update(boss => {
+        const nextHp = Math.min(boss.maxHp, boss.currentHp + healPoints);
+        return { ...boss, currentHp: nextHp };
+      });
+      this.bossService.addLog(`🩸 ${username} abandonó, jefe gana +${healPoints} puntos`);
+    } else {
+      // 3.- interrumpe, jefe gana +puntos puntos (Advertencia)
+      const healPoints = Math.floor(Math.random() * 60) + 40;
+      this.bossService.activeBoss.update(boss => {
+        const nextHp = Math.min(boss.maxHp, boss.currentHp + healPoints);
+        return { ...boss, currentHp: nextHp };
+      });
+      this.bossService.addLog(`⚠️ ${username} interrumpe, jefe gana +${healPoints} puntos`);
+    }
   }
 
   getPartnerSupportMessage() {

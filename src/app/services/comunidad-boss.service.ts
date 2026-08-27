@@ -88,6 +88,9 @@ export class ComunidadBossService {
   // Accrued boss damage dealt by the user
   userDamageDealt = signal<number>(1450);
 
+  // Tracks if the boss card is currently being hit to trigger UI flashing
+  isUnderAttack = signal<boolean>(false);
+
   // Compute percentage of Boss HP
   hpPercent = computed(() => {
     const boss = this.activeBoss();
@@ -262,6 +265,13 @@ export class ComunidadBossService {
       const updated = [text, ...logs];
       return updated.slice(0, 30); // Keep last 30 logs
     });
+
+    // Detect if this is an attack or damage event to trigger flash
+    const lowercaseText = text.toLowerCase();
+    if (lowercaseText.includes('atacó') || lowercaseText.includes('daño') || lowercaseText.includes('infligió') || lowercaseText.includes('crítico')) {
+      this.isUnderAttack.set(true);
+      setTimeout(() => this.isUnderAttack.set(false), 400);
+    }
   }
 
   resetBoss() {

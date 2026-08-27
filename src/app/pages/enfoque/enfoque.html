@@ -318,46 +318,107 @@
         
           <!-- Tarjeta Boss Expandida -->
           <div *ngIf="showBossCard()" style="width: 100%;">
-                        <!-- Combate de Jefe (si estamos en Comunidad) -->
+            <!-- Combate de Jefe (si estamos en Comunidad) -->
             <div *ngIf="coworkingMode() === 'comunitario'" 
-                 style="width: 100%; background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); transition: border-color 0.3s;"
-                 [style.borderColor]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : (bossService.comunidadShield() < 300 ? 'var(--red)' : 'var(--border)')">
+                 [class.boss-attack-flash]="bossService.isUnderAttack()"
+                 style="width: 100%; background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05); transition: border-color 0.3s; animation: slideDown 0.25s ease;"
+                 [style.borderColor]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'rgba(255,255,255,0.08)'">
               
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <div style="width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                    <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="width:100%; height:100%; object-fit:cover;">
-                    <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="width:100%; height:100%; object-fit:cover;">
-                    <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="width:100%; height:100%; object-fit:cover;">
-                    <img *ngIf="bossService.activeBoss().type === 'aurora'" src="/assets/images/avatars/boss_quimera.jpg" style="width:100%; height:100%; object-fit:cover;">
-                    <img *ngIf="bossService.activeBoss().type === 'siren'" src="/assets/images/avatars/boss_sirena.jpg" style="width:100%; height:100%; object-fit:cover;">
-                    <img *ngIf="bossService.activeBoss().type === 'werewolf'" src="/assets/images/avatars/boss_lobo.jpg" style="width:100%; height:100%; object-fit:cover;">
-                    <img *ngIf="bossService.activeBoss().type === 'vampire'" src="/assets/images/avatars/boss_vampiro.jpg" style="width:100%; height:100%; object-fit:cover;">
-                  </div>
-                  <div style="display: flex; flex-direction: column;">
-                    <span style="font-size: 8.5px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 1px;">Raid de la Comunidad</span>
-                    <span style="font-size: 13px; font-weight: 800; color: var(--text);">{{ bossService.activeBoss().name }}</span>
+              <!-- Retrato del Jefe Completo y Centrado Detrás (Como Marca de Agua) -->
+              <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; opacity: 0.14; pointer-events: none; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+                <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+                <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+                <img *ngIf="bossService.activeBoss().type === 'aurora'" src="/assets/images/avatars/boss_quimera.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+                <img *ngIf="bossService.activeBoss().type === 'siren'" src="/assets/images/avatars/boss_sirena.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+                <img *ngIf="bossService.activeBoss().type === 'werewolf'" src="/assets/images/avatars/boss_lobo.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+                <img *ngIf="bossService.activeBoss().type === 'vampire'" src="/assets/images/avatars/boss_vampiro.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+              </div>
+
+              <!-- Cabecera de la Ficha -->
+              <div style="display: flex; flex-direction: column; gap: 4px; padding: 18px 18px 10px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); text-align: left; z-index: 1; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                  <span style="font-size: 8.5px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; opacity: 0.8;">Raid de la Comunidad</span>
+                  <!-- Insignia Raid en vivo -->
+                  <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--red); padding: 3px 6px; border-radius: 4px; font-size: 8px; font-weight: 900; letter-spacing: 0.5px; color: var(--red); text-transform: uppercase; display: flex; align-items: center; gap: 3px;">
+                    <span style="width: 4px; height: 4px; background: var(--red); border-radius: 50%;"></span>
+                    Jefe Activo
                   </div>
                 </div>
-                <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
-                  <span style="font-size: 11.5px; font-weight: 900; font-family: monospace; color: var(--text);">{{ bossService.activeBoss().currentHp }} / {{ bossService.activeBoss().maxHp }} HP</span>
-                  <span style="font-size: 8.5px; font-weight: 700;" [style.color]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'var(--muted)'">
-                    {{ bossService.activeBoss().status === 'defeated' ? 'Derrotado' : bossService.hpPercent() + '% HP' }}
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                  <h3 style="font-size: 15px; font-weight: 900; color: #fff; margin: 0; line-height: 1.25;">{{ bossService.activeBoss().name }}</h3>
+                  <!-- Badge de Elemento -->
+                  <span style="background: rgba(0, 0, 0, 0.5); border: 1px solid var(--accent); padding: 3px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; margin-top: 1px;">
+                    {{ bossService.activeBoss().type === 'siren' ? 'Agua' : (bossService.activeBoss().type === 'cyberpunk' ? 'Caos' : (bossService.activeBoss().type === 'zen' ? 'Tierra' : (bossService.activeBoss().type === 'samurai' ? 'Fuego' : (bossService.activeBoss().type === 'aurora' ? 'Viento' : (bossService.activeBoss().type === 'werewolf' ? 'Luna' : 'Sombra'))))) }}
                   </span>
                 </div>
               </div>
 
-              <div style="width: 100%; height: 6px; background: rgba(255, 255, 255, 0.03); border-radius: 3px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
-                <div style="height: 100%; border-radius: 3px; transition: width 0.3s ease-out;"
-                     [style.width.%]="bossService.hpPercent()"
-                     [style.background]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'linear-gradient(90deg, var(--red) 0%, var(--accent) 100%)'">
+              <!-- Contenido de la Ficha (Barras de Vida y Escudo) -->
+              <div style="padding: 14px 18px 18px 18px; display: flex; flex-direction: column; gap: 14px; z-index: 1; position: relative;">
+                
+                <!-- Barra de Vida del Jefe -->
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px;">
+                    <span style="font-weight: 800; color: var(--muted); display: flex; align-items: center; gap: 4px; text-transform: uppercase;">
+                      <i class="fa-solid fa-heart-pulse" style="color: var(--red);"></i>
+                      Vida del Enemigo
+                    </span>
+                    <span style="font-family: monospace; font-weight: 900; color: var(--text);">
+                      {{ bossService.activeBoss().currentHp }} / {{ bossService.activeBoss().maxHp }} HP
+                    </span>
+                  </div>
+                  <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="height: 100%; border-radius: 4px; transition: width 0.3s ease-out;"
+                         [style.width.%]="bossService.hpPercent()"
+                         [style.background]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'linear-gradient(90deg, var(--red) 0%, #f43f5e 100%)'">
+                    </div>
+                  </div>
                 </div>
+
+
+
+                <!-- Consola / Log de Batalla Integrado -->
+                <div style="background: rgba(0, 0, 0, 0.5); border: 1.5px solid rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;">
+                  <span style="font-size: 9px; font-weight: 800; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span>Notificaciones en Vivo</span>
+                    <button (click)="triggerDemoAttack($event)" 
+                            style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 2px 6px; font-size: 8px; font-weight: 900; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 3.5px; transition: background 0.15s; outline: none;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.12)'"
+                            onmouseout="this.style.background='rgba(255,255,255,0.06)'"
+                            title="Simular un evento de combate (Demo)">
+                      <i class="fa-solid fa-play" style="font-size: 6.5px; color: var(--green);"></i>
+                      DEMO
+                    </button>
+                  </span>
+                  <div style="display: flex; flex-direction: column; gap: 8px; font-size: 10.5px; line-height: 1.4; max-height: 130px; overflow-y: hidden; margin-top: 4px;">
+                    <div *ngFor="let log of bossService.bossLogs().slice(0, 3)" 
+                         [class.premium-log-glow]="log.includes('⚡')"
+                         style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); padding: 7px 12px; border-radius: 8px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; text-align: left; color: rgba(255,255,255,0.9); font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.25s; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);">
+                      
+                      <!-- Icono para Ataque Regular (Espadas cruzadas) -->
+                      <span *ngIf="log.includes('⚔️')" style="font-size: 11px; flex-shrink: 0; filter: drop-shadow(0 0 2px rgba(244,63,94,0.6));">⚔️</span>
+                      
+                      <!-- Icono para Poder Premium (Rayo Eléctrico Púrpura) -->
+                      <i *ngIf="log.includes('⚡')" class="fa-solid fa-bolt-lightning" style="color: #c084fc; font-size: 11px; flex-shrink: 0; filter: drop-shadow(0 0 3px rgba(192, 132, 252, 0.6));"></i>
+                      
+                      <!-- Icono para Abandono (Gota de sangre en rojo) -->
+                      <i *ngIf="log.includes('🩸')" class="fa-solid fa-droplet" style="color: #ef4444; font-size: 11px; flex-shrink: 0;"></i>
+                      
+                      <!-- Icono para Interrupción (Triángulo de Advertencia Amarillo - Cono) -->
+                      <i *ngIf="log.includes('⚠️')" class="fa-solid fa-triangle-exclamation" style="color: #fbbf24; font-size: 11px; flex-shrink: 0;"></i>
+                      
+                      <!-- Texto del Log Limpio sin el emoji inicial -->
+                      <span>{{ log.replace('⚔️', '').replace('⚡', '').replace('🩸', '').replace('⚠️', '').trim() }}</span>
+                    </div>
+                  </div>
+                </div>
+
+
+
               </div>
 
-              
             </div>
-
-
           </div>
 
         
@@ -727,18 +788,14 @@
       <!-- Toggle Boss (Raid) -->
       <button *ngIf="coworkingMode() === 'comunitario'"
               (click)="showBossCard.set(!showBossCard()); showThemesPanel.set(false); showSetupSettings.set(false)" 
-              [style.borderColor]="showBossCard() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; background: rgba(10, 10, 12, 0.78); overflow: hidden; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+              [style.background]="showBossCard() ? 'var(--red)' : 'rgba(255,255,255,0.03)'"
+              [style.color]="showBossCard() ? '#fff' : 'var(--red)'"
+              [style.borderColor]="showBossCard() ? 'var(--red)' : 'rgba(239,68,68,0.2)'"
+              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;"
               onmouseover="this.style.transform='scale(1.1)';"
               onmouseout="this.style.transform='scale(1)';"
               title="Toggle Raid de la Comunidad">
-        <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
-        <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
-        <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
-        <img *ngIf="bossService.activeBoss().type === 'aurora'" src="/assets/images/avatars/boss_quimera.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
-        <img *ngIf="bossService.activeBoss().type === 'siren'" src="/assets/images/avatars/boss_sirena.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
-        <img *ngIf="bossService.activeBoss().type === 'werewolf'" src="/assets/images/avatars/boss_lobo.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
-        <img *ngIf="bossService.activeBoss().type === 'vampire'" src="/assets/images/avatars/boss_vampiro.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
+        <i class="fa-solid fa-skull-crossbones"></i>
       </button>
 
       <!-- Toggle Comunidad (Usuarios) -->
