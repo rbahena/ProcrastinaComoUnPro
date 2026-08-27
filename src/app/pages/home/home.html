@@ -28,12 +28,17 @@
     <div class="metric-card-premium card-focused-now" style="--card-accent: var(--green); margin: 0; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
       
       <!-- CABECERA -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
         <div style="display: flex; align-items: center; gap: 6px;">
           <span class="pulse-green-dot"></span>
           <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Ahora mismo</span>
         </div>
-        <span class="card-title-text" style="color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 1px 5px; border-radius: 3px;">En vivo</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="card-title-text" style="color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 2px 6px; border-radius: 4px;">En vivo</span>
+          <button routerLink="/enfoque" class="card-action-play" title="Ir a Concentración">
+            <i class="fa-solid fa-play"></i>
+          </button>
+        </div>
       </div>
       
       <!-- CONTENIDO CENTRAL -->
@@ -42,8 +47,6 @@
           {{ liveFocusedUsersCount() }} personas
         </div>
         <div class="card-sub-desc">están trabajando.</div>
-        
-
       </div>
       
       <!-- FOOTER: Avatares -->
@@ -68,31 +71,32 @@
         <span class="card-title-text" style="color: var(--muted); font-weight: 500; font-size: 8.5px;">en directo</span>
       </div>
 
+      <!-- Icono flotante decorativo -->
+      <div class="card-float-icon">
+        <i class="fa-solid fa-tower-broadcast"></i>
+      </div>
     </div>
 
     <!-- CARD 2: Jefe de Raid del Dojo -->
-    <div class="metric-card-premium card-boss" style="--card-accent: var(--red); --card-accent-rgb: 239, 68, 68; background-image: radial-gradient(circle at 85% 85%, rgba(239, 68, 68, 0.05) 0%, transparent 65%), linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px); margin: 0; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="metric-card-premium card-boss" style="--card-accent: var(--red); --card-accent-rgb: 239, 68, 68; margin: 0; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
       
       <!-- CABECERA -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
         <div style="display: flex; align-items: center; gap: 6px;">
           <i class="fa-solid fa-dragon" style="font-size: 10px; color: var(--red);"></i>
           <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Jefe del Dojo</span>
-          <!-- Enlace de información del jefe -->
-          <a routerLink="/bestiario" 
-             style="color: var(--muted); font-size: 9.5px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 13px; height: 13px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); transition: all 0.2s;"
-             onmouseover="this.style.color='var(--red)'; this.style.borderColor='rgba(239, 68, 68, 0.3)'; this.style.background='rgba(239, 68, 68, 0.05)';" 
-             onmouseout="this.style.color='var(--muted)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.background='rgba(255,255,255,0.03)';"
-             title="¿Qué es el Jefe del Dojo? Ver bestiario">
-            <i class="fa-solid fa-circle-info"></i>
-          </a>
         </div>
-        <span class="card-title-text" 
-              [style.color]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'var(--red)'" 
-              [style.background]="bossService.activeBoss().status === 'defeated' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)'" 
-              style="padding: 1px 5px; border-radius: 3px; font-weight: 700;">
-          {{ bossService.activeBoss().status === 'defeated' ? 'Derrotado' : 'Activo' }}
-        </span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="card-title-text" 
+                [style.color]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'var(--red)'" 
+                [style.background]="bossService.activeBoss().status === 'defeated' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)'" 
+                style="padding: 2px 6px; border-radius: 4px; font-weight: 700;">
+            {{ bossService.activeBoss().status === 'defeated' ? 'Derrotado' : 'Activo' }}
+          </span>
+          <button routerLink="/bestiario" class="card-action-play" title="Ver Bestiario del Dojo">
+            <i class="fa-solid fa-circle-info"></i>
+          </button>
+        </div>
       </div>
       
       <!-- CONTENIDO CENTRAL -->
@@ -141,23 +145,32 @@
         </span>
       </div>
 
+      <!-- Icono flotante decorativo -->
+      <div class="card-float-icon">
+        <i class="fa-solid fa-dragon"></i>
+      </div>
     </div>
 
     <!-- CARD 3: Ranking Global / Tu Desempeño -->
     <div class="metric-card-premium card-user-rank" style="--card-accent: var(--yellow); margin: 0; min-height: 155px; display: flex; flex-direction: column; justify-content: space-between;">
       
       <!-- CABECERA -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
         <div style="display: flex; align-items: center; gap: 6px;">
           <i class="fa-solid fa-trophy" style="font-size: 10px; color: var(--yellow);"></i>
           <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Desempeño de Hoy</span>
         </div>
-        <span class="card-title-text" style="color: var(--yellow); font-weight: 700;" *ngIf="membership.isPremium()">
-          Top {{ 100 - percentageBeaten() }}%
-        </span>
-        <span class="card-title-text" style="color: var(--muted); font-weight: 700;" *ngIf="!membership.isPremium()">
-          Clasificación
-        </span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="card-title-text" style="color: var(--yellow); font-weight: 700;" *ngIf="membership.isPremium()">
+            Top {{ 100 - percentageBeaten() }}%
+          </span>
+          <span class="card-title-text" style="color: var(--muted); font-weight: 700;" *ngIf="!membership.isPremium()">
+            Clasificación
+          </span>
+          <button routerLink="/membresia" class="card-action-play" title="Ver Membresía">
+            <i class="fa-solid fa-crown"></i>
+          </button>
+        </div>
       </div>
 
       <!-- VISTA GRATUITA -->
@@ -224,6 +237,10 @@
         </div>
       </div>
 
+      <!-- Icono flotante decorativo -->
+      <div class="card-float-icon">
+        <i class="fa-solid fa-trophy"></i>
+      </div>
     </div>
 
   </div>
