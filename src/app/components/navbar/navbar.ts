@@ -12,7 +12,5 @@ import { MembershipService } from '../../services/membership.service';
 export class Navbar {
   public membership = inject(MembershipService);
 
-  userName() {
-    return this.membership.userName();
-  }
+
 }
