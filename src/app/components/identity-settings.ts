@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, computed, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MembershipService, AvatarItem, QualityItem } from '../services/membership.service';
-import { DojoBossService } from '../services/dojo-boss.service';
+import { ComunidadBossService } from '../services/comunidad-boss.service';
 
 @Component({
   selector: 'app-identity-settings',
@@ -1052,7 +1052,7 @@ export class IdentitySettings implements OnInit {
 
   constructor(
     public membership: MembershipService,
-    public bossService: DojoBossService
+    public bossService: ComunidadBossService
   ) {}
 
   weapons = [

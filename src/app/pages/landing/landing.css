@@ -1320,10 +1320,10 @@
 }
 
 /* ==========================================================================
-   LIVE DOJO & MORE STYLE RULES
+   LIVE COMUNIDAD & MORE STYLE RULES
    ========================================================================== */
 
-.live-dojo-premium-grid {
+.live-comunidad-premium-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 60px;
@@ -1390,12 +1390,12 @@
   .skill-info-card {
     width: 100%;
   }
-  .live-dojo-premium-grid {
+  .live-comunidad-premium-grid {
     grid-template-columns: 1fr;
     gap: 40px;
     text-align: center;
   }
-  .live-dojo-premium-grid a {
+  .live-comunidad-premium-grid a {
     margin: 0 auto;
   }
   .footer-cta-grid {
@@ -1547,7 +1547,7 @@
   font-size: 18px;
 }
 
-/* Holographic Dojo Podium */
+/* Holographic Comunidad Podium */
 .hero-hologram-podium {
   position: relative;
   width: 100%;
@@ -1705,7 +1705,7 @@
   z-index: 1;
 }
 
-.live-dojo-section-premium {
+.live-comunidad-section-premium {
   position: relative;
   padding: 160px 0;
   background-image: url('/assets/images/landing_boss_bg.jpg');
@@ -1719,7 +1719,7 @@
   overflow: hidden;
 }
 
-.live-dojo-section-premium::before {
+.live-comunidad-section-premium::before {
   content: '';
   position: absolute;
   top: 0;

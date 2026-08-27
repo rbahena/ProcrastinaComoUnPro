@@ -39,7 +39,7 @@ export class Registro {
     }
     
     if (this.membership.userName() === 'google_guerrero') {
-      this.membership.userName.set('guerrero_dojo');
+      this.membership.userName.set('guerrero_comunidad');
     }
 
     localStorage.setItem('procrastina-just-registered', 'true');

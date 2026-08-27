@@ -1,4 +1,4 @@
-/* ===== DOJO DASHBOARD STYLES ===== */
+/* ===== COMUNIDAD DASHBOARD STYLES ===== */
 
 /* Pareto Card Custom Style */
 .pareto-card {
@@ -665,20 +665,30 @@
 
 /* Podio Card */
 .podio-card {
-  background: linear-gradient(135deg, rgba(18, 18, 24, 0.9) 0%, rgba(30, 30, 39, 0.6) 100%);
+  --card-accent: var(--yellow);
+  --card-accent-rgb: 212, 175, 55;
+  background-image: 
+    linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(10, 10, 14, 0.95) 100%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), 
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 16px 16px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 12px 14px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   gap: 16px;
   justify-content: space-between;
-  transition: border-color 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: visible !important;
 }
 
 .podio-card:hover {
-  border-color: rgba(212, 175, 55, 0.2);
+  border-color: rgba(var(--card-accent-rgb), 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(var(--card-accent-rgb), 0.08);
 }
 
 .podio-pill-container {
@@ -716,7 +726,8 @@
   flex-direction: column;
   align-items: center;
   width: 90px;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 }
 
 .podio-column:hover {
@@ -802,24 +813,32 @@
   font-size: 12px;
 }
 
-/* Co-working Card */
 .coworking-card {
-  background: linear-gradient(135deg, rgba(18, 18, 24, 0.9) 0%, rgba(30, 30, 39, 0.6) 100%);
+  --card-accent: var(--accent);
+  --card-accent-rgb: 99, 102, 241;
+  background-image: 
+    linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(10, 10, 14, 0.95) 100%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), 
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 16px 16px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 12px 14px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   gap: 16px;
   justify-content: space-between;
-  transition: border-color 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
-  z-index: 3; /* Asegura que la tarjeta del dojo y sus elementos floten por encima de los bloques superiores */
+  overflow: visible !important;
+  z-index: 3; /* Asegura que la tarjeta de la comunidad y sus elementos floten por encima de los bloques superiores */
 }
 
 .coworking-card:hover {
-  border-color: rgba(99, 102, 241, 0.2);
+  border-color: rgba(var(--card-accent-rgb), 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(var(--card-accent-rgb), 0.08);
 }
 
 .coworking-slot {
@@ -954,16 +973,44 @@
   }
 }
 
-/* ===== 2-COLUMN DASHBOARD GRID LAYOUT ===== */
+/* ===== 3-COLUMN DASHBOARD GRID LAYOUT ===== */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-top: 24px;
   width: 100%;
   align-items: stretch;
   position: relative;
-  z-index: 2; /* Eleva la cuadrícula del dojo sobre los elementos superiores para evitar superposiciones de tooltips */
+  z-index: 2; /* Eleva la cuadrícula de la comunidad sobre los elementos superiores para evitar superposiciones de tooltips */
+}
+
+/* Tarjeta de Récord de Pomodoros */
+.top-pomodoros-card {
+  --card-accent: var(--green);
+  --card-accent-rgb: 5, 255, 219;
+  background-image: 
+    linear-gradient(135deg, rgba(5, 255, 219, 0.05) 0%, rgba(10, 10, 14, 0.95) 100%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), 
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 16px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: space-between;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: visible !important;
+}
+
+.top-pomodoros-card:hover {
+  border-color: rgba(var(--card-accent-rgb), 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(var(--card-accent-rgb), 0.08);
 }
 
 .dashboard-main-column {

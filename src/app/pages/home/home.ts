@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
 import { IdentitySettings } from '../../components/identity-settings';
-import { DojoBossService } from '../../services/dojo-boss.service';
+import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
@@ -26,7 +26,7 @@ export class Home implements OnInit, OnDestroy {
   constructor(
     public membership: MembershipService,
     private router: Router,
-    public bossService: DojoBossService
+    public bossService: ComunidadBossService
   ) {
     this.currentTheme = this.membership.selectedTheme;
     this.userName = this.membership.userName;
@@ -97,7 +97,7 @@ export class Home implements OnInit, OnDestroy {
       navZen: 'Zona de concentración',
       navTimer: 'Estadísticas',
       navShield: 'Baúl de ideas',
-      title: 'El Dojo',
+      title: 'La Comunidad',
       desc: 'Tu espacio mental para declarar objetivos de alto impacto.'
     };
   });

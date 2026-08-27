@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { MembershipService } from './membership.service';
 
-export interface DojoBoss {
+export interface ComunidadBoss {
   name: string;
   maxHp: number;
   currentHp: number;
@@ -12,11 +12,11 @@ export interface DojoBoss {
 @Injectable({
   providedIn: 'root'
 })
-export class DojoBossService {
+export class ComunidadBossService {
   private membership = inject(MembershipService);
 
   // Boss configurations depending on the active theme
-  private bossCatalog: Record<string, Omit<DojoBoss, 'currentHp' | 'status'>> = {
+  private bossCatalog: Record<string, Omit<ComunidadBoss, 'currentHp' | 'status'>> = {
     samurai: {
       name: 'La Hidra de las Tareas Interminables',
       maxHp: 12000,
@@ -55,7 +55,7 @@ export class DojoBossService {
   };
 
   // State signals
-  activeBoss = signal<DojoBoss>({
+  activeBoss = signal<ComunidadBoss>({
     name: 'La Sirena de las Distracciones',
     maxHp: 9000,
     currentHp: 6750,
@@ -63,8 +63,8 @@ export class DojoBossService {
     status: 'active'
   });
 
-  dojoShield = signal<number>(850);
-  maxDojoShield = 1000;
+  comunidadShield = signal<number>(850);
+  maxComunidadShield = 1000;
 
   // Active weapon state
   activeWeaponId = signal<string>('katana_wood');
@@ -79,9 +79,9 @@ export class DojoBossService {
     return 1.10; // wood bokken default
   });
 
-  // Logs of events in the Dojo Raid
+  // Logs of events in the Comunidad Raid
   bossLogs = signal<string[]>([
-    '⚔️ ¡El Dojo de Concentración está activo!',
+    '⚔️ ¡La Comunidad de Concentración está activa!',
     '👾 La Sirena de las Distracciones ha invadido la Zona de Enfoque.'
   ]);
 
@@ -94,20 +94,20 @@ export class DojoBossService {
     return Math.max(0, Math.round((boss.currentHp / boss.maxHp) * 100));
   });
 
-  // Compute percentage of Dojo Shield
+  // Compute percentage of Comunidad Shield
   shieldPercent = computed(() => {
-    return Math.max(0, Math.round((this.dojoShield() / this.maxDojoShield) * 100));
+    return Math.max(0, Math.round((this.comunidadShield() / this.maxComunidadShield) * 100));
   });
 
   constructor() {
     // Load saved boss health if available
-    const saved = localStorage.getItem('dojo-boss-state');
+    const saved = localStorage.getItem('comunidad-boss-state');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (parsed.boss && parsed.boss.type === 'siren') {
           this.activeBoss.set(parsed.boss);
-          this.dojoShield.set(parsed.shield || 850);
+          this.comunidadShield.set(parsed.shield || 850);
           if (parsed.logs) this.bossLogs.set(parsed.logs);
           if (parsed.userDamageDealt !== undefined) this.userDamageDealt.set(parsed.userDamageDealt);
         } else {
@@ -126,9 +126,9 @@ export class DojoBossService {
   }
 
   private saveState() {
-    localStorage.setItem('dojo-boss-state', JSON.stringify({
+    localStorage.setItem('comunidad-boss-state', JSON.stringify({
       boss: this.activeBoss(),
-      shield: this.dojoShield(),
+      shield: this.comunidadShield(),
       logs: this.bossLogs(),
       userDamageDealt: this.userDamageDealt()
     }));
@@ -221,11 +221,11 @@ export class DojoBossService {
       return { ...boss, currentHp: newHp };
     });
 
-    // Reduce dojo shield
-    this.dojoShield.update(shield => {
+    // Reduce comunidad shield
+    this.comunidadShield.update(shield => {
       const newShield = Math.max(0, shield - 40);
       if (newShield === 0) {
-        this.addLog(`⚠️ El escudo del Dojo ha colapsado. ¡El Oni ataca con fuerza!`);
+        this.addLog(`⚠️ El escudo de la Comunidad ha colapsado. ¡El Oni ataca con fuerza!`);
       } else {
         this.addLog(`🛡️ El escudo comunitario absorbió el contraataque (-40 de escudo).`);
       }
@@ -235,7 +235,7 @@ export class DojoBossService {
     this.saveState();
   }
 
-  // Live damage tick from other users in the dojo
+  // Live damage tick from other users in the comunidad
   tickContinuousDamage(activeUsers: number) {
     if (activeUsers <= 0) return;
 
@@ -274,9 +274,9 @@ export class DojoBossService {
       type: catalog.type as any,
       status: 'active'
     });
-    this.dojoShield.set(1000);
+    this.comunidadShield.set(1000);
     this.bossLogs.set([
-      '⚔️ ¡El Dojo de Concentración se ha restablecido!',
+      '⚔️ ¡La Comunidad de Concentración se ha restablecido!',
       `👾 Un nuevo ${catalog.name} ha surgido.`
     ]);
     this.saveState();

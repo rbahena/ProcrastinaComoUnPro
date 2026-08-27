@@ -1,0 +1,24 @@
+.back-home-btn:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: var(--accent) !important;
+  transform: translateY(-1px);
+}
+
+.back-home-btn:active {
+  transform: translateY(0);
+}
+
+.main {
+  transition: margin-left 0.25s ease-in-out;
+}
+
+.main-collapsed {
+  margin-left: 0px !important;
+}
+
+/* Animations and responsiveness */
+@media (max-width: 992px) {
+  .main {
+    padding: 20px !important;
+  }
+}

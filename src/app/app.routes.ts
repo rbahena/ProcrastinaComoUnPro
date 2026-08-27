@@ -55,6 +55,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/medallero/medallero').then(m => m.Medallero)
   },
   {
+    path: 'bitacora',
+    loadComponent: () => import('./pages/bitacora/bitacora').then(m => m.Bitacora)
+  },
+  {
     path: 'ideas',
     loadComponent: () => import('./pages/ideas/ideas').then(m => m.Ideas)
   }

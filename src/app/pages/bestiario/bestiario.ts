@@ -2,7 +2,7 @@ import { Component, signal, computed, inject, WritableSignal } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
-import { DojoBossService } from '../../services/dojo-boss.service';
+import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
@@ -14,7 +14,7 @@ import { Navbar } from '../../components/navbar/navbar';
 })
 export class Bestiario {
   membership = inject(MembershipService);
-  bossService = inject(DojoBossService);
+  bossService = inject(ComunidadBossService);
 
   currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
   userName!: WritableSignal<string>;

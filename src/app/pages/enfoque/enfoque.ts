@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
-import { DojoBossService } from '../../services/dojo-boss.service';
+import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { IdentitySettings } from '../../components/identity-settings';
 import { Navbar } from '../../components/navbar/navbar';
 
@@ -24,14 +24,14 @@ export class Enfoque implements OnInit, OnDestroy {
   constructor(
     private router: Router, 
     public membership: MembershipService,
-    public bossService: DojoBossService
+    public bossService: ComunidadBossService
   ) {
     this.currentTheme = this.membership.selectedTheme;
     this.userName = this.membership.userName;
     this.selectedAvatar = this.membership.selectedAvatar;
     this.sidebarCollapsed = this.membership.sidebarCollapsed;
 
-    // Initialize Dojo Boss theme
+    // Initialize Comunidad Boss theme
     this.bossService.updateBossTheme(this.currentTheme());
   }
 
@@ -186,16 +186,16 @@ export class Enfoque implements OnInit, OnDestroy {
   partnerStatus = signal<'focused' | 'left'>('focused');
 
   // Templo de Enfoque Comunitario
-  dojoUsers = signal<any[]>([]);
-  dojoViewStyle = signal<'cards' | 'desks' | 'floating'>('cards');
-  dojoViewOptions: ('cards' | 'desks' | 'floating')[] = ['cards', 'desks', 'floating'];
-  dojoEvents = signal<any[]>([]);
+  comunidadUsers = signal<any[]>([]);
+  comunidadViewStyle = signal<'cards' | 'desks' | 'floating'>('cards');
+  comunidadViewOptions: ('cards' | 'desks' | 'floating')[] = ['cards', 'desks', 'floating'];
+  comunidadEvents = signal<any[]>([]);
   userActiveReaction = signal<string>('');
   globalFocusedCount = signal<number>(74);
   communityInterval: any = null;
-  dojoPanelExpanded = signal<boolean>(false);
+  comunidadPanelExpanded = signal<boolean>(false);
 
-  private initialDojoUsers = [
+  private initialComunidadUsers = [
     { name: 'Ana', avatar: 'lobo', status: 'focused', mission: 'Refactorizando el dashboard en Angular', timeLeft: 1200, percentage: 40 },
     { name: 'Ramiro', avatar: 'zorro', status: 'focused', mission: 'Escribiendo post sobre procrastinación', timeLeft: 600, percentage: 80 },
     { name: 'Sofía', avatar: 'aguila', status: 'focused', mission: 'Diseñando pantallas en Figma', timeLeft: 1500, percentage: 20 },
@@ -242,12 +242,12 @@ export class Enfoque implements OnInit, OnDestroy {
   // Modal de Mensaje Post-Sesión (al salir y dejar a tu compañero)
   showPostSessionSupportModal = signal(false);
   predefinedPostSessionMessages = [
-    '⚡ ¡Tú puedes con el cierre! Te espero en el dojo.',
+    '⚡ ¡Tú puedes con el cierre! Te espero en la comunidad.',
     '🧠 ¡No aflojes ahora! Ya casi lo tienes.',
     '🎯 ¡Último esfuerzo! Termina con broche de oro.',
     '👋 ¡Sigue enfocado! Nos vemos en el próximo bloque.'
   ];
-  selectedPostSessionMessage = signal('⚡ ¡Tú puedes con el cierre! Te espero en el dojo.');
+  selectedPostSessionMessage = signal('⚡ ¡Tú puedes con el cierre! Te espero en la comunidad.');
 
   // Modal de Guía de Raid y Bestiario
   showRaidGuideModal = signal(false);
@@ -294,7 +294,7 @@ export class Enfoque implements OnInit, OnDestroy {
   });
 
   ngOnInit() {
-    this.initializeDojoUsers();
+    this.initializeComunidadUsers();
     this.communityInterval = setInterval(() => {
       this.tickCommunity();
     }, 4000);
@@ -382,7 +382,7 @@ export class Enfoque implements OnInit, OnDestroy {
           // Ocasionalmente alertar en el feed que estás en pausa
           const halfTime = this.membership.isPremium() ? 90 : 60;
           if (this.emergencyTimeLeft() === halfTime && this.coworkingMode() === 'comunitario') {
-            this.addDojoEvent('⚠️ Varios compañeros notaron tu pausa. ¡Reanuda pronto!', 'reaction');
+            this.addComunidadEvent('⚠️ Varios compañeros notaron tu pausa. ¡Reanuda pronto!', 'reaction');
           }
         } else {
           // Se acabó el tiempo de pausa -> Sesión Interrumpida automáticamente
@@ -392,10 +392,10 @@ export class Enfoque implements OnInit, OnDestroy {
           this.arenaState.set('summary');
           this.playTone(150, 'sawtooth', 0.15, 0.5);
 
-          // Cura al jefe por agotarse la pausa en dojo comunitario
+          // Cura al jefe por agotarse la pausa en comunidad
           if (this.coworkingMode() === 'comunitario') {
             this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
-            this.addDojoEvent(`💔 ${this.userName() || 'Un Guerrero'} se distrajo por demasiado tiempo. ¡El Oni recupera fuerzas!`, 'reaction');
+            this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} se distrajo por demasiado tiempo. ¡El Oni recupera fuerzas!`, 'reaction');
           }
         }
       }, 1000);
@@ -412,10 +412,10 @@ export class Enfoque implements OnInit, OnDestroy {
     this.manuallyAbandoned.set(true);
     this.arenaState.set('summary');
 
-    // Cura al jefe por abandono en dojo comunitario
+    // Cura al jefe por abandono en comunidad
     if (this.coworkingMode() === 'comunitario') {
       this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
-      this.addDojoEvent(`💔 ${this.userName() || 'Un Guerrero'} ha abandonado la sesión de enfoque. ¡El Oni se fortalece!`, 'reaction');
+      this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} ha abandonado la sesión de enfoque. ¡El Oni se fortalece!`, 'reaction');
     }
   }
 
@@ -487,7 +487,7 @@ export class Enfoque implements OnInit, OnDestroy {
         const sessionId = `session-${Date.now()}`;
         this.membership.rewardCompletedSession(sessionId, isShared);
         
-        // Daño adicional al Boss por completar el Pomodoro en el Dojo
+        // Daño adicional al Boss por completar el Pomodoro en la Comunidad
         if (isShared) {
           const isCritical = this.activeMethodology() === 'sapo';
           const damage = isCritical ? 300 : 100;
@@ -496,7 +496,7 @@ export class Enfoque implements OnInit, OnDestroy {
           const eventText = isCritical 
             ? `🔥 ¡CRÍTICO! ${this.userName()} completó su Sapo e infligió ${damage} de daño al Boss.`
             : `🗡️ ${this.userName()} completó su Pomodoro e infligió ${damage} de daño al Boss.`;
-          this.addDojoEvent(eventText, 'complete');
+          this.addComunidadEvent(eventText, 'complete');
         }
         
         // Recompensa adicional por objetivo cumplido (Pregunta 2)
@@ -514,7 +514,7 @@ export class Enfoque implements OnInit, OnDestroy {
           this.activeObjective()
         );
 
-        // Si estamos en dojo comunitario, mostramos la modal post-sesión para dejar un mensaje de motivación en el muro
+        // Si estamos en comunidad, mostramos la modal post-sesión para dejar un mensaje de motivación en el muro
         if (this.coworkingMode() === 'comunitario' && !this.showPostSessionSupportModal()) {
           this.showPostSessionSupportModal.set(true);
           return;
@@ -989,24 +989,24 @@ export class Enfoque implements OnInit, OnDestroy {
     this.showToast('👥 Te has unido al Templo de Enfoque Comunitario.', 'info');
   }
 
-  initializeDojoUsers() {
-    const seeded = this.initialDojoUsers.map((u, index) => ({
+  initializeComunidadUsers() {
+    const seeded = this.initialComunidadUsers.map((u, index) => ({
       ...u,
       x: Math.floor(Math.random() * 75) + 10,
       y: Math.floor(Math.random() * 65) + 15,
       desk: index + 1,
       reaction: ''
     }));
-    this.dojoUsers.set(seeded);
+    this.comunidadUsers.set(seeded);
     // Generar un par de eventos iniciales
-    this.addDojoEvent('⚔️ El Dojo de Concentración está activo.', 'join');
-    this.addDojoEvent('👥 Hay 10 guerreros trabajando en la sala.', 'join');
+    this.addComunidadEvent('⚔️ El Comunidad de Concentración está activo.', 'join');
+    this.addComunidadEvent('👥 Hay 10 guerreros trabajando en la sala.', 'join');
   }
 
-  addDojoEvent(text: string, type: 'join' | 'complete' | 'break' | 'reaction') {
-    const current = this.dojoEvents();
+  addComunidadEvent(text: string, type: 'join' | 'complete' | 'break' | 'reaction') {
+    const current = this.comunidadEvents();
     const newEvent = { id: Date.now() + Math.random(), text, type };
-    this.dojoEvents.set([newEvent, ...current].slice(0, 8));
+    this.comunidadEvents.set([newEvent, ...current].slice(0, 8));
   }
 
   formatTime(seconds: number): string {
@@ -1020,7 +1020,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   simulateUserJoining() {
-    const currentNames = this.dojoUsers().map(u => u.name);
+    const currentNames = this.comunidadUsers().map(u => u.name);
     const availableNames = this.namesPool.filter(n => !currentNames.includes(n));
     if (availableNames.length === 0) return;
     
@@ -1029,7 +1029,7 @@ export class Enfoque implements OnInit, OnDestroy {
     const avatar = avatars[Math.floor(Math.random() * avatars.length)];
     const mission = this.getRandomMission();
     
-    const takenDesks = this.dojoUsers().map(u => u.desk);
+    const takenDesks = this.comunidadUsers().map(u => u.desk);
     let desk = 1;
     for (let i = 1; i <= 12; i++) {
       if (!takenDesks.includes(i)) {
@@ -1051,24 +1051,24 @@ export class Enfoque implements OnInit, OnDestroy {
       reaction: ''
     };
 
-    this.dojoUsers.update(users => [...users, newUser]);
-    this.addDojoEvent(`👥 ${name} se unió al Templo de Enfoque.`, 'join');
+    this.comunidadUsers.update(users => [...users, newUser]);
+    this.addComunidadEvent(`👥 ${name} se unió al Templo de Enfoque.`, 'join');
   }
 
   simulateUserLeaving() {
-    const users = this.dojoUsers();
+    const users = this.comunidadUsers();
     if (users.length <= 4) return;
     const candidates = users.filter(u => u.status === 'idle' || u.status === 'break');
     const target = candidates.length > 0 
       ? candidates[Math.floor(Math.random() * candidates.length)]
       : users[Math.floor(Math.random() * users.length)];
       
-    this.dojoUsers.update(list => list.filter(u => u.name !== target.name));
-    this.addDojoEvent(`👋 ${target.name} salió del Templo.`, 'break');
+    this.comunidadUsers.update(list => list.filter(u => u.name !== target.name));
+    this.addComunidadEvent(`👋 ${target.name} salió del Templo.`, 'break');
   }
 
   simulateIncomingReaction() {
-    const activeUsers = this.dojoUsers().filter(u => u.status === 'focused');
+    const activeUsers = this.comunidadUsers().filter(u => u.status === 'focused');
     if (activeUsers.length === 0) return;
     
     const sender = activeUsers[Math.floor(Math.random() * activeUsers.length)];
@@ -1076,7 +1076,7 @@ export class Enfoque implements OnInit, OnDestroy {
     const emoji = emojis[Math.floor(Math.random() * emojis.length)];
     
     this.userActiveReaction.set(emoji);
-    this.addDojoEvent(`¡${sender.name} te envió energía! ${emoji}`, 'reaction');
+    this.addComunidadEvent(`¡${sender.name} te envió energía! ${emoji}`, 'reaction');
     
     if (this.arenaState() !== 'active') {
       this.showToast(`¡${sender.name} te envió apoyo! ${emoji}`, 'info');
@@ -1090,62 +1090,62 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   sendSupportToUser(userName: string, emoji: string) {
-    this.addDojoEvent(`Le enviaste ${emoji} a ${userName}`, 'reaction');
+    this.addComunidadEvent(`Le enviaste ${emoji} a ${userName}`, 'reaction');
     
-    const updated = this.dojoUsers().map(u => {
+    const updated = this.comunidadUsers().map(u => {
       if (u.name === userName) {
         return { ...u, reaction: emoji };
       }
       return u;
     });
-    this.dojoUsers.set(updated);
+    this.comunidadUsers.set(updated);
     
     setTimeout(() => {
-      const reset = this.dojoUsers().map(u => {
+      const reset = this.comunidadUsers().map(u => {
         if (u.name === userName && u.reaction === emoji) {
           return { ...u, reaction: '' };
         }
         return u;
       });
-      this.dojoUsers.set(reset);
+      this.comunidadUsers.set(reset);
     }, 3000);
 
     setTimeout(() => {
-      const user = this.dojoUsers().find(u => u.name === userName);
+      const user = this.comunidadUsers().find(u => u.name === userName);
       if (user) {
         const replyEmoji = '💖';
-        const updatedWithReply = this.dojoUsers().map(u => {
+        const updatedWithReply = this.comunidadUsers().map(u => {
           if (u.name === userName) {
             return { ...u, reaction: replyEmoji };
           }
           return u;
         });
-        this.dojoUsers.set(updatedWithReply);
+        this.comunidadUsers.set(updatedWithReply);
         
-        this.addDojoEvent(`¡${userName} te agradece el apoyo! 💖`, 'reaction');
+        this.addComunidadEvent(`¡${userName} te agradece el apoyo! 💖`, 'reaction');
 
         setTimeout(() => {
-          const finalReset = this.dojoUsers().map(u => {
+          const finalReset = this.comunidadUsers().map(u => {
             if (u.name === userName && u.reaction === replyEmoji) {
               return { ...u, reaction: '' };
             }
             return u;
           });
-          this.dojoUsers.set(finalReset);
+          this.comunidadUsers.set(finalReset);
         }, 3000);
       }
     }, 2000);
   }
 
   tickCommunity() {
-    // Daño continuo del resto de usuarios en el Dojo Comunitario al Boss
+    // Daño continuo del resto de usuarios en el Comunidad al Boss
     if (this.coworkingMode() === 'comunitario' && this.arenaState() === 'active' && !this.isBreak()) {
-      const activePartnersCount = this.dojoUsers().filter(u => u.status === 'focused').length;
+      const activePartnersCount = this.comunidadUsers().filter(u => u.status === 'focused').length;
       // Cada compañero inflige 4 de daño (1 por segundo durante 4 segundos)
       this.bossService.tickContinuousDamage(activePartnersCount * 4);
     }
 
-    const updatedUsers = this.dojoUsers().map(u => {
+    const updatedUsers = this.comunidadUsers().map(u => {
       if (u.status === 'focused') {
         const newTime = Math.max(0, u.timeLeft - 4);
         const total = 1500;
@@ -1153,7 +1153,7 @@ export class Enfoque implements OnInit, OnDestroy {
         
         if (newTime === 0) {
           setTimeout(() => {
-            this.addDojoEvent(`🎉 ¡${u.name} completó su pomodoro de enfoque!`, 'complete');
+            this.addComunidadEvent(`🎉 ¡${u.name} completó su pomodoro de enfoque!`, 'complete');
             this.globalFocusedCount.update(c => Math.max(10, c - 1));
           }, 0);
           return {
@@ -1175,7 +1175,7 @@ export class Enfoque implements OnInit, OnDestroy {
         
         if (newTime === 0) {
           setTimeout(() => {
-            this.addDojoEvent(`☕ ¡${u.name} terminó su descanso y está listo para enfocar!`, 'join');
+            this.addComunidadEvent(`☕ ¡${u.name} terminó su descanso y está listo para enfocar!`, 'join');
           }, 0);
           return {
             ...u,
@@ -1194,17 +1194,17 @@ export class Enfoque implements OnInit, OnDestroy {
       return u;
     });
 
-    this.dojoUsers.set(updatedUsers);
+    this.comunidadUsers.set(updatedUsers);
 
-    const idleCount = this.dojoUsers().filter(u => u.status === 'idle').length;
+    const idleCount = this.comunidadUsers().filter(u => u.status === 'idle').length;
     if (idleCount > 0 && Math.random() < 0.2) {
-      const idles = this.dojoUsers().filter(u => u.status === 'idle');
+      const idles = this.comunidadUsers().filter(u => u.status === 'idle');
       const lucky = idles[Math.floor(Math.random() * idles.length)];
-      const updated = this.dojoUsers().map(u => {
+      const updated = this.comunidadUsers().map(u => {
         if (u.name === lucky.name) {
           const mission = this.getRandomMission();
           setTimeout(() => {
-            this.addDojoEvent(`⚔️ ${u.name} inició su misión: "${mission}"`, 'join');
+            this.addComunidadEvent(`⚔️ ${u.name} inició su misión: "${mission}"`, 'join');
           }, 0);
           return {
             ...u,
@@ -1216,7 +1216,7 @@ export class Enfoque implements OnInit, OnDestroy {
         }
         return u;
       });
-      this.dojoUsers.set(updated);
+      this.comunidadUsers.set(updated);
     }
 
     if (Math.random() < 0.4) {
@@ -1224,11 +1224,11 @@ export class Enfoque implements OnInit, OnDestroy {
       this.globalFocusedCount.update(c => Math.max(10, Math.min(150, c + change)));
     }
 
-    if (this.dojoUsers().length < 12 && Math.random() < 0.15) {
+    if (this.comunidadUsers().length < 12 && Math.random() < 0.15) {
       this.simulateUserJoining();
     }
 
-    if (this.dojoUsers().length > 6 && Math.random() < 0.08) {
+    if (this.comunidadUsers().length > 6 && Math.random() < 0.08) {
       this.simulateUserLeaving();
     }
 

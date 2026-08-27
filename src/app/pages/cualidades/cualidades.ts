@@ -2,10 +2,10 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MembershipService, AvatarItem, QualityItem } from '../../services/membership.service';
-import { DojoBossService } from '../../services/dojo-boss.service';
+import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { Navbar } from '../../components/navbar/navbar';
 
-interface DojoAvatar {
+interface ComunidadAvatar {
   id: string;
   name: string;
   type: 'inicial' | 'cualidad' | 'especial' | 'legendario';
@@ -87,7 +87,7 @@ interface DojoAvatar {
                 <!-- Medallas extra si tiene más de 3 victorias -->
                 <div *ngIf="membership.podiumWins() > 3" 
                      class="podium-medal-badge champion custom-tooltip-host"
-                     [attr.data-tooltip]="'Campeón del Dojo: ' + membership.podiumWins() + ' podios conquistados'"
+                     [attr.data-tooltip]="'Campeón de la Comunidad: ' + membership.podiumWins() + ' podios conquistados'"
                      style="position: relative; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; border-radius: 50%; color: #a855f7; cursor: pointer; transition: all 0.2s;"
                      onmouseover="this.style.transform='scale(1.15)';"
                      onmouseout="this.style.transform='scale(1)';">
@@ -169,7 +169,7 @@ interface DojoAvatar {
 
               <!-- CASO 2: DESBLOQUEABLE POR PRO COINS (TIENDA / LEGENDARIOS) -->
               <div *ngIf="!avatar.qualityId && avatar.cost > 0" class="unlock-criteria-section">
-                <p class="criteria-label">Desbloquea con Monedas del Dojo:</p>
+                <p class="criteria-label">Desbloquea con Monedas de la Comunidad:</p>
                 <div class="criteria-shop-card">
                   <div class="shop-cost-row">
                     <span>Precio:</span>
@@ -201,7 +201,7 @@ interface DojoAvatar {
             <!-- ESTADO B: DATOS E HISTORIAL POR DEFECTO -->
             <ng-template #defaultStats>
               <div class="stats-overview-box">
-                <h4 class="stats-box-title"><i class="fa-solid fa-chart-simple"></i> Progreso en el Dojo</h4>
+                <h4 class="stats-box-title"><i class="fa-solid fa-chart-simple"></i> Progreso en la Comunidad</h4>
                 
                 <div class="stat-row">
                   <span class="stat-name">Avatares Desbloqueados:</span>
@@ -311,10 +311,10 @@ interface DojoAvatar {
             </div>
           </div>
 
-          <!-- SECCIÓN 3: BESTIAS DEL DOJO -->
+          <!-- SECCIÓN 3: BESTIAS DEL COMUNIDAD -->
           <div class="category-section">
             <h3 class="category-title">
-              Bestias del Dojo 🦁
+              Bestias de la Comunidad 🦁
             </h3>
             <div class="avatar-minimal-grid">
               <div 
@@ -386,7 +386,7 @@ interface DojoAvatar {
               <i class="fa-solid fa-shield-halved"></i> Mis Armas y Equipamiento
             </h3>
             <p style="font-size: 11.5px; color: var(--muted); margin: -4px 0 16px 0;">
-              Haz clic en tus sables o lanzas desbloqueadas para equiparlas y multiplicar tu daño en las Raids del Dojo.
+              Haz clic en tus sables o lanzas desbloqueadas para equiparlas y multiplicar tu daño en las Raids de la Comunidad.
             </p>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px;">
@@ -432,7 +432,7 @@ interface DojoAvatar {
         <h3 class="reward-title">Cualidad Desbloqueada</h3>
         <span class="success-quality">{{ unlockedRewardQuality()?.name }}</span>
         <p class="reward-description">
-          Has demostrado la cualidad de <strong>{{ unlockedRewardQuality()?.name }}</strong>. El avatar del Dojo ahora está desbloqueado.
+          Has demostrado la cualidad de <strong>{{ unlockedRewardQuality()?.name }}</strong>. El avatar de la Comunidad ahora está desbloqueado.
         </p>
         <button (click)="closeRewardFlow()" class="btn-equip-now-action">
           Excelente <i class="fa-solid fa-circle-check"></i>
@@ -440,12 +440,12 @@ interface DojoAvatar {
       </div>
     </div>
 
-    <!-- TOAST DE BIENVENIDA AL DOJO -->
+    <!-- TOAST DE BIENVENIDA AL COMUNIDAD -->
     <div class="welcome-toast-overlay" *ngIf="showWelcomeAlert()" (click)="showWelcomeAlert.set(false)" style="cursor: pointer;">
       <div class="welcome-toast-card">
         <div class="toast-accent-bar"></div>
         <div class="toast-content-wrapper">
-          <span class="toast-badge">✨ ¡BIENVENIDO AL DOJO!</span>
+          <span class="toast-badge">✨ ¡BIENVENIDO AL COMUNIDAD!</span>
           <h4 class="toast-title">Comienza tu viaje de enfoque</h4>
           <p class="toast-desc">
             Ingresa tu nombre de usuario y equipa tu avatar inicial en la sección <strong>"Mi Avatar"</strong>.
@@ -1294,11 +1294,11 @@ export class Cualidades implements OnInit {
     const unlockedList = this.membership.unlockedAvatars();
     const qualities = this.membership.qualitiesCatalog();
 
-    const list: DojoAvatar[] = [
+    const list: ComunidadAvatar[] = [
       // LIBRES DESDE EL INICIO
-      { id: 'gato', name: 'Gato Lancero', type: 'inicial', emoji: '🐱', color: '#10b981', role: 'Centinela del Dojo', cost: 0, qualityId: null },
-      { id: 'perro', name: 'Perro Lancero', type: 'inicial', emoji: '🐶', color: '#3a86f0', role: 'Guardia del Dojo', cost: 0, qualityId: null },
-      { id: 'conejo', name: 'Conejo Lancero', type: 'inicial', emoji: '🐰', color: '#9ca3af', role: 'Explorador del Dojo', cost: 0, qualityId: null },
+      { id: 'gato', name: 'Gato Lancero', type: 'inicial', emoji: '🐱', color: '#10b981', role: 'Centinela de la Comunidad', cost: 0, qualityId: null },
+      { id: 'perro', name: 'Perro Lancero', type: 'inicial', emoji: '🐶', color: '#3a86f0', role: 'Guardia de la Comunidad', cost: 0, qualityId: null },
+      { id: 'conejo', name: 'Conejo Lancero', type: 'inicial', emoji: '🐰', color: '#9ca3af', role: 'Explorador de la Comunidad', cost: 0, qualityId: null },
       { id: 'loro', name: 'Loro Lancero', type: 'inicial', emoji: '🦜', color: '#fbbf24', role: 'Centinela Alado', cost: 0, qualityId: null },
       { id: 'hamster', name: 'Hámster Lancero', type: 'inicial', emoji: '🐹', color: '#f97316', role: 'Guardián Veloz', cost: 0, qualityId: null },
       { id: 'raton', name: 'Ratón Lancero', type: 'inicial', emoji: '🐭', color: '#ec4899', role: 'Explorador Sigiloso', cost: 0, qualityId: null },
@@ -1314,15 +1314,15 @@ export class Cualidades implements OnInit {
       { id: 'abeja', name: 'Abeja', type: 'cualidad', emoji: '🐝', color: '#eab308', role: 'Obrero Incansable', cost: 70, qualityId: 'colaboracion', unlockTotal: 5 },
       { id: 'castor', name: 'Castor', type: 'cualidad', emoji: '🦫', color: '#b45309', role: 'Constructor Feroz', cost: 80, qualityId: 'construccion', unlockTotal: 3 },
 
-      // BESTIAS DEL DOJO (Monedas)
+      // BESTIAS DEL COMUNIDAD (Monedas)
       { id: 'zorro', name: 'Zorro', type: 'especial', emoji: '🦊', color: '#f97316', role: 'Espía de Sombras', cost: 100, qualityId: null, qualityName: 'Astucia', qualityReq: 'Adquiérelo por 100 Pro Coins 🪙 aplicando inteligencia y estrategia en tus estudios.' },
       { id: 'lince', name: 'Lince', type: 'especial', emoji: '🐆', color: '#a855f7', role: 'Felino Sigiloso', cost: 180, qualityId: null, qualityName: 'Precisión', qualityReq: 'Adquiérelo por 180 Pro Coins 🪙 entrenando tu enfoque y puntería mental.' },
       { id: 'panda', name: 'Panda', type: 'especial', emoji: '🐼', color: '#6b7280', role: 'Maestro Zen', cost: 150, qualityId: null, qualityName: 'Serenidad', qualityReq: 'Adquiérelo por 150 Pro Coins 🪙 manteniendo el enfoque y la paz mental contra la ansiedad.' },
       { id: 'oso', name: 'Oso', type: 'especial', emoji: '🐻', color: '#78350f', role: 'Fuerza Inquebrantable', cost: 200, qualityId: null, qualityName: 'Resistencia', qualityReq: 'Adquiérelo por 200 Pro Coins 🪙 resistiendo a distractores y manteniéndote firme.' },
       { id: 'elefante', name: 'Elefante', type: 'especial', emoji: '🐘', color: '#6b7280', role: 'Memoria Ancestral', cost: 220, qualityId: null, qualityName: 'Estabilidad', qualityReq: 'Adquiérelo por 220 Pro Coins 🪙 sosteniendo tu esfuerzo y recordando tus metas.' },
-      { id: 'leon', name: 'León', type: 'especial', emoji: '🦁', color: '#fbbf24', role: 'Rey del Dojo', cost: 250, qualityId: null, qualityName: 'Liderazgo', qualityReq: 'Adquiérelo por 250 Pro Coins 🪙 liderando tus tareas y venciendo el miedo al fracaso.' },
+      { id: 'leon', name: 'León', type: 'especial', emoji: '🦁', color: '#fbbf24', role: 'Rey de la Comunidad', cost: 250, qualityId: null, qualityName: 'Liderazgo', qualityReq: 'Adquiérelo por 250 Pro Coins 🪙 liderando tus tareas y venciendo el miedo al fracaso.' },
       { id: 'tigre', name: 'Tigre', type: 'especial', emoji: '🐯', color: '#f97316', role: 'Fuerza de Voluntad', cost: 300, qualityId: null, qualityName: 'Determinación', qualityReq: 'Adquiérelo por 300 Pro Coins 🪙 mostrando coraje individual en cada meta.' },
-      { id: 'lobo', name: 'Lobo', type: 'especial', emoji: '🐺', color: '#ef4444', role: 'Guía de Manada', cost: 350, qualityId: null, qualityName: 'Perseverancia', qualityReq: 'Adquiérelo por 350 Pro Coins 🪙 demostrando lealtad y consistencia en el Dojo.' },
+      { id: 'lobo', name: 'Lobo', type: 'especial', emoji: '🐺', color: '#ef4444', role: 'Guía de Manada', cost: 350, qualityId: null, qualityName: 'Perseverancia', qualityReq: 'Adquiérelo por 350 Pro Coins 🪙 demostrando lealtad y consistencia en la Comunidad.' },
 
       // LEGENDARIOS
       { id: 'dragon', name: 'Dragón del Ego', type: 'legendario', emoji: '🐉', color: '#d946ef', role: 'Señor del Ego', cost: 600, qualityId: null, qualityName: 'Maestría', qualityReq: 'Desbloquea el poder supremo del Dragón del Ego por 600 Pro Coins 🪙 dominando el tiempo y tu mente.' },
@@ -1387,7 +1387,7 @@ export class Cualidades implements OnInit {
 
   constructor(
     public membership: MembershipService,
-    public bossService: DojoBossService
+    public bossService: ComunidadBossService
   ) {
     this.sidebarCollapsed = this.membership.sidebarCollapsed;
   }

@@ -1,7 +1,7 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
-import { DojoBossService } from '../../services/dojo-boss.service';
+import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
@@ -13,7 +13,7 @@ import { Navbar } from '../../components/navbar/navbar';
 })
 export class Medallero {
   membership = inject(MembershipService);
-  bossService = inject(DojoBossService);
+  bossService = inject(ComunidadBossService);
 
   activeTab = signal<'objectives' | 'pomodoros' | 'streaks' | 'boss'>('objectives');
   sidebarCollapsed = this.membership.sidebarCollapsed;
@@ -121,7 +121,7 @@ export class Medallero {
     
     const players = [
       { name: 'Ana "La Sombra"', avatar: 'lobo', damage: 8500, label: 'Cazadora de Jefes', isSelf: false },
-      { name: 'Carlos "Mente Zen"', avatar: 'panda', damage: 6200, label: 'Estratega del Dojo', isSelf: false },
+      { name: 'Carlos "Mente Zen"', avatar: 'panda', damage: 6200, label: 'Estratega de la Comunidad', isSelf: false },
       { name: 'Sofía "Hacker"', avatar: 'mapache', damage: 5400, label: 'Destructora de Kraken', isSelf: false },
       { name: 'Laura "Fénix"', avatar: 'fenix', damage: 4800, label: 'Furia Ígnea', isSelf: false },
       { name: 'Mateo "El Castor"', avatar: 'castor', damage: 3900, label: 'Ingeniero de Asedio', isSelf: false },
