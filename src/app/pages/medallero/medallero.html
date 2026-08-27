@@ -11,21 +11,9 @@
     <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
       <div>
         <h1 class="page-title" style="margin: 0; display: flex; align-items: center; gap: 12px;">
-          <span>🏆</span> Récords de Honor & Leyendas
+          Récords de la Comunidad
         </h1>
-        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">El salón de récords de la Comunidad. Conoce las marcas históricas alcanzadas por los guerreros en su camino al enfoque.</p>
-      </div>
-
-      <!-- Métricas Personales Rápidas -->
-      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-        <div class="metric-mini-badge" style="background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.18); color: var(--green); padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-          <i class="fa-solid fa-brain"></i>
-          <span>{{ membership.focusPoints() }} Pts</span>
-        </div>
-        <div class="metric-mini-badge" style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.18); color: #ef4444; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-          <i class="fa-solid fa-burst"></i>
-          <span>{{ bossService.userDamageDealt() }} Daño Raid</span>
-        </div>
+        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">Conoce los récords de nuestros usuarios y las marcas históricas que han alcanzado en su camino al enfoque.</p>
       </div>
     </div>
 
@@ -43,8 +31,8 @@
         <div *ngFor="let record of brokenRecords(); let i = index" 
              class="slider-card-wrapper" 
              [class.active]="i === activeCardIndex()"
-             [class.prev]="i === (activeCardIndex() === 0 ? 2 : activeCardIndex() - 1)"
-             [class.next]="i === (activeCardIndex() === 2 ? 0 : activeCardIndex() + 1)"
+             [class.prev]="i === (activeCardIndex() === 0 ? brokenRecords().length - 1 : activeCardIndex() - 1)"
+             [class.next]="i === (activeCardIndex() === brokenRecords().length - 1 ? 0 : activeCardIndex() + 1)"
              (click)="i !== activeCardIndex() ? setCard(i) : null"
              [style.--card-glow]="record.color" 
              [style.--card-glow-bg]="record.bgGlow">
@@ -81,19 +69,40 @@
 
               <!-- Cara Posterior (Datos del Récord) -->
               <div class="flip-card-back">
-                <i [class]="'fa-solid ' + record.icon" style="position: absolute; right: -10px; bottom: -10px; font-size: 90px; opacity: 0.04; pointer-events: none; color: #fff;"></i>
+                 <i [class]="'fa-solid ' + record.icon"
+                    [class.animate-icon-fire]="record.icon === 'fa-fire'"
+                    [class.animate-icon-tomato]="record.icon === 'fa-apple-whole'"
+                    [class.animate-icon-coins]="record.icon === 'fa-coins'"
+                    [class.animate-icon-trophy]="record.icon === 'fa-trophy'"
+                    style="position: absolute; right: -10px; bottom: -10px; font-size: 90px; opacity: 0.04; pointer-events: none; color: #fff; transform-origin: bottom right;"></i>
 
                 <div>
                   <div class="card-back-header">
                     <span class="card-back-title" [style.color]="record.color">
                       {{ record.title }}
                     </span>
-                    <i [class]="'fa-solid ' + record.icon" class="card-back-icon" [style.color]="record.color"></i>
+                    <i [class]="'fa-solid ' + record.icon" 
+                       class="card-back-icon" 
+                       [class.animate-header-fire]="record.icon === 'fa-fire'"
+                       [class.animate-header-tomato]="record.icon === 'fa-apple-whole'"
+                       [class.animate-header-coins]="record.icon === 'fa-coins'"
+                       [class.animate-header-trophy]="record.icon === 'fa-trophy'"
+                       [style.color]="record.color"></i>
                   </div>
                   
                   <p class="card-back-desc">
                     {{ record.description }}
                   </p>
+                  <div style="margin-top: 14px; padding: 10px 14px; background: linear-gradient(to right, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 75%, transparent 100%); border-radius: 6px; display: flex; gap: 10px; align-items: flex-start; text-align: left; box-sizing: border-box;">
+                    <!-- Punto Neón Brillante -->
+                    <span [style.background]="record.color" 
+                          [style.boxShadow]="'0 0 10px ' + record.color" 
+                          style="width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-top: 5px;"></span>
+                    
+                    <p style="font-family: inherit; font-size: 11px; line-height: 1.5; font-style: italic; color: rgba(255, 255, 255, 0.85); margin: 0;">
+                      {{ record.motivation }}
+                    </p>
+                  </div>
                 </div>
 
                 <!-- Estadísticas de Récord -->
@@ -111,8 +120,8 @@
                   </div>
                   
                   <div class="card-back-stat-row">
-                    <span class="card-back-stat-label">Fecha</span>
-                    <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 10.5px;">{{ record.date }}</span>
+                    <span class="card-back-stat-label">Última actualización</span>
+                    <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 10.5px;">{{ getFormattedToday() }}</span>
                   </div>
 
                   <!-- Redes Sociales -->

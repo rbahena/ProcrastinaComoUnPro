@@ -1610,4 +1610,78 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
+/* ===== CARD BACK ICON ANIMATIONS ===== */
+.animate-icon-fire {
+  animation: flicker-flame 2.5s infinite alternate ease-in-out;
+}
+.animate-icon-tomato {
+  animation: bounce-tomato 3s infinite ease-in-out;
+}
+.animate-icon-coins {
+  animation: float-coins 4.5s infinite ease-in-out;
+}
+.animate-icon-trophy {
+  animation: pulse-trophy 3s infinite ease-in-out;
+}
+
+@keyframes flicker-flame {
+  0% { transform: scale(0.96) rotate(-2deg); opacity: 0.03; }
+  50% { transform: scale(1.04) rotate(1deg); opacity: 0.05; }
+  100% { transform: scale(0.98) rotate(3deg); opacity: 0.04; }
+}
+
+@keyframes bounce-tomato {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.03; }
+  50% { transform: translateY(-10px) scale(1.05) rotate(5deg); opacity: 0.05; }
+}
+
+@keyframes float-coins {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(3deg); }
+}
+
+@keyframes pulse-trophy {
+  0%, 100% { transform: scale(0.97) rotate(-1deg); opacity: 0.03; }
+  50% { transform: scale(1.06) rotate(2deg); opacity: 0.05; }
+}
+
+/* ===== CARD BACK HEADER ICON ANIMATIONS ===== */
+.animate-header-fire {
+  animation: flicker-flame-small 2.5s infinite alternate ease-in-out;
+  transform-origin: center bottom;
+}
+.animate-header-tomato {
+  animation: bounce-tomato-small 3s infinite ease-in-out;
+  transform-origin: center bottom;
+}
+.animate-header-coins {
+  animation: float-coins-small 4.5s infinite ease-in-out;
+  transform-origin: center center;
+}
+.animate-header-trophy {
+  animation: pulse-trophy-small 3s infinite ease-in-out;
+  transform-origin: center center;
+}
+
+@keyframes flicker-flame-small {
+  0% { transform: scale(0.96) rotate(-3deg); }
+  50% { transform: scale(1.04) rotate(2deg); }
+  100% { transform: scale(0.98) rotate(4deg); }
+}
+
+@keyframes bounce-tomato-small {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  50% { transform: translateY(-3px) scale(1.06) rotate(-5deg); }
+}
+
+@keyframes float-coins-small {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse-trophy-small {
+  0%, 100% { transform: scale(0.97); }
+  50% { transform: scale(1.06) rotate(3deg); }
+}
+
 

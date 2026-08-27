@@ -35,8 +35,9 @@ export class Medallero {
 
     return [
       {
-        title: 'Racha al Día de Hoy',
+        title: 'Mejor Racha',
         description: 'Racha consecutiva de días de enfoque completados en la plataforma al día de hoy.',
+        motivation: '¡Has demostrado ser una persona sumamente constante y disciplinada en tu camino al éxito! Mantén encendida la llama del enfoque.',
         value: `${bestStreak} días`,
         holder: streakHolderName,
         avatar: streakHolderAvatar,
@@ -52,9 +53,10 @@ export class Medallero {
         bgGlow: 'rgba(255, 107, 0, 0.12)'
       },
       {
-        title: 'Pomodoros: Histórico',
-        description: 'Total acumulado de pomodoros de concentración finalizados desde el registro en la plataforma.',
-        value: '2,450 pomodoros',
+        title: 'Sesiones de Concentración',
+        description: 'Total acumulado de sesiones de enfoque (pomodoros) finalizadas desde el registro en la plataforma.',
+        motivation: '¡Paso a paso se llega a la cima! Cada bloque es un ladrillo en el monumento a tu productividad. Sigue construyendo tu legado.',
+        value: '2,450 sesiones',
         holder: 'Diego "Paso Firme"',
         avatar: 'tortuga',
         flag: 'pe',
@@ -63,13 +65,14 @@ export class Medallero {
           { icon: 'fa-linkedin', platform: 'LinkedIn', link: 'https://linkedin.com' }
         ],
         date: 'Histórico',
-        icon: 'fa-hourglass-half',
+        icon: 'fa-apple-whole',
         color: '#14b8a6',
         bgGlow: 'rgba(20, 184, 166, 0.12)'
       },
       {
         title: 'El Magnate de Focus',
         description: 'Total acumulado de Pro Coins obtenidas enfocándose en la Comunidad desde el origen.',
+        motivation: '¡Tu esfuerzo se traduce en verdadera riqueza mental y digital! Invierte siempre tu tiempo en ti mismo.',
         value: '75,000 Coins',
         holder: 'Elena "Rana Veloz"',
         avatar: 'rana',
@@ -83,22 +86,45 @@ export class Medallero {
         icon: 'fa-coins',
         color: '#fbbf24',
         bgGlow: 'rgba(251, 191, 36, 0.12)'
+      },
+      {
+        title: 'Podios Conquistados',
+        description: 'Total acumulado de primeros lugares obtenidos en los podios semanales de la Comunidad.',
+        motivation: '¡La gloria pertenece a quienes perseveran! Has conquistado la cima y demostrado estar a la altura de los grandes.',
+        value: '12 podios',
+        holder: 'Sofía "Hacker"',
+        avatar: 'zorro',
+        flag: 'cl',
+        socials: [
+          { icon: 'fa-github', platform: 'GitHub', link: 'https://github.com' },
+          { icon: 'fa-linkedin', platform: 'LinkedIn', link: 'https://linkedin.com' },
+          { icon: 'fa-x-twitter', platform: 'Twitter', link: 'https://x.com' }
+        ],
+        date: 'Histórico',
+        icon: 'fa-trophy',
+        color: '#f59e0b',
+        bgGlow: 'rgba(245, 158, 11, 0.12)'
       }
     ];
   });
 
   prevCard() {
-    this.activeCardIndex.update(i => i > 0 ? i - 1 : 2);
+    this.activeCardIndex.update(i => i > 0 ? i - 1 : 3);
   }
 
   nextCard() {
-    this.activeCardIndex.update(i => i < 2 ? i + 1 : 0);
+    this.activeCardIndex.update(i => i < 3 ? i + 1 : 0);
   }
 
   setCard(idx: number) {
     this.activeCardIndex.set(idx);
   }
 
+  getFormattedToday(): string {
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const d = new Date();
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
 
   toggleSidebar() {
     this.membership.toggleSidebar();
