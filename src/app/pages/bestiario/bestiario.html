@@ -139,12 +139,6 @@
                       </span>
                     </div>
                     <div class="card-back-stat-row" style="display: flex; justify-content: space-between;">
-                      <span class="card-back-stat-label" style="font-size: 13px; color: var(--muted);">Elemento</span>
-                      <span class="card-back-stat-value" [style.color]="villain.color" style="font-weight: 800; font-family: monospace; font-size: 13px; text-transform: uppercase;">
-                        {{ villain.element }}
-                      </span>
-                    </div>
-                    <div class="card-back-stat-row" style="display: flex; justify-content: space-between;">
                       <span class="card-back-stat-label" style="font-size: 13px; color: var(--muted);">Última actualización</span>
                       <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 12px;">{{ getFormattedToday() }}</span>
                     </div>
@@ -272,9 +266,9 @@
       <!-- Footer del Modal -->
       <div style="padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end; background: rgba(0,0,0,0.15);">
         <button (click)="toggleGuide()" 
-                style="background: #ffffff; border: none; color: #070709; padding: 10px 24px; border-radius: 10px; font-weight: 900; font-size: 12.5px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15); transition: all 0.2s;"
-                onmouseover="this.style.background='var(--accent)'; this.style.color='#ffffff'; this.style.boxShadow='0 0 20px rgba(99, 102, 241, 0.45)';"
-                onmouseout="this.style.background='#ffffff'; this.style.color='#070709'; this.style.boxShadow='0 4px 15px rgba(255, 255, 255, 0.15)';">
+                style="background: var(--accent); border: none; color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.2s;"
+                onmouseover="this.style.filter='brightness(1.1)';"
+                onmouseout="this.style.filter='none';">
           Entendido, ¡a luchar!
         </button>
       </div>
