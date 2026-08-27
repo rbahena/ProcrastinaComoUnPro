@@ -726,20 +726,7 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none; /* WebKit/Chrome/Safari */
 }
-/* Corrección de ancho para evitar scroll lateral en laptops y pantallas grandes */
-@media (min-width: 769px) {
-  .main {
-    width: 100% !important;
-    height: calc(100vh - 60px) !important;
-    max-height: calc(100vh - 60px) !important;
-    overflow-y: auto !important;
-    box-sizing: border-box;
-  }
-  .main.main-collapsed {
-    width: 100% !important;
-    margin-left: 0 !important;
-  }
-}
+
 
 /* Barra de desplazamiento personalizada y estilizada para los paneles */
 .custom-scrollbar::-webkit-scrollbar {

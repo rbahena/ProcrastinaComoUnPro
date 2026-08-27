@@ -11,437 +11,29 @@
 
   <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
   <div class="main custom-scrollbar" [class.main-collapsed]="sidebarCollapsed()" style="display: flex; flex-direction: column; position: relative; z-index: 1;" [style.marginLeft]="sidebarCollapsed() ? '0px' : ''">
-    <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
-        <div>
-          <h1 class="page-title" style="margin: 0;">{{ labels().title }}</h1>
-        </div>
 
-        <!-- Puntos e Coins Panel (Replicado de Inicio) -->
-        <div class="currency-panel">
-          <!-- Puntos de Enfoque -->
-          <div class="currency-badge-minimal focus-points-badge" 
-               data-tooltip="Puntos de Enfoque: Se ganan completando pomodoros y avanzando en tus objetivos. Acumúlalos para subir en el ranking y competir por el podio semanal de la comunidad.">
-            <i class="fa-solid fa-bullseye"></i>
-            <span class="badge-value">
-              {{ membership.isPremium() ? membership.focusPoints() : '—' }}
-              <i *ngIf="!membership.isPremium()" class="fa-solid fa-lock badge-lock"></i>
-            </span>
-          </div>
+  <style>
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+  </style>
 
-          <!-- Tomates -->
-          <div class="currency-badge-minimal tomato-badge" 
-               data-tooltip="Tomates de Enfoque: Se gana 1 tomate por cada Pomodoro completado. Representa tus sesiones totales de concentración.">
-            <i class="fa-solid fa-apple-whole"></i>
-            <span class="badge-value">
-              {{ membership.focusTomatoes() }}
-            </span>
-          </div>
+  <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
+  <div class="main custom-scrollbar" style="display: flex; flex-direction: column; position: relative; z-index: 1;">
 
-          <!-- Pro Coins -->
-          <div class="currency-badge-minimal pro-coins-badge" 
-               data-tooltip="Pro Coins: Gánalas manteniendo rachas, completando sesiones efectivas y superando retos. Úsalas para desbloquear nuevos avatares y recompensas.">
-            <i class="fa-solid fa-coins"></i>
-            <span class="badge-value gold-text">
-              {{ membership.proCoins() }}
-            </span>
-          </div>
-        </div>
-
-      <!-- BALANCES DE USUARIO (PREMIUM VS GRATUITO) -->
-      <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
-        <!-- Badge Premium / Free (Sutil y COFU Pro) -->
-        <button routerLink="/membresia" 
-                style="border-radius: 12px; font-family: inherit; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.25s; padding: 6px 14px;"
-                [style.background]="membership.isPremium() ? 'rgba(245,158,11,0.03)' : 'rgba(255,255,255,0.02)'"
-                [style.border]="membership.isPremium() ? '1.5px solid rgba(245,158,11,0.2)' : '1.5px solid rgba(255,255,255,0.06)'"
-                [style.color]="membership.isPremium() ? 'var(--yellow)' : 'var(--muted)'"
-                [style.text-shadow]="membership.isPremium() ? '0 0 8px rgba(245,158,11,0.2)' : 'none'"
-                onmouseover="this.style.transform='translateY(-1px)';"
-                onmouseout="this.style.transform='translateY(0)';"
-                title="Ver detalles de Membresía">
-          <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-star'" [style.color]="membership.isPremium() ? 'var(--yellow)' : 'var(--muted)'"></i>
-          <span>{{ membership.isPremium() ? 'Pro' : 'Gratuito' }}</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE DOS COLUMNAS) -->
-    <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 480px; padding: 20px; width: 100%; max-width: 1000px; margin: 0 auto;">
+    <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE TRES COLUMNAS) -->
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 480px; padding: 20px; width: 100%; max-width: 1200px; margin: 0 auto;">
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 40px; width: 100%; align-items: start;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr)); gap: 30px; width: 100%; align-items: start;">
         
-        <!-- COLUMNA IZQUIERDA: Reloj Digital de Alta Concentración -->
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;">
-          <div style="position: relative; width: 100%; max-width: 440px; background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); min-height: 380px;">
-            
-            <!-- Fondo decorativo con auras suaves -->
-            <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.03; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
-
-            <!-- Cabecera de Estado -->
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2;">
-              <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 3px;"
-                    [style.color]="arenaState() === 'active' ? 'var(--accent)' : 'var(--muted)'">
-                {{ arenaState() === 'setup' ? 'Listo para Enfoque' : (arenaState() === 'countdown' ? 'Preparando Mente' : (emergencyPauseActive() ? 'Pausa de Emergencia' : (isBreak() ? 'Descanso Zen' : 'Enfoque Activo'))) }}
-              </span>
-            </div>
-
-            <!-- Reloj Digital con Números Gigantes -->
-            <div style="z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%;">
-              
-              <!-- CASO 1: SETUP -->
-              <span *ngIf="arenaState() === 'setup'"
-                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
-              </span>
-
-              <!-- CASO 2: COUNTDOWN -->
-              <span *ngIf="arenaState() === 'countdown'"
-                    class="countdown-pulse"
-                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; color: var(--accent); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 0 25px rgba(99, 102, 241, 0.4);">
-                00:0{{ countdownValue() }}
-              </span>
-
-              <!-- CASO 3: ACTIVE -->
-              <span *ngIf="arenaState() === 'active'"
-                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
-                    [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
-                {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
-              </span>
-
-            </div>
-
-            <!-- Controles de Acción Minimalistas -->
-            <div style="z-index: 2; width: 100%; max-width: 280px; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
-              
-              <div style="display: flex; gap: 10px; width: 100%;">
-                <!-- Iniciar (en setup) -->
-                <button *ngIf="arenaState() === 'setup'" 
-                        (click)="startFocusFlow()" 
-                        style="flex: 1; border: none; background: var(--accent); color: #000; padding: 12px 24px; border-radius: 12px; font-size: 13.5px; font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
-                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px var(--accent)';"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.3)';"
-                        title="Iniciar Sesión de Enfoque">
-                  <i class="fa-solid fa-play"></i>
-                  <span>Iniciar</span>
-                </button>
-
-                <!-- Ajustes (en setup) -->
-                <button *ngIf="arenaState() === 'setup'" 
-                        (click)="showSetupSettings.set(!showSetupSettings())"
-                        style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; transition: all 0.2s;"
-                        [style.borderColor]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-                        [style.color]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.8)'"
-                        onmouseover="this.style.background='rgba(255,255,255,0.05)';"
-                        onmouseout="this.style.background='rgba(255,255,255,0.02)';"
-                        title="Configuración de Pomodoro">
-                  <i class="fa-solid fa-gear" style="font-size: 16px;"></i>
-                </button>
-
-                <!-- Pausa (en active) -->
-                <button *ngIf="arenaState() === 'active'" 
-                        (click)="toggleEmergencyPause()" 
-                        style="flex: 1; border: 1px solid var(--border); padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
-                        [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
-                        [style.borderColor]="emergencyPauseActive() ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="emergencyPauseActive() ? '#000' : 'var(--text)'"
-                        onmouseover="this.style.background='rgba(255,255,255,0.06)';"
-                        onmouseout="this.style.background=this.emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)';">
-                  <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Pausa' }}</span>
-                </button>
-
-                <!-- Abandonar (en active) -->
-                <button *ngIf="arenaState() === 'active'" 
-                        (click)="abandonSession()" 
-                        style="flex: 1; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
-                        onmouseover="this.style.background='rgba(239, 68, 68, 0.1)';"
-                        onmouseout="this.style.background='rgba(239, 68, 68, 0.05)';"
-                        title="Abandonar sesión">
-                  <span>Abandonar</span>
-                </button>
-              </div>
-
-              <!-- Simular completar (en active) -->
-              <button *ngIf="arenaState() === 'active'"
-                      (click)="simulateCompletion()" 
-                      style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: 10px; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;"
-                      onmouseover="this.style.opacity='1'; this.style.textDecoration='underline';"
-                      onmouseout="this.style.opacity='0.5'; this.style.textDecoration='none';"
-                      title="Simular completar la sesión de enfoque">
-                <i class="fa-solid fa-forward" style="font-size: 9px;"></i>
-                <span>Simular Completar</span>
-              </button>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- COLUMNA DERECHA: CONFIGURACIÓN E IDEAS -->
-        <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- COLUMNA IZQUIERDA: Estrategia -->
+        <div style="display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center;">
+          <!-- SECCIÓN DE ESTRATEGIAS -->
           
-          <!-- SECCIÓN DE AJUSTES AVANZADOS (Se muestra únicamente cuando showSetupSettings() es true) -->
-          <div *ngIf="showSetupSettings()" 
-               class="custom-scrollbar"
-               style="background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--accent); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; animation: slideDown 0.25s ease; max-height: calc(100vh - 160px); overflow-y: auto; overflow-x: hidden; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);">
-            
-            <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
-              <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-gear" style="color: var(--accent);"></i>
-                Ajustes de Pomodoro
-              </h3>
-              <button (click)="showSetupSettings.set(false)" 
-                      style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
-                      title="Cerrar Ajustes">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-
-            <!-- DURACIÓN DE POMODORO Y DESCANSO -->
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tiempos del Pomodoro</span>
-              
-              <!-- Tiempos Básicos -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <!-- Tiempo de Enfoque -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Enfoque (minutos)</span>
-                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;">
-                    <input type="number" 
-                           [ngModel]="focusDuration()" 
-                           (ngModelChange)="focusDuration.set($event); applyTimeSettings()"
-                           min="5" max="120" step="5"
-                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
-                  </div>
-                </div>
-                <!-- Tiempo de Descanso -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Descanso Corto (minutos)</span>
-                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;">
-                    <input type="number" 
-                           [ngModel]="breakDuration()" 
-                           (ngModelChange)="breakDuration.set($event); applyTimeSettings()"
-                           min="1" max="60" step="1"
-                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Configuración del Descanso Largo -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <!-- Intervalo Descanso Largo -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Ciclos para Descanso Largo</span>
-                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;"
-                       title="Número de pomodoros de enfoque antes de tomar un descanso largo. Estándar: 4.">
-                    <input type="number" 
-                           [ngModel]="longBreakInterval()" 
-                           (ngModelChange)="longBreakInterval.set($event)"
-                           min="1" max="12" step="1"
-                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
-                  </div>
-                </div>
-                <!-- Duración Descanso Largo -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Descanso Largo (minutos)</span>
-                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;"
-                       title="Duración en minutos del descanso largo. Estándar: 15-30 minutos.">
-                    <input type="number" 
-                           [ngModel]="longBreakDuration()" 
-                           (ngModelChange)="longBreakDuration.set($event)"
-                           min="5" max="120" step="5"
-                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Indicador de Ciclos de Pomodoro Actuales -->
-              <div style="display: flex; align-items: center; gap: 8px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 8px; padding: 8px 12px; margin-top: 4px;">
-                <span style="font-size: 14px;">🍅</span>
-                <div style="display: flex; flex-direction: column;">
-                  <span style="font-size: 11px; font-weight: 700; color: var(--text);">Ciclo actual: {{ completedPomodoros() % longBreakInterval() }} / {{ longBreakInterval() }}</span>
-                  <span style="font-size: 9.5px; color: var(--muted);">Completados en total: {{ completedPomodoros() }}</span>
-                </div>
-                <button (click)="resetDailyAttempts()"
-                        style="margin-left: auto; background: transparent; border: none; color: var(--red); font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase;"
-                        title="Reiniciar contador de ciclos">
-                  Reset
-                </button>
-              </div>
-            </div>
-
-            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
-
-            <!-- 1. TEMA DEL ESPACIO (Theme Selector) -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tema Visual</span>
-              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
-                <button *ngFor="let t of themeOptions" 
-                        (click)="selectThemeOption(t)"
-                        style="border: 1px solid var(--border); padding: 8px 2px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 10.5px; font-weight: 800; font-family: inherit; transition: all 0.2s; text-transform: capitalize; position: relative;"
-                        [style.background]="currentTheme() === t ? 'var(--accent)' : 'transparent'"
-                        [style.borderColor]="currentTheme() === t ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="currentTheme() === t ? '#000' : 'var(--text)'">
-                  {{ t }}
-                  <!-- Candado si está bloqueado -->
-                  <i *ngIf="t !== 'samurai' && !membership.unlockedThemes().includes(t)" 
-                     class="fa-solid fa-lock" 
-                     style="position: absolute; top: -3px; right: -3px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
-                </button>
-              </div>
-            </div>
-
-            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
-
-            <!-- 2. ESCUDO ACÚSTICO (Ambient Background Sound) -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Frecuencia de Fondo</span>
-                <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase;" *ngIf="backgroundSound() !== 'off'">
-                  {{ backgroundSound() === 'cafe' ? 'Ruido Café' : backgroundSound() === 'lluvia' ? 'Lluvia Zen' : backgroundSound() === 'reloj_pared' ? 'Reloj de Pared' : 'Reloj de Pulsera' }}
-                </span>
-              </div>
-              
-              <div style="display: flex; flex-wrap: wrap; gap: 6px; width: 100%;">
-                <button (click)="updateBackgroundSound('off')"
-                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
-                        [style.background]="backgroundSound() === 'off' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                        [style.borderColor]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--text)'">
-                  🔇 Off
-                </button>
-                <button (click)="updateBackgroundSound('cafe')"
-                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
-                        [style.background]="backgroundSound() === 'cafe' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                        [style.borderColor]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--text)'">
-                  🎚️ Café
-                </button>
-                <button (click)="updateBackgroundSound('lluvia')"
-                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
-                        [style.background]="backgroundSound() === 'lluvia' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                        [style.borderColor]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--text)'">
-                  🌧️ Lluvia
-                </button>
-                <button (click)="updateBackgroundSound('reloj_pared')"
-                        style="flex: 1 1 calc(50% - 6px); min-width: 110px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
-                        [style.background]="backgroundSound() === 'reloj_pared' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                        [style.borderColor]="backgroundSound() === 'reloj_pared' ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="backgroundSound() === 'reloj_pared' ? 'var(--accent)' : 'var(--text)'">
-                  🕰️ R. Pared
-                </button>
-                <button (click)="updateBackgroundSound('reloj_pulsera')"
-                        style="flex: 1 1 calc(50% - 6px); min-width: 110px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
-                        [style.background]="backgroundSound() === 'reloj_pulsera' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                        [style.borderColor]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--text)'">
-                  ⌚ R. Pulsera
-                </button>
-              </div>
-
-              <!-- Control de Volumen (Sólo si no está en OFF) -->
-              <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;" *ngIf="backgroundSound() !== 'off'">
-                <i class="fa-solid fa-volume-low" style="font-size: 10px; color: var(--muted);"></i>
-                <input type="range" min="0" max="1" step="0.05" 
-                       [ngModel]="backgroundVolume()" 
-                       (ngModelChange)="updateBackgroundVolume($event)"
-                       style="flex: 1; accent-color: var(--accent); height: 4px; border-radius: 2px; cursor: pointer;">
-                <i class="fa-solid fa-volume-high" style="font-size: 10px; color: var(--muted);"></i>
-              </div>
-            </div>
-
-            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
-
-            <!-- 3. ALERTA DE FIN DE SESIÓN -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Alerta de Fin de Sesión</span>
-                <input type="checkbox" [ngModel]="soundEnabled()" (ngModelChange)="soundEnabled.set($event)" 
-                       style="width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; border-radius: 4px;">
-              </div>
-              
-              <!-- Selector de tipo de campana (Sólo si alertas habilitadas) -->
-              <div style="display: flex; gap: 4px; width: 100%;" *ngIf="soundEnabled()">
-                <button *ngFor="let s of soundOptions" (click)="setSoundType(s)"
-                        style="flex: 1; border: 1px solid var(--border); padding: 6px 2px; border-radius: 4px; background: transparent; cursor: pointer; font-size: 10px; font-weight: 700; font-family: inherit; color: var(--muted); transition: all 0.2s;"
-                        [style.background]="soundType() === s ? 'rgba(255,255,255,0.03)' : 'transparent'"
-                        [style.borderColor]="soundType() === s ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="soundType() === s ? 'var(--accent)' : 'var(--muted)'">
-                  {{ s | titlecase }}
-                </button>
-              </div>
-            </div>
-
-            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
-
-            <!-- 4. FONDO DE PANTALLA ZEN CON MINIATURAS -->
-            <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 15px;">
-              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-image" style="color: var(--accent);"></i>
-                Fondo de Pantalla Zen (Premium)
-              </span>
-              
-              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px;">
-                <div *ngFor="let bg of backgroundOptions"
-                     (click)="setBackground(bg)"
-                     style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                     onmouseover="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1.04)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color='var(--text)' };"
-                     onmouseout="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                     [attr.data-active]="activeBackground() === bg">
-                  
-                  <!-- Contenedor Miniatura de la Imagen -->
-                  <div class="thumb-img-wrapper"
-                       style="width: 100%; aspect-ratio: 16/10; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid rgba(255, 255, 255, 0.05); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(0,0,0,0.3); background: #121216;"
-                       [style.borderColor]="activeBackground() === bg ? 'var(--accent)' : 'rgba(255, 255, 255, 0.05)'"
-                       [style.boxShadow]="activeBackground() === bg ? '0 0 12px rgba(99, 102, 241, 0.35)' : '0 4px 12px rgba(0,0,0,0.3)'">
-                    
-                    <!-- Imagen de Fondo para la Miniatura -->
-                    <img *ngIf="bg !== 'off'"
-                         [src]="bg === 'fairy' ? 'assets/images/fairy_world.webp' : (bg === 'lofi_study_desktop' ? 'assets/images/lofi_study_desktop.webp' : (bg === 'lofi_moons' ? 'assets/images/lofi_moons.webp' : 'assets/images/lofi_study_rain.webp'))"
-                         alt="Fondo {{ bg }}"
-                         style="width: 100%; height: 100%; object-fit: cover; display: block;" />
-                    
-                    <!-- Icono para Estado Apagado -->
-                    <div *ngIf="bg === 'off'" 
-                         style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.25);">
-                      <i class="fa-solid fa-eye-slash" style="font-size: 16px;"></i>
-                    </div>
-
-                    <!-- Badge de Selección Activa -->
-                    <div *ngIf="activeBackground() === bg" 
-                         style="position: absolute; top: 4px; right: 4px; background: var(--accent); color: #000; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                      <i class="fa-solid fa-check" style="font-size: 8px; font-weight: 900;"></i>
-                    </div>
-                  </div>
-
-                  <!-- Etiqueta del Fondo -->
-                  <span class="thumb-label"
-                        style="font-size: 9.5px; font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
-                        [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
-                    {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : 'Lluvia'))) }}
-                  </span>
-                </div>
-              </div>
-              <span style="font-size: 9.5px; color: var(--muted); line-height: 1.3; margin-top: 2px;">
-                {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : 'Lluvia'))) + '" activo con aura sutil' }}
-              </span>
-            </div>
-
-            <!-- BOTÓN APLICAR CAMBIOS / GUARDAR PREFERENCIAS -->
-            <button (click)="showSetupSettings.set(false)"
-                    style="width: 100%; border: none; padding: 12px; border-radius: 8px; background: var(--accent); color: #000; font-size: 12.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px;"
-                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.35)';"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-              <i class="fa-solid fa-check"></i>
-              Aplicar Cambios
-            </button>
-
-          </div>
-
-          <!-- SECCIONES PRINCIPALES (Ocultas cuando showSetupSettings() es true) -->
-          <ng-container *ngIf="!showSetupSettings()">
-            
-            <!-- VISTA SETUP: ESTRATEGIA Y PLANIFICACIÓN -->
-            <ng-container *ngIf="arenaState() === 'setup'">
+          <!-- Tarjeta Estrategias Expandida -->
+          <div *ngIf="showStrategyCard()" style="width: 100%;">
+                        <ng-container *ngIf="arenaState() === 'setup'">
               <!-- BOTÓN PARA MOSTRAR/OCULTAR ESTRATEGIA -->
               <button (click)="showStrategyCard.set(!showStrategyCard())"
                       style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; display: inline-flex; align-items: center; justify-content: space-between; width: 100%; font-family: inherit; margin-bottom: 12px;"
@@ -589,8 +181,117 @@
               </div>
             </ng-container>
 
-            <!-- VISTA ENFOQUE ACTIVO: OBJETIVO -->
-            <ng-container *ngIf="arenaState() === 'active' || arenaState() === 'countdown'">
+          </div>
+
+        </div>
+
+        <!-- COLUMNA CENTRAL: Reloj Digital -->
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%;">
+          
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; min-height: 380px; width: 100%; position: relative;">
+          <!-- Fondo decorativo con auras suaves -->
+          <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
+
+          <!-- Cabecera de Estado Sutil -->
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; margin-bottom: -8px;">
+            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;"
+                  [style.color]="arenaState() === 'active' ? 'var(--accent)' : 'var(--muted)'">
+              {{ arenaState() === 'setup' ? 'Listo para Enfoque' : (arenaState() === 'countdown' ? 'Preparando Mente' : (emergencyPauseActive() ? 'Pausa de Emergencia' : (isBreak() ? 'Descanso Zen' : 'Enfoque Activo'))) }}
+            </span>
+          </div>
+
+                      <!-- Reloj Digital con Números Gigantes -->
+            <div style="z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%;">
+              
+              <!-- CASO 1: SETUP -->
+              <span *ngIf="arenaState() === 'setup'"
+                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
+              </span>
+
+              <!-- CASO 2: COUNTDOWN -->
+              <span *ngIf="arenaState() === 'countdown'"
+                    class="countdown-pulse"
+                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; color: var(--accent); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 0 25px rgba(99, 102, 241, 0.4);">
+                00:0{{ countdownValue() }}
+              </span>
+
+              <!-- CASO 3: ACTIVE -->
+              <span *ngIf="arenaState() === 'active'"
+                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
+                    [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
+                {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
+              </span>
+
+            </div>
+
+            <!-- Controles de Acción Minimalistas -->
+            <div style="z-index: 2; width: 100%; max-width: 280px; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
+              
+              <div style="display: flex; gap: 10px; width: 100%;">
+                <!-- Iniciar (en setup) -->
+                <button *ngIf="arenaState() === 'setup'" 
+                        (click)="startFocusFlow()" 
+                        style="flex: 1; border: none; background: var(--accent); color: #000; padding: 12px 24px; border-radius: 12px; font-size: 13.5px; font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px var(--accent)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.3)';"
+                        title="Iniciar Sesión de Enfoque">
+                  <i class="fa-solid fa-play"></i>
+                  <span>Iniciar</span>
+                </button>
+
+                <!-- Ajustes (en setup) -->
+                <button *ngIf="arenaState() === 'setup'" 
+                        (click)="showSetupSettings.set(!showSetupSettings()); showThemesPanel.set(false)"
+                        style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; transition: all 0.2s;"
+                        [style.borderColor]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+                        [style.color]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.8)'"
+                        onmouseover="this.style.background='rgba(255,255,255,0.05)';"
+                        onmouseout="this.style.background='rgba(255,255,255,0.02)';"
+                        title="Configuración de Pomodoro">
+                  <i class="fa-solid fa-gear" style="font-size: 16px;"></i>
+                </button>
+
+                <!-- Pausa (en active) -->
+                <button *ngIf="arenaState() === 'active'" 
+                        (click)="toggleEmergencyPause()" 
+                        style="flex: 1; border: 1px solid var(--border); padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+                        [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
+                        [style.borderColor]="emergencyPauseActive() ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="emergencyPauseActive() ? '#000' : 'var(--text)'"
+                        onmouseover="this.style.background='rgba(255,255,255,0.06)';"
+                        onmouseout="this.style.background=this.emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)';">
+                  <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Pausa' }}</span>
+                </button>
+
+                <!-- Abandonar (en active) -->
+                <button *ngIf="arenaState() === 'active'" 
+                        (click)="abandonSession()" 
+                        style="flex: 1; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+                        onmouseover="this.style.background='rgba(239, 68, 68, 0.1)';"
+                        onmouseout="this.style.background='rgba(239, 68, 68, 0.05)';"
+                        title="Abandonar sesión">
+                  <span>Abandonar</span>
+                </button>
+              </div>
+
+              <!-- Simular completar (en active) -->
+              <button *ngIf="arenaState() === 'active'"
+                      (click)="simulateCompletion()" 
+                      style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: 10px; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;"
+                      onmouseover="this.style.opacity='1'; this.style.textDecoration='underline';"
+                      onmouseout="this.style.opacity='0.5'; this.style.textDecoration='none';"
+                      title="Simular completar la sesión de enfoque">
+                <i class="fa-solid fa-forward" style="font-size: 9px;"></i>
+                <span>Simular Completar</span>
+              </button>
+            </div>
+
+        </div>
+
+          
+          <!-- VISTA ENFOQUE ACTIVO: OBJETIVO (Se muestra debajo del reloj durante active/countdown) -->
+                      <ng-container *ngIf="arenaState() === 'active' || arenaState() === 'countdown'">
               <!-- Tarjeta de Objetivo Activo -->
               <div *ngIf="activeObjective() && activeObjective().trim()" 
                    style="background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); text-align: center;">
@@ -607,8 +308,17 @@
               </div>
             </ng-container>
 
-            <!-- ELEMENTOS DEL COMUNIDAD: SIEMPRE VISIBLES DESDE EL INICIO SI MODO COMUNITARIO ESTÁ ACTIVO -->
-            <!-- Combate de Jefe (si estamos en Comunidad) -->
+
+        </div>
+
+        <!-- COLUMNA DERECHA: Comunidad y Raid Boss -->
+        <div *ngIf="coworkingMode() === 'comunitario'" style="display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center;">
+          
+          <!-- Raid Boss -->
+          
+          <!-- Tarjeta Boss Expandida -->
+          <div *ngIf="showBossCard()" style="width: 100%;">
+                        <!-- Combate de Jefe (si estamos en Comunidad) -->
             <div *ngIf="coworkingMode() === 'comunitario'" 
                  style="width: 100%; background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); transition: border-color 0.3s;"
                  [style.borderColor]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : (bossService.comunidadShield() < 300 ? 'var(--red)' : 'var(--border)')">
@@ -644,18 +354,18 @@
                 </div>
               </div>
 
-              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 6px; margin-top: 2px;">
-                <span style="font-weight: 700;" [style.color]="bossService.comunidadShield() < 300 ? 'var(--red)' : 'var(--muted)'">
-                  🛡️ Escudo: {{ bossService.comunidadShield() }}/1000
-                </span>
-                <span style="font-size: 9px; font-weight: 700; color: var(--accent); max-width: 180px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-                  {{ bossService.bossLogs()[0] }}
-                </span>
-              </div>
+              
             </div>
 
-            <!-- Lista de Compañeros Conectados -->
-            <div *ngIf="coworkingMode() === 'comunitario'"
+
+          </div>
+
+
+          <!-- Guerreros Enfocados -->
+          
+          <!-- Tarjeta Comunidad Expandida -->
+          <div *ngIf="showComunidadUsers()" style="width: 100%;">
+                        <div *ngIf="coworkingMode() === 'comunitario'"
                  style="width: 100%; background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);">
               <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 8px;">
                 <div style="display: flex; align-items: center; gap: 6px;">
@@ -695,12 +405,362 @@
               </div>
             </div>
 
-          </ng-container>
+          
+
+        </div>
+
+          </div>
+
 
         </div>
 
       </div>
     </div>
+    
+    <div *ngIf="showSetupSettings() && arenaState() === 'setup'"
+     class="custom-scrollbar"
+     style="position: fixed; top: 88px; right: 36px; bottom: 24px; width: min(100%, 380px); z-index: 2000; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1.5px solid var(--accent); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; overflow-x: hidden; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55); animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+                        <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
+              <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-gear" style="color: var(--accent);"></i>
+                Ajustes de Pomodoro
+              </h3>
+              <button (click)="showSetupSettings.set(false)" 
+                      style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
+                      title="Cerrar Ajustes">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tiempos del Pomodoro</span>
+              
+              <!-- Tiempos Básicos -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <!-- Tiempo de Enfoque -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Enfoque (minutos)</span>
+                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;">
+                    <input type="number" 
+                           [ngModel]="focusDuration()" 
+                           (ngModelChange)="focusDuration.set($event); applyTimeSettings()"
+                           min="5" max="120" step="5"
+                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
+                  </div>
+                </div>
+                <!-- Tiempo de Descanso -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Descanso Corto (minutos)</span>
+                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;">
+                    <input type="number" 
+                           [ngModel]="breakDuration()" 
+                           (ngModelChange)="breakDuration.set($event); applyTimeSettings()"
+                           min="1" max="60" step="1"
+                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Configuración del Descanso Largo -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <!-- Intervalo Descanso Largo -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Ciclos para Descanso Largo</span>
+                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;"
+                       title="Número de pomodoros de enfoque antes de tomar un descanso largo. Estándar: 4.">
+                    <input type="number" 
+                           [ngModel]="longBreakInterval()" 
+                           (ngModelChange)="longBreakInterval.set($event)"
+                           min="1" max="12" step="1"
+                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
+                  </div>
+                </div>
+                <!-- Duración Descanso Largo -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Descanso Largo (minutos)</span>
+                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;"
+                       title="Duración en minutos del descanso largo. Estándar: 15-30 minutos.">
+                    <input type="number" 
+                           [ngModel]="longBreakDuration()" 
+                           (ngModelChange)="longBreakDuration.set($event)"
+                           min="5" max="120" step="5"
+                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Indicador de Ciclos de Pomodoro Actuales -->
+              <div style="display: flex; align-items: center; gap: 8px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 8px; padding: 8px 12px; margin-top: 4px;">
+                <span style="font-size: 14px;">🍅</span>
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-size: 11px; font-weight: 700; color: var(--text);">Ciclo actual: {{ completedPomodoros() % longBreakInterval() }} / {{ longBreakInterval() }}</span>
+                  <span style="font-size: 9.5px; color: var(--muted);">Completados en total: {{ completedPomodoros() }}</span>
+                </div>
+                <button (click)="resetDailyAttempts()"
+                        style="margin-left: auto; background: transparent; border: none; color: var(--red); font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase;"
+                        title="Reiniciar contador de ciclos">
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            
+            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
+
+                        <!-- 2. ESCUDO ACÚSTICO (Ambient Background Sound) -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Frecuencia de Fondo</span>
+                <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase;" *ngIf="backgroundSound() !== 'off'">
+                  {{ backgroundSound() === 'cafe' ? 'Ruido Café' : backgroundSound() === 'lluvia' ? 'Lluvia Zen' : backgroundSound() === 'reloj_pared' ? 'Reloj de Pared' : 'Reloj de Pulsera' }}
+                </span>
+              </div>
+              
+              <div style="display: flex; flex-wrap: wrap; gap: 6px; width: 100%;">
+                <button (click)="updateBackgroundSound('off')"
+                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                        [style.background]="backgroundSound() === 'off' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                        [style.borderColor]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--text)'">
+                  🔇 Off
+                </button>
+                <button (click)="updateBackgroundSound('cafe')"
+                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                        [style.background]="backgroundSound() === 'cafe' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                        [style.borderColor]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--text)'">
+                  🎚️ Café
+                </button>
+                <button (click)="updateBackgroundSound('lluvia')"
+                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                        [style.background]="backgroundSound() === 'lluvia' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                        [style.borderColor]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--text)'">
+                  🌧️ Lluvia
+                </button>
+                <button (click)="updateBackgroundSound('reloj_pared')"
+                        style="flex: 1 1 calc(50% - 6px); min-width: 110px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                        [style.background]="backgroundSound() === 'reloj_pared' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                        [style.borderColor]="backgroundSound() === 'reloj_pared' ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="backgroundSound() === 'reloj_pared' ? 'var(--accent)' : 'var(--text)'">
+                  🕰️ R. Pared
+                </button>
+                <button (click)="updateBackgroundSound('reloj_pulsera')"
+                        style="flex: 1 1 calc(50% - 6px); min-width: 110px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
+                        [style.background]="backgroundSound() === 'reloj_pulsera' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                        [style.borderColor]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--text)'">
+                  ⌚ R. Pulsera
+                </button>
+              </div>
+
+              <!-- Control de Volumen (Sólo si no está en OFF) -->
+              <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;" *ngIf="backgroundSound() !== 'off'">
+                <i class="fa-solid fa-volume-low" style="font-size: 10px; color: var(--muted);"></i>
+                <input type="range" min="0" max="1" step="0.05" 
+                       [ngModel]="backgroundVolume()" 
+                       (ngModelChange)="updateBackgroundVolume($event)"
+                       style="flex: 1; accent-color: var(--accent); height: 4px; border-radius: 2px; cursor: pointer;">
+                <i class="fa-solid fa-volume-high" style="font-size: 10px; color: var(--muted);"></i>
+              </div>
+            </div>
+
+            
+            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
+
+                        <!-- 3. ALERTA DE FIN DE SESIÓN -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Alerta de Fin de Sesión</span>
+                <input type="checkbox" [ngModel]="soundEnabled()" (ngModelChange)="soundEnabled.set($event)" 
+                       style="width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; border-radius: 4px;">
+              </div>
+              
+              <!-- Selector de tipo de campana (Sólo si alertas habilitadas) -->
+              <div style="display: flex; gap: 4px; width: 100%;" *ngIf="soundEnabled()">
+                <button *ngFor="let s of soundOptions" (click)="setSoundType(s)"
+                        style="flex: 1; border: 1px solid var(--border); padding: 6px 2px; border-radius: 4px; background: transparent; cursor: pointer; font-size: 10px; font-weight: 700; font-family: inherit; color: var(--muted); transition: all 0.2s;"
+                        [style.background]="soundType() === s ? 'rgba(255,255,255,0.03)' : 'transparent'"
+                        [style.borderColor]="soundType() === s ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="soundType() === s ? 'var(--accent)' : 'var(--muted)'">
+                  {{ s | titlecase }}
+                </button>
+              </div>
+            </div>
+
+            
+            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
+
+                        <button (click)="showSetupSettings.set(false)"
+                    style="width: 100%; border: none; padding: 12px; border-radius: 8px; background: var(--accent); color: #000; font-size: 12.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.35)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+              <i class="fa-solid fa-check"></i>
+              Aplicar Cambios
+            </button>
+
+</div>
+    <div *ngIf="showThemesPanel() && arenaState() === 'setup'"
+     class="custom-scrollbar"
+     style="position: fixed; top: 88px; right: 36px; bottom: 24px; width: min(100%, 380px); z-index: 2000; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1.5px solid var(--accent); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; overflow-x: hidden; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55); animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
+              <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-palette" style="color: var(--accent);"></i>
+                Personalización Zen
+              </h3>
+              <button (click)="showThemesPanel.set(false)" 
+                      style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
+                      title="Cerrar Personalización">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+                        <!-- 1. TEMA DEL ESPACIO (Theme Selector) -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tema Visual</span>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                <button *ngFor="let t of themeOptions" 
+                        (click)="selectThemeOption(t)"
+                        style="border: 1px solid var(--border); padding: 8px 2px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 10.5px; font-weight: 800; font-family: inherit; transition: all 0.2s; text-transform: capitalize; position: relative;"
+                        [style.background]="currentTheme() === t ? 'var(--accent)' : 'transparent'"
+                        [style.borderColor]="currentTheme() === t ? 'var(--accent)' : 'var(--border)'"
+                        [style.color]="currentTheme() === t ? '#000' : 'var(--text)'">
+                  {{ t }}
+                  <!-- Candado si está bloqueado -->
+                  <i *ngIf="t !== 'samurai' && !membership.unlockedThemes().includes(t)" 
+                     class="fa-solid fa-lock" 
+                     style="position: absolute; top: -3px; right: -3px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
+                </button>
+              </div>
+            </div>
+
+            
+            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
+
+                        <!-- 4. FONDO DE PANTALLA ZEN CON MINIATURAS -->
+            <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 15px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-image" style="color: var(--accent);"></i>
+                Fondo de Pantalla Zen (Premium)
+              </span>
+              
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px;">
+                <div *ngFor="let bg of backgroundOptions"
+                     (click)="setBackground(bg)"
+                     style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
+                     onmouseover="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1.04)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color='var(--text)' };"
+                     onmouseout="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                     [attr.data-active]="activeBackground() === bg">
+                  
+                  <!-- Contenedor Miniatura de la Imagen -->
+                  <div class="thumb-img-wrapper"
+                       style="width: 100%; aspect-ratio: 16/10; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid rgba(255, 255, 255, 0.05); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(0,0,0,0.3); background: #121216;"
+                       [style.borderColor]="activeBackground() === bg ? 'var(--accent)' : 'rgba(255, 255, 255, 0.05)'"
+                       [style.boxShadow]="activeBackground() === bg ? '0 0 12px rgba(99, 102, 241, 0.35)' : '0 4px 12px rgba(0,0,0,0.3)'">
+                    
+                    <!-- Imagen de Fondo para la Miniatura -->
+                    <img *ngIf="bg !== 'off'"
+                         [src]="bg === 'fairy' ? 'assets/images/fairy_world.webp' : (bg === 'lofi_study_desktop' ? 'assets/images/lofi_study_desktop.webp' : (bg === 'lofi_moons' ? 'assets/images/lofi_moons.webp' : 'assets/images/lofi_study_rain.webp'))"
+                         alt="Fondo {{ bg }}"
+                         style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+                    
+                    <!-- Icono para Estado Apagado -->
+                    <div *ngIf="bg === 'off'" 
+                         style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.25);">
+                      <i class="fa-solid fa-eye-slash" style="font-size: 16px;"></i>
+                    </div>
+
+                    <!-- Badge de Selección Activa -->
+                    <div *ngIf="activeBackground() === bg" 
+                         style="position: absolute; top: 4px; right: 4px; background: var(--accent); color: #000; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                      <i class="fa-solid fa-check" style="font-size: 8px; font-weight: 900;"></i>
+                    </div>
+                  </div>
+
+                  <!-- Etiqueta del Fondo -->
+                  <span class="thumb-label"
+                        style="font-size: 9.5px; font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
+                        [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
+                    {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : 'Lluvia'))) }}
+                  </span>
+                </div>
+              </div>
+              <span style="font-size: 9.5px; color: var(--muted); line-height: 1.3; margin-top: 2px;">
+                {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : 'Lluvia'))) + '" activo con aura sutil' }}
+              </span>
+            </div>
+
+            
+            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
+
+                        <button (click)="showThemesPanel.set(false)"
+                    style="width: 100%; border: none; padding: 12px; border-radius: 8px; background: var(--accent); color: #000; font-size: 12.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.35)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+              <i class="fa-solid fa-check"></i>
+              Aplicar Cambios
+            </button>
+
+</div>
+    
+    <!-- BARRA DE ACCESO RÁPIDO (HUD DECK) EN ESQUINA INFERIOR IZQUIERDA -->
+    <div style="position: fixed; bottom: 40px; display: flex; align-items: center; gap: 12px; z-index: 1000; background: rgba(10, 10, 12, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(255,255,255,0.06); padding: 8px; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: left 0.25s ease;"
+         [style.left]="sidebarCollapsed() ? '12px' : 'calc(var(--sidebar) + 12px)'">
+      <!-- Toggle Estrategias -->
+      <button (click)="showStrategyCard.set(!showStrategyCard())" 
+              [style.background]="showStrategyCard() ? 'var(--accent)' : 'rgba(255,255,255,0.03)'"
+              [style.color]="showStrategyCard() ? '#000' : 'var(--accent)'"
+              [style.borderColor]="showStrategyCard() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;"
+              onmouseover="this.style.transform='scale(1.1)';"
+              onmouseout="this.style.transform='scale(1)';"
+              title="Toggle Estrategias de Concentración">
+        <i class="fa-solid fa-crosshairs"></i>
+      </button>
+
+      <!-- Toggle Personalización Zen (Paleta de Colores) -->
+      <button (click)="showThemesPanel.set(!showThemesPanel()); showSetupSettings.set(false)" 
+              [style.background]="showThemesPanel() ? 'var(--accent)' : 'rgba(255,255,255,0.03)'"
+              [style.color]="showThemesPanel() ? '#000' : 'var(--accent)'"
+              [style.borderColor]="showThemesPanel() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;"
+              onmouseover="this.style.transform='scale(1.1)';"
+              onmouseout="this.style.transform='scale(1)';"
+              title="Personalización Zen (Temas y Fondos)">
+        <i class="fa-solid fa-palette"></i>
+      </button>
+
+      <!-- Toggle Boss (Raid) -->
+      <button *ngIf="coworkingMode() === 'comunitario'"
+              (click)="showBossCard.set(!showBossCard())" 
+              [style.borderColor]="showBossCard() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; background: rgba(10, 10, 12, 0.78); overflow: hidden; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+              onmouseover="this.style.transform='scale(1.1)';"
+              onmouseout="this.style.transform='scale(1)';"
+              title="Toggle Raid de la Comunidad">
+        <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
+        <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
+        <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
+        <img *ngIf="bossService.activeBoss().type === 'aurora'" src="/assets/images/avatars/boss_quimera.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
+        <img *ngIf="bossService.activeBoss().type === 'siren'" src="/assets/images/avatars/boss_sirena.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
+        <img *ngIf="bossService.activeBoss().type === 'werewolf'" src="/assets/images/avatars/boss_lobo.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
+        <img *ngIf="bossService.activeBoss().type === 'vampire'" src="/assets/images/avatars/boss_vampiro.jpg" style="width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" [style.opacity]="showBossCard() ? '1' : '0.6'">
+      </button>
+
+      <!-- Toggle Comunidad (Usuarios) -->
+      <button *ngIf="coworkingMode() === 'comunitario'"
+              (click)="showComunidadUsers.set(!showComunidadUsers())" 
+              [style.background]="showComunidadUsers() ? 'var(--accent)' : 'rgba(255,255,255,0.03)'"
+              [style.color]="showComunidadUsers() ? '#000' : 'var(--accent)'"
+              [style.borderColor]="showComunidadUsers() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;"
+              onmouseover="this.style.transform='scale(1.1)';"
+              onmouseout="this.style.transform='scale(1)';"
+              title="Toggle Guerreros Enfocados">
+        <i class="fa-solid fa-users"></i>
+      </button>
+    </div>
+
+    
   </div>
 </ng-container>
 

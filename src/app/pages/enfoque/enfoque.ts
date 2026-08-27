@@ -37,6 +37,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Acompañante de sesión compartida
   showPaywallModal = signal<boolean>(false);
+  showComunidadUsers = signal<boolean>(false);
   partnerTimeLeft = signal<number>(1500); // 25 min default
   partnerTimeString = computed(() => {
     const min = Math.floor(this.partnerTimeLeft() / 60);
@@ -151,7 +152,9 @@ export class Enfoque implements OnInit, OnDestroy {
 
   showSettingsPanel = signal(false);
   showSetupSettings = signal(false);
+  showThemesPanel = signal(false);
   showStrategyCard = signal(false);
+  showBossCard = signal(false);
   showCelebration = signal<boolean>(false);
   celebrationPieces = signal<any[]>([]);
 
