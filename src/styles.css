@@ -1117,6 +1117,46 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   transform: translate(0, 0) scale(1);
 }
 
+/* Tooltip alineado hacia abajo (para elementos de la barra superior) */
+[data-tooltip-align="bottom"]::before {
+  bottom: auto;
+  top: 135%;
+  left: 50%;
+  transform: translate(-50%, -10px) scale(0.95);
+}
+[data-tooltip-align="bottom"]::after {
+  bottom: auto;
+  top: calc(135% - 10px);
+  left: 50%;
+  border-color: transparent transparent rgba(18, 18, 26, 0.92) transparent;
+  transform: translate(-50%, -10px) scale(0.95);
+}
+[data-tooltip-align="bottom"]:hover::before,
+[data-tooltip-align="bottom"]:hover::after {
+  transform: translate(-50%, 0) scale(1);
+}
+
+/* Tooltip alineado hacia abajo y extendido a la izquierda (previene desborde en el borde derecho) */
+[data-tooltip-align="bottom-left"]::before {
+  bottom: auto;
+  top: 135%;
+  left: auto;
+  right: 0;
+  transform: translate(0, -10px) scale(0.95);
+}
+[data-tooltip-align="bottom-left"]::after {
+  bottom: auto;
+  top: calc(135% - 10px);
+  left: auto;
+  right: 15px; /* Flecha posicionada cerca del borde derecho */
+  border-color: transparent transparent rgba(18, 18, 26, 0.92) transparent;
+  transform: translate(0, -10px) scale(0.95);
+}
+[data-tooltip-align="bottom-left"]:hover::before,
+[data-tooltip-align="bottom-left"]:hover::after {
+  transform: translate(0, 0) scale(1);
+}
+
 /* Badge indicador de ideas/objetivos en el menú superior */
 .ideas-badge {
   margin-left: 5px;
@@ -1144,10 +1184,10 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 .header-currency-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 8px; /* Bordes rectangulares pero discretos */
-  font-size: 13.5px;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
   font-weight: 700; /* Negrita elegante */
   font-family: 'Space Grotesk', monospace;
   user-select: none;
@@ -1156,7 +1196,7 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 }
 
 .header-currency-badge i {
-  font-size: 13px;
+  font-size: 11.5px;
   transition: transform 0.2s ease;
 }
 
@@ -1189,4 +1229,254 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 .header-currency-badge.pro-coins-badge:hover i {
   transform: scale(1.15) rotate(15deg); /* Micro-interacción: rotación ligera */
 }
+
+/* Badge de Racha */
+.header-currency-badge.streak-badge {
+  color: #ff6b00; /* Naranja fuego llamativo */
+  border-color: rgba(255, 107, 0, 0.2);
+  background: rgba(255, 107, 0, 0.02);
+}
+.header-currency-badge.streak-badge:hover {
+  background: rgba(255, 107, 0, 0.06);
+  border-color: rgba(255, 107, 0, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px rgba(255, 107, 0, 0.2);
+}
+.header-currency-badge.streak-badge:hover i {
+  transform: scale(1.2) translateY(-1px);
+  color: #ff8c00; /* Se intensifica a un naranja más claro en hover */
+}
+
+/* ===== NAVBAR AVATAR STYLE ===== */
+.navbar-avatar-wrapper {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--avatar-color, rgba(255,255,255,0.08));
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px var(--avatar-color);
+  box-sizing: border-box;
+}
+
+.navbar-avatar-wrapper:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent);
+  transform: scale(1.08);
+  box-shadow: 0 0 16px var(--avatar-color);
+}
+
+.navbar-avatar-img {
+  background-color: transparent !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50%;
+}
+
+/* ===== 3D FLIP CARD STYLING (GAMER STYLE) ===== */
+.flip-card {
+  background-color: transparent;
+  width: 100%;
+  height: 270px;
+  perspective: 1200px; /* Habilita el espacio 3D */
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-style: preserve-3d;
+  border-radius: 12px; /* Esquinas ligeramente más afiladas estilo gaming */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  transform-origin: center center;
+}
+
+/* El giro se realiza exactamente en su propio eje, sin bajar la card */
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+  box-shadow: 0 0 25px var(--card-glow), 0 5px 15px rgba(0, 0, 0, 0.6);
+}
+
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+  border-radius: 12px;
+  border: 2px solid var(--card-glow);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* FRONT CARD GAMER */
+.flip-card-front {
+  background: #0d0d12;
+}
+
+/* Efecto de marco de escáner futurista / HUD */
+.flip-card-front::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.flip-card-front::after {
+  content: 'REC_SYS_v2.0';
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-family: monospace;
+  font-size: 7.5px;
+  font-weight: 800;
+  color: var(--card-glow);
+  opacity: 0.55;
+  letter-spacing: 1px;
+  z-index: 3;
+}
+
+.card-front-banner {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 58%;
+  /* Degradado gaming más oscuro y definido */
+  background: linear-gradient(to top, #09090d 0%, rgba(9, 9, 13, 0.9) 55%, rgba(9, 9, 13, 0.3) 85%, transparent 100%);
+  z-index: 2;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.card-holder-name {
+  margin: 0 0 6px 0;
+  font-size: 13.5px;
+  font-weight: 900;
+  color: #ffffff;
+  font-family: 'Space Grotesk', sans-serif;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+  letter-spacing: 0.2px;
+}
+
+.card-record-badge {
+  font-family: monospace;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 3.5px 10px;
+  border-radius: 4px; /* Estilo cyber chato */
+  border: 1px solid;
+  background: rgba(10, 10, 14, 0.88);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+.card-flip-hint {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: monospace;
+  margin-top: 8px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* BACK CARD GAMER */
+.flip-card-back {
+  transform: rotateY(180deg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #09090d 0%, var(--card-glow-bg) 100%);
+  box-sizing: border-box;
+}
+
+.card-back-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.card-back-title {
+  font-size: 10.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-family: monospace;
+}
+
+.card-back-icon {
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 5px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.card-back-desc {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0 0 8px 0;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.card-back-stats {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.card-back-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-back-stat-label {
+  font-size: 9.5px;
+  color: var(--muted);
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.card-back-stat-value {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.card-back-stat-value.record-num {
+  font-size: 13.5px;
+  font-weight: 900;
+  font-family: monospace;
+  letter-spacing: -0.2px;
+}
+
 

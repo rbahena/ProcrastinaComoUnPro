@@ -111,6 +111,9 @@ export class MembershipService {
     parseInt(getMigratedValue('focus-tomatoes', '0'), 10)
   );
 
+  // Racha de días de enfoque
+  streak = signal<number>(0);
+
   addFocusTomatoes(tomatoes: number) {
     this.focusTomatoes.update(t => t + tomatoes);
   }
@@ -205,6 +208,10 @@ export class MembershipService {
         this.closeAvatarMenu();
       });
     }
+
+    // Calcular la racha inicial
+    const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+    this.streak.set(this.calculateStreak(email));
 
     // DESBLOQUEAR TODO AUTOMÁTICAMENTE PARA PRUEBAS
     this.unlockedAvatars.set([
@@ -521,6 +528,8 @@ export class MembershipService {
       }
     }
 
+    this.streak.set(currentStreak);
+
     this.qualitiesCatalog.update(list => {
       return list.map(q => {
         if (q.id === 'constancia') {
@@ -538,6 +547,47 @@ export class MembershipService {
         return q;
       });
     });
+  }
+
+  calculateStreak(email: string): number {
+    const key = `user:${email}:streak-dates`;
+    const savedDates = localStorage.getItem(key);
+    if (!savedDates) return 0;
+    try {
+      const dates: string[] = JSON.parse(savedDates);
+      if (dates.length === 0) return 0;
+
+      const todayStr = new Date().toLocaleDateString();
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toLocaleDateString();
+
+      // Si hoy no se ha enfocado y ayer tampoco, la racha activa es 0
+      if (!dates.includes(todayStr) && !dates.includes(yesterdayStr)) {
+        return 0;
+      }
+
+      let currentStreak = 0;
+      let checkDate = new Date();
+      
+      // Si hoy no se ha enfocado pero ayer sí, empezamos a contar desde ayer
+      if (!dates.includes(todayStr) && dates.includes(yesterdayStr)) {
+        checkDate = yesterday;
+      }
+
+      while (true) {
+        const checkStr = checkDate.toLocaleDateString();
+        if (dates.includes(checkStr)) {
+          currentStreak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+      return currentStreak;
+    } catch (e) {
+      return 0;
+    }
   }
 
   // Desbloquear avatar
@@ -630,6 +680,18 @@ export class MembershipService {
           localStorage.setItem(`user:demo@focusapp.com:unlocked-themes`, JSON.stringify(['samurai']));
           localStorage.setItem(`user:demo@focusapp.com:onboarding-completed`, 'true');
         }
+
+        // Generar racha de 14 días si no hay fechas guardadas
+        if (localStorage.getItem(`user:demo@focusapp.com:streak-dates`) === null) {
+          const demoDates: string[] = [];
+          for (let i = 0; i < 14; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            demoDates.push(d.toLocaleDateString());
+          }
+          localStorage.setItem(`user:demo@focusapp.com:streak-dates`, JSON.stringify(demoDates));
+        }
+
         this.loadUserData(emailLower);
         return { success: true };
       } else {
@@ -681,6 +743,9 @@ export class MembershipService {
     this.podiumWins.set(podiumWinsVal);
     this.onboardingCompleted.set(onboardingCompletedVal);
     this.capturedIdeas.set(capturedIdeasVal);
+
+    // Recalcular la racha
+    this.streak.set(this.calculateStreak(email));
   }
 
   // Restablecer cuenta para nuevo registro desde cero

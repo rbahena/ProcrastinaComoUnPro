@@ -191,5 +191,7 @@ export class Estadisticas implements OnInit {
     return Math.max(...this.annualData(), 1);
   });
 
-  longestStreak = 14;
+  get longestStreak(): number {
+    return Math.max(14, this.membership.streak());
+  }
 }

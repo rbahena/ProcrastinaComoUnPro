@@ -19,6 +19,87 @@ export class Medallero {
   sidebarCollapsed = this.membership.sidebarCollapsed;
   userName = this.membership.userName;
 
+  brokenRecords = computed(() => {
+    const ramStreak = this.membership.streak();
+    const ramName = this.membership.userName();
+    const ramAvatar = this.membership.selectedAvatar();
+    
+    // Si la racha de Ramiro supera la de Carlos (15), él ostenta el récord de mejor racha!
+    const bestStreak = Math.max(15, ramStreak);
+    const streakHolderName = ramStreak >= 15 ? ramName : 'Carlos "Mente Zen"';
+    const streakHolderAvatar = ramStreak >= 15 ? ramAvatar : 'panda';
+    const streakHolderFlag = ramStreak >= 15 ? 'mx' : 'mx';
+
+    return [
+      {
+        title: 'Mejor Racha de Enfoque',
+        description: 'Días consecutivos completando al menos 1 Pomodoro de estudio.',
+        value: `${bestStreak} días`,
+        holder: streakHolderName,
+        avatar: streakHolderAvatar,
+        flag: streakHolderFlag,
+        socials: [
+          { icon: 'fa-github', platform: 'GitHub', link: 'https://github.com' },
+          { icon: 'fa-linkedin', platform: 'LinkedIn', link: 'https://linkedin.com' },
+          { icon: 'fa-x-twitter', platform: 'Twitter', link: 'https://x.com' }
+        ],
+        date: ramStreak >= 15 ? 'Hoy' : '25 Ago 2026',
+        icon: 'fa-fire',
+        color: '#ff6b00',
+        bgGlow: 'rgba(255, 107, 0, 0.12)'
+      },
+      {
+        title: 'Más Pomodoros en 24h',
+        description: 'Bloques de concentración total finalizados en un solo día.',
+        value: '12 bloques',
+        holder: 'Elena "Rana Veloz"',
+        avatar: 'rana',
+        flag: 'es',
+        socials: [
+          { icon: 'fa-github', platform: 'GitHub', link: 'https://github.com' },
+          { icon: 'fa-discord', platform: 'Discord', link: 'https://discord.com' }
+        ],
+        date: '24 Ago 2026',
+        icon: 'fa-stopwatch',
+        color: '#3b82f6',
+        bgGlow: 'rgba(59, 130, 246, 0.12)'
+      },
+      {
+        title: 'Más Objetivos Semanales',
+        description: 'Tareas y metas cumplidas y registradas en una sola semana.',
+        value: '28 objetivos',
+        holder: 'Mateo "El Castor"',
+        avatar: 'castor',
+        flag: 'ca',
+        socials: [
+          { icon: 'fa-linkedin', platform: 'LinkedIn', link: 'https://linkedin.com' },
+          { icon: 'fa-x-twitter', platform: 'Twitter', link: 'https://x.com' }
+        ],
+        date: '20 Ago 2026',
+        icon: 'fa-circle-check',
+        color: '#10b981',
+        bgGlow: 'rgba(16, 185, 129, 0.12)'
+      },
+      {
+        title: 'Mayor Daño Único a Raid',
+        description: 'Daño crítico máximo infligido en una sola batalla contra jefes.',
+        value: '4,850 HP',
+        holder: 'Lucas "La Rata"',
+        avatar: 'raton',
+        flag: 'ar',
+        socials: [
+          { icon: 'fa-github', platform: 'GitHub', link: 'https://github.com' },
+          { icon: 'fa-twitch', platform: 'Twitch', link: 'https://twitch.tv' },
+          { icon: 'fa-youtube', platform: 'YouTube', link: 'https://youtube.com' }
+        ],
+        date: '18 Ago 2026',
+        icon: 'fa-skull',
+        color: '#ef4444',
+        bgGlow: 'rgba(239, 68, 68, 0.12)'
+      }
+    ];
+  });
+
 
   toggleSidebar() {
     this.membership.toggleSidebar();
@@ -88,7 +169,7 @@ export class Medallero {
 
   // 3. Mejor racha
   rankingStreaks = computed(() => {
-    const ramStreak = 14; // De las estadísticas de Ramiro
+    const ramStreak = Math.max(14, this.membership.streak()); // De las estadísticas de Ramiro
     const ramName = this.membership.userName();
     const ramAvatar = this.membership.selectedAvatar();
     
