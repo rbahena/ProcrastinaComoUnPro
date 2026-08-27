@@ -71,9 +71,9 @@ export class Medallero {
         title: 'El Magnate de Focus',
         description: 'Total acumulado de Pro Coins obtenidas enfocándose en la Comunidad desde el origen.',
         value: '75,000 Coins',
-        holder: 'Sebastián "El Dragón"',
-        avatar: 'dragon',
-        flag: 'co',
+        holder: 'Elena "Rana Veloz"',
+        avatar: 'rana',
+        flag: 'es',
         socials: [
           { icon: 'fa-github', platform: 'GitHub', link: 'https://github.com' },
           { icon: 'fa-linkedin', platform: 'LinkedIn', link: 'https://linkedin.com' },

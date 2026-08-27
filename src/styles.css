@@ -1305,18 +1305,23 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   height: 100%;
   -webkit-backface-visibility: hidden; /* Safari */
   backface-visibility: hidden;
-  border-radius: 0; /* Sin bordes curvos marcados para efecto de corte continuo */
-  border: none !important; /* Tarjetas sin bordes físicos */
   box-sizing: border-box;
   overflow: hidden;
-  /* Difuminado suave 360 grados aplicado a cada cara individual para preservar el espacio 3D */
-  -webkit-mask-image: radial-gradient(ellipse at center, #000 40%, rgba(0, 0, 0, 0.85) 65%, transparent 95%);
-  mask-image: radial-gradient(ellipse at center, #000 40%, rgba(0, 0, 0, 0.85) 65%, transparent 95%);
 }
 
-/* FRONT CARD GAMER */
+/* FRONT CARD GAMER (Faded Avatar) */
 .flip-card-front {
   background: transparent !important;
+  border-radius: 0;
+  border: none !important;
+  /* Difuminado suave 360 grados simétrico sutil: mantiene la imagen sólida y desvanece solo el borde de fondo */
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 65%, rgba(0, 0, 0, 0.85) 82%, transparent 98%);
+  mask-image: radial-gradient(ellipse at center, #000 65%, rgba(0, 0, 0, 0.85) 82%, transparent 98%);
+}
+
+.flip-card-front .avatar-sprite {
+  background-size: cover !important;
+  background-position: center 30% !important;
 }
 
 /* HUD superior */
@@ -1389,12 +1394,17 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 /* BACK CARD GAMER */
 .flip-card-back {
   transform: rotateY(180deg);
-  padding: 48px 24px; /* Relleno superior e inferior para proteger el contenido de la máscara */
+  padding: 24px; /* Relleno normal y cómodo */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: radial-gradient(circle at center, rgba(13, 13, 18, 0.95) 0%, rgba(9, 9, 13, 0) 100%) !important;
+  background: #0d0d12 !important; /* Fondo sólido oscuro */
+  border: 2px solid var(--card-glow) !important; /* Borde neón del color del récord */
+  border-radius: 12px !important; /* Esquinas redondeadas estilo gaming */
   box-sizing: border-box;
+  -webkit-mask-image: none !important; /* Sin máscara para conservar legibilidad nítida */
+  mask-image: none !important;
+  box-shadow: 0 0 15px var(--card-glow-bg) !important;
 }
 
 .card-back-header {
@@ -1484,8 +1494,9 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 .slider-card-wrapper {
   position: absolute;
   width: 320px; /* Ancho cómodo alargado */
-  height: 100%;
-  max-height: calc(100vh - 240px); /* Altura máxima para no desbordar */
+  height: 480px; /* Medida manual incrementada. Iremos modificando este valor según me indiques. */
+  max-height: none; /* Remueve límites fijos de vh */
+  top: -50px; /* Desplaza la tarjeta hacia arriba para acercarla a la cabecera */
   transition: all 0.7s cubic-bezier(0.25, 1, 0.5, 1);
   opacity: 0;
   pointer-events: none;
