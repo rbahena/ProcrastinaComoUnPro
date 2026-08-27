@@ -13,44 +13,59 @@
   <div class="main custom-scrollbar" [class.main-collapsed]="sidebarCollapsed()" style="display: flex; flex-direction: column; position: relative; z-index: 1;" [style.marginLeft]="sidebarCollapsed() ? '0px' : ''">
 
   <style>
-    @keyframes slideInRight {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
+    .floating-drawer {
+      position: fixed;
+      top: 88px;
+      right: 180px; /* Shifted closer to the center */
+      bottom: 24px;
+      width: min(100% - 240px, 380px);
+      z-index: 2000;
+      background: rgba(10, 10, 12, 0.95);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1.5px solid var(--accent);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+      animation: slideDown 0.25s ease; /* Modified to match the other cards' drop down/fade animation */
+      transition: all 0.3s ease;
+    }
+    @media (max-width: 1200px) {
+      .floating-drawer {
+        right: 80px;
+      }
+    }
+    @media (max-width: 992px) {
+      .floating-drawer {
+        right: 24px;
+        width: min(100% - 48px, 380px);
+      }
+    }
+    @media (max-width: 576px) {
+      .floating-drawer {
+        right: 12px;
+        width: min(100% - 24px, 380px);
+        top: 76px;
+        bottom: 12px;
+      }
     }
   </style>
 
-  <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
-  <div class="main custom-scrollbar" style="display: flex; flex-direction: column; position: relative; z-index: 1;">
-
-    <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE TRES COLUMNAS) -->
-    <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 480px; padding: 20px; width: 100%; max-width: 1200px; margin: 0 auto;">
+  <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE TRES COLUMNAS) -->
+  <div style="flex: 1; display: flex; align-items: start; justify-content: center; min-height: 480px; padding: 0px 20px 20px 20px; width: 100%; max-width: 1200px; margin: 0 auto; margin-top: 0px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr)); gap: 30px; width: 100%; align-items: start;">
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr)); gap: 30px; width: 100%; align-items: start;">
+      <!-- COLUMNA IZQUIERDA: Estrategia -->
+      <div style="display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center;">
         
-        <!-- COLUMNA IZQUIERDA: Estrategia -->
-        <div style="display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center;">
-          <!-- SECCIÓN DE ESTRATEGIAS -->
-          
           <!-- Tarjeta Estrategias Expandida -->
           <div *ngIf="showStrategyCard()" style="width: 100%;">
-                        <ng-container *ngIf="arenaState() === 'setup'">
-              <!-- BOTÓN PARA MOSTRAR/OCULTAR ESTRATEGIA -->
-              <button (click)="showStrategyCard.set(!showStrategyCard())"
-                      style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; display: inline-flex; align-items: center; justify-content: space-between; width: 100%; font-family: inherit; margin-bottom: 12px;"
-                      onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='var(--accent)';"
-                      onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.08)';">
-                <span style="display: flex; align-items: center; gap: 8px;">
-                  <i class="fa-solid fa-crosshairs" [style.color]="showStrategyCard() ? 'var(--accent)' : 'var(--muted)'"></i>
-                  Estrategia de Concentración
-                </span>
-                <span style="font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                  {{ showStrategyCard() ? 'Ocultar' : 'Mostrar' }}
-                  <i class="fa-solid" [class]="showStrategyCard() ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left: 4px; font-size: 9px;"></i>
-                </span>
-              </button>
-
-              <!-- CAJA DE ESTRATEGIAS -->
-              <div *ngIf="showStrategyCard()" style="background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); animation: slideDown 0.2s ease;">
+                          <div *ngIf="showStrategyCard()" style="background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); animation: slideDown 0.2s ease;">
                 
                 <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
                   <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
@@ -179,15 +194,14 @@
                 </div>
 
               </div>
-            </ng-container>
 
           </div>
 
-        </div>
+      </div>
 
-        <!-- COLUMNA CENTRAL: Reloj Digital -->
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%;">
-          
+      <!-- COLUMNA CENTRAL: Reloj Digital -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%;">
+        
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; min-height: 380px; width: 100%; position: relative;">
           <!-- Fondo decorativo con auras suaves -->
           <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
@@ -289,33 +303,19 @@
 
         </div>
 
-          
+        
           <!-- VISTA ENFOQUE ACTIVO: OBJETIVO (Se muestra debajo del reloj durante active/countdown) -->
-                      <ng-container *ngIf="arenaState() === 'active' || arenaState() === 'countdown'">
-              <!-- Tarjeta de Objetivo Activo -->
-              <div *ngIf="activeObjective() && activeObjective().trim()" 
-                   style="background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); text-align: center;">
-                <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;"
-                     [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.08)' : (activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255, 255, 255, 0.05)')"
-                     [style.border]="activeMethodology() === 'sapo' ? '1px solid rgba(16, 185, 129, 0.15)' : (activeMethodology() === 'pareto' ? '1px solid rgba(99, 102, 241, 0.15)' : '1px solid rgba(255, 255, 255, 0.1)')"
-                     [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')">
-                  <i class="fa-solid" [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-bolt')"></i>
-                  <span>{{ activeMethodology() === 'sapo' ? 'Misión Sapo (Comer la Rana)' : (activeMethodology() === 'pareto' ? 'Filtro Pareto 80/20' : 'Enfoque Estándar') }}</span>
-                </div>
-                <h2 style="font-size: 16px; font-weight: 800; color: var(--text); margin: 0; letter-spacing: -0.5px; line-height: 1.35;">
-                  "{{ activeObjective() }}"
-                </h2>
-              </div>
-            </ng-container>
+          <div *ngIf="arenaState() !== 'setup' && activeObjective() && activeObjective().trim()" 
+               style="text-align: center; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2;">
+            <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 1.5px;">Objetivo de Concentración</span>
+            <span style="font-size: 15px; font-weight: 800; color: var(--text);">"{{ activeObjective() }}"</span>
+          </div>
 
+      </div>
 
-        </div>
-
-        <!-- COLUMNA DERECHA: Comunidad y Raid Boss -->
-        <div *ngIf="coworkingMode() === 'comunitario'" style="display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center;">
-          
-          <!-- Raid Boss -->
-          
+      <!-- COLUMNA DERECHA: Comunidad y Raid Boss -->
+      <div style="display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center;">
+        
           <!-- Tarjeta Boss Expandida -->
           <div *ngIf="showBossCard()" style="width: 100%;">
                         <!-- Combate de Jefe (si estamos en Comunidad) -->
@@ -360,10 +360,8 @@
 
           </div>
 
-
-          <!-- Guerreros Enfocados -->
-          
-          <!-- Tarjeta Comunidad Expandida -->
+        
+          <!-- Tarjeta Comunidad/Guerreros Expandida -->
           <div *ngIf="showComunidadUsers()" style="width: 100%;">
                         <div *ngIf="coworkingMode() === 'comunitario'"
                  style="width: 100%; background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);">
@@ -405,21 +403,16 @@
               </div>
             </div>
 
-          
-
-        </div>
 
           </div>
 
-
-        </div>
-
       </div>
+
     </div>
-    
-    <div *ngIf="showSetupSettings() && arenaState() === 'setup'"
-     class="custom-scrollbar"
-     style="position: fixed; top: 88px; right: 36px; bottom: 24px; width: min(100%, 380px); z-index: 2000; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1.5px solid var(--accent); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; overflow-x: hidden; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55); animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+  </div>
+  
+  <div *ngIf="showSetupSettings() && arenaState() === 'setup'"
+     class="floating-drawer custom-scrollbar">
                         <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
               <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-gear" style="color: var(--accent);"></i>
@@ -600,9 +593,8 @@
             </button>
 
 </div>
-    <div *ngIf="showThemesPanel() && arenaState() === 'setup'"
-     class="custom-scrollbar"
-     style="position: fixed; top: 88px; right: 36px; bottom: 24px; width: min(100%, 380px); z-index: 2000; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1.5px solid var(--accent); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; overflow-x: hidden; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55); animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+  <div *ngIf="showThemesPanel() && arenaState() === 'setup'"
+     class="floating-drawer custom-scrollbar">
             <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
               <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-palette" style="color: var(--accent);"></i>
@@ -701,19 +693,22 @@
             </button>
 
 </div>
-    
+  
     <!-- BARRA DE ACCESO RÁPIDO (HUD DECK) EN ESQUINA INFERIOR IZQUIERDA -->
     <div style="position: fixed; bottom: 40px; display: flex; align-items: center; gap: 12px; z-index: 1000; background: rgba(10, 10, 12, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(255,255,255,0.06); padding: 8px; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: left 0.25s ease;"
          [style.left]="sidebarCollapsed() ? '12px' : 'calc(var(--sidebar) + 12px)'">
-      <!-- Toggle Estrategias -->
-      <button (click)="showStrategyCard.set(!showStrategyCard())" 
+      <!-- Toggle Estrategias (Disabled when Pomodoro starts) -->
+      <button [disabled]="arenaState() !== 'setup'"
+              (click)="showStrategyCard.set(!showStrategyCard()); showThemesPanel.set(false); showSetupSettings.set(false)" 
               [style.background]="showStrategyCard() ? 'var(--accent)' : 'rgba(255,255,255,0.03)'"
               [style.color]="showStrategyCard() ? '#000' : 'var(--accent)'"
               [style.borderColor]="showStrategyCard() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;"
-              onmouseover="this.style.transform='scale(1.1)';"
-              onmouseout="this.style.transform='scale(1)';"
-              title="Toggle Estrategias de Concentración">
+              [style.opacity]="arenaState() === 'setup' ? '1' : '0.35'"
+              [style.cursor]="arenaState() === 'setup' ? 'pointer' : 'not-allowed'"
+              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;"
+              onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.1)';"
+              onmouseout="if(this.getAttribute('disabled') === null) this.style.transform='scale(1)';"
+              [title]="arenaState() === 'setup' ? 'Toggle Estrategias de Concentración' : 'Estrategias bloqueadas durante enfoque'">
         <i class="fa-solid fa-crosshairs"></i>
       </button>
 
@@ -731,7 +726,7 @@
 
       <!-- Toggle Boss (Raid) -->
       <button *ngIf="coworkingMode() === 'comunitario'"
-              (click)="showBossCard.set(!showBossCard())" 
+              (click)="showBossCard.set(!showBossCard()); showThemesPanel.set(false); showSetupSettings.set(false)" 
               [style.borderColor]="showBossCard() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
               style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; background: rgba(10, 10, 12, 0.78); overflow: hidden; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
               onmouseover="this.style.transform='scale(1.1)';"
@@ -748,7 +743,7 @@
 
       <!-- Toggle Comunidad (Usuarios) -->
       <button *ngIf="coworkingMode() === 'comunitario'"
-              (click)="showComunidadUsers.set(!showComunidadUsers())" 
+              (click)="showComunidadUsers.set(!showComunidadUsers()); showThemesPanel.set(false); showSetupSettings.set(false)" 
               [style.background]="showComunidadUsers() ? 'var(--accent)' : 'rgba(255,255,255,0.03)'"
               [style.color]="showComunidadUsers() ? '#000' : 'var(--accent)'"
               [style.borderColor]="showComunidadUsers() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
@@ -760,187 +755,8 @@
       </button>
     </div>
 
-    
-  </div>
-</ng-container>
-
-
-<!-- ESTADO 4: SUMMARY / CIERRE DOPAMÍNICO (CELEBRACIÓN Y CUESTIONARIO POST-SESIÓN) -->
-<ng-container *ngIf="arenaState() === 'summary'">
-  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; overflow-x: hidden; padding: 24px; font-family: 'Space Grotesk', sans-serif;"
-       [style.background]="useFairyBackground() ? 'linear-gradient(rgba(7, 7, 9, 0.85), rgba(7, 7, 9, 0.85)), url(\'' + backgroundUrl() + '\') no-repeat center center / 100% 100%' : '#070709'">
-    
-    <!-- Partículas minimalistas en el fondo (efectos de color) -->
-    <div style="position: absolute; top: 25%; left: 30%; width: 140px; height: 140px; background: var(--green); opacity: 0.04; filter: blur(50px); border-radius: 50%;"></div>
-    <div style="position: absolute; bottom: 25%; right: 30%; width: 140px; height: 140px; background: var(--accent); opacity: 0.04; filter: blur(50px); border-radius: 50%;"></div>
-
-    <!-- BLOQUE DEL CUESTIONARIO -->
-    <div style="position: relative; background: linear-gradient(135deg, rgba(18, 18, 24, 0.8) 0%, rgba(30, 30, 39, 0.45) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 40px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 28px; box-shadow: 0 32px 80px rgba(0,0,0,0.5); z-index: 2; text-align: center;">
-      
-      <!-- Botón de Cerrar (X) para retomar el pomodoro (Sólo si no se acabó el tiempo y no se venció por pausa) -->
-      <button *ngIf="timeLeft() > 0 && !interruptedByPause()" 
-              (click)="resumeSession()"
-              style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: all 0.2s;"
-              onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.color='var(--text)';"
-              onmouseout="this.style.background='transparent'; this.style.color='var(--muted)';"
-              title="Cancelar y retomar pomodoro">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-
-      <!-- Icono e Introducción -->
-      <div>
-        <div style="font-size: 28px; margin-bottom: 10px;">
-          <span *ngIf="sessionEndingStatus() === 'completed'">🎉</span>
-          <span *ngIf="sessionEndingStatus() === 'interrupted'">⚠️</span>
-          <span *ngIf="sessionEndingStatus() === 'abandoned'">❌</span>
-        </div>
-        <span style="font-size: 10px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Cuestionario de Enfoque</span>
-        <h2 style="font-size: 20px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.4px;">¿Cómo terminó esta sesión?</h2>
-      </div>
-
-      <!-- Mensaje de motivación de la comunidad -->
-      <div *ngIf="coworkingMode() === 'comunitario' && sessionEndingStatus() === 'completed'" 
-           style="background: rgba(99, 102, 241, 0.05); border: 1.5px dashed rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 12px 14px; text-align: left; display: flex; flex-direction: column; gap: 4px; margin: -10px 0 0 0;">
-        <span style="font-size: 8.5px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 4px;">
-          <i class="fa-solid fa-comment-dots"></i> Mensaje de motivación de la Comunidad
-        </span>
-        <p style="font-size: 11.5px; color: var(--text); font-style: italic; font-weight: 600; margin: 0; line-height: 1.4;">
-          "¡Enhorabuena por completar este bloque! Cada paso cuenta en tu camino de guerrero."
-        </p>
-      </div>
-
-      <!-- Pregunta 1: Estado de Finalización (Botones de Recompensas) -->
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <!-- Botón Completada Verde -->
-        <button [disabled]="manuallyAbandoned() || interruptedByPause()"
-                (click)="sessionEndingStatus.set('completed')" 
-                style="width: 100%; border: 1px solid rgba(16, 185, 129, 0.2); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
-                [style.background]="sessionEndingStatus() === 'completed' ? 'rgba(16, 185, 129, 0.08)' : 'transparent'"
-                [style.borderColor]="sessionEndingStatus() === 'completed' ? 'var(--green)' : 'rgba(255,255,255,0.05)'"
-                [style.opacity]="(manuallyAbandoned() || interruptedByPause()) ? 0.35 : 1"
-                [style.cursor]="(manuallyAbandoned() || interruptedByPause()) ? 'not-allowed' : 'pointer'">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--green);"></span>
-            <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Completada</span>
-          </div>
-          <span style="font-size: 11px; font-weight: 700; color: var(--green);">+30 XP</span>
-        </button>
-
-        <!-- Botón Interrumpida Amarillo -->
-        <button *ngIf="timeLeft() > 0"
-                [disabled]="manuallyAbandoned()"
-                (click)="sessionEndingStatus.set('interrupted')" 
-                style="width: 100%; border: 1px solid rgba(245, 158, 11, 0.2); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
-                [style.background]="sessionEndingStatus() === 'interrupted' ? 'rgba(245, 158, 11, 0.08)' : 'transparent'"
-                [style.borderColor]="sessionEndingStatus() === 'interrupted' ? 'var(--yellow)' : 'rgba(255,255,255,0.05)'"
-                [style.opacity]="manuallyAbandoned() ? 0.35 : 1"
-                [style.cursor]="manuallyAbandoned() ? 'not-allowed' : 'pointer'">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--yellow);"></span>
-            <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Interrumpida</span>
-          </div>
-          <span style="font-size: 11px; font-weight: 700; color: var(--yellow);">+10 XP</span>
-        </button>
-
-        <!-- Botón Abandonada Rojo -->
-        <button *ngIf="timeLeft() > 0"
-                [disabled]="interruptedByPause()"
-                (click)="sessionEndingStatus.set('abandoned')" 
-                style="width: 100%; border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;"
-                [style.background]="sessionEndingStatus() === 'abandoned' ? 'rgba(239, 68, 68, 0.08)' : 'transparent'"
-                [style.borderColor]="sessionEndingStatus() === 'abandoned' ? 'var(--red)' : 'rgba(255,255,255,0.05)'"
-                [style.opacity]="interruptedByPause() ? 0.35 : 1"
-                [style.cursor]="interruptedByPause() ? 'not-allowed' : 'pointer'">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--red);"></span>
-            <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">Abandonada</span>
-          </div>
-          <span style="font-size: 11px; font-weight: 700; color: var(--red);">-50 XP</span>
-        </button>
-      </div>
-
-      <!-- Pregunta 2: ¿Completaste tu objetivo? / ¿Lograste avanzar en tu objetivo? (Sólo si NO se abandonó) -->
-      <div *ngIf="sessionEndingStatus() !== 'abandoned'" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-        <span style="font-size: 12.5px; font-weight: 700; color: var(--text);">
-          {{ sessionEndingStatus() === 'completed' ? '¿Completaste tu objetivo?' : '¿Lograste avanzar en tu objetivo?' }}
-        </span>
-        
-        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-          <div style="display: flex; gap: 10px; width: 100%;">
-            <!-- Botón Sí / Sí, lo completé -->
-            <button (click)="objectiveCompleted.set('yes')" 
-                    style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.25s;"
-                    [style.background]="objectiveCompleted() === 'yes' ? 'rgba(99, 102, 241, 0.08)' : 'transparent'"
-                    [style.borderColor]="objectiveCompleted() === 'yes' ? 'var(--accent)' : 'var(--border)'"
-                    [style.color]="objectiveCompleted() === 'yes' ? 'var(--accent)' : 'var(--text)'">
-              {{ sessionEndingStatus() === 'completed' ? 'Sí' : 'Sí, lo completé' }}
-            </button>
-            
-            <!-- Botón No / No avancé nada -->
-            <button (click)="objectiveCompleted.set('no')" 
-                    style="flex: 1; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.25s;"
-                    [style.background]="objectiveCompleted() === 'no' ? 'rgba(255, 255, 255, 0.03)' : 'transparent'"
-                    [style.borderColor]="objectiveCompleted() === 'no' ? 'rgba(255,255,255,0.1)' : 'var(--border)'"
-                    [style.color]="objectiveCompleted() === 'no' ? 'var(--muted)' : 'var(--text)'">
-              {{ sessionEndingStatus() === 'completed' ? 'No' : 'No avancé nada' }}
-            </button>
-          </div>
-
-          <!-- Botón Hice un gran avance / Sí, avancé algo -->
-          <button (click)="objectiveCompleted.set('progress')" 
-                  style="width: 100%; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: all 0.25s;"
-                  [style.background]="objectiveCompleted() === 'progress' ? 'rgba(16, 185, 129, 0.08)' : 'transparent'"
-                  [style.borderColor]="objectiveCompleted() === 'progress' ? 'var(--green)' : 'var(--border)'"
-                  [style.color]="objectiveCompleted() === 'progress' ? 'var(--green)' : 'var(--text)'">
-            {{ sessionEndingStatus() === 'completed' ? 'Hice un gran avance' : 'Sí, avancé algo' }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Resumen de Recompensas (Sólo para Premium) -->
-      <div *ngIf="membership.isPremium() && sessionEndingStatus() === 'completed'" 
-           style="background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.15); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
-        <span style="font-size: 10px; color: var(--yellow); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
-          <i class="fa-solid fa-crown"></i> Recompensas Premium Asignadas
-        </span>
-        <div style="display: flex; justify-content: space-around; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
-          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--text);">
-            <i class="fa-solid fa-trophy" style="color: var(--yellow);"></i>
-            <span>+10 Puntos</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--text);">
-            <i class="fa-solid fa-coins" style="color: var(--yellow);"></i>
-            <span>+{{ coworkingMode() === 'comunitario' ? '10' : '5' }} Coins</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Invitación Premium (Sólo para Gratuito) -->
-      <div *ngIf="!membership.isPremium() && sessionEndingStatus() === 'completed'" 
-           style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
-        <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">⭐ Conviértete en Pro</span>
-        <p style="font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4;">
-          Con Premium habrías obtenido **+10 Puntos** y **+5 Pro Coins** para el ranking de la Comunidad y la Tienda de Avatares.
-        </p>
-        <button routerLink="/membresia" 
-                style="border: none; background: var(--accent); color: #000; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-family: inherit;"
-                onmouseover="this.style.transform='translateY(-0.5px)';"
-                onmouseout="this.style.transform='translateY(0)';">
-          Ver Beneficios Premium
-        </button>
-      </div>
-
-      <!-- Botón de Envío y Retorno -->
-      <button (click)="finishSession()" 
-              [disabled]="sessionEndingStatus() !== 'abandoned' && objectiveCompleted() === null"
-              style="width: 100%; border: none; padding: 14px; border-radius: 8px; background: var(--accent); color: #000; font-size: 13.5px; font-weight: 900; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;"
-              [style.opacity]="(sessionEndingStatus() !== 'abandoned' && objectiveCompleted() === null) ? 0.5 : 1"
-              [style.cursor]="(sessionEndingStatus() !== 'abandoned' && objectiveCompleted() === null) ? 'not-allowed' : 'pointer'">
-        Guardar y Salir a la Comunidad
-      </button>
-
-    </div>
-  </div>
+  
+</div>
 </ng-container>
 
 
