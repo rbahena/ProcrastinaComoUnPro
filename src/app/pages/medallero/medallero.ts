@@ -19,6 +19,9 @@ export class Medallero {
   sidebarCollapsed = this.membership.sidebarCollapsed;
   userName = this.membership.userName;
 
+  // Indice activo de la tarjeta en el slider full-screen
+  activeCardIndex = signal(0);
+
   brokenRecords = computed(() => {
     const ramStreak = this.membership.streak();
     const ramName = this.membership.userName();
@@ -32,8 +35,8 @@ export class Medallero {
 
     return [
       {
-        title: 'Mejor Racha de Enfoque',
-        description: 'Días consecutivos completando al menos 1 Pomodoro de estudio.',
+        title: 'Racha al Día de Hoy',
+        description: 'Racha consecutiva de días de enfoque completados en la plataforma al día de hoy.',
         value: `${bestStreak} días`,
         holder: streakHolderName,
         avatar: streakHolderAvatar,
@@ -49,56 +52,52 @@ export class Medallero {
         bgGlow: 'rgba(255, 107, 0, 0.12)'
       },
       {
-        title: 'Más Pomodoros en 24h',
-        description: 'Bloques de concentración total finalizados en un solo día.',
-        value: '12 bloques',
-        holder: 'Elena "Rana Veloz"',
-        avatar: 'rana',
-        flag: 'es',
+        title: 'Pomodoros: Histórico',
+        description: 'Total acumulado de pomodoros de concentración finalizados desde el registro en la plataforma.',
+        value: '2,450 pomodoros',
+        holder: 'Diego "Paso Firme"',
+        avatar: 'tortuga',
+        flag: 'pe',
         socials: [
           { icon: 'fa-github', platform: 'GitHub', link: 'https://github.com' },
-          { icon: 'fa-discord', platform: 'Discord', link: 'https://discord.com' }
+          { icon: 'fa-linkedin', platform: 'LinkedIn', link: 'https://linkedin.com' }
         ],
-        date: '24 Ago 2026',
-        icon: 'fa-stopwatch',
-        color: '#3b82f6',
-        bgGlow: 'rgba(59, 130, 246, 0.12)'
+        date: 'Histórico',
+        icon: 'fa-hourglass-half',
+        color: '#14b8a6',
+        bgGlow: 'rgba(20, 184, 166, 0.12)'
       },
       {
-        title: 'Más Objetivos Semanales',
-        description: 'Tareas y metas cumplidas y registradas en una sola semana.',
-        value: '28 objetivos',
-        holder: 'Mateo "El Castor"',
-        avatar: 'castor',
-        flag: 'ca',
+        title: 'El Magnate de Focus',
+        description: 'Total acumulado de Pro Coins obtenidas enfocándose en la Comunidad desde el origen.',
+        value: '75,000 Coins',
+        holder: 'Sebastián "El Dragón"',
+        avatar: 'dragon',
+        flag: 'co',
         socials: [
+          { icon: 'fa-github', platform: 'GitHub', link: 'https://github.com' },
           { icon: 'fa-linkedin', platform: 'LinkedIn', link: 'https://linkedin.com' },
-          { icon: 'fa-x-twitter', platform: 'Twitter', link: 'https://x.com' }
+          { icon: 'fa-twitch', platform: 'Twitch', link: 'https://twitch.tv' }
         ],
-        date: '20 Ago 2026',
-        icon: 'fa-circle-check',
-        color: '#10b981',
-        bgGlow: 'rgba(16, 185, 129, 0.12)'
-      },
-      {
-        title: 'Mayor Daño Único a Raid',
-        description: 'Daño crítico máximo infligido en una sola batalla contra jefes.',
-        value: '4,850 HP',
-        holder: 'Lucas "La Rata"',
-        avatar: 'raton',
-        flag: 'ar',
-        socials: [
-          { icon: 'fa-github', platform: 'GitHub', link: 'https://github.com' },
-          { icon: 'fa-twitch', platform: 'Twitch', link: 'https://twitch.tv' },
-          { icon: 'fa-youtube', platform: 'YouTube', link: 'https://youtube.com' }
-        ],
-        date: '18 Ago 2026',
-        icon: 'fa-skull',
-        color: '#ef4444',
-        bgGlow: 'rgba(239, 68, 68, 0.12)'
+        date: 'Histórico',
+        icon: 'fa-coins',
+        color: '#fbbf24',
+        bgGlow: 'rgba(251, 191, 36, 0.12)'
       }
     ];
   });
+
+  prevCard() {
+    this.activeCardIndex.update(i => i > 0 ? i - 1 : 2);
+  }
+
+  nextCard() {
+    this.activeCardIndex.update(i => i < 2 ? i + 1 : 0);
+  }
+
+  setCard(idx: number) {
+    this.activeCardIndex.set(idx);
+  }
 
 
   toggleSidebar() {

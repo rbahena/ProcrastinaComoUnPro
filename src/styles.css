@@ -1282,8 +1282,7 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 .flip-card {
   background-color: transparent;
   width: 100%;
-  height: 270px;
-  perspective: 1200px; /* Habilita el espacio 3D */
+  height: 100%;
 }
 
 .flip-card-inner {
@@ -1292,15 +1291,12 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   height: 100%;
   transition: transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1);
   transform-style: preserve-3d;
-  border-radius: 12px; /* Esquinas ligeramente más afiladas estilo gaming */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   transform-origin: center center;
 }
 
 /* El giro se realiza exactamente en su propio eje, sin bajar la card */
-.flip-card:hover .flip-card-inner {
+.slider-card-wrapper.active:hover .flip-card-inner {
   transform: rotateY(180deg);
-  box-shadow: 0 0 25px var(--card-glow), 0 5px 15px rgba(0, 0, 0, 0.6);
 }
 
 .flip-card-front, .flip-card-back {
@@ -1309,35 +1305,28 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   height: 100%;
   -webkit-backface-visibility: hidden; /* Safari */
   backface-visibility: hidden;
-  border-radius: 12px;
-  border: 2px solid var(--card-glow);
+  border-radius: 0; /* Sin bordes curvos marcados para efecto de corte continuo */
+  border: none !important; /* Tarjetas sin bordes físicos */
   box-sizing: border-box;
   overflow: hidden;
+  /* Difuminado suave 360 grados aplicado a cada cara individual para preservar el espacio 3D */
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 40%, rgba(0, 0, 0, 0.85) 65%, transparent 95%);
+  mask-image: radial-gradient(ellipse at center, #000 40%, rgba(0, 0, 0, 0.85) 65%, transparent 95%);
 }
 
 /* FRONT CARD GAMER */
 .flip-card-front {
-  background: #0d0d12;
+  background: transparent !important;
 }
 
-/* Efecto de marco de escáner futurista / HUD */
-.flip-card-front::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-sizing: border-box;
-  z-index: 3;
-  pointer-events: none;
-}
-
+/* HUD superior */
 .flip-card-front::after {
   content: 'REC_SYS_v2.0';
   position: absolute;
-  top: 8px;
-  right: 12px;
+  top: 42px; /* Desplazado hacia abajo para no desvanecerse por la máscara */
+  right: 24px;
   font-family: monospace;
-  font-size: 7.5px;
+  font-size: 8.5px;
   font-weight: 800;
   color: var(--card-glow);
   opacity: 0.55;
@@ -1350,11 +1339,11 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   bottom: 0;
   left: 0;
   right: 0;
-  height: 58%;
+  height: 55%;
   /* Degradado gaming más oscuro y definido */
-  background: linear-gradient(to top, #09090d 0%, rgba(9, 9, 13, 0.9) 55%, rgba(9, 9, 13, 0.3) 85%, transparent 100%);
+  background: linear-gradient(to top, #09090d 0%, rgba(9, 9, 13, 0.96) 50%, rgba(9, 9, 13, 0.3) 80%, transparent 100%);
   z-index: 2;
-  padding: 14px;
+  padding: 20px 20px 45px 20px; /* Padding inferior extra para empujar textos fuera de la zona de difuminado */
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1364,8 +1353,8 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 }
 
 .card-holder-name {
-  margin: 0 0 6px 0;
-  font-size: 13.5px;
+  margin: 0 0 8px 0;
+  font-size: 16.5px;
   font-weight: 900;
   color: #ffffff;
   font-family: 'Space Grotesk', sans-serif;
@@ -1375,22 +1364,22 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 
 .card-record-badge {
   font-family: monospace;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 1px;
-  padding: 3.5px 10px;
-  border-radius: 4px; /* Estilo cyber chato */
+  padding: 5px 12px;
+  border-radius: 6px; /* Estilo cyber chato */
   border: 1px solid;
   background: rgba(10, 10, 14, 0.88);
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
 }
 
 .card-flip-hint {
-  font-size: 8px;
+  font-size: 9.5px;
   color: rgba(255, 255, 255, 0.4);
   font-family: monospace;
-  margin-top: 8px;
+  margin-top: 10px;
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
@@ -1400,11 +1389,11 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 /* BACK CARD GAMER */
 .flip-card-back {
   transform: rotateY(180deg);
-  padding: 20px;
+  padding: 48px 24px; /* Relleno superior e inferior para proteger el contenido de la máscara */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(135deg, #09090d 0%, var(--card-glow-bg) 100%);
+  background: radial-gradient(circle at center, rgba(13, 13, 18, 0.95) 0%, rgba(9, 9, 13, 0) 100%) !important;
   box-sizing: border-box;
 }
 
@@ -1414,12 +1403,12 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   justify-content: space-between;
   gap: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 8px;
-  margin-bottom: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .card-back-title {
-  font-size: 10.5px;
+  font-size: 12.5px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -1427,18 +1416,18 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 }
 
 .card-back-icon {
-  font-size: 13px;
+  font-size: 15px;
   background: rgba(255, 255, 255, 0.04);
-  padding: 5px;
-  border-radius: 6px;
+  padding: 6px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .card-back-desc {
-  font-size: 11px;
+  font-size: 12.5px;
   color: var(--muted);
-  margin: 0 0 8px 0;
-  line-height: 1.45;
+  margin: 0 0 10px 0;
+  line-height: 1.5;
   text-align: left;
 }
 
@@ -1446,10 +1435,10 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 10px;
+  padding: 12px;
   border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
@@ -1460,23 +1449,154 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 }
 
 .card-back-stat-label {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--muted);
   font-family: monospace;
   text-transform: uppercase;
 }
 
 .card-back-stat-value {
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 700;
   color: #fff;
 }
 
 .card-back-stat-value.record-num {
-  font-size: 13.5px;
+  font-size: 16.5px;
   font-weight: 900;
   font-family: monospace;
   letter-spacing: -0.2px;
+}
+
+/* ===== CARDS SLIDER CONTAINER (HUD DECK) ===== */
+.cards-slider-container {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  height: 100%; /* Toma todo el alto disponible */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1500px;
+  margin: auto;
+}
+
+.slider-card-wrapper {
+  position: absolute;
+  width: 320px; /* Ancho cómodo alargado */
+  height: 100%;
+  max-height: calc(100vh - 240px); /* Altura máxima para no desbordar */
+  transition: all 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(100%) scale(0.6) rotateY(-65deg);
+  z-index: 1;
+}
+
+.slider-card-wrapper.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0) scale(1) rotateY(0deg);
+  z-index: 5;
+  /* Foco circular de retroiluminación sutil detrás del avatar, sin bordes remarcados */
+  background: radial-gradient(circle at center, var(--card-glow-bg) 0%, transparent 70%);
+  box-shadow: none !important;
+}
+
+.slider-card-wrapper.prev {
+  opacity: 0.3;
+  pointer-events: auto;
+  cursor: pointer;
+  transform: translateX(-105%) scale(0.8) rotateY(40deg);
+  z-index: 3;
+}
+.slider-card-wrapper.prev:hover {
+  opacity: 0.55;
+  transform: translateX(-100%) scale(0.83) rotateY(32deg);
+}
+
+.slider-card-wrapper.next {
+  opacity: 0.3;
+  pointer-events: auto;
+  cursor: pointer;
+  transform: translateX(105%) scale(0.8) rotateY(-40deg);
+  z-index: 3;
+}
+.slider-card-wrapper.next:hover {
+  opacity: 0.55;
+  transform: translateX(100%) scale(0.83) rotateY(-32deg);
+}
+
+/* Botones de Navegación Neón */
+.slider-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(10, 10, 14, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.45);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.slider-nav-btn:hover {
+  border-color: var(--card-glow, #3b82f6);
+  color: #fff;
+  box-shadow: 0 0 8px var(--card-glow, rgba(59, 130, 246, 0.4));
+  transform: translateY(-50%) scale(1.1);
+}
+
+.slider-nav-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.slider-nav-btn.prev-btn {
+  left: -20px;
+}
+
+.slider-nav-btn.next-btn {
+  right: -20px;
+}
+
+/* Indicadores / Dots */
+.slider-dots {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.slider-dot {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.slider-dot:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.slider-dot.active {
+  background: #3b82f6;
+  width: 24px;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
 

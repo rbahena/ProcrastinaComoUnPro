@@ -29,96 +29,127 @@
       </div>
     </div>
 
-    <!-- SECCIÓN DE RÉCORDS HISTÓRICOS (TARJETAS DOBLE CARA GAMER) -->
-    <div style="margin-top: 32px; width: 100%;">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; width: 100%;">
+    <!-- CONTENEDOR DEL SLIDER DE TARJETAS (OCUPA TODO EL ALTO RESTANTE) -->
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-top: 24px; min-height: 0; width: 100%;">
+      
+      <!-- Contenedor del Deck 3D -->
+      <div class="cards-slider-container">
         
-        <div *ngFor="let record of brokenRecords()" class="flip-card" [style.--card-glow]="record.color" [style.--card-glow-bg]="record.bgGlow">
-          <div class="flip-card-inner">
-            
-            <!-- Cara Frontal (Avatar ocupa toda la card) -->
-            <div class="flip-card-front">
-              <!-- El Avatar como fondo completo -->
-              <div [class]="'avatar-sprite sprite-' + record.avatar" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
+        <!-- Botón de Navegación Izquierda -->
+        <button class="slider-nav-btn prev-btn" (click)="prevCard()">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div *ngFor="let record of brokenRecords(); let i = index" 
+             class="slider-card-wrapper" 
+             [class.active]="i === activeCardIndex()"
+             [class.prev]="i === (activeCardIndex() === 0 ? 2 : activeCardIndex() - 1)"
+             [class.next]="i === (activeCardIndex() === 2 ? 0 : activeCardIndex() + 1)"
+             (click)="i !== activeCardIndex() ? setCard(i) : null"
+             [style.--card-glow]="record.color" 
+             [style.--card-glow-bg]="record.bgGlow">
+          
+          <div class="flip-card">
+            <div class="flip-card-inner">
               
-              <!-- Banner Degradado Inferior para los Textos -->
-              <div class="card-front-banner">
-                <!-- Nombre del Poseedor con Bandera -->
-                <h4 class="card-holder-name" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
-                  <span>{{ record.holder }}</span>
-                  <img [src]="'https://flagcdn.com/w40/' + record.flag + '.png'" 
-                       [alt]="record.flag" 
-                       style="width: 20px; height: auto; border-radius: 2px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: inline-block;">
-                </h4>
+              <!-- Cara Frontal (Avatar ocupa toda la card) -->
+              <div class="flip-card-front">
+                <!-- El Avatar como fondo completo -->
+                <div [class]="'avatar-sprite sprite-' + record.avatar" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
                 
-                <!-- Nombre de Récord -->
-                <span class="card-record-badge" [style.color]="record.color">
-                  {{ record.title }}
-                </span>
-                
-                <!-- Pista interactiva -->
-                <span class="card-flip-hint">
-                  <i class="fa-solid fa-arrows-rotate"></i> Pasa el cursor para girar
-                </span>
-              </div>
-            </div>
-
-            <!-- Cara Posterior (Datos del Récord) -->
-            <div class="flip-card-back">
-              <i [class]="'fa-solid ' + record.icon" style="position: absolute; right: -10px; bottom: -10px; font-size: 90px; opacity: 0.04; pointer-events: none; color: #fff;"></i>
-
-              <div>
-                <div class="card-back-header">
-                  <span class="card-back-title" [style.color]="record.color">
+                <!-- Banner Degradado Inferior para los Textos -->
+                <div class="card-front-banner">
+                  <!-- Nombre del Poseedor con Bandera -->
+                  <h4 class="card-holder-name" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
+                    <span>{{ record.holder }}</span>
+                    <img [src]="'https://flagcdn.com/w40/' + record.flag + '.png'" 
+                         [alt]="record.flag" 
+                         style="width: 20px; height: auto; border-radius: 2px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: inline-block;">
+                  </h4>
+                  
+                  <!-- Nombre de Récord -->
+                  <span class="card-record-badge" [style.color]="record.color">
                     {{ record.title }}
                   </span>
-                  <i [class]="'fa-solid ' + record.icon" class="card-back-icon" [style.color]="record.color"></i>
-                </div>
-                
-                <p class="card-back-desc">
-                  {{ record.description }}
-                </p>
-              </div>
-
-              <!-- Estadísticas de Récord -->
-              <div class="card-back-stats">
-                <div class="card-back-stat-row">
-                  <span class="card-back-stat-label">Récord Histórico</span>
-                  <span class="card-back-stat-value record-num" [style.color]="record.color">
-                    {{ record.value }}
+                  
+                  <!-- Pista interactiva -->
+                  <span class="card-flip-hint">
+                    <i class="fa-solid fa-arrows-rotate"></i> Pasa el cursor para girar
                   </span>
                 </div>
-                
-                <div class="card-back-stat-row" style="border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
-                  <span class="card-back-stat-label">Establecido por</span>
-                  <span class="card-back-stat-value">{{ record.holder }}</span>
-                </div>
-                
-                <div class="card-back-stat-row">
-                  <span class="card-back-stat-label">Fecha</span>
-                  <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 10.5px;">{{ record.date }}</span>
+              </div>
+
+              <!-- Cara Posterior (Datos del Récord) -->
+              <div class="flip-card-back">
+                <i [class]="'fa-solid ' + record.icon" style="position: absolute; right: -10px; bottom: -10px; font-size: 90px; opacity: 0.04; pointer-events: none; color: #fff;"></i>
+
+                <div>
+                  <div class="card-back-header">
+                    <span class="card-back-title" [style.color]="record.color">
+                      {{ record.title }}
+                    </span>
+                    <i [class]="'fa-solid ' + record.icon" class="card-back-icon" [style.color]="record.color"></i>
+                  </div>
+                  
+                  <p class="card-back-desc">
+                    {{ record.description }}
+                  </p>
                 </div>
 
-                <!-- Redes Sociales -->
-                <div class="card-back-stat-row" style="border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
-                  <span class="card-back-stat-label">Redes / Contacto</span>
-                  <div style="display: flex; gap: 8px; align-items: center;">
-                    <a *ngFor="let social of record.socials" [href]="social.link" target="_blank" [title]="social.platform" 
-                       [style.color]="record.color"
-                       style="font-size: 13px; opacity: 0.8; transition: all 0.2s; display: inline-flex;" 
-                       onmouseover="this.style.opacity='1'; this.style.transform='scale(1.15)';" 
-                       onmouseout="this.style.opacity='0.8'; this.style.transform='scale(1)';">
-                      <i [class]="'fa-brands ' + social.icon"></i>
-                    </a>
+                <!-- Estadísticas de Récord -->
+                <div class="card-back-stats">
+                  <div class="card-back-stat-row">
+                    <span class="card-back-stat-label">Récord Histórico</span>
+                    <span class="card-back-stat-value record-num" [style.color]="record.color">
+                      {{ record.value }}
+                    </span>
+                  </div>
+                  
+                  <div class="card-back-stat-row" style="border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
+                    <span class="card-back-stat-label">Establecido por</span>
+                    <span class="card-back-stat-value">{{ record.holder }}</span>
+                  </div>
+                  
+                  <div class="card-back-stat-row">
+                    <span class="card-back-stat-label">Fecha</span>
+                    <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 10.5px;">{{ record.date }}</span>
+                  </div>
+
+                  <!-- Redes Sociales -->
+                  <div class="card-back-stat-row" style="border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
+                    <span class="card-back-stat-label">Redes / Contacto</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                      <a *ngFor="let social of record.socials" [href]="social.link" target="_blank" [title]="social.platform" 
+                         [style.color]="record.color"
+                         style="font-size: 13px; opacity: 0.8; transition: all 0.2s; display: inline-flex;" 
+                         onmouseover="this.style.opacity='1'; this.style.transform='scale(1.15)';" 
+                         onmouseout="this.style.opacity='0.8'; this.style.transform='scale(1)';">
+                        <i [class]="'fa-brands ' + social.icon"></i>
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
+            </div>
           </div>
         </div>
 
+        <!-- Botón de Navegación Derecha -->
+        <button class="slider-nav-btn next-btn" (click)="nextCard()">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
       </div>
+
+      <!-- Puntos de Navegación Indicadores -->
+      <div class="slider-dots">
+        <span *ngFor="let record of brokenRecords(); let i = index" 
+              class="slider-dot" 
+              [class.active]="i === activeCardIndex()"
+              (click)="setCard(i)"></span>
+      </div>
+
     </div>
 
   </div>
