@@ -25,6 +25,11 @@ export class Bestiario {
   // Indice activo de la tarjeta en el slider 3D
   activeCardIndex = signal(0);
   sirenRevealed = signal<boolean>(false);
+  showGuide = signal(false);
+
+  toggleGuide() {
+    this.showGuide.update(v => !v);
+  }
 
   villainCards = computed(() => {
     const activeType = this.bossService.activeBoss().type;
@@ -33,12 +38,13 @@ export class Bestiario {
         id: 'siren',
         name: 'La Sirena de las Distracciones',
         subtitle: 'Distracciones Digitales',
+        element: 'Agua',
         hp: 9000,
         avatar: '/assets/images/avatars/boss_sirena_beautiful.jpg',
         icon: 'fa-fish',
         color: '#06b6d4',
         glow: 'rgba(6, 182, 212, 0.12)',
-        description: 'Este ser se alimenta de notificaciones de redes sociales, feeds infinitos y videos cortos. Su canto te atrae para convencerte de que "solo serán 5 minutos".',
+        description: 'Su canto melódico atrae a los navegantes hacia los arrecifes del olvido. En la vida real, se manifiesta como el impulso de revisar notificaciones o videos cortos con la falsa promesa de "solo serán 5 minutos", atrapándote en un consumo infinito de dopamina barata.',
         weakness: 'Filtro de Ruido Total (Modo no molestar y bloqueo de apps para ensordecer su canto).',
         active: activeType === 'siren',
         locked: activeType !== 'siren'
@@ -47,12 +53,13 @@ export class Bestiario {
         id: 'cyberpunk',
         name: 'El Kraken del Caos',
         subtitle: 'Sobrecarga Cognitiva',
+        element: 'Caos',
         hp: 10000,
         avatar: '/assets/images/avatars/boss_kraken.jpg',
         icon: 'fa-skull',
         color: '#a855f7',
         glow: 'rgba(168, 85, 247, 0.12)',
-        description: 'Emerge cuando tu lista de pendientes es masiva y desordenada. Te abruma con tantas tareas a la vez que terminas paralizado sin hacer ninguna.',
+        description: 'Esta bestia abisal envuelve el timón con sus tentáculos gigantes, paralizando tu rumbo por pánico. En la vida real, representa la sobrecarga cognitiva: cuando acumulas tantos pendientes desordenados que tu mente se abruma y decides aplazar todo en lugar de actuar.',
         weakness: 'Enfoque de Cabeza Única (Método Sapo): Prioriza una sola tarea crítica hoy y descarta temporalmente el resto.',
         active: activeType === 'cyberpunk',
         locked: activeType !== 'cyberpunk'
@@ -61,12 +68,13 @@ export class Bestiario {
         id: 'zen',
         name: 'El Basilisco de la Parálisis',
         subtitle: 'Miedo al Fracaso',
+        element: 'Tierra',
         hp: 8000,
         avatar: '/assets/images/avatars/boss_basilisco.jpg',
         icon: 'fa-dragon',
         color: '#10b981',
         glow: 'rgba(16, 185, 129, 0.12)',
-        description: 'Su mirada petrifica a los guerreros cuando se enfrentan a un proyecto importante. El miedo a no hacerlo perfecto te hace posponer el inicio indefinidamente.',
+        description: 'Su mirada letal petrifica instantáneamente la voluntad de los guerreros, congelando sus movimientos. En la vida real, encarna el miedo al fracaso y al perfeccionismo extremo: pospones iniciar un proyecto importante por el temor inconsciente a no hacerlo de forma impecable.',
         weakness: 'Dividir para Vencer (Escribe un primer paso ridículamente pequeño de 5 minutos para romper la parálisis inicial).',
         active: activeType === 'zen',
         locked: activeType !== 'zen'
@@ -75,12 +83,13 @@ export class Bestiario {
         id: 'samurai',
         name: 'La Hidra de las Tareas Infinitas',
         subtitle: 'Microprocrastinación',
+        element: 'Fuego',
         hp: 12000,
         avatar: '/assets/images/avatars/boss_hidra.jpg',
         icon: 'fa-dungeon',
         color: '#ef4444',
         glow: 'rgba(239, 68, 68, 0.12)',
-        description: 'Por cada tarea que completas, surgen dos nuevas de bajo valor. Te mantiene ocupado con cosas irrelevantes para alejarte de las misiones importantes.',
+        description: 'Por cada cabeza que el guerrero corta, brotan dos nuevas que agotan su resistencia en combates estériles. En la vida real, es la microprocrastinación: mantenerte ocupado con microtareas irrelevantes (limpiar el escritorio, ordenar carpetas) para evadir la tarea principal.',
         weakness: 'Filtro Pareto 80/20: Corta las cabezas de raíz enfocándote solo en el 20% de tareas que producen el 80% de tus resultados.',
         active: activeType === 'samurai',
         locked: activeType !== 'samurai'
@@ -89,12 +98,13 @@ export class Bestiario {
         id: 'aurora',
         name: 'La Quimera de la Multitarea',
         subtitle: 'Falso Rendimiento',
+        element: 'Viento',
         hp: 15000,
         avatar: '/assets/images/avatars/boss_quimera.jpg',
         icon: 'fa-shield-halved',
         color: '#3b82f6',
         glow: 'rgba(59, 130, 246, 0.12)',
-        description: 'Te convence de que eres capaz de escribir un reporte, responder mensajes y escuchar un podcast al mismo tiempo. Reduce tu capacidad de retención y duplica el tiempo de desarrollo.',
+        description: 'Criatura híbrida de tres cabezas que ataca en múltiples direcciones a la vez, dividiendo tu atención. En la vida real, es la ilusión del rendimiento multitarea: creer que puedes escribir un reporte, chatear y oír música a la vez, duplicando el tiempo de desarrollo.',
         weakness: 'Bloqueo Temporal Unidireccional: Cierra todas las pestañas de navegador innecesarias y concéntrate en una sola ventana activa.',
         active: activeType === 'aurora',
         locked: activeType !== 'aurora'
@@ -103,12 +113,13 @@ export class Bestiario {
         id: 'werewolf',
         name: 'El Hombre Lobo de la Madrugada',
         subtitle: 'Procrastinación Nocturna',
+        element: 'Luna',
         hp: 16000,
         avatar: '/assets/images/avatars/boss_lobo.jpg',
         icon: 'fa-moon',
         color: '#ec4899',
         glow: 'rgba(236, 72, 153, 0.12)',
-        description: 'Emerge al anochecer, convenciéndote de que eres "más productivo de noche" para que aplaces tus misiones hasta tarde, arruinando tu ciclo de sueño y tu energía.',
+        description: 'Acecha en las sombras de la noche, cobrando fuerza a medida que la luna asciende. Representa la procrastinación de la hora de dormir (Venganza Nocturna): aplazar el descanso viendo pantallas para recuperar el tiempo libre que sentiste perder durante el día.',
         weakness: 'Ritual de Cierre de Jornada: Apaga pantallas 1 hora antes de dormir y programa tu inicio de descanso a una hora fija.',
         active: activeType === 'werewolf',
         locked: activeType !== 'werewolf'
@@ -117,12 +128,13 @@ export class Bestiario {
         id: 'vampire',
         name: 'El Vampiro del Insomnio',
         subtitle: 'Doomscrolling y Pantallas',
+        element: 'Sombra',
         hp: 18000,
         avatar: '/assets/images/avatars/boss_vampiro.jpg',
         icon: 'fa-face-rolling-eyes',
         color: '#fbbf24',
         glow: 'rgba(251, 191, 36, 0.12)',
-        description: 'Se alimenta de tu energía vital absorbiendo tu tiempo de sueño con el scrolling infinito en la cama. Te mantiene hipnotizado por la luz azul mientras drena tu fuerza física.',
+        description: 'Drea sigilosamente la vitalidad del guerrero dormido, dejándolo exhausto para el combate. En la vida real, es el doomscrolling en la cama: la luz azul del teléfono engaña a tu cerebro para bloquear la melatonina, induciendo insomnio y robando tus fuerzas al amanecer.',
         weakness: 'Desconexión Analógica: Carga tu teléfono fuera del alcance de tu cama y sustituye la pantalla nocturna por un libro físico.',
         active: activeType === 'vampire',
         locked: activeType !== 'vampire'

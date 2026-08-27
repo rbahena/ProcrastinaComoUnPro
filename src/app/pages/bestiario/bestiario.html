@@ -15,12 +15,19 @@
         <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">Entiende a tus enemigos de la procrastinación, domina tu autodisciplina y explota sus debilidades.</p>
       </div>
 
-      <!-- Panel de Recompensas -->
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div class="currency-badge" style="background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.18); color: var(--yellow); padding: 8px 16px; border-radius: 12px; font-weight: 800; font-size: 12.5px; display: flex; align-items: center; gap: 8px;" title="Tus Pro Coins actuales">
-          <i class="fa-solid fa-coins"></i>
-          <span>{{ membership.proCoins() }} Pro Coins</span>
-        </div>
+      <!-- Panel de Recompensas y Guía -->
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <!-- Botón ¿Cómo Vencer? -->
+        <button (click)="toggleGuide()" 
+                [style.background]="showGuide() ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.02)'"
+                [style.borderColor]="showGuide() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+                [style.color]="showGuide() ? 'var(--accent)' : 'var(--muted)'"
+                style="border: 1.5px solid; padding: 8px 16px; border-radius: 12px; font-weight: 800; font-size: 11.5px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;"
+                onmouseover="this.style.filter='brightness(1.2)';"
+                onmouseout="this.style.filter='none';">
+          <i class="fa-solid fa-circle-question"></i>
+          <span>¿Cómo Vencer?</span>
+        </button>
       </div>
     </div>
 
@@ -65,14 +72,18 @@
                 <div *ngIf="!villain.locked" style="position: absolute; bottom: 0; left: 0; right: 0; height: 180px; background: linear-gradient(to top, rgba(13, 13, 18, 0.95) 0%, rgba(13, 13, 18, 0.6) 50%, transparent 100%); pointer-events: none; border-radius: 0;"></div>
 
                 <!-- Detalles Rápidos del HUD Frontal -->
-                <div class="card-front-hud" style="position: absolute; bottom: 32px; left: 24px; right: 24px; display: flex; flex-direction: column; gap: 4px; text-align: left;">
-                  <span class="card-record-badge" [style.color]="villain.locked ? 'rgba(255,255,255,0.15)' : villain.color" style="font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
-                    {{ villain.locked ? 'Misterio' : villain.subtitle }}
+                <div class="card-front-hud" style="position: absolute; bottom: 32px; left: 16px; right: 16px; display: flex; flex-direction: column; gap: 6px; text-align: center; align-items: center; justify-content: center;">
+                  <span class="card-record-badge" [style.color]="villain.locked ? 'var(--red)' : villain.color" style="font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block;">
+                    {{ villain.locked ? 'BLOQUEADO' : villain.subtitle }}
                   </span>
-                  <span class="card-holder-name" style="font-size: 18px; font-weight: 900; line-height: 1.25; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.65);">
-                    {{ villain.locked ? '???' : villain.name }}
+                  <span class="card-holder-name" 
+                        [style.fontSize]="villain.locked ? '12.5px' : '18px'"
+                        [style.whiteSpace]="villain.locked ? 'normal' : 'nowrap'"
+                        [style.color]="villain.locked ? 'rgba(255,255,255,0.75)' : '#fff'"
+                        style="font-weight: 900; line-height: 1.4; text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.65); display: block; max-width: 280px; margin: 0 auto;">
+                    {{ villain.locked ? 'Se desbloquea en cuanto la comunidad venza al jefe en curso' : villain.name }}
                   </span>
-                  <span *ngIf="!villain.locked" class="card-flip-hint" style="text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
+                  <span *ngIf="!villain.locked" class="card-flip-hint" style="text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block;">
                     <i class="fa-solid fa-arrows-rotate"></i> Pasa el cursor para ver detalles
                   </span>
                 </div>
@@ -91,8 +102,8 @@
                 <!-- Caso A: Desbloqueado -->
                 <div *ngIf="!villain.locked; else lockedBack" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; text-align: left;">
                   <div>
-                    <div class="card-back-header" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; margin-bottom: 10px;">
-                      <span class="card-back-title" [style.color]="villain.color" style="font-size: 14px; font-weight: 900; text-transform: uppercase;">
+                    <div class="card-back-header" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; margin-bottom: 10px; min-width: 0; width: 100%;">
+                      <span class="card-back-title" [style.color]="villain.color" style="font-size: 14px; font-weight: 900; text-transform: uppercase; white-space: nowrap; flex: 1;">
                         {{ villain.name }}
                       </span>
                       <i [class]="'fa-solid ' + villain.icon" 
@@ -104,7 +115,7 @@
                          [style.color]="villain.color"></i>
                     </div>
                     
-                    <p class="card-back-desc" style="font-size: 11.5px; line-height: 1.5; color: var(--muted); margin: 0;">
+                    <p class="card-back-desc" style="font-size: 13.5px; line-height: 1.5; color: var(--muted); margin: 0;">
                       {{ villain.description }}
                     </p>
                     
@@ -112,9 +123,9 @@
                     <div style="margin-top: 14px; padding: 10px 14px; background: linear-gradient(to right, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 75%, transparent 100%); border-radius: 6px; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box;">
                       <span [style.background]="villain.color" 
                             [style.boxShadow]="'0 0 10px ' + villain.color" 
-                            style="width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-top: 5px;"></span>
-                      <p style="font-family: inherit; font-size: 10.5px; line-height: 1.4; color: rgba(255, 255, 255, 0.85); margin: 0;">
-                        <strong>Punto Débil:</strong> {{ villain.weakness }}
+                            style="width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-top: 5px;"></span>
+                      <p style="font-family: inherit; font-size: 12.5px; line-height: 1.4; color: rgba(255, 255, 255, 0.85); margin: 0;">
+                        <strong>Tip:</strong> {{ villain.weakness }}
                       </p>
                     </div>
                   </div>
@@ -122,14 +133,20 @@
                   <!-- Estadísticas del Combate -->
                   <div class="card-back-stats">
                     <div class="card-back-stat-row" style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
-                      <span class="card-back-stat-label" style="font-size: 11px; color: var(--muted);">Poder de Combate</span>
-                      <span class="card-back-stat-value record-num" [style.color]="villain.color" style="font-weight: 800; font-family: monospace;">
+                      <span class="card-back-stat-label" style="font-size: 13px; color: var(--muted);">Poder de Combate</span>
+                      <span class="card-back-stat-value record-num" [style.color]="villain.color" style="font-weight: 800; font-family: monospace; font-size: 14px;">
                         {{ villain.hp | number }} HP
                       </span>
                     </div>
                     <div class="card-back-stat-row" style="display: flex; justify-content: space-between;">
-                      <span class="card-back-stat-label" style="font-size: 11px; color: var(--muted);">Última actualización</span>
-                      <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 10.5px;">{{ getFormattedToday() }}</span>
+                      <span class="card-back-stat-label" style="font-size: 13px; color: var(--muted);">Elemento</span>
+                      <span class="card-back-stat-value" [style.color]="villain.color" style="font-weight: 800; font-family: monospace; font-size: 13px; text-transform: uppercase;">
+                        {{ villain.element }}
+                      </span>
+                    </div>
+                    <div class="card-back-stat-row" style="display: flex; justify-content: space-between;">
+                      <span class="card-back-stat-label" style="font-size: 13px; color: var(--muted);">Última actualización</span>
+                      <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 12px;">{{ getFormattedToday() }}</span>
                     </div>
                   </div>
                 </div>
@@ -140,7 +157,7 @@
                     <i class="fa-solid fa-shield-halved" [style.color]="villain.color" style="font-size: 48px; opacity: 0.8; filter: drop-shadow(0 0 10px var(--card-glow));"></i>
                     <span style="font-size: 14px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">Acceso Denegado</span>
                     <p style="font-size: 11px; line-height: 1.5; color: var(--muted); margin: 0; max-width: 240px;">
-                      Este enemigo está bloqueado en el Templo actual. Derrota al jefe activo o cambia de tema en la tienda para desbloquear esta ficha de combate.
+                      Este enemigo está bloqueado. Se desbloqueará de forma automática en cuanto la comunidad logre vencer al jefe activo en curso.
                     </p>
                     <div style="background: rgba(255,255,255,0.02); border: 1.5px solid rgba(255,255,255,0.06); padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 9px; color: var(--muted); text-transform: uppercase;">
                       SYS.LOCK: ACTIVE_BOSS_REQD
@@ -171,4 +188,98 @@
     </div>
 
   </div>
+
+  <!-- MODAL DE INSTRUCCIONES (GUÍA DE COMBATE) -->
+  <div *ngIf="showGuide()" 
+       (click)="toggleGuide()" 
+       style="position: fixed; inset: 0; background: rgba(5, 5, 8, 0.85); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn 0.25s ease;">
+    
+    <!-- Ventana Modal -->
+    <div (click)="$event.stopPropagation()" 
+         style="background: #0d0d12; border: 2px solid rgba(255,255,255,0.06); border-radius: 16px; max-width: 860px; width: 100%; box-shadow: 0 0 40px rgba(99, 102, 241, 0.15); display: flex; flex-direction: column; overflow: hidden; animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+      
+      <!-- Header del Modal -->
+      <div style="padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 900; text-transform: uppercase; color: #fff; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-circle-question" style="color: var(--accent);"></i>
+          Manual de Combate: ¿Cómo Vencer?
+        </h3>
+        <button (click)="toggleGuide()" 
+                style="background: transparent; border: none; color: var(--muted); font-size: 24px; cursor: pointer; line-height: 1; transition: color 0.2s;"
+                onmouseover="this.style.color='#fff'"
+                onmouseout="this.style.color='var(--muted)'">&times;</button>
+      </div>
+
+      <!-- Contenido del Modal (Diseño de 2 columnas) -->
+      <div style="padding: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; max-height: 65vh; overflow-y: auto;">
+        
+        <!-- Paso 1 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+          <div class="combat-guide-num step-1">1</div>
+          <div>
+            <h4 class="combat-guide-title">Elige tu Avatar</h4>
+            <p class="combat-guide-desc">Selecciona tu avatar de ataque. Cada uno posee cualidades, multiplicadores y daños únicos contra el jefe.</p>
+          </div>
+        </div>
+
+        <!-- Paso 2 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+          <div class="combat-guide-num step-2">2</div>
+          <div>
+            <h4 class="combat-guide-title">Enfócate</h4>
+            <p class="combat-guide-desc">En la sección de concentrarme verás al jefe activo. Únete a la comunidad de enfoque para dañarlo.</p>
+          </div>
+        </div>
+
+        <!-- Paso 3 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+          <div class="combat-guide-num step-3">3</div>
+          <div>
+            <h4 class="combat-guide-title">Usa Debilidades</h4>
+            <p class="combat-guide-desc">Ciertos avatares tienen ventajas de daño adicionales sobre jefes específicos según su estilo y naturaleza.</p>
+          </div>
+        </div>
+
+        <!-- Paso 4 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+          <div class="combat-guide-num step-4">4</div>
+          <div>
+            <h4 class="combat-guide-title">Gana Recompensas</h4>
+            <p class="combat-guide-desc">Al derrotar al jefe, todo guerrero que haya participado en el daño recibirá un botín en Pro Coins.</p>
+          </div>
+        </div>
+
+        <!-- Paso 5 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+          <div class="combat-guide-num step-5">5</div>
+          <div>
+            <h4 class="combat-guide-title">Siguiente Desafío</h4>
+            <p class="combat-guide-desc">Vencer al jefe purifica el templo actual, desbloqueando automáticamente el acceso al siguiente gran enemigo.</p>
+          </div>
+        </div>
+
+        <!-- Paso 6 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+          <div class="combat-guide-num step-6">6</div>
+          <div>
+            <h4 class="combat-guide-title">Evita la Retirada</h4>
+            <p class="combat-guide-desc">Si abandonas o interrumpes tu sesión de enfoque, el jefe absorberá tus puntos de vida y sanará su salud.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer del Modal -->
+      <div style="padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end; background: rgba(0,0,0,0.15);">
+        <button (click)="toggleGuide()" 
+                style="background: #ffffff; border: none; color: #070709; padding: 10px 24px; border-radius: 10px; font-weight: 900; font-size: 12.5px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15); transition: all 0.2s;"
+                onmouseover="this.style.background='var(--accent)'; this.style.color='#ffffff'; this.style.boxShadow='0 0 20px rgba(99, 102, 241, 0.45)';"
+                onmouseout="this.style.background='#ffffff'; this.style.color='#070709'; this.style.boxShadow='0 4px 15px rgba(255, 255, 255, 0.15)';">
+          Entendido, ¡a luchar!
+        </button>
+      </div>
+
+    </div>
+  </div>
+
 </div>
