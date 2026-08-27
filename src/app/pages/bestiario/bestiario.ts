@@ -1,15 +1,14 @@
 import { Component, signal, computed, inject, WritableSignal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
 import { DojoBossService } from '../../services/dojo-boss.service';
-
+import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-bestiario',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule],
+  imports: [CommonModule, FormsModule, Navbar],
   templateUrl: './bestiario.html',
   styleUrl: './bestiario.css'
 })

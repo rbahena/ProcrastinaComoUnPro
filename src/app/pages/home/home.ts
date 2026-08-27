@@ -1,14 +1,15 @@
 import { Component, signal, computed, OnInit, OnDestroy, WritableSignal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
 import { IdentitySettings } from '../../components/identity-settings';
 import { DojoBossService } from '../../services/dojo-boss.service';
+import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, IdentitySettings],
+  imports: [CommonModule, RouterLink, IdentitySettings, Navbar],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

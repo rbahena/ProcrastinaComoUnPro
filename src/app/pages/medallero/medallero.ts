@@ -1,13 +1,13 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { DojoBossService } from '../../services/dojo-boss.service';
+import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-medallero',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, Navbar],
   templateUrl: './medallero.html',
   styleUrl: './medallero.css'
 })

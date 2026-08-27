@@ -1,13 +1,13 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
 import { IdentitySettings } from '../../components/identity-settings';
+import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-fechas',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, IdentitySettings],
+  imports: [CommonModule, IdentitySettings, Navbar],
   templateUrl: './fechas.html',
   styleUrl: './fechas.css',
 })

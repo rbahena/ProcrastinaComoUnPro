@@ -1,15 +1,16 @@
 import { Component, signal, computed, OnInit, OnDestroy, WritableSignal, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
 import { DojoBossService } from '../../services/dojo-boss.service';
 import { IdentitySettings } from '../../components/identity-settings';
+import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-enfoque',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, IdentitySettings],
+  imports: [CommonModule, RouterLink, FormsModule, IdentitySettings, Navbar],
   templateUrl: './enfoque.html',
   styleUrl: './enfoque.css',
 })

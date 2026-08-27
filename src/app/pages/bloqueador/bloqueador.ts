@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { IdentitySettings } from '../../components/identity-settings';
+import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-bloqueador',
   standalone: true,
-  imports: [CommonModule, RouterModule, IdentitySettings],
+  imports: [CommonModule, RouterModule, IdentitySettings, Navbar],
   templateUrl: './bloqueador.html',
   styleUrl: './bloqueador.css',
 })

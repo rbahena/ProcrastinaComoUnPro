@@ -1,81 +1,4 @@
-<!-- SIDEBAR -->
-<div class="sidebar" [class.collapsed]="sidebarCollapsed()">
-  <!-- Toggle Sidebar Button -->
-  <button (click)="toggleSidebar()" 
-          class="sidebar-toggle-btn"
-          [title]="sidebarCollapsed() ? 'Expandir barra lateral' : 'Contraer barra lateral'">
-    <i class="fa-solid" [class]="sidebarCollapsed() ? 'fa-angles-right' : 'fa-angles-left'" style="font-size: 11px;"></i>
-  </button>
-  <a routerLink="/home" class="logo">
-    <img class="logo-img" src="assets/images/cofu_logo.jpg" alt="COFU Logo">
-    <span class="logo-text">{{ labels().logoText }}</span>
-  </a>
-  <div class="nav">
-    <a routerLink="/home" routerLinkActive="active" class="nav-item">
-      <span class="nav-dot"></span>
-      Inicio
-    </a>
-    <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
-      <span class="nav-dot"></span>
-      Concentrarme
-    </a>
-    <a routerLink="/fechas" routerLinkActive="active" class="nav-item">
-      <span class="nav-dot"></span>
-      estadisticas
-    </a>
-    <a routerLink="/ideas" routerLinkActive="active" class="nav-item">
-      <span class="nav-dot"></span>
-      ideas
-      <span *ngIf="membership.capturedIdeas().length > 0" class="ideas-badge">
-        {{ membership.capturedIdeas().length }}
-      </span>
-    </a>
-    <a routerLink="/bestiario" routerLinkActive="active" class="nav-item">
-      <span class="nav-dot"></span>
-      Retos
-    </a>
-    <a routerLink="/medallero" routerLinkActive="active" class="nav-item">
-      <span class="nav-dot"></span>
-      Hazañas
-    </a>
-    
-    </div>
-    
-    <!-- CONTENEDOR DE PERFIL CON MENU DESPLEGABLE -->
-    <div style="position: relative; z-index: 1010;">
-      <div class="sidebar-footer" (click)="membership.toggleAvatarMenu($event)" style="cursor: pointer;">
-        <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" style="background-color: var(--accent); border: 1.5px solid rgba(255,255,255,0.08);">
-        </div>
-        <div style="overflow: hidden; display: flex; flex-direction: column;">
-          <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ userName() }}</div>
-          <div class="user-sub" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--yellow);">
-            {{ getAvatarName() }}
-          </div>
-        </div>
-        <i class="fa-solid" [class]="membership.avatarMenuOpen() ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left: auto; font-size: 11px; color: var(--muted); opacity: 0.65; padding-right: 4px;"></i>
-      </div>
-
-      <!-- Menú Desplegable -->
-      <div *ngIf="membership.avatarMenuOpen()"
-           style="position: absolute; top: 48px; right: 0; background: rgba(15, 15, 20, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 12px; width: 160px; padding: 6px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1020;">
-        <a routerLink="/cualidades" (click)="membership.closeAvatarMenu()"
-           style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text); transition: all 0.2s;"
-           onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='var(--accent)';"
-           onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">
-          <i class="fa-solid fa-user" style="font-size: 11px; width: 14px; text-align: center;"></i>
-          <span>Mi Perfil</span>
-        </a>
-        <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 4px 6px;"></div>
-        <a routerLink="/login" (click)="membership.closeAvatarMenu()"
-           style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: #f87171; transition: all 0.2s;"
-           onmouseover="this.style.background='rgba(239, 68, 68, 0.08)';"
-           onmouseout="this.style.background='transparent';">
-          <i class="fa-solid fa-right-from-bracket" style="font-size: 11px; width: 14px; text-align: center;"></i>
-          <span>Cerrar Sesión</span>
-        </a>
-      </div>
-    </div>
-</div>
+<app-navbar></app-navbar>
 
 <!-- MAIN WORKSPACE -->
 <div class="main" [style.marginLeft]="sidebarCollapsed() ? '0px' : 'var(--sidebar)'">
@@ -86,15 +9,6 @@
 
       <!-- Puntos e Coins Panel (Minimalista con Tooltips) -->
       <div class="currency-panel">
-        <!-- Puntos de Enfoque -->
-        <div class="currency-badge-minimal focus-points-badge" 
-             data-tooltip="Puntos de Enfoque: Se ganan completando pomodoros y avanzando en tus objetivos. Acumúlalos para subir en el ranking y competir por el podio semanal de la comunidad.">
-          <i class="fa-solid fa-bullseye"></i>
-          <span class="badge-value">
-            {{ membership.isPremium() ? membership.focusPoints() : '—' }}
-            <i *ngIf="!membership.isPremium()" class="fa-solid fa-lock badge-lock"></i>
-          </span>
-        </div>
 
         <!-- Tomates -->
         <div class="currency-badge-minimal tomato-badge" 
@@ -377,7 +291,7 @@
 
       <!-- VISTA PREMIUM: ESTADÍSTICAS DETALLADAS DE COMPETENCIA -->
       <div *ngIf="membership.isPremium()" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px; flex: 1;">
-        <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 6px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
           <!-- Posición Actual -->
           <div style="display: flex; flex-direction: column; gap: 2px;">
             <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
@@ -389,12 +303,6 @@
                 <i class="fa-solid" [class]="liveRankShift() < 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
               </span>
             </div>
-          </div>
-
-          <!-- Puntos por Enfoque -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Puntos</span>
-            <span class="card-large-value" style="font-size: 18px !important; margin-top: 0; color: var(--green);">+{{ membership.focusPoints() }}</span>
           </div>
 
           <!-- Recompensa Monedas -->

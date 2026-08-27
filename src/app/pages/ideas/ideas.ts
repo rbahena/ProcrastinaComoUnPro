@@ -1,12 +1,13 @@
 import { Component, signal, computed, OnInit, WritableSignal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
+import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-ideas',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, Navbar],
   templateUrl: './ideas.html',
   styleUrl: './ideas.css',
 })
