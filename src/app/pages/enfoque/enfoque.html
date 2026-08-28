@@ -35,6 +35,20 @@
       animation: slideDown 0.25s ease; /* Modified to match the other cards' drop down/fade animation */
       transition: all 0.3s ease;
     }
+    .console-drawer-animated {
+      animation: consoleSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transform-origin: bottom left;
+    }
+    @keyframes consoleSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
     @media (max-width: 1200px) {
       .floating-drawer {
         right: 80px;
@@ -57,196 +71,59 @@
   </style>
 
   <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE TRES COLUMNAS) -->
-  <div style="flex: 1; display: flex; align-items: start; justify-content: center; min-height: 480px; padding: 0px 20px 20px 20px; width: 100%; max-width: 1200px; margin: 0 auto; margin-top: 0px;">
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr)); gap: 30px; width: 100%; align-items: start;">
+  <div class="focus-arena-wrapper" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 100px); padding: 0px 20px 20px 20px; width: 100%; margin: 0 auto; margin-top: 0px;">
+    <div class="focus-arena-container">
       
-      <!-- COLUMNA IZQUIERDA: Estrategia -->
-      <div style="display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center;">
-        
-          <!-- Tarjeta Estrategias Expandida -->
-          <div *ngIf="showStrategyCard()" style="width: 100%;">
-                          <div *ngIf="showStrategyCard()" style="background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05); animation: slideDown 0.2s ease;">
-                
-                <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; margin-bottom: 5px;">
-                  <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-crosshairs" style="color: var(--accent);"></i>
-                    Estrategia de Concentración
-                  </h3>
-                </div>
-
-                <!-- DECLARACIÓN DE OBJETIVO (MÉTODO SAPO / PARETO 80/20) -->
-                <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 16px;">
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <span style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">
-                      Definir objetivo 
-                      <span style="font-size: 9px; color: var(--yellow); opacity: 0.85; text-transform: none; font-weight: 600;">(Opcional)</span>
-                      <i class="fa-regular fa-circle-question" 
-                         style="cursor: pointer; font-size: 12px; color: var(--muted); transition: color 0.2s;"
-                         onmouseover="this.style.color='var(--accent)'"
-                         onmouseout="this.style.color='var(--muted)'"
-                         [attr.data-tooltip]="activeMethodology() === 'sapo' ? 'Cómete el Sapo: Dedica esta sesión a la tarea de mayor resistencia mental. Completarla romperá la procrastinación para el resto del día.' : (activeMethodology() === 'pareto' ? 'Principio de Pareto: Enfócate en el 20% clave de tu trabajo. Evita distractores de bajo retorno para maximizar tu impacto hoy.' : 'Enfoque Estándar: Trabaja de forma tradicional en tu tarea del momento a ritmo constante. Ideal para avanzar rutinas o tareas menores.')">
-                      </i>
-                    </span>
-                    
-                    <!-- Selector de Metodología Sutil -->
-                    <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
-                      <button (click)="selectMethodology('sapo')"
-                              style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
-                              [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.15)' : 'transparent'"
-                              [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--muted)'"
-                              [attr.data-tooltip]="'Metodología Cómete el Sapo: la tarea más difícil e importante de tu día.'">
-                        Sapo
-                      </button>
-                      <button (click)="selectMethodology('pareto')"
-                              style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
-                              [style.background]="activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.15)' : 'transparent'"
-                              [style.color]="activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)'"
-                              [attr.data-tooltip]="'Filtro Pareto 80/20: el 20% del esfuerzo que genera el 80% del impacto real.'">
-                        Pareto
-                      </button>
-                      <button (click)="selectMethodology('normal')"
-                              style="border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
-                              [style.background]="activeMethodology() === 'normal' ? 'rgba(255, 255, 255, 0.08)' : 'transparent'"
-                              [style.color]="activeMethodology() === 'normal' ? 'var(--text)' : 'var(--muted)'"
-                              [attr.data-tooltip]="'Sesión de Enfoque Estándar: enfócate en una tarea tradicional a tu propio ritmo.'"
-                              [attr.data-tooltip-align]="'left'">
-                        Estándar
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Campo de Texto para el Objetivo -->
-                  <div style="position: relative; display: flex; align-items: center;">
-                    <input type="text" 
-                           [ngModel]="activeObjective()" 
-                           (ngModelChange)="activeObjective.set($event)"
-                           [placeholder]="activeMethodology() === 'sapo' ? '¿Qué tarea gigante vas a vencer hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave hoy?' : '¿Qué tarea vas a realizar en esta sesión?')"
-                           style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px; padding-right: 40px; color: var(--text); font-size: 12.5px; font-weight: 600; outline: none; transition: all 0.2s; font-family: inherit;"
-                           onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 10px rgba(99, 102, 241, 0.25)';"
-                           onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
-                    <i class="fa-solid" 
-                       [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-pen-clip')" 
-                       [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')"
-                       style="position: absolute; right: 14px; font-size: 14px; pointer-events: none;"></i>
-                  </div>
-                </div>
-
-                <!-- CO-WORKING / TRABAJAR ACOMPAÑADO (SALA DE ENFOQUE COMUNITARIA) -->
-                <div style="display: flex; flex-direction: column; gap: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 16px;">
-                  <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Modo de Enfoque</span>
-
-                  <!-- Selector de Modo: Comunidad vs Solo (2 columnas) -->
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <!-- Tarjeta Comunidad -->
-                    <div (click)="setFocusMode('comunitario')"
-                         style="border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(0,0,0,0.15); position: relative;"
-                         [style.borderColor]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--border)'"
-                         [style.background]="coworkingMode() === 'comunitario' ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.15)'"
-                         onmouseover="this.style.borderColor='var(--accent)'"
-                         onmouseout="if(this.coworkingMode() !== 'comunitario') { this.style.borderColor='var(--border)' }">
-                      <i class="fa-solid fa-users" style="font-size: 14px;" [style.color]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--muted)'"></i>
-                      <div style="text-align: center;">
-                        <div style="font-size: 10px; font-weight: 800; color: var(--text);">Comunidad</div>
-                        <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">Enfoque compartido</div>
-                      </div>
-                      <i class="fa-solid fa-crown" 
-                         style="position: absolute; top: 4px; right: 4px; font-size: 7px; color: var(--yellow);" 
-                         *ngIf="!membership.isPremium()"></i>
-                    </div>
-
-                    <!-- Tarjeta Solo -->
-                    <div (click)="setFocusMode('solo')"
-                         style="border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(0,0,0,0.15);"
-                         [style.borderColor]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--border)'"
-                         [style.background]="coworkingMode() === 'solo' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.15)'"
-                         onmouseover="this.style.borderColor='var(--text)'"
-                         onmouseout="if(this.coworkingMode() !== 'solo') { this.style.borderColor='var(--border)' }">
-                      <i class="fa-solid fa-user-slash" style="font-size: 14px;" [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'"></i>
-                      <div style="text-align: center;">
-                        <div style="font-size: 10px; font-weight: 800; color: var(--text);">En Solitario</div>
-                        <div style="font-size: 8px; color: var(--muted); margin-top: 1px;">100% Privado</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- CASO 1: MODO SOLO -->
-                  <div *ngIf="coworkingMode() === 'solo'" style="font-size: 10px; color: var(--muted); line-height: 1.4; display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-                    <i class="fa-solid fa-eye-slash" style="color: var(--muted); font-size: 10px;"></i>
-                    <span>Trabajarás en tu propio templo sin interrupciones ni salas públicas.</span>
-                  </div>
-
-                  <!-- CASO 2: MODO COMUNITARIO -->
-                  <div *ngIf="coworkingMode() === 'comunitario'" style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
-                    <!-- Indicador Minimalista del Comunidad -->
-                    <div style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.1); border-radius: 10px; padding: 16px; display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 2px;">
-                      <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(99, 102, 241, 0.1); border-radius: 50%;">
-                        <i class="fa-solid fa-users" style="color: var(--accent); font-size: 16px;"></i>
-                        <span style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: var(--green); border-radius: 50%; border: 1.5px solid var(--bg3); animation: pulseGreen 1.5s infinite;"></span>
-                      </div>
-                      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;">
-                        <span style="font-size: 12.5px; font-weight: 800; color: var(--text);">Comunidad Compartido Activo</span>
-                        <span style="font-size: 10.5px; color: var(--muted); font-weight: 600;">
-                          Hay <strong style="color: var(--accent);">{{ globalFocusedCount() }} guerreros</strong> concentrándose ahora mismo.
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-          </div>
-
-      </div>
+      <!-- Estrategia de concentración movida a la consola unificada inferior izquierda -->
 
       <!-- COLUMNA CENTRAL: Reloj Digital -->
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%;">
+      <div class="focus-column-center timer-column" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%; max-width: var(--timer-column-max-width); margin: 0 auto;">
         
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; min-height: 380px; width: 100%; position: relative;">
           <!-- Fondo decorativo con auras suaves -->
           <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
           <!-- Cabecera de Estado Sutil -->
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; margin-bottom: -8px;">
-            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;"
+          <div *ngIf="arenaState() !== 'setup'" style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; margin-bottom: -8px;">
+            <span style="font-size: var(--state-label-size); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;"
                   [style.color]="arenaState() === 'active' ? 'var(--accent)' : 'var(--muted)'">
-              {{ arenaState() === 'setup' ? 'Listo para Enfoque' : (arenaState() === 'countdown' ? 'Preparando Mente' : (emergencyPauseActive() ? 'Pausa de Emergencia' : (isBreak() ? 'Descanso Zen' : 'Enfoque Activo'))) }}
+              {{ arenaState() === 'countdown' ? 'Preparando Mente' : (emergencyPauseActive() ? 'Pausa de Emergencia' : (isBreak() ? 'Descanso Zen' : 'Enfoque Activo')) }}
             </span>
           </div>
 
-                      <!-- Reloj Digital con Números Gigantes -->
-            <div style="z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%;">
-              
-              <!-- CASO 1: SETUP -->
-              <span *ngIf="arenaState() === 'setup'"
-                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
-              </span>
+          <!-- Reloj Digital con Números Gigantes -->
+          <div style="z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%;">
+            
+            <!-- CASO 1: SETUP -->
+            <span *ngIf="arenaState() === 'setup'"
+                  style="font-size: var(--timer-font-size); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+              {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
+            </span>
 
-              <!-- CASO 2: COUNTDOWN -->
-              <span *ngIf="arenaState() === 'countdown'"
-                    class="countdown-pulse"
-                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; color: var(--accent); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 0 25px rgba(99, 102, 241, 0.4);">
-                00:0{{ countdownValue() }}
-              </span>
+            <!-- CASO 2: COUNTDOWN -->
+            <span *ngIf="arenaState() === 'countdown'"
+                  class="countdown-pulse"
+                  style="font-size: var(--timer-font-size); font-weight: 900; color: var(--accent); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 0 25px rgba(99, 102, 241, 0.4);">
+              00:0{{ countdownValue() }}
+            </span>
 
-              <!-- CASO 3: ACTIVE -->
-              <span *ngIf="arenaState() === 'active'"
-                    style="font-size: clamp(72px, 14vw, 100px); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
-                    [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
-                {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
-              </span>
+            <!-- CASO 3: ACTIVE -->
+            <span *ngIf="arenaState() === 'active'"
+                  style="font-size: var(--timer-font-size); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
+                  [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
+              {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
+            </span>
 
-            </div>
+          </div>
 
             <!-- Controles de Acción Minimalistas -->
-            <div style="z-index: 2; width: 100%; max-width: 280px; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
+            <div style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
               
-              <div style="display: flex; gap: 10px; width: 100%;">
+              <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
                 <!-- Iniciar (en setup) -->
                 <button *ngIf="arenaState() === 'setup'" 
                         (click)="startFocusFlow()" 
-                        style="flex: 1; border: none; background: var(--accent); color: #000; padding: 12px 24px; border-radius: 12px; font-size: 13.5px; font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+                        style="border: none; background: var(--accent); color: #000; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--start-btn-width);"
                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px var(--accent)';"
                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.3)';"
                         title="Iniciar Sesión de Enfoque">
@@ -256,20 +133,20 @@
 
                 <!-- Ajustes (en setup) -->
                 <button *ngIf="arenaState() === 'setup'" 
-                        (click)="showSetupSettings.set(!showSetupSettings()); showThemesPanel.set(false)"
-                        style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; transition: all 0.2s;"
-                        [style.borderColor]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-                        [style.color]="showSetupSettings() ? 'var(--accent)' : 'rgba(255,255,255,0.8)'"
+                        (click)="showSetupSettings.set(true); settingsActiveTab.set('time')"
+                        style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: var(--settings-btn-size); height: var(--settings-btn-size); border-radius: 12px; transition: all 0.2s;"
+                        [style.borderColor]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+                        [style.color]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.8)'"
                         onmouseover="this.style.background='rgba(255,255,255,0.05)';"
                         onmouseout="this.style.background='rgba(255,255,255,0.02)';"
                         title="Configuración de Pomodoro">
-                  <i class="fa-solid fa-gear" style="font-size: 16px;"></i>
+                  <i class="fa-solid fa-gear" style="font-size: calc(var(--settings-btn-size) * 0.36);"></i>
                 </button>
 
                 <!-- Pausa (en active) -->
                 <button *ngIf="arenaState() === 'active'" 
                         (click)="toggleEmergencyPause()" 
-                        style="flex: 1; border: 1px solid var(--border); padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+                        style="border: 1px solid var(--border); padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
                         [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
                         [style.borderColor]="emergencyPauseActive() ? 'var(--accent)' : 'var(--border)'"
                         [style.color]="emergencyPauseActive() ? '#000' : 'var(--text)'"
@@ -281,7 +158,7 @@
                 <!-- Abandonar (en active) -->
                 <button *ngIf="arenaState() === 'active'" 
                         (click)="abandonSession()" 
-                        style="flex: 1; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
+                        style="border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
                         onmouseover="this.style.background='rgba(239, 68, 68, 0.1)';"
                         onmouseout="this.style.background='rgba(239, 68, 68, 0.05)';"
                         title="Abandonar sesión">
@@ -292,11 +169,11 @@
               <!-- Simular completar (en active) -->
               <button *ngIf="arenaState() === 'active'"
                       (click)="simulateCompletion()" 
-                      style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: 10px; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;"
+                      style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: calc(var(--button-font-size) * 0.75); font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;"
                       onmouseover="this.style.opacity='1'; this.style.textDecoration='underline';"
                       onmouseout="this.style.opacity='0.5'; this.style.textDecoration='none';"
                       title="Simular completar la sesión de enfoque">
-                <i class="fa-solid fa-forward" style="font-size: 9px;"></i>
+                <i class="fa-solid fa-forward" style="font-size: calc(var(--button-font-size) * 0.65);"></i>
                 <span>Simular Completar</span>
               </button>
             </div>
@@ -307,164 +184,8 @@
           <!-- VISTA ENFOQUE ACTIVO: OBJETIVO (Se muestra debajo del reloj durante active/countdown) -->
           <div *ngIf="arenaState() !== 'setup' && activeObjective() && activeObjective().trim()" 
                style="text-align: center; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2;">
-            <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 1.5px;">Objetivo de Concentración</span>
-            <span style="font-size: 15px; font-weight: 800; color: var(--text);">"{{ activeObjective() }}"</span>
-          </div>
-
-      </div>
-
-      <!-- COLUMNA DERECHA: Comunidad y Raid Boss -->
-      <div style="display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center;">
-        
-          <!-- Tarjeta Boss Expandida -->
-          <div *ngIf="showBossCard()" style="width: 100%;">
-            <!-- Combate de Jefe (si estamos en Comunidad) -->
-            <div *ngIf="coworkingMode() === 'comunitario'" 
-                 [class.boss-attack-flash]="bossService.isUnderAttack()"
-                 style="width: 100%; background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05); transition: border-color 0.3s; animation: slideDown 0.25s ease;"
-                 [style.borderColor]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'rgba(255,255,255,0.08)'">
-              
-              <!-- Retrato del Jefe Completo y Centrado Detrás (Como Marca de Agua) -->
-              <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; opacity: 0.14; pointer-events: none; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 20px;">
-                <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
-                <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
-                <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
-                <img *ngIf="bossService.activeBoss().type === 'aurora'" src="/assets/images/avatars/boss_quimera.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
-                <img *ngIf="bossService.activeBoss().type === 'siren'" src="/assets/images/avatars/boss_sirena.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
-                <img *ngIf="bossService.activeBoss().type === 'werewolf'" src="/assets/images/avatars/boss_lobo.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
-                <img *ngIf="bossService.activeBoss().type === 'vampire'" src="/assets/images/avatars/boss_vampiro.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
-              </div>
-
-              <!-- Cabecera de la Ficha -->
-              <div style="display: flex; flex-direction: column; gap: 4px; padding: 18px 18px 10px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); text-align: left; z-index: 1; position: relative;">
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-                  <span style="font-size: 8.5px; font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; opacity: 0.8;">Raid de la Comunidad</span>
-                  <!-- Insignia Raid en vivo -->
-                  <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--red); padding: 3px 6px; border-radius: 4px; font-size: 8px; font-weight: 900; letter-spacing: 0.5px; color: var(--red); text-transform: uppercase; display: flex; align-items: center; gap: 3px;">
-                    <span style="width: 4px; height: 4px; background: var(--red); border-radius: 50%;"></span>
-                    Jefe Activo
-                  </div>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-                  <h3 style="font-size: 15px; font-weight: 900; color: #fff; margin: 0; line-height: 1.25;">{{ bossService.activeBoss().name }}</h3>
-                  <!-- Badge de Elemento -->
-                  <span style="background: rgba(0, 0, 0, 0.5); border: 1px solid var(--accent); padding: 3px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; margin-top: 1px;">
-                    {{ bossService.activeBoss().type === 'siren' ? 'Agua' : (bossService.activeBoss().type === 'cyberpunk' ? 'Caos' : (bossService.activeBoss().type === 'zen' ? 'Tierra' : (bossService.activeBoss().type === 'samurai' ? 'Fuego' : (bossService.activeBoss().type === 'aurora' ? 'Viento' : (bossService.activeBoss().type === 'werewolf' ? 'Luna' : 'Sombra'))))) }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Contenido de la Ficha (Barras de Vida y Escudo) -->
-              <div style="padding: 14px 18px 18px 18px; display: flex; flex-direction: column; gap: 14px; z-index: 1; position: relative;">
-                
-                <!-- Barra de Vida del Jefe -->
-                <div style="display: flex; flex-direction: column; gap: 5px;">
-                  <div style="display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px;">
-                    <span style="font-weight: 800; color: var(--muted); display: flex; align-items: center; gap: 4px; text-transform: uppercase;">
-                      <i class="fa-solid fa-heart-pulse" style="color: var(--red);"></i>
-                      Vida del Enemigo
-                    </span>
-                    <span style="font-family: monospace; font-weight: 900; color: var(--text);">
-                      {{ bossService.activeBoss().currentHp }} / {{ bossService.activeBoss().maxHp }} HP
-                    </span>
-                  </div>
-                  <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
-                    <div style="height: 100%; border-radius: 4px; transition: width 0.3s ease-out;"
-                         [style.width.%]="bossService.hpPercent()"
-                         [style.background]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'linear-gradient(90deg, var(--red) 0%, #f43f5e 100%)'">
-                    </div>
-                  </div>
-                </div>
-
-
-
-                <!-- Consola / Log de Batalla Integrado -->
-                <div style="background: rgba(0, 0, 0, 0.5); border: 1.5px solid rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;">
-                  <span style="font-size: 9px; font-weight: 800; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <span>Notificaciones en Vivo</span>
-                    <button (click)="triggerDemoAttack($event)" 
-                            style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 2px 6px; font-size: 8px; font-weight: 900; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 3.5px; transition: background 0.15s; outline: none;"
-                            onmouseover="this.style.background='rgba(255,255,255,0.12)'"
-                            onmouseout="this.style.background='rgba(255,255,255,0.06)'"
-                            title="Simular un evento de combate (Demo)">
-                      <i class="fa-solid fa-play" style="font-size: 6.5px; color: var(--green);"></i>
-                      DEMO
-                    </button>
-                  </span>
-                  <div style="display: flex; flex-direction: column; gap: 8px; font-size: 10.5px; line-height: 1.4; max-height: 130px; overflow-y: hidden; margin-top: 4px;">
-                    <div *ngFor="let log of bossService.bossLogs().slice(0, 3)" 
-                         [class.premium-log-glow]="log.includes('⚡')"
-                         style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); padding: 7px 12px; border-radius: 8px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; text-align: left; color: rgba(255,255,255,0.9); font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.25s; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);">
-                      
-                      <!-- Icono para Ataque Regular (Espadas cruzadas) -->
-                      <span *ngIf="log.includes('⚔️')" style="font-size: 11px; flex-shrink: 0; filter: drop-shadow(0 0 2px rgba(244,63,94,0.6));">⚔️</span>
-                      
-                      <!-- Icono para Poder Premium (Rayo Eléctrico Púrpura) -->
-                      <i *ngIf="log.includes('⚡')" class="fa-solid fa-bolt-lightning" style="color: #c084fc; font-size: 11px; flex-shrink: 0; filter: drop-shadow(0 0 3px rgba(192, 132, 252, 0.6));"></i>
-                      
-                      <!-- Icono para Abandono (Gota de sangre en rojo) -->
-                      <i *ngIf="log.includes('🩸')" class="fa-solid fa-droplet" style="color: #ef4444; font-size: 11px; flex-shrink: 0;"></i>
-                      
-                      <!-- Icono para Interrupción (Triángulo de Advertencia Amarillo - Cono) -->
-                      <i *ngIf="log.includes('⚠️')" class="fa-solid fa-triangle-exclamation" style="color: #fbbf24; font-size: 11px; flex-shrink: 0;"></i>
-                      
-                      <!-- Texto del Log Limpio sin el emoji inicial -->
-                      <span>{{ log.replace('⚔️', '').replace('⚡', '').replace('🩸', '').replace('⚠️', '').trim() }}</span>
-                    </div>
-                  </div>
-                </div>
-
-
-
-              </div>
-
-            </div>
-          </div>
-
-        
-          <!-- Tarjeta Comunidad/Guerreros Expandida -->
-          <div *ngIf="showComunidadUsers()" style="width: 100%;">
-                        <div *ngIf="coworkingMode() === 'comunitario'"
-                 style="width: 100%; background: rgba(10, 10, 12, 0.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);">
-              <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <i class="fa-solid fa-users" style="color: var(--accent); font-size: 13px;"></i>
-                  <span style="font-size: 11px; font-weight: 900; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">Guerreros Enfocados ({{ comunidadUsers().length }})</span>
-                </div>
-              </div>
-              <div class="no-scrollbar" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;">
-                <!-- Tu Ficha -->
-                <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid var(--accent); border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; gap: 8px; position: relative;">
-                  <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--accent); background-size: cover; background-position: center; flex-shrink: 0;"></div>
-                  <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; text-align: left;">
-                    <span style="font-size: 10.5px; font-weight: 800; color: var(--text);">Tú (Guerrero)</span>
-                    <span style="font-size: 8.5px; color: var(--accent); font-weight: 700; margin-top: 1px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ activeObjective() && activeObjective().trim() ? activeObjective() : 'Enfoque Activo' }}</span>
-                  </div>
-                </div>
-
-                <!-- Compañeros -->
-                <div *ngFor="let p of comunidadUsers().slice(0, 10)" 
-                     style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; position: relative; text-align: left;">
-                  <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; flex: 1; padding-right: 6px;">
-                    <div [class]="'avatar-sprite sprite-' + p.avatar" 
-                         style="width: 28px; height: 28px; border-radius: 50%; background-size: cover; background-position: center; border: 1.5px solid; flex-shrink: 0;"
-                         [style.borderColor]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')">
-                    </div>
-                    <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
-                      <span style="font-size: 10.5px; font-weight: 800; color: var(--text); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ p.name }}</span>
-                      <span style="font-size: 8.5px; color: var(--muted); line-height: 1.3; font-weight: 500; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-                        {{ p.status === 'focused' ? p.mission : 'Pausa de descanso' }}
-                      </span>
-                    </div>
-                  </div>
-                  <span style="font-size: 10.5px; font-weight: 800; font-family: monospace; color: var(--text); flex-shrink: 0; margin-left: 2px;">
-                    {{ p.status === 'focused' ? formatTime(p.timeLeft) : '☕ 5:00' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-
+            <span style="font-size: var(--objective-header-size); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 1.5px;">Objetivo de Concentración</span>
+            <span style="font-size: var(--objective-text-size); font-weight: 800; color: var(--text);">"{{ activeObjective() }}"</span>
           </div>
 
       </div>
@@ -472,344 +193,22 @@
     </div>
   </div>
   
-  <div *ngIf="showSetupSettings() && arenaState() === 'setup'"
-     class="floating-drawer custom-scrollbar">
-                        <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
-              <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-gear" style="color: var(--accent);"></i>
-                Ajustes de Pomodoro
-              </h3>
-              <button (click)="showSetupSettings.set(false)" 
-                      style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
-                      title="Cerrar Ajustes">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tiempos del Pomodoro</span>
-              
-              <!-- Tiempos Básicos -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <!-- Tiempo de Enfoque -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Enfoque (minutos)</span>
-                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;">
-                    <input type="number" 
-                           [ngModel]="focusDuration()" 
-                           (ngModelChange)="focusDuration.set($event); applyTimeSettings()"
-                           min="5" max="120" step="5"
-                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
-                  </div>
-                </div>
-                <!-- Tiempo de Descanso -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Descanso Corto (minutos)</span>
-                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;">
-                    <input type="number" 
-                           [ngModel]="breakDuration()" 
-                           (ngModelChange)="breakDuration.set($event); applyTimeSettings()"
-                           min="1" max="60" step="1"
-                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Configuración del Descanso Largo -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <!-- Intervalo Descanso Largo -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Ciclos para Descanso Largo</span>
-                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;"
-                       title="Número de pomodoros de enfoque antes de tomar un descanso largo. Estándar: 4.">
-                    <input type="number" 
-                           [ngModel]="longBreakInterval()" 
-                           (ngModelChange)="longBreakInterval.set($event)"
-                           min="1" max="12" step="1"
-                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
-                  </div>
-                </div>
-                <!-- Duración Descanso Largo -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <span style="font-size: 9.5px; color: var(--muted); font-weight: 600;">Descanso Largo (minutos)</span>
-                  <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;"
-                       title="Duración en minutos del descanso largo. Estándar: 15-30 minutos.">
-                    <input type="number" 
-                           [ngModel]="longBreakDuration()" 
-                           (ngModelChange)="longBreakDuration.set($event)"
-                           min="5" max="120" step="5"
-                           style="width: 100%; background: transparent; border: none; color: var(--text); font-size: 12.5px; font-weight: 700; outline: none; font-family: inherit;">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Indicador de Ciclos de Pomodoro Actuales -->
-              <div style="display: flex; align-items: center; gap: 8px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 8px; padding: 8px 12px; margin-top: 4px;">
-                <span style="font-size: 14px;">🍅</span>
-                <div style="display: flex; flex-direction: column;">
-                  <span style="font-size: 11px; font-weight: 700; color: var(--text);">Ciclo actual: {{ completedPomodoros() % longBreakInterval() }} / {{ longBreakInterval() }}</span>
-                  <span style="font-size: 9.5px; color: var(--muted);">Completados en total: {{ completedPomodoros() }}</span>
-                </div>
-                <button (click)="resetDailyAttempts()"
-                        style="margin-left: auto; background: transparent; border: none; color: var(--red); font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase;"
-                        title="Reiniciar contador de ciclos">
-                  Reset
-                </button>
-              </div>
-            </div>
-
-            
-            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
-
-                        <!-- 2. ESCUDO ACÚSTICO (Ambient Background Sound) -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Frecuencia de Fondo</span>
-                <span style="font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase;" *ngIf="backgroundSound() !== 'off'">
-                  {{ backgroundSound() === 'cafe' ? 'Ruido Café' : backgroundSound() === 'lluvia' ? 'Lluvia Zen' : backgroundSound() === 'reloj_pared' ? 'Reloj de Pared' : 'Reloj de Pulsera' }}
-                </span>
-              </div>
-              
-              <div style="display: flex; flex-wrap: wrap; gap: 6px; width: 100%;">
-                <button (click)="updateBackgroundSound('off')"
-                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
-                        [style.background]="backgroundSound() === 'off' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                        [style.borderColor]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--text)'">
-                  🔇 Off
-                </button>
-                <button (click)="updateBackgroundSound('cafe')"
-                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
-                        [style.background]="backgroundSound() === 'cafe' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                        [style.borderColor]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--text)'">
-                  🎚️ Café
-                </button>
-                <button (click)="updateBackgroundSound('lluvia')"
-                        style="flex: 1 1 calc(33.33% - 6px); min-width: 70px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
-                        [style.background]="backgroundSound() === 'lluvia' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                        [style.borderColor]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--text)'">
-                  🌧️ Lluvia
-                </button>
-                <button (click)="updateBackgroundSound('reloj_pared')"
-                        style="flex: 1 1 calc(50% - 6px); min-width: 110px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
-                        [style.background]="backgroundSound() === 'reloj_pared' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                        [style.borderColor]="backgroundSound() === 'reloj_pared' ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="backgroundSound() === 'reloj_pared' ? 'var(--accent)' : 'var(--text)'">
-                  🕰️ R. Pared
-                </button>
-                <button (click)="updateBackgroundSound('reloj_pulsera')"
-                        style="flex: 1 1 calc(50% - 6px); min-width: 110px; border: 1px solid var(--border); padding: 8px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: all 0.2s; color: var(--text);"
-                        [style.background]="backgroundSound() === 'reloj_pulsera' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                        [style.borderColor]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--text)'">
-                  ⌚ R. Pulsera
-                </button>
-              </div>
-
-              <!-- Control de Volumen (Sólo si no está en OFF) -->
-              <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;" *ngIf="backgroundSound() !== 'off'">
-                <i class="fa-solid fa-volume-low" style="font-size: 10px; color: var(--muted);"></i>
-                <input type="range" min="0" max="1" step="0.05" 
-                       [ngModel]="backgroundVolume()" 
-                       (ngModelChange)="updateBackgroundVolume($event)"
-                       style="flex: 1; accent-color: var(--accent); height: 4px; border-radius: 2px; cursor: pointer;">
-                <i class="fa-solid fa-volume-high" style="font-size: 10px; color: var(--muted);"></i>
-              </div>
-            </div>
-
-            
-            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
-
-                        <!-- 3. ALERTA DE FIN DE SESIÓN -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Alerta de Fin de Sesión</span>
-                <input type="checkbox" [ngModel]="soundEnabled()" (ngModelChange)="soundEnabled.set($event)" 
-                       style="width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; border-radius: 4px;">
-              </div>
-              
-              <!-- Selector de tipo de campana (Sólo si alertas habilitadas) -->
-              <div style="display: flex; gap: 4px; width: 100%;" *ngIf="soundEnabled()">
-                <button *ngFor="let s of soundOptions" (click)="setSoundType(s)"
-                        style="flex: 1; border: 1px solid var(--border); padding: 6px 2px; border-radius: 4px; background: transparent; cursor: pointer; font-size: 10px; font-weight: 700; font-family: inherit; color: var(--muted); transition: all 0.2s;"
-                        [style.background]="soundType() === s ? 'rgba(255,255,255,0.03)' : 'transparent'"
-                        [style.borderColor]="soundType() === s ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="soundType() === s ? 'var(--accent)' : 'var(--muted)'">
-                  {{ s | titlecase }}
-                </button>
-              </div>
-            </div>
-
-            
-            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
-
-                        <button (click)="showSetupSettings.set(false)"
-                    style="width: 100%; border: none; padding: 12px; border-radius: 8px; background: var(--accent); color: #000; font-size: 12.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px;"
-                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.35)';"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-              <i class="fa-solid fa-check"></i>
-              Aplicar Cambios
-            </button>
-
-</div>
-  <div *ngIf="showThemesPanel() && arenaState() === 'setup'"
-     class="floating-drawer custom-scrollbar">
-            <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
-              <h3 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-palette" style="color: var(--accent);"></i>
-                Personalización Zen
-              </h3>
-              <button (click)="showThemesPanel.set(false)" 
-                      style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
-                      title="Cerrar Personalización">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-                        <!-- 1. TEMA DEL ESPACIO (Theme Selector) -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tema Visual</span>
-              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
-                <button *ngFor="let t of themeOptions" 
-                        (click)="selectThemeOption(t)"
-                        style="border: 1px solid var(--border); padding: 8px 2px; border-radius: 6px; background: transparent; cursor: pointer; font-size: 10.5px; font-weight: 800; font-family: inherit; transition: all 0.2s; text-transform: capitalize; position: relative;"
-                        [style.background]="currentTheme() === t ? 'var(--accent)' : 'transparent'"
-                        [style.borderColor]="currentTheme() === t ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="currentTheme() === t ? '#000' : 'var(--text)'">
-                  {{ t }}
-                  <!-- Candado si está bloqueado -->
-                  <i *ngIf="t !== 'samurai' && !membership.unlockedThemes().includes(t)" 
-                     class="fa-solid fa-lock" 
-                     style="position: absolute; top: -3px; right: -3px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
-                </button>
-              </div>
-            </div>
-
-            
-            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
-
-                        <!-- 4. FONDO DE PANTALLA ZEN CON MINIATURAS -->
-            <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 15px;">
-              <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-image" style="color: var(--accent);"></i>
-                Fondo de Pantalla Zen (Premium)
-              </span>
-              
-              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px;">
-                <div *ngFor="let bg of backgroundOptions"
-                     (click)="setBackground(bg)"
-                     style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                     onmouseover="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1.04)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color='var(--text)' };"
-                     onmouseout="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                     [attr.data-active]="activeBackground() === bg">
-                  
-                  <!-- Contenedor Miniatura de la Imagen -->
-                  <div class="thumb-img-wrapper"
-                       style="width: 100%; aspect-ratio: 16/10; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid rgba(255, 255, 255, 0.05); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(0,0,0,0.3); background: #121216;"
-                       [style.borderColor]="activeBackground() === bg ? 'var(--accent)' : 'rgba(255, 255, 255, 0.05)'"
-                       [style.boxShadow]="activeBackground() === bg ? '0 0 12px rgba(99, 102, 241, 0.35)' : '0 4px 12px rgba(0,0,0,0.3)'">
-                    
-                    <!-- Imagen de Fondo para la Miniatura -->
-                    <img *ngIf="bg !== 'off'"
-                         [src]="bg === 'fairy' ? 'assets/images/fairy_world.webp' : (bg === 'lofi_study_desktop' ? 'assets/images/lofi_study_desktop.webp' : (bg === 'lofi_moons' ? 'assets/images/lofi_moons.webp' : 'assets/images/lofi_study_rain.webp'))"
-                         alt="Fondo {{ bg }}"
-                         style="width: 100%; height: 100%; object-fit: cover; display: block;" />
-                    
-                    <!-- Icono para Estado Apagado -->
-                    <div *ngIf="bg === 'off'" 
-                         style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.25);">
-                      <i class="fa-solid fa-eye-slash" style="font-size: 16px;"></i>
-                    </div>
-
-                    <!-- Badge de Selección Activa -->
-                    <div *ngIf="activeBackground() === bg" 
-                         style="position: absolute; top: 4px; right: 4px; background: var(--accent); color: #000; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                      <i class="fa-solid fa-check" style="font-size: 8px; font-weight: 900;"></i>
-                    </div>
-                  </div>
-
-                  <!-- Etiqueta del Fondo -->
-                  <span class="thumb-label"
-                        style="font-size: 9.5px; font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
-                        [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
-                    {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : 'Lluvia'))) }}
-                  </span>
-                </div>
-              </div>
-              <span style="font-size: 9.5px; color: var(--muted); line-height: 1.3; margin-top: 2px;">
-                {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : 'Lluvia'))) + '" activo con aura sutil' }}
-              </span>
-            </div>
-
-            
-            <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
-
-                        <button (click)="showThemesPanel.set(false)"
-                    style="width: 100%; border: none; padding: 12px; border-radius: 8px; background: var(--accent); color: #000; font-size: 12.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px;"
-                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.35)';"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-              <i class="fa-solid fa-check"></i>
-              Aplicar Cambios
-            </button>
-
-</div>
   
-    <!-- BARRA DE ACCESO RÁPIDO (HUD DECK) EN ESQUINA INFERIOR IZQUIERDA -->
-    <div style="position: fixed; bottom: 40px; display: flex; align-items: center; gap: 12px; z-index: 1000; background: rgba(10, 10, 12, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(255,255,255,0.06); padding: 8px; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: left 0.25s ease;"
-         [style.left]="sidebarCollapsed() ? '12px' : 'calc(var(--sidebar) + 12px)'">
-      <!-- Toggle Estrategias (Disabled when Pomodoro starts) -->
-      <button [disabled]="arenaState() !== 'setup'"
-              (click)="showStrategyCard.set(!showStrategyCard()); showThemesPanel.set(false); showSetupSettings.set(false)" 
-              [style.background]="showStrategyCard() ? 'var(--accent)' : 'rgba(255,255,255,0.03)'"
-              [style.color]="showStrategyCard() ? '#000' : 'var(--accent)'"
-              [style.borderColor]="showStrategyCard() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-              [style.opacity]="arenaState() === 'setup' ? '1' : '0.35'"
-              [style.cursor]="arenaState() === 'setup' ? 'pointer' : 'not-allowed'"
-              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;"
-              onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.1)';"
-              onmouseout="if(this.getAttribute('disabled') === null) this.style.transform='scale(1)';"
-              [title]="arenaState() === 'setup' ? 'Toggle Estrategias de Concentración' : 'Estrategias bloqueadas durante enfoque'">
-        <i class="fa-solid fa-crosshairs"></i>
-      </button>
-
-      <!-- Toggle Personalización Zen (Paleta de Colores) -->
-      <button (click)="showThemesPanel.set(!showThemesPanel()); showSetupSettings.set(false)" 
-              [style.background]="showThemesPanel() ? 'var(--accent)' : 'rgba(255,255,255,0.03)'"
-              [style.color]="showThemesPanel() ? '#000' : 'var(--accent)'"
-              [style.borderColor]="showThemesPanel() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;"
+    <!-- CONSOLA DE COMBATE Y ESTRATEGIA (BOTÓN ÚNICO DE ACCESO) -->
+    <div *ngIf="!showCommunityConsole()" style="position: fixed; bottom: 64px; left: 12px; display: flex; align-items: center; z-index: 1000; background: rgba(10, 10, 12, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(255,255,255,0.06); padding: 10px; border-radius: 50%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: left 0.25s ease;">
+      
+      <!-- Unico Botón en la Botonera -->
+      <button (click)="showCommunityConsole.set(!showCommunityConsole()); showSetupSettings.set(false)" 
+              [style.background]="showCommunityConsole() ? 'var(--accent)' : 'rgba(255,255,255,0.03)'"
+              [style.color]="showCommunityConsole() ? '#000' : 'var(--accent)'"
+              [style.borderColor]="showCommunityConsole() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+              style="width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.2s;"
               onmouseover="this.style.transform='scale(1.1)';"
               onmouseout="this.style.transform='scale(1)';"
-              title="Personalización Zen (Temas y Fondos)">
-        <i class="fa-solid fa-palette"></i>
+              title="Consola de Combate, Comunidad y Estrategia">
+        <i class="fa-solid fa-users-gear"></i>
       </button>
 
-      <!-- Toggle Boss (Raid) -->
-      <button *ngIf="coworkingMode() === 'comunitario'"
-              (click)="showBossCard.set(!showBossCard()); showThemesPanel.set(false); showSetupSettings.set(false)" 
-              [style.background]="showBossCard() ? 'var(--red)' : 'rgba(255,255,255,0.03)'"
-              [style.color]="showBossCard() ? '#fff' : 'var(--red)'"
-              [style.borderColor]="showBossCard() ? 'var(--red)' : 'rgba(239,68,68,0.2)'"
-              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;"
-              onmouseover="this.style.transform='scale(1.1)';"
-              onmouseout="this.style.transform='scale(1)';"
-              title="Toggle Raid de la Comunidad">
-        <i class="fa-solid fa-skull-crossbones"></i>
-      </button>
-
-      <!-- Toggle Comunidad (Usuarios) -->
-      <button *ngIf="coworkingMode() === 'comunitario'"
-              (click)="showComunidadUsers.set(!showComunidadUsers()); showThemesPanel.set(false); showSetupSettings.set(false)" 
-              [style.background]="showComunidadUsers() ? 'var(--accent)' : 'rgba(255,255,255,0.03)'"
-              [style.color]="showComunidadUsers() ? '#000' : 'var(--accent)'"
-              [style.borderColor]="showComunidadUsers() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-              style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;"
-              onmouseover="this.style.transform='scale(1.1)';"
-              onmouseout="this.style.transform='scale(1)';"
-              title="Toggle Guerreros Enfocados">
-        <i class="fa-solid fa-users"></i>
-      </button>
     </div>
 
   
@@ -1271,4 +670,624 @@
        [class]="piece.class"
        style="position: absolute; top: -40px; border-radius: 2px; opacity: 0.85; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
   </div>
+</div>
+
+<!-- MODAL DE CONFIGURACIÓN Y PERSONALIZACIÓN ZEN (CON MENÚ LATERAL INTERNO) -->
+<div *ngIf="showSetupSettings() && arenaState() === 'setup'" 
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 15000; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Space Grotesk', sans-serif;">
+  
+  <div style="background: rgba(10, 10, 12, 0.98); border: 1.5px solid var(--border); border-radius: 20px; max-width: var(--modal-width); width: 100%; height: var(--modal-height); display: flex; box-shadow: 0 30px 70px rgba(0,0,0,0.7); position: relative; overflow: hidden; animation: slideDown 0.25s ease;">
+    
+    <!-- MENU LATERAL INTERNO (IZQUIERDA) -->
+    <div style="width: 240px; border-right: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); display: flex; flex-direction: column; padding: 28px 20px; box-sizing: border-box;">
+      
+      <!-- Título Sidebar -->
+      <h3 style="font-size: var(--modal-title-size); font-weight: 900; color: var(--text); margin: 0 0 28px 0; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-sliders" style="color: var(--accent);"></i>
+        Ajustes
+      </h3>
+
+      <!-- Opciones del Menú (Vertical) -->
+      <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+        <!-- Botón Pestaña 1: Ajustes de Tiempo -->
+        <button (click)="settingsActiveTab.set('time')"
+                [style.background]="settingsActiveTab() === 'time' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                [style.borderColor]="settingsActiveTab() === 'time' ? 'var(--accent)' : 'transparent'"
+                [style.color]="settingsActiveTab() === 'time' ? 'var(--accent)' : 'var(--muted)'"
+                style="display: flex; align-items: center; gap: 12px; width: 100%; border: 1px solid transparent; padding: 12px 16px; border-radius: 8px; font-size: var(--modal-header-size); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: left; transition: all 0.2s; font-family: inherit; outline: none;">
+          <i class="fa-solid fa-clock" style="font-size: 14px;"></i>
+          Tiempos y Ciclos
+        </button>
+
+        <!-- Botón Pestaña 2: Temas y Fondos -->
+        <button (click)="settingsActiveTab.set('themes')"
+                [style.background]="settingsActiveTab() === 'themes' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                [style.borderColor]="settingsActiveTab() === 'themes' ? 'var(--accent)' : 'transparent'"
+                [style.color]="settingsActiveTab() === 'themes' ? 'var(--accent)' : 'var(--muted)'"
+                style="display: flex; align-items: center; gap: 12px; width: 100%; border: 1px solid transparent; padding: 12px 16px; border-radius: 8px; font-size: var(--modal-header-size); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: left; transition: all 0.2s; font-family: inherit; outline: none;">
+          <i class="fa-solid fa-palette" style="font-size: 14px;"></i>
+          Temas y Fondos
+        </button>
+      </div>
+
+      <!-- Botón de Cierre / Guardar en el Pie del Sidebar -->
+      <button (click)="showSetupSettings.set(false)"
+              style="margin-top: auto; border: none; padding: 12px; border-radius: 8px; background: var(--accent); color: #000; font-size: var(--modal-header-size); font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; font-family: inherit;"
+              onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.35)';"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+        <i class="fa-solid fa-check"></i>
+        Aplicar
+      </button>
+
+    </div>
+
+    <!-- PANEL DE CONTENIDO (DERECHA) -->
+    <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 28px; box-sizing: border-box; position: relative;">
+      
+      <!-- Botón X Cerrar -->
+      <button (click)="showSetupSettings.set(false)" 
+              style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 20px; z-index: 10;">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Título de la Pestaña Activa -->
+      <h2 style="font-size: var(--modal-title-size); font-weight: 900; color: #fff; margin: 0 0 20px 0; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; letter-spacing: 0.5px;">
+        {{ settingsActiveTab() === 'time' ? 'Configuración de Tiempo y Alertas' : 'Personalización y Fondos de Espacio' }}
+      </h2>
+
+      <!-- Contenido Scrollable -->
+      <div class="custom-scrollbar" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-right: 6px;">
+        
+        <!-- CONTENIDO TABS: TIME -->
+        <div *ngIf="settingsActiveTab() === 'time'" style="display: flex; flex-direction: column; gap: 18px;">
+          
+          <!-- Tiempos de Pomodoro -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tiempos del Pomodoro</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <!-- Enfoque -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Enfoque (minutos)</span>
+                <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px;">
+                  <input type="number" 
+                         [ngModel]="focusDuration()" 
+                         (ngModelChange)="focusDuration.set($event); applyTimeSettings()"
+                         min="5" max="120" step="5"
+                         style="width: 100%; background: transparent; border: none; color: var(--text); font-size: var(--modal-text-size); font-weight: 700; outline: none; font-family: inherit;">
+                </div>
+              </div>
+              <!-- Descanso Corto -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Descanso Corto (minutos)</span>
+                <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px;">
+                  <input type="number" 
+                         [ngModel]="breakDuration()" 
+                          (ngModelChange)="breakDuration.set($event); applyTimeSettings()"
+                          min="1" max="60" step="1"
+                          style="width: 100%; background: transparent; border: none; color: var(--text); font-size: var(--modal-text-size); font-weight: 700; outline: none; font-family: inherit;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ciclos de Descanso Largo -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Descanso Largo</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <!-- Intervalo -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Ciclos para Descanso Largo</span>
+                <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px;">
+                  <input type="number" 
+                         [ngModel]="longBreakInterval()" 
+                         (ngModelChange)="longBreakInterval.set($event)"
+                         min="1" max="12" step="1"
+                         style="width: 100%; background: transparent; border: none; color: var(--text); font-size: var(--modal-text-size); font-weight: 700; outline: none; font-family: inherit;">
+                </div>
+              </div>
+              <!-- Duración -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Descanso Largo (minutos)</span>
+                <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px;">
+                  <input type="number" 
+                         [ngModel]="longBreakDuration()" 
+                         (ngModelChange)="longBreakDuration.set($event)"
+                         min="5" max="120" step="5"
+                         style="width: 100%; background: transparent; border: none; color: var(--text); font-size: var(--modal-text-size); font-weight: 700; outline: none; font-family: inherit;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reset y Estado de Ciclos -->
+          <div style="display: flex; align-items: center; gap: 12px; background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.12); border-radius: 8px; padding: 10px 16px;">
+            <span style="font-size: 16px;">🍅</span>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: var(--modal-header-size); font-weight: 700; color: var(--text);">Ciclo actual: {{ completedPomodoros() % longBreakInterval() }} / {{ longBreakInterval() }}</span>
+              <span style="font-size: var(--modal-subtext-size); color: var(--muted); margin-top: 2px;">Completados hoy: {{ completedPomodoros() }}</span>
+            </div>
+            <button (click)="resetDailyAttempts()"
+                     style="margin-left: auto; background: transparent; border: none; color: var(--red); font-size: var(--modal-subtext-size); font-weight: 800; cursor: pointer; text-transform: uppercase;"
+                     title="Reiniciar contador de ciclos">
+              Reset
+            </button>
+          </div>
+
+          <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
+
+          <!-- Frecuencia de Fondo (Escudo Acústico) -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Frecuencia de Fondo</span>
+              <span style="font-size: var(--modal-subtext-size); color: var(--accent); font-weight: 800; text-transform: uppercase;" *ngIf="backgroundSound() !== 'off'">
+                {{ backgroundSound() === 'cafe' ? 'Ruido Café' : backgroundSound() === 'lluvia' ? 'Lluvia Zen' : backgroundSound() === 'reloj_pared' ? 'Reloj de Pared' : 'Reloj de Pulsera' }}
+              </span>
+            </div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; width: 100%;">
+              <button (click)="updateBackgroundSound('off')"
+                      style="flex: 1; min-width: 55px; border: 1px solid var(--border); padding: 7px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 800; color: var(--text);"
+                      [style.background]="backgroundSound() === 'off' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'off' ? 'var(--accent)' : 'var(--text)'">
+                Off
+              </button>
+              <button (click)="updateBackgroundSound('cafe')"
+                      style="flex: 1; min-width: 55px; border: 1px solid var(--border); padding: 7px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 800; color: var(--text);"
+                      [style.background]="backgroundSound() === 'cafe' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'cafe' ? 'var(--accent)' : 'var(--text)'">
+                Café
+              </button>
+              <button (click)="updateBackgroundSound('lluvia')"
+                      style="flex: 1; min-width: 55px; border: 1px solid var(--border); padding: 7px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 800; color: var(--text);"
+                      [style.background]="backgroundSound() === 'lluvia' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'lluvia' ? 'var(--accent)' : 'var(--text)'">
+                Lluvia
+              </button>
+              <button (click)="updateBackgroundSound('reloj_pared')"
+                      style="flex: 1; min-width: 80px; border: 1px solid var(--border); padding: 7px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 800; color: var(--text);"
+                      [style.background]="backgroundSound() === 'reloj_pared' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'reloj_pared' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'reloj_pared' ? 'var(--accent)' : 'var(--text)'">
+                R. Pared
+              </button>
+              <button (click)="updateBackgroundSound('reloj_pulsera')"
+                      style="flex: 1; min-width: 80px; border: 1px solid var(--border); padding: 7px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 800; color: var(--text);"
+                      [style.background]="backgroundSound() === 'reloj_pulsera' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--text)'">
+                R. Pulsera
+              </button>
+            </div>
+
+            <!-- Volume Slider -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;" *ngIf="backgroundSound() !== 'off'">
+              <i class="fa-solid fa-volume-low" style="font-size: 10px; color: var(--muted); flex-shrink:0;"></i>
+              <input type="range" min="0" max="1" step="0.05" 
+                     [ngModel]="backgroundVolume()" 
+                     (ngModelChange)="updateBackgroundVolume($event)"
+                     style="flex: 1; accent-color: var(--accent); height: 4px; cursor: pointer;">
+              <i class="fa-solid fa-volume-high" style="font-size: 10px; color: var(--muted); flex-shrink:0;"></i>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: rgba(255,255,255,0.03); margin-top: 4px;"></div>
+
+          <!-- Fin de Sesión Alerta -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Alerta de Fin de Sesión</span>
+              <input type="checkbox" [ngModel]="soundEnabled()" (ngModelChange)="soundEnabled.set($event)" 
+                     style="width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; border-radius: 4px;">
+            </div>
+            
+            <div style="display: flex; gap: 6px; width: 100%;" *ngIf="soundEnabled()">
+              <button *ngFor="let s of soundOptions" (click)="setSoundType(s)"
+                      style="flex: 1; border: 1px solid var(--border); padding: 7px 4px; border-radius: 4px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 700; color: var(--muted); transition: all 0.2s;"
+                      [style.background]="soundType() === s ? 'rgba(255,255,255,0.03)' : 'transparent'"
+                      [style.borderColor]="soundType() === s ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="soundType() === s ? 'var(--accent)' : 'var(--muted)'">
+                {{ s | titlecase }}
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CONTENIDO TABS: THEMES -->
+        <div *ngIf="settingsActiveTab() === 'themes'" style="display: flex; flex-direction: column; gap: 18px;">
+          
+          <!-- Tema Visual Selector -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tema Visual de la Arena</span>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+              <button *ngFor="let t of themeOptions" 
+                      (click)="selectThemeOption(t)"
+                      style="border: 1px solid var(--border); padding: 10px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; text-transform: capitalize; position: relative;"
+                      [style.background]="currentTheme() === t ? 'var(--accent)' : 'transparent'"
+                      [style.borderColor]="currentTheme() === t ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="currentTheme() === t ? '#000' : 'var(--text)'">
+                {{ t }}
+                <i *ngIf="t !== 'samurai' && !membership.unlockedThemes().includes(t)" 
+                   class="fa-solid fa-lock" 
+                   style="position: absolute; top: -3px; right: -3px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
+              </button>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
+
+          <!-- Miniaturas de Fondos Zen -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-image fa-solid" style="color: var(--accent);"></i>
+              Fondo de Pantalla Zen (Premium)
+            </span>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+              <div *ngFor="let bg of backgroundOptions"
+                   (click)="setBackground(bg)"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
+                   onmouseover="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1.04)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color='var(--text)' };"
+                   onmouseout="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="activeBackground() === bg ? 'true' : 'false'">
+                
+                <!-- Thumbnail wrapper -->
+                <div class="thumb-img-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 8px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background-color: rgba(0,0,0,0.4);"
+                     [style.borderColor]="activeBackground() === bg ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="activeBackground() === bg ? '0 0 12px rgba(99, 102, 241, 0.25)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <div style="width: 100%; height: 100%; background-size: cover; background-position: center;"
+                       [style.backgroundImage]="bg === 'off' ? 'none' : 'url(assets/images/' + (bg === 'fairy' ? 'fairy_world.webp' : (bg === 'lofi_study_desktop' ? 'lofi_study_desktop.webp' : (bg === 'lofi_moons' ? 'lofi_moons.webp' : 'lofi_study_rain.webp'))) + ')'"
+                       [style.opacity]="bg === 'off' ? '0.3' : '1'">
+                  </div>
+
+                  <div *ngIf="bg !== 'off' && !membership.isPremium()"
+                       style="position: absolute; inset: 0; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; z-index: 2;">
+                    <i class="fa-solid fa-lock" style="color: var(--yellow); font-size: 11px;"></i>
+                  </div>
+
+                  <div *ngIf="activeBackground() === bg"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+
+                  <div *ngIf="bg === 'off'"
+                       style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: var(--muted); text-transform: uppercase;">
+                    Off
+                  </div>
+                </div>
+
+                <span class="thumb-label" 
+                      style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
+                      [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
+                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : 'Lluvia'))) }}
+                </span>
+              </div>
+            </div>
+            
+            <span style="font-size: var(--modal-subtext-size); color: var(--muted); line-height: 1.3; margin-top: 2px;">
+              {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : 'Lluvia'))) + '" activo con aura sutil' }}
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- PANEL DE CONSOLA UNIFICADO (SE APERTURA DESDE EL BOTÓN ÚNICO EN ESQUINA INFERIOR IZQUIERDA) -->
+<div *ngIf="showCommunityConsole()"
+     class="floating-drawer custom-scrollbar console-drawer-animated"
+     style="left: 12px; right: auto; bottom: 64px; top: auto; width: var(--drawer-width); height: var(--drawer-height); max-height: calc(100vh - 140px); display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1.5px solid var(--border); background: rgba(10, 10, 12, 0.96); box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65); border-radius: 16px; z-index: 2000;">
+  
+  <!-- Cabecera de la Consola con Selector de Pestañas (Tabs) al lado del título -->
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; width: 100%;">
+    
+    <!-- Título de la Consola -->
+    <div style="font-size: 9.5px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; text-align: left;">
+      Consola del Templo
+    </div>
+
+    <!-- Contenedor Derecho (Tabs + Botón Cerrar) -->
+    <div style="display: flex; align-items: center; gap: 16px; margin-left: auto; flex-shrink: 0;">
+      
+      <!-- Barra de Pestañas (Tabs) Compacta -->
+      <div style="display: flex; gap: 2px; background: rgba(0,0,0,0.3); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); box-sizing: border-box; align-items: center;">
+        
+        <!-- Pestaña 2: Estrategia -->
+        <button (click)="communityActiveTab.set('strategy')"
+                [style.background]="communityActiveTab() === 'strategy' ? 'var(--accent)' : 'transparent'"
+                [style.color]="communityActiveTab() === 'strategy' ? '#000' : 'var(--muted)'"
+                style="border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                title="Estrategia y Enfoque">
+          <i class="fa-solid fa-crosshairs" style="font-size: 13.5px;"></i>
+        </button>
+
+        <!-- Pestaña 1: Combate Boss (Sólo si modo comunitario está activo) -->
+        <button *ngIf="coworkingMode() === 'comunitario'"
+                (click)="communityActiveTab.set('boss')"
+                [style.background]="communityActiveTab() === 'boss' ? 'var(--red)' : 'transparent'"
+                [style.color]="communityActiveTab() === 'boss' ? '#fff' : 'var(--muted)'"
+                style="border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                title="Combate con el Jefe (Boss)">
+          <i class="fa-solid fa-skull-crossbones" style="font-size: 13.5px;"></i>
+        </button>
+
+        <!-- Pestaña 3: Compañeros -->
+        <button (click)="communityActiveTab.set('users')"
+                [style.background]="communityActiveTab() === 'users' ? 'var(--accent)' : 'transparent'"
+                [style.color]="communityActiveTab() === 'users' ? '#000' : 'var(--muted)'"
+                style="border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                title="Compañeros y Guerreros">
+          <i class="fa-solid fa-users" style="font-size: 13.5px;"></i>
+        </button>
+      </div>
+
+      <!-- Botón X Cerrar -->
+      <button (click)="showCommunityConsole.set(false)" 
+              style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; padding: 2px;"
+              title="Cerrar Consola">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- CONTENIDO DE LA PESTAÑA: BOSS -->
+  <div *ngIf="communityActiveTab() === 'boss' && coworkingMode() === 'comunitario'" style="flex: 1; display: flex; flex-direction: column; gap: 10px; min-height: 0;">
+    
+    <!-- Contenido del Jefe (Boss) -->
+    <div [class.boss-attack-flash]="bossService.isUnderAttack()"
+         style="background: rgba(255,255,255,0.01); border: 1.5px solid rgba(255,255,255,0.04); border-radius: 12px; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: border-color 0.3s; flex: 1; min-height: 0;"
+         [style.borderColor]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'rgba(255,255,255,0.08)'">
+      
+      <!-- Retrato del Jefe Detrás (Como Marca de Agua) -->
+      <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; opacity: 0.12; pointer-events: none; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 10px;">
+        <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+        <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+        <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+        <img *ngIf="bossService.activeBoss().type === 'aurora'" src="/assets/images/avatars/boss_quimera.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+        <img *ngIf="bossService.activeBoss().type === 'siren'" src="/assets/images/avatars/boss_sirena.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+        <img *ngIf="bossService.activeBoss().type === 'werewolf'" src="/assets/images/avatars/boss_lobo.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+        <img *ngIf="bossService.activeBoss().type === 'vampire'" src="/assets/images/avatars/boss_vampiro.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
+      </div>
+
+      <!-- Cabecera de la Ficha -->
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); text-align: left; z-index: 1; position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <span style="font-size: var(--modal-badge-size); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 0.5px; opacity: 0.8;">Jefe de la Sala</span>
+          <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--red); padding: 1px 3px; border-radius: 4px; font-size: var(--modal-badge-size); font-weight: 950; color: var(--red); text-transform: uppercase;">
+            Activo
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+          <h3 style="font-size: var(--modal-title-size); font-weight: 900; color: #fff; margin: 0;">{{ bossService.activeBoss().name }}</h3>
+          <span style="background: rgba(0, 0, 0, 0.5); border: 1px solid var(--accent); padding: 1px 4px; border-radius: 4px; font-size: var(--modal-badge-size); font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0;">
+            {{ bossService.activeBoss().type === 'siren' ? 'Agua' : (bossService.activeBoss().type === 'cyberpunk' ? 'Caos' : (bossService.activeBoss().type === 'zen' ? 'Tierra' : (bossService.activeBoss().type === 'samurai' ? 'Fuego' : (bossService.activeBoss().type === 'aurora' ? 'Viento' : (bossService.activeBoss().type === 'werewolf' ? 'Luna' : 'Sombra'))))) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Vida y Log -->
+      <div style="padding: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 1; position: relative; flex: 1; min-height: 0;">
+        <!-- Barra de Vida -->
+        <div style="display: flex; flex-direction: column; gap: 3px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; font-size: var(--modal-header-size);">
+            <span style="font-weight: 800; color: var(--muted); display: flex; align-items: center; gap: 4px; text-transform: uppercase;">
+              <i class="fa-solid fa-heart-pulse" style="color: var(--red);"></i>
+              Vida del Enemigo
+            </span>
+            <span style="font-family: monospace; font-weight: 900; color: var(--text);">
+              {{ bossService.activeBoss().currentHp }} / {{ bossService.activeBoss().maxHp }} HP
+            </span>
+          </div>
+          <div style="width: 100%; height: 5px; background: rgba(255, 255, 255, 0.03); border-radius: 3px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+            <div style="height: 100%; border-radius: 3px; transition: width 0.3s ease-out;"
+                 [style.width.%]="bossService.hpPercent()"
+                 [style.background]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'linear-gradient(90deg, var(--red) 0%, #f43f5e 100%)'">
+            </div>
+          </div>
+        </div>
+
+        <!-- Logs -->
+        <div style="background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 0;">
+          <span style="font-size: var(--modal-badge-size); font-weight: 800; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 3px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span>Notificaciones en Vivo</span>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <!-- Botón Guía -->
+              <button (click)="showRaidGuideModal.set(true)"
+                      style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 4px; padding: 1px 4px; font-size: 6.5px; font-weight: 900; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 2px;"
+                      title="Ver Guía de Raid y Bestiario">
+                <i class="fa-solid fa-book-open" style="font-size: 4px;"></i>
+                GUÍA
+              </button>
+              
+              <!-- Botón DEMO -->
+              <button (click)="triggerDemoAttack($event)" 
+                      style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 1px 3px; font-size: 6.5px; font-weight: 900; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 2px;"
+                      title="Simular un combate (Demo)">
+                <i class="fa-solid fa-play" style="font-size: 4px; color: var(--green);"></i>
+                DEMO
+              </button>
+            </div>
+          </span>
+          <div style="display: flex; flex-direction: column; gap: 4px; font-size: var(--modal-text-size); line-height: 1.3; flex: 1; overflow-y: auto; margin-top: 2px;">
+            <div *ngFor="let log of bossService.bossLogs().slice(0, 8)" 
+                 [class.premium-log-glow]="log.includes('⚡')"
+                 style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04); padding: 4px 6px; border-radius: 5px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; text-align: left; color: rgba(255,255,255,0.85); font-weight: 600; display: flex; align-items: center; gap: 5px;">
+              <span *ngIf="log.includes('⚔️')" style="font-size: var(--modal-text-size); flex-shrink: 0;">⚔️</span>
+              <i *ngIf="log.includes('⚡')" class="fa-solid fa-bolt-lightning" style="color: #c084fc; font-size: var(--modal-badge-size); flex-shrink: 0;"></i>
+              <i *ngIf="log.includes('🩸')" class="fa-solid fa-droplet" style="color: #ef4444; font-size: var(--modal-badge-size); flex-shrink: 0;"></i>
+              <i *ngIf="log.includes('⚠️')" class="fa-solid fa-triangle-exclamation" style="color: #fbbf24; font-size: var(--modal-badge-size); flex-shrink: 0;"></i>
+              <span>{{ log.replace('⚔️', '').replace('⚡', '').replace('🩸', '').replace('⚠️', '').trim() }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CONTENIDO DE LA PESTAÑA: ESTRATEGIA -->
+  <div *ngIf="communityActiveTab() === 'strategy'" style="flex: 1; display: flex; flex-direction: column; gap: 10px; text-align: left; min-height: 0;">
+    
+    <!-- Objetivo y metodología -->
+    <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
+          Definir Objetivo
+          <i class="fa-regular fa-circle-question" 
+             style="cursor: pointer; font-size: var(--modal-header-size); color: var(--muted); transition: color 0.2s;"
+             onmouseover="this.style.color='var(--accent)'"
+             onmouseout="this.style.color='var(--muted)'"
+             [attr.data-tooltip]="activeMethodology() === 'sapo' ? 'Cómete el Sapo: Dedica esta sesión a la tarea de mayor resistencia mental. Completarla romperá la procrastinación para el resto del día.' : (activeMethodology() === 'pareto' ? 'Principio de Pareto: Enfócate en el 20% clave de tu trabajo. Evita distractores de bajo retorno para maximizar tu impacto hoy.' : 'Enfoque Estándar: Trabaja de forma tradicional en tu tarea del momento a ritmo constante. Ideal para avanzar rutinas o tareas menores.')">
+          </i>
+        </span>
+        
+        <!-- Metodología -->
+        <div style="display: flex; gap: 2px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.04);">
+          <button (click)="selectMethodology('normal')"
+                  style="border: none; padding: 2px 5px; border-radius: 3px; font-size: var(--modal-badge-size); font-weight: 900; cursor: pointer; transition: all 0.2s;"
+                  [style.background]="activeMethodology() === 'normal' ? 'rgba(255, 255, 255, 0.08)' : 'transparent'"
+                  [style.color]="activeMethodology() === 'normal' ? 'var(--text)' : 'var(--muted)'"
+                  [attr.data-tooltip]="'Sesión de Enfoque Estándar: enfócate en una tarea tradicional a tu propio ritmo.'">
+            Normal
+          </button>
+          <button (click)="selectMethodology('sapo')"
+                  style="border: none; padding: 2px 5px; border-radius: 3px; font-size: var(--modal-badge-size); font-weight: 900; cursor: pointer; transition: all 0.2s;"
+                  [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.15)' : 'transparent'"
+                  [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--muted)'"
+                  [attr.data-tooltip]="'Metodología Cómete el Sapo: la tarea más difícil e importante de tu día.'">
+            Sapo
+          </button>
+          <button (click)="selectMethodology('pareto')"
+                  style="border: none; padding: 2px 5px; border-radius: 3px; font-size: var(--modal-badge-size); font-weight: 900; cursor: pointer; transition: all 0.2s;"
+                  [style.background]="activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.15)' : 'transparent'"
+                  [style.color]="activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)'"
+                  [attr.data-tooltip]="'Filtro Pareto 80/20: el 20% del esfuerzo que genera el 80% del impacto real.'">
+            Pareto
+          </button>
+        </div>
+      </div>
+
+      <!-- Input de Objetivo -->
+      <div style="position: relative; display: flex; align-items: center;">
+        <input type="text" 
+               [ngModel]="activeObjective()" 
+               (ngModelChange)="activeObjective.set($event)"
+               [placeholder]="activeMethodology() === 'sapo' ? '¿Qué sapo te vas a comer hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave hoy?' : '¿Qué tarea vas a realizar?')"
+               style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; padding-right: 30px; color: var(--text); font-size: var(--modal-text-size); font-weight: 600; outline: none; font-family: inherit;">
+        <i class="fa-solid" 
+           [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-pen-clip')" 
+           [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')"
+           style="position: absolute; right: 10px; font-size: var(--modal-header-size); pointer-events: none;"></i>
+      </div>
+    </div>
+
+    <!-- Modo de Enfoque Selector (Comunidad vs Solo) -->
+    <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 12px;">
+      <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Modo de Enfoque</span>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+        <div (click)="setFocusMode('comunitario')"
+             style="border: 1px solid var(--border); border-radius: 6px; padding: 8px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;"
+             [style.borderColor]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--border)'"
+             [style.background]="coworkingMode() === 'comunitario' ? 'rgba(99,102,241,0.06)' : 'rgba(0,0,0,0.15)'">
+          <i class="fa-solid fa-users" style="font-size: var(--modal-header-size);" [style.color]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--muted)'"></i>
+          <span style="font-size: var(--modal-text-size); font-weight: 800; color: var(--text);">Comunidad</span>
+        </div>
+
+        <div (click)="setFocusMode('solo')"
+             style="border: 1px solid var(--border); border-radius: 6px; padding: 8px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;"
+             [style.borderColor]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--border)'"
+             [style.background]="coworkingMode() === 'solo' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.15)'">
+          <i class="fa-solid fa-user-slash" style="font-size: var(--modal-header-size);" [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'"></i>
+          <span style="font-size: var(--modal-text-size); font-weight: 800; color: var(--text);">Solitario</span>
+        </div>
+      </div>
+
+      <div style="font-size: var(--modal-text-size); color: var(--muted); line-height: 1.3; margin-top: 2px;">
+        <span *ngIf="coworkingMode() === 'solo'">🧘 Modo en Solitario activo. Tu templo es privado.</span>
+        
+        <!-- Indicador pulsing de Comunidad -->
+        <div *ngIf="coworkingMode() === 'comunitario'" 
+             style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.1); border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;">
+          <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(99, 102, 241, 0.1); border-radius: 50%;">
+            <i class="fa-solid fa-users" style="color: var(--accent); font-size: var(--modal-header-size);"></i>
+            <span style="position: absolute; top: -1px; right: -1px; width: 6px; height: 6px; background: var(--green); border-radius: 50%; border: 1.5px solid var(--bg3); animation: pulseGreen 1.5s infinite;"></span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left;">
+            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text);">Comunidad Activa</span>
+            <span style="font-size: var(--modal-text-size); color: var(--muted); font-weight: 600;">
+              Hay <strong style="color: var(--accent);">{{ globalFocusedCount() }} guerreros</strong> enfocándose ahora mismo.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CONTENIDO DE LA PESTAÑA: COMPAÑEROS -->
+  <div *ngIf="communityActiveTab() === 'users'" style="flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0;">
+    
+    <!-- Lista de Guerreros Enfocados -->
+    <div style="width: 100%; background: rgba(10, 10, 12, 0.78); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.04); padding-bottom: 4px;">
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <i class="fa-solid fa-users" style="color: var(--accent); font-size: var(--modal-badge-size);"></i>
+          <span style="font-size: var(--modal-badge-size); font-weight: 900; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">Guerreros Activos ({{ coworkingMode() === 'solo' ? '1' : comunidadUsers().length }})</span>
+        </div>
+      </div>
+
+      <div class="no-scrollbar" style="display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto;">
+        <!-- Tu Ficha -->
+        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid var(--accent); border-radius: 6px; padding: 4px 6px; display: flex; align-items: center; gap: 5px;">
+          <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--accent); background-size: cover; background-position: center; flex-shrink: 0;"></div>
+          <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; text-align: left;">
+            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text);">Tú (Guerrero)</span>
+            <span style="font-size: var(--modal-text-size); color: var(--accent); font-weight: 700; margin-top: 1px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ activeObjective() && activeObjective().trim() ? activeObjective() : 'Enfoque Activo' }}</span>
+          </div>
+        </div>
+
+        <!-- Placeholder Modo Solo -->
+        <div *ngIf="coworkingMode() === 'solo'" style="padding: 12px 6px; text-align: center; color: var(--muted); font-size: var(--modal-text-size); line-height: 1.4;">
+          Estás entrenando en solitario. ¡Compañeros ocultos! Cambia a modo Comunidad para ver a otros guerreros concentrándose.
+        </div>
+
+        <!-- Compañeros (Sólo si modo comunitario) -->
+        <ng-container *ngIf="coworkingMode() === 'comunitario'">
+          <div *ngFor="let p of comunidadUsers().slice(0, 20)" 
+               style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 6px; padding: 4px 6px; display: flex; align-items: center; justify-content: space-between; text-align: left;">
+            <div style="display: flex; align-items: center; gap: 5px; overflow: hidden; flex: 1; padding-right: 4px;">
+              <div [class]="'avatar-sprite sprite-' + p.avatar" 
+                   style="width: 18px; height: 18px; border-radius: 50%; background-size: cover; background-position: center; border: 1.5px solid; flex-shrink: 0;"
+                   [style.borderColor]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')">
+              </div>
+              <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
+                <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ p.name }}</span>
+                <span style="font-size: var(--modal-text-size); color: var(--muted); line-height: 1.3; font-weight: 500; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                  {{ p.status === 'focused' ? p.mission : 'Pausa de descanso' }}
+                </span>
+              </div>
+            </div>
+            <span style="font-size: var(--modal-header-size); font-weight: 800; font-family: monospace; color: var(--text); flex-shrink: 0;">
+              {{ p.status === 'focused' ? formatTime(p.timeLeft) : '☕ 5:00' }}
+            </span>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+  </div>
+
 </div>

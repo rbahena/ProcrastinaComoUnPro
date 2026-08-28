@@ -152,16 +152,19 @@ export class Enfoque implements OnInit, OnDestroy {
 
   showSettingsPanel = signal(false);
   showSetupSettings = signal(false);
+  settingsActiveTab = signal<'time' | 'themes'>('time');
   showThemesPanel = signal(false);
   showStrategyCard = signal(false);
   showBossCard = signal(false);
+  showCommunityConsole = signal(false);
+  communityActiveTab = signal<'boss' | 'users' | 'strategy'>('strategy');
   showCelebration = signal<boolean>(false);
   celebrationPieces = signal<any[]>([]);
 
 
   // Objetivo Activo (La batalla de hoy) e Integración Metodológica
   activeObjective = signal('');
-  activeMethodology = signal<'sapo' | 'pareto' | 'normal'>('sapo');
+  activeMethodology = signal<'sapo' | 'pareto' | 'normal'>('normal');
 
   selectMethodology(method: 'sapo' | 'pareto' | 'normal') {
     this.activeMethodology.set(method);
@@ -979,6 +982,7 @@ export class Enfoque implements OnInit, OnDestroy {
   setFocusMode(mode: 'solo' | 'comunitario') {
     if (mode === 'solo') {
       this.coworkingMode.set('solo');
+      this.communityActiveTab.set('strategy');
       this.showToast('👤 Has vuelto a enfocarte en solitario.', 'info');
       return;
     }
@@ -989,6 +993,7 @@ export class Enfoque implements OnInit, OnDestroy {
     }
 
     this.coworkingMode.set('comunitario');
+    this.communityActiveTab.set('boss');
     this.showToast('👥 Te has unido al Templo de Enfoque Comunitario.', 'info');
   }
 
