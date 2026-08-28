@@ -183,11 +183,11 @@ export class Enfoque implements OnInit, OnDestroy {
     return left / total;
   });
 
-  // Escala del fuego basada en el tiempo restante (de 1.0 a 0.25)
+  // Escala del fuego basada en el tiempo restante (de 1.20 a 0.35)
   fireScale = computed(() => {
     const pct = this.timePercentage();
     if (pct <= 0) return 0;
-    return 0.25 + pct * 0.75;
+    return 0.35 + pct * 0.85;
   });
 
   // Opacidad y parpadeo final del fuego
@@ -198,6 +198,39 @@ export class Enfoque implements OnInit, OnDestroy {
       return (pct / 0.05) * 0.8;
     }
     return 1.0;
+  });
+
+  // Opacidades individuales para las capas de la llama y chispas
+  sparksOpacity = computed(() => {
+    if (this.arenaState() === 'setup') return 1.0;
+    const pct = this.timePercentage();
+    if (pct > 0.3) return 1.0;
+    if (pct <= 0.2) return 0.0;
+    return (pct - 0.2) / 0.1;
+  });
+
+  innerFlameOpacity = computed(() => {
+    if (this.arenaState() === 'setup') return 1.0;
+    const pct = this.timePercentage();
+    if (pct > 0.2) return 1.0;
+    if (pct <= 0.1) return 0.0;
+    return (pct - 0.1) / 0.1;
+  });
+
+  middleFlameOpacity = computed(() => {
+    if (this.arenaState() === 'setup') return 1.0;
+    const pct = this.timePercentage();
+    if (pct > 0.1) return 1.0;
+    if (pct <= 0.05) return 0.0;
+    return (pct - 0.05) / 0.05;
+  });
+
+  outerFlameOpacity = computed(() => {
+    if (this.arenaState() === 'setup') return 1.0;
+    const pct = this.timePercentage();
+    if (pct > 0.05) return 1.0;
+    if (pct <= 0) return 0;
+    return pct / 0.05;
   });
 
 

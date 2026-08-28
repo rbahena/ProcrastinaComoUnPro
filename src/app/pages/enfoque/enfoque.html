@@ -1,5 +1,5 @@
 <!-- ESTADO 1: SETUP Y ENFOQUE ACTIVO (PANTALLA INTEGRADA CON SIDEBAR Y COMPONENTES VISIBLES) -->
-<ng-container *ngIf="arenaState() === 'setup' || arenaState() === 'active' || arenaState() === 'countdown'">
+<ng-container *ngIf="arenaState() === 'setup' || arenaState() === 'active' || arenaState() === 'countdown' || arenaState() === 'summary'">
 
     <app-navbar></app-navbar>
 
@@ -71,7 +71,7 @@
   </style>
 
   <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE TRES COLUMNAS) -->
-  <div class="focus-arena-wrapper" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 100px); padding: 0px 20px 20px 20px; width: 100%; margin: 0 auto; margin-top: 0px;">
+  <div class="focus-arena-wrapper" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 220px); padding: 0px 20px 20px 20px; width: 100%; margin: 0 auto; margin-top: 0px;">
     <div class="focus-arena-container">
       
       <!-- Estrategia de concentración movida a la consola unificada inferior izquierda -->
@@ -79,7 +79,7 @@
       <!-- COLUMNA CENTRAL: Reloj Digital -->
       <div class="focus-column-center timer-column" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%; max-width: var(--timer-column-max-width); margin: 0 auto;">
         
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; min-height: 380px; width: 100%; position: relative;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; min-height: 300px; width: 100%; position: relative;">
           <!-- Fondo decorativo con auras suaves -->
           <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
@@ -92,7 +92,7 @@
           </div>
 
           <!-- Reloj Digital / Fuego Premium Contenedor -->
-          <div class="zen-timer" style="z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 16px;">
+          <div class="zen-timer" [class.has-fire]="timerStyle() === 'fire'" style="z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 16px;">
             
             <!-- CASO 1: Dígitos Clásicos -->
             <ng-container *ngIf="timerStyle() === 'digital'">
@@ -119,24 +119,36 @@
 
             <!-- CASO 2: Fuego Sagrado (Premium) -->
             <ng-container *ngIf="timerStyle() === 'fire'">
-              <!-- Fuego animado interactivo de alta calidad estilo Whoop (Al posar el mouse revela el tiempo restante en un tooltip) -->
-              <div class="fire-container"
+              
+              <!-- Fuego animado interactivo (Solo la flama se achica; los troncos quedan fijos) -->
+              <div *ngIf="arenaState() !== 'summary'"
+                   class="fire-container"
                    [attr.data-tooltip]="arenaState() === 'setup' ? (focusDuration() < 10 ? '0' + focusDuration() : focusDuration()) + ':00' : (arenaState() === 'countdown' ? '00:0' + countdownValue() : (emergencyPauseActive() ? emergencyTimeString() : timeString()))"
-                   [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.0 : fireScale()) + ')'"
-                   [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()">
+                   style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                 
-                <!-- Efecto de aura/brillo de fondo detrás de la flama -->
-                <div class="fire-glow"></div>
+                <!-- Aura de brillo de fondo detrás de la flama (se encoge con ella) -->
+                <div class="fire-glow" 
+                     [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.20 : fireScale()) + ')'" 
+                     [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()"></div>
 
-                <!-- Geometría SVG de la Flama de Whoop con gradientes suaves y sin bordes -->
-                <svg viewBox="0 -15 100 115" filter="url(#heatShimmer)" style="width: 100%; height: 100%; z-index: 2; overflow: visible;">
+                <!-- Resplandor exterior suave alrededor de toda la fogata (se atenúa ligeramente al apagarse) -->
+                <div class="fire-outer-glow" 
+                     [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.20 : fireScale() * 0.9 + 0.1) + ')'" 
+                     [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()"></div>
+
+                <!-- Geometría SVG de la Flama de Whoop (Sólo la flama se achica, z-index 4, con transformOrigin 50px 94px, top: -12px para ver los troncos) -->
+                <svg viewBox="0 -15 100 115" 
+                     [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.20 : fireScale()) + ')'" 
+                     [style.transformOrigin]="'50px 94px'"
+                     [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()"
+                     style="width: 100%; height: 100%; z-index: 4; overflow: visible; position: absolute; top: -12px; left: 0; transition: transform 0.2s, opacity 0.2s;">
                   <defs>
                     <!-- Filtro de refracción de calor (Heat Shimmer) -->
-                    <filter id="heatShimmer" x="-20%" y="-20%" width="140%" height="140%">
+                    <filter id="heatShimmer" x="-50%" y="-50%" width="200%" height="200%">
                       <feTurbulence type="fractalNoise" baseFrequency="0.04 0.07" numOctaves="2" result="noise">
-                        <animate attributeName="baseFrequency" dur="12s" values="0.04 0.07;0.04 0.10;0.04 0.07" repeatCount="indefinite" />
+                        <animate attributeName="baseFrequency" dur="2.5s" values="0.04 0.07;0.04 0.10;0.04 0.07" repeatCount="indefinite" />
                       </feTurbulence>
-                      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
+                      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4.2" xChannelSelector="R" yChannelSelector="G" />
                     </filter>
 
                     <linearGradient id="outerGrad" x1="0%" y1="100%" x2="0%" y2="0%">
@@ -159,104 +171,327 @@
                     </linearGradient>
                   </defs>
 
-                  <!-- Chispa flotante izquierda -->
-                  <path class="svg-spark-left" d="M 29.55 12.20 L 23.35 18.39 L 22.11 18.39 L 18.39 22.11 L 18.39 24.59 L 17.15 25.83 L 17.15 27.07 L 18.39 28.31 L 18.39 30.79 L 19.63 32.03 L 19.63 33.27 L 20.87 34.51 L 20.87 33.27 L 22.11 32.03 L 22.11 29.55 L 24.59 27.07 L 24.59 25.83 L 28.31 22.11 L 28.31 19.63 L 29.55 18.39 L 29.55 14.68 L 30.79 13.44 L 30.79 12.20 Z" fill="url(#sparkGrad)" />
+                  <!-- Grupo con Filtro de Calor (Solo para la flama y chispas) -->
+                  <g filter="url(#heatShimmer)">
+                    <!-- Chispa flotante izquierda -->
+                    <path class="svg-spark-left" [style.opacity]="sparksOpacity()" d="M 23 20 C 20 20, 17 24, 17 28 C 17 32, 23 35, 23 35 C 23 35, 29 32, 29 28 C 29 24, 26 20, 23 20 Z" fill="url(#sparkGrad)" />
 
-                  <!-- Chispa flotante derecha -->
-                  <path class="svg-spark-right" d="M 63.01 9.72 L 63.01 15.92 L 64.25 17.15 L 64.25 18.39 L 65.49 19.63 L 65.49 20.87 L 66.73 22.11 L 66.73 23.35 L 67.97 24.59 L 67.97 25.83 L 69.21 27.07 L 69.21 28.31 L 70.45 29.55 L 70.45 30.79 L 72.93 33.27 L 72.93 34.51 L 75.41 36.99 L 75.41 39.46 L 77.89 41.94 L 77.89 44.42 L 79.13 45.66 L 79.13 49.38 L 80.37 50.62 L 80.37 53.10 L 81.61 51.86 L 81.61 48.14 L 82.85 46.90 L 82.85 40.70 L 81.61 39.46 L 81.61 34.51 L 80.37 33.27 L 80.37 32.03 L 79.13 30.79 L 79.13 29.55 L 77.89 28.31 L 77.89 27.07 L 75.41 24.59 L 75.41 23.35 L 70.45 18.39 L 70.45 17.15 Z" fill="url(#sparkGrad)" />
+                    <!-- Chispa flotante derecha -->
+                    <path class="svg-spark-right" [style.opacity]="sparksOpacity()" d="M 72 25 C 69 25, 66 29, 66 33 C 66 37, 72 40, 72 40 C 72 40, 78 37, 78 33 C 78 29, 75 25, 72 25 Z" fill="url(#sparkGrad)" />
 
-                  <!-- Flama Exterior (Naranja) -->
-                  <path class="svg-flame-outer" d="M 48.14 6.00 L 48.14 7.24 L 43.18 12.20 L 43.18 13.44 L 40.70 15.92 L 40.70 17.15 L 38.23 19.63 L 38.23 22.11 L 36.99 23.35 L 36.99 25.83 L 35.75 27.07 L 35.75 28.31 L 34.51 29.55 L 34.51 34.51 L 33.27 35.75 L 33.27 51.86 L 34.51 53.10 L 34.51 59.30 L 35.75 60.54 L 34.51 61.77 L 33.27 61.77 L 32.03 60.54 L 32.03 59.30 L 30.79 58.06 L 30.79 55.58 L 29.55 54.34 L 29.55 50.62 L 28.31 49.38 L 28.31 48.14 L 27.07 46.90 L 27.07 45.66 L 24.59 43.18 L 22.11 43.18 L 20.87 44.42 L 20.87 46.90 L 19.63 48.14 L 19.63 50.62 L 18.39 51.86 L 18.39 55.58 L 17.15 56.82 L 17.15 72.93 L 18.39 74.17 L 18.39 76.65 L 19.63 77.89 L 19.63 79.13 L 20.87 80.37 L 20.87 81.61 L 28.31 89.04 L 29.55 89.04 L 32.03 91.52 L 33.27 91.52 L 34.51 92.76 L 39.46 92.76 L 40.70 94.00 L 49.38 94.00 L 50.62 92.76 L 54.34 92.76 L 55.58 91.52 L 56.82 91.52 L 58.06 90.28 L 59.30 90.28 L 61.77 87.80 L 63.01 87.80 L 64.25 86.56 L 64.25 85.32 L 67.97 81.61 L 67.97 80.37 L 69.21 79.13 L 69.21 77.89 L 70.45 76.65 L 70.45 74.17 L 71.69 72.93 L 71.69 70.45 L 72.93 69.21 L 72.93 58.06 L 71.69 56.82 L 71.69 51.86 L 70.45 50.62 L 70.45 48.14 L 69.21 46.90 L 69.21 45.66 L 67.97 44.42 L 67.97 43.18 L 66.73 41.94 L 66.73 40.70 L 64.25 38.23 L 64.25 36.99 L 61.77 34.51 L 61.77 33.27 L 59.30 30.79 L 59.30 29.55 L 56.82 27.07 L 56.82 24.59 L 55.58 23.35 L 55.58 22.11 L 54.34 20.87 L 54.34 17.15 L 53.10 15.92 L 53.10 12.20 L 51.86 10.96 L 51.86 7.24 L 50.62 6.00 Z" fill="url(#outerGrad)" />
+                    <!-- Flama Exterior (Naranja) -->
+                    <path class="svg-flame-outer" [style.opacity]="outerFlameOpacity()" d="M 50 94 C 22 94, 10 74, 10 52 C 10 32, 32 18, 48 4 C 50 14, 44 28, 52 42 C 60 52, 78 48, 78 68 C 78 84, 68 94, 50 94 Z" fill="url(#outerGrad)" />
 
-                  <!-- Flama Media -->
-                  <path class="svg-flame-middle" d="M 48.14 6.00 L 48.14 7.24 L 43.18 12.20 L 43.18 13.44 L 40.70 15.92 L 40.70 17.15 L 38.23 19.63 L 38.23 22.11 L 36.99 23.35 L 36.99 25.83 L 35.75 27.07 L 35.75 28.31 L 34.51 29.55 L 34.51 34.51 L 33.27 35.75 L 33.27 51.86 L 34.51 53.10 L 34.51 59.30 L 35.75 60.54 L 34.51 61.77 L 33.27 61.77 L 32.03 60.54 L 32.03 59.30 L 30.79 58.06 L 30.79 55.58 L 29.55 54.34 L 29.55 50.62 L 28.31 49.38 L 28.31 48.14 L 27.07 46.90 L 27.07 45.66 L 24.59 43.18 L 22.11 43.18 L 20.87 44.42 L 20.87 46.90 L 19.63 48.14 L 19.63 50.62 L 18.39 51.86 L 18.39 55.58 L 17.15 56.82 L 17.15 72.93 L 18.39 74.17 L 18.39 76.65 L 19.63 77.89 L 19.63 79.13 L 20.87 80.37 L 20.87 81.61 L 28.31 89.04 L 29.55 89.04 L 32.03 91.52 L 33.27 91.52 L 34.51 92.76 L 39.46 92.76 L 40.70 94.00 L 49.38 94.00 L 50.62 92.76 L 54.34 92.76 L 55.58 91.52 L 56.82 91.52 L 58.06 90.28 L 59.30 90.28 L 61.77 87.80 L 63.01 87.80 L 64.25 86.56 L 64.25 85.32 L 67.97 81.61 L 67.97 80.37 L 69.21 79.13 L 69.21 77.89 L 70.45 76.65 L 70.45 74.17 L 71.69 72.93 L 71.69 70.45 L 72.93 69.21 L 72.93 58.06 L 71.69 56.82 L 71.69 51.86 L 70.45 50.62 L 70.45 48.14 L 69.21 46.90 L 69.21 45.66 L 67.97 44.42 L 67.97 43.18 L 66.73 41.94 L 66.73 40.70 L 64.25 38.23 L 64.25 36.99 L 61.77 34.51 L 61.77 33.27 L 59.30 30.79 L 59.30 29.55 L 56.82 27.07 L 56.82 24.59 L 55.58 23.35 L 55.58 22.11 L 54.34 20.87 L 54.34 17.15 L 53.10 15.92 L 53.10 12.20 L 51.86 10.96 L 51.86 7.24 L 50.62 6.00 Z" fill="url(#middleGrad)" />
+                    <!-- Flama Media -->
+                    <path class="svg-flame-middle" [style.opacity]="middleFlameOpacity()" d="M 50 90 C 27 90, 18 74, 18 58 C 18 43, 35 28, 49 16 C 47 26, 42 38, 48 48 C 55 58, 68 56, 68 70 C 68 81, 62 90, 50 90 Z" fill="url(#middleGrad)" />
 
-                  <!-- Flama Interior (Cream) -->
-                  <path class="svg-flame-inner" d="M 49.38 7.24 L 44.42 12.20 L 44.42 13.44 L 41.94 15.92 L 41.94 17.15 L 40.70 18.39 L 40.70 19.63 L 39.46 20.87 L 39.46 22.11 L 38.23 23.35 L 38.23 24.59 L 36.99 25.83 L 36.99 28.31 L 35.75 29.55 L 35.75 34.51 L 34.51 35.75 L 34.51 46.90 L 35.75 48.14 L 35.75 54.34 L 36.99 55.58 L 36.99 59.30 L 35.75 60.54 L 34.51 60.54 L 33.27 61.77 L 32.03 60.54 L 30.79 60.54 L 29.55 59.30 L 29.55 56.82 L 28.31 55.58 L 28.31 49.38 L 27.07 48.14 L 27.07 46.90 L 23.35 43.18 L 22.11 44.42 L 22.11 46.90 L 20.87 48.14 L 20.87 50.62 L 19.63 51.86 L 19.63 54.34 L 18.39 55.58 L 18.39 69.21 L 19.63 70.45 L 19.63 74.17 L 20.87 75.41 L 20.87 76.65 L 22.11 77.89 L 22.11 79.13 L 23.35 80.37 L 23.35 81.61 L 28.31 86.56 L 29.55 86.56 L 32.03 89.04 L 33.27 89.04 L 34.51 90.28 L 36.99 90.28 L 38.23 91.52 L 50.62 91.52 L 51.86 90.28 L 54.34 90.28 L 55.58 89.04 L 56.82 89.04 L 58.06 87.80 L 59.30 87.80 L 66.73 80.37 L 66.73 77.89 L 67.97 76.65 L 67.97 75.41 L 69.21 74.17 L 69.21 70.45 L 70.45 69.21 L 70.45 53.10 L 69.21 51.86 L 69.21 48.14 L 67.97 46.90 L 67.97 45.66 L 66.73 44.42 L 66.73 43.18 L 65.49 41.94 L 65.49 40.70 L 63.01 38.23 L 63.01 36.99 L 59.30 33.27 L 59.30 32.03 L 56.82 29.55 L 56.82 28.31 L 55.58 27.07 L 55.58 25.83 L 54.34 24.59 L 54.34 19.63 L 51.86 17.15 L 51.86 13.44 L 50.62 12.20 L 50.62 8.48 Z" fill="url(#innerGrad)" />
+                    <!-- Flama Interior (Cream) -->
+                    <path class="svg-flame-inner" [style.opacity]="innerFlameOpacity()" d="M 50 84 C 33 84, 26 74, 26 62 C 26 52, 38 38, 49 28 C 47 36, 42 46, 48 54 C 54 62, 60 61, 60 70 C 60 77, 57 84, 50 84 Z" fill="url(#innerGrad)" />
 
-                  <!-- Chispas flotantes adicionales -->
-                  <path class="svg-spark-dot svg-spark-left-dot" d="M 28.31 34.51 L 27.07 35.75 L 27.07 36.99 L 28.31 36.99 L 29.55 35.75 Z" fill="url(#sparkGrad)" />
-                  <path class="svg-spark-dot svg-spark-left-dot" d="M 30.79 28.31 L 29.55 29.55 L 30.79 30.79 L 32.03 29.55 Z" fill="url(#sparkGrad)" />
-                  <path class="svg-spark-dot svg-spark-right-dot" d="M 77.89 14.68 L 77.89 17.15 L 79.13 17.15 L 79.13 14.68 Z" fill="url(#sparkGrad)" />
-                  <path class="svg-spark-dot svg-spark-right-dot" d="M 72.93 9.72 L 72.93 12.20 L 74.17 12.20 L 74.17 9.72 Z" fill="url(#sparkGrad)" />
-                  <path class="svg-spark-dot svg-spark-right-dot" d="M 58.06 18.39 L 59.30 19.63 L 60.54 19.63 L 60.54 18.39 Z" fill="url(#sparkGrad)" />
-                  <path class="svg-spark-dot svg-spark-left-dot" d="M 22.11 9.72 L 22.11 10.96 L 23.35 10.96 L 23.35 9.72 Z" fill="url(#sparkGrad)" />
+                    <!-- Chispas flotantes adicionales -->
+                    <circle cx="28.3" cy="35.7" r="1.5" class="svg-spark-dot svg-spark-left-dot" [style.opacity]="sparksOpacity()" fill="url(#sparkGrad)" />
+                    <circle cx="30.8" cy="29.5" r="1.5" class="svg-spark-dot svg-spark-left-dot" [style.opacity]="sparksOpacity()" fill="url(#sparkGrad)" />
+                    <circle cx="78.5" cy="15.9" r="1.5" class="svg-spark-dot svg-spark-right-dot" [style.opacity]="sparksOpacity()" fill="url(#sparkGrad)" />
+                    <circle cx="73.5" cy="10.9" r="1.5" class="svg-spark-dot svg-spark-right-dot" [style.opacity]="sparksOpacity()" fill="url(#sparkGrad)" />
+                    <circle cx="59.3" cy="19.0" r="1.2" class="svg-spark-dot svg-spark-right-dot" [style.opacity]="sparksOpacity()" fill="url(#sparkGrad)" />
+                    <circle cx="22.7" cy="10.3" r="1.2" class="svg-spark-dot svg-spark-left-dot" [style.opacity]="sparksOpacity()" fill="url(#sparkGrad)" />
+                  </g>
                 </svg>
 
-                <!-- Sparks/Chispas flotantes suaves -->
-                <div class="sparks-wrapper">
-                  <div class="spark-particle s1"></div>
-                  <div class="spark-particle s2"></div>
-                  <div class="spark-particle s3"></div>
-                  <div class="spark-particle s4"></div>
+                <!-- Troncos de base bajo la llama activa (SE MANTIENEN FIJOS en escala 1.0, z-index 3 detrás de la flama, mismo viewBox) -->
+                <svg viewBox="0 -15 100 115" style="width: 100%; height: 100%; z-index: 3; overflow: visible; position: absolute; top: 0; left: 0; pointer-events: none;">
+                  <g class="svg-logs-base" transform="translate(-10, 48) scale(1.2)">
+                    <!-- Base de ceniza/carbón en el suelo -->
+                    <ellipse cx="50" cy="45" rx="38" ry="7" fill="#140d09" opacity="0.85" />
+                    <ellipse cx="50" cy="45" rx="26" ry="5" fill="#080503" opacity="0.95" />
+
+                    <!-- Tronco Fondo (Horizontal en la base, corteza rugosa) -->
+                    <path d="M 23 34 Q 35 33, 50 34 Q 65 33, 77 34 L 77 44 Q 65 45, 50 44 Q 35 45, 23 44 Z" fill="#2d1c11" stroke="#1c110a" stroke-width="1.2" />
+                    <path d="M 28 37 Q 50 36, 72 37 M 32 41 Q 50 42, 68 41" stroke="#1c110a" stroke-width="0.8" fill="none" />
+                    <ellipse cx="23" cy="39" rx="2" ry="5" fill="#a06c48" stroke="#1c110a" stroke-width="0.8" />
+                    <ellipse cx="23" cy="39" rx="0.8" ry="2.2" fill="#5a3921" />
+                    <ellipse cx="77" cy="39" rx="2" ry="5" fill="#a06c48" stroke="#1c110a" stroke-width="0.8" />
+                    <ellipse cx="77" cy="39" rx="0.8" ry="2.2" fill="#5a3921" />
+
+                    <!-- Tronco 1 (Diagonal Izquierda a Derecha) -->
+                    <g transform="rotate(12 50 31)">
+                      <path d="M 14 36 L 81 36 L 81 37 L 14 37 Z" fill="#1f120a" opacity="0.4" />
+                      <path d="M 14 24 Q 28 22, 42 24 Q 48 21, 54 24 Q 68 23, 81 25 L 81 37 Q 68 36, 54 37 Q 48 39, 42 37 Q 28 36, 14 37 Z" fill="#4d2f1d" stroke="#2d1a10" stroke-width="1.5" />
+                      <path d="M 20 28 C 30 26, 38 32, 48 29" stroke="#2d1a10" stroke-width="1" fill="none" />
+                      <path d="M 52 30 C 62 27, 70 33, 76 30" stroke="#2d1a10" stroke-width="1" fill="none" />
+                      <circle cx="48" cy="27" r="1.5" fill="#2d1a10" />
+                      <path d="M 38 24 Q 50 22, 62 24 L 59 37 Q 50 39, 39 37 Z" fill="#140d09" stroke="#080503" stroke-width="1" />
+                      <path d="M 42 27 Q 50 29, 58 27 M 40 33 Q 50 34, 60 33" stroke="#080503" stroke-width="0.8" fill="none" />
+                      <path d="M 81 25 A 3 6 0 0 1 81 37 A 3 6 0 0 1 81 25 Z" fill="#b07b53" stroke="#2d1a10" stroke-width="1.2" />
+                      <ellipse cx="81" cy="31" rx="1.2" ry="3.5" fill="none" stroke="#6b462c" stroke-width="0.6" />
+                      <ellipse cx="81" cy="31" rx="0.5" ry="1.5" fill="#4d2f1d" />
+                    </g>
+                    
+                    <!-- Tronco 2 (Diagonal Derecha a Izquierda, encima) -->
+                    <g transform="rotate(-12 50 31)">
+                      <path d="M 14 24 Q 28 23, 42 25 Q 48 22, 54 25 Q 68 22, 81 24 L 81 36 Q 68 37, 54 36 Q 48 34, 42 36 Q 28 37, 14 36 Z" fill="#5c3823" stroke="#372114" stroke-width="1.5" />
+                      <path d="M 18 31 C 28 29, 36 34, 46 31" stroke="#372114" stroke-width="1" fill="none" />
+                      <path d="M 54 28 C 64 30, 72 26, 78 29" stroke="#372114" stroke-width="1" fill="none" />
+                      <circle cx="36" cy="29" r="1.3" fill="#372114" />
+                      <path d="M 36 25 Q 50 23, 60 25 L 58 36 Q 50 38, 38 36 Z" fill="#140d09" stroke="#080503" stroke-width="1" />
+                      <path d="M 40 29 Q 50 28, 56 29 M 38 33 Q 50 32, 58 33" stroke="#080503" stroke-width="0.8" fill="none" />
+                      <path d="M 14 24 A 3 6 0 0 0 14 36 A 3 6 0 0 0 14 24 Z" fill="#bf8c60" stroke="#372114" stroke-width="1.2" />
+                      <ellipse cx="14" cy="30" rx="1.2" ry="3.5" fill="none" stroke="#754f33" stroke-width="0.6" />
+                      <ellipse cx="14" cy="30" rx="0.5" ry="1.5" fill="#5c3823" />
+                    </g>
+
+                    <!-- Grietas incandescentes -->
+                    <path d="M 45 30 L 53 31 L 52 33 L 44 32 Z" fill="#ff3d00" filter="blur(0.4px)" transform="rotate(12 50 31)" style="animation: emberPulse 1.4s infinite alternate;" />
+                    <path d="M 43 30 L 52 31 L 51 33 L 42 32 Z" fill="#ff9100" filter="blur(0.4px)" transform="rotate(-12 50 31)" style="animation: emberPulse 1.7s infinite alternate;" />
+                    <path d="M 48 26 L 55 27 L 54 28 L 47 27 Z" fill="#ffd54f" filter="blur(0.3px)" transform="rotate(12 50 31)" style="animation: emberPulse 1.1s infinite alternate;" />
+
+                    <!-- Detalles de madera quemada / brasas -->
+                    <circle cx="48" cy="40" r="2.5" fill="#ff3d00" filter="blur(0.5px)" style="animation: emberPulse 1.5s infinite alternate;" />
+                    <circle cx="53" cy="42" r="1.8" fill="#ffb300" filter="blur(0.5px)" style="animation: emberPulse 1.2s infinite alternate;" />
+                    <circle cx="44" cy="43" r="1.5" fill="#ff3d00" filter="blur(0.5px)" style="animation: emberPulse 1.8s infinite alternate;" />
+                    <circle cx="49" cy="44" r="1.2" fill="#ffe082" filter="blur(0.3px)" style="animation: emberPulse 1.0s infinite alternate;" />
+
+                    <!-- Carbones encendidos en el suelo -->
+                    <circle cx="28" cy="45" r="1.8" fill="#2c1e15" />
+                    <circle cx="28" cy="45" r="1.0" fill="#ff3d00" style="animation: emberPulse 1.3s infinite alternate;" />
+                    <circle cx="70" cy="46" r="2.0" fill="#2c1e15" />
+                    <circle cx="70" cy="46" r="1.2" fill="#ff9100" style="animation: emberPulse 1.6s infinite alternate;" />
+                  </g>
+                </svg>
+
+                <!-- Humo denso de fogata activa (3 partículas) -->
+                <div class="active-smoke-wrapper" 
+                     [style.opacity]="sparksOpacity() * 0.40" 
+                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 5;">
+                  <div class="smoke-particle anim-smoke-1" style="left: 48.5%; animation-duration: 4.73s; animation-delay: 0.61s; transform: scale(1.16);"></div>
+                  <div class="smoke-particle anim-smoke-2" style="left: 42.8%; animation-duration: 4.2s; animation-delay: 2.02s; transform: scale(0.95);"></div>
+                  <div class="smoke-particle anim-smoke-3" style="left: 44.3%; animation-duration: 4.55s; animation-delay: 0.22s; transform: scale(1.03);"></div>
                 </div>
 
+                <!-- Chispas flotantes super incandescentes (30 partículas) con z-index 12 inline -->
+                <div class="sparks-wrapper" 
+                     [style.opacity]="sparksOpacity()"
+                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 12;">
+                  <div class="spark-particle anim-spark-1" style="left: 55.0%; width: 4.2px; height: 4.2px; background: #ffd54f; animation-duration: 3.23s; animation-delay: 2.44s;"></div>
+                  <div class="spark-particle anim-spark-1" style="left: 53.3%; width: 4.2px; height: 4.2px; background: #fffde7; animation-duration: 2.95s; animation-delay: 2.02s;"></div>
+                  <div class="spark-particle anim-spark-4" style="left: 47.1%; width: 2.5px; height: 2.5px; background: #ff3d00; animation-duration: 2.05s; animation-delay: 1.22s;"></div>
+                  <div class="spark-particle anim-spark-1" style="left: 35.7%; width: 3.4px; height: 3.4px; background: #ff3d00; animation-duration: 2.66s; animation-delay: 2.63s;"></div>
+                  <div class="spark-particle anim-spark-5" style="left: 34.8%; width: 3.8px; height: 3.8px; background: #ff9100; animation-duration: 1.91s; animation-delay: 0.69s;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 59.8%; width: 4.0px; height: 4.0px; background: #ffd54f; animation-duration: 3.13s; animation-delay: 1.63s;"></div>
+                  <div class="spark-particle anim-spark-1" style="left: 45.3%; width: 4.7px; height: 4.7px; background: #ff9100; animation-duration: 2.07s; animation-delay: 2.19s;"></div>
+                  <div class="spark-particle anim-spark-2" style="left: 37.9%; width: 4.5px; height: 4.5px; background: #ffd54f; animation-duration: 3.15s; animation-delay: 2.46s;"></div>
+                  <div class="spark-particle anim-spark-5" style="left: 40.2%; width: 2.0px; height: 2.0px; background: #fffde7; animation-duration: 2.3s; animation-delay: 3.15s;"></div>
+                  <div class="spark-particle anim-spark-5" style="left: 46.2%; width: 3.1px; height: 3.1px; background: #ff3d00; animation-duration: 3.0s; animation-delay: 1.94s;"></div>
+                  <div class="spark-particle anim-spark-4" style="left: 64.3%; width: 4.8px; height: 4.8px; background: #ffd54f; animation-duration: 1.88s; animation-delay: 0.33s;"></div>
+                  <div class="spark-particle anim-spark-4" style="left: 37.5%; width: 3.8px; height: 3.8px; background: #ff9100; animation-duration: 2.55s; animation-delay: 2.15s;"></div>
+                  <div class="spark-particle anim-spark-5" style="left: 67.0%; width: 4.6px; height: 4.6px; background: #ff3d00; animation-duration: 3.03s; animation-delay: 2.7s;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 36.0%; width: 4.8px; height: 4.8px; background: #fffde7; animation-duration: 3.02s; animation-delay: 3.5s;"></div>
+                  <div class="spark-particle anim-spark-2" style="left: 64.9%; width: 4.5px; height: 4.5px; background: #fffde7; animation-duration: 3.02s; animation-delay: 0.55s;"></div>
+                  <div class="spark-particle anim-spark-1" style="left: 66.3%; width: 4.1px; height: 4.1px; background: #ff9100; animation-duration: 2.38s; animation-delay: 0.4s;"></div>
+                  <div class="spark-particle anim-spark-4" style="left: 40.6%; width: 4.1px; height: 4.1px; background: #fffde7; animation-duration: 3.36s; animation-delay: 2.94s;"></div>
+                  <div class="spark-particle anim-spark-5" style="left: 59.6%; width: 3.6px; height: 3.6px; background: #ff9100; animation-duration: 2.48s; animation-delay: 3.14s;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 65.4%; width: 3.8px; height: 3.8px; background: #ffd54f; animation-duration: 2.63s; animation-delay: 1.58s;"></div>
+                  <div class="spark-particle anim-spark-2" style="left: 40.9%; width: 4.4px; height: 4.4px; background: #ffd54f; animation-duration: 2.93s; animation-delay: 0.03s;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 40.2%; width: 3.1px; height: 3.1px; background: #ffd54f; animation-duration: 2.14s; animation-delay: 2.41s;"></div>
+                  <div class="spark-particle anim-spark-4" style="left: 58.0%; width: 3.7px; height: 3.7px; background: #ff3d00; animation-duration: 1.96s; animation-delay: 0.69s;"></div>
+                  <div class="spark-particle anim-spark-1" style="left: 44.8%; width: 4.0px; height: 4.0px; background: #ffd54f; animation-duration: 2.97s; animation-delay: 0.22s;"></div>
+                  <div class="spark-particle anim-spark-4" style="left: 41.0%; width: 3.5px; height: 3.5px; background: #fffde7; animation-duration: 3.28s; animation-delay: 0.9s;"></div>
+                  <div class="spark-particle anim-spark-1" style="left: 61.1%; width: 4.5px; height: 4.5px; background: #ff9100; animation-duration: 3.28s; animation-delay: 3.49s;"></div>
+                  <div class="spark-particle anim-spark-2" style="left: 38.0%; width: 2.6px; height: 2.6px; background: #ff9100; animation-duration: 3.38s; animation-delay: 1.36s;"></div>
+                  <div class="spark-particle anim-spark-5" style="left: 65.4%; width: 4.6px; height: 4.6px; background: #ff9100; animation-duration: 2.58s; animation-delay: 2.38s;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 42.7%; width: 4.4px; height: 4.4px; background: #fffde7; animation-duration: 2.73s; animation-delay: 0.21s;"></div>
+                  <div class="spark-particle anim-spark-1" style="left: 65.1%; width: 2.6px; height: 2.6px; background: #ff9100; animation-duration: 2.88s; animation-delay: 2.14s;"></div>
+                  <div class="spark-particle anim-spark-5" style="left: 46.5%; width: 3.1px; height: 3.1px; background: #ffffff; animation-duration: 2.85s; animation-delay: 0.3s;"></div>
+                </div>
+              </div>
+
+              <!-- CONTENEDOR DE TRONCOS Y HUMO (SE MUESTRA CUANDO FINALIZA EN ESTADO 'SUMMARY') -->
+              <div *ngIf="arenaState() === 'summary'"
+                   class="logs-container"
+                   style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
+                   
+                   <!-- Humo animado en los troncos de resumen (3 partículas) -->
+                   <div class="smoke-particles-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 120px; overflow: visible; pointer-events: none;">
+                  <div class="smoke-particle anim-smoke-1" style="left: 48.5%; animation-duration: 4.73s; animation-delay: 0.61s; transform: scale(1.16);"></div>
+                  <div class="smoke-particle anim-smoke-2" style="left: 42.8%; animation-duration: 4.2s; animation-delay: 2.02s; transform: scale(0.95);"></div>
+                  <div class="smoke-particle anim-smoke-3" style="left: 44.3%; animation-duration: 4.55s; animation-delay: 0.22s; transform: scale(1.03);"></div>
+                   </div>
+
+                   <!-- Troncos SVG de Resumen (Mismo tamaño de base, mismo viewBox, alineado perfecto) -->
+                   <svg viewBox="0 -15 100 115" style="width: 100%; height: 100%; z-index: 2; overflow: visible; position: absolute; top: 0; left: 0;">
+                     <g class="svg-logs-base" transform="translate(-10, 48) scale(1.2)">
+                       <!-- Base de ceniza/carbón en el suelo -->
+                       <ellipse cx="50" cy="45" rx="38" ry="7" fill="#140d09" opacity="0.85" />
+                       <ellipse cx="50" cy="45" rx="26" ry="5" fill="#080503" opacity="0.95" />
+
+                       <!-- Tronco Fondo (Horizontal en la base, corteza rugosa) -->
+                       <path d="M 23 34 Q 35 33, 50 34 Q 65 33, 77 34 L 77 44 Q 65 45, 50 44 Q 35 45, 23 44 Z" fill="#2d1c11" stroke="#1c110a" stroke-width="1.2" />
+                       <path d="M 28 37 Q 50 36, 72 37 M 32 41 Q 50 42, 68 41" stroke="#1c110a" stroke-width="0.8" fill="none" />
+                       <ellipse cx="23" cy="39" rx="2" ry="5" fill="#a06c48" stroke="#1c110a" stroke-width="0.8" />
+                       <ellipse cx="23" cy="39" rx="0.8" ry="2.2" fill="#5a3921" />
+                       <ellipse cx="77" cy="39" rx="2" ry="5" fill="#a06c48" stroke="#1c110a" stroke-width="0.8" />
+                       <ellipse cx="77" cy="39" rx="0.8" ry="2.2" fill="#5a3921" />
+
+                       <!-- Tronco 1 (Diagonal Izquierda a Derecha) -->
+                       <g transform="rotate(12 50 31)">
+                         <path d="M 14 36 L 81 36 L 81 37 L 14 37 Z" fill="#1f120a" opacity="0.4" />
+                         <path d="M 14 24 Q 28 22, 42 24 Q 48 21, 54 24 Q 68 23, 81 25 L 81 37 Q 68 36, 54 37 Q 48 39, 42 37 Q 28 36, 14 37 Z" fill="#4d2f1d" stroke="#2d1a10" stroke-width="1.5" />
+                         <path d="M 20 28 C 30 26, 38 32, 48 29" stroke="#2d1a10" stroke-width="1" fill="none" />
+                         <path d="M 52 30 C 62 27, 70 33, 76 30" stroke="#2d1a10" stroke-width="1" fill="none" />
+                         <circle cx="48" cy="27" r="1.5" fill="#2d1a10" />
+                         <path d="M 38 24 Q 50 22, 62 24 L 59 37 Q 50 39, 39 37 Z" fill="#140d09" stroke="#080503" stroke-width="1" />
+                         <path d="M 42 27 Q 50 29, 58 27 M 40 33 Q 50 34, 60 33" stroke="#080503" stroke-width="0.8" fill="none" />
+                         <path d="M 81 25 A 3 6 0 0 1 81 37 A 3 6 0 0 1 81 25 Z" fill="#b07b53" stroke="#2d1a10" stroke-width="1.2" />
+                         <ellipse cx="81" cy="31" rx="1.2" ry="3.5" fill="none" stroke="#6b462c" stroke-width="0.6" />
+                         <ellipse cx="81" cy="31" rx="0.5" ry="1.5" fill="#4d2f1d" />
+                       </g>
+                       
+                       <!-- Tronco 2 (Diagonal Derecha a Izquierda, encima) -->
+                       <g transform="rotate(-12 50 31)">
+                         <path d="M 14 24 Q 28 23, 42 25 Q 48 22, 54 25 Q 68 22, 81 24 L 81 36 Q 68 37, 54 36 Q 48 34, 42 36 Q 28 37, 14 36 Z" fill="#5c3823" stroke="#372114" stroke-width="1.5" />
+                         <path d="M 18 31 C 28 29, 36 34, 46 31" stroke="#372114" stroke-width="1" fill="none" />
+                         <path d="M 54 28 C 64 30, 72 26, 78 29" stroke="#372114" stroke-width="1" fill="none" />
+                         <circle cx="36" cy="29" r="1.3" fill="#372114" />
+                         <path d="M 36 25 Q 50 23, 60 25 L 58 36 Q 50 38, 38 36 Z" fill="#140d09" stroke="#080503" stroke-width="1" />
+                         <path d="M 40 29 Q 50 28, 56 29 M 38 33 Q 50 32, 58 33" stroke="#080503" stroke-width="0.8" fill="none" />
+                         <path d="M 14 24 A 3 6 0 0 0 14 36 A 3 6 0 0 0 14 24 Z" fill="#bf8c60" stroke="#372114" stroke-width="1.2" />
+                         <ellipse cx="14" cy="30" rx="1.2" ry="3.5" fill="none" stroke="#754f33" stroke-width="0.6" />
+                         <ellipse cx="14" cy="30" rx="0.5" ry="1.5" fill="#5c3823" />
+                       </g>
+
+                       <!-- Grietas incandescentes -->
+                       <path d="M 45 30 L 53 31 L 52 33 L 44 32 Z" fill="#ff3d00" filter="blur(0.4px)" transform="rotate(12 50 31)" style="animation: emberPulse 1.4s infinite alternate;" />
+                       <path d="M 43 30 L 52 31 L 51 33 L 42 32 Z" fill="#ff9100" filter="blur(0.4px)" transform="rotate(-12 50 31)" style="animation: emberPulse 1.7s infinite alternate;" />
+                       <path d="M 48 26 L 55 27 L 54 28 L 47 27 Z" fill="#ffd54f" filter="blur(0.3px)" transform="rotate(12 50 31)" style="animation: emberPulse 1.1s infinite alternate;" />
+
+                       <!-- Detalles de madera quemada / brasas -->
+                       <circle cx="48" cy="40" r="2.5" fill="#ff3d00" filter="blur(0.5px)" style="animation: emberPulse 1.5s infinite alternate;" />
+                       <circle cx="53" cy="42" r="1.8" fill="#ffb300" filter="blur(0.5px)" style="animation: emberPulse 1.2s infinite alternate;" />
+                       <circle cx="44" cy="43" r="1.5" fill="#ff3d00" filter="blur(0.5px)" style="animation: emberPulse 1.8s infinite alternate;" />
+                       <circle cx="49" cy="44" r="1.2" fill="#ffe082" filter="blur(0.3px)" style="animation: emberPulse 1.0s infinite alternate;" />
+
+                       <!-- Carbones encendidos -->
+                       <circle cx="28" cy="45" r="1.8" fill="#2c1e15" />
+                       <circle cx="28" cy="45" r="1.0" fill="#ff3d00" style="animation: emberPulse 1.3s infinite alternate;" />
+                       <circle cx="70" cy="46" r="2.0" fill="#2c1e15" />
+                       <circle cx="70" cy="46" r="1.2" fill="#ff9100" style="animation: emberPulse 1.6s infinite alternate;" />
+                     </g>
+                   </svg>
+                   
+                   <!-- Texto de sesión terminada en los troncos -->
+                   <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; animation: textPulse 2s infinite alternate; position: absolute; bottom: 8px; z-index: 3;">
+                     Cenizas de Enfoque
+                   </div>
               </div>
             </ng-container>
 
           </div>
 
-            <!-- Controles de Acción Minimalistas -->
-            <div class="hide-on-inactive" style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
-              
-              <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
-                <!-- Iniciar (en setup) -->
-                <button *ngIf="arenaState() === 'setup'" 
-                        (click)="startFocusFlow()" 
-                        style="border: none; background: var(--accent); color: #000; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--start-btn-width);"
-                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px var(--accent)';"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.3)';"
-                        title="Iniciar Sesión de Enfoque">
-                  <i class="fa-solid fa-play"></i>
-                  <span>Iniciar</span>
-                </button>
+<!-- Controles de Acción Minimalistas -->
+             <div class="hide-on-inactive" style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
+               
+               <ng-container *ngIf="arenaState() !== 'summary'">
+                 <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+                   <!-- Iniciar (en setup) -->
+                   <button *ngIf="arenaState() === 'setup'" 
+                           (click)="startFocusFlow()" 
+                           style="border: none; background: var(--accent); color: #000; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--start-btn-width);"
+                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px var(--accent)';"
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.3)';"
+                           title="Iniciar Sesión de Enfoque">
+                     <i class="fa-solid fa-play"></i>
+                     <span>Iniciar</span>
+                   </button>
+ 
+                   <!-- Ajustes (en setup) -->
+                   <button *ngIf="arenaState() === 'setup'" 
+                           (click)="showSetupSettings.set(true); settingsActiveTab.set('time')"
+                           style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: var(--settings-btn-size); height: var(--settings-btn-size); border-radius: 12px; transition: all 0.2s;"
+                           [style.borderColor]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+                           [style.color]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.8)'"
+                           onmouseover="this.style.background='rgba(255,255,255,0.05)';"
+                           onmouseout="this.style.background='rgba(255,255,255,0.02)';"
+                           title="Configuración de Pomodoro">
+                     <i class="fa-solid fa-gear" style="font-size: calc(var(--settings-btn-size) * 0.36);"></i>
+                   </button>
+ 
+                   <!-- Pausa (en active) -->
+                   <button *ngIf="arenaState() === 'active'" 
+                           (click)="toggleEmergencyPause()" 
+                           style="border: 1px solid var(--border); padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
+                           [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
+                           [style.borderColor]="emergencyPauseActive() ? 'var(--accent)' : 'var(--border)'"
+                           [style.color]="emergencyPauseActive() ? '#000' : 'var(--text)'"
+                           onmouseover="this.style.background='rgba(255,255,255,0.06)';"
+                           onmouseout="this.style.background=this.emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)';">
+                     <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Pausa' }}</span>
+                   </button>
+ 
+                   <!-- Abandonar (en active) -->
+                   <button *ngIf="arenaState() === 'active'" 
+                           (click)="abandonSession()" 
+                           style="border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
+                           onmouseover="this.style.background='rgba(239, 68, 68, 0.1)';"
+                           onmouseout="this.style.background='rgba(239, 68, 68, 0.05)';"
+                           title="Abandonar sesión">
+                     <span>Abandonar</span>
+                   </button>
+                 </div>
+ 
+                 <!-- Simular completar (en active) -->
+                 <button *ngIf="arenaState() === 'active'"
+                         (click)="simulateCompletion()" 
+                         style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: calc(var(--button-font-size) * 0.75); font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;"
+                         onmouseover="this.style.opacity='1'; this.style.textDecoration='underline';"
+                         onmouseout="this.style.opacity='0.5'; this.style.textDecoration='none';"
+                         title="Simular completar la sesión de enfoque">
+                   <i class="fa-solid fa-forward" style="font-size: calc(var(--button-font-size) * 0.65);"></i>
+                   <span>Simular Completar</span>
+                 </button>
+               </ng-container>
 
-                <!-- Ajustes (en setup) -->
-                <button *ngIf="arenaState() === 'setup'" 
-                        (click)="showSetupSettings.set(true); settingsActiveTab.set('time')"
-                        style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: var(--settings-btn-size); height: var(--settings-btn-size); border-radius: 12px; transition: all 0.2s;"
-                        [style.borderColor]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-                        [style.color]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.8)'"
-                        onmouseover="this.style.background='rgba(255,255,255,0.05)';"
-                        onmouseout="this.style.background='rgba(255,255,255,0.02)';"
-                        title="Configuración de Pomodoro">
-                  <i class="fa-solid fa-gear" style="font-size: calc(var(--settings-btn-size) * 0.36);"></i>
-                </button>
+               <!-- CUESTIONARIO POST-SESIÓN (en summary) -->
+               <div *ngIf="arenaState() === 'summary'" 
+                    style="display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; background: rgba(10, 10, 12, 0.75); border: 1.5px solid var(--border); padding: 20px; border-radius: 16px; margin-top: 10px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                
+                 <div style="display: flex; flex-direction: column; gap: 4px;">
+                   <span style="font-size: 9px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px;">Cierre Dopamínico</span>
+                   <h3 style="font-size: 14px; font-weight: 900; color: var(--text); margin: 0;">¿Lograste completar tu objetivo?</h3>
+                   <p *ngIf="activeObjective() && activeObjective().trim()" style="font-size: 11.5px; color: var(--muted); margin: 2px 0 0 0; font-style: italic;">
+                     "{{ activeObjective() }}"
+                   </p>
+                 </div>
 
-                <!-- Pausa (en active) -->
-                <button *ngIf="arenaState() === 'active'" 
-                        (click)="toggleEmergencyPause()" 
-                        style="border: 1px solid var(--border); padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
-                        [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
-                        [style.borderColor]="emergencyPauseActive() ? 'var(--accent)' : 'var(--border)'"
-                        [style.color]="emergencyPauseActive() ? '#000' : 'var(--text)'"
-                        onmouseover="this.style.background='rgba(255,255,255,0.06)';"
-                        onmouseout="this.style.background=this.emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)';">
-                  <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Pausa' }}</span>
-                </button>
+                 <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                   <!-- Opción 1: Sí, por completo -->
+                   <button (click)="objectiveCompleted.set('yes'); finishSession()"
+                           style="border: 1.5px solid var(--green); background: rgba(16, 185, 129, 0.08); color: var(--green); padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
+                           onmouseover="this.style.background='rgba(16, 185, 129, 0.16)'"
+                           onmouseout="this.style.background='rgba(16, 185, 129, 0.08)'">
+                     <i class="fa-solid fa-circle-check"></i>
+                     Sí, por completo
+                   </button>
 
-                <!-- Abandonar (en active) -->
-                <button *ngIf="arenaState() === 'active'" 
-                        (click)="abandonSession()" 
-                        style="border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
-                        onmouseover="this.style.background='rgba(239, 68, 68, 0.1)';"
-                        onmouseout="this.style.background='rgba(239, 68, 68, 0.05)';"
-                        title="Abandonar sesión">
-                  <span>Abandonar</span>
-                </button>
-              </div>
+                   <!-- Opción 2: Avancé bastante -->
+                   <button (click)="objectiveCompleted.set('progress'); finishSession()"
+                           style="border: 1.5px solid var(--accent); background: rgba(0, 242, 254, 0.08); color: var(--accent); padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
+                           onmouseover="this.style.background='rgba(0, 242, 254, 0.16)'"
+                           onmouseout="this.style.background='rgba(0, 242, 254, 0.08)'">
+                     <i class="fa-solid fa-hourglass-half"></i>
+                     Avancé bastante
+                   </button>
 
-              <!-- Simular completar (en active) -->
-              <button *ngIf="arenaState() === 'active'"
-                      (click)="simulateCompletion()" 
-                      style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: calc(var(--button-font-size) * 0.75); font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;"
-                      onmouseover="this.style.opacity='1'; this.style.textDecoration='underline';"
-                      onmouseout="this.style.opacity='0.5'; this.style.textDecoration='none';"
-                      title="Simular completar la sesión de enfoque">
-                <i class="fa-solid fa-forward" style="font-size: calc(var(--button-font-size) * 0.65);"></i>
-                <span>Simular Completar</span>
-              </button>
-            </div>
+                   <!-- Opción 3: No lo logré -->
+                   <button (click)="objectiveCompleted.set('no'); finishSession()"
+                           style="border: 1.5px solid var(--red); background: rgba(239, 68, 68, 0.08); color: var(--red); padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
+                           onmouseover="this.style.background='rgba(239, 68, 68, 0.16)'"
+                           onmouseout="this.style.background='rgba(239, 68, 68, 0.08)'">
+                     <i class="fa-solid fa-circle-xmark"></i>
+                     No lo logré
+                   </button>
+                 </div>
+               </div>
+             </div>
 
         </div>
 
