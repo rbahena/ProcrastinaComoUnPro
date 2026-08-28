@@ -1,16 +1,16 @@
 <!-- ESTADO 1: SETUP Y ENFOQUE ACTIVO (PANTALLA INTEGRADA CON SIDEBAR Y COMPONENTES VISIBLES) -->
 <ng-container *ngIf="arenaState() === 'setup' || arenaState() === 'active' || arenaState() === 'countdown'">
 
-  <app-navbar></app-navbar>
+    <app-navbar></app-navbar>
 
-  <!-- Fondo de Pantalla Zen Dinámico (Fijo detrás de la interfaz para evitar cortes y scrolls) -->
-  <div *ngIf="useFairyBackground()"
-       style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; overflow: hidden; transition: background 0.3s ease;"
-       [style.background]="'linear-gradient(rgba(10, 10, 12, 0.9), rgba(10, 10, 12, 0.9)), url(\'' + backgroundUrl() + '\') no-repeat center center / 100% 100%'">
-  </div>
+    <!-- Fondo de Pantalla Zen Dinámico (Fijo detrás de la interfaz para evitar cortes y scrolls) -->
+    <div *ngIf="useFairyBackground()"
+         style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; overflow: hidden; transition: background 0.3s ease;"
+         [style.background]="'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\') no-repeat center center / 100% 100%'">
+    </div>
 
-  <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
-  <div class="main custom-scrollbar" [class.main-collapsed]="sidebarCollapsed()" style="display: flex; flex-direction: column; position: relative; z-index: 1;" [style.marginLeft]="sidebarCollapsed() ? '0px' : ''">
+    <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
+    <div class="main custom-scrollbar" [class.main-collapsed]="sidebarCollapsed()" style="display: flex; flex-direction: column; position: relative; z-index: 1; flex: 1;" [style.marginLeft]="sidebarCollapsed() ? '0px' : ''">
 
   <style>
     .floating-drawer {
@@ -84,40 +84,120 @@
           <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
           <!-- Cabecera de Estado Sutil -->
-          <div *ngIf="arenaState() !== 'setup'" style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; margin-bottom: -8px;">
+          <div *ngIf="arenaState() !== 'setup'" class="hide-on-inactive" style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; margin-bottom: -8px;">
             <span style="font-size: var(--state-label-size); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;"
                   [style.color]="arenaState() === 'active' ? 'var(--accent)' : 'var(--muted)'">
               {{ arenaState() === 'countdown' ? 'Preparando Mente' : (emergencyPauseActive() ? 'Pausa de Emergencia' : (isBreak() ? 'Descanso Zen' : 'Enfoque Activo')) }}
             </span>
           </div>
 
-          <!-- Reloj Digital con Números Gigantes -->
-          <div style="z-index: 2; display: flex; align-items: center; justify-content: center; width: 100%;">
+          <!-- Reloj Digital / Fuego Premium Contenedor -->
+          <div class="zen-timer" style="z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 16px;">
             
-            <!-- CASO 1: SETUP -->
-            <span *ngIf="arenaState() === 'setup'"
-                  style="font-size: var(--timer-font-size); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-              {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
-            </span>
+            <!-- CASO 1: Dígitos Clásicos -->
+            <ng-container *ngIf="timerStyle() === 'digital'">
+              <!-- CASO 1.1: SETUP -->
+              <span *ngIf="arenaState() === 'setup'"
+                    style="font-size: var(--timer-font-size); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
+              </span>
 
-            <!-- CASO 2: COUNTDOWN -->
-            <span *ngIf="arenaState() === 'countdown'"
-                  class="countdown-pulse"
-                  style="font-size: var(--timer-font-size); font-weight: 900; color: var(--accent); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 0 25px rgba(99, 102, 241, 0.4);">
-              00:0{{ countdownValue() }}
-            </span>
+              <!-- CASO 1.2: COUNTDOWN -->
+              <span *ngIf="arenaState() === 'countdown'"
+                    class="countdown-pulse"
+                    style="font-size: var(--timer-font-size); font-weight: 900; color: var(--accent); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 0 25px rgba(99, 102, 241, 0.4);">
+                00:0{{ countdownValue() }}
+              </span>
 
-            <!-- CASO 3: ACTIVE -->
-            <span *ngIf="arenaState() === 'active'"
-                  style="font-size: var(--timer-font-size); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
-                  [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
-              {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
-            </span>
+              <!-- CASO 1.3: ACTIVE -->
+              <span *ngIf="arenaState() === 'active'"
+                    style="font-size: var(--timer-font-size); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
+                    [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
+                {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
+              </span>
+            </ng-container>
+
+            <!-- CASO 2: Fuego Sagrado (Premium) -->
+            <ng-container *ngIf="timerStyle() === 'fire'">
+              <!-- Fuego animado interactivo de alta calidad estilo Whoop (Al posar el mouse revela el tiempo restante en un tooltip) -->
+              <div class="fire-container"
+                   [attr.data-tooltip]="arenaState() === 'setup' ? (focusDuration() < 10 ? '0' + focusDuration() : focusDuration()) + ':00' : (arenaState() === 'countdown' ? '00:0' + countdownValue() : (emergencyPauseActive() ? emergencyTimeString() : timeString()))"
+                   [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.0 : fireScale()) + ')'"
+                   [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()">
+                
+                <!-- Efecto de aura/brillo de fondo detrás de la flama -->
+                <div class="fire-glow"></div>
+
+                <!-- Geometría SVG de la Flama de Whoop con gradientes suaves y sin bordes -->
+                <svg viewBox="0 -15 100 115" filter="url(#heatShimmer)" style="width: 100%; height: 100%; z-index: 2; overflow: visible;">
+                  <defs>
+                    <!-- Filtro de refracción de calor (Heat Shimmer) -->
+                    <filter id="heatShimmer" x="-20%" y="-20%" width="140%" height="140%">
+                      <feTurbulence type="fractalNoise" baseFrequency="0.04 0.07" numOctaves="2" result="noise">
+                        <animate attributeName="baseFrequency" dur="12s" values="0.04 0.07;0.04 0.10;0.04 0.07" repeatCount="indefinite" />
+                      </feTurbulence>
+                      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
+                    </filter>
+
+                    <linearGradient id="outerGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                      <stop offset="0%" stop-color="#ff3d00" />
+                      <stop offset="50%" stop-color="#ff5722" />
+                      <stop offset="100%" stop-color="#ff9100" />
+                    </linearGradient>
+                    <linearGradient id="middleGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                      <stop offset="0%" stop-color="#ff9100" />
+                      <stop offset="60%" stop-color="#ffb74d" />
+                      <stop offset="100%" stop-color="#ffa726" />
+                    </linearGradient>
+                    <linearGradient id="innerGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                      <stop offset="0%" stop-color="#ffe082" />
+                      <stop offset="100%" stop-color="#fffde7" />
+                    </linearGradient>
+                    <linearGradient id="sparkGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                      <stop offset="0%" stop-color="#ff3d00" />
+                      <stop offset="100%" stop-color="#ff9100" />
+                    </linearGradient>
+                  </defs>
+
+                  <!-- Chispa flotante izquierda -->
+                  <path class="svg-spark-left" d="M 29.55 12.20 L 23.35 18.39 L 22.11 18.39 L 18.39 22.11 L 18.39 24.59 L 17.15 25.83 L 17.15 27.07 L 18.39 28.31 L 18.39 30.79 L 19.63 32.03 L 19.63 33.27 L 20.87 34.51 L 20.87 33.27 L 22.11 32.03 L 22.11 29.55 L 24.59 27.07 L 24.59 25.83 L 28.31 22.11 L 28.31 19.63 L 29.55 18.39 L 29.55 14.68 L 30.79 13.44 L 30.79 12.20 Z" fill="url(#sparkGrad)" />
+
+                  <!-- Chispa flotante derecha -->
+                  <path class="svg-spark-right" d="M 63.01 9.72 L 63.01 15.92 L 64.25 17.15 L 64.25 18.39 L 65.49 19.63 L 65.49 20.87 L 66.73 22.11 L 66.73 23.35 L 67.97 24.59 L 67.97 25.83 L 69.21 27.07 L 69.21 28.31 L 70.45 29.55 L 70.45 30.79 L 72.93 33.27 L 72.93 34.51 L 75.41 36.99 L 75.41 39.46 L 77.89 41.94 L 77.89 44.42 L 79.13 45.66 L 79.13 49.38 L 80.37 50.62 L 80.37 53.10 L 81.61 51.86 L 81.61 48.14 L 82.85 46.90 L 82.85 40.70 L 81.61 39.46 L 81.61 34.51 L 80.37 33.27 L 80.37 32.03 L 79.13 30.79 L 79.13 29.55 L 77.89 28.31 L 77.89 27.07 L 75.41 24.59 L 75.41 23.35 L 70.45 18.39 L 70.45 17.15 Z" fill="url(#sparkGrad)" />
+
+                  <!-- Flama Exterior (Naranja) -->
+                  <path class="svg-flame-outer" d="M 48.14 6.00 L 48.14 7.24 L 43.18 12.20 L 43.18 13.44 L 40.70 15.92 L 40.70 17.15 L 38.23 19.63 L 38.23 22.11 L 36.99 23.35 L 36.99 25.83 L 35.75 27.07 L 35.75 28.31 L 34.51 29.55 L 34.51 34.51 L 33.27 35.75 L 33.27 51.86 L 34.51 53.10 L 34.51 59.30 L 35.75 60.54 L 34.51 61.77 L 33.27 61.77 L 32.03 60.54 L 32.03 59.30 L 30.79 58.06 L 30.79 55.58 L 29.55 54.34 L 29.55 50.62 L 28.31 49.38 L 28.31 48.14 L 27.07 46.90 L 27.07 45.66 L 24.59 43.18 L 22.11 43.18 L 20.87 44.42 L 20.87 46.90 L 19.63 48.14 L 19.63 50.62 L 18.39 51.86 L 18.39 55.58 L 17.15 56.82 L 17.15 72.93 L 18.39 74.17 L 18.39 76.65 L 19.63 77.89 L 19.63 79.13 L 20.87 80.37 L 20.87 81.61 L 28.31 89.04 L 29.55 89.04 L 32.03 91.52 L 33.27 91.52 L 34.51 92.76 L 39.46 92.76 L 40.70 94.00 L 49.38 94.00 L 50.62 92.76 L 54.34 92.76 L 55.58 91.52 L 56.82 91.52 L 58.06 90.28 L 59.30 90.28 L 61.77 87.80 L 63.01 87.80 L 64.25 86.56 L 64.25 85.32 L 67.97 81.61 L 67.97 80.37 L 69.21 79.13 L 69.21 77.89 L 70.45 76.65 L 70.45 74.17 L 71.69 72.93 L 71.69 70.45 L 72.93 69.21 L 72.93 58.06 L 71.69 56.82 L 71.69 51.86 L 70.45 50.62 L 70.45 48.14 L 69.21 46.90 L 69.21 45.66 L 67.97 44.42 L 67.97 43.18 L 66.73 41.94 L 66.73 40.70 L 64.25 38.23 L 64.25 36.99 L 61.77 34.51 L 61.77 33.27 L 59.30 30.79 L 59.30 29.55 L 56.82 27.07 L 56.82 24.59 L 55.58 23.35 L 55.58 22.11 L 54.34 20.87 L 54.34 17.15 L 53.10 15.92 L 53.10 12.20 L 51.86 10.96 L 51.86 7.24 L 50.62 6.00 Z" fill="url(#outerGrad)" />
+
+                  <!-- Flama Media -->
+                  <path class="svg-flame-middle" d="M 48.14 6.00 L 48.14 7.24 L 43.18 12.20 L 43.18 13.44 L 40.70 15.92 L 40.70 17.15 L 38.23 19.63 L 38.23 22.11 L 36.99 23.35 L 36.99 25.83 L 35.75 27.07 L 35.75 28.31 L 34.51 29.55 L 34.51 34.51 L 33.27 35.75 L 33.27 51.86 L 34.51 53.10 L 34.51 59.30 L 35.75 60.54 L 34.51 61.77 L 33.27 61.77 L 32.03 60.54 L 32.03 59.30 L 30.79 58.06 L 30.79 55.58 L 29.55 54.34 L 29.55 50.62 L 28.31 49.38 L 28.31 48.14 L 27.07 46.90 L 27.07 45.66 L 24.59 43.18 L 22.11 43.18 L 20.87 44.42 L 20.87 46.90 L 19.63 48.14 L 19.63 50.62 L 18.39 51.86 L 18.39 55.58 L 17.15 56.82 L 17.15 72.93 L 18.39 74.17 L 18.39 76.65 L 19.63 77.89 L 19.63 79.13 L 20.87 80.37 L 20.87 81.61 L 28.31 89.04 L 29.55 89.04 L 32.03 91.52 L 33.27 91.52 L 34.51 92.76 L 39.46 92.76 L 40.70 94.00 L 49.38 94.00 L 50.62 92.76 L 54.34 92.76 L 55.58 91.52 L 56.82 91.52 L 58.06 90.28 L 59.30 90.28 L 61.77 87.80 L 63.01 87.80 L 64.25 86.56 L 64.25 85.32 L 67.97 81.61 L 67.97 80.37 L 69.21 79.13 L 69.21 77.89 L 70.45 76.65 L 70.45 74.17 L 71.69 72.93 L 71.69 70.45 L 72.93 69.21 L 72.93 58.06 L 71.69 56.82 L 71.69 51.86 L 70.45 50.62 L 70.45 48.14 L 69.21 46.90 L 69.21 45.66 L 67.97 44.42 L 67.97 43.18 L 66.73 41.94 L 66.73 40.70 L 64.25 38.23 L 64.25 36.99 L 61.77 34.51 L 61.77 33.27 L 59.30 30.79 L 59.30 29.55 L 56.82 27.07 L 56.82 24.59 L 55.58 23.35 L 55.58 22.11 L 54.34 20.87 L 54.34 17.15 L 53.10 15.92 L 53.10 12.20 L 51.86 10.96 L 51.86 7.24 L 50.62 6.00 Z" fill="url(#middleGrad)" />
+
+                  <!-- Flama Interior (Cream) -->
+                  <path class="svg-flame-inner" d="M 49.38 7.24 L 44.42 12.20 L 44.42 13.44 L 41.94 15.92 L 41.94 17.15 L 40.70 18.39 L 40.70 19.63 L 39.46 20.87 L 39.46 22.11 L 38.23 23.35 L 38.23 24.59 L 36.99 25.83 L 36.99 28.31 L 35.75 29.55 L 35.75 34.51 L 34.51 35.75 L 34.51 46.90 L 35.75 48.14 L 35.75 54.34 L 36.99 55.58 L 36.99 59.30 L 35.75 60.54 L 34.51 60.54 L 33.27 61.77 L 32.03 60.54 L 30.79 60.54 L 29.55 59.30 L 29.55 56.82 L 28.31 55.58 L 28.31 49.38 L 27.07 48.14 L 27.07 46.90 L 23.35 43.18 L 22.11 44.42 L 22.11 46.90 L 20.87 48.14 L 20.87 50.62 L 19.63 51.86 L 19.63 54.34 L 18.39 55.58 L 18.39 69.21 L 19.63 70.45 L 19.63 74.17 L 20.87 75.41 L 20.87 76.65 L 22.11 77.89 L 22.11 79.13 L 23.35 80.37 L 23.35 81.61 L 28.31 86.56 L 29.55 86.56 L 32.03 89.04 L 33.27 89.04 L 34.51 90.28 L 36.99 90.28 L 38.23 91.52 L 50.62 91.52 L 51.86 90.28 L 54.34 90.28 L 55.58 89.04 L 56.82 89.04 L 58.06 87.80 L 59.30 87.80 L 66.73 80.37 L 66.73 77.89 L 67.97 76.65 L 67.97 75.41 L 69.21 74.17 L 69.21 70.45 L 70.45 69.21 L 70.45 53.10 L 69.21 51.86 L 69.21 48.14 L 67.97 46.90 L 67.97 45.66 L 66.73 44.42 L 66.73 43.18 L 65.49 41.94 L 65.49 40.70 L 63.01 38.23 L 63.01 36.99 L 59.30 33.27 L 59.30 32.03 L 56.82 29.55 L 56.82 28.31 L 55.58 27.07 L 55.58 25.83 L 54.34 24.59 L 54.34 19.63 L 51.86 17.15 L 51.86 13.44 L 50.62 12.20 L 50.62 8.48 Z" fill="url(#innerGrad)" />
+
+                  <!-- Chispas flotantes adicionales -->
+                  <path class="svg-spark-dot svg-spark-left-dot" d="M 28.31 34.51 L 27.07 35.75 L 27.07 36.99 L 28.31 36.99 L 29.55 35.75 Z" fill="url(#sparkGrad)" />
+                  <path class="svg-spark-dot svg-spark-left-dot" d="M 30.79 28.31 L 29.55 29.55 L 30.79 30.79 L 32.03 29.55 Z" fill="url(#sparkGrad)" />
+                  <path class="svg-spark-dot svg-spark-right-dot" d="M 77.89 14.68 L 77.89 17.15 L 79.13 17.15 L 79.13 14.68 Z" fill="url(#sparkGrad)" />
+                  <path class="svg-spark-dot svg-spark-right-dot" d="M 72.93 9.72 L 72.93 12.20 L 74.17 12.20 L 74.17 9.72 Z" fill="url(#sparkGrad)" />
+                  <path class="svg-spark-dot svg-spark-right-dot" d="M 58.06 18.39 L 59.30 19.63 L 60.54 19.63 L 60.54 18.39 Z" fill="url(#sparkGrad)" />
+                  <path class="svg-spark-dot svg-spark-left-dot" d="M 22.11 9.72 L 22.11 10.96 L 23.35 10.96 L 23.35 9.72 Z" fill="url(#sparkGrad)" />
+                </svg>
+
+                <!-- Sparks/Chispas flotantes suaves -->
+                <div class="sparks-wrapper">
+                  <div class="spark-particle s1"></div>
+                  <div class="spark-particle s2"></div>
+                  <div class="spark-particle s3"></div>
+                  <div class="spark-particle s4"></div>
+                </div>
+
+              </div>
+            </ng-container>
 
           </div>
 
             <!-- Controles de Acción Minimalistas -->
-            <div style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
+            <div class="hide-on-inactive" style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
               
               <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
                 <!-- Iniciar (en setup) -->
@@ -183,6 +263,7 @@
         
           <!-- VISTA ENFOQUE ACTIVO: OBJETIVO (Se muestra debajo del reloj durante active/countdown) -->
           <div *ngIf="arenaState() !== 'setup' && activeObjective() && activeObjective().trim()" 
+               class="hide-on-inactive"
                style="text-align: center; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2;">
             <span style="font-size: var(--objective-header-size); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 1.5px;">Objetivo de Concentración</span>
             <span style="font-size: var(--objective-text-size); font-weight: 800; color: var(--text);">"{{ activeObjective() }}"</span>
@@ -202,11 +283,13 @@
               [style.background]="showCommunityConsole() ? 'var(--accent)' : 'rgba(255,255,255,0.03)'"
               [style.color]="showCommunityConsole() ? '#000' : 'var(--accent)'"
               [style.borderColor]="showCommunityConsole() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-              style="width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.2s;"
+              style="width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.2s; position: relative; animation: buttonGlowPulse 3s infinite ease-in-out;"
               onmouseover="this.style.transform='scale(1.1)';"
               onmouseout="this.style.transform='scale(1)';"
               title="Consola de Combate, Comunidad y Estrategia">
         <i class="fa-solid fa-users-gear"></i>
+        <!-- Indicador Llamativo (Punto de atención pulsante) -->
+        <span style="position: absolute; top: 1px; right: 1px; width: 9px; height: 9px; background: var(--accent); border-radius: 50%; border: 1.5px solid #000; box-shadow: 0 0 8px var(--accent); animation: attentionDotPulse 2s infinite ease-in-out;"></span>
       </button>
 
     </div>
@@ -316,6 +399,7 @@
 
 <!-- MODAL DE MENSAJE DE APOYO PREDEFINIDO (ANTES DE INICIAR EL POMODORO) -->
 <div *ngIf="showSupportMessageModal()" 
+     class="hide-on-inactive"
      style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 15000; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Space Grotesk', sans-serif;">
   
   <div style="background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); position: relative;">
@@ -449,6 +533,7 @@
 
 <!-- Modal de Guía de Raid, Bestiario y Villanos -->
 <div *ngIf="showRaidGuideModal()" 
+     class="hide-on-inactive"
      style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(5,5,7,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10001; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: 'Space Grotesk', sans-serif;">
   
   <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.94) 0%, rgba(24, 24, 33, 0.9) 100%); border: 1.5px solid rgba(255,255,255,0.06); border-radius: 20px; width: 100%; max-width: 600px; height: 520px; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.65); overflow: hidden; position: relative;">
@@ -674,6 +759,7 @@
 
 <!-- MODAL DE CONFIGURACIÓN Y PERSONALIZACIÓN ZEN (CON MENÚ LATERAL INTERNO) -->
 <div *ngIf="showSetupSettings() && arenaState() === 'setup'" 
+     class="hide-on-inactive"
      style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 15000; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Space Grotesk', sans-serif;">
   
   <div style="background: rgba(10, 10, 12, 0.98); border: 1.5px solid var(--border); border-radius: 20px; max-width: var(--modal-width); width: 100%; height: var(--modal-height); display: flex; box-shadow: 0 30px 70px rgba(0,0,0,0.7); position: relative; overflow: hidden; animation: slideDown 0.25s ease;">
@@ -974,6 +1060,45 @@
             </span>
           </div>
 
+          <div style="height: 1px; background: rgba(255,255,255,0.03); margin: 6px 0;"></div>
+
+          <!-- Estilo del Temporizador -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-hourglass-half" style="color: var(--accent);"></i>
+              Estilo del Temporizador Zen
+            </span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <!-- Opción 1: Digital -->
+              <button (click)="setTimerStyle('digital')"
+                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
+                      [style.background]="timerStyle() === 'digital' ? 'rgba(255,255,255,0.08)' : 'transparent'"
+                      [style.borderColor]="timerStyle() === 'digital' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="timerStyle() === 'digital' ? 'var(--text)' : 'var(--muted)'"
+                      onmouseover="this.style.borderColor='var(--accent)'"
+                      onmouseout="if(this.timerStyle() !== 'digital') { this.style.borderColor='var(--border)' }">
+                <i class="fa-solid fa-clock"></i>
+                Dígitos Clásicos
+              </button>
+
+              <!-- Opción 2: Fuego Premium -->
+              <button (click)="setTimerStyle('fire')"
+                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; position: relative;"
+                      [style.background]="timerStyle() === 'fire' ? 'rgba(99, 102, 241, 0.12)' : 'transparent'"
+                      [style.borderColor]="timerStyle() === 'fire' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="timerStyle() === 'fire' ? 'var(--accent)' : 'var(--muted)'"
+                      onmouseover="this.style.borderColor='var(--accent)'"
+                      onmouseout="if(this.timerStyle() !== 'fire') { this.style.borderColor='var(--border)' }">
+                <i class="fa-solid fa-fire-flame-curved"></i>
+                Fuego Sagrado
+                
+                <i *ngIf="!membership.isPremium()" 
+                   class="fa-solid fa-lock" 
+                   style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
+              </button>
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -985,7 +1110,7 @@
 
 <!-- PANEL DE CONSOLA UNIFICADO (SE APERTURA DESDE EL BOTÓN ÚNICO EN ESQUINA INFERIOR IZQUIERDA) -->
 <div *ngIf="showCommunityConsole()"
-     class="floating-drawer custom-scrollbar console-drawer-animated"
+     class="floating-drawer custom-scrollbar console-drawer-animated hide-on-inactive"
      style="left: 12px; right: auto; bottom: 64px; top: auto; width: var(--drawer-width); height: var(--drawer-height); max-height: calc(100vh - 140px); display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1.5px solid var(--border); background: rgba(10, 10, 12, 0.96); box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65); border-radius: 16px; z-index: 2000;">
   
   <!-- Cabecera de la Consola con Selector de Pestañas (Tabs) al lado del título -->

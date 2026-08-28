@@ -13,6 +13,9 @@ import { Navbar } from '../../components/navbar/navbar';
   imports: [CommonModule, RouterLink, FormsModule, IdentitySettings, Navbar],
   templateUrl: './enfoque.html',
   styleUrl: './enfoque.css',
+  host: {
+    '[class.zen-inactive]': 'isInactive()'
+  }
 })
 export class Enfoque implements OnInit, OnDestroy {
   currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
@@ -160,6 +163,42 @@ export class Enfoque implements OnInit, OnDestroy {
   communityActiveTab = signal<'boss' | 'users' | 'strategy'>('strategy');
   showCelebration = signal<boolean>(false);
   celebrationPieces = signal<any[]>([]);
+
+  // Inactividad y Modo Zen (Fondo Screensaver)
+  isInactive = signal(false);
+  private inactivityTimeout: any;
+  private onActivityFn = () => this.onUserActivity();
+  private onMouseLeaveFn = () => this.onMouseLeaveWindow();
+
+  // Estilo del Temporizador (Clásico vs Fuego Premium)
+  timerStyle = signal<'digital' | 'fire'>(
+    (localStorage.getItem('focus-timer-style') as any) || 'digital'
+  );
+
+  // Porcentaje de tiempo restante
+  timePercentage = computed(() => {
+    const total = this.totalSessionTime();
+    const left = this.timeLeft();
+    if (total <= 0) return 0;
+    return left / total;
+  });
+
+  // Escala del fuego basada en el tiempo restante (de 1.0 a 0.25)
+  fireScale = computed(() => {
+    const pct = this.timePercentage();
+    if (pct <= 0) return 0;
+    return 0.25 + pct * 0.75;
+  });
+
+  // Opacidad y parpadeo final del fuego
+  fireOpacity = computed(() => {
+    const pct = this.timePercentage();
+    if (pct <= 0) return 0;
+    if (pct < 0.05) {
+      return (pct / 0.05) * 0.8;
+    }
+    return 1.0;
+  });
 
 
   // Objetivo Activo (La batalla de hoy) e Integración Metodológica
@@ -310,6 +349,15 @@ export class Enfoque implements OnInit, OnDestroy {
       this.activeObjective.set(draft);
       localStorage.removeItem('activeObjectiveDraft');
     }
+
+    // Registración de escuchas de inactividad Zen
+    document.addEventListener('mousemove', this.onActivityFn);
+    document.addEventListener('mousedown', this.onActivityFn);
+    document.addEventListener('keydown', this.onActivityFn);
+    document.addEventListener('click', this.onActivityFn);
+    document.addEventListener('touchstart', this.onActivityFn);
+    document.addEventListener('mouseleave', this.onMouseLeaveFn);
+    this.resetInactivityTimer();
   }
 
   // Iniciar Flujo: Lanza el Ritual 3-2-1
@@ -769,6 +817,46 @@ export class Enfoque implements OnInit, OnDestroy {
     this.stopBackgroundSound();
     if (this.countdownTimer) clearInterval(this.countdownTimer);
     if (this.communityInterval) clearInterval(this.communityInterval);
+
+    // Limpieza de escuchas de inactividad Zen
+    document.removeEventListener('mousemove', this.onActivityFn);
+    document.removeEventListener('mousedown', this.onActivityFn);
+    document.removeEventListener('keydown', this.onActivityFn);
+    document.removeEventListener('click', this.onActivityFn);
+    document.removeEventListener('touchstart', this.onActivityFn);
+    document.removeEventListener('mouseleave', this.onMouseLeaveFn);
+    if (this.inactivityTimeout) {
+      clearTimeout(this.inactivityTimeout);
+    }
+  }
+
+  onUserActivity() {
+    if (this.isInactive()) {
+      this.isInactive.set(false);
+    }
+    this.resetInactivityTimer();
+  }
+
+  onMouseLeaveWindow() {
+    if (this.inactivityTimeout) {
+      clearTimeout(this.inactivityTimeout);
+    }
+    this.inactivityTimeout = setTimeout(() => {
+      if (this.arenaState() !== 'summary') {
+        this.isInactive.set(true);
+      }
+    }, 3000); // 3 segundos tras salir de la ventana se activa el modo Zen
+  }
+
+  private resetInactivityTimer() {
+    if (this.inactivityTimeout) {
+      clearTimeout(this.inactivityTimeout);
+    }
+    this.inactivityTimeout = setTimeout(() => {
+      if (this.arenaState() !== 'summary') {
+        this.isInactive.set(true);
+      }
+    }, 8000); // 8 segundos de inactividad física
   }
 
   // Controles del Temporizador en Setup
@@ -823,6 +911,16 @@ export class Enfoque implements OnInit, OnDestroy {
   setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain') {
     this.activeBackground.set(bg);
     localStorage.setItem('focus-active-bg', bg);
+  }
+
+  // Setter del estilo de cronómetro Zen (con verificación Premium)
+  setTimerStyle(style: 'digital' | 'fire') {
+    if (style === 'fire' && !this.membership.isPremium()) {
+      this.showPaywallModal.set(true);
+      return;
+    }
+    this.timerStyle.set(style);
+    localStorage.setItem('focus-timer-style', style);
   }
 
   private startTimerLoop() {

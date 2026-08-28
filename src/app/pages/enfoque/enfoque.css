@@ -655,13 +655,14 @@
   background: rgba(18, 18, 24, 0.96);
   border: 1.5px solid rgba(255, 255, 255, 0.08);
   color: var(--text);
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: 8px;
   font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  white-space: nowrap;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.4;
+  white-space: normal;
+  width: 200px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 10px rgba(99, 102, 241, 0.15);
   opacity: 0;
   pointer-events: none;
@@ -998,4 +999,227 @@
   .focus-column-side {
     width: 100% !important;
   }
+}
+
+/* FAB attention animations */
+@keyframes buttonGlowPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px 6px rgba(99, 102, 241, 0.75);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+@keyframes attentionDotPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+    box-shadow: 0 0 10px 4px rgba(99, 102, 241, 0.95);
+  }
+  100% {
+    transform: scale(0.85);
+    opacity: 0.7;
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+.hide-on-inactive,
+::ng-deep .sidebar,
+.floating-drawer,
+.zen-timer {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+:host.zen-inactive .hide-on-inactive,
+:host.zen-inactive ::ng-deep .sidebar,
+:host.zen-inactive .floating-drawer {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  animation: none !important; /* Desactiva animaciones como consoleSlideUp con forwards */
+}
+
+:host.zen-inactive .zen-timer {
+  opacity: 0.45 !important;
+}
+
+/* ===== FUEGO SAGRADO PREMIUM STYLE ===== */
+/* ===== FUEGO SAGRADO PREMIUM STYLE (CARTOON / VECTOR VERSION) ===== */
+.fire-container {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin: 20px auto;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+  transform-origin: bottom center;
+}
+
+.svg-flame-outer {
+  transform-origin: 50% 90%;
+  transform-box: fill-box;
+  animation: redWobble 1.6s infinite ease-in-out alternate;
+  filter: drop-shadow(0 0 10px rgba(255, 61, 0, 0.75))
+          drop-shadow(0 0 25px rgba(255, 145, 0, 0.45));
+}
+
+.svg-flame-middle {
+  transform-origin: 50% 90%;
+  transform-box: fill-box;
+  animation: orangeWobble 1.2s infinite ease-in-out alternate;
+  filter: drop-shadow(0 0 8px rgba(255, 167, 38, 0.6));
+}
+
+.svg-flame-inner {
+  transform-origin: 50% 90%;
+  transform-box: fill-box;
+  animation: yellowWobble 0.9s infinite ease-in-out alternate;
+  filter: blur(0.5px) drop-shadow(0 0 6px rgba(255, 234, 0, 0.9));
+  mix-blend-mode: screen; /* Fusión de brillo aditivo para parecer núcleo incandescente */
+}
+
+.svg-spark-left {
+  transform-origin: 50% 90%;
+  transform-box: fill-box;
+  animation: orangeWobble 1.8s infinite ease-in-out alternate;
+  filter: drop-shadow(0 0 5px rgba(255, 87, 34, 0.8))
+          drop-shadow(0 0 12px rgba(255, 145, 0, 0.5));
+}
+
+.svg-spark-right {
+  transform-origin: 50% 90%;
+  transform-box: fill-box;
+  animation: redWobble 1.4s infinite ease-in-out alternate;
+  filter: drop-shadow(0 0 5px rgba(255, 87, 34, 0.8))
+          drop-shadow(0 0 12px rgba(255, 145, 0, 0.5));
+}
+
+.svg-spark-top {
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  animation: whiteWobble 1.3s infinite ease-in-out alternate;
+  filter: drop-shadow(0 0 4px rgba(255, 87, 34, 0.8))
+          drop-shadow(0 0 10px rgba(255, 145, 0, 0.5));
+}
+
+/* Sparks/Chispas pequeñas extraídas de la silueta de flama2 */
+.svg-spark-dot {
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  filter: drop-shadow(0 0 4px rgba(255, 145, 0, 0.7));
+}
+
+.svg-spark-left-dot {
+  animation: orangeWobble 1.5s infinite ease-in-out alternate;
+  animation-delay: 0.2s;
+}
+
+.svg-spark-right-dot {
+  animation: redWobble 1.7s infinite ease-in-out alternate;
+  animation-delay: 0.4s;
+}
+
+.svg-spark-top-dot {
+  animation: whiteWobble 1.3s infinite ease-in-out alternate;
+  animation-delay: 0.6s;
+}
+
+/* Brillo de Aura de Fondo de la Flama */
+.fire-glow {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(255, 87, 34, 0.45) 0%, rgba(255, 61, 0, 0) 70%);
+  filter: blur(20px);
+  z-index: 0;
+  pointer-events: none;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@keyframes redWobble {
+  0% { transform: rotate(-1.5deg) skewX(-1deg) scaleX(0.97) scaleY(0.96); }
+  50% { transform: rotate(1.5deg) skewX(1deg) scaleX(1.03) scaleY(1.04); }
+  100% { transform: rotate(-1.5deg) skewX(-1deg) scaleX(0.97) scaleY(0.96); }
+}
+
+@keyframes orangeWobble {
+  0% { transform: rotate(2deg) skewX(1.5deg) scaleX(1.02) scaleY(1.03); }
+  50% { transform: rotate(-2deg) skewX(-1.5deg) scaleX(0.98) scaleY(0.97); }
+  100% { transform: rotate(2deg) skewX(1.5deg) scaleX(1.02) scaleY(1.03); }
+}
+
+@keyframes yellowWobble {
+  0% { transform: rotate(-2deg) skewX(-2deg) scaleX(0.96) scaleY(0.95); }
+  50% { transform: rotate(2deg) skewX(2deg) scaleX(1.04) scaleY(1.05); }
+  100% { transform: rotate(-2deg) skewX(-2deg) scaleX(0.96) scaleY(0.95); }
+}
+
+@keyframes whiteWobble {
+  0% { transform: rotate(3deg) skewX(2deg) translateY(-0.8px); }
+  50% { transform: rotate(-3deg) skewX(-2deg) translateY(0.8px); }
+  100% { transform: rotate(3deg) skewX(2deg) translateY(-0.8px); }
+}
+
+/* Sparks/Chispas Suaves y Luminosas */
+.sparks-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.spark-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #ffb300;
+  border: none !important;
+  border-radius: 50%;
+  opacity: 0;
+  bottom: 10px;
+  filter: blur(0.5px);
+  box-shadow: 0 0 8px 1px rgba(255, 179, 0, 0.8);
+}
+
+.spark-particle.s1 { left: 45px; animation: riseSpark1 2s infinite ease-in; }
+.spark-particle.s2 { left: 52px; animation: riseSpark2 2.6s infinite ease-in; }
+.spark-particle.s3 { left: 62px; animation: riseSpark3 1.9s infinite ease-in; }
+.spark-particle.s4 { left: 68px; animation: riseSpark4 2.3s infinite ease-in; }
+
+@keyframes riseSpark1 {
+  0% { bottom: 10px; opacity: 0; transform: translateX(0) scale(1); }
+  15% { opacity: 0.85; }
+  100% { bottom: 110px; opacity: 0; transform: translateX(-12px) scale(0.4); }
+}
+@keyframes riseSpark2 {
+  0% { bottom: 10px; opacity: 0; transform: translateX(0) scale(1); }
+  15% { opacity: 0.75; }
+  100% { bottom: 130px; opacity: 0; transform: translateX(18px) scale(0.4); }
+}
+@keyframes riseSpark3 {
+  0% { bottom: 10px; opacity: 0; transform: translateX(0) scale(1); }
+  15% { opacity: 0.85; }
+  100% { bottom: 95px; opacity: 0; transform: translateX(6px) scale(0.3); }
+}
+@keyframes riseSpark4 {
+  0% { bottom: 10px; opacity: 0; transform: translateX(0) scale(1); }
+  15% { opacity: 0.7; }
+  100% { bottom: 115px; opacity: 0; transform: translateX(-6px) scale(0.5); }
 }
