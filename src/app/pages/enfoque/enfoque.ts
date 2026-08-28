@@ -205,8 +205,8 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.arenaState() === 'setup') return 1.0;
     const pct = this.timePercentage();
     if (pct > 0.3) return 1.0;
-    if (pct <= 0.2) return 0.0;
-    return (pct - 0.2) / 0.1;
+    if (pct <= 0.2) return 0.25; // Se mantienen al 25% siempre
+    return 0.25 + ((pct - 0.2) / 0.1) * 0.75;
   });
 
   innerFlameOpacity = computed(() => {

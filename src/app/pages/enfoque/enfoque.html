@@ -120,10 +120,9 @@
             <!-- CASO 2: Fuego Sagrado (Premium) -->
             <ng-container *ngIf="timerStyle() === 'fire'">
               
-              <!-- Fuego animado interactivo (Solo la flama se achica; los troncos quedan fijos) -->
+              <!-- Fuego animado interactivo (Solo la flama se achica; los troncos quedan fijos; sin tooltip de tiempo al hacer hover) -->
               <div *ngIf="arenaState() !== 'summary'"
                    class="fire-container"
-                   [attr.data-tooltip]="arenaState() === 'setup' ? (focusDuration() < 10 ? '0' + focusDuration() : focusDuration()) + ':00' : (arenaState() === 'countdown' ? '00:0' + countdownValue() : (emergencyPauseActive() ? emergencyTimeString() : timeString()))"
                    style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                 
                 <!-- Aura de brillo de fondo detrás de la flama (se encoge con ella) -->
@@ -310,11 +309,30 @@
                    class="logs-container"
                    style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                    
-                   <!-- Humo animado en los troncos de resumen (3 partículas) -->
+                   <!-- Humo animado en los troncos de resumen (8 partículas para humo más denso y continuo) -->
                    <div class="smoke-particles-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 120px; overflow: visible; pointer-events: none;">
-                  <div class="smoke-particle anim-smoke-1" style="left: 48.5%; animation-duration: 4.73s; animation-delay: 0.61s; transform: scale(1.16);"></div>
-                  <div class="smoke-particle anim-smoke-2" style="left: 42.8%; animation-duration: 4.2s; animation-delay: 2.02s; transform: scale(0.95);"></div>
-                  <div class="smoke-particle anim-smoke-3" style="left: 44.3%; animation-duration: 4.55s; animation-delay: 0.22s; transform: scale(1.03);"></div>
+                  <div class="smoke-particle anim-smoke-1" style="left: 60.0%; animation-duration: 5.79s; animation-delay: 0.29s; transform: scale(0.83);"></div>
+                  <div class="smoke-particle anim-smoke-2" style="left: 42.4%; animation-duration: 5.69s; animation-delay: 3.52s; transform: scale(1.23);"></div>
+                  <div class="smoke-particle anim-smoke-3" style="left: 44.9%; animation-duration: 4.45s; animation-delay: 3.33s; transform: scale(1.12);"></div>
+                  <div class="smoke-particle anim-smoke-4" style="left: 50.7%; animation-duration: 5.78s; animation-delay: 2.62s; transform: scale(0.7);"></div>
+                  <div class="smoke-particle anim-smoke-5" style="left: 55.6%; animation-duration: 4.68s; animation-delay: 2.65s; transform: scale(1.26);"></div>
+                  <div class="smoke-particle anim-smoke-1" style="left: 39.2%; animation-duration: 4.38s; animation-delay: 0.43s; transform: scale(1.03);"></div>
+                  <div class="smoke-particle anim-smoke-2" style="left: 42.5%; animation-duration: 5.17s; animation-delay: 2.87s; transform: scale(0.82);"></div>
+                  <div class="smoke-particle anim-smoke-3" style="left: 51.2%; animation-duration: 4.62s; animation-delay: 1.95s; transform: scale(1.24);"></div>
+                   </div>
+
+                   <!-- Chispas remanentes lentas y tenues flotando desde las cenizas (10 partículas) -->
+                   <div class="summary-sparks-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 12; opacity: 0.65;">
+                  <div class="spark-particle anim-spark-4" style="left: 60.4%; width: 1.9px; height: 1.9px; background: #ff3d00; animation-duration: 3.08s; animation-delay: 3.32s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 58.1%; width: 2.4px; height: 2.4px; background: #d84315; animation-duration: 3.8s; animation-delay: 0.65s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-2" style="left: 51.8%; width: 1.9px; height: 1.9px; background: #ff3d00; animation-duration: 4.5s; animation-delay: 2.18s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 47.9%; width: 1.8px; height: 1.8px; background: #ff9100; animation-duration: 4.43s; animation-delay: 3.6s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-2" style="left: 62.0%; width: 2.0px; height: 2.0px; background: #d84315; animation-duration: 3.64s; animation-delay: 2.67s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-2" style="left: 64.2%; width: 2.5px; height: 2.5px; background: #ff3d00; animation-duration: 4.76s; animation-delay: 3.46s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 61.4%; width: 1.8px; height: 1.8px; background: #ff3d00; animation-duration: 3.74s; animation-delay: 3.13s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-1" style="left: 43.0%; width: 2.6px; height: 2.6px; background: #d84315; animation-duration: 3.07s; animation-delay: 1.53s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-4" style="left: 41.7%; width: 2.6px; height: 2.6px; background: #ff3d00; animation-duration: 4.48s; animation-delay: 1.4s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-4" style="left: 41.7%; width: 2.5px; height: 2.5px; background: #ff3d00; animation-duration: 4.56s; animation-delay: 1.31s; opacity: 0.7;"></div>
                    </div>
 
                    <!-- Troncos SVG de Resumen (Mismo tamaño de base, mismo viewBox, alineado perfecto) -->
@@ -377,11 +395,47 @@
                        <circle cx="70" cy="46" r="1.2" fill="#ff9100" style="animation: emberPulse 1.6s infinite alternate;" />
                      </g>
                    </svg>
-                   
-                   <!-- Texto de sesión terminada en los troncos -->
-                   <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; animation: textPulse 2s infinite alternate; position: absolute; bottom: 8px; z-index: 3;">
-                     Cenizas de Enfoque
+
+                   <!-- CUESTIONARIO POST-SESIÓN (en summary) - POSICIONADO ABSOLUTO SOBRE LOS TRONCOS (Frosty Glass Modal) -->
+                   <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 12px; width: 280px; background: rgba(10, 10, 12, 0.88); border: 1.5px solid var(--border); padding: 16px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                     <div style="display: flex; flex-direction: column; gap: 2px;">
+                       <span style="font-size: 8.5px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.2px;">Cierre Dopamínico</span>
+                       <h3 style="font-size: 13px; font-weight: 900; color: var(--text); margin: 0;">¿Lograste completar tu objetivo?</h3>
+                       <p *ngIf="activeObjective() && activeObjective().trim()" style="font-size: 10.5px; color: var(--muted); margin: 2px 0 0 0; font-style: italic; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                         "{{ activeObjective() }}"
+                       </p>
+                     </div>
+
+                     <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+                       <!-- Opción 1: Sí, por completo -->
+                       <button (click)="objectiveCompleted.set('yes'); finishSession()"
+                               style="border: 1.5px solid var(--green); background: rgba(16, 185, 129, 0.08); color: var(--green); padding: 8px 12px; border-radius: 10px; font-size: 10.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
+                               onmouseover="this.style.background='rgba(16, 185, 129, 0.16)'"
+                               onmouseout="this.style.background='rgba(16, 185, 129, 0.08)'">
+                         <i class="fa-solid fa-circle-check"></i>
+                         Sí, por completo
+                       </button>
+
+                       <!-- Opción 2: Avancé bastante -->
+                       <button (click)="objectiveCompleted.set('progress'); finishSession()"
+                               style="border: 1.5px solid var(--accent); background: rgba(0, 242, 254, 0.08); color: var(--accent); padding: 8px 12px; border-radius: 10px; font-size: 10.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
+                               onmouseover="this.style.background='rgba(0, 242, 254, 0.16)'"
+                               onmouseout="this.style.background='rgba(0, 242, 254, 0.08)'">
+                         <i class="fa-solid fa-hourglass-half"></i>
+                         Avancé bastante
+                       </button>
+
+                       <!-- Opción 3: No lo logré -->
+                       <button (click)="objectiveCompleted.set('no'); finishSession()"
+                               style="border: 1.5px solid var(--red); background: rgba(239, 68, 68, 0.08); color: var(--red); padding: 8px 12px; border-radius: 10px; font-size: 10.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
+                               onmouseover="this.style.background='rgba(239, 68, 68, 0.16)'"
+                               onmouseout="this.style.background='rgba(239, 68, 68, 0.08)'">
+                         <i class="fa-solid fa-circle-xmark"></i>
+                         No lo logré
+                       </button>
+                     </div>
                    </div>
+
               </div>
             </ng-container>
 
@@ -451,7 +505,7 @@
                </ng-container>
 
                <!-- CUESTIONARIO POST-SESIÓN (en summary) -->
-               <div *ngIf="arenaState() === 'summary'" 
+                <div *ngIf="arenaState() === 'summary' && timerStyle() === 'digital'" 
                     style="display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; background: rgba(10, 10, 12, 0.75); border: 1.5px solid var(--border); padding: 20px; border-radius: 16px; margin-top: 10px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
                 
                  <div style="display: flex; flex-direction: column; gap: 4px;">
