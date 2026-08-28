@@ -2467,3 +2467,18 @@
     background-position: center 50%;
   }
 }
+
+/* Draggable Campfire Cursors & Tooltip Animations */
+.fire-container, .logs-container {
+  cursor: grab !important;
+  user-select: none !important;
+  touch-action: none !important; /* Prevents browser scroll during mobile touch drags */
+}
+.fire-container:active, .logs-container:active {
+  cursor: grabbing !important;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-5px); }
+}

@@ -95,6 +95,13 @@
           <!-- Reloj Digital / Fuego Premium Contenedor -->
           <div class="zen-timer" [class.has-fire]="timerStyle() === 'fire'" style="z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 16px;">
             
+            <!-- Indicador sutil de arrastre de fogata (Desaparece tras unos segundos) -->
+            <div *ngIf="showCampfireDragTooltip() && arenaState() === 'setup' && timerStyle() === 'fire'"
+                 style="font-size: 9px; color: var(--muted); background: rgba(10, 10, 12, 0.7); border: 1px dashed rgba(255, 255, 255, 0.15); padding: 6px 12px; border-radius: 8px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.6px; text-transform: uppercase; animation: fadeIn 0.4s ease, fadeOut 0.5s 7.5s forwards; margin-bottom: 4px; pointer-events: none; user-select: none;">
+              <i class="fa-solid fa-arrows-up-down-left-right" style="color: var(--accent); font-size: 10px;"></i>
+              <span>Puedes arrastrar la fogata a cualquier zona para que combine con tu fondo</span>
+            </div>
+            
             <!-- CASO 1: Dígitos Clásicos (O conteo 3-2-1 en modo fuego) -->
             <ng-container *ngIf="timerStyle() === 'digital' || arenaState() === 'countdown'">
               <!-- CASO 1.1: SETUP -->
@@ -125,6 +132,10 @@
               <div *ngIf="arenaState() === 'active' || (arenaState() === 'setup' && !isBreak())"
                    class="fire-container"
                    [class.is-break]="isBreak()"
+                   (mousedown)="onDragStart($event)"
+                   (touchstart)="onTouchStart($event)"
+                   (dblclick)="resetCampfirePosition()"
+                   [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
                    style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                 
                 <!-- Aura de brillo de fondo detrás de la flama (se encoge con ella) -->
@@ -310,6 +321,10 @@
               <!-- CONTENEDOR DE TRONCOS Y HUMO (Se muestra en summary, y en setup únicamente cuando es descanso) -->
               <div *ngIf="arenaState() === 'summary' || (arenaState() === 'setup' && isBreak())"
                    class="logs-container"
+                   (mousedown)="onDragStart($event)"
+                   (touchstart)="onTouchStart($event)"
+                   (dblclick)="resetCampfirePosition()"
+                   [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
                    style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                    
                    <!-- Humo animado en los troncos de resumen (15 partículas para humo más denso y continuo) -->

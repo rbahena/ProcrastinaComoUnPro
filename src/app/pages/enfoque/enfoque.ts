@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit, OnDestroy, WritableSignal, inject } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, WritableSignal, inject, HostListener } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -51,7 +51,15 @@ export class Enfoque implements OnInit, OnDestroy {
   partnerStatusText = signal<string>('Enfocado');
   partnerSessionTicks = signal<number>(0);
 
-  // Toast Notificaciones del Acompañante
+  // Draggable campfire state
+  campfireX = signal<number>(0);
+  campfireY = signal<number>(0);
+  isDraggingCampfire = signal<boolean>(false);
+  showCampfireDragTooltip = signal<boolean>(false);
+  private dragStartX = 0;
+  private dragStartY = 0;
+
+  // toast notifications
   showPartnerNotification = signal<boolean>(false);
   partnerNotificationMessage = signal<string>('');
   partnerNotificationType = signal<'info' | 'warning' | 'success' | 'danger'>('info');
@@ -401,6 +409,20 @@ export class Enfoque implements OnInit, OnDestroy {
     document.addEventListener('touchstart', this.onActivityFn);
     document.addEventListener('mouseleave', this.onMouseLeaveFn);
     this.resetInactivityTimer();
+
+    // Cargar posición guardada de la fogata
+    const savedX = localStorage.getItem('campfire-pos-x');
+    const savedY = localStorage.getItem('campfire-pos-y');
+    if (savedX) this.campfireX.set(parseFloat(savedX));
+    if (savedY) this.campfireY.set(parseFloat(savedY));
+
+    // Mostrar tip de arrastre temporalmente al inicio si está seleccionado el fondo de fogata
+    if (this.activeBackground() === 'forest_campfire') {
+      this.showCampfireDragTooltip.set(true);
+      setTimeout(() => {
+        this.showCampfireDragTooltip.set(false);
+      }, 8000);
+    }
   }
 
   // Iniciar Flujo: Lanza el Ritual 3-2-1
@@ -656,6 +678,70 @@ export class Enfoque implements OnInit, OnDestroy {
     this.isBreak.set(false);
     this.totalSessionTime.set(this.focusDuration() * 60);
     this.timeLeft.set(this.focusDuration() * 60);
+  }
+
+  // Métodos para arrastrar la fogata
+  onDragStart(event: MouseEvent) {
+    // Evitar iniciar arrastre si se hace click en algún botón o control interno
+    const target = event.target as HTMLElement;
+    if (target.closest('button') || target.closest('a')) return;
+
+    event.preventDefault();
+    this.dragStartX = event.clientX - this.campfireX();
+    this.dragStartY = event.clientY - this.campfireY();
+    this.isDraggingCampfire.set(true);
+  }
+
+  onTouchStart(event: TouchEvent) {
+    const target = event.target as HTMLElement;
+    if (target.closest('button') || target.closest('a')) return;
+
+    if (event.touches.length > 0) {
+      const touch = event.touches[0];
+      this.dragStartX = touch.clientX - this.campfireX();
+      this.dragStartY = touch.clientY - this.campfireY();
+      this.isDraggingCampfire.set(true);
+    }
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.isDraggingCampfire()) {
+      this.campfireX.set(event.clientX - this.dragStartX);
+      this.campfireY.set(event.clientY - this.dragStartY);
+    }
+  }
+
+  @HostListener('window:mouseup')
+  onMouseUp() {
+    if (this.isDraggingCampfire()) {
+      this.isDraggingCampfire.set(false);
+      localStorage.setItem('campfire-pos-x', this.campfireX().toString());
+      localStorage.setItem('campfire-pos-y', this.campfireY().toString());
+    }
+  }
+
+  @HostListener('window:touchmove', ['$event'])
+  onTouchMove(event: TouchEvent) {
+    if (this.isDraggingCampfire() && event.touches.length > 0) {
+      // Evitar scroll de pantalla mientras se arrastra la fogata
+      event.preventDefault();
+      const touch = event.touches[0];
+      this.campfireX.set(touch.clientX - this.dragStartX);
+      this.campfireY.set(touch.clientY - this.dragStartY);
+    }
+  }
+
+  @HostListener('window:touchend')
+  onTouchEnd() {
+    this.onMouseUp();
+  }
+
+  resetCampfirePosition() {
+    this.campfireX.set(0);
+    this.campfireY.set(0);
+    localStorage.removeItem('campfire-pos-x');
+    localStorage.removeItem('campfire-pos-y');
   }
 
   resetDailyAttempts() {
@@ -976,6 +1062,15 @@ export class Enfoque implements OnInit, OnDestroy {
   setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire') {
     this.activeBackground.set(bg);
     localStorage.setItem('focus-active-bg', bg);
+
+    if (bg === 'forest_campfire') {
+      this.showCampfireDragTooltip.set(true);
+      setTimeout(() => {
+        this.showCampfireDragTooltip.set(false);
+      }, 8000);
+    } else {
+      this.showCampfireDragTooltip.set(false);
+    }
   }
 
   // Setter del estilo de cronómetro Zen (con verificación Premium)
