@@ -120,8 +120,8 @@
             <!-- CASO 2: Fuego Sagrado (Premium) -->
             <ng-container *ngIf="timerStyle() === 'fire'">
               
-              <!-- Fuego animado interactivo (Solo la flama se achica; los troncos quedan fijos; sin tooltip de tiempo al hacer hover) -->
-              <div *ngIf="arenaState() !== 'summary'"
+              <!-- Fuego animado interactivo (Solo se muestra en countdown/active; sin tooltip de tiempo al hacer hover) -->
+              <div *ngIf="arenaState() !== 'summary' && arenaState() !== 'setup'"
                    class="fire-container"
                    style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                 
@@ -304,35 +304,42 @@
                 </div>
               </div>
 
-              <!-- CONTENEDOR DE TRONCOS Y HUMO (SE MUESTRA CUANDO FINALIZA EN ESTADO 'SUMMARY') -->
-              <div *ngIf="arenaState() === 'summary'"
+              <!-- CONTENEDOR DE TRONCOS Y HUMO (SE MUESTRA CUANDO FINALIZA EN ESTADO 'SUMMARY' O EN CONFIGURACIÓN 'SETUP') -->
+              <div *ngIf="arenaState() === 'summary' || arenaState() === 'setup'"
                    class="logs-container"
                    style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                    
-                   <!-- Humo animado en los troncos de resumen (8 partículas para humo más denso y continuo) -->
+                   <!-- Humo animado en los troncos de resumen (15 partículas para humo más denso y continuo) -->
                    <div class="smoke-particles-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 120px; overflow: visible; pointer-events: none;">
-                  <div class="smoke-particle anim-smoke-1" style="left: 60.0%; animation-duration: 5.79s; animation-delay: 0.29s; transform: scale(0.83);"></div>
-                  <div class="smoke-particle anim-smoke-2" style="left: 42.4%; animation-duration: 5.69s; animation-delay: 3.52s; transform: scale(1.23);"></div>
-                  <div class="smoke-particle anim-smoke-3" style="left: 44.9%; animation-duration: 4.45s; animation-delay: 3.33s; transform: scale(1.12);"></div>
-                  <div class="smoke-particle anim-smoke-4" style="left: 50.7%; animation-duration: 5.78s; animation-delay: 2.62s; transform: scale(0.7);"></div>
-                  <div class="smoke-particle anim-smoke-5" style="left: 55.6%; animation-duration: 4.68s; animation-delay: 2.65s; transform: scale(1.26);"></div>
-                  <div class="smoke-particle anim-smoke-1" style="left: 39.2%; animation-duration: 4.38s; animation-delay: 0.43s; transform: scale(1.03);"></div>
-                  <div class="smoke-particle anim-smoke-2" style="left: 42.5%; animation-duration: 5.17s; animation-delay: 2.87s; transform: scale(0.82);"></div>
-                  <div class="smoke-particle anim-smoke-3" style="left: 51.2%; animation-duration: 4.62s; animation-delay: 1.95s; transform: scale(1.24);"></div>
+                  <div class="smoke-particle anim-smoke-1" style="left: 62.0%; animation-duration: 5.49s; animation-delay: 0.28s; transform: scale(0.93);"></div>
+                  <div class="smoke-particle anim-smoke-2" style="left: 41.4%; animation-duration: 5.4s; animation-delay: 3.35s; transform: scale(1.33);"></div>
+                  <div class="smoke-particle anim-smoke-3" style="left: 44.3%; animation-duration: 4.24s; animation-delay: 3.17s; transform: scale(1.22);"></div>
+                  <div class="smoke-particle anim-smoke-4" style="left: 51.1%; animation-duration: 5.48s; animation-delay: 2.49s; transform: scale(0.8);"></div>
+                  <div class="smoke-particle anim-smoke-5" style="left: 56.9%; animation-duration: 4.45s; animation-delay: 2.52s; transform: scale(1.36);"></div>
+                  <div class="smoke-particle anim-smoke-1" style="left: 37.8%; animation-duration: 4.17s; animation-delay: 0.41s; transform: scale(1.13);"></div>
+                  <div class="smoke-particle anim-smoke-2" style="left: 41.6%; animation-duration: 4.91s; animation-delay: 2.73s; transform: scale(0.92);"></div>
+                  <div class="smoke-particle anim-smoke-3" style="left: 51.8%; animation-duration: 4.4s; animation-delay: 1.86s; transform: scale(1.34);"></div>
+                  <div class="smoke-particle anim-smoke-4" style="left: 57.7%; animation-duration: 4.14s; animation-delay: 1.61s; transform: scale(0.97);"></div>
+                  <div class="smoke-particle anim-smoke-5" style="left: 34.1%; animation-duration: 5.16s; animation-delay: 2.42s; transform: scale(0.96);"></div>
+                  <div class="smoke-particle anim-smoke-1" style="left: 54.8%; animation-duration: 4.83s; animation-delay: 1.63s; transform: scale(0.81);"></div>
+                  <div class="smoke-particle anim-smoke-2" style="left: 36.1%; animation-duration: 5.32s; animation-delay: 3.43s; transform: scale(1.13);"></div>
+                  <div class="smoke-particle anim-smoke-3" style="left: 57.4%; animation-duration: 4.87s; animation-delay: 0.56s; transform: scale(0.88);"></div>
+                  <div class="smoke-particle anim-smoke-4" style="left: 42.6%; animation-duration: 5.35s; animation-delay: 3.03s; transform: scale(1.32);"></div>
+                  <div class="smoke-particle anim-smoke-5" style="left: 59.2%; animation-duration: 4.32s; animation-delay: 0.95s; transform: scale(0.86);"></div>
                    </div>
 
                    <!-- Chispas remanentes lentas y tenues flotando desde las cenizas (10 partículas) -->
                    <div class="summary-sparks-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 12; opacity: 0.65;">
-                  <div class="spark-particle anim-spark-4" style="left: 60.4%; width: 1.9px; height: 1.9px; background: #ff3d00; animation-duration: 3.08s; animation-delay: 3.32s; opacity: 0.7;"></div>
-                  <div class="spark-particle anim-spark-3" style="left: 58.1%; width: 2.4px; height: 2.4px; background: #d84315; animation-duration: 3.8s; animation-delay: 0.65s; opacity: 0.7;"></div>
-                  <div class="spark-particle anim-spark-2" style="left: 51.8%; width: 1.9px; height: 1.9px; background: #ff3d00; animation-duration: 4.5s; animation-delay: 2.18s; opacity: 0.7;"></div>
-                  <div class="spark-particle anim-spark-3" style="left: 47.9%; width: 1.8px; height: 1.8px; background: #ff9100; animation-duration: 4.43s; animation-delay: 3.6s; opacity: 0.7;"></div>
-                  <div class="spark-particle anim-spark-2" style="left: 62.0%; width: 2.0px; height: 2.0px; background: #d84315; animation-duration: 3.64s; animation-delay: 2.67s; opacity: 0.7;"></div>
-                  <div class="spark-particle anim-spark-2" style="left: 64.2%; width: 2.5px; height: 2.5px; background: #ff3d00; animation-duration: 4.76s; animation-delay: 3.46s; opacity: 0.7;"></div>
-                  <div class="spark-particle anim-spark-3" style="left: 61.4%; width: 1.8px; height: 1.8px; background: #ff3d00; animation-duration: 3.74s; animation-delay: 3.13s; opacity: 0.7;"></div>
-                  <div class="spark-particle anim-spark-1" style="left: 43.0%; width: 2.6px; height: 2.6px; background: #d84315; animation-duration: 3.07s; animation-delay: 1.53s; opacity: 0.7;"></div>
-                  <div class="spark-particle anim-spark-4" style="left: 41.7%; width: 2.6px; height: 2.6px; background: #ff3d00; animation-duration: 4.48s; animation-delay: 1.4s; opacity: 0.7;"></div>
-                  <div class="spark-particle anim-spark-4" style="left: 41.7%; width: 2.5px; height: 2.5px; background: #ff3d00; animation-duration: 4.56s; animation-delay: 1.31s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-4" style="left: 58.4%; width: 2.7px; height: 2.7px; background: #ff3d00; animation-duration: 4.35s; animation-delay: 3.9s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-2" style="left: 60.9%; width: 2.8px; height: 2.8px; background: #ff3d00; animation-duration: 3.04s; animation-delay: 3.53s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-2" style="left: 58.5%; width: 2.2px; height: 2.2px; background: #ff9100; animation-duration: 4.42s; animation-delay: 1.07s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-4" style="left: 46.5%; width: 1.8px; height: 1.8px; background: #d84315; animation-duration: 4.47s; animation-delay: 0.89s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-2" style="left: 45.5%; width: 2.6px; height: 2.6px; background: #d84315; animation-duration: 4.19s; animation-delay: 0.89s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 44.8%; width: 2.7px; height: 2.7px; background: #ff3d00; animation-duration: 3.92s; animation-delay: 1.4s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 63.2%; width: 1.9px; height: 1.9px; background: #ff3d00; animation-duration: 4.73s; animation-delay: 0.71s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 36.1%; width: 2.4px; height: 2.4px; background: #ff9100; animation-duration: 3.56s; animation-delay: 2.91s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 46.6%; width: 2.4px; height: 2.4px; background: #ff3d00; animation-duration: 3.78s; animation-delay: 0.18s; opacity: 0.7;"></div>
+                  <div class="spark-particle anim-spark-3" style="left: 45.9%; width: 1.9px; height: 1.9px; background: #ff9100; animation-duration: 4.19s; animation-delay: 2.49s; opacity: 0.7;"></div>
                    </div>
 
                    <!-- Troncos SVG de Resumen (Mismo tamaño de base, mismo viewBox, alineado perfecto) -->
@@ -397,7 +404,8 @@
                    </svg>
 
                    <!-- CUESTIONARIO POST-SESIÓN (en summary) - POSICIONADO ABSOLUTO SOBRE LOS TRONCOS (Frosty Glass Modal) -->
-                   <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 12px; width: 280px; background: rgba(10, 10, 12, 0.88); border: 1.5px solid var(--border); padding: 16px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                   <div *ngIf="arenaState() === 'summary'"
+                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 12px; width: 280px; background: rgba(10, 10, 12, 0.88); border: 1.5px solid var(--border); padding: 16px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
                      <div style="display: flex; flex-direction: column; gap: 2px;">
                        <span style="font-size: 8.5px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.2px;">Cierre Dopamínico</span>
                        <h3 style="font-size: 13px; font-weight: 900; color: var(--text); margin: 0;">¿Lograste completar tu objetivo?</h3>
