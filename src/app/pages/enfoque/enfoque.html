@@ -5,8 +5,9 @@
 
     <!-- Fondo de Pantalla Zen Dinámico (Fijo detrás de la interfaz para evitar cortes y scrolls) -->
     <div *ngIf="useFairyBackground()"
-         style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; overflow: hidden; transition: background 0.3s ease;"
-         [style.background]="'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\') no-repeat center center / 100% 100%'">
+         class="zen-bg-container"
+         [class.bg-forest-campfire]="activeBackground() === 'forest_campfire'"
+         [style.backgroundImage]="'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\')'">
     </div>
 
     <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
@@ -94,10 +95,10 @@
           <!-- Reloj Digital / Fuego Premium Contenedor -->
           <div class="zen-timer" [class.has-fire]="timerStyle() === 'fire'" style="z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 16px;">
             
-            <!-- CASO 1: Dígitos Clásicos -->
-            <ng-container *ngIf="timerStyle() === 'digital'">
+            <!-- CASO 1: Dígitos Clásicos (O conteo 3-2-1 en modo fuego) -->
+            <ng-container *ngIf="timerStyle() === 'digital' || arenaState() === 'countdown'">
               <!-- CASO 1.1: SETUP -->
-              <span *ngIf="arenaState() === 'setup'"
+              <span *ngIf="arenaState() === 'setup' && timerStyle() === 'digital'"
                     style="font-size: var(--timer-font-size); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                 {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
               </span>
@@ -110,7 +111,7 @@
               </span>
 
               <!-- CASO 1.3: ACTIVE -->
-              <span *ngIf="arenaState() === 'active'"
+              <span *ngIf="arenaState() === 'active' && timerStyle() === 'digital'"
                     style="font-size: var(--timer-font-size); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
                     [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
                 {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
@@ -120,9 +121,10 @@
             <!-- CASO 2: Fuego Sagrado (Premium) -->
             <ng-container *ngIf="timerStyle() === 'fire'">
               
-              <!-- Fuego animado interactivo (Solo se muestra en countdown/active; sin tooltip de tiempo al hacer hover) -->
-              <div *ngIf="arenaState() !== 'summary' && arenaState() !== 'setup'"
+              <!-- Fuego animado interactivo (Se muestra en active y en setup cuando es concentración; se oculta en countdown) -->
+              <div *ngIf="arenaState() === 'active' || (arenaState() === 'setup' && !isBreak())"
                    class="fire-container"
+                   [class.is-break]="isBreak()"
                    style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                 
                 <!-- Aura de brillo de fondo detrás de la flama (se encoge con ella) -->
@@ -150,6 +152,7 @@
                       <feDisplacementMap in="SourceGraphic" in2="noise" scale="4.2" xChannelSelector="R" yChannelSelector="G" />
                     </filter>
 
+                    <!-- Gradientes de Enfoque (Naranja/Rojo/Amarillo) -->
                     <linearGradient id="outerGrad" x1="0%" y1="100%" x2="0%" y2="0%">
                       <stop offset="0%" stop-color="#ff3d00" />
                       <stop offset="50%" stop-color="#ff5722" />
@@ -178,13 +181,13 @@
                     <!-- Chispa flotante derecha -->
                     <path class="svg-spark-right" [style.opacity]="sparksOpacity()" d="M 72 25 C 69 25, 66 29, 66 33 C 66 37, 72 40, 72 40 C 72 40, 78 37, 78 33 C 78 29, 75 25, 72 25 Z" fill="url(#sparkGrad)" />
 
-                    <!-- Flama Exterior (Naranja) -->
+                    <!-- Flama Exterior -->
                     <path class="svg-flame-outer" [style.opacity]="outerFlameOpacity()" d="M 50 94 C 22 94, 10 74, 10 52 C 10 32, 32 18, 48 4 C 50 14, 44 28, 52 42 C 60 52, 78 48, 78 68 C 78 84, 68 94, 50 94 Z" fill="url(#outerGrad)" />
 
                     <!-- Flama Media -->
                     <path class="svg-flame-middle" [style.opacity]="middleFlameOpacity()" d="M 50 90 C 27 90, 18 74, 18 58 C 18 43, 35 28, 49 16 C 47 26, 42 38, 48 48 C 55 58, 68 56, 68 70 C 68 81, 62 90, 50 90 Z" fill="url(#middleGrad)" />
 
-                    <!-- Flama Interior (Cream) -->
+                    <!-- Flama Interior -->
                     <path class="svg-flame-inner" [style.opacity]="innerFlameOpacity()" d="M 50 84 C 33 84, 26 74, 26 62 C 26 52, 38 38, 49 28 C 47 36, 42 46, 48 54 C 54 62, 60 61, 60 70 C 60 77, 57 84, 50 84 Z" fill="url(#innerGrad)" />
 
                     <!-- Chispas flotantes adicionales -->
@@ -234,7 +237,7 @@
                       <circle cx="36" cy="29" r="1.3" fill="#372114" />
                       <path d="M 36 25 Q 50 23, 60 25 L 58 36 Q 50 38, 38 36 Z" fill="#140d09" stroke="#080503" stroke-width="1" />
                       <path d="M 40 29 Q 50 28, 56 29 M 38 33 Q 50 32, 58 33" stroke="#080503" stroke-width="0.8" fill="none" />
-                      <path d="M 14 24 A 3 6 0 0 0 14 36 A 3 6 0 0 0 14 24 Z" fill="#bf8c60" stroke="#372114" stroke-width="1.2" />
+                      <path D="M 14 24 A 3 6 0 0 0 14 36 A 3 6 0 0 0 14 24 Z" fill="#bf8c60" stroke="#372114" stroke-width="1.2" />
                       <ellipse cx="14" cy="30" rx="1.2" ry="3.5" fill="none" stroke="#754f33" stroke-width="0.6" />
                       <ellipse cx="14" cy="30" rx="0.5" ry="1.5" fill="#5c3823" />
                     </g>
@@ -304,8 +307,8 @@
                 </div>
               </div>
 
-              <!-- CONTENEDOR DE TRONCOS Y HUMO (SE MUESTRA CUANDO FINALIZA EN ESTADO 'SUMMARY' O EN CONFIGURACIÓN 'SETUP') -->
-              <div *ngIf="arenaState() === 'summary' || arenaState() === 'setup'"
+              <!-- CONTENEDOR DE TRONCOS Y HUMO (Se muestra en summary, y en setup únicamente cuando es descanso) -->
+              <div *ngIf="arenaState() === 'summary' || (arenaState() === 'setup' && isBreak())"
                    class="logs-container"
                    style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                    
@@ -403,48 +406,116 @@
                      </g>
                    </svg>
 
-                   <!-- CUESTIONARIO POST-SESIÓN (en summary) - POSICIONADO ABSOLUTO SOBRE LOS TRONCOS (Frosty Glass Modal) -->
+                   <!-- CUESTIONARIO POST-SESIÓN (en summary) - POSICIONADO ABSOLUTO SOBRE LOS TRONCOS (Frosty Glass Modal - LARGO Y ESPACIOSO - DISEÑO TABS HORIZONTALES) -->
                    <div *ngIf="arenaState() === 'summary'"
-                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 12px; width: 280px; background: rgba(10, 10, 12, 0.88); border: 1.5px solid var(--border); padding: 16px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-                     <div style="display: flex; flex-direction: column; gap: 2px;">
-                       <span style="font-size: 8.5px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.2px;">Cierre Dopamínico</span>
-                       <h3 style="font-size: 13px; font-weight: 900; color: var(--text); margin: 0;">¿Lograste completar tu objetivo?</h3>
-                       <p *ngIf="activeObjective() && activeObjective().trim()" style="font-size: 10.5px; color: var(--muted); margin: 2px 0 0 0; font-style: italic; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 340px; background: rgba(10, 10, 12, 0.90); border: 1.5px solid var(--border); padding: 22px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                     <div style="display: flex; flex-direction: column; gap: 4px;">
+                       <span style="font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px;">Cierre Dopamínico</span>
+                       <h3 style="font-size: 14px; font-weight: 900; color: var(--text); margin: 0;">¿Lograste completar tu objetivo?</h3>
+                       <p *ngIf="activeObjective() && activeObjective().trim()" style="font-size: 11px; color: var(--muted); margin: 4px 0 0 0; font-style: italic; max-width: 290px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                          "{{ activeObjective() }}"
                        </p>
                      </div>
 
-                     <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+                     <!-- Opciones de objetivo side-by-side (Tabs Horizontales) -->
+                     <div style="display: flex; gap: 8px; width: 100%;">
                        <!-- Opción 1: Sí, por completo -->
-                       <button (click)="objectiveCompleted.set('yes'); finishSession()"
-                               style="border: 1.5px solid var(--green); background: rgba(16, 185, 129, 0.08); color: var(--green); padding: 8px 12px; border-radius: 10px; font-size: 10.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
-                               onmouseover="this.style.background='rgba(16, 185, 129, 0.16)'"
-                               onmouseout="this.style.background='rgba(16, 185, 129, 0.08)'">
-                         <i class="fa-solid fa-circle-check"></i>
-                         Sí, por completo
+                       <button (click)="objectiveCompleted.set('yes')"
+                               [disabled]="sessionEndingStatus() === 'abandoned'"
+                               [style.background]="objectiveCompleted() === 'yes' ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
+                               [style.borderColor]="objectiveCompleted() === 'yes' ? 'var(--green)' : 'rgba(255, 255, 255, 0.08)'"
+                               [style.color]="objectiveCompleted() === 'yes' ? 'var(--green)' : 'var(--muted)'"
+                               [style.opacity]="sessionEndingStatus() === 'abandoned' ? 0.3 : 1.0"
+                               [style.cursor]="sessionEndingStatus() === 'abandoned' ? 'not-allowed' : 'pointer'"
+                               [style.pointerEvents]="sessionEndingStatus() === 'abandoned' ? 'none' : 'auto'"
+                               style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
+                               onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
+                               onmouseout="this.style.transform='scale(1)'">
+                         <i class="fa-solid fa-circle-check" style="font-size: 16px;"></i>
+                         <span>Completado</span>
                        </button>
 
                        <!-- Opción 2: Avancé bastante -->
-                       <button (click)="objectiveCompleted.set('progress'); finishSession()"
-                               style="border: 1.5px solid var(--accent); background: rgba(0, 242, 254, 0.08); color: var(--accent); padding: 8px 12px; border-radius: 10px; font-size: 10.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
-                               onmouseover="this.style.background='rgba(0, 242, 254, 0.16)'"
-                               onmouseout="this.style.background='rgba(0, 242, 254, 0.08)'">
-                         <i class="fa-solid fa-hourglass-half"></i>
-                         Avancé bastante
+                       <button (click)="objectiveCompleted.set('progress')"
+                               [disabled]="sessionEndingStatus() === 'abandoned'"
+                               [style.background]="objectiveCompleted() === 'progress' ? 'rgba(0, 242, 254, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
+                               [style.borderColor]="objectiveCompleted() === 'progress' ? 'var(--accent)' : 'rgba(255, 255, 255, 0.08)'"
+                               [style.color]="objectiveCompleted() === 'progress' ? 'var(--accent)' : 'var(--muted)'"
+                               [style.opacity]="sessionEndingStatus() === 'abandoned' ? 0.3 : 1.0"
+                               [style.cursor]="sessionEndingStatus() === 'abandoned' ? 'not-allowed' : 'pointer'"
+                               [style.pointerEvents]="sessionEndingStatus() === 'abandoned' ? 'none' : 'auto'"
+                               style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
+                               onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
+                               onmouseout="this.style.transform='scale(1)'">
+                         <i class="fa-solid fa-hourglass-half" style="font-size: 16px;"></i>
+                         <span>Avanzado</span>
                        </button>
 
                        <!-- Opción 3: No lo logré -->
-                       <button (click)="objectiveCompleted.set('no'); finishSession()"
-                               style="border: 1.5px solid var(--red); background: rgba(239, 68, 68, 0.08); color: var(--red); padding: 8px 12px; border-radius: 10px; font-size: 10.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
-                               onmouseover="this.style.background='rgba(239, 68, 68, 0.16)'"
-                               onmouseout="this.style.background='rgba(239, 68, 68, 0.08)'">
-                         <i class="fa-solid fa-circle-xmark"></i>
-                         No lo logré
+                       <button (click)="objectiveCompleted.set('no')"
+                               [style.background]="objectiveCompleted() === 'no' ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
+                               [style.borderColor]="objectiveCompleted() === 'no' ? 'var(--red)' : 'rgba(255, 255, 255, 0.08)'"
+                               [style.color]="objectiveCompleted() === 'no' ? 'var(--red)' : 'var(--muted)'"
+                               style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
+                               onmouseover="this.style.transform='scale(1.03)'"
+                               onmouseout="this.style.transform='scale(1)'">
+                         <i class="fa-solid fa-circle-xmark" style="font-size: 16px;"></i>
+                         <span>No lo logré</span>
                        </button>
                      </div>
+
+                     <!-- Sección de Siguiente Actividad (Siempre visible para iniciar inmediatamente) -->
+                     <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;">
+                       <span style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; display: block; margin-bottom: 2px;">Elige tu siguiente paso para iniciar:</span>
+                       
+                       <div style="display: flex; gap: 6px; width: 100%;">
+                         <!-- Descanso Corto -->
+                         <button (click)="finishSessionAndStart('short')"
+                                 style="flex: 1; border: 1.5px solid var(--accent); background: rgba(0, 242, 254, 0.08); color: var(--accent); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
+                                 onmouseover="this.style.background='rgba(0, 242, 254, 0.16)'; this.style.transform='translateY(-1px)';"
+                                 onmouseout="this.style.background='rgba(0, 242, 254, 0.08)'; this.style.transform='translateY(0)';"
+                                 title="Iniciar Descanso Corto inmediatamente">
+                           <i class="fa-solid fa-mug-hot" style="font-size: 14px;"></i>
+                           <span>D. Corto</span>
+                         </button>
+
+                         <!-- Descanso Largo -->
+                         <button (click)="finishSessionAndStart('long')"
+                                 style="flex: 1; border: 1.5px solid var(--accent); background: rgba(99, 102, 241, 0.08); color: var(--accent); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
+                                 onmouseover="this.style.background='rgba(99, 102, 241, 0.16)'; this.style.transform='translateY(-1px)';"
+                                 onmouseout="this.style.background='rgba(99, 102, 241, 0.08)'; this.style.transform='translateY(0)';"
+                                 title="Iniciar Descanso Largo inmediatamente">
+                           <i class="fa-solid fa-couch" style="font-size: 14px;"></i>
+                           <span>D. Largo</span>
+                         </button>
+
+                         <!-- Salir -->
+                         <button (click)="finishSessionAndStart('exit')"
+                                 style="flex: 1; border: 1.5px solid var(--muted); background: rgba(255, 255, 255, 0.03); color: var(--muted); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
+                                 onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='var(--text)'; this.style.transform='translateY(-1px)';"
+                                 onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.color='var(--muted)'; this.style.transform='translateY(0)';"
+                                 title="Salir a la configuración de concentración">
+                           <i class="fa-solid fa-arrow-right-from-bracket" style="font-size: 14px;"></i>
+                           <span>Salir</span>
+                         </button>
+                       </div>
+                     </div>
+
                    </div>
 
               </div>
+              
+              <!-- Línea de progreso de fusión consumible (diseño de fusible quemado/charcoal, visible en countdown y active) -->
+              <div *ngIf="arenaState() === 'countdown' || arenaState() === 'active'"
+                   [style.borderColor]="isBreak() ? 'rgba(0, 242, 254, 0.15)' : 'rgba(255, 61, 0, 0.15)'"
+                   style="width: 130px; height: 8px; background: #140d09; border-radius: 6px; margin: 16px auto 6px auto; overflow: hidden; position: relative; border: 1.5px solid; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9); z-index: 10;">
+                <div [style.width]="(timePercentage() * 100) + '%'"
+                     [style.background]="isBreak() ? 'linear-gradient(90deg, #0052d4 0%, #00f2fe 70%, #ffffff 100%)' : 'linear-gradient(90deg, #ff3d00 0%, #ff9100 70%, #ffea00 100%)'"
+                     [style.boxShadow]="isBreak() ? '0 0 12px rgba(0, 242, 254, 0.9), 0 0 4px rgba(255, 255, 255, 0.8)' : '0 0 12px rgba(255, 61, 0, 0.9), 0 0 4px rgba(255, 234, 0, 0.8)'"
+                     style="height: 100%; transition: width 1s linear; border-radius: 6px;">
+                </div>
+              </div>
+
             </ng-container>
 
           </div>
@@ -454,16 +525,27 @@
                
                <ng-container *ngIf="arenaState() !== 'summary'">
                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
-                   <!-- Iniciar (en setup) -->
-                   <button *ngIf="arenaState() === 'setup'" 
-                           (click)="startFocusFlow()" 
-                           style="border: none; background: var(--accent); color: #000; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--start-btn-width);"
-                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px var(--accent)';"
-                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.3)';"
-                           title="Iniciar Sesión de Enfoque">
-                     <i class="fa-solid fa-play"></i>
-                     <span>Iniciar</span>
-                   </button>
+                                       <!-- Iniciar / Iniciar Descanso (en setup) -->
+                    <button *ngIf="arenaState() === 'setup'" 
+                            (click)="startFocusFlow()" 
+                            style="border: none; background: var(--accent); color: #000; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--start-btn-width);"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px var(--accent)';"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.3)';"
+                            [title]="isBreak() ? 'Iniciar tiempo de descanso' : 'Iniciar Sesión de Enfoque'">
+                      <i class="fa-solid" [class.fa-couch]="isBreak()" [class.fa-play]="!isBreak()"></i>
+                      <span>{{ isBreak() ? 'Iniciar Descanso' : 'Iniciar' }}</span>
+                    </button>
+
+                    <!-- Reset/Volver a enfocar (en setup si es descanso) -->
+                    <button *ngIf="arenaState() === 'setup' && isBreak()" 
+                            (click)="resetToFocus()" 
+                            style="border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: var(--muted); padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: auto;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--text)';"
+                            onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.color='var(--muted)';"
+                            title="Volver a enfocar (ignorar descanso)">
+                      <i class="fa-solid fa-rotate-left"></i>
+                      <span>Reset</span>
+                    </button>
  
                    <!-- Ajustes (en setup) -->
                    <button *ngIf="arenaState() === 'setup'" 
@@ -477,8 +559,8 @@
                      <i class="fa-solid fa-gear" style="font-size: calc(var(--settings-btn-size) * 0.36);"></i>
                    </button>
  
-                   <!-- Pausa (en active) -->
-                   <button *ngIf="arenaState() === 'active'" 
+                   <!-- Pausa (en active si no es descanso) -->
+                    <button *ngIf="arenaState() === 'active' && !isBreak()" 
                            (click)="toggleEmergencyPause()" 
                            style="border: 1px solid var(--border); padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
                            [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
@@ -489,8 +571,8 @@
                      <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Pausa' }}</span>
                    </button>
  
-                   <!-- Abandonar (en active) -->
-                   <button *ngIf="arenaState() === 'active'" 
+                   <!-- Abandonar (en active si no es descanso) -->
+                    <button *ngIf="arenaState() === 'active' && !isBreak()" 
                            (click)="abandonSession()" 
                            style="border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
                            onmouseover="this.style.background='rgba(239, 68, 68, 0.1)';"
@@ -513,46 +595,100 @@
                </ng-container>
 
                <!-- CUESTIONARIO POST-SESIÓN (en summary) -->
-                <div *ngIf="arenaState() === 'summary' && timerStyle() === 'digital'" 
-                    style="display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; background: rgba(10, 10, 12, 0.75); border: 1.5px solid var(--border); padding: 20px; border-radius: 16px; margin-top: 10px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-                
-                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                   <span style="font-size: 9px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px;">Cierre Dopamínico</span>
-                   <h3 style="font-size: 14px; font-weight: 900; color: var(--text); margin: 0;">¿Lograste completar tu objetivo?</h3>
-                   <p *ngIf="activeObjective() && activeObjective().trim()" style="font-size: 11.5px; color: var(--muted); margin: 2px 0 0 0; font-style: italic;">
-                     "{{ activeObjective() }}"
-                   </p>
-                 </div>
+                <div *ngIf="arenaState() === 'summary' && timerStyle() === 'digital'"
+                     style="display: flex; flex-direction: column; align-items: center; gap: 16px; width: 340px; background: rgba(255,255,255,0.02); border: 1.5px solid var(--border); padding: 22px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px;">Cierre Dopamínico</span>
+                    <h3 style="font-size: 14px; font-weight: 900; color: var(--text); margin: 0;">¿Lograste completar tu objetivo?</h3>
+                    <p *ngIf="activeObjective() && activeObjective().trim()" style="font-size: 11px; color: var(--muted); margin: 4px 0 0 0; font-style: italic; max-width: 290px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      "{{ activeObjective() }}"
+                    </p>
+                  </div>
 
-                 <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                   <!-- Opción 1: Sí, por completo -->
-                   <button (click)="objectiveCompleted.set('yes'); finishSession()"
-                           style="border: 1.5px solid var(--green); background: rgba(16, 185, 129, 0.08); color: var(--green); padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
-                           onmouseover="this.style.background='rgba(16, 185, 129, 0.16)'"
-                           onmouseout="this.style.background='rgba(16, 185, 129, 0.08)'">
-                     <i class="fa-solid fa-circle-check"></i>
-                     Sí, por completo
-                   </button>
+                  <!-- Opciones de objetivo side-by-side (Tabs Horizontales) -->
+                  <div style="display: flex; gap: 8px; width: 100%;">
+                    <!-- Opción 1: Sí, por completo -->
+                    <button (click)="objectiveCompleted.set('yes')"
+                            [disabled]="sessionEndingStatus() === 'abandoned'"
+                            [style.background]="objectiveCompleted() === 'yes' ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
+                            [style.borderColor]="objectiveCompleted() === 'yes' ? 'var(--green)' : 'rgba(255, 255, 255, 0.08)'"
+                            [style.color]="objectiveCompleted() === 'yes' ? 'var(--green)' : 'var(--muted)'"
+                            [style.opacity]="sessionEndingStatus() === 'abandoned' ? 0.3 : 1.0"
+                            [style.cursor]="sessionEndingStatus() === 'abandoned' ? 'not-allowed' : 'pointer'"
+                            [style.pointerEvents]="sessionEndingStatus() === 'abandoned' ? 'none' : 'auto'"
+                            style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
+                            onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                      <i class="fa-solid fa-circle-check" style="font-size: 16px;"></i>
+                      <span>Completado</span>
+                    </button>
 
-                   <!-- Opción 2: Avancé bastante -->
-                   <button (click)="objectiveCompleted.set('progress'); finishSession()"
-                           style="border: 1.5px solid var(--accent); background: rgba(0, 242, 254, 0.08); color: var(--accent); padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
-                           onmouseover="this.style.background='rgba(0, 242, 254, 0.16)'"
-                           onmouseout="this.style.background='rgba(0, 242, 254, 0.08)'">
-                     <i class="fa-solid fa-hourglass-half"></i>
-                     Avancé bastante
-                   </button>
+                    <!-- Opción 2: Avancé bastante -->
+                    <button (click)="objectiveCompleted.set('progress')"
+                            [disabled]="sessionEndingStatus() === 'abandoned'"
+                            [style.background]="objectiveCompleted() === 'progress' ? 'rgba(0, 242, 254, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
+                            [style.borderColor]="objectiveCompleted() === 'progress' ? 'var(--accent)' : 'rgba(255, 255, 255, 0.08)'"
+                            [style.color]="objectiveCompleted() === 'progress' ? 'var(--accent)' : 'var(--muted)'"
+                            [style.opacity]="sessionEndingStatus() === 'abandoned' ? 0.3 : 1.0"
+                            [style.cursor]="sessionEndingStatus() === 'abandoned' ? 'not-allowed' : 'pointer'"
+                            [style.pointerEvents]="sessionEndingStatus() === 'abandoned' ? 'none' : 'auto'"
+                            style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
+                            onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                      <i class="fa-solid fa-hourglass-half" style="font-size: 16px;"></i>
+                      <span>Avanzado</span>
+                    </button>
 
-                   <!-- Opción 3: No lo logré -->
-                   <button (click)="objectiveCompleted.set('no'); finishSession()"
-                           style="border: 1.5px solid var(--red); background: rgba(239, 68, 68, 0.08); color: var(--red); padding: 10px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;"
-                           onmouseover="this.style.background='rgba(239, 68, 68, 0.16)'"
-                           onmouseout="this.style.background='rgba(239, 68, 68, 0.08)'">
-                     <i class="fa-solid fa-circle-xmark"></i>
-                     No lo logré
-                   </button>
-                 </div>
-               </div>
+                    <!-- Opción 3: No lo logré -->
+                    <button (click)="objectiveCompleted.set('no')"
+                            [style.background]="objectiveCompleted() === 'no' ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
+                            [style.borderColor]="objectiveCompleted() === 'no' ? 'var(--red)' : 'rgba(255, 255, 255, 0.08)'"
+                            [style.color]="objectiveCompleted() === 'no' ? 'var(--red)' : 'var(--muted)'"
+                            style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
+                            onmouseover="this.style.transform='scale(1.03)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                      <i class="fa-solid fa-circle-xmark" style="font-size: 16px;"></i>
+                      <span>No lo logré</span>
+                    </button>
+                  </div>
+
+                  <!-- Sección de Siguiente Actividad (Siempre visible para iniciar inmediatamente) -->
+                  <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;">
+                    <span style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; display: block; margin-bottom: 2px;">Elige tu siguiente paso para iniciar:</span>
+                    
+                    <div style="display: flex; gap: 6px; width: 100%;">
+                      <!-- Descanso Corto -->
+                      <button (click)="finishSessionAndStart('short')"
+                              style="flex: 1; border: 1.5px solid var(--accent); background: rgba(0, 242, 254, 0.08); color: var(--accent); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
+                              onmouseover="this.style.background='rgba(0, 242, 254, 0.16)'; this.style.transform='translateY(-1px)';"
+                              onmouseout="this.style.background='rgba(0, 242, 254, 0.08)'; this.style.transform='translateY(0)';"
+                              title="Iniciar Descanso Corto inmediatamente">
+                        <i class="fa-solid fa-mug-hot" style="font-size: 14px;"></i>
+                        <span>D. Corto</span>
+                      </button>
+
+                      <!-- Descanso Largo -->
+                      <button (click)="finishSessionAndStart('long')"
+                              style="flex: 1; border: 1.5px solid var(--accent); background: rgba(99, 102, 241, 0.08); color: var(--accent); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
+                              onmouseover="this.style.background='rgba(99, 102, 241, 0.16)'; this.style.transform='translateY(-1px)';"
+                              onmouseout="this.style.background='rgba(99, 102, 241, 0.08)'; this.style.transform='translateY(0)';"
+                              title="Iniciar Descanso Largo inmediatamente">
+                        <i class="fa-solid fa-couch" style="font-size: 14px;"></i>
+                        <span>D. Largo</span>
+                      </button>
+
+                      <!-- Salir -->
+                      <button (click)="finishSessionAndStart('exit')"
+                              style="flex: 1; border: 1.5px solid var(--muted); background: rgba(255, 255, 255, 0.03); color: var(--muted); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
+                              onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='var(--text)'; this.style.transform='translateY(-1px)';"
+                              onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.color='var(--muted)'; this.style.transform='translateY(0)';"
+                              title="Salir a la configuración de concentración">
+                        <i class="fa-solid fa-arrow-right-from-bracket" style="font-size: 14px;"></i>
+                        <span>Salir</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
              </div>
 
         </div>
@@ -759,67 +895,6 @@
       <span style="font-size: 9.5px; color: var(--muted); line-height: 1.35;">
         Si abandonas o interrumpes tu sesión antes de completarla, tu mensaje de apoyo no se entregará. ¡Mantente enfocado!
       </span>
-    </div>
-
-  </div>
-</div>
-
-<!-- MODAL DE MENSAJE DE DESPEDIDA/APOYO POST-SESIÓN (AL COMPLETAR EXITOSAMENTE) -->
-<div *ngIf="showPostSessionSupportModal()" 
-     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 15000; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Space Grotesk', sans-serif;">
-  
-  <div style="background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); position: relative;">
-    
-    <!-- Botón Cerrar -->
-    <button (click)="confirmPostSessionMessageAndExit()" 
-            style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px;">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-
-    <!-- Cabecera -->
-    <div style="margin-bottom: 20px;">
-      <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1.5px solid var(--green); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
-        <i class="fa-solid fa-award" style="color: var(--green); font-size: 18px;"></i>
-      </div>
-      <h2 style="font-size: 18px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.5px;">¡Sesión Completada!</h2>
-      <p style="font-size: 11.5px; color: var(--muted); margin: 6px 0 0 0; line-height: 1.4;">
-        ¡Has dominado tu enfoque! Deja un mensaje de aliento en el muro de la Comunidad para motivar al resto de tus compañeros.
-      </p>
-    </div>
-
-    <!-- Opciones Predefinidas -->
-    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; text-align: left;">
-      <div *ngFor="let msg of predefinedPostSessionMessages"
-           (click)="selectedPostSessionMessage.set(msg)"
-           style="display: flex; align-items: center; justify-content: space-between; border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 11px; font-weight: 700; gap: 10px;"
-           [style.border]="selectedPostSessionMessage() === msg ? '2px solid var(--accent)' : '1px solid var(--border)'"
-           [style.background]="selectedPostSessionMessage() === msg ? 'rgba(99,102,241,0.14)' : 'rgba(0,0,0,0.18)'"
-           [style.color]="selectedPostSessionMessage() === msg ? 'var(--text)' : 'var(--muted)'"
-           onmouseover="this.style.borderColor='var(--accent)'"
-           onmouseout="if(this.selectedPostSessionMessage() !== msg) { this.style.borderColor='var(--border)' }">
-        <span>{{ msg }}</span>
-        
-        <!-- Checkbox de selección -->
-        <div style="width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;"
-             [style.background]="selectedPostSessionMessage() === msg ? 'var(--accent)' : 'transparent'"
-             [style.border]="selectedPostSessionMessage() === msg ? 'none' : '1px solid rgba(255,255,255,0.2)'">
-          <i class="fa-solid fa-check" style="font-size: 9px; color: #000;" *ngIf="selectedPostSessionMessage() === msg"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Acción de Envío -->
-    <div style="display: flex; flex-direction: column; gap: 8px;">
-      <button (click)="confirmPostSessionMessageAndExit()" 
-              style="width: 100%; border: none; padding: 12px; border-radius: 10px; background: var(--accent); color: #000; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit;"
-              onmouseover="this.style.transform='scale(1.02)'"
-              onmouseout="this.style.transform='scale(1)'">
-        Enviar Mensaje y Salir
-      </button>
-      <button (click)="confirmPostSessionMessageAndExit()" 
-              style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.06); padding: 10px; border-radius: 10px; color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;">
-        Salir sin mensaje
-      </button>
     </div>
 
   </div>
@@ -1324,7 +1399,7 @@
                      [style.boxShadow]="activeBackground() === bg ? '0 0 12px rgba(99, 102, 241, 0.25)' : '0 4px 10px rgba(0,0,0,0.3)'">
                   
                   <div style="width: 100%; height: 100%; background-size: cover; background-position: center;"
-                       [style.backgroundImage]="bg === 'off' ? 'none' : 'url(assets/images/' + (bg === 'fairy' ? 'fairy_world.webp' : (bg === 'lofi_study_desktop' ? 'lofi_study_desktop.webp' : (bg === 'lofi_moons' ? 'lofi_moons.webp' : 'lofi_study_rain.webp'))) + ')'"
+                       [style.backgroundImage]="bg === 'off' ? 'none' : 'url(assets/images/' + (bg === 'fairy' ? 'fairy_world.webp' : (bg === 'lofi_study_desktop' ? 'lofi_study_desktop.webp' : (bg === 'lofi_moons' ? 'lofi_moons.webp' : (bg === 'lofi_study_rain' ? 'lofi_study_rain.webp' : 'forest_campfire_lofi.jpg')))) + ')'"
                        [style.opacity]="bg === 'off' ? '0.3' : '1'">
                   </div>
 
@@ -1347,13 +1422,13 @@
                 <span class="thumb-label" 
                       style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
                       [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
-                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : 'Lluvia'))) }}
+                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : (bg === 'lofi_study_rain' ? 'Lluvia' : 'Bosque')))) }}
                 </span>
               </div>
             </div>
             
             <span style="font-size: var(--modal-subtext-size); color: var(--muted); line-height: 1.3; margin-top: 2px;">
-              {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : 'Lluvia'))) + '" activo con aura sutil' }}
+              {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : (activeBackground() === 'lofi_study_rain' ? 'Lluvia' : 'Fogata Bosque')))) + '" activo con aura sutil' }}
             </span>
           </div>
 

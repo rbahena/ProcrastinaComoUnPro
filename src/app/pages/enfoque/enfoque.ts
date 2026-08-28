@@ -129,11 +129,11 @@ export class Enfoque implements OnInit, OnDestroy {
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
-  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain'>(
+  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire'>(
     (localStorage.getItem('focus-active-bg') as any) || 'off'
   );
-  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain')[] = [
-    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain'
+  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire')[] = [
+    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire'
   ];
   backgroundUrl = computed(() => {
     const bg = this.activeBackground();
@@ -141,6 +141,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_study_desktop') return 'assets/images/lofi_study_desktop.webp';
     if (bg === 'lofi_moons') return 'assets/images/lofi_moons.webp';
     if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain.webp';
+    if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
     return '';
   });
   useFairyBackground = computed(() => this.activeBackground() !== 'off');
@@ -185,6 +186,10 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Escala del fuego basada en el tiempo restante (de 1.20 a 0.35)
   fireScale = computed(() => {
+    if (this.isBreak()) {
+      const pct = this.timePercentage();
+      return 0.40 + pct * 0.15;
+    }
     const pct = this.timePercentage();
     if (pct <= 0) return 0;
     return 0.35 + pct * 0.85;
@@ -192,6 +197,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Opacidad y parpadeo final del fuego
   fireOpacity = computed(() => {
+    if (this.isBreak()) return 1.0;
     const pct = this.timePercentage();
     if (pct <= 0) return 0;
     if (pct < 0.05) {
@@ -202,6 +208,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Opacidades individuales para las capas de la llama y chispas
   sparksOpacity = computed(() => {
+    if (this.isBreak()) return 0.50; // Chispas constantes en descanso
     if (this.arenaState() === 'setup') return 1.0;
     const pct = this.timePercentage();
     if (pct > 0.3) return 1.0;
@@ -210,6 +217,7 @@ export class Enfoque implements OnInit, OnDestroy {
   });
 
   innerFlameOpacity = computed(() => {
+    if (this.isBreak()) return 0.0;
     if (this.arenaState() === 'setup') return 1.0;
     const pct = this.timePercentage();
     if (pct > 0.2) return 1.0;
@@ -218,6 +226,7 @@ export class Enfoque implements OnInit, OnDestroy {
   });
 
   middleFlameOpacity = computed(() => {
+    if (this.isBreak()) return 0.0;
     if (this.arenaState() === 'setup') return 1.0;
     const pct = this.timePercentage();
     if (pct > 0.1) return 1.0;
@@ -226,6 +235,7 @@ export class Enfoque implements OnInit, OnDestroy {
   });
 
   outerFlameOpacity = computed(() => {
+    if (this.isBreak()) return 0.0;
     if (this.arenaState() === 'setup') return 1.0;
     const pct = this.timePercentage();
     if (pct > 0.05) return 1.0;
@@ -250,7 +260,7 @@ export class Enfoque implements OnInit, OnDestroy {
   private pomodoroTimer: any = null;
 
   // Lógica del Ritual 3-2-1
-  countdownValue = signal(3);
+  countdownValue = signal(5);
   private countdownTimer: any = null;
 
   // Lógica del Botón de Pánico (Pausa de Emergencia de 2 min)
@@ -409,14 +419,20 @@ export class Enfoque implements OnInit, OnDestroy {
     this.partnerStatusText.set('Enfocado');
     this.showPartnerNotification.set(false);
 
-    // Configurar tiempos iniciales según setup
-    this.totalSessionTime.set(this.focusDuration() * 60);
-    this.timeLeft.set(this.focusDuration() * 60);
-    this.isBreak.set(false);
+    // Configurar tiempos iniciales según setup (respetando si es descanso o enfoque)
+    if (!this.isBreak()) {
+      this.totalSessionTime.set(this.focusDuration() * 60);
+      this.timeLeft.set(this.focusDuration() * 60);
+    } else {
+      const isLongBreak = this.completedPomodoros() > 0 && (this.completedPomodoros() % this.longBreakInterval() === 0);
+      const duration = isLongBreak ? this.longBreakDuration() : this.breakDuration();
+      this.totalSessionTime.set(duration * 60);
+      this.timeLeft.set(duration * 60);
+    }
     
     // Cambiar a estado cuenta regresiva
     this.arenaState.set('countdown');
-    this.countdownValue.set(3);
+    this.countdownValue.set(5);
 
     // Sonido sutil de preparación
     this.playTone(220, 'sine', 0.1, 0.15);
@@ -476,6 +492,7 @@ export class Enfoque implements OnInit, OnDestroy {
           this.stopEmergencyTimer();
           this.sessionEndingStatus.set('interrupted');
           this.interruptedByPause.set(true);
+          this.objectiveCompleted.set('yes');
           this.arenaState.set('summary');
           this.playTone(150, 'sawtooth', 0.15, 0.5);
 
@@ -497,6 +514,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.backgroundSound.set('off');
     this.sessionEndingStatus.set('abandoned');
     this.manuallyAbandoned.set(true);
+    this.objectiveCompleted.set('no');
     this.arenaState.set('summary');
 
     // Cura al jefe por abandono en comunidad
@@ -511,6 +529,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.stopTimerLoop();
     this.stopEmergencyTimer();
     this.sessionEndingStatus.set('completed');
+    this.objectiveCompleted.set('yes');
     this.arenaState.set('summary');
     this.playAlarmTone();
     this.triggerCelebration();
@@ -555,7 +574,7 @@ export class Enfoque implements OnInit, OnDestroy {
     }, 8000);
   }
 
-  finishSession() {
+  finishSessionAndStart(nextState: 'short' | 'long' | 'exit') {
     this.stopBackgroundSound();
     this.backgroundSound.set('off');
 
@@ -600,33 +619,43 @@ export class Enfoque implements OnInit, OnDestroy {
           objCompleted === 'yes',
           this.activeObjective()
         );
-
-        // Si estamos en comunidad, mostramos la modal post-sesión para dejar un mensaje de motivación en el muro
-        if (this.coworkingMode() === 'comunitario' && !this.showPostSessionSupportModal()) {
-          this.showPostSessionSupportModal.set(true);
-          return;
-        }
       } else if (currentStatus === 'abandoned' && this.membership.isPremium()) {
         // Castigo de -50 XP por abandonar
         this.membership.addFocusPoints(-50);
       }
     }
 
+    // Configurar e INICIAR la siguiente sesión según la elección del usuario
+    if (nextState === 'short') {
+      this.isBreak.set(true);
+      const duration = this.breakDuration();
+      this.totalSessionTime.set(duration * 60);
+      this.timeLeft.set(duration * 60);
+      this.arenaState.set('countdown');
+      this.startTimerLoop();
+    } else if (nextState === 'long') {
+      this.isBreak.set(true);
+      const duration = this.longBreakDuration();
+      this.totalSessionTime.set(duration * 60);
+      this.timeLeft.set(duration * 60);
+      this.arenaState.set('countdown');
+      this.startTimerLoop();
+    } else { // exit (concentrarme / setup view)
+      this.isBreak.set(false);
+      this.totalSessionTime.set(this.focusDuration() * 60);
+      this.timeLeft.set(this.focusDuration() * 60);
+      this.arenaState.set('setup');
+    }
+
     this.objectiveCompleted.set(null);
-    this.arenaState.set('setup');
     this.router.navigate(['/enfoque']);
   }
 
-  confirmPostSessionMessageAndExit() {
-    this.showPostSessionSupportModal.set(false);
-    
-    // Guardamos en localStorage el mensaje enviado para simular persistencia
-    const msg = this.selectedPostSessionMessage();
-    localStorage.setItem('last-sent-post-session-message', msg);
-    
-    this.objectiveCompleted.set(null);
-    this.arenaState.set('setup');
-    this.router.navigate(['/enfoque']);
+  
+  resetToFocus() {
+    this.isBreak.set(false);
+    this.totalSessionTime.set(this.focusDuration() * 60);
+    this.timeLeft.set(this.focusDuration() * 60);
   }
 
   resetDailyAttempts() {
@@ -650,6 +679,9 @@ export class Enfoque implements OnInit, OnDestroy {
     this.stopBackgroundSound();
     this.backgroundSound.set('off');
     this.objectiveCompleted.set(null);
+    this.isBreak.set(false);
+    this.totalSessionTime.set(this.focusDuration() * 60);
+    this.timeLeft.set(this.focusDuration() * 60);
     this.arenaState.set('setup');
   }
 
@@ -941,7 +973,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Setter de fondo de pantalla Zen
-  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain') {
+  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire') {
     this.activeBackground.set(bg);
     localStorage.setItem('focus-active-bg', bg);
   }
@@ -990,11 +1022,15 @@ export class Enfoque implements OnInit, OnDestroy {
         if (!this.isBreak()) {
           // Cambiar a descanso y lanzar cuestionario como completado
           this.sessionEndingStatus.set('completed');
+          this.objectiveCompleted.set('yes');
           this.arenaState.set('summary');
           this.playAlarmTone();
           this.triggerCelebration();
         } else {
           // Fin del descanso, vuelve a enfoque setup
+          this.isBreak.set(false);
+          this.totalSessionTime.set(this.focusDuration() * 60);
+          this.timeLeft.set(this.focusDuration() * 60);
           this.arenaState.set('setup');
         }
       }
