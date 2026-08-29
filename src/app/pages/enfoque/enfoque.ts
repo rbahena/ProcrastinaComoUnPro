@@ -180,7 +180,7 @@ export class Enfoque implements OnInit, OnDestroy {
   private onMouseLeaveFn = () => this.onMouseLeaveWindow();
 
   // Estilo del Temporizador (Clásico vs Fuego Premium)
-  timerStyle = signal<'digital' | 'fire'>(
+  timerStyle = signal<'digital' | 'fire' | 'apple'>(
     (localStorage.getItem('focus-timer-style') as any) || 'digital'
   );
 
@@ -190,6 +190,11 @@ export class Enfoque implements OnInit, OnDestroy {
     const left = this.timeLeft();
     if (total <= 0) return 0;
     return left / total;
+  });
+
+  // Ancho de recorte dinámico para devorar la manzana (de 85 a 15)
+  clipWidth = computed(() => {
+    return 15 + this.timePercentage() * 70;
   });
 
   // Escala del fuego basada en el tiempo restante (de 1.20 a 0.35)
@@ -345,9 +350,18 @@ export class Enfoque implements OnInit, OnDestroy {
   ];
   selectedPostSessionMessage = signal('⚡ ¡Tú puedes con el cierre! Te espero en la comunidad.');
 
-  // Modal de Guía de Raid y Bestiario
-  showRaidGuideModal = signal(false);
-  activeRaidTab = signal<'guide' | 'bestiary' | 'stats'>('guide');
+  isConsolePinned = signal(false);
+  showAbandonConfirmModal = signal(false);
+  showInterruptedModal = signal(false);
+  bossHealAmount = computed(() => Math.round(this.bossService.activeBoss().maxHp * 0.02));
+  objectiveConfirmed = signal(false);
+
+  confirmObjective() {
+    this.objectiveConfirmed.set(true);
+    setTimeout(() => {
+      this.objectiveConfirmed.set(false);
+    }, 2000);
+  }
 
   // Resultados del Cuestionario Post-Sesión
   sessionEndingStatus = signal<'completed' | 'interrupted' | 'abandoned'>('completed');
@@ -485,7 +499,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.startFocusFlow(true);
   }
 
-  // Pausa de Emergencia (Botón de Pánico)
+  // Interrupción / Pausa (Botón de Pánico - Cuenta regresiva de 2 minutos)
   toggleEmergencyPause() {
     if (this.emergencyPauseActive()) {
       // Reanudar
@@ -493,43 +507,81 @@ export class Enfoque implements OnInit, OnDestroy {
       this.emergencyPauseActive.set(false);
       this.startTimerLoop();
     } else {
-      // Activar pausa
+      // Activar interrupción
       this.stopTimerLoop();
       this.emergencyPauseActive.set(true);
       
-      const limitSeconds = this.membership.isPremium() ? 180 : 120;
+      const limitSeconds = 120; // 2 minutos para todos
       this.emergencyTimeLeft.set(limitSeconds);
 
       this.emergencyTimer = setInterval(() => {
         if (this.emergencyTimeLeft() > 0) {
           this.emergencyTimeLeft.update(t => t - 1);
           
-          // Ocasionalmente alertar en el feed que estás en pausa
-          const halfTime = this.membership.isPremium() ? 90 : 60;
-          if (this.emergencyTimeLeft() === halfTime && this.coworkingMode() === 'comunitario') {
-            this.addComunidadEvent('⚠️ Varios compañeros notaron tu pausa. ¡Reanuda pronto!', 'reaction');
+          // Ocasionalmente alertar en el feed que estás en pausa/interrupción
+          if (this.emergencyTimeLeft() === 60 && this.coworkingMode() === 'comunitario') {
+            this.addComunidadEvent('⚠️ Varios compañeros notaron tu interrupción. ¡Reanuda pronto!', 'reaction');
           }
         } else {
-          // Se acabó el tiempo de pausa -> Sesión Interrumpida automáticamente
+          // Se acabó el tiempo de interrupción -> Sesión Cancelada automáticamente
           this.stopEmergencyTimer();
+          this.stopTimerLoop();
+          this.stopBackgroundSound();
+          this.backgroundSound.set('off');
+          
           this.sessionEndingStatus.set('interrupted');
           this.interruptedByPause.set(true);
-          this.objectiveCompleted.set('yes');
-          this.arenaState.set('summary');
-          this.playTone(150, 'sawtooth', 0.15, 0.5);
+          
+          // Penalización de monedas (ProCoins)
+          this.membership.proCoins.update(coins => Math.max(0, coins - 50));
 
-          // Cura al jefe por agotarse la pausa en comunidad
+          // Registrar intento diario
+          const now = new Date();
+          const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+          const newAttempt = { status: 'interrupted' as const, time: timeStr };
+          const updatedAttempts = [...this.dailyAttempts(), newAttempt];
+          this.dailyAttempts.set(updatedAttempts);
+          localStorage.setItem('daily-attempts', JSON.stringify(updatedAttempts));
+
+          if (this.membership.isPremium()) {
+            this.membership.addFocusPoints(-50);
+          }
+
+          // Cura al jefe por agotarse la interrupción en comunidad
           if (this.coworkingMode() === 'comunitario') {
             this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
             this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} se distrajo por demasiado tiempo. ¡El Oni recupera fuerzas!`, 'reaction');
           }
+
+          // Reiniciar pomodoro directamente al estado setup
+          this.isBreak.set(false);
+          this.totalSessionTime.set(this.focusDuration() * 60);
+          this.timeLeft.set(this.focusDuration() * 60);
+          this.arenaState.set('setup');
+          this.emergencyPauseActive.set(false);
+          this.objectiveCompleted.set(null);
+          this.router.navigate(['/enfoque']);
+
+          // Mostrar modal informativo de cancelación
+          this.showInterruptedModal.set(true);
+          this.playTone(150, 'sawtooth', 0.15, 0.5);
         }
       }, 1000);
     }
   }
 
-  // Abandonar Sesión (Lanza Cuestionario Post-Sesión)
+  // Abandonar Sesión (Muestra la confirmación de abandono)
   abandonSession() {
+    this.showAbandonConfirmModal.set(true);
+  }
+
+  // Confirmación de Abandono (Ejecuta la penalización y reinicia el Pomodoro)
+  confirmAbandon() {
+    this.showAbandonConfirmModal.set(false);
+
+    // Penalización de monedas (ProCoins)
+    this.membership.proCoins.update(coins => Math.max(0, coins - 50));
+
     this.stopTimerLoop();
     this.stopEmergencyTimer();
     this.stopBackgroundSound();
@@ -537,24 +589,52 @@ export class Enfoque implements OnInit, OnDestroy {
     this.sessionEndingStatus.set('abandoned');
     this.manuallyAbandoned.set(true);
     this.objectiveCompleted.set('no');
-    this.arenaState.set('summary');
+
+    // Registrar intento diario
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const newAttempt = { status: 'abandoned' as const, time: timeStr };
+    const updatedAttempts = [...this.dailyAttempts(), newAttempt];
+    this.dailyAttempts.set(updatedAttempts);
+    localStorage.setItem('daily-attempts', JSON.stringify(updatedAttempts));
+
+    if (this.membership.isPremium()) {
+      // Castigo de -50 XP por abandonar
+      this.membership.addFocusPoints(-50);
+    }
 
     // Cura al jefe por abandono en comunidad
     if (this.coworkingMode() === 'comunitario') {
       this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
       this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} ha abandonado la sesión de enfoque. ¡El Oni se fortalece!`, 'reaction');
     }
+
+    // Reiniciar pomodoro directamente al estado setup
+    this.isBreak.set(false);
+    this.totalSessionTime.set(this.focusDuration() * 60);
+    this.timeLeft.set(this.focusDuration() * 60);
+    this.arenaState.set('setup');
+    this.objectiveCompleted.set(null);
+    this.router.navigate(['/enfoque']);
   }
 
   simulateCompletion() {
     this.timeLeft.set(0);
     this.stopTimerLoop();
     this.stopEmergencyTimer();
-    this.sessionEndingStatus.set('completed');
-    this.objectiveCompleted.set('yes');
-    this.arenaState.set('summary');
-    this.playAlarmTone();
-    this.triggerCelebration();
+    
+    if (!this.isBreak()) {
+      this.sessionEndingStatus.set('completed');
+      this.objectiveCompleted.set('yes');
+      this.arenaState.set('summary');
+      this.playAlarmTone();
+      this.triggerCelebration();
+    } else {
+      this.isBreak.set(false);
+      this.totalSessionTime.set(this.focusDuration() * 60);
+      this.timeLeft.set(this.focusDuration() * 60);
+      this.arenaState.set('setup');
+    }
   }
 
   triggerCelebration() {
@@ -653,14 +733,14 @@ export class Enfoque implements OnInit, OnDestroy {
       const duration = this.breakDuration();
       this.totalSessionTime.set(duration * 60);
       this.timeLeft.set(duration * 60);
-      this.arenaState.set('countdown');
+      this.arenaState.set('active');
       this.startTimerLoop();
     } else if (nextState === 'long') {
       this.isBreak.set(true);
       const duration = this.longBreakDuration();
       this.totalSessionTime.set(duration * 60);
       this.timeLeft.set(duration * 60);
-      this.arenaState.set('countdown');
+      this.arenaState.set('active');
       this.startTimerLoop();
     } else { // exit (concentrarme / setup view)
       this.isBreak.set(false);
@@ -1074,8 +1154,8 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Setter del estilo de cronómetro Zen (con verificación Premium)
-  setTimerStyle(style: 'digital' | 'fire') {
-    if (style === 'fire' && !this.membership.isPremium()) {
+  setTimerStyle(style: 'digital' | 'fire' | 'apple') {
+    if ((style === 'fire' || style === 'apple') && !this.membership.isPremium()) {
       this.showPaywallModal.set(true);
       return;
     }

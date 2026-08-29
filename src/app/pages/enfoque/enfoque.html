@@ -33,22 +33,16 @@
       overflow-y: auto;
       overflow-x: hidden;
       box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
-      animation: slideDown 0.25s ease; /* Modified to match the other cards' drop down/fade animation */
-      transition: all 0.3s ease;
-    }
-    .console-drawer-animated {
-      animation: consoleSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       transform-origin: bottom left;
+      transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, visibility 0.65s !important;
+      opacity: 1;
+      visibility: visible;
     }
-    @keyframes consoleSlideUp {
-      from {
-        opacity: 0;
-        transform: translateY(12px) scale(0.97);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+    .console-hidden {
+      opacity: 0 !important;
+      transform: scale(0.01) translateY(80px) !important;
+      pointer-events: none !important;
+      visibility: hidden;
     }
     @media (max-width: 1200px) {
       .floating-drawer {
@@ -69,6 +63,206 @@
         bottom: 12px;
       }
     }
+
+    /* RESPONSIVE SUMMARY MODAL (Cierre Dopamínico) */
+    .summary-modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(10, 10, 12, 0.92);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+      width: 320px;
+      padding: 18px;
+      gap: 14px;
+    }
+    
+    .summary-header-label {
+      font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-size: 11px;
+    }
+    .summary-question {
+      font-weight: 900;
+      color: var(--text);
+      margin: 0;
+      line-height: 1.25;
+      font-size: 15px;
+    }
+    .summary-objective-text {
+      color: var(--muted);
+      margin: 4px 0 0 0;
+      font-style: italic;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+      max-width: 270px;
+    }
+    .summary-choice-btn {
+      flex: 1;
+      border: 1.5px solid;
+      border-radius: 12px;
+      font-weight: 800;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      padding: 12px 6px;
+      font-size: 12px;
+    }
+    .summary-choice-btn i {
+      font-size: 18px;
+    }
+    .summary-section-title {
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      display: block;
+      margin-bottom: 2px;
+      font-size: 11px;
+    }
+    .summary-next-btn {
+      flex: 1;
+      border-radius: 10px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 6px;
+      font-size: 11px;
+    }
+    .summary-next-btn i {
+      font-size: 15px;
+    }
+    .summary-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .summary-options-container {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .summary-next-steps-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+    .summary-next-steps-wrapper {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .summary-modal {
+        width: 370px;
+        padding: 24px;
+        gap: 18px;
+      }
+      .summary-header-label {
+        font-size: 12px;
+      }
+      .summary-question {
+        font-size: 17px;
+      }
+      .summary-objective-text {
+        font-size: 13.5px;
+        max-width: 310px;
+      }
+      .summary-choice-btn {
+        padding: 14px 10px;
+        font-size: 13.5px;
+      }
+      .summary-choice-btn i {
+        font-size: 20px;
+      }
+      .summary-section-title {
+        font-size: 12px;
+      }
+      .summary-next-btn {
+        padding: 12px 10px;
+        font-size: 12px;
+      }
+      .summary-next-btn i {
+        font-size: 17px;
+      }
+      .summary-next-steps-container {
+        padding-top: 16px;
+        margin-top: 6px;
+        gap: 10px;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .summary-modal {
+        width: 420px;
+        padding: 28px;
+        gap: 22px;
+        border-radius: 20px;
+      }
+      .summary-header-label {
+        font-size: 13px;
+        letter-spacing: 1.8px;
+      }
+      .summary-question {
+        font-size: 19px;
+      }
+      .summary-objective-text {
+        font-size: 14.5px;
+        max-width: 360px;
+      }
+      .summary-choice-btn {
+        padding: 16px 12px;
+        font-size: 14px;
+        gap: 8px;
+      }
+      .summary-choice-btn i {
+        font-size: 22px;
+      }
+      .summary-section-title {
+        font-size: 13px;
+        letter-spacing: 1.5px;
+      }
+      .summary-next-btn {
+        padding: 14px 12px;
+        font-size: 13px;
+        gap: 6px;
+      }
+      .summary-next-btn i {
+        font-size: 19px;
+      }
+      .summary-next-steps-container {
+        padding-top: 20px;
+        margin-top: 8px;
+        gap: 12px;
+      }
+    }
   </style>
 
   <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE TRES COLUMNAS) -->
@@ -85,10 +279,10 @@
           <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
           <!-- Cabecera de Estado Sutil -->
-          <div *ngIf="arenaState() !== 'setup'" class="hide-on-inactive" style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; margin-bottom: -8px;">
+          <div *ngIf="arenaState() !== 'setup' && (arenaState() === 'countdown' || emergencyPauseActive() || isBreak())" class="hide-on-inactive" style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; margin-bottom: -8px;">
             <span style="font-size: var(--state-label-size); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;"
                   [style.color]="arenaState() === 'active' ? 'var(--accent)' : 'var(--muted)'">
-              {{ arenaState() === 'countdown' ? 'Preparando Mente' : (emergencyPauseActive() ? 'Pausa de Emergencia' : (isBreak() ? 'Descanso Zen' : 'Enfoque Activo')) }}
+              {{ arenaState() === 'countdown' ? 'Preparando Mente' : (emergencyPauseActive() ? 'Enfoque Interrumpido' : (isBreak() ? 'Descanso Zen' : '')) }}
             </span>
           </div>
 
@@ -102,34 +296,40 @@
               <span>Puedes arrastrar la fogata a cualquier zona para que combine con tu fondo</span>
             </div>
             
-            <!-- CASO 1: Dígitos Clásicos (O conteo 3-2-1 en modo fuego) -->
-            <ng-container *ngIf="timerStyle() === 'digital' || arenaState() === 'countdown'">
-              <!-- CASO 1.1: SETUP -->
-              <span *ngIf="arenaState() === 'setup' && timerStyle() === 'digital'"
-                    style="font-size: var(--timer-font-size); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
-              </span>
+             <!-- CASO 1: Dígitos Clásicos (O conteo 3-2-1 en modo fuego) -->
+             <ng-container *ngIf="timerStyle() === 'digital' || arenaState() === 'countdown' || emergencyPauseActive()">
+               <!-- CASO 1.1: SETUP -->
+               <span *ngIf="arenaState() === 'setup' && timerStyle() === 'digital'"
+                     style="font-size: var(--timer-font-size); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                 {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
+               </span>
 
-              <!-- CASO 1.2: COUNTDOWN -->
-              <span *ngIf="arenaState() === 'countdown'"
-                    class="countdown-pulse"
-                    style="font-size: var(--timer-font-size); font-weight: 900; color: var(--accent); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 0 25px rgba(99, 102, 241, 0.4);">
-                00:0{{ countdownValue() }}
-              </span>
+               <!-- CASO 1.2: COUNTDOWN -->
+               <span *ngIf="arenaState() === 'countdown'"
+                     class="countdown-pulse"
+                     style="font-size: var(--timer-font-size); font-weight: 900; color: var(--accent); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 0 25px rgba(99, 102, 241, 0.4);">
+                 00:0{{ countdownValue() }}
+               </span>
 
-              <!-- CASO 1.3: ACTIVE -->
-              <span *ngIf="arenaState() === 'active' && timerStyle() === 'digital'"
-                    style="font-size: var(--timer-font-size); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
-                    [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
-                {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
-              </span>
-            </ng-container>
+               <!-- CASO 1.3: ACTIVE -->
+               <span *ngIf="arenaState() === 'active' && (timerStyle() === 'digital' || emergencyPauseActive())"
+                     style="font-size: var(--timer-font-size); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
+                     [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
+                 {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
+               </span>
+
+               <!-- Texto de Advertencia de Interrupción -->
+               <div *ngIf="emergencyPauseActive()"
+                    style="margin-top: 14px; font-size: 11.5px; color: var(--red); font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px; animation: buttonGlowPulse 2s infinite ease-in-out;">
+                 ¡Regresa a tiempo o serás penalizado!
+               </div>
+             </ng-container>
 
             <!-- CASO 2: Fuego Sagrado (Premium) -->
             <ng-container *ngIf="timerStyle() === 'fire'">
               
-              <!-- Fuego animado interactivo (Se muestra en active y en setup cuando es concentración; se oculta en countdown) -->
-              <div *ngIf="arenaState() === 'active' || (arenaState() === 'setup' && !isBreak())"
+              <!-- Fuego animado interactivo (Se muestra en active y en setup cuando es concentración; se oculta en countdown o interrupción) -->
+              <div *ngIf="(arenaState() === 'active' || (arenaState() === 'setup' && !isBreak())) && !emergencyPauseActive()"
                    class="fire-container"
                    [class.is-break]="isBreak()"
                    (mousedown)="onDragStart($event)"
@@ -416,53 +616,44 @@
                        <!-- Carbones encendidos -->
                        <circle cx="28" cy="45" r="1.8" fill="#2c1e15" />
                        <circle cx="28" cy="45" r="1.0" fill="#ff3d00" style="animation: emberPulse 1.3s infinite alternate;" />
-                       <circle cx="70" cy="46" r="2.0" fill="#2c1e15" />
+                    <ellipse cx="70" cy="46" r="2.0" fill="#2c1e15" />
                        <circle cx="70" cy="46" r="1.2" fill="#ff9100" style="animation: emberPulse 1.6s infinite alternate;" />
                      </g>
                    </svg>
 
                    <!-- CUESTIONARIO POST-SESIÓN (en summary) - POSICIONADO ABSOLUTO SOBRE LOS TRONCOS (Frosty Glass Modal - LARGO Y ESPACIOSO - DISEÑO TABS HORIZONTALES) -->
-                   <div *ngIf="arenaState() === 'summary'"
-                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 340px; background: rgba(10, 10, 12, 0.90); border: 1.5px solid var(--border); padding: 22px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                       <span style="font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px;">Cierre Dopamínico</span>
-                       <h3 style="font-size: 14px; font-weight: 900; color: var(--text); margin: 0;">¿Lograste completar tu objetivo?</h3>
-                       <p *ngIf="activeObjective() && activeObjective().trim()" style="font-size: 11px; color: var(--muted); margin: 4px 0 0 0; font-style: italic; max-width: 290px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                   <div *ngIf="arenaState() === 'summary'" class="summary-modal">
+                     <div class="summary-header">
+                       <span class="summary-header-label">Cierre Dopamínico</span>
+                       <h3 class="summary-question">¿Lograste completar tu objetivo?</h3>
+                       <p *ngIf="activeObjective() && activeObjective().trim()" class="summary-objective-text">
                          "{{ activeObjective() }}"
                        </p>
                      </div>
 
                      <!-- Opciones de objetivo side-by-side (Tabs Horizontales) -->
-                     <div style="display: flex; gap: 8px; width: 100%;">
+                     <div class="summary-options-container">
                        <!-- Opción 1: Sí, por completo -->
                        <button (click)="objectiveCompleted.set('yes')"
-                               [disabled]="sessionEndingStatus() === 'abandoned'"
                                [style.background]="objectiveCompleted() === 'yes' ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
                                [style.borderColor]="objectiveCompleted() === 'yes' ? 'var(--green)' : 'rgba(255, 255, 255, 0.08)'"
                                [style.color]="objectiveCompleted() === 'yes' ? 'var(--green)' : 'var(--muted)'"
-                               [style.opacity]="sessionEndingStatus() === 'abandoned' ? 0.3 : 1.0"
-                               [style.cursor]="sessionEndingStatus() === 'abandoned' ? 'not-allowed' : 'pointer'"
-                               [style.pointerEvents]="sessionEndingStatus() === 'abandoned' ? 'none' : 'auto'"
-                               style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
-                               onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
+                               class="summary-choice-btn"
+                               onmouseover="this.style.transform='scale(1.03)'"
                                onmouseout="this.style.transform='scale(1)'">
-                         <i class="fa-solid fa-circle-check" style="font-size: 16px;"></i>
+                         <i class="fa-solid fa-circle-check"></i>
                          <span>Completado</span>
                        </button>
 
                        <!-- Opción 2: Avancé bastante -->
                        <button (click)="objectiveCompleted.set('progress')"
-                               [disabled]="sessionEndingStatus() === 'abandoned'"
                                [style.background]="objectiveCompleted() === 'progress' ? 'rgba(0, 242, 254, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
                                [style.borderColor]="objectiveCompleted() === 'progress' ? 'var(--accent)' : 'rgba(255, 255, 255, 0.08)'"
                                [style.color]="objectiveCompleted() === 'progress' ? 'var(--accent)' : 'var(--muted)'"
-                               [style.opacity]="sessionEndingStatus() === 'abandoned' ? 0.3 : 1.0"
-                               [style.cursor]="sessionEndingStatus() === 'abandoned' ? 'not-allowed' : 'pointer'"
-                               [style.pointerEvents]="sessionEndingStatus() === 'abandoned' ? 'none' : 'auto'"
-                               style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
-                               onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
+                               class="summary-choice-btn"
+                               onmouseover="this.style.transform='scale(1.03)'"
                                onmouseout="this.style.transform='scale(1)'">
-                         <i class="fa-solid fa-hourglass-half" style="font-size: 16px;"></i>
+                         <i class="fa-solid fa-hourglass-half"></i>
                          <span>Avanzado</span>
                        </button>
 
@@ -471,53 +662,68 @@
                                [style.background]="objectiveCompleted() === 'no' ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
                                [style.borderColor]="objectiveCompleted() === 'no' ? 'var(--red)' : 'rgba(255, 255, 255, 0.08)'"
                                [style.color]="objectiveCompleted() === 'no' ? 'var(--red)' : 'var(--muted)'"
-                               style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
+                               class="summary-choice-btn"
                                onmouseover="this.style.transform='scale(1.03)'"
                                onmouseout="this.style.transform='scale(1)'">
-                         <i class="fa-solid fa-circle-xmark" style="font-size: 16px;"></i>
+                         <i class="fa-solid fa-circle-xmark"></i>
                          <span>No lo logré</span>
                        </button>
                      </div>
 
                      <!-- Sección de Siguiente Actividad (Siempre visible para iniciar inmediatamente) -->
-                     <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;">
-                       <span style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; display: block; margin-bottom: 2px;">Elige tu siguiente paso para iniciar:</span>
+                     <div class="summary-next-steps-container">
+                       <span class="summary-section-title">Elige tu siguiente paso para iniciar:</span>
                        
-                       <div style="display: flex; gap: 6px; width: 100%;">
+                       <div class="summary-next-steps-wrapper">
                          <!-- Descanso Corto -->
                          <button (click)="finishSessionAndStart('short')"
-                                 style="flex: 1; border: 1.5px solid var(--accent); background: rgba(0, 242, 254, 0.08); color: var(--accent); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
-                                 onmouseover="this.style.background='rgba(0, 242, 254, 0.16)'; this.style.transform='translateY(-1px)';"
+                                 [disabled]="sessionEndingStatus() === 'abandoned' || !objectiveCompleted()"
+                                 [style.opacity]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 0.35 : 1.0"
+                                 [style.cursor]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 'not-allowed' : 'pointer'"
+                                 [style.pointerEvents]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 'none' : 'auto'"
+                                 class="summary-next-btn"
+                                 [style.borderColor]="'var(--accent)'"
+                                 [style.background]="'rgba(0, 242, 254, 0.08)'"
+                                 [style.color]="'var(--accent)'"
+                                 onmouseover="if(this.getAttribute('disabled') === null) { this.style.background='rgba(0, 242, 254, 0.16)'; this.style.transform='translateY(-1px)'; }"
                                  onmouseout="this.style.background='rgba(0, 242, 254, 0.08)'; this.style.transform='translateY(0)';"
                                  title="Iniciar Descanso Corto inmediatamente">
-                           <i class="fa-solid fa-mug-hot" style="font-size: 14px;"></i>
+                           <i class="fa-solid fa-mug-hot"></i>
                            <span>D. Corto</span>
                          </button>
 
                          <!-- Descanso Largo -->
                          <button (click)="finishSessionAndStart('long')"
-                                 style="flex: 1; border: 1.5px solid var(--accent); background: rgba(99, 102, 241, 0.08); color: var(--accent); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
-                                 onmouseover="this.style.background='rgba(99, 102, 241, 0.16)'; this.style.transform='translateY(-1px)';"
+                                 [disabled]="sessionEndingStatus() === 'abandoned' || !objectiveCompleted()"
+                                 [style.opacity]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 0.35 : 1.0"
+                                 [style.cursor]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 'not-allowed' : 'pointer'"
+                                 [style.pointerEvents]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 'none' : 'auto'"
+                                 class="summary-next-btn"
+                                 [style.borderColor]="'var(--accent)'"
+                                 [style.background]="'rgba(99, 102, 241, 0.08)'"
+                                 [style.color]="'var(--accent)'"
+                                 onmouseover="if(this.getAttribute('disabled') === null) { this.style.background='rgba(99, 102, 241, 0.16)'; this.style.transform='translateY(-1px)'; }"
                                  onmouseout="this.style.background='rgba(99, 102, 241, 0.08)'; this.style.transform='translateY(0)';"
                                  title="Iniciar Descanso Largo inmediatamente">
-                           <i class="fa-solid fa-couch" style="font-size: 14px;"></i>
+                           <i class="fa-solid fa-couch"></i>
                            <span>D. Largo</span>
                          </button>
 
                          <!-- Salir -->
                          <button (click)="finishSessionAndStart('exit')"
-                                 style="flex: 1; border: 1.5px solid var(--muted); background: rgba(255, 255, 255, 0.03); color: var(--muted); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
+                                 class="summary-next-btn"
+                                 [style.borderColor]="'var(--muted)'"
+                                 [style.background]="'rgba(255, 255, 255, 0.03)'"
+                                 [style.color]="'var(--muted)'"
                                  onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='var(--text)'; this.style.transform='translateY(-1px)';"
                                  onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.color='var(--muted)'; this.style.transform='translateY(0)';"
                                  title="Salir a la configuración de concentración">
-                           <i class="fa-solid fa-arrow-right-from-bracket" style="font-size: 14px;"></i>
+                           <i class="fa-solid fa-arrow-right-from-bracket"></i>
                            <span>Salir</span>
                          </button>
                        </div>
                      </div>
-
                    </div>
-
               </div>
               
               <!-- Línea de progreso de fusión consumible (diseño de fusible quemado/charcoal, visible en countdown y active) -->
@@ -527,6 +733,108 @@
                 <div [style.width]="(timePercentage() * 100) + '%'"
                      [style.background]="isBreak() ? 'linear-gradient(90deg, #0052d4 0%, #00f2fe 70%, #ffffff 100%)' : 'linear-gradient(90deg, #ff3d00 0%, #ff9100 70%, #ffea00 100%)'"
                      [style.boxShadow]="isBreak() ? '0 0 12px rgba(0, 242, 254, 0.9), 0 0 4px rgba(255, 255, 255, 0.8)' : '0 0 12px rgba(255, 61, 0, 0.9), 0 0 4px rgba(255, 234, 0, 0.8)'"
+                     style="height: 100%; transition: width 1s linear; border-radius: 6px;">
+                </div>
+              </div>
+
+            </ng-container>
+
+            <!-- CASO 3: Manzana y Gusano (Premium) -->
+            <ng-container *ngIf="timerStyle() === 'apple'">
+              
+              <!-- Manzana interactiva arrastrable (Oculta durante la cuenta regresiva o interrupción) -->
+              <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                   class="apple-container"
+                   (mousedown)="onDragStart($event)"
+                   (touchstart)="onTouchStart($event)"
+                   (dblclick)="resetCampfirePosition()"
+                   [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
+                   style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto; overflow: visible;">
+                
+                <!-- SVG de la Manzana y Gusano -->
+                <svg viewBox="0 0 100 110" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                  <defs>
+                    <!-- Clip path para devorar la manzana de derecha a izquierda -->
+                    <clipPath id="appleEatenClip">
+                      <!-- El ancho del rectángulo disminuye a medida que corre el tiempo (de 85 a 15) -->
+                      <rect x="0" y="0" [attr.width]="clipWidth()" height="110" />
+                    </clipPath>
+                  </defs>
+
+                  <!-- Tallo de la Manzana (Siempre visible en la cima) -->
+                  <path d="M 50 25 Q 53 10, 58 5" stroke="#8d6e63" stroke-width="3.5" fill="none" stroke-linecap="round" />
+                  
+                  <!-- Hoja de la Manzana (Siempre visible en la cima) -->
+                  <path d="M 52 18 C 55 10, 68 8, 72 12 C 72 16, 64 22, 52 18 Z" fill="#66bb6a" stroke="#388e3c" stroke-width="0.8" />
+
+                  <!-- CAPA FONDO: El Corazón/Pulpa mordida de la Manzana (Se revela a medida que la capa roja se recorta) -->
+                  <!-- Silueta de pulpa mordida (pinzada en el centro) -->
+                  <path d="M 50 25 C 38 25, 32 28, 32 30 C 32 45, 43 52, 43 62 C 43 72, 32 79, 32 90 C 32 92, 38 95, 50 95 C 62 95, 68 92, 68 90 C 68 79, 57 72, 57 62 C 57 52, 68 45, 68 30 C 68 28, 62 25, 50 25 Z" fill="#fffde7" stroke="#e0e0e0" stroke-width="0.8" />
+                  
+                  <!-- Semillas de manzana en el corazón -->
+                  <ellipse cx="46" cy="57" rx="2" ry="4" fill="#3e2723" transform="rotate(-15 46 57)" />
+                  <ellipse cx="54" cy="65" rx="2" ry="4" fill="#3e2723" transform="rotate(15 54 65)" />
+
+                  <!-- Tapa superior de cáscara roja en el corazón -->
+                  <path d="M 32 30 C 38 25, 62 25, 68 30 L 68 33 C 62 28, 38 28, 32 33 Z" fill="#ff3366" />
+                  
+                  <!-- Tapa inferior de cáscara roja en el corazón -->
+                  <path d="M 32 90 C 38 95, 62 95, 68 90 L 68 87 Q 50 91, 32 87 Z" fill="#ff3366" />
+
+
+
+                  <!-- CAPA FRENTE: Manzana Roja Completa (Se va recortando de derecha a izquierda) -->
+                  <g clip-path="url(#appleEatenClip)">
+                    <!-- Cuerpo de la manzana roja brillante con degradado tridimensional -->
+                    <path d="M 50 25 C 40 25, 20 18, 15 35 C 10 55, 22 93, 45 95 Q 48 95 50 93 Q 52 95 55 95 C 78 93, 90 55, 85 35 C 80 18, 60 25, 50 25 Z" fill="url(#appleBodyGrad)" stroke="#c2185b" stroke-width="0.8" />
+                    
+                    <!-- Brillo de luz superior izquierdo -->
+                    <ellipse cx="32" cy="42" rx="6" ry="12" fill="#ffffff" opacity="0.25" transform="rotate(-30 32 42)" />
+                  </g>
+
+                  <!-- GRADIENTES DENTRO DE DEFS PARA LA MANZANA -->
+                  <defs>
+                    <linearGradient id="appleBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#ff5376" />
+                      <stop offset="70%" stop-color="#ff1744" />
+                      <stop offset="100%" stop-color="#d50000" />
+                    </linearGradient>
+                  </defs>
+
+                  <!-- El Gusano Greenie Animado (Se traslada dinámicamente al borde del corte de la manzana) -->
+                  <g [style.transform]="'translate(' + clipWidth() + 'px, 62px)'">
+                    <!-- Grupo del gusano con animación de ondulación de comer -->
+                    <g class="worm-eat-wiggle">
+                      <!-- Segmento 3 (Cola, derecha) -->
+                      <circle class="worm-segment-3" cx="10" cy="2" r="3.5" fill="#81c784" stroke="#2e7d32" stroke-width="0.6" style="transform-origin: 10px 2px;" />
+                      
+                      <!-- Segmento 2 (Cuerpo, centro) -->
+                      <circle class="worm-segment-2" cx="5" cy="-2" r="4.5" fill="#66bb6a" stroke="#2e7d32" stroke-width="0.6" style="transform-origin: 5px -2px;" />
+                      
+                      <!-- Segmento 1 (Cabeza, izquierda) -->
+                      <circle class="worm-segment-1" cx="0" cy="0" r="5.8" fill="#4caf50" stroke="#2e7d32" stroke-width="0.6" style="transform-origin: 0px 0px;" />
+                      
+                      <!-- Carita adorable del gusano mirando a la izquierda -->
+                      <!-- Ojos -->
+                      <circle cx="-2" cy="-1.5" r="0.7" fill="#000" />
+                      <circle cx="-4" cy="-1.5" r="0.7" fill="#000" />
+                      <!-- Mejilla sonrosada -->
+                      <circle cx="-3" cy="1.2" r="1.0" fill="#ff8a80" />
+                    </g>
+                  </g>
+
+
+                </svg>
+
+              </div>
+              
+              <!-- Línea de progreso de la manzana (verde/roja) -->
+              <div *ngIf="arenaState() === 'countdown' || arenaState() === 'active'"
+                   [style.borderColor]="isBreak() ? 'rgba(0, 242, 254, 0.15)' : 'rgba(76, 175, 80, 0.15)'"
+                   style="width: 130px; height: 8px; background: #140d09; border-radius: 6px; margin: 16px auto 6px auto; overflow: hidden; position: relative; border: 1.5px solid; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9); z-index: 10;">
+                <div [style.width]="(timePercentage() * 100) + '%'"
+                     [style.background]="isBreak() ? 'linear-gradient(90deg, #0052d4 0%, #00f2fe 70%, #ffffff 100%)' : 'linear-gradient(90deg, #ff2e55 0%, #4caf50 100%)'"
+                     [style.boxShadow]="isBreak() ? '0 0 12px rgba(0, 242, 254, 0.9), 0 0 4px rgba(255, 255, 255, 0.8)' : '0 0 12px rgba(76, 175, 80, 0.8)'"
                      style="height: 100%; transition: width 1s linear; border-radius: 6px;">
                 </div>
               </div>
@@ -577,19 +885,20 @@
                    <!-- Pausa (en active si no es descanso) -->
                     <button *ngIf="arenaState() === 'active' && !isBreak()" 
                            (click)="toggleEmergencyPause()" 
-                           style="border: 1px solid var(--border); padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
+                           style="display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
                            [style.background]="emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)'"
                            [style.borderColor]="emergencyPauseActive() ? 'var(--accent)' : 'var(--border)'"
                            [style.color]="emergencyPauseActive() ? '#000' : 'var(--text)'"
                            onmouseover="this.style.background='rgba(255,255,255,0.06)';"
-                           onmouseout="this.style.background=this.emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)';">
-                     <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Pausa' }}</span>
+                           onmouseout="this.style.background=this.emergencyPauseActive() ? 'var(--accent)' : 'rgba(255,255,255,0.02)';"
+                           title="Interrumpir sesión temporalmente">
+                     <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Interrumpir' }}</span>
                    </button>
  
                    <!-- Abandonar (en active si no es descanso) -->
                     <button *ngIf="arenaState() === 'active' && !isBreak()" 
                            (click)="abandonSession()" 
-                           style="border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
+                           style="display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
                            onmouseover="this.style.background='rgba(239, 68, 68, 0.1)';"
                            onmouseout="this.style.background='rgba(239, 68, 68, 0.05)';"
                            title="Abandonar sesión">
@@ -610,107 +919,123 @@
                </ng-container>
 
                <!-- CUESTIONARIO POST-SESIÓN (en summary) -->
-                <div *ngIf="arenaState() === 'summary' && timerStyle() === 'digital'"
-                     style="display: flex; flex-direction: column; align-items: center; gap: 16px; width: 340px; background: rgba(255,255,255,0.02); border: 1.5px solid var(--border); padding: 22px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-                  <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px;">Cierre Dopamínico</span>
-                    <h3 style="font-size: 14px; font-weight: 900; color: var(--text); margin: 0;">¿Lograste completar tu objetivo?</h3>
-                    <p *ngIf="activeObjective() && activeObjective().trim()" style="font-size: 11px; color: var(--muted); margin: 4px 0 0 0; font-style: italic; max-width: 290px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      "{{ activeObjective() }}"
-                    </p>
-                  </div>
+                 <div *ngIf="arenaState() === 'summary' && timerStyle() === 'digital'" class="summary-modal">
+                   <div class="summary-header">
+                     <span class="summary-header-label">Cierre Dopamínico</span>
+                     <h3 class="summary-question">¿Lograste completar tu objetivo?</h3>
+                     <p *ngIf="activeObjective() && activeObjective().trim()" class="summary-objective-text">
+                       "{{ activeObjective() }}"
+                     </p>
+                   </div>
 
-                  <!-- Opciones de objetivo side-by-side (Tabs Horizontales) -->
-                  <div style="display: flex; gap: 8px; width: 100%;">
-                    <!-- Opción 1: Sí, por completo -->
-                    <button (click)="objectiveCompleted.set('yes')"
-                            [disabled]="sessionEndingStatus() === 'abandoned'"
-                            [style.background]="objectiveCompleted() === 'yes' ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
-                            [style.borderColor]="objectiveCompleted() === 'yes' ? 'var(--green)' : 'rgba(255, 255, 255, 0.08)'"
-                            [style.color]="objectiveCompleted() === 'yes' ? 'var(--green)' : 'var(--muted)'"
-                            [style.opacity]="sessionEndingStatus() === 'abandoned' ? 0.3 : 1.0"
-                            [style.cursor]="sessionEndingStatus() === 'abandoned' ? 'not-allowed' : 'pointer'"
-                            [style.pointerEvents]="sessionEndingStatus() === 'abandoned' ? 'none' : 'auto'"
-                            style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
-                            onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
-                            onmouseout="this.style.transform='scale(1)'">
-                      <i class="fa-solid fa-circle-check" style="font-size: 16px;"></i>
-                      <span>Completado</span>
-                    </button>
+                   <!-- Opciones de objetivo side-by-side (Tabs Horizontales) -->
+                   <div class="summary-options-container">
+                     <!-- Opción 1: Sí, por completo -->
+                     <button (click)="objectiveCompleted.set('yes')"
+                             [disabled]="sessionEndingStatus() === 'abandoned'"
+                             [style.background]="objectiveCompleted() === 'yes' ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
+                             [style.borderColor]="objectiveCompleted() === 'yes' ? 'var(--green)' : 'rgba(255, 255, 255, 0.08)'"
+                             [style.color]="objectiveCompleted() === 'yes' ? 'var(--green)' : 'var(--muted)'"
+                             [style.opacity]="sessionEndingStatus() === 'abandoned' ? 0.3 : 1.0"
+                             [style.cursor]="sessionEndingStatus() === 'abandoned' ? 'not-allowed' : 'pointer'"
+                             [style.pointerEvents]="sessionEndingStatus() === 'abandoned' ? 'none' : 'auto'"
+                             class="summary-choice-btn"
+                             onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
+                             onmouseout="this.style.transform='scale(1)'">
+                       <i class="fa-solid fa-circle-check"></i>
+                       <span>Completado</span>
+                     </button>
 
-                    <!-- Opción 2: Avancé bastante -->
-                    <button (click)="objectiveCompleted.set('progress')"
-                            [disabled]="sessionEndingStatus() === 'abandoned'"
-                            [style.background]="objectiveCompleted() === 'progress' ? 'rgba(0, 242, 254, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
-                            [style.borderColor]="objectiveCompleted() === 'progress' ? 'var(--accent)' : 'rgba(255, 255, 255, 0.08)'"
-                            [style.color]="objectiveCompleted() === 'progress' ? 'var(--accent)' : 'var(--muted)'"
-                            [style.opacity]="sessionEndingStatus() === 'abandoned' ? 0.3 : 1.0"
-                            [style.cursor]="sessionEndingStatus() === 'abandoned' ? 'not-allowed' : 'pointer'"
-                            [style.pointerEvents]="sessionEndingStatus() === 'abandoned' ? 'none' : 'auto'"
-                            style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
-                            onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
-                            onmouseout="this.style.transform='scale(1)'">
-                      <i class="fa-solid fa-hourglass-half" style="font-size: 16px;"></i>
-                      <span>Avanzado</span>
-                    </button>
+                     <!-- Opción 2: Avancé bastante -->
+                     <button (click)="objectiveCompleted.set('progress')"
+                             [disabled]="sessionEndingStatus() === 'abandoned'"
+                             [style.background]="objectiveCompleted() === 'progress' ? 'rgba(0, 242, 254, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
+                             [style.borderColor]="objectiveCompleted() === 'progress' ? 'var(--accent)' : 'rgba(255, 255, 255, 0.08)'"
+                             [style.color]="objectiveCompleted() === 'progress' ? 'var(--accent)' : 'var(--muted)'"
+                             [style.opacity]="sessionEndingStatus() === 'abandoned' ? 0.3 : 1.0"
+                             [style.cursor]="sessionEndingStatus() === 'abandoned' ? 'not-allowed' : 'pointer'"
+                             [style.pointerEvents]="sessionEndingStatus() === 'abandoned' ? 'none' : 'auto'"
+                             class="summary-choice-btn"
+                             onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
+                             onmouseout="this.style.transform='scale(1)'">
+                       <i class="fa-solid fa-hourglass-half"></i>
+                       <span>Avanzado</span>
+                     </button>
 
-                    <!-- Opción 3: No lo logré -->
-                    <button (click)="objectiveCompleted.set('no')"
-                            [style.background]="objectiveCompleted() === 'no' ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
-                            [style.borderColor]="objectiveCompleted() === 'no' ? 'var(--red)' : 'rgba(255, 255, 255, 0.08)'"
-                            [style.color]="objectiveCompleted() === 'no' ? 'var(--red)' : 'var(--muted)'"
-                            style="flex: 1; border: 1.5px solid; padding: 12px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit;"
-                            onmouseover="this.style.transform='scale(1.03)'"
-                            onmouseout="this.style.transform='scale(1)'">
-                      <i class="fa-solid fa-circle-xmark" style="font-size: 16px;"></i>
-                      <span>No lo logré</span>
-                    </button>
-                  </div>
+                     <!-- Opción 3: No lo logré -->
+                     <button (click)="objectiveCompleted.set('no')"
+                             [style.background]="objectiveCompleted() === 'no' ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255, 255, 255, 0.02)'"
+                             [style.borderColor]="objectiveCompleted() === 'no' ? 'var(--red)' : 'rgba(255, 255, 255, 0.08)'"
+                             [style.color]="objectiveCompleted() === 'no' ? 'var(--red)' : 'var(--muted)'"
+                             class="summary-choice-btn"
+                             onmouseover="this.style.transform='scale(1.03)'"
+                             onmouseout="this.style.transform='scale(1)'">
+                       <i class="fa-solid fa-circle-xmark"></i>
+                       <span>No lo logré</span>
+                     </button>
+                   </div>
 
-                  <!-- Sección de Siguiente Actividad (Siempre visible para iniciar inmediatamente) -->
-                  <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;">
-                    <span style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; display: block; margin-bottom: 2px;">Elige tu siguiente paso para iniciar:</span>
-                    
-                    <div style="display: flex; gap: 6px; width: 100%;">
-                      <!-- Descanso Corto -->
-                      <button (click)="finishSessionAndStart('short')"
-                              style="flex: 1; border: 1.5px solid var(--accent); background: rgba(0, 242, 254, 0.08); color: var(--accent); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
-                              onmouseover="this.style.background='rgba(0, 242, 254, 0.16)'; this.style.transform='translateY(-1px)';"
-                              onmouseout="this.style.background='rgba(0, 242, 254, 0.08)'; this.style.transform='translateY(0)';"
-                              title="Iniciar Descanso Corto inmediatamente">
-                        <i class="fa-solid fa-mug-hot" style="font-size: 14px;"></i>
-                        <span>D. Corto</span>
-                      </button>
+                   <!-- Sección de Siguiente Actividad (Siempre visible para iniciar inmediatamente) -->
+                   <div class="summary-next-steps-container">
+                     <span class="summary-section-title">Elige tu siguiente paso para iniciar:</span>
+                     
+                     <div class="summary-next-steps-wrapper">
+                       <!-- Descanso Corto -->
+                       <button (click)="finishSessionAndStart('short')"
+                               [disabled]="sessionEndingStatus() === 'abandoned' || !objectiveCompleted()"
+                               [style.opacity]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 0.35 : 1.0"
+                               [style.cursor]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 'not-allowed' : 'pointer'"
+                               [style.pointerEvents]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 'none' : 'auto'"
+                               class="summary-next-btn"
+                               [style.borderColor]="'var(--accent)'"
+                               [style.background]="'rgba(0, 242, 254, 0.08)'"
+                               [style.color]="'var(--accent)'"
+                               onmouseover="if(this.getAttribute('disabled') === null) { this.style.background='rgba(0, 242, 254, 0.16)'; this.style.transform='translateY(-1px)'; }"
+                               onmouseout="this.style.background='rgba(0, 242, 254, 0.08)'; this.style.transform='translateY(0)';"
+                               title="Iniciar Descanso Corto inmediatamente">
+                         <i class="fa-solid fa-mug-hot"></i>
+                         <span>D. Corto</span>
+                       </button>
 
-                      <!-- Descanso Largo -->
-                      <button (click)="finishSessionAndStart('long')"
-                              style="flex: 1; border: 1.5px solid var(--accent); background: rgba(99, 102, 241, 0.08); color: var(--accent); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
-                              onmouseover="this.style.background='rgba(99, 102, 241, 0.16)'; this.style.transform='translateY(-1px)';"
-                              onmouseout="this.style.background='rgba(99, 102, 241, 0.08)'; this.style.transform='translateY(0)';"
-                              title="Iniciar Descanso Largo inmediatamente">
-                        <i class="fa-solid fa-couch" style="font-size: 14px;"></i>
-                        <span>D. Largo</span>
-                      </button>
+                       <!-- Descanso Largo -->
+                       <button (click)="finishSessionAndStart('long')"
+                               [disabled]="sessionEndingStatus() === 'abandoned' || !objectiveCompleted()"
+                               [style.opacity]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 0.35 : 1.0"
+                               [style.cursor]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 'not-allowed' : 'pointer'"
+                               [style.pointerEvents]="(sessionEndingStatus() === 'abandoned' || !objectiveCompleted()) ? 'none' : 'auto'"
+                               class="summary-next-btn"
+                               [style.borderColor]="'var(--accent)'"
+                               [style.background]="'rgba(99, 102, 241, 0.08)'"
+                               [style.color]="'var(--accent)'"
+                               onmouseover="if(this.getAttribute('disabled') === null) { this.style.background='rgba(99, 102, 241, 0.16)'; this.style.transform='translateY(-1px)'; }"
+                               onmouseout="this.style.background='rgba(99, 102, 241, 0.08)'; this.style.transform='translateY(0)';"
+                               title="Iniciar Descanso Largo inmediatamente">
+                         <i class="fa-solid fa-couch"></i>
+                         <span>D. Largo</span>
+                       </button>
 
-                      <!-- Salir -->
-                      <button (click)="finishSessionAndStart('exit')"
-                              style="flex: 1; border: 1.5px solid var(--muted); background: rgba(255, 255, 255, 0.03); color: var(--muted); padding: 10px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;"
-                              onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='var(--text)'; this.style.transform='translateY(-1px)';"
-                              onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.color='var(--muted)'; this.style.transform='translateY(0)';"
-                              title="Salir a la configuración de concentración">
-                        <i class="fa-solid fa-arrow-right-from-bracket" style="font-size: 14px;"></i>
-                        <span>Salir</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                       <!-- Salir -->
+                       <button (click)="finishSessionAndStart('exit')"
+                               class="summary-next-btn"
+                               [style.borderColor]="'var(--muted)'"
+                               [style.background]="'rgba(255, 255, 255, 0.03)'"
+                               [style.color]="'var(--muted)'"
+                               onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='var(--text)'; this.style.transform='translateY(-1px)';"
+                               onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.color='var(--muted)'; this.style.transform='translateY(0)';"
+                               title="Salir a la configuración de concentración">
+                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                         <span>Salir</span>
+                       </button>
+                     </div>
+                   </div>
+                 </div>
              </div>
 
         </div>
 
         
           <!-- VISTA ENFOQUE ACTIVO: OBJETIVO (Se muestra debajo del reloj durante active/countdown) -->
-          <div *ngIf="arenaState() !== 'setup' && activeObjective() && activeObjective().trim()" 
+          <div *ngIf="arenaState() !== 'setup' && !isBreak() && arenaState() !== 'summary' && activeObjective() && activeObjective().trim()" 
                class="hide-on-inactive"
                style="text-align: center; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2;">
             <span style="font-size: var(--objective-header-size); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 1.5px;">Objetivo de Concentración</span>
@@ -817,6 +1142,87 @@
   </div>
 </div>
 
+<!-- MODAL DE CONFIRMACIÓN DE ABANDONO -->
+<div *ngIf="showAbandonConfirmModal()" 
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 11000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+  
+  <div style="background: linear-gradient(135deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 15, 0.9) 100%); border: 1.5px solid var(--red); border-radius: 24px; padding: 32px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 0 40px rgba(239,68,68,0.25); text-align: center; position: relative;">
+    
+    <!-- Cerrar -->
+    <button (click)="showAbandonConfirmModal.set(false)" 
+            style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 18px;">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Header -->
+    <div>
+      <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 1.5px solid var(--red); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+        <i class="fa-solid fa-circle-exclamation" style="color: var(--red); font-size: 24px;"></i>
+      </div>
+      <span style="font-size: 10px; color: var(--red); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">¿Abandonar Enfoque?</span>
+      <h2 style="font-size: 18px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.5px;">¿Seguro que quieres abandonar?</h2>
+    </div>
+
+    <!-- Mensaje de penalización -->
+    <div style="background: rgba(239, 68, 68, 0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 12px; color: rgba(255, 255, 255, 0.85); line-height: 1.6; text-align: left;">
+      <p style="margin: 0 0 12px 0;">
+        Si abandonas la sesión de concentración serás penalizado perdiendo <strong style="color: var(--yellow);">50 ProCoins</strong><span *ngIf="coworkingMode() === 'comunitario'"> y el jefe de la sala recuperará <strong style="color: var(--red);">{{ bossHealAmount() }} puntos de vida</strong></span>.
+      </p>
+      <p style="margin: 0; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 6px;">
+        ¡Tu perseverancia es clave!
+      </p>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div style="display: flex; gap: 12px; width: 100%;">
+      <button (click)="showAbandonConfirmModal.set(false)"
+              style="flex: 1; border: 1.5px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text); padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+              onmouseover="this.style.background='rgba(255,255,255,0.06)'"
+              onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+        Seguir Enfocado
+      </button>
+      <button (click)="confirmAbandon()"
+              style="flex: 1; border: 1.5px solid var(--red); background: rgba(239, 68, 68, 0.1); color: var(--red); padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+              onmouseover="this.style.background='rgba(239, 68, 68, 0.18)'"
+              onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'">
+        Abandonar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL DE SESIÓN INTERRUMPIDA/CANCELADA -->
+<div *ngIf="showInterruptedModal()" 
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 11000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+  
+  <div style="background: linear-gradient(135deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 15, 0.9) 100%); border: 1.5px solid var(--red); border-radius: 24px; padding: 32px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 0 40px rgba(239,68,68,0.25); text-align: center; position: relative;">
+    
+    <!-- Header -->
+    <div>
+      <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 1.5px solid var(--red); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+        <i class="fa-solid fa-clock-rotate-left" style="color: var(--red); font-size: 24px;"></i>
+      </div>
+      <span style="font-size: 10px; color: var(--red); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Tiempo Agotado</span>
+      <h2 style="font-size: 18px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.5px;">Sesión Cancelada</h2>
+    </div>
+
+    <!-- Mensaje informativo -->
+    <div style="background: rgba(239, 68, 68, 0.05); padding: 14px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 12px; color: rgba(255, 255, 255, 0.85); line-height: 1.5;">
+      El periodo de concentración se ha cancelado debido a que excediste los 2 minutos de interrupción. Has sido penalizado perdiendo <strong style="color: var(--yellow);">50 ProCoins</strong><span *ngIf="coworkingMode() === 'comunitario'"> y el jefe de la sala ha recuperado <strong style="color: var(--red);">{{ bossHealAmount() }} puntos de vida</strong></span>.
+    </div>
+
+    <!-- Botón Aceptar -->
+    <button (click)="showInterruptedModal.set(false)"
+            style="width: 100%; border: 1.5px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text); padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+            onmouseover="this.style.background='rgba(255,255,255,0.06)'"
+            onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+      Entendido
+    </button>
+
+  </div>
+</div>
+
 <!-- TOAST DE NOTIFICACIONES DE CO-WORKING (SIMULADOR EN VIVO) -->
 <div *ngIf="showPartnerNotification()" 
      style="position: fixed; top: 20px; right: 20px; z-index: 12000; background: rgba(18, 18, 24, 0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 8px; padding: 10px 14px; max-width: 320px; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255, 255, 255, 0.05); border-left: 3px solid var(--accent); animation: slideInRight 0.25s ease-out;"
@@ -918,216 +1324,7 @@
 <!-- Modal de Identidad/Onboarding -->
 <app-identity-settings *ngIf="!membership.onboardingCompleted() || membership.showSettingsModal()" [onboardingMode]="!membership.onboardingCompleted()"></app-identity-settings>
 
-<!-- Modal de Guía de Raid, Bestiario y Villanos -->
-<div *ngIf="showRaidGuideModal()" 
-     class="hide-on-inactive"
-     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(5,5,7,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10001; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: 'Space Grotesk', sans-serif;">
-  
-  <div style="background: linear-gradient(135deg, rgba(18, 18, 24, 0.94) 0%, rgba(24, 24, 33, 0.9) 100%); border: 1.5px solid rgba(255,255,255,0.06); border-radius: 20px; width: 100%; max-width: 600px; height: 520px; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.65); overflow: hidden; position: relative;">
-    
-    <!-- Botón de Cerrar (X) -->
-    <button (click)="showRaidGuideModal.set(false)" 
-            style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: var(--muted); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: all 0.2s;"
-            onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--text)';"
-            onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--muted)';">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
 
-    <!-- Cabecera del Modal -->
-    <div style="padding: 24px 24px 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px;">
-      <span style="font-size: 26px;">⛩️</span>
-      <div style="display: flex; flex-direction: column;">
-        <span style="font-size: 9.5px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px;">Manual del Templo</span>
-        <h2 style="font-size: 20px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.5px;">Raid de la Comunidad y Villanos</h2>
-      </div>
-    </div>
-
-    <!-- Navegación por Pestañas (Tabs) -->
-    <div style="display: flex; gap: 4px; padding: 12px 24px; background: rgba(0,0,0,0.12); border-bottom: 1px solid rgba(255,255,255,0.03);">
-      <button (click)="activeRaidTab.set('guide')" 
-              style="border: none; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
-              [style.background]="activeRaidTab() === 'guide' ? 'rgba(99,102,241,0.12)' : 'transparent'"
-              [style.color]="activeRaidTab() === 'guide' ? 'var(--accent)' : 'var(--muted)'"
-              [style.border]="activeRaidTab() === 'guide' ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent'">
-        📖 ¿Cómo Jugar?
-      </button>
-      <button (click)="activeRaidTab.set('bestiary')" 
-              style="border: none; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
-              [style.background]="activeRaidTab() === 'bestiary' ? 'rgba(99,102,241,0.12)' : 'transparent'"
-              [style.color]="activeRaidTab() === 'bestiary' ? 'var(--accent)' : 'var(--muted)'"
-              [style.border]="activeRaidTab() === 'bestiary' ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent'">
-        👾 Bestiario
-      </button>
-      <button (click)="activeRaidTab.set('stats')" 
-              style="border: none; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px;"
-              [style.background]="activeRaidTab() === 'stats' ? 'rgba(99,102,241,0.12)' : 'transparent'"
-              [style.color]="activeRaidTab() === 'stats' ? 'var(--accent)' : 'var(--muted)'"
-              [style.border]="activeRaidTab() === 'stats' ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent'">
-        📊 Estadísticas
-      </button>
-    </div>
-
-    <!-- Área de Contenido con scroll -->
-    <div class="custom-scrollbar" style="flex: 1; padding: 24px; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.05);">
-      
-      <!-- CONTENIDO PESTAÑA 1: ¿CÓMO JUGAR? -->
-      <div *ngIf="activeRaidTab() === 'guide'" style="display: flex; flex-direction: column; gap: 16px;">
-        <p style="font-size: 12.5px; line-height: 1.5; color: var(--text); margin: 0;">
-          La <strong>Raid de la Comunidad</strong> es una dinámica cooperativa en tiempo real donde luchas contra tus peores hábitos de distracción en equipo. Para participar, simplemente inicia tu temporizador en modo <strong>"Comunidad"</strong>.
-        </p>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
-          <!-- Carta de Daño -->
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
-            <span style="font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;">⚔️ Ataque (Tu Enfoque)</span>
-            <ul style="margin: 0; padding-left: 14px; font-size: 11.5px; line-height: 1.5; color: var(--muted); display: flex; flex-direction: column; gap: 4px;">
-              <li><strong>1 daño/seg:</strong> Daño constante mientras te mantienes enfocado en la pantalla.</li>
-              <li><strong>100 de daño:</strong> Al completar con éxito tus 25 min de pomodoro.</li>
-              <li><strong>300 de daño (Crítico):</strong> Al vencer al <strong>Sapo</strong> del día en una sesión.</li>
-            </ul>
-          </div>
-
-          <!-- Carta de Curación -->
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
-            <span style="font-size: 11px; font-weight: 800; color: var(--red); text-transform: uppercase; letter-spacing: 0.5px;">🩸 Contraataque (Distracción)</span>
-            <ul style="margin: 0; padding-left: 14px; font-size: 11.5px; line-height: 1.5; color: var(--muted); display: flex; flex-direction: column; gap: 4px;">
-              <li><strong>Curación del Jefe:</strong> Si abandonas o te quedas sin tiempo de pausa, el villano sana <strong>+2% de su vida</strong>.</li>
-              <li><strong>Daño al Escudo:</strong> Restará <strong>40 de escudo comunitario</strong>.</li>
-              <li><strong>Historial:</strong> Un aviso alertará a tus compañeros de tu distracción. ¡Mantén tu disciplina por el equipo!</li>
-            </ul>
-          </div>
-        </div>
-
-        <div style="background: rgba(99,102,241,0.05); border: 1.5px dashed rgba(99,102,241,0.2); border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-top: 4px;">
-          <span style="font-size: 16px;">👑</span>
-          <p style="font-size: 11px; line-height: 1.4; color: var(--text); margin: 0;">
-            <strong>Ventaja Premium Pro:</strong> Los usuarios Pro infligen un <strong>+25% de daño adicional</strong> y pueden comprar sables/boosters en la armería con sus Pro Coins para liderar el daño grupal.
-          </p>
-        </div>
-      </div>
-
-      <!-- CONTENIDO PESTAÑA 2: BESTIARIO (VILLANOS) -->
-      <div *ngIf="activeRaidTab() === 'bestiary'" style="display: flex; flex-direction: column; gap: 12px;">
-        
-        <!-- Oni del Ocio -->
-        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: start;">
-          <span style="font-size: 26px; line-height: 1;">👺</span>
-          <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: var(--text);">El Oni del Ocio</h4>
-              <span style="font-size: 9px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">HP: 5000 (Samurái)</span>
-            </div>
-            <p style="margin: 0; font-size: 11.5px; line-height: 1.4; color: var(--muted);">Un demonio ancestral que se alimenta de la procrastinación en tareas de alta resistencia mental.</p>
-            <span style="font-size: 10.5px; font-weight: 700; color: var(--green); margin-top: 2px;">⚡ Debilidad: Sesiones con técnica Sapo (daño crítico x3).</span>
-          </div>
-        </div>
-
-        <!-- Virus BlackOut -->
-        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: start;">
-          <span style="font-size: 26px; line-height: 1;">👾</span>
-          <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: var(--text);">El Virus BlackOut</h4>
-              <span style="font-size: 9px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">HP: 4000 (Cyberpunk)</span>
-            </div>
-            <p style="margin: 0; font-size: 11.5px; line-height: 1.4; color: var(--muted);">Un programa malware digital diseñado para saturar tus sentidos con falsas notificaciones, clics repetitivos y scroll infinito.</p>
-            <span style="font-size: 10.5px; font-weight: 700; color: var(--green); margin-top: 2px;">⚡ Debilidad: Frecuencias de fondo (enmascaramiento acústico con Lluvia Zen).</span>
-          </div>
-        </div>
-
-        <!-- Mono de la Mente -->
-        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: start;">
-          <span style="font-size: 26px; line-height: 1;">🐒</span>
-          <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: var(--text);">El Mono de la Mente</h4>
-              <span style="font-size: 9px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">HP: 3000 (Zen)</span>
-            </div>
-            <p style="margin: 0; font-size: 11.5px; line-height: 1.4; color: var(--muted);">Una criatura inquieta que salta constantemente entre pensamientos aleatorios, impidiendo la inmersión profunda y la quietud.</p>
-            <span style="font-size: 10.5px; font-weight: 700; color: var(--green); margin-top: 2px;">⚡ Debilidad: Frenos cognitivos y micro-meditación S.O.S de respiración.</span>
-          </div>
-        </div>
-
-        <!-- Agujero Negro -->
-        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: start;">
-          <span style="font-size: 26px; line-height: 1;">🌀</span>
-          <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: var(--text);">El Agujero Negro del Presente</h4>
-              <span style="font-size: 9px; font-weight: 800; color: var(--accent); background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">HP: 6000 (Aurora)</span>
-            </div>
-            <p style="margin: 0; font-size: 11.5px; line-height: 1.4; color: var(--muted);">Una fuerza de distorsión temporal que devalúa los beneficios futuros a cambio de la inacción instantánea.</p>
-            <span style="font-size: 10.5px; font-weight: 700; color: var(--green); margin-top: 2px;">⚡ Debilidad: Presión de sincronización en el Comunidad.</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- CONTENIDO PESTAÑA 3: ESTADÍSTICAS DEL COMUNIDAD -->
-      <div *ngIf="activeRaidTab() === 'stats'" style="display: flex; flex-direction: column; gap: 16px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <!-- Estadística 1 -->
-          <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 4px;">
-            <span style="font-size: 18px;">🔥</span>
-            <span style="font-size: 22px; font-weight: 900; color: var(--accent);">184</span>
-            <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Jefes Derrotados</span>
-          </div>
-          
-          <!-- Estadística 2 -->
-          <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 4px;">
-            <span style="font-size: 18px;">🛡️</span>
-            <span style="font-size: 22px; font-weight: 900; color: var(--accent);">85%</span>
-            <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Resistencia del Escudo</span>
-          </div>
-
-          <!-- Estadística 3 -->
-          <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 4px;">
-            <span style="font-size: 18px;">⌛</span>
-            <span style="font-size: 22px; font-weight: 900; color: var(--accent);">92.4k</span>
-            <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Minutos de Enfoque</span>
-          </div>
-
-          <!-- Estadística 4 -->
-          <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 4px;">
-            <span style="font-size: 18px;">🪙</span>
-            <span style="font-size: 22px; font-weight: 900; color: var(--accent);">27.6k</span>
-            <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Coins Repartidas</span>
-          </div>
-        </div>
-
-        <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px;">
-          <h5 style="margin: 0; font-size: 11px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">⚔️ Tabla de Honor de la Temporada</h5>
-          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px; font-size: 11.5px;">
-            <div style="display: flex; justify-content: space-between; color: var(--text);">
-              <span>1. ⚔️ Musashi_Focus (Pro)</span>
-              <strong style="color: var(--yellow);">4,820 pts</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; color: var(--muted);">
-              <span>2. 🧠 Neo_Netrunner (Pro)</span>
-              <strong>3,950 pts</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; color: var(--muted);">
-              <span>3. 🐒 Bonsai_Master</span>
-              <strong>3,100 pts</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Pie del Modal -->
-    <div style="padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: flex-end;">
-      <button (click)="showRaidGuideModal.set(false)" 
-              style="border: none; background: var(--accent); color: #000; padding: 8px 20px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit;"
-              onmouseover="this.style.transform='scale(1.02)'"
-              onmouseout="this.style.transform='scale(1)'">
-        Cerrar Guía
-      </button>
-    </div>
-
-  </div>
-</div>
 
 <!-- Efecto de Celebración (Confeti y Serpentinas) -->
 <div *ngIf="showCelebration()" 
@@ -1455,7 +1652,7 @@
               <i class="fa-solid fa-hourglass-half" style="color: var(--accent);"></i>
               Estilo del Temporizador Zen
             </span>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
               <!-- Opción 1: Digital -->
               <button (click)="setTimerStyle('digital')"
                       style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
@@ -1483,6 +1680,22 @@
                    class="fa-solid fa-lock" 
                    style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
               </button>
+
+              <!-- Opción 3: Manzana Devorada (Premium) -->
+              <button (click)="setTimerStyle('apple')"
+                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; position: relative;"
+                      [style.background]="timerStyle() === 'apple' ? 'rgba(76, 175, 80, 0.12)' : 'transparent'"
+                      [style.borderColor]="timerStyle() === 'apple' ? 'var(--green)' : 'var(--border)'"
+                      [style.color]="timerStyle() === 'apple' ? 'var(--green)' : 'var(--muted)'"
+                      onmouseover="this.style.borderColor='var(--green)'"
+                      onmouseout="if(this.timerStyle() !== 'apple') { this.style.borderColor='var(--border)' }">
+                <i class="fa-solid fa-apple-whole"></i>
+                Manzana Zen
+                
+                <i *ngIf="!membership.isPremium()" 
+                   class="fa-solid fa-lock" 
+                   style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
+              </button>
             </div>
           </div>
 
@@ -1496,8 +1709,10 @@
 </div>
 
 <!-- PANEL DE CONSOLA UNIFICADO (SE APERTURA DESDE EL BOTÓN ÚNICO EN ESQUINA INFERIOR IZQUIERDA) -->
-<div *ngIf="showCommunityConsole()"
-     class="floating-drawer custom-scrollbar console-drawer-animated hide-on-inactive"
+<div class="floating-drawer custom-scrollbar"
+     [class.console-hidden]="!showCommunityConsole()"
+     [class.hide-on-inactive]="!isConsolePinned()"
+     [class.console-pinned]="isConsolePinned()"
      style="left: 12px; right: auto; bottom: 64px; top: auto; width: var(--drawer-width); height: var(--drawer-height); max-height: calc(100vh - 140px); display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1.5px solid var(--border); background: rgba(10, 10, 12, 0.96); box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65); border-radius: 16px; z-index: 2000;">
   
   <!-- Cabecera de la Consola con Selector de Pestañas (Tabs) al lado del título -->
@@ -1505,11 +1720,11 @@
     
     <!-- Título de la Consola -->
     <div style="font-size: 9.5px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; text-align: left;">
-      Consola del Templo
+      {{ communityActiveTab() === 'strategy' ? 'Estrategia y Enfoque' : (communityActiveTab() === 'boss' ? 'Combate con el Jefe' : 'Usuarios Conectados') }}
     </div>
 
-    <!-- Contenedor Derecho (Tabs + Botón Cerrar) -->
-    <div style="display: flex; align-items: center; gap: 16px; margin-left: auto; flex-shrink: 0;">
+    <!-- Contenedor Derecho (Tabs + Botones Acción) -->
+    <div style="display: flex; align-items: center; gap: 24px; margin-left: auto; flex-shrink: 0;">
       
       <!-- Barra de Pestañas (Tabs) Compacta -->
       <div style="display: flex; gap: 2px; background: rgba(0,0,0,0.3); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); box-sizing: border-box; align-items: center;">
@@ -1518,9 +1733,9 @@
         <button (click)="communityActiveTab.set('strategy')"
                 [style.background]="communityActiveTab() === 'strategy' ? 'var(--accent)' : 'transparent'"
                 [style.color]="communityActiveTab() === 'strategy' ? '#000' : 'var(--muted)'"
-                style="border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                style="border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
                 title="Estrategia y Enfoque">
-          <i class="fa-solid fa-crosshairs" style="font-size: 13.5px;"></i>
+          <i class="fa-solid fa-crosshairs" style="font-size: 16px;"></i>
         </button>
 
         <!-- Pestaña 1: Combate Boss (Sólo si modo comunitario está activo) -->
@@ -1528,27 +1743,40 @@
                 (click)="communityActiveTab.set('boss')"
                 [style.background]="communityActiveTab() === 'boss' ? 'var(--red)' : 'transparent'"
                 [style.color]="communityActiveTab() === 'boss' ? '#fff' : 'var(--muted)'"
-                style="border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                style="border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
                 title="Combate con el Jefe (Boss)">
-          <i class="fa-solid fa-skull-crossbones" style="font-size: 13.5px;"></i>
+          <i class="fa-solid fa-skull-crossbones" style="font-size: 16px;"></i>
         </button>
 
         <!-- Pestaña 3: Compañeros -->
         <button (click)="communityActiveTab.set('users')"
                 [style.background]="communityActiveTab() === 'users' ? 'var(--accent)' : 'transparent'"
                 [style.color]="communityActiveTab() === 'users' ? '#000' : 'var(--muted)'"
-                style="border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                style="border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
                 title="Compañeros y Guerreros">
-          <i class="fa-solid fa-users" style="font-size: 13.5px;"></i>
+          <i class="fa-solid fa-users" style="font-size: 16px;"></i>
         </button>
       </div>
 
-      <!-- Botón X Cerrar -->
-      <button (click)="showCommunityConsole.set(false)" 
-              style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; padding: 2px;"
-              title="Cerrar Consola">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+      <!-- Botones de Acción (Pin + Minimizar) -->
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <!-- Botón Pin (Fijar) -->
+        <button (click)="isConsolePinned.set(!isConsolePinned())" 
+                [style.color]="isConsolePinned() ? 'var(--accent)' : 'var(--muted)'"
+                style="background: transparent; border: none; cursor: pointer; font-size: 13.5px; display: flex; align-items: center; justify-content: center; padding: 2px; transition: color 0.2s;"
+                [title]="isConsolePinned() ? 'Desfijar Consola (ocultar por inactividad)' : 'Fijar Consola (mantener visible siempre)'">
+          <i class="fa-solid fa-thumbtack" [style.transform]="isConsolePinned() ? 'rotate(0deg)' : 'rotate(45deg)'" style="transition: transform 0.2s;"></i>
+        </button>
+
+        <!-- Botón Minimizar -->
+        <button (click)="showCommunityConsole.set(false); isConsolePinned.set(false)" 
+                style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; padding: 2px; transition: color 0.2s;"
+                onmouseover="this.style.color='var(--accent)'"
+                onmouseout="this.style.color='var(--muted)'"
+                title="Minimizar Consola">
+          <i class="fa-solid fa-minus"></i>
+        </button>
+      </div>
 
     </div>
 
@@ -1563,7 +1791,7 @@
          [style.borderColor]="bossService.activeBoss().status === 'defeated' ? 'var(--green)' : 'rgba(255,255,255,0.08)'">
       
       <!-- Retrato del Jefe Detrás (Como Marca de Agua) -->
-      <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; opacity: 0.12; pointer-events: none; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 10px;">
+      <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; opacity: 0.25; pointer-events: none; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 10px;">
         <img *ngIf="bossService.activeBoss().type === 'samurai'" src="/assets/images/avatars/boss_hidra.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
         <img *ngIf="bossService.activeBoss().type === 'cyberpunk'" src="/assets/images/avatars/boss_kraken.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
         <img *ngIf="bossService.activeBoss().type === 'zen'" src="/assets/images/avatars/boss_basilisco.jpg" style="max-width:90%; max-height:90%; object-fit:contain;">
@@ -1583,9 +1811,6 @@
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
           <h3 style="font-size: var(--modal-title-size); font-weight: 900; color: #fff; margin: 0;">{{ bossService.activeBoss().name }}</h3>
-          <span style="background: rgba(0, 0, 0, 0.5); border: 1px solid var(--accent); padding: 1px 4px; border-radius: 4px; font-size: var(--modal-badge-size); font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0;">
-            {{ bossService.activeBoss().type === 'siren' ? 'Agua' : (bossService.activeBoss().type === 'cyberpunk' ? 'Caos' : (bossService.activeBoss().type === 'zen' ? 'Tierra' : (bossService.activeBoss().type === 'samurai' ? 'Fuego' : (bossService.activeBoss().type === 'aurora' ? 'Viento' : (bossService.activeBoss().type === 'werewolf' ? 'Luna' : 'Sombra'))))) }}
-          </span>
         </div>
       </div>
 
@@ -1615,13 +1840,7 @@
           <span style="font-size: var(--modal-badge-size); font-weight: 800; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 3px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <span>Notificaciones en Vivo</span>
             <div style="display: flex; gap: 4px; align-items: center;">
-              <!-- Botón Guía -->
-              <button (click)="showRaidGuideModal.set(true)"
-                      style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 4px; padding: 1px 4px; font-size: 6.5px; font-weight: 900; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 2px;"
-                      title="Ver Guía de Raid y Bestiario">
-                <i class="fa-solid fa-book-open" style="font-size: 4px;"></i>
-                GUÍA
-              </button>
+
               
               <!-- Botón DEMO -->
               <button (click)="triggerDemoAttack($event)" 
@@ -1666,25 +1885,33 @@
         </span>
         
         <!-- Metodología -->
-        <div style="display: flex; gap: 2px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.04);">
+        <div style="display: flex; gap: 2px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.04);"
+             [style.opacity]="arenaState() !== 'setup' ? 0.6 : 1"
+             [style.pointerEvents]="arenaState() !== 'setup' ? 'none' : 'auto'">
           <button (click)="selectMethodology('normal')"
+                  [disabled]="arenaState() !== 'setup'"
                   style="border: none; padding: 2px 5px; border-radius: 3px; font-size: var(--modal-badge-size); font-weight: 900; cursor: pointer; transition: all 0.2s;"
                   [style.background]="activeMethodology() === 'normal' ? 'rgba(255, 255, 255, 0.08)' : 'transparent'"
                   [style.color]="activeMethodology() === 'normal' ? 'var(--text)' : 'var(--muted)'"
+                  [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'pointer'"
                   [attr.data-tooltip]="'Sesión de Enfoque Estándar: enfócate en una tarea tradicional a tu propio ritmo.'">
             Normal
           </button>
           <button (click)="selectMethodology('sapo')"
+                  [disabled]="arenaState() !== 'setup'"
                   style="border: none; padding: 2px 5px; border-radius: 3px; font-size: var(--modal-badge-size); font-weight: 900; cursor: pointer; transition: all 0.2s;"
                   [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.15)' : 'transparent'"
                   [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--muted)'"
+                  [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'pointer'"
                   [attr.data-tooltip]="'Metodología Cómete el Sapo: la tarea más difícil e importante de tu día.'">
             Sapo
           </button>
           <button (click)="selectMethodology('pareto')"
+                  [disabled]="arenaState() !== 'setup'"
                   style="border: none; padding: 2px 5px; border-radius: 3px; font-size: var(--modal-badge-size); font-weight: 900; cursor: pointer; transition: all 0.2s;"
                   [style.background]="activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.15)' : 'transparent'"
                   [style.color]="activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)'"
+                  [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'pointer'"
                   [attr.data-tooltip]="'Filtro Pareto 80/20: el 20% del esfuerzo que genera el 80% del impacto real.'">
             Pareto
           </button>
@@ -1692,16 +1919,38 @@
       </div>
 
       <!-- Input de Objetivo -->
-      <div style="position: relative; display: flex; align-items: center;">
-        <input type="text" 
-               [ngModel]="activeObjective()" 
-               (ngModelChange)="activeObjective.set($event)"
-               [placeholder]="activeMethodology() === 'sapo' ? '¿Qué sapo te vas a comer hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave hoy?' : '¿Qué tarea vas a realizar?')"
-               style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; padding-right: 30px; color: var(--text); font-size: var(--modal-text-size); font-weight: 600; outline: none; font-family: inherit;">
-        <i class="fa-solid" 
-           [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-pen-clip')" 
-           [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')"
-           style="position: absolute; right: 10px; font-size: var(--modal-header-size); pointer-events: none;"></i>
+      <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
+        <div style="position: relative; display: flex; align-items: center; flex: 1;"
+             [style.opacity]="arenaState() !== 'setup' ? 0.6 : 1"
+             [style.pointerEvents]="arenaState() !== 'setup' ? 'none' : 'auto'">
+          <input type="text" 
+                 [disabled]="arenaState() !== 'setup'"
+                 [ngModel]="activeObjective()" 
+                 (ngModelChange)="activeObjective.set($event)"
+                 [placeholder]="activeMethodology() === 'sapo' ? '¿Qué sapo te vas a comer hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave hoy?' : '¿Qué tarea vas a realizar?')"
+                 style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; padding-right: 30px; color: var(--text); font-size: var(--modal-text-size); font-weight: 600; outline: none; font-family: inherit;"
+                 [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'text'">
+          <i class="fa-solid" 
+             [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-pen-clip')" 
+             [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')"
+             style="position: absolute; right: 10px; font-size: var(--modal-header-size); pointer-events: none;"></i>
+        </div>
+        
+        <!-- Botón para asociar objetivo -->
+        <button (click)="confirmObjective()"
+                [disabled]="arenaState() !== 'setup'"
+                [style.background]="objectiveConfirmed() ? 'rgba(16, 185, 129, 0.15)' : 'rgba(99, 102, 241, 0.12)'"
+                [style.borderColor]="objectiveConfirmed() ? 'var(--green)' : 'rgba(99, 102, 241, 0.25)'"
+                [style.color]="objectiveConfirmed() ? 'var(--green)' : 'var(--accent)'"
+                [style.opacity]="arenaState() !== 'setup' ? 0.5 : 1"
+                [style.pointerEvents]="arenaState() !== 'setup' ? 'none' : 'auto'"
+                style="border: 1px solid; padding: 0 12px; border-radius: 6px; font-size: 11px; font-weight: 900; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: inherit; height: 35px; box-sizing: border-box;"
+                onmouseover="this.style.filter='brightness(1.2)'"
+                onmouseout="this.style.filter='none'"
+                title="Asociar este objetivo a tu Pomodoro">
+          <i class="fa-solid" [class.fa-check]="objectiveConfirmed()" [class.fa-plus]="!objectiveConfirmed()"></i>
+          <span>{{ objectiveConfirmed() ? 'Asociado' : 'Asociar' }}</span>
+        </button>
       </div>
     </div>
 
@@ -1709,7 +1958,7 @@
     <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 12px;">
       <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Modo de Enfoque</span>
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+      <div *ngIf="arenaState() === 'setup'" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
         <div (click)="setFocusMode('comunitario')"
              style="border: 1px solid var(--border); border-radius: 6px; padding: 8px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;"
              [style.borderColor]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--border)'"
@@ -1727,6 +1976,15 @@
         </div>
       </div>
 
+      <!-- Aviso durante la concentración -->
+      <div *ngIf="arenaState() !== 'setup'" 
+           style="background: rgba(99, 102, 241, 0.03); border: 1.5px dashed rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center;">
+        <i class="fa-solid fa-circle-info" style="color: var(--accent); font-size: var(--modal-header-size);"></i>
+        <p style="margin: 0; font-size: 11px; line-height: 1.3; color: var(--muted); font-weight: 600;">
+          Modo de enfoque bloqueado. No es posible modificarlo durante la sesión de concentración activa.
+        </p>
+      </div>
+
       <div style="font-size: var(--modal-text-size); color: var(--muted); line-height: 1.3; margin-top: 2px;">
         <span *ngIf="coworkingMode() === 'solo'">🧘 Modo en Solitario activo. Tu templo es privado.</span>
         
@@ -1737,10 +1995,10 @@
             <i class="fa-solid fa-users" style="color: var(--accent); font-size: var(--modal-header-size);"></i>
             <span style="position: absolute; top: -1px; right: -1px; width: 6px; height: 6px; background: var(--green); border-radius: 50%; border: 1.5px solid var(--bg3); animation: pulseGreen 1.5s infinite;"></span>
           </div>
-          <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left;">
+          <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;">
             <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text);">Comunidad Activa</span>
             <span style="font-size: var(--modal-text-size); color: var(--muted); font-weight: 600;">
-              Hay <strong style="color: var(--accent);">{{ globalFocusedCount() }} guerreros</strong> enfocándose ahora mismo.
+              Hay <strong style="color: var(--accent);">{{ globalFocusedCount() }} usuarios</strong> enfocados ahora mismo.
             </span>
           </div>
         </div>
@@ -1763,11 +2021,18 @@
 
       <div class="no-scrollbar" style="display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto;">
         <!-- Tu Ficha -->
-        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid var(--accent); border-radius: 6px; padding: 4px 6px; display: flex; align-items: center; gap: 5px;">
-          <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--accent); background-size: cover; background-position: center; flex-shrink: 0;"></div>
+        <div style="padding: 4px 6px; display: flex; align-items: center; gap: 5px; border-radius: 6px; border: 1px solid;"
+             [style.borderColor]="isBreak() ? 'var(--green)' : 'var(--accent)'"
+             [style.background]="isBreak() ? 'rgba(16, 185, 129, 0.08)' : 'rgba(99, 102, 241, 0.08)'">
+          <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" 
+               style="width: 18px; height: 18px; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; border: 1px solid;"
+               [style.borderColor]="isBreak() ? 'var(--green)' : 'var(--accent)'"></div>
           <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; text-align: left;">
             <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text);">Tú (Guerrero)</span>
-            <span style="font-size: var(--modal-text-size); color: var(--accent); font-weight: 700; margin-top: 1px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ activeObjective() && activeObjective().trim() ? activeObjective() : 'Enfoque Activo' }}</span>
+            <span style="font-size: var(--modal-text-size); font-weight: 700; margin-top: 1px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"
+                  [style.color]="isBreak() ? 'var(--green)' : 'var(--accent)'">
+              {{ isBreak() ? 'Pausa de descanso' : (activeObjective() && activeObjective().trim() ? activeObjective() : 'Enfoque Activo') }}
+            </span>
           </div>
         </div>
 
