@@ -2539,3 +2539,76 @@
   50% { transform: translate(-1px, -0.8px) scale(1.06); }
   100% { transform: translate(1px, 0.8px) scale(0.94); }
 }
+
+/* ===== CUBO DE HIELO PREMIUM STYLE ===== */
+.ice-container {
+  cursor: grab !important;
+  user-select: none !important;
+  touch-action: none !important;
+}
+.ice-container:active {
+  cursor: grabbing !important;
+}
+
+.ice-drip {
+  animation: iceDrip linear infinite;
+  transform-origin: center;
+}
+
+@keyframes iceDrip {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(25px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* ===== BATERÍA ZEN PREMIUM STYLE ===== */
+.battery-container, .ring-container, .line-container {
+  cursor: grab !important;
+  user-select: none !important;
+  touch-action: none !important;
+}
+.battery-container:active, .ring-container:active, .line-container:active {
+  cursor: grabbing !important;
+}
+
+.battery-spark {
+  animation: batterySpark linear infinite;
+  transform-origin: center;
+}
+
+@keyframes batterySpark {
+  0% {
+    transform: translateY(20px) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-60px) scale(1.3);
+    opacity: 0;
+  }
+}
+
+.battery-flicker {
+  animation: lowBatteryFlicker 1.5s ease-in-out infinite;
+}
+
+@keyframes lowBatteryFlicker {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.95; filter: drop-shadow(0 0 4px #ff1744); }
+}

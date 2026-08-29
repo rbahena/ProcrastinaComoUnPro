@@ -65,7 +65,7 @@ export class Enfoque implements OnInit, OnDestroy {
   partnerNotificationType = signal<'info' | 'warning' | 'success' | 'danger'>('info');
 
   // Escudo acústico / Ruido de fondo en vivo
-  backgroundSound = signal<'off' | 'cafe' | 'lluvia' | 'reloj_pared' | 'reloj_pulsera'>('off');
+  backgroundSound = signal<'off' | 'cafe' | 'lluvia' | 'reloj_pared' | 'reloj_pulsera' | 'fogata' | 'bosque' | 'olas'>('off');
   backgroundVolume = signal(0.4);
 
   // Web Audio Context refs
@@ -164,7 +164,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   showSettingsPanel = signal(false);
   showSetupSettings = signal(false);
-  settingsActiveTab = signal<'time' | 'themes'>('time');
+  settingsActiveTab = signal<'time' | 'themes' | 'timerStyle'>('time');
   showThemesPanel = signal(false);
   showStrategyCard = signal(false);
   showBossCard = signal(false);
@@ -180,7 +180,7 @@ export class Enfoque implements OnInit, OnDestroy {
   private onMouseLeaveFn = () => this.onMouseLeaveWindow();
 
   // Estilo del Temporizador (Clásico vs Fuego Premium)
-  timerStyle = signal<'digital' | 'fire' | 'apple'>(
+  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line'>(
     (localStorage.getItem('focus-timer-style') as any) || 'digital'
   );
 
@@ -971,7 +971,120 @@ export class Enfoque implements OnInit, OnDestroy {
     return buffer;
   }
 
-  updateBackgroundSound(sound: 'off' | 'cafe' | 'lluvia' | 'reloj_pared' | 'reloj_pulsera') {
+  private createCampfireBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 5; // 5 segundos de bucle para excelente variedad y ASMR
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    let b0 = 0.0, b1 = 0.0, b2 = 0.0, b3 = 0.0, b4 = 0.0, b5 = 0.0, b6 = 0.0;
+    let lastOut = 0.0;
+    
+    // 1. Calor de fondo sordo (un rumor extremadamente tenue y cálido, sin llamaradas ni soplidos fuertes)
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      
+      // Filtro rosa de 6 polos para calidez profunda
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      const pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+      b6 = white * 0.115926;
+      
+      // Filtro pasabajos profundo
+      const heatBase = (lastOut + (0.005 * pink)) / 1.005;
+      lastOut = heatBase;
+      
+      // Volumen muy bajo y sutil para emular el calor del carbón encendido
+      data[i] = heatBase * 0.18;
+    }
+    
+    // 2. Crepitación de brasas secas (chasquidos rápidos de carbón y chispas cristalinas de ceniza)
+    for (let i = 0; i < bufferSize; i++) {
+      const rand = Math.random();
+      
+      // A) Pequeños chasquidos secos de carbón agrietándose (Chasquidos de ruido rápido muy frecuentes)
+      if (rand > 0.99980) {
+        const popLen = Math.min(bufferSize - i, Math.round(ctx.sampleRate * 0.006)); // 6ms
+        for (let j = 0; j < popLen; j++) {
+          const t = j / ctx.sampleRate;
+          data[i + j] += (Math.random() * 2 - 1) * Math.exp(-700 * t) * 0.15;
+        }
+      }
+      
+      // B) Chispas diminutas de ceniza (Alta frecuencia cristalina instantánea)
+      else if (rand > 0.99935) {
+        const popLen = Math.min(bufferSize - i, Math.round(ctx.sampleRate * 0.0025)); // 2.5ms
+        for (let j = 0; j < popLen; j++) {
+          const t = j / ctx.sampleRate;
+          data[i + j] += (Math.random() * 2 - 1) * Math.exp(-1200 * t) * 0.08;
+        }
+      }
+      
+      // C) Asentamiento sordo de brasas (Crujido bajo ocasional)
+      else if (rand > 0.99996) {
+        const popLen = Math.min(bufferSize - i, Math.round(ctx.sampleRate * 0.025)); // 25ms
+        const pitch = 180 + Math.random() * 60; // tono de asentamiento bajo
+        for (let j = 0; j < popLen; j++) {
+          const t = j / ctx.sampleRate;
+          data[i + j] += Math.sin(2 * Math.PI * pitch * t) * Math.exp(-120 * t) * 0.08;
+        }
+      }
+    }
+    
+    return buffer;
+  }
+
+  private createForestBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 3; // 3 segundos
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    // Ruido de viento suave de fondo
+    let lastOut = 0.0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      data[i] = (lastOut + (0.015 * white)) / 1.015;
+      lastOut = data[i];
+      data[i] *= 0.3; // muy tenue
+    }
+    
+    // Agregar píos de aves simulados por oscilaciones moduladas
+    const birdTimes = [Math.round(ctx.sampleRate * 0.5), Math.round(ctx.sampleRate * 2.0)];
+    for (const startTime of birdTimes) {
+      const chirpDuration = Math.round(ctx.sampleRate * 0.15); // 150ms
+      for (let j = 0; j < chirpDuration; j++) {
+        const t = j / ctx.sampleRate;
+        const freq = 2800 + 700 * Math.sin(2 * Math.PI * 4 * t);
+        const chirpVal = Math.sin(2 * Math.PI * freq * t) * Math.sin(Math.PI * (j / chirpDuration)) * 0.15;
+        data[startTime + j] += chirpVal;
+      }
+    }
+    
+    return buffer;
+  }
+
+  private createOceanWavesBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 4; // 4 segundos de ciclo
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    let lastOut = 0.0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      data[i] = (lastOut + (0.02 * white)) / 1.02;
+      lastOut = data[i];
+      
+      const waveFreq = (2 * Math.PI * i) / bufferSize;
+      const waveMod = 0.3 + 0.7 * Math.sin(waveFreq); // oscila entre 0.3 y 1.0
+      data[i] *= waveMod * 2.0;
+    }
+    return buffer;
+  }
+
+  updateBackgroundSound(sound: 'off' | 'cafe' | 'lluvia' | 'reloj_pared' | 'reloj_pulsera' | 'fogata' | 'bosque' | 'olas') {
     this.backgroundSound.set(sound);
     this.stopBackgroundSound();
 
@@ -993,8 +1106,14 @@ export class Enfoque implements OnInit, OnDestroy {
         buffer = this.createRainNoiseBuffer(this.backgroundAudioCtx);
       } else if (sound === 'reloj_pared') {
         buffer = this.createWallClockBuffer(this.backgroundAudioCtx);
-      } else {
+      } else if (sound === 'reloj_pulsera') {
         buffer = this.createWristwatchBuffer(this.backgroundAudioCtx);
+      } else if (sound === 'fogata') {
+        buffer = this.createCampfireBuffer(this.backgroundAudioCtx);
+      } else if (sound === 'bosque') {
+        buffer = this.createForestBuffer(this.backgroundAudioCtx);
+      } else {
+        buffer = this.createOceanWavesBuffer(this.backgroundAudioCtx);
       }
 
       this.backgroundSource = this.backgroundAudioCtx.createBufferSource();
@@ -1154,8 +1273,8 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Setter del estilo de cronómetro Zen (con verificación Premium)
-  setTimerStyle(style: 'digital' | 'fire' | 'apple') {
-    if ((style === 'fire' || style === 'apple') && !this.membership.isPremium()) {
+  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line') {
+    if ((style === 'fire' || style === 'hourglass' || style === 'ice' || style === 'battery') && !this.membership.isPremium()) {
       this.showPaywallModal.set(true);
       return;
     }
@@ -1298,27 +1417,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   selectThemeOption(theme: 'samurai' | 'cyberpunk' | 'aurora' | 'zen') {
-    if (theme === 'samurai' || this.membership.unlockedThemes().includes(theme)) {
-      this.changeTheme(theme);
-      return;
-    }
-
-    if (!this.membership.isPremium()) {
-      this.showPaywallModal.set(true);
-      return;
-    }
-
-    const cost = theme === 'cyberpunk' ? 100 : theme === 'aurora' ? 150 : 200;
-    const confirmBuy = confirm(`El tema ${theme.toUpperCase()} cuesta ${cost} Pro Coins. ¿Deseas desbloquearlo? Tienes ${this.membership.proCoins()} Pro Coins.`);
-    if (confirmBuy) {
-      const success = this.membership.unlockTheme(theme, cost);
-      if (success) {
-        this.changeTheme(theme);
-        alert(`¡Tema ${theme.toUpperCase()} desbloqueado y equipado!`);
-      } else {
-        alert('No tienes suficientes Pro Coins para desbloquear este tema.');
-      }
-    }
+    this.changeTheme(theme);
   }
 
   setFocusMode(mode: 'solo' | 'comunitario') {

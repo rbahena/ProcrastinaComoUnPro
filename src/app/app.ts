@@ -22,16 +22,23 @@ export class App implements OnInit {
   constructor(public membership: MembershipService, private router: Router) {}
 
   ngOnInit() {
-    const savedTheme = localStorage.getItem('procrastina-theme') || 'samurai';
+    this.applyThemeOnBody();
+    this.router.events.subscribe(() => {
+      this.applyThemeOnBody();
+    });
+  }
+
+  applyThemeOnBody() {
     const body = document.body;
-    // Remove existing themes
     body.classList.forEach(className => {
       if (className.startsWith('theme-')) {
         body.classList.remove(className);
       }
     });
-    // Add current theme
-    body.classList.add(`theme-${savedTheme}`);
+    const targetTheme = this.isLandingOrAuthRoute()
+      ? 'samurai'
+      : (localStorage.getItem('procrastina-theme') || 'samurai');
+    body.classList.add(`theme-${targetTheme}`);
   }
 
   isLandingOrAuthRoute(): boolean {

@@ -263,6 +263,30 @@
         gap: 12px;
       }
     }
+
+    @keyframes sand-flow {
+      to {
+        stroke-dashoffset: -24;
+      }
+    }
+    .sand-stream-line {
+      animation: sand-flow 2.5s linear infinite;
+    }
+    .sand-stream-line-back {
+      animation: sand-flow 3.8s linear infinite;
+    }
+    .sand-stream-line-fast {
+      animation: sand-flow 1.5s linear infinite;
+    }
+    @keyframes splash-vibe {
+      0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 0 2px var(--accent)); }
+      50% { transform: scale(1.25) translateY(-0.5px); filter: drop-shadow(0 0 4px #ffffff); opacity: 1; }
+    }
+    .sand-splash {
+      animation: splash-vibe 0.14s infinite ease-in-out;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
   </style>
 
   <!-- AREA CENTRAL (DISEÑO PRESTIGIO DE TRES COLUMNAS) -->
@@ -336,7 +360,7 @@
                    (touchstart)="onTouchStart($event)"
                    (dblclick)="resetCampfirePosition()"
                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                   style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
+                   style="position: relative; width: 190px; height: 190px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                 
                 <!-- Aura de brillo de fondo detrás de la flama (se encoge con ella) -->
                 <div class="fire-glow" 
@@ -353,7 +377,7 @@
                      [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.20 : fireScale()) + ')'" 
                      [style.transformOrigin]="'50px 94px'"
                      [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()"
-                     style="width: 100%; height: 100%; z-index: 4; overflow: visible; position: absolute; top: -12px; left: 0; transition: transform 0.2s, opacity 0.2s;">
+                     style="width: 100%; height: 100%; z-index: 4; overflow: visible; position: absolute; top: -20px; left: 0; transition: transform 0.2s, opacity 0.2s;">
                   <defs>
                     <!-- Filtro de refracción de calor (Heat Shimmer) -->
                     <filter id="heatShimmer" x="-50%" y="-50%" width="200%" height="200%">
@@ -525,10 +549,10 @@
                    (touchstart)="onTouchStart($event)"
                    (dblclick)="resetCampfirePosition()"
                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                   style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
+                   style="position: relative; width: 250px; height: 250px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
                    
                    <!-- Humo animado en los troncos de resumen (15 partículas para humo más denso y continuo) -->
-                   <div class="smoke-particles-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 120px; overflow: visible; pointer-events: none;">
+                   <div class="smoke-particles-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 200px; overflow: visible; pointer-events: none;">
                   <div class="smoke-particle anim-smoke-1" style="left: 62.0%; animation-duration: 5.49s; animation-delay: 0.28s; transform: scale(0.93);"></div>
                   <div class="smoke-particle anim-smoke-2" style="left: 41.4%; animation-duration: 5.4s; animation-delay: 3.35s; transform: scale(1.33);"></div>
                   <div class="smoke-particle anim-smoke-3" style="left: 44.3%; animation-duration: 4.24s; animation-delay: 3.17s; transform: scale(1.22);"></div>
@@ -739,109 +763,389 @@
 
             </ng-container>
 
-            <!-- CASO 3: Manzana y Gusano (Premium) -->
-            <ng-container *ngIf="timerStyle() === 'apple'">
-              
-              <!-- Manzana interactiva arrastrable (Oculta durante la cuenta regresiva o interrupción) -->
-              <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
-                   class="apple-container"
-                   (mousedown)="onDragStart($event)"
-                   (touchstart)="onTouchStart($event)"
-                   (dblclick)="resetCampfirePosition()"
-                   [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                   style="position: relative; width: 150px; height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto; overflow: visible;">
-                
-                <!-- SVG de la Manzana y Gusano -->
-                <svg viewBox="0 0 100 110" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
-                  <defs>
-                    <!-- Clip path para devorar la manzana de derecha a izquierda -->
-                    <clipPath id="appleEatenClip">
-                      <!-- El ancho del rectángulo disminuye a medida que corre el tiempo (de 85 a 15) -->
-                      <rect x="0" y="0" [attr.width]="clipWidth()" height="110" />
-                    </clipPath>
-                  </defs>
-
-                  <!-- Tallo de la Manzana (Siempre visible en la cima) -->
-                  <path d="M 50 25 Q 53 10, 58 5" stroke="#8d6e63" stroke-width="3.5" fill="none" stroke-linecap="round" />
-                  
-                  <!-- Hoja de la Manzana (Siempre visible en la cima) -->
-                  <path d="M 52 18 C 55 10, 68 8, 72 12 C 72 16, 64 22, 52 18 Z" fill="#66bb6a" stroke="#388e3c" stroke-width="0.8" />
-
-                  <!-- CAPA FONDO: El Corazón/Pulpa mordida de la Manzana (Se revela a medida que la capa roja se recorta) -->
-                  <!-- Silueta de pulpa mordida (pinzada en el centro) -->
-                  <path d="M 50 25 C 38 25, 32 28, 32 30 C 32 45, 43 52, 43 62 C 43 72, 32 79, 32 90 C 32 92, 38 95, 50 95 C 62 95, 68 92, 68 90 C 68 79, 57 72, 57 62 C 57 52, 68 45, 68 30 C 68 28, 62 25, 50 25 Z" fill="#fffde7" stroke="#e0e0e0" stroke-width="0.8" />
-                  
-                  <!-- Semillas de manzana en el corazón -->
-                  <ellipse cx="46" cy="57" rx="2" ry="4" fill="#3e2723" transform="rotate(-15 46 57)" />
-                  <ellipse cx="54" cy="65" rx="2" ry="4" fill="#3e2723" transform="rotate(15 54 65)" />
-
-                  <!-- Tapa superior de cáscara roja en el corazón -->
-                  <path d="M 32 30 C 38 25, 62 25, 68 30 L 68 33 C 62 28, 38 28, 32 33 Z" fill="#ff3366" />
-                  
-                  <!-- Tapa inferior de cáscara roja en el corazón -->
-                  <path d="M 32 90 C 38 95, 62 95, 68 90 L 68 87 Q 50 91, 32 87 Z" fill="#ff3366" />
-
-
-
-                  <!-- CAPA FRENTE: Manzana Roja Completa (Se va recortando de derecha a izquierda) -->
-                  <g clip-path="url(#appleEatenClip)">
-                    <!-- Cuerpo de la manzana roja brillante con degradado tridimensional -->
-                    <path d="M 50 25 C 40 25, 20 18, 15 35 C 10 55, 22 93, 45 95 Q 48 95 50 93 Q 52 95 55 95 C 78 93, 90 55, 85 35 C 80 18, 60 25, 50 25 Z" fill="url(#appleBodyGrad)" stroke="#c2185b" stroke-width="0.8" />
-                    
-                    <!-- Brillo de luz superior izquierdo -->
-                    <ellipse cx="32" cy="42" rx="6" ry="12" fill="#ffffff" opacity="0.25" transform="rotate(-30 32 42)" />
-                  </g>
-
-                  <!-- GRADIENTES DENTRO DE DEFS PARA LA MANZANA -->
-                  <defs>
-                    <linearGradient id="appleBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#ff5376" />
-                      <stop offset="70%" stop-color="#ff1744" />
-                      <stop offset="100%" stop-color="#d50000" />
-                    </linearGradient>
-                  </defs>
-
-                  <!-- El Gusano Greenie Animado (Se traslada dinámicamente al borde del corte de la manzana) -->
-                  <g [style.transform]="'translate(' + clipWidth() + 'px, 62px)'">
-                    <!-- Grupo del gusano con animación de ondulación de comer -->
-                    <g class="worm-eat-wiggle">
-                      <!-- Segmento 3 (Cola, derecha) -->
-                      <circle class="worm-segment-3" cx="10" cy="2" r="3.5" fill="#81c784" stroke="#2e7d32" stroke-width="0.6" style="transform-origin: 10px 2px;" />
+            <!-- CASO 3: Reloj de Arena -->
+             <ng-container *ngIf="timerStyle() === 'hourglass'">
+               
+               <!-- Reloj de Arena interactiva arrastrable (Oculto durante la cuenta regresiva o interrupción) -->
+                <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                    class="apple-container"
+                    (mousedown)="onDragStart($event)"
+                    (touchstart)="onTouchStart($event)"
+                    (dblclick)="resetCampfirePosition()"
+                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
+                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto -25px auto; overflow: visible;">
+                 
+                 <!-- SVG del Reloj de Arena -->
+                 <svg viewBox="0 20 100 82" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                   <defs>
+                      <linearGradient id="sandGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#ffe082" />
+                        <stop offset="100%" stop-color="#ffb300" />
+                      </linearGradient>
                       
-                      <!-- Segmento 2 (Cuerpo, centro) -->
-                      <circle class="worm-segment-2" cx="5" cy="-2" r="4.5" fill="#66bb6a" stroke="#2e7d32" stroke-width="0.6" style="transform-origin: 5px -2px;" />
-                      
-                      <!-- Segmento 1 (Cabeza, izquierda) -->
-                      <circle class="worm-segment-1" cx="0" cy="0" r="5.8" fill="#4caf50" stroke="#2e7d32" stroke-width="0.6" style="transform-origin: 0px 0px;" />
-                      
-                      <!-- Carita adorable del gusano mirando a la izquierda -->
-                      <!-- Ojos -->
-                      <circle cx="-2" cy="-1.5" r="0.7" fill="#000" />
-                      <circle cx="-4" cy="-1.5" r="0.7" fill="#000" />
-                      <!-- Mejilla sonrosada -->
-                      <circle cx="-3" cy="1.2" r="1.0" fill="#ff8a80" />
+                      <clipPath id="topGlassClip">
+                        <path d="M 32 21 C 32 21, 35 48, 48 56 C 49 57, 51 57, 52 56 C 65 48, 68 21, 68 21 Z" />
+                      </clipPath>
+                      <clipPath id="bottomGlassClip">
+                        <path d="M 32 99 C 32 99, 35 72, 48 64 C 49 63, 51 63, 52 64 C 65 72, 68 99, 68 99 Z" />
+                      </clipPath>
+                    </defs>
+
+                    <!-- 1. Outer Glass Body -->
+                    <path d="M 32 20 C 32 50, 48 55, 48 60 C 48 65, 32 70, 32 100 L 68 100 C 68 70, 52 65, 52 60 C 52 55, 68 50, 68 20 Z" 
+                          fill="rgba(255, 255, 255, 0.03)" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" />
+
+                    <!-- 2. Top Sand (Decreasing, clips from top to bottom) -->
+                    <g *ngIf="timePercentage() > 0" clip-path="url(#topGlassClip)">
+                      <rect x="20" [attr.y]="20 + (38 * (1 - timePercentage()))" 
+                            width="60" [attr.height]="(38 * timePercentage()) + 2" 
+                            fill="url(#sandGrad)" />
                     </g>
-                  </g>
+
+                    <!-- 3. Bottom Sand (Increasing) -->
+                    <g clip-path="url(#bottomGlassClip)">
+                      <path d="M 32 62 C 38 70, 62 70, 68 62 L 70 100 H 30 Z" 
+                            fill="url(#sandGrad)"
+                            [style.transform]="'scaleY(' + (1 - timePercentage()) + ')'"
+                            style="transform-origin: 50px 100px; transition: transform 0.1s linear;" />
+                    </g>
+
+                    <!-- 4. Sand Streams (Falling grains) -->
+                    <!-- Capa 1: Capa posterior densa y gruesa -->
+                    <line *ngIf="arenaState() === 'active' && timePercentage() > 0 && !emergencyPauseActive()"
+                          x1="50" y1="58" x2="50" y2="99" 
+                          stroke="#ffb300" stroke-width="1.5" opacity="0.35"
+                          stroke-dasharray="3, 7"
+                          class="sand-stream-line-back" />
+                    
+                    <!-- Capa 2: Núcleo de caída brillante -->
+                    <line *ngIf="arenaState() === 'active' && timePercentage() > 0 && !emergencyPauseActive()"
+                          x1="50" y1="58" x2="50" y2="99" 
+                          stroke="#ffb300" stroke-width="1.0" 
+                          stroke-dasharray="2, 5"
+                          class="sand-stream-line" />
 
 
-                </svg>
+                   <!-- 5. Glass Reflection Shine highlights -->
+                   <path d="M 36 24 C 36 38, 46 42, 46 45" stroke="rgba(255,255,255,0.2)" stroke-width="1.2" fill="none" stroke-linecap="round" />
+                   <path d="M 36 96 C 36 82, 46 78, 46 75" stroke="rgba(255,255,255,0.2)" stroke-width="1.2" fill="none" stroke-linecap="round" />
+                 </svg>
 
-              </div>
-              
-              <!-- Línea de progreso de la manzana (verde/roja) -->
-              <div *ngIf="arenaState() === 'countdown' || arenaState() === 'active'"
-                   [style.borderColor]="isBreak() ? 'rgba(0, 242, 254, 0.15)' : 'rgba(76, 175, 80, 0.15)'"
-                   style="width: 130px; height: 8px; background: #140d09; border-radius: 6px; margin: 16px auto 6px auto; overflow: hidden; position: relative; border: 1.5px solid; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9); z-index: 10;">
-                <div [style.width]="(timePercentage() * 100) + '%'"
-                     [style.background]="isBreak() ? 'linear-gradient(90deg, #0052d4 0%, #00f2fe 70%, #ffffff 100%)' : 'linear-gradient(90deg, #ff2e55 0%, #4caf50 100%)'"
-                     [style.boxShadow]="isBreak() ? '0 0 12px rgba(0, 242, 254, 0.9), 0 0 4px rgba(255, 255, 255, 0.8)' : '0 0 12px rgba(76, 175, 80, 0.8)'"
-                     style="height: 100%; transition: width 1s linear; border-radius: 6px;">
-                </div>
-              </div>
+               </div>
 
-            </ng-container>
+             </ng-container>
 
-          </div>
+             <!-- CASO 4: Cubo de Hielo -->
+             <ng-container *ngIf="timerStyle() === 'ice'">
+               
+               <!-- Cubo de Hielo interactivo (Oculto en cuenta regresiva) -->
+               <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                    class="ice-container"
+                    (mousedown)="onDragStart($event)"
+                    (touchstart)="onTouchStart($event)"
+                    (dblclick)="resetCampfirePosition()"
+                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
+                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto -25px auto; overflow: visible;">
+                 
+                 <!-- SVG del Cubo de Hielo -->
+                 <svg viewBox="0 0 100 120" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                   <defs>
+                     <!-- Gradiente para la cara superior del cubo de hielo (más claro) -->
+                     <linearGradient id="iceTopGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                       <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                       <stop offset="60%" stop-color="#e0f7fa" stop-opacity="0.85" />
+                       <stop offset="100%" stop-color="#b2ebf2" stop-opacity="0.75" />
+                     </linearGradient>
+
+                     <!-- Gradiente para la cara izquierda (sombra media) -->
+                     <linearGradient id="iceLeftGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                       <stop offset="0%" stop-color="#80deea" stop-opacity="0.8" />
+                       <stop offset="100%" stop-color="#26c6da" stop-opacity="0.6" />
+                     </linearGradient>
+
+                     <!-- Gradiente para la cara derecha (sombra profunda) -->
+                     <linearGradient id="iceRightGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                       <stop offset="0%" stop-color="#4dd0e1" stop-opacity="0.8" />
+                       <stop offset="100%" stop-color="#00acc1" stop-opacity="0.65" />
+                     </linearGradient>
+
+                     <!-- Gradiente para el charco de agua derretida (más intenso y azul) -->
+                     <radialGradient id="puddleGrad" cx="50%" cy="50%" r="50%">
+                       <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.95" />
+                       <stop offset="50%" stop-color="#00c6ff" stop-opacity="0.75" />
+                         <stop offset="85%" stop-color="#0072ff" stop-opacity="0.55" />
+                       <stop offset="100%" stop-color="#0072ff" stop-opacity="0.0" />
+                     </radialGradient>
+                   </defs>
+
+                    <!-- 1. Charco de agua derretida orgánico (Crece a medida que timePercentage disminuye) -->
+                    <g [style.transform]="'scale(' + (0.15 + 0.85 * (1 - timePercentage())) + ')'"
+                       style="transform-origin: 50px 95px; transition: transform 0.1s linear;">
+                      
+                      <!-- Fondo de relleno degradado -->
+                      <path d="M 10 95 C 10 91, 18 90, 25 90 C 32 90, 42 87, 50 87 C 58 87, 66 89, 74 89 C 82 89, 90 91, 90 95 C 90 98, 83 100, 75 101 C 67 102, 58 103, 50 103 C 42 103, 33 101, 26 100 C 19 99, 10 98, 10 95 Z" 
+                            fill="url(#puddleGrad)" />
+
+                      <!-- Bordes de tensión superficial del agua (Líquido real) -->
+                      <!-- Borde exterior oscuro -->
+                      <path d="M 10 95 C 10 91, 18 90, 25 90 C 32 90, 42 87, 50 87 C 58 87, 66 89, 74 89 C 82 89, 90 91, 90 95 C 90 98, 83 100, 75 101 C 67 102, 58 103, 50 103 C 42 103, 33 101, 26 100 C 19 99, 10 98, 10 95 Z" 
+                            fill="none"
+                            stroke="#0091ea" 
+                            stroke-width="1.2"
+                            opacity="0.85" />
+
+                      <!-- Borde interior brillante (reflejo de luz) -->
+                      <path d="M 10 95 C 10 91, 18 90, 25 90 C 32 90, 42 87, 50 87 C 58 87, 66 89, 74 89 C 82 89, 90 91, 90 95 C 90 98, 83 100, 75 101 C 67 102, 58 103, 50 103 C 42 103, 33 101, 26 100 C 19 99, 10 98, 10 95 Z" 
+                            style="transform: scale(0.97); transform-origin: 50px 95px;"
+                            fill="none"
+                            stroke="#00e5ff" 
+                            stroke-width="0.8"
+                            opacity="0.95" />
+                    </g>
+
+                   <!-- 2. Gotas de agua goteando (Solo cuando está activo y corriendo) -->
+                   <g *ngIf="arenaState() === 'active' && timePercentage() > 0 && !emergencyPauseActive()">
+                     <!-- Gota central -->
+                     <circle cx="50" cy="80" r="1.5" fill="#00e5ff" opacity="0.8" class="ice-drip" style="animation-delay: 0s; animation-duration: 1.6s;" />
+                     <!-- Gota izquierda -->
+                     <circle cx="20" cy="65" r="1.2" fill="#00e5ff" opacity="0.7" class="ice-drip" style="animation-delay: 0.5s; animation-duration: 2.1s;" />
+                     <!-- Gota derecha -->
+                     <circle cx="80" cy="65" r="1.2" fill="#00e5ff" opacity="0.7" class="ice-drip" style="animation-delay: 1.1s; animation-duration: 1.8s;" />
+                   </g>
+
+                   <!-- 3. Cubo de hielo 3D con bordes redondeados y más grande (Se derrite/achica hacia la base en x=50, y=95) -->
+                   <g [style.transform]="'scale(' + (0.3 + 0.7 * timePercentage()) + ', ' + timePercentage() + ')'"
+                      style="transform-origin: 50px 95px; transition: transform 0.1s linear;">
+                     
+                     <!-- Sombra interior/suave dentro del propio hielo (redondeada y ajustada al nuevo tamaño) -->
+                     <path d="M 14 70 L 14 38 Q 14 35, 18 36.5 L 48 49 Q 50 50, 50 53 L 50 89 Z" fill="rgba(255,255,255,0.1)" />
+
+                     <!-- Cara Izquierda (Redondeada y Grande) -->
+                     <path d="M 12 71 L 12 36 Q 12 32, 16 34 L 46 50 Q 50 52, 50 56 L 50 91 Q 50 95, 46 93 L 16 77 Q 12 75, 12 71 Z" fill="url(#iceLeftGrad)" stroke="rgba(255, 255, 255, 0.4)" stroke-width="0.8" />
+
+                     <!-- Cara Derecha (Redondeada y Grande) -->
+                     <path d="M 50 56 L 50 91 Q 50 95, 54 93 L 84 77 Q 88 75, 88 71 L 88 36 Q 88 32, 84 34 L 54 50 Q 50 52, 50 56 Z" fill="url(#iceRightGrad)" stroke="rgba(255, 255, 255, 0.4)" stroke-width="0.8" />
+
+                     <!-- Cara Superior (Redondeada y Grande) -->
+                     <path d="M 46 14 Q 50 12, 54 14 L 84 30 Q 88 32, 84 34 L 54 50 Q 50 52, 46 50 L 16 34 Q 12 32, 16 30 Z" fill="url(#iceTopGrad)" stroke="rgba(255, 255, 255, 0.6)" stroke-width="0.8" />
+
+                     <!-- Líneas de brillo/reflejo en las esquinas -->
+                     <path d="M 50 56 L 50 91" stroke="rgba(255, 255, 255, 0.6)" stroke-width="1.2" fill="none" />
+                     <path d="M 16 34 L 50 52 L 84 34" stroke="rgba(255, 255, 255, 0.8)" stroke-width="0.6" fill="none" />
+                     
+                     <!-- Burbujas de aire internas congeladas Múltiples -->
+                     <circle cx="32" cy="62" r="1.8" fill="rgba(255, 255, 255, 0.6)" />
+                     <circle cx="38" cy="76" r="1.2" fill="rgba(255, 255, 255, 0.5)" />
+                     <circle cx="68" cy="55" r="2.2" fill="rgba(255, 255, 255, 0.4)" />
+                     <circle cx="62" cy="72" r="1.4" fill="rgba(255, 255, 255, 0.6)" />
+                     <circle cx="48" cy="40" r="1.7" fill="rgba(255, 255, 255, 0.5)" />
+                     <circle cx="50" cy="68" r="1.0" fill="rgba(255, 255, 255, 0.4)" />
+                   </g>
+                 </svg>
+
+               </div>
+             </ng-container>
+
+             <!-- CASO 5: Batería Descargándose -->
+             <ng-container *ngIf="timerStyle() === 'battery'">
+               
+               <!-- Batería interactiva arrastrable (Oculto en cuenta regresiva) -->
+               <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                    class="battery-container"
+                    (mousedown)="onDragStart($event)"
+                    (touchstart)="onTouchStart($event)"
+                    (dblclick)="resetCampfirePosition()"
+                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
+                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto -25px auto; overflow: visible;">
+                 
+                 <!-- SVG de la Batería -->
+                 <svg viewBox="0 0 100 120" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                   <defs>
+                     <!-- Filtro de resplandor de neón -->
+                     <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                       <feGaussianBlur stdDeviation="3.5" result="blur" />
+                       <feMerge>
+                         <feMergeNode in="blur" />
+                         <feMergeNode in="SourceGraphic" />
+                       </feMerge>
+                     </filter>
+
+                     <!-- Gradiente Verde (Llena) -->
+                     <linearGradient id="batteryGreen" x1="0%" y1="100%" x2="0%" y2="0%">
+                       <stop offset="0%" stop-color="#00c853" stop-opacity="0.85" />
+                       <stop offset="100%" stop-color="#00e676" stop-opacity="0.95" />
+                     </linearGradient>
+
+                     <!-- Gradiente Amarillo (Media) -->
+                     <linearGradient id="batteryYellow" x1="0%" y1="100%" x2="0%" y2="0%">
+                       <stop offset="0%" stop-color="#ffab00" stop-opacity="0.85" />
+                       <stop offset="100%" stop-color="#ffd600" stop-opacity="0.95" />
+                     </linearGradient>
+
+                     <!-- Gradiente Rojo (Crítica) -->
+                     <linearGradient id="batteryRed" x1="0%" y1="100%" x2="0%" y2="0%">
+                       <stop offset="0%" stop-color="#d50000" stop-opacity="0.85" />
+                       <stop offset="100%" stop-color="#ff1744" stop-opacity="0.95" />
+                     </linearGradient>
+                   </defs>
+
+                   <!-- 1. Brillo de Fondo Decorativo detrás de la batería -->
+                   <rect x="25" y="20" width="50" height="85" rx="8" ry="8"
+                         [attr.fill]="timePercentage() > 0.5 ? '#00e676' : (timePercentage() > 0.2 ? '#ffd600' : '#ff1744')"
+                         opacity="0.04"
+                         style="filter: blur(15px);" />
+
+                   <!-- 2. Relleno Eléctrico de Energía con Cambio Dinámico de Color -->
+                   <g *ngIf="timePercentage() > 0">
+                     <!-- Capa de brillo neón de fondo -->
+                     <rect x="27" [attr.y]="103 - (81 * timePercentage())" 
+                           width="46" [attr.height]="81 * timePercentage()" 
+                           rx="5" ry="5" 
+                           [attr.fill]="timePercentage() > 0.5 ? 'url(#batteryGreen)' : (timePercentage() > 0.2 ? 'url(#batteryYellow)' : 'url(#batteryRed)')" 
+                           filter="url(#neonGlow)" 
+                           opacity="0.6" />
+
+                     <!-- Capa de relleno sólida -->
+                     <rect x="27" [attr.y]="103 - (81 * timePercentage())" 
+                           width="46" [attr.height]="81 * timePercentage()" 
+                           rx="5" ry="5" 
+                           [attr.fill]="timePercentage() > 0.5 ? 'url(#batteryGreen)' : (timePercentage() > 0.2 ? 'url(#batteryYellow)' : 'url(#batteryRed)')" />
+                   </g>
+
+                   <!-- 3. Partículas eléctricas flotando hacia arriba (Chispas) -->
+                   <g *ngIf="arenaState() === 'active' && timePercentage() > 0 && !emergencyPauseActive()">
+                     <circle cx="36" cy="90" r="1.5" 
+                             [attr.fill]="timePercentage() > 0.5 ? '#00ff87' : (timePercentage() > 0.2 ? '#ffd600' : '#ff1744')" 
+                             opacity="0.8" class="battery-spark" style="animation-delay: 0s; animation-duration: 1.8s;" />
+                     <circle cx="62" cy="95" r="1.2" 
+                             [attr.fill]="timePercentage() > 0.5 ? '#00ff87' : (timePercentage() > 0.2 ? '#ffd600' : '#ff1744')" 
+                             opacity="0.7" class="battery-spark" style="animation-delay: 0.6s; animation-duration: 2.2s;" />
+                     <circle cx="48" cy="85" r="1.6" 
+                             [attr.fill]="timePercentage() > 0.5 ? '#00ff87' : (timePercentage() > 0.2 ? '#ffd600' : '#ff1744')" 
+                             opacity="0.7" class="battery-spark" style="animation-delay: 1.2s; animation-duration: 1.5s;" />
+                   </g>
+
+                   <!-- 4. Casing Transparente de la Batería (Glass look) -->
+                   <!-- Cap metálico superior -->
+                   <path d="M 42 20 L 42 14 C 42 12, 58 12, 58 14 L 58 20 Z" 
+                         fill="rgba(255, 255, 255, 0.25)" 
+                         stroke="rgba(255, 255, 255, 0.4)" 
+                         stroke-width="1.2" />
+
+                   <!-- Cuerpo de cristal principal -->
+                   <rect x="25" y="20" width="50" height="85" rx="8" ry="8" 
+                         fill="rgba(255, 255, 255, 0.04)" 
+                         stroke="rgba(255, 255, 255, 0.28)" 
+                         stroke-width="2.5" />
+
+                   <!-- Reflejo brillante del cristal (Shine line lateral) -->
+                   <path d="M 28 25 L 28 100" 
+                         stroke="rgba(255, 255, 255, 0.2)" 
+                         stroke-width="1.0" 
+                         stroke-linecap="round" />
+                   
+                   <path d="M 72 25 L 72 100" 
+                         stroke="rgba(255, 255, 255, 0.08)" 
+                         stroke-width="0.8" 
+                         stroke-linecap="round" />
+
+                   <!-- 5. Símbolo del Rayo (Lightning Bolt) -->
+                   <path d="M 54 40 L 40 60 L 49 60 L 46 80 L 60 56 L 51 56 Z" 
+                         fill="#ffffff" 
+                         [attr.opacity]="timePercentage() <= 0.2 ? 0.9 : 0.35"
+                         [class.battery-flicker]="timePercentage() <= 0.2" />
+                 </svg>
+
+               </div>
+             </ng-container>
+
+             <!-- CASO 6: Anillo Progress Ring -->
+             <ng-container *ngIf="timerStyle() === 'ring'">
+               <!-- Anillo interactivo arrastrable (Oculto en cuenta regresiva) -->
+               <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                    class="ring-container"
+                    (mousedown)="onDragStart($event)"
+                    (touchstart)="onTouchStart($event)"
+                    (dblclick)="resetCampfirePosition()"
+                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
+                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto -20px auto; overflow: visible;">
+                 
+                 <!-- SVG del Anillo -->
+                 <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                   <!-- Círculo de Fondo (Track) -->
+                   <circle cx="50" cy="50" r="45" 
+                           fill="none" 
+                           stroke="rgba(255, 255, 255, 0.05)" 
+                           stroke-width="2.5" />
+
+                   <!-- Círculo de Progreso Activo -->
+                   <circle cx="50" cy="50" r="45" 
+                           fill="none" 
+                           stroke="var(--accent)" 
+                           stroke-width="3.5" 
+                           stroke-linecap="round"
+                           transform="rotate(-90 50 50)"
+                           stroke-dasharray="282.743"
+                           [attr.stroke-dashoffset]="282.743 * (1 - timePercentage())"
+                           style="transition: stroke-dashoffset 0.3s linear; filter: drop-shadow(0 0 8px var(--accent));" />
+
+                   <!-- Números Digitales Centrales -->
+                   <text x="50" y="57" 
+                         text-anchor="middle" 
+                         fill="var(--text)" 
+                         font-size="22" 
+                         font-weight="950" 
+                         font-family="'Space Grotesk', monospace" 
+                         letter-spacing="-0.5">
+                     {{ timeString() }}
+                   </text>
+                 </svg>
+
+               </div>
+             </ng-container>
+
+             <!-- CASO 7: Línea Progress Bar -->
+             <ng-container *ngIf="timerStyle() === 'line'">
+               <!-- Línea interactiva arrastrable (Oculto en cuenta regresiva) -->
+               <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                    class="line-container"
+                    (mousedown)="onDragStart($event)"
+                    (touchstart)="onTouchStart($event)"
+                    (dblclick)="resetCampfirePosition()"
+                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
+                    style="position: relative; width: 280px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto -30px auto; overflow: visible;">
+                 
+                 <!-- SVG de la Línea -->
+                 <svg viewBox="10 32 80 38" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                   <!-- Línea de Fondo (Track) -->
+                   <line x1="10" y1="64" x2="90" y2="64" 
+                         stroke="rgba(255, 255, 255, 0.05)" 
+                         stroke-width="5" 
+                         stroke-linecap="round" />
+
+                   <!-- Línea de Progreso Activo -->
+                   <line x1="10" y1="64" [attr.x2]="10 + (80 * timePercentage())" y2="64" 
+                         stroke="var(--accent)" 
+                         stroke-width="7" 
+                         stroke-linecap="round"
+                         style="transition: x2 0.3s linear; filter: drop-shadow(0 0 8px var(--accent));" />
+
+                   <!-- Números Digitales Centrales (arriba de la línea) -->
+                   <text x="50" y="46" 
+                         text-anchor="middle" 
+                         fill="var(--text)" 
+                         font-size="18" 
+                         font-weight="950" 
+                         font-family="'Space Grotesk', monospace" 
+                         letter-spacing="-0.5">
+                     {{ timeString() }}
+                   </text>
+                 </svg>
+
+               </div>
+             </ng-container>
+
+           </div>
 
 <!-- Controles de Acción Minimalistas -->
              <div class="hide-on-inactive" style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
@@ -918,8 +1222,9 @@
                  </button>
                </ng-container>
 
+
                <!-- CUESTIONARIO POST-SESIÓN (en summary) -->
-                 <div *ngIf="arenaState() === 'summary' && timerStyle() === 'digital'" class="summary-modal">
+                  <div *ngIf="arenaState() === 'summary' && (timerStyle() === 'digital' || timerStyle() === 'hourglass' || timerStyle() === 'ice' || timerStyle() === 'battery' || timerStyle() === 'ring' || timerStyle() === 'line')" class="summary-modal">
                    <div class="summary-header">
                      <span class="summary-header-label">Cierre Dopamínico</span>
                      <h3 class="summary-question">¿Lograste completar tu objetivo?</h3>
@@ -1378,6 +1683,16 @@
           <i class="fa-solid fa-palette" style="font-size: 14px;"></i>
           Temas y Fondos
         </button>
+
+        <!-- Botón Pestaña 3: Estilo Reloj -->
+        <button (click)="settingsActiveTab.set('timerStyle')"
+                [style.background]="settingsActiveTab() === 'timerStyle' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                [style.borderColor]="settingsActiveTab() === 'timerStyle' ? 'var(--accent)' : 'transparent'"
+                [style.color]="settingsActiveTab() === 'timerStyle' ? 'var(--accent)' : 'var(--muted)'"
+                style="display: flex; align-items: center; gap: 12px; width: 100%; border: 1px solid transparent; padding: 12px 16px; border-radius: 8px; font-size: var(--modal-header-size); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: left; transition: all 0.2s; font-family: inherit; outline: none;">
+          <i class="fa-solid fa-hourglass-half" style="font-size: 14px;"></i>
+          Estilo Reloj
+        </button>
       </div>
 
       <!-- Botón de Cierre / Guardar en el Pie del Sidebar -->
@@ -1402,7 +1717,7 @@
 
       <!-- Título de la Pestaña Activa -->
       <h2 style="font-size: var(--modal-title-size); font-weight: 900; color: #fff; margin: 0 0 20px 0; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; letter-spacing: 0.5px;">
-        {{ settingsActiveTab() === 'time' ? 'Configuración de Tiempo y Alertas' : 'Personalización y Fondos de Espacio' }}
+        {{ settingsActiveTab() === 'time' ? 'Configuración de Tiempo y Alertas' : settingsActiveTab() === 'themes' ? 'Personalización y Fondos de Espacio' : 'Estilo y Visualización del Reloj' }}
       </h2>
 
       <!-- Contenido Scrollable -->
@@ -1417,24 +1732,36 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <!-- Enfoque -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
-                <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Enfoque (minutos)</span>
-                <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px;">
-                  <input type="number" 
-                         [ngModel]="focusDuration()" 
-                         (ngModelChange)="focusDuration.set($event); applyTimeSettings()"
-                         min="5" max="120" step="5"
-                         style="width: 100%; background: transparent; border: none; color: var(--text); font-size: var(--modal-text-size); font-weight: 700; outline: none; font-family: inherit;">
+                <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Enfoque</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1.5px solid var(--border); border-radius: 12px; padding: 4px;">
+                  <button type="button" 
+                          (click)="focusDuration.set(focusDuration() > 5 ? focusDuration() - 5 : 5); applyTimeSettings()"
+                          style="background: rgba(255,255,255,0.03); border: none; color: var(--text); width: 34px; height: 34px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; user-select: none;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text)';">-</button>
+                  <span style="font-size: var(--modal-text-size); font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ focusDuration() }} min</span>
+                  <button type="button" 
+                          (click)="focusDuration.set(focusDuration() < 120 ? focusDuration() + 5 : 120); applyTimeSettings()"
+                          style="background: rgba(255,255,255,0.03); border: none; color: var(--text); width: 34px; height: 34px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; user-select: none;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text)';">+</button>
                 </div>
               </div>
               <!-- Descanso Corto -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
-                <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Descanso Corto (minutos)</span>
-                <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px;">
-                  <input type="number" 
-                         [ngModel]="breakDuration()" 
-                          (ngModelChange)="breakDuration.set($event); applyTimeSettings()"
-                          min="1" max="60" step="1"
-                          style="width: 100%; background: transparent; border: none; color: var(--text); font-size: var(--modal-text-size); font-weight: 700; outline: none; font-family: inherit;">
+                <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Descanso Corto</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1.5px solid var(--border); border-radius: 12px; padding: 4px;">
+                  <button type="button" 
+                          (click)="breakDuration.set(breakDuration() > 1 ? breakDuration() - 1 : 1); applyTimeSettings()"
+                          style="background: rgba(255,255,255,0.03); border: none; color: var(--text); width: 34px; height: 34px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; user-select: none;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text)';">-</button>
+                  <span style="font-size: var(--modal-text-size); font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ breakDuration() }} min</span>
+                  <button type="button" 
+                          (click)="breakDuration.set(breakDuration() < 60 ? breakDuration() + 1 : 60); applyTimeSettings()"
+                          style="background: rgba(255,255,255,0.03); border: none; color: var(--text); width: 34px; height: 34px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; user-select: none;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text)';">+</button>
                 </div>
               </div>
             </div>
@@ -1447,50 +1774,47 @@
               <!-- Intervalo -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
                 <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Ciclos para Descanso Largo</span>
-                <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px;">
-                  <input type="number" 
-                         [ngModel]="longBreakInterval()" 
-                         (ngModelChange)="longBreakInterval.set($event)"
-                         min="1" max="12" step="1"
-                         style="width: 100%; background: transparent; border: none; color: var(--text); font-size: var(--modal-text-size); font-weight: 700; outline: none; font-family: inherit;">
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1.5px solid var(--border); border-radius: 12px; padding: 4px;">
+                  <button type="button" 
+                          (click)="longBreakInterval.set(longBreakInterval() > 1 ? longBreakInterval() - 1 : 1)"
+                          style="background: rgba(255,255,255,0.03); border: none; color: var(--text); width: 34px; height: 34px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; user-select: none;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text)';">-</button>
+                  <span style="font-size: var(--modal-text-size); font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ longBreakInterval() }} ciclos</span>
+                  <button type="button" 
+                          (click)="longBreakInterval.set(longBreakInterval() < 12 ? longBreakInterval() + 1 : 12)"
+                          style="background: rgba(255,255,255,0.03); border: none; color: var(--text); width: 34px; height: 34px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; user-select: none;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text)';">+</button>
                 </div>
               </div>
               <!-- Duración -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
-                <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Descanso Largo (minutos)</span>
-                <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px;">
-                  <input type="number" 
-                         [ngModel]="longBreakDuration()" 
-                         (ngModelChange)="longBreakDuration.set($event)"
-                         min="5" max="120" step="5"
-                         style="width: 100%; background: transparent; border: none; color: var(--text); font-size: var(--modal-text-size); font-weight: 700; outline: none; font-family: inherit;">
+                <span style="font-size: var(--modal-subtext-size); color: var(--muted); font-weight: 600;">Descanso Largo</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1.5px solid var(--border); border-radius: 12px; padding: 4px;">
+                  <button type="button" 
+                          (click)="longBreakDuration.set(longBreakDuration() > 5 ? longBreakDuration() - 5 : 5)"
+                          style="background: rgba(255,255,255,0.03); border: none; color: var(--text); width: 34px; height: 34px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; user-select: none;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text)';">-</button>
+                  <span style="font-size: var(--modal-text-size); font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ longBreakDuration() }} min</span>
+                  <button type="button" 
+                          (click)="longBreakDuration.set(longBreakDuration() < 120 ? longBreakDuration() + 5 : 120)"
+                          style="background: rgba(255,255,255,0.03); border: none; color: var(--text); width: 34px; height: 34px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; user-select: none;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text)';">+</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Reset y Estado de Ciclos -->
-          <div style="display: flex; align-items: center; gap: 12px; background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.12); border-radius: 8px; padding: 10px 16px;">
-            <span style="font-size: 16px;">🍅</span>
-            <div style="display: flex; flex-direction: column;">
-              <span style="font-size: var(--modal-header-size); font-weight: 700; color: var(--text);">Ciclo actual: {{ completedPomodoros() % longBreakInterval() }} / {{ longBreakInterval() }}</span>
-              <span style="font-size: var(--modal-subtext-size); color: var(--muted); margin-top: 2px;">Completados hoy: {{ completedPomodoros() }}</span>
-            </div>
-            <button (click)="resetDailyAttempts()"
-                     style="margin-left: auto; background: transparent; border: none; color: var(--red); font-size: var(--modal-subtext-size); font-weight: 800; cursor: pointer; text-transform: uppercase;"
-                     title="Reiniciar contador de ciclos">
-              Reset
-            </button>
-          </div>
-
-          <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
 
           <!-- Frecuencia de Fondo (Escudo Acústico) -->
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Frecuencia de Fondo</span>
               <span style="font-size: var(--modal-subtext-size); color: var(--accent); font-weight: 800; text-transform: uppercase;" *ngIf="backgroundSound() !== 'off'">
-                {{ backgroundSound() === 'cafe' ? 'Ruido Café' : backgroundSound() === 'lluvia' ? 'Lluvia Zen' : backgroundSound() === 'reloj_pared' ? 'Reloj de Pared' : 'Reloj de Pulsera' }}
+                {{ backgroundSound() === 'cafe' ? 'Ruido Café' : backgroundSound() === 'lluvia' ? 'Lluvia Zen' : backgroundSound() === 'reloj_pared' ? 'Reloj de Pared' : backgroundSound() === 'reloj_pulsera' ? 'Reloj de Pulsera' : backgroundSound() === 'fogata' ? 'Brasas Ardiendo' : backgroundSound() === 'bosque' ? 'Bosque Zen' : 'Olas del Mar' }}
               </span>
             </div>
             
@@ -1529,6 +1853,27 @@
                       [style.borderColor]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--border)'"
                       [style.color]="backgroundSound() === 'reloj_pulsera' ? 'var(--accent)' : 'var(--text)'">
                 R. Pulsera
+              </button>
+              <button (click)="updateBackgroundSound('fogata')"
+                      style="flex: 1; min-width: 65px; border: 1px solid var(--border); padding: 7px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 800; color: var(--text);"
+                      [style.background]="backgroundSound() === 'fogata' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'fogata' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'fogata' ? 'var(--accent)' : 'var(--text)'">
+                Fogata
+              </button>
+              <button (click)="updateBackgroundSound('bosque')"
+                      style="flex: 1; min-width: 65px; border: 1px solid var(--border); padding: 7px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 800; color: var(--text);"
+                      [style.background]="backgroundSound() === 'bosque' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'bosque' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'bosque' ? 'var(--accent)' : 'var(--text)'">
+                Bosque
+              </button>
+              <button (click)="updateBackgroundSound('olas')"
+                      style="flex: 1; min-width: 55px; border: 1px solid var(--border); padding: 7px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 800; color: var(--text);"
+                      [style.background]="backgroundSound() === 'olas' ? 'rgba(255,255,255,0.05)' : 'transparent'"
+                      [style.borderColor]="backgroundSound() === 'olas' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="backgroundSound() === 'olas' ? 'var(--accent)' : 'var(--text)'">
+                Olas
               </button>
             </div>
 
@@ -1580,9 +1925,6 @@
                       [style.borderColor]="currentTheme() === t ? 'var(--accent)' : 'var(--border)'"
                       [style.color]="currentTheme() === t ? '#000' : 'var(--text)'">
                 {{ t }}
-                <i *ngIf="t !== 'samurai' && !membership.unlockedThemes().includes(t)" 
-                   class="fa-solid fa-lock" 
-                   style="position: absolute; top: -3px; right: -3px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
               </button>
             </div>
           </div>
@@ -1644,7 +1986,10 @@
             </span>
           </div>
 
-          <div style="height: 1px; background: rgba(255,255,255,0.03); margin: 6px 0;"></div>
+        </div>
+
+        <!-- CONTENIDO TABS: TIMER STYLE -->
+        <div *ngIf="settingsActiveTab() === 'timerStyle'" style="display: flex; flex-direction: column; gap: 18px;">
 
           <!-- Estilo del Temporizador -->
           <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -1652,7 +1997,7 @@
               <i class="fa-solid fa-hourglass-half" style="color: var(--accent);"></i>
               Estilo del Temporizador Zen
             </span>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
               <!-- Opción 1: Digital -->
               <button (click)="setTimerStyle('digital')"
                       style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
@@ -1681,20 +2026,76 @@
                    style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
               </button>
 
-              <!-- Opción 3: Manzana Devorada (Premium) -->
-              <button (click)="setTimerStyle('apple')"
+              <!-- Opción 3: Reloj de Arena -->
+              <button (click)="setTimerStyle('hourglass')"
                       style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; position: relative;"
-                      [style.background]="timerStyle() === 'apple' ? 'rgba(76, 175, 80, 0.12)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'apple' ? 'var(--green)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'apple' ? 'var(--green)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--green)'"
-                      onmouseout="if(this.timerStyle() !== 'apple') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-apple-whole"></i>
-                Manzana Zen
+                      [style.background]="timerStyle() === 'hourglass' ? 'rgba(0, 242, 254, 0.08)' : 'transparent'"
+                      [style.borderColor]="timerStyle() === 'hourglass' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="timerStyle() === 'hourglass' ? 'var(--accent)' : 'var(--muted)'"
+                      onmouseover="this.style.borderColor='var(--accent)'"
+                      onmouseout="if(this.timerStyle() !== 'hourglass') { this.style.borderColor='var(--border)' }">
+                <i class="fa-solid fa-hourglass-half"></i>
+                Reloj de Arena
                 
                 <i *ngIf="!membership.isPremium()" 
                    class="fa-solid fa-lock" 
                    style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
+              </button>
+
+              <!-- Opción 4: Cubo de Hielo -->
+              <button (click)="setTimerStyle('ice')"
+                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; position: relative;"
+                      [style.background]="timerStyle() === 'ice' ? 'rgba(0, 229, 255, 0.08)' : 'transparent'"
+                      [style.borderColor]="timerStyle() === 'ice' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="timerStyle() === 'ice' ? 'var(--accent)' : 'var(--muted)'"
+                      onmouseover="this.style.borderColor='var(--accent)'"
+                      onmouseout="if(this.timerStyle() !== 'ice') { this.style.borderColor='var(--border)' }">
+                <i class="fa-solid fa-cube"></i>
+                Cubo de Hielo
+                
+                <i *ngIf="!membership.isPremium()" 
+                   class="fa-solid fa-lock" 
+                   style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
+              </button>
+
+              <!-- Opción 5: Batería Eléctrica -->
+              <button (click)="setTimerStyle('battery')"
+                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; position: relative;"
+                      [style.background]="timerStyle() === 'battery' ? 'rgba(0, 230, 118, 0.08)' : 'transparent'"
+                      [style.borderColor]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--muted)'"
+                      onmouseover="this.style.borderColor='var(--accent)'"
+                      onmouseout="if(this.timerStyle() !== 'battery') { this.style.borderColor='var(--border)' }">
+                <i class="fa-solid fa-battery-three-quarters"></i>
+                Batería Zen
+                
+                <i *ngIf="!membership.isPremium()" 
+                   class="fa-solid fa-lock" 
+                   style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
+              </button>
+
+              <!-- Opción 6: Anillo Zen -->
+              <button (click)="setTimerStyle('ring')"
+                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
+                      [style.background]="timerStyle() === 'ring' ? 'rgba(255,255,255,0.08)' : 'transparent'"
+                      [style.borderColor]="timerStyle() === 'ring' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="timerStyle() === 'ring' ? 'var(--text)' : 'var(--muted)'"
+                      onmouseover="this.style.borderColor='var(--accent)'"
+                      onmouseout="if(this.timerStyle() !== 'ring') { this.style.borderColor='var(--border)' }">
+                <i class="fa-regular fa-circle"></i>
+                Anillo Zen
+              </button>
+
+              <!-- Opción 7: Línea Zen -->
+              <button (click)="setTimerStyle('line')"
+                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
+                      [style.background]="timerStyle() === 'line' ? 'rgba(255,255,255,0.08)' : 'transparent'"
+                      [style.borderColor]="timerStyle() === 'line' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="timerStyle() === 'line' ? 'var(--text)' : 'var(--muted)'"
+                      onmouseover="this.style.borderColor='var(--accent)'"
+                      onmouseout="if(this.timerStyle() !== 'line') { this.style.borderColor='var(--border)' }">
+                <i class="fa-solid fa-grip-lines"></i>
+                Línea Zen
               </button>
             </div>
           </div>
