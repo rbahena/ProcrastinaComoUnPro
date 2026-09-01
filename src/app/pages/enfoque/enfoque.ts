@@ -253,10 +253,24 @@ export class Enfoque implements OnInit, OnDestroy {
     return p >= 0.38 && p <= 0.415;
   });
 
-  // Rayo azul eléctrico en el punto exacto de choque cuando la punta de la chimenea toca el agua
+  // Rayo azul eléctrico que aparece únicamente en el instante del choque y desaparece en cuanto la chimenea entra al agua
   titanicFunnelWaterImpactLightning = computed(() => {
     const p = this.titanicProgress();
-    return p >= 0.425 && p <= 0.465;
+    return p >= 0.426 && p <= 0.438;
+  });
+
+  // Contra-rotación para que la bengala de proa ascienda siempre 100% vertical al cielo
+  titanicFlare1Transform = computed(() => {
+    const p = this.titanicProgress();
+    const bowAngle = p < 0.5 ? (p / 0.5) * 18 : 18 + ((p - 0.5) / 0.5) * 60;
+    return `rotate(-${bowAngle.toFixed(2)}deg)`;
+  });
+
+  // Contra-rotación para que la bengala de popa ascienda siempre 100% vertical al cielo
+  titanicFlare2Transform = computed(() => {
+    const p = this.titanicProgress();
+    const sternAngle = p < 0.5 ? (p / 0.5) * 18 : Math.min(90, 18 + ((p - 0.5) / 0.5) * 360);
+    return `rotate(-${sternAngle.toFixed(2)}deg)`;
   });
 
 
