@@ -273,6 +273,21 @@ export class Enfoque implements OnInit, OnDestroy {
     return `rotate(-${sternAngle.toFixed(2)}deg)`;
   });
 
+  // Desactiva transiciones CSS al cambiar de pestaña para evitar saltos o aceleraciones acumuladas
+  titanicDisableTransition = signal<boolean>(false);
+
+  @HostListener('document:visibilitychange')
+  onDocumentVisibilityChange() {
+    if (document.visibilityState === 'visible') {
+      // Al volver a la pestaña activa, desactivamos temporalmente las transiciones CSS
+      // para que el Titanic salte de inmediato a su posición real sin carreras ni desfases
+      this.titanicDisableTransition.set(true);
+      setTimeout(() => {
+        this.titanicDisableTransition.set(false);
+      }, 60);
+    }
+  }
+
 
 
   // Transformación de la Popa (Stern) - Se alza a 90°, flota un instante, y se hunde bajo el mar
