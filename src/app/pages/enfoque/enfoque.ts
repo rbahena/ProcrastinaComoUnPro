@@ -137,11 +137,11 @@ export class Enfoque implements OnInit, OnDestroy {
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
-  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula'>(
+  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon'>(
     (localStorage.getItem('focus-active-bg') as any) || 'lofi_space_cosmos'
   );
-  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula')[] = [
-    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula'
+  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon')[] = [
+    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'
   ];
   backgroundUrl = computed(() => {
     const bg = this.activeBackground();
@@ -152,6 +152,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
     if (bg === 'lofi_space_cosmos') return 'assets/images/lofi_space_cosmos.jpg';
     if (bg === 'lofi_space_nebula') return 'assets/images/lofi_space_nebula.jpg';
+    if (bg === 'lofi_space_moon') return 'assets/images/lofi_space_moon.jpg';
     return '';
   });
   useFairyBackground = computed(() => this.activeBackground() !== 'off');
@@ -182,7 +183,7 @@ export class Enfoque implements OnInit, OnDestroy {
   private onMouseLeaveFn = () => this.onMouseLeaveWindow();
 
   // Estilo del Temporizador (Clásico vs Fuego Premium vs Órbita Solar)
-  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite'>(
+  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon'>(
     (localStorage.getItem('focus-timer-style') as any) || 'digital'
   );
 
@@ -1260,7 +1261,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Setter de fondo de pantalla Zen
-  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula') {
+  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon') {
     this.activeBackground.set(bg);
     localStorage.setItem('focus-active-bg', bg);
 
@@ -1283,17 +1284,29 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
     if (bg === 'lofi_space_cosmos') return 'assets/images/lofi_space_cosmos.jpg';
     if (bg === 'lofi_space_nebula') return 'assets/images/lofi_space_nebula.jpg';
+    if (bg === 'lofi_space_moon') return 'assets/images/lofi_space_moon.jpg';
     return '';
   }
 
   // Setter del estilo de cronómetro Zen (con verificación Premium)
-  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite') {
+  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon') {
     if ((style === 'fire' || style === 'hourglass' || style === 'ice' || style === 'battery') && !this.membership.isPremium()) {
       this.showPaywallModal.set(true);
       return;
     }
     this.timerStyle.set(style);
     localStorage.setItem('focus-timer-style', style);
+
+    // Auto-asignación de fondo dedicado por cronómetro para máxima inmersión
+    if (style === 'solar') {
+      this.setBackground('lofi_space_cosmos');
+    } else if (style === 'satellite') {
+      this.setBackground('lofi_space_nebula');
+    } else if (style === 'moon') {
+      this.setBackground('lofi_space_moon');
+    } else if (style === 'fire') {
+      this.setBackground('forest_campfire');
+    }
   }
 
   private startTimerLoop() {
