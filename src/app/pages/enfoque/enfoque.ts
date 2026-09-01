@@ -137,11 +137,11 @@ export class Enfoque implements OnInit, OnDestroy {
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
-  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos'>(
+  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula'>(
     (localStorage.getItem('focus-active-bg') as any) || 'lofi_space_cosmos'
   );
-  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos')[] = [
-    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos'
+  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula')[] = [
+    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula'
   ];
   backgroundUrl = computed(() => {
     const bg = this.activeBackground();
@@ -151,6 +151,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain_custom.jpg';
     if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
     if (bg === 'lofi_space_cosmos') return 'assets/images/lofi_space_cosmos.jpg';
+    if (bg === 'lofi_space_nebula') return 'assets/images/lofi_space_nebula.jpg';
     return '';
   });
   useFairyBackground = computed(() => this.activeBackground() !== 'off');
@@ -1259,7 +1260,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Setter de fondo de pantalla Zen
-  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos') {
+  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula') {
     this.activeBackground.set(bg);
     localStorage.setItem('focus-active-bg', bg);
 
@@ -1281,6 +1282,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain_custom.jpg';
     if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
     if (bg === 'lofi_space_cosmos') return 'assets/images/lofi_space_cosmos.jpg';
+    if (bg === 'lofi_space_nebula') return 'assets/images/lofi_space_nebula.jpg';
     return '';
   }
 

@@ -2919,3 +2919,10 @@
   0% { opacity: 0.75; filter: drop-shadow(0 0 1px #fde047); }
   100% { opacity: 1; filter: drop-shadow(0 0 3.5px #fde047); }
 }
+
+.zen-bg-container.bg-space-nebula {
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: brightness(0.95) contrast(1.05);
+}
