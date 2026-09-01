@@ -2612,3 +2612,42 @@
   0%, 100% { opacity: 0.35; }
   50% { opacity: 0.95; filter: drop-shadow(0 0 4px #ff1744); }
 }
+
+/* ===== LLUVIA SCREEN SAVER ANIMATION ===== */
+.rain-screen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 25%;
+  height: 90%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.rain-drop {
+  position: absolute;
+  top: -80px;
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.25));
+  animation: fallRain linear infinite;
+  transform: rotate(15deg);
+}
+
+@keyframes fallRain {
+  0% {
+    transform: translateY(0) rotate(15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(100vh) rotate(15deg);
+    opacity: 0;
+  }
+}

@@ -1953,7 +1953,7 @@
                      [style.boxShadow]="activeBackground() === bg ? '0 0 12px rgba(99, 102, 241, 0.25)' : '0 4px 10px rgba(0,0,0,0.3)'">
                   
                   <div style="width: 100%; height: 100%; background-size: cover; background-position: center;"
-                       [style.backgroundImage]="bg === 'off' ? 'none' : 'url(assets/images/' + (bg === 'fairy' ? 'fairy_world.webp' : (bg === 'lofi_study_desktop' ? 'lofi_study_desktop.webp' : (bg === 'lofi_moons' ? 'lofi_moons.webp' : (bg === 'lofi_study_rain' ? 'lofi_study_rain.webp' : 'forest_campfire_lofi.jpg')))) + ')'"
+                       [style.backgroundImage]="bg === 'off' ? 'none' : 'url(' + getBackgroundThumbnailUrl(bg) + ')'"
                        [style.opacity]="bg === 'off' ? '0.3' : '1'">
                   </div>
 

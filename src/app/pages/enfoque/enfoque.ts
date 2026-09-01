@@ -148,7 +148,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'fairy') return 'assets/images/fairy_world.webp';
     if (bg === 'lofi_study_desktop') return 'assets/images/lofi_study_desktop.webp';
     if (bg === 'lofi_moons') return 'assets/images/lofi_moons.webp';
-    if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain.webp';
+    if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain_custom.jpg';
     if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
     return '';
   });
@@ -1270,6 +1270,16 @@ export class Enfoque implements OnInit, OnDestroy {
     } else {
       this.showCampfireDragTooltip.set(false);
     }
+  }
+
+  // Obtener URL de miniatura del fondo de pantalla Zen
+  getBackgroundThumbnailUrl(bg: string): string {
+    if (bg === 'fairy') return 'assets/images/fairy_world.webp';
+    if (bg === 'lofi_study_desktop') return 'assets/images/lofi_study_desktop.webp';
+    if (bg === 'lofi_moons') return 'assets/images/lofi_moons.webp';
+    if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain_custom.jpg';
+    if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
+    return '';
   }
 
   // Setter del estilo de cronómetro Zen (con verificación Premium)
