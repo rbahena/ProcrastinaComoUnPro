@@ -8,8 +8,8 @@
          class="zen-bg-container"
          [class.bg-forest-campfire]="activeBackground() === 'forest_campfire'"
          [class.bg-space-cosmos]="activeBackground() === 'lofi_space_cosmos'"
-          [class.bg-titanic-midnight]="activeBackground() === 'lofi_titanic_ocean'"
-          [class.bg-titanic-midnight]="activeBackground() === 'lofi_titanic_ocean'"
+         [class.bg-titanic-midnight]="activeBackground() === 'lofi_titanic_ocean'"
+         [class.bg-lighthouse-night]="activeBackground() === 'lofi_lighthouse_ocean'"
          [style.backgroundImage]="activeBackground() === 'lofi_space_cosmos' ? 'linear-gradient(rgba(5, 5, 10, 0.12), rgba(5, 5, 10, 0.28)), url(\'' + backgroundUrl() + '\')' : 'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\')'">
     </div>
 
@@ -1150,13 +1150,9 @@
 
               <!-- CASO 8: Órbita Solar (Sol y Tierra) -->
               <ng-container *ngIf="timerStyle() === 'solar'">
-                <!-- Órbita Solar interactiva arrastrable (Oculto en cuenta regresiva o interrupción) -->
+                <!-- Órbita Solar interactiva fija (Oculto en cuenta regresiva o interrupción) -->
                 <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                      class="solar-container"
-                     (mousedown)="onDragStart($event)"
-                     (touchstart)="onTouchStart($event)"
-                     (dblclick)="resetCampfirePosition()"
-                     [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
                      style="position: relative; width: 330px; height: 330px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto;">
                   
                   <!-- SVG del Sistema Sol y Tierra (Órbita Ampliada a Radio 148) -->
@@ -1357,10 +1353,6 @@
               <ng-container *ngIf="timerStyle() === 'satellite'">
                 <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                      class="satellite-container"
-                     (mousedown)="onDragStart($event)"
-                     (touchstart)="onTouchStart($event)"
-                     (dblclick)="resetCampfirePosition()"
-                     [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
                      style="position: relative; width: 330px; height: 330px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto;">
                   
                   <!-- SVG del Sistema Satélite y Tierra Orgánica Estilizada (Lienzo 400x400, Centro 200, 200) -->
@@ -1739,10 +1731,6 @@
               <ng-container *ngIf="timerStyle() === 'moon'">
                 <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                      class="moon-container"
-                     (mousedown)="onDragStart($event)"
-                     (touchstart)="onTouchStart($event)"
-                     (dblclick)="resetCampfirePosition()"
-                     [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
                      style="position: relative; width: 330px; height: 330px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto;">
                   
                   <!-- SVG del Sistema Tierra y Luna con Sombreado Dinámico Lunar (Lienzo 400x400, Centro 200, 200) -->
@@ -2115,10 +2103,6 @@
               <ng-container *ngIf="timerStyle() === 'titanic'">
                 <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                      class="titanic-container"
-                     (mousedown)="onDragStart($event)"
-                     (touchstart)="onTouchStart($event)"
-                     (dblclick)="resetCampfirePosition()"
-                     [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
                      style="position: relative; width: 440px; height: 360px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible; z-index: 6;">
                   
                   <!-- SVG Cinemático del Titanic (Lienzo 460x320, Línea de Agua en y=210) -->
@@ -2734,6 +2718,731 @@
                 </div>
               </ng-container>
 
+              <!-- CASO 12: El Faro en el Acantilado Nocturno y Amanecer Dorado -->
+              <ng-container *ngIf="timerStyle() === 'lighthouse'">
+                <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                     class="lighthouse-container"
+                     style="position: relative; width: 440px; height: 360px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible; z-index: 6;">
+                  
+                  <!-- SVG Cinemático de El Faro en el Acantilado (Lienzo 460x320) -->
+                  <svg viewBox="0 0 460 320" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                    <defs>
+                      <!-- Filtro de Resplandor Fresnel de la Linterna del Faro -->
+                      <filter id="lighthouseFresnelGlow" x="-60%" y="-60%" width="220%" height="220%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <!-- Filtro de Difusión Suave del Haz de Luz del Faro (Soft Volumetric Beam) -->
+                      <filter id="lighthouseBeamDiffusionFilter" x="-30%" y="-140%" width="160%" height="380%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="6.5" result="softBlur" />
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2.0" result="coreBlur" />
+                        <feMerge>
+                          <feMergeNode in="softBlur" />
+                          <feMergeNode in="coreBlur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <!-- Filtro de Bruma Atmosférica Amplia (Atmospheric Mist) -->
+                      <filter id="lighthouseAtmosphericMist" x="-60%" y="-160%" width="220%" height="420%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="14" />
+                      </filter>
+
+                      <!-- Filtro de Difusión Suave del Proyector Marino del Buque -->
+                      <filter id="boatSearchlightDiffusion" x="-50%" y="-100%" width="200%" height="300%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="4.5" result="wideBlur" />
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="sharpBlur" />
+                        <feMerge>
+                          <feMergeNode in="wideBlur" />
+                          <feMergeNode in="sharpBlur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <!-- Filtro de Difuminado para Focos de Cubierta -->
+                      <filter id="deckLightSoftDiffusion" x="-60%" y="-60%" width="220%" height="220%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="5.0" />
+                      </filter>
+
+                      <!-- Filtro de Halo para Luces de Navegación y Boyas -->
+                      <filter id="navLightSoftHalo" x="-120%" y="-120%" width="340%" height="340%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="halo" />
+                        <feMerge>
+                          <feMergeNode in="halo" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <!-- Filtro de Difuminado de Reflejo en el Agua Marina -->
+                      <filter id="waterGlowDiffusion" x="-60%" y="-100%" width="220%" height="300%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="8.0" />
+                      </filter>
+
+                      <!-- Gradiente del Haz de Luz Volumétrico (Difusión Suave) -->
+                      <linearGradient id="lighthouseBeamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                        <stop offset="10%" stop-color="#fef08a" stop-opacity="0.7" />
+                        <stop offset="35%" stop-color="#fef08a" stop-opacity="0.38" />
+                        <stop offset="65%" stop-color="#fde047" stop-opacity="0.16" />
+                        <stop offset="85%" stop-color="#fde047" stop-opacity="0.05" />
+                        <stop offset="100%" stop-color="#fde047" stop-opacity="0" />
+                      </linearGradient>
+
+                      <!-- Gradiente del Núcleo Intenso del Haz del Faro -->
+                      <linearGradient id="lighthouseBeamCoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+                        <stop offset="15%" stop-color="#ffffff" stop-opacity="0.85" />
+                        <stop offset="45%" stop-color="#fef08a" stop-opacity="0.5" />
+                        <stop offset="75%" stop-color="#fde047" stop-opacity="0.15" />
+                        <stop offset="100%" stop-color="#fde047" stop-opacity="0" />
+                      </linearGradient>
+
+                      <!-- Gradiente Radial del Aura de la Linterna del Faro -->
+                      <radialGradient id="lighthouseLanternAuraGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+                        <stop offset="25%" stop-color="#fef08a" stop-opacity="0.8" />
+                        <stop offset="65%" stop-color="#fde047" stop-opacity="0.25" />
+                        <stop offset="100%" stop-color="#fde047" stop-opacity="0" />
+                      </radialGradient>
+
+                      <!-- Gradiente del Cielo Nocturno Profundo que Cubre Todo el Firmamento -->
+                      <linearGradient id="lighthouseNightSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#010309" />
+                        <stop offset="35%" stop-color="#020817" />
+                        <stop offset="70%" stop-color="#04122b" />
+                        <stop offset="100%" stop-color="#071b3b" />
+                      </linearGradient>
+
+                      <!-- Gradiente Franjas Rojas de la Torre -->
+                      <linearGradient id="towerRedGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#991b1b" />
+                        <stop offset="35%" stop-color="#ef4444" />
+                        <stop offset="70%" stop-color="#dc2626" />
+                        <stop offset="100%" stop-color="#7f1d1d" />
+                      </linearGradient>
+
+                      <!-- Gradiente Franjas Blancas de la Torre -->
+                      <linearGradient id="towerWhiteGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#94a3b8" />
+                        <stop offset="35%" stop-color="#ffffff" />
+                        <stop offset="70%" stop-color="#f8fafc" />
+                        <stop offset="100%" stop-color="#cbd5e1" />
+                      </linearGradient>
+
+                      <!-- Gradiente Cúpula de Cobre (Pátina Verde Marino) -->
+                      <linearGradient id="copperDomeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#0f766e" />
+                        <stop offset="40%" stop-color="#14b8a6" />
+                        <stop offset="80%" stop-color="#0d9488" />
+                        <stop offset="100%" stop-color="#042f2e" />
+                      </linearGradient>
+
+                      <!-- Gradiente Roca Basáltica del Acantilado -->
+                      <linearGradient id="cliffRockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#334155" />
+                        <stop offset="45%" stop-color="#1e293b" />
+                        <stop offset="80%" stop-color="#0f172a" />
+                        <stop offset="100%" stop-color="#020617" />
+                      </linearGradient>
+
+                      <!-- Gradiente del Sol Dorado al Amanecer -->
+                      <radialGradient id="sunGoldenGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ffffff" />
+                        <stop offset="25%" stop-color="#fef08a" />
+                        <stop offset="60%" stop-color="#f59e0b" />
+                        <stop offset="100%" stop-color="#d97706" />
+                      </radialGradient>
+
+                      <!-- Gradiente del Resplandor del Cielo al Amanecer -->
+                      <linearGradient id="sunriseSkyGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" stop-color="#f97316" stop-opacity="0.85" />
+                        <stop offset="35%" stop-color="#fb923c" stop-opacity="0.5" />
+                        <stop offset="70%" stop-color="#a855f7" stop-opacity="0.25" />
+                        <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+                      </linearGradient>
+
+                      <!-- Gradiente de Agua Profunda y Oscura del Océano Nocturno -->
+                      <linearGradient id="lighthouseOceanGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#031124" stop-opacity="0.98" />
+                        <stop offset="12%" stop-color="#020b18" stop-opacity="1" />
+                        <stop offset="35%" stop-color="#020617" stop-opacity="1" />
+                        <stop offset="70%" stop-color="#01040f" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#000206" stop-opacity="1" />
+                      </linearGradient>
+
+                      <!-- Gradiente del Resplandor Dorado sobre el Mar al Amanecer -->
+                      <linearGradient id="sunriseSeaGlowGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#fde047" stop-opacity="0.75" />
+                        <stop offset="35%" stop-color="#f59e0b" stop-opacity="0.45" />
+                        <stop offset="70%" stop-color="#0369a1" stop-opacity="0.2" />
+                        <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+                      </linearGradient>
+
+                      <!-- Gradiente Luna Nocturna -->
+                      <radialGradient id="lighthouseMoonGrad" cx="40%" cy="40%" r="60%">
+                        <stop offset="0%" stop-color="#ffffff" />
+                        <stop offset="60%" stop-color="#e2e8f0" />
+                        <stop offset="100%" stop-color="#94a3b8" />
+                      </radialGradient>
+
+                      <!-- Gradientes Realistas para el Buque Balizador (Buoy Tender) -->
+                      <linearGradient id="buoyTenderHullGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#334155" />
+                        <stop offset="25%" stop-color="#1e293b" />
+                        <stop offset="70%" stop-color="#0f172a" />
+                        <stop offset="100%" stop-color="#020617" />
+                      </linearGradient>
+
+                      <linearGradient id="buoyTenderBottomGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#dc2626" />
+                        <stop offset="60%" stop-color="#991b1b" />
+                        <stop offset="100%" stop-color="#450a0a" />
+                      </linearGradient>
+
+                      <linearGradient id="buoyCraneYellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fef08a" />
+                        <stop offset="30%" stop-color="#eab308" />
+                        <stop offset="80%" stop-color="#ca8a04" />
+                        <stop offset="100%" stop-color="#854d0e" />
+                      </linearGradient>
+
+                      <linearGradient id="marineBuoyRedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f87171" />
+                        <stop offset="40%" stop-color="#ef4444" />
+                        <stop offset="100%" stop-color="#7f1d1d" />
+                      </linearGradient>
+
+                      <linearGradient id="marineBuoyGreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#34d399" />
+                        <stop offset="40%" stop-color="#10b981" />
+                        <stop offset="100%" stop-color="#047857" />
+                      </linearGradient>
+
+                      <!-- Gradiente del Proyector Marino Frontal -->
+                      <linearGradient id="buoySearchlightGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                        <stop offset="25%" stop-color="#fef08a" stop-opacity="0.65" />
+                        <stop offset="65%" stop-color="#fde047" stop-opacity="0.2" />
+                        <stop offset="100%" stop-color="#fde047" stop-opacity="0" />
+                      </linearGradient>
+
+                      <!-- Gradiente de Iluminación de Cubierta (Deck Floodlight) -->
+                      <linearGradient id="deckFloodlightGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85" />
+                        <stop offset="35%" stop-color="#fde047" stop-opacity="0.45" />
+                        <stop offset="80%" stop-color="#fbbf24" stop-opacity="0.15" />
+                        <stop offset="100%" stop-color="#fbbf24" stop-opacity="0" />
+                      </linearGradient>
+                    </defs>
+
+                    <!-- ==================== CIELO NOCTURNO COMPLETO DE EXTREMO A EXTREMO ==================== -->
+                    <!-- Bloque de Cielo Nocturno Degradado que llena la pantalla por encima de la línea de agua (y=250) -->
+                    <rect x="-1400" y="-800" width="3260" height="1050" fill="url(#lighthouseNightSkyGrad)" />
+
+                    <!-- ==================== ESTRELLAS Y LUNA ==================== -->
+                    <g class="lighthouse-night-sky" [style.opacity]="1 - (lighthouseSunriseOpacity() * 0.9)">
+                      <!-- Luna Plateada en el cielo alto -->
+                      <circle cx="370" cy="90" r="14" fill="url(#lighthouseMoonGrad)" filter="url(#lighthouseFresnelGlow)" />
+                      <circle cx="366" cy="87" r="3" fill="#cbd5e1" opacity="0.6" />
+                      <circle cx="374" cy="93" r="4" fill="#cbd5e1" opacity="0.5" />
+                      <circle cx="371" cy="86" r="2" fill="#cbd5e1" opacity="0.6" />
+
+                      <!-- Estrellas titilantes en el amplio firmamento -->
+                      <circle cx="70" cy="55" r="1.3" fill="#ffffff" class="lighthouse-star-1" />
+                      <circle cx="130" cy="75" r="1.1" fill="#fef08a" class="lighthouse-star-2" />
+                      <circle cx="210" cy="60" r="1.2" fill="#ffffff" class="lighthouse-star-1" />
+                      <circle cx="260" cy="75" r="1.5" fill="#fef08a" class="lighthouse-star-2" />
+                      <circle cx="310" cy="55" r="1.1" fill="#ffffff" class="lighthouse-star-3" />
+                      <circle cx="410" cy="65" r="1.3" fill="#ffffff" class="lighthouse-star-1" />
+                      <circle cx="180" cy="115" r="1.0" fill="#ffffff" class="lighthouse-star-2" />
+                      <circle cx="240" cy="135" r="1.2" fill="#fef08a" class="lighthouse-star-3" />
+                      <circle cx="330" cy="120" r="1.4" fill="#ffffff" class="lighthouse-star-1" />
+                      <circle cx="430" cy="140" r="1.0" fill="#ffffff" class="lighthouse-star-2" />
+                      <circle cx="280" cy="175" r="1.2" fill="#fef08a" class="lighthouse-star-1" />
+                      <circle cx="380" cy="190" r="1.1" fill="#ffffff" class="lighthouse-star-3" />
+                    </g>
+
+                    <!-- ==================== CIELO DE AMANECER DORADO (PROGRESS > 0.65) ==================== -->
+                    <g [style.opacity]="lighthouseSunriseOpacity()" style="transition: opacity 1.5s ease-out;">
+                      <!-- Fondo de resplandor del cielo extendido de lado a lado -->
+                      <rect x="-1400" y="-800" width="3260" height="1050" fill="url(#sunriseSkyGrad)" />
+                      <!-- Sol Dorado Naciente -->
+                      <g [style.transform]="lighthouseSunTransform()" style="transition: transform 1.2s linear;">
+                        <circle cx="0" cy="0" r="26" fill="url(#sunGoldenGrad)" filter="url(#lighthouseFresnelGlow)" />
+                        <!-- Rayos dorados solares -->
+                        <path d="M 0 -38 L 0 -30 M 27 -27 L 21 -21 M 38 0 L 30 0 M 27 27 L 21 21 M 0 38 L 0 30 M -27 27 L -21 21 M -38 0 L -30 0 M -27 -27 L -21 -21" stroke="#fef08a" stroke-width="2" stroke-linecap="round" opacity="0.8" />
+                      </g>
+                    </g>
+
+                    <!-- ==================== SUPERFICIE DEL OCÉANO Y LÍNEA DE HORIZONTE (Y=250) ==================== -->
+                    <!-- Bloque de Agua Submarina Expandido de Lado a Lado de la Pantalla -->
+                    <rect x="-1400" y="250" width="3260" height="1400" fill="url(#lighthouseOceanGrad)" opacity="1.0" />
+
+                    <!-- Resplandor dorado sobre el mar al amanecer de Lado a Lado -->
+                    <rect x="-1400" y="250" width="3260" height="1400" fill="url(#sunriseSeaGlowGrad)" [style.opacity]="lighthouseSunriseOpacity()" />
+
+                    <!-- Bruma Luminosa en la Línea de Separación del Horizonte -->
+                    <ellipse cx="230" cy="250" rx="1400" ry="14" fill="rgba(56, 189, 248, 0.08)" filter="url(#waterGlowDiffusion)" />
+                    <!-- Línea Nítida de Separación del Horizonte Marino -->
+                    <line x1="-1400" y1="250" x2="1860" y2="250" stroke="#0e2a4a" stroke-width="1.2" opacity="0.85" />
+
+                    <!-- ==================== DETALLES SUTILES DEL OCÉANO: REFLEJO LUNAR, PLANCTON Y MAREJADAS ==================== -->
+                    <!-- 1. Reflejo Sutil de la Luz de Luna sobre las Ondas del Mar (Moonlight Caustics & Shimmer) -->
+                    <g class="lighthouse-moonlight-shimmer" opacity="0.65">
+                      <ellipse cx="370" cy="254" rx="35" ry="1.2" fill="#cbd5e1" opacity="0.5" />
+                      <path d="M 345 258 Q 370 256, 395 258" stroke="#e2e8f0" stroke-width="1.0" fill="none" opacity="0.45" />
+                      <ellipse cx="372" cy="263" rx="42" ry="1.5" fill="#94a3b8" opacity="0.35" />
+                      <path d="M 335 269 Q 370 267, 405 269" stroke="#7dd3fc" stroke-width="1.1" fill="none" opacity="0.3" />
+                      <ellipse cx="368" cy="276" rx="48" ry="1.8" fill="#38bdf8" opacity="0.2" />
+                      <path d="M 330 284 Q 372 281, 412 284" stroke="#38bdf8" stroke-width="1.2" fill="none" opacity="0.2" />
+                      <ellipse cx="370" cy="294" rx="55" ry="2.0" fill="#0284c7" opacity="0.15" />
+                    </g>
+
+                    <!-- 2. Líneas de Oleaje Marino Escalonadas en Profundidad -->
+                    <g class="lighthouse-ocean-waves">
+                      <!-- Ola Principal de Fondo (Horizonte Lejano) -->
+                      <path d="M -1400 250 Q -1150 246, -900 250 Q -650 254, -400 250 Q -150 246, 100 250 Q 350 254, 600 250 Q 850 246, 1100 250 Q 1350 254, 1600 250 Q 1750 248, 1860 250" 
+                            fill="none" 
+                            stroke="#0f2b48" 
+                            stroke-width="2.2" 
+                            opacity="0.8"
+                            class="lighthouse-wave-anim-1" />
+                      <!-- Ola Media con Crestas Suaves de Espuma -->
+                      <path d="M -1400 257 Q -1200 254, -950 257 Q -700 260, -450 257 Q -200 254, 50 257 Q 300 260, 550 257 Q 800 254, 1050 257 Q 1300 260, 1550 257 Q 1750 255, 1860 257" 
+                            fill="none" 
+                            stroke="#16385c" 
+                            stroke-width="1.6" 
+                            opacity="0.6"
+                            class="lighthouse-wave-anim-3" />
+                      <!-- Crestas sutiles de espuma a la deriva -->
+                      <path d="M 120 256.5 Q 135 255, 150 256.5 M 280 256 Q 295 254.5, 310 256 M 440 257 Q 455 255.5, 470 257" 
+                            stroke="#94a3b8" 
+                            stroke-width="0.8" 
+                            fill="none" 
+                            opacity="0.4"
+                            class="lighthouse-wave-anim-3" />
+                      <!-- Ola Frontal Rodante -->
+                      <path d="M -1400 266 Q -1150 263, -900 266 Q -650 269, -400 266 Q -150 263, 100 266 Q 350 269, 600 266 Q 850 263, 1100 266 Q 1350 269, 1600 266 Q 1750 264, 1860 266" 
+                            fill="none" 
+                            stroke="#1e3a5f" 
+                            stroke-width="1.4" 
+                            opacity="0.55"
+                            class="lighthouse-wave-anim-2" />
+                      <!-- Corriente de Agua Profunda Inferior -->
+                      <path d="M -1400 282 Q -1180 278, -920 282 Q -660 286, -420 282 Q -160 278, 120 282 Q 380 286, 640 282 Q 900 278, 1160 282 Q 1420 286, 1680 282 Q 1780 280, 1860 282" 
+                            fill="none" 
+                            stroke="#152d47" 
+                            stroke-width="1.2" 
+                            opacity="0.45"
+                            class="lighthouse-wave-anim-4" />
+                    </g>
+
+                    <!-- 3. Destellos Sutiles de Plancton Bioluminiscente (Subtle Oceanic Life) -->
+                    <g class="lighthouse-bioluminescent-plankton">
+                      <circle cx="160" cy="265" r="1.1" fill="#38bdf8" class="lighthouse-plankton-sparkle-1" />
+                      <circle cx="210" cy="278" r="0.9" fill="#2dd4bf" class="lighthouse-plankton-sparkle-2" />
+                      <circle cx="275" cy="262" r="1.2" fill="#7dd3fc" class="lighthouse-plankton-sparkle-3" />
+                      <circle cx="340" cy="285" r="1.0" fill="#38bdf8" class="lighthouse-plankton-sparkle-1" />
+                      <circle cx="410" cy="272" r="1.3" fill="#2dd4bf" class="lighthouse-plankton-sparkle-2" />
+                      <circle cx="190" cy="295" r="0.8" fill="#7dd3fc" class="lighthouse-plankton-sparkle-3" />
+                      <circle cx="295" cy="302" r="1.1" fill="#38bdf8" class="lighthouse-plankton-sparkle-1" />
+                      <circle cx="385" cy="308" r="0.9" fill="#2dd4bf" class="lighthouse-plankton-sparkle-2" />
+                      <circle cx="450" cy="290" r="1.0" fill="#7dd3fc" class="lighthouse-plankton-sparkle-3" />
+                    </g>
+
+                    <!-- ==================== BUQUE BALIZADOR (BUOY TENDER) ILUMINADO DE GRAN TAMAÑO ==================== -->
+                    <g [style.transform]="lighthouseSailboatTransform()" style="transition: transform 1.5s linear;">
+                      <g class="lighthouse-sailboat-bobbing">
+
+                        <!-- RESPLANDOR DIFUMINADO DE ILUMINACIÓN SOBRE EL AGUA OSCURA (WATER UNDERGLOW) -->
+                        <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                          <ellipse cx="-4" cy="5.5" rx="46" ry="5" fill="rgba(254, 240, 138, 0.28)" filter="url(#waterGlowDiffusion)" />
+                          <ellipse cx="-22" cy="5.5" rx="24" ry="3.5" fill="rgba(251, 191, 36, 0.35)" filter="url(#waterGlowDiffusion)" />
+                        </g>
+
+                        <!-- ESTELA DE OLAS Y PROPULSIÓN MARINA -->
+                        <!-- Rompiente y espuma de proa a la izquierda -->
+                        <path d="M -44 1.5 Q -54 3.5, -62 0 Q -52 6, -40 4.5" fill="#ffffff" opacity="0.9" />
+                        <path d="M -42 2.5 Q -52 4.5, -58 2" stroke="#38bdf8" stroke-width="1.5" fill="none" opacity="0.85" />
+                        <!-- Estela turbulenta de popa y hélices a la derecha -->
+                        <path d="M 40 2.5 Q 52 5, 66 2 Q 54 6.5, 42 4.5" stroke="#38bdf8" stroke-width="1.6" fill="none" opacity="0.8" />
+                        <path d="M 38 4 Q 48 6, 58 4" stroke="#ffffff" stroke-width="1.2" fill="none" opacity="0.65" />
+
+                        <!-- OBRA VIVA (Quilla sumergida con rojo antifouling y hélice) -->
+                        <path d="M -44 0 L 39 0 Q 39 5.5, 33 7 L -34 7 Q -44 5.5, -44 0 Z" fill="url(#buoyTenderBottomGrad)" />
+                        <!-- Timón y Hélice Marina de Bronce -->
+                        <rect x="36" y="0" width="4" height="6.5" fill="#0f172a" />
+                        <circle cx="32" cy="4.5" r="2.2" fill="#f59e0b" />
+
+                        <!-- OBRA MUERTA (Casco naval de acero reforzado gris/azul marino) -->
+                        <!-- Perfil: Castillo de proa elevado (-46, -8.5), cubierta de trabajo de balizamiento (-14..40, -4.5) -->
+                        <path d="M -46 -8.5 L -16 -8.5 L -14 -4.5 L 40 -4.5 L 39 0 L -44 0 Z" fill="url(#buoyTenderHullGrad)" stroke="#0f172a" stroke-width="0.8" />
+
+                        <!-- Franjas de Servicio Marítimo / Balizamiento en la Proa (High-Visibility Stripes) -->
+                        <polygon points="-42,-8 -36,-8 -33,0 -39,0" fill="#f97316" />
+                        <polygon points="-35,-8 -32,-8 -29,0 -32,0" fill="#ffffff" />
+                        <polygon points="-31,-8 -28,-8 -25,0 -28,0" fill="#0284c7" />
+
+                        <!-- Regala y Moldura de Borda Blanca Iluminada -->
+                        <path d="M -46 -8.5 L -16 -8.5 L -14 -4.5 L 40 -4.5" stroke="#f8fafc" stroke-width="1.0" fill="none" />
+
+                        <!-- Escobén del Ancla -->
+                        <circle cx="-38" cy="-4.5" r="1.4" fill="#020617" stroke="#64748b" stroke-width="0.5" />
+                        
+                        <!-- Ojos de Buey Iluminados en el Casco (Con apagado al llegar) -->
+                        <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                          <circle cx="-28" cy="-3.5" r="1.0" fill="#fbbf24" filter="url(#navLightSoftHalo)" />
+                          <circle cx="-21" cy="-3.5" r="1.0" fill="#fbbf24" filter="url(#navLightSoftHalo)" />
+                        </g>
+
+                        <!-- ==================== FOCOS Y PROYECTORES DE ILUMINACIÓN DE TRABAJO DIFUMINADOS ==================== -->
+                        <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                          <!-- 1. Proyector Marino Frontal de Largo Alcance (Searchlight Beam Difuminado hacia la proa) -->
+                          <polygon points="-36,-19 -125,-42 -125,-2 -36,-17" fill="url(#buoySearchlightGrad)" opacity="0.45" filter="url(#boatSearchlightDiffusion)" />
+                          <polygon points="-36,-19 -95,-28 -95,-10 -36,-17" fill="url(#buoySearchlightGrad)" opacity="0.8" filter="url(#lighthouseFresnelGlow)" />
+                          <circle cx="-36" cy="-18" r="2.5" fill="#ffffff" filter="url(#navLightSoftHalo)" />
+
+                          <!-- 2. Foco Difuminado de Iluminación de Cubierta de Popa (Deck Floodlight) -->
+                          <polygon points="-12,-18 46,-3 -6,-3" fill="url(#deckFloodlightGrad)" opacity="0.55" filter="url(#deckLightSoftDiffusion)" />
+                          <circle cx="-12" cy="-18" r="1.5" fill="#fde047" filter="url(#navLightSoftHalo)" />
+                        </g>
+
+                        <!-- SUPERESTRUCTURA BLANCA Y PUENTE DE MANDO ELEVADO -->
+                        <!-- Cubierta inferior de acomodaciones -->
+                        <rect x="-31" y="-15" width="20" height="7" rx="0.8" fill="#f8fafc" stroke="#64748b" stroke-width="0.6" />
+                        
+                        <!-- Ojos de buey de cabina iluminados con apagado al llegar -->
+                        <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                          <circle cx="-26" cy="-11.5" r="1.2" fill="#fbbf24" filter="url(#navLightSoftHalo)" />
+                          <circle cx="-21" cy="-11.5" r="1.2" fill="#fbbf24" filter="url(#navLightSoftHalo)" />
+                          <circle cx="-16" cy="-11.5" r="1.2" fill="#fbbf24" filter="url(#navLightSoftHalo)" />
+                        </g>
+
+                        <!-- Puente de Mando Superior Panorámico (Wheelhouse) -->
+                        <polygon points="-30,-22 -14,-22 -13,-15 -31,-15" fill="#f1f5f9" stroke="#475569" stroke-width="0.7" />
+                        <!-- Ventanales del Puente con Luz Dorada de Mandos (Con apagado al llegar) -->
+                        <polygon points="-29.5,-20.5 -14.5,-20.5 -14,-16.5 -30,-16.5" fill="#0c4a6e" stroke="#0284c7" stroke-width="0.4" />
+                        <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                          <rect x="-27" y="-20" width="3" height="3" fill="#fbbf24" opacity="0.95" filter="url(#navLightSoftHalo)" />
+                          <rect x="-22.5" y="-20" width="3" height="3" fill="#fbbf24" opacity="0.95" filter="url(#navLightSoftHalo)" />
+                          <rect x="-18" y="-20" width="3" height="3" fill="#fbbf24" opacity="0.95" filter="url(#navLightSoftHalo)" />
+                        </g>
+
+                        <!-- Luces de Navegación Reglamentarias con Halo Atmosférico Difuso (Con apagado al llegar) -->
+                        <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                          <!-- Luz de Babor Roja (Port Red Running Light) -->
+                          <circle cx="-30" cy="-18" r="2.2" fill="#ef4444" filter="url(#navLightSoftHalo)" />
+                          <circle cx="-30" cy="-18" r="0.9" fill="#ffffff" />
+                          <!-- Luz de Estribor Verde (Starboard Green Light) -->
+                          <circle cx="-14" cy="-18" r="2.0" fill="#10b981" filter="url(#navLightSoftHalo)" />
+                          <circle cx="-14" cy="-18" r="0.8" fill="#ffffff" />
+                        </g>
+
+                        <!-- MÁSTIL DE RADAR, COMUNICACIONES Y LUCES DE TOPE DIFUSAS -->
+                        <line x1="-22" y1="-22" x2="-22" y2="-35" stroke="#cbd5e1" stroke-width="1.3" stroke-linecap="round" />
+                        <line x1="-26" y1="-28" x2="-18" y2="-28" stroke="#94a3b8" stroke-width="0.9" />
+                        <!-- Antena Radar Marina Giratoria -->
+                        <line x1="-27" y1="-32" x2="-17" y2="-32" stroke="#f8fafc" stroke-width="1.6" stroke-linecap="round" />
+                        <!-- Domo Satelital Blanco (Radome) -->
+                        <circle cx="-16" cy="-26" r="2.2" fill="#ffffff" stroke="#94a3b8" stroke-width="0.6" />
+                        
+                        <!-- Luces Blancas de Tope de Mástil (Con apagado al llegar) -->
+                        <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                          <circle cx="-22" cy="-35.5" r="2.2" fill="#ffffff" filter="url(#navLightSoftHalo)" />
+                          <circle cx="-22" cy="-28.5" r="1.8" fill="#fde047" filter="url(#navLightSoftHalo)" />
+                        </g>
+
+                        <!-- CHIMENEA / ESCAPE NAVAL -->
+                        <polygon points="-9,-18 -4,-18 -3,-7 -10,-7" fill="#1e293b" stroke="#0f172a" stroke-width="0.6" />
+                        <rect x="-9" y="-19" width="5" height="1.5" fill="#dc2626" />
+                        <line x1="-6.5" y1="-19" x2="-6.5" y2="-22" stroke="#64748b" stroke-width="1.0" />
+
+                        <!-- ==================== CUBIERTA DE TRABAJO Y SISTEMA DE BALIZAMIENTO ILUMINADO ==================== -->
+                        <!-- Barandillas de Seguridad en Cubierta de Popa -->
+                        <line x1="-10" y1="-7" x2="38" y2="-7" stroke="#94a3b8" stroke-width="0.6" />
+                        <line x1="0" y1="-4.5" x2="0" y2="-7" stroke="#94a3b8" stroke-width="0.5" />
+                        <line x1="12" y1="-4.5" x2="12" y2="-7" stroke="#94a3b8" stroke-width="0.5" />
+                        <line x1="24" y1="-4.5" x2="24" y2="-7" stroke="#94a3b8" stroke-width="0.5" />
+                        <line x1="36" y1="-4.5" x2="36" y2="-7" stroke="#94a3b8" stroke-width="0.5" />
+
+                        <!-- Luz Blanca de Coronamiento en Popa (Con apagado al llegar) -->
+                        <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                          <circle cx="39" cy="-6" r="1.6" fill="#ffffff" filter="url(#navLightSoftHalo)" />
+                        </g>
+
+                        <!-- Aros Salvavidas Naranjas -->
+                        <circle cx="-9" cy="-10" r="1.6" fill="none" stroke="#f97316" stroke-width="1.0" />
+
+                        <!-- BOYA MARÍTIMA 1: Gran Boya de Balizamiento Cónica Roja -->
+                        <g transform="translate(26, -4.5)">
+                          <!-- Base / Contrapeso de la boya sobre cubierta -->
+                          <rect x="-5" y="-1.5" width="10" height="2" rx="0.5" fill="#1e293b" />
+                          <!-- Cuerpo Cónico Rojo de la Boya -->
+                          <polygon points="-4.5,-1.5 4.5,-1.5 2.8,-8.5 -2.8,-8.5" fill="url(#marineBuoyRedGrad)" stroke="#7f1d1d" stroke-width="0.5" />
+                          <!-- Anillo Flotador y Panel Solar -->
+                          <rect x="-4" y="-6" width="8" height="1.4" fill="#0284c7" />
+                          <!-- Castillete / Torreta Superior de la Boya -->
+                          <polygon points="-2.2,-8.5 2.2,-8.5 1.5,-13 -1.5,-13" fill="none" stroke="#f8fafc" stroke-width="0.6" />
+                          <!-- Linterna Marina Destellante Roja Brillante con Halo Suave (Con apagado al llegar) -->
+                          <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                            <circle cx="0" cy="-13.5" r="2.5" fill="#ef4444" filter="url(#navLightSoftHalo)" />
+                            <circle cx="0" cy="-13.5" r="1.0" fill="#ffffff" />
+                          </g>
+                        </g>
+
+                        <!-- BOYA MARÍTIMA 2: Boya Lateral de Canal Verde -->
+                        <g transform="translate(15, -4.5)">
+                          <!-- Cuerpo Cilíndrico Verde -->
+                          <rect x="-3" y="-6.5" width="6" height="6" rx="0.6" fill="url(#marineBuoyGreenGrad)" stroke="#065f46" stroke-width="0.5" />
+                          <!-- Franja Reflectante Amarilla -->
+                          <rect x="-3" y="-4.5" width="6" height="1.4" fill="#facc15" />
+                          <!-- Linterna de Tope Verde Destellante (Con apagado al llegar) -->
+                          <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                            <circle cx="0" cy="-8" r="2.0" fill="#10b981" filter="url(#navLightSoftHalo)" />
+                            <circle cx="0" cy="-8" r="0.8" fill="#ffffff" />
+                          </g>
+                        </g>
+
+                        <!-- GRAN GRÚA HIDRÁULICA BALIZADORA -->
+                        <g transform="translate(2, -4.5)">
+                          <!-- Pedestal Giratorio de la Grúa -->
+                          <rect x="-2.5" y="-3.5" width="5" height="3.5" fill="#1e293b" stroke="#0f172a" stroke-width="0.6" />
+                          <!-- Cabina de Operador de Grúa -->
+                          <rect x="-2.5" y="-8.5" width="4.5" height="5" rx="0.6" fill="#ca8a04" stroke="#854d0e" stroke-width="0.6" />
+                          <rect x="-2" y="-7.5" width="2.2" height="2.2" fill="#38bdf8" opacity="0.9" />
+                          <!-- Brazo / Pluma Articulada Industrial Amarilla -->
+                          <line x1="0" y1="-7.5" x2="18" y2="-23" stroke="url(#buoyCraneYellowGrad)" stroke-width="2.8" stroke-linecap="round" />
+                          <!-- Franjas Negras de Seguridad en la Pluma -->
+                          <line x1="5" y1="-12" x2="8" y2="-14.5" stroke="#1e293b" stroke-width="2.8" />
+                          <line x1="11" y1="-17" x2="14" y2="-19.5" stroke="#1e293b" stroke-width="2.8" />
+                          <!-- Cilindro Hidráulico de Elevación -->
+                          <line x1="1.5" y1="-4.5" x2="8" y2="-13.5" stroke="#94a3b8" stroke-width="1.4" />
+                          
+                          <!-- Foco LED de Iluminación en la Punta de la Pluma (Con apagado al llegar) -->
+                          <g [style.opacity]="lighthouseBoatLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                            <polygon points="18,-23 35,-6 11,-6" fill="url(#deckFloodlightGrad)" opacity="0.45" filter="url(#deckLightSoftDiffusion)" />
+                            <circle cx="18" cy="-23" r="1.8" fill="#ffffff" filter="url(#navLightSoftHalo)" />
+                          </g>
+
+                          <!-- Plumín Exterior Extendido sobre las Boyas -->
+                          <line x1="18" y1="-23" x2="27" y2="-14" stroke="url(#buoyCraneYellowGrad)" stroke-width="2.2" stroke-linecap="round" />
+                          <!-- Cable de Elevación de Acero -->
+                          <line x1="27" y1="-14" x2="27" y2="-9" stroke="#cbd5e1" stroke-width="0.9" />
+                          <!-- Gancho de Carga Pesada (Hook & Block) -->
+                          <path d="M 25.5 -9 L 28.5 -9 L 27 -7 L 27 -5 Q 25 -3.5, 26.8 -3" fill="none" stroke="#eab308" stroke-width="1.2" />
+                        </g>
+
+                      </g>
+                    </g>
+
+                    <!-- ==================== ISLA ROCOSA NATURAL / PROMONTORIO COSTEÑO EN EL BORDE IZQUIERDO ==================== -->
+                    <g id="lighthouseIslandPromontory">
+                      <!-- Base Submarina de Roca (Sumergida bajo el Agua) -->
+                      <path d="M -230 250 Q -235 275, -205 285 Q -155 295, -95 285 Q -50 275, -55 250 Z" fill="#031124" opacity="0.7" />
+
+                      <!-- Masa Rocosa de Basalto Escarpada Emergente en el Extremo Izquierdo -->
+                      <!-- Perfil: Nace fuera del margen izquierdo (-230, 250), corona en meseta (-188..-90, 212) y desciende al mar en (-52, 250) -->
+                      <path d="M -230 250 L -215 232 L -198 218 L -188 212 L -90 212 L -75 222 L -65 238 L -52 250 L -60 255 L -225 255 Z" fill="url(#cliffRockGrad)" stroke="#0f172a" stroke-width="1.2" />
+                      
+                      <!-- Facetas Geológicas y Sombras de Estratos Rocosos -->
+                      <!-- Flanco Izquierdo -->
+                      <polygon points="-230,250 -215,232 -198,218 -208,250" fill="#1e293b" />
+                      <polygon points="-215,232 -198,218 -186,228 -200,250" fill="#0f172a" />
+                      <!-- Frente Central del Acantilado -->
+                      <polygon points="-188,212 -150,228 -155,250 -200,250" fill="#1e293b" />
+                      <polygon points="-150,228 -115,224 -120,250 -155,250" fill="#334155" opacity="0.8" />
+                      <polygon points="-115,224 -90,212 -95,250 -120,250" fill="#1e293b" />
+                      <!-- Flanco Derecho y Arrecifes -->
+                      <polygon points="-90,212 -75,222 -80,250 -95,250" fill="#0f172a" />
+                      <polygon points="-75,222 -65,238 -52,250 -80,250" fill="#1e293b" />
+                      
+                      <!-- Arrecifes y Rocas Aisladas en el Agua -->
+                      <ellipse cx="-42" cy="254" rx="8" ry="3.5" fill="#1e293b" stroke="#0f172a" stroke-width="0.8" />
+
+                      <!-- Césped Verde Esmeralda y Musgo en la Meseta Superior -->
+                      <path d="M -198 214 Q -140 209, -88 214 L -90 218 Q -140 214, -196 218 Z" fill="#15803d" stroke="#166534" stroke-width="0.8" />
+                      <ellipse cx="-165" cy="213" rx="10" ry="2" fill="#22c55e" opacity="0.8" />
+                      <ellipse cx="-130" cy="212.5" rx="14" ry="2.2" fill="#22c55e" opacity="0.8" />
+                      <ellipse cx="-100" cy="213" rx="10" ry="2" fill="#22c55e" opacity="0.8" />
+
+                      <!-- Senderito de Adoquines entre el Faro y la Caseta -->
+                      <path d="M -138 214 Q -125 215, -112 214" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="2 1.5" fill="none" opacity="0.85" />
+
+                      <!-- Murete Rústico de Piedra al Borde del Acantilado -->
+                      <path d="M -180 212 L -180 209 L -168 209 L -168 212" stroke="#475569" stroke-width="1.2" fill="none" />
+                      <path d="M -98 212 L -98 209 L -90 209 L -90 212" stroke="#475569" stroke-width="1.2" fill="none" />
+
+                      <!-- Pequeño Embarcadero / Muelle de Madera a los Pies del Faro -->
+                      <g transform="translate(-65, 244)">
+                        <!-- Pilares de madera clavados en el agua -->
+                        <line x1="0" y1="2" x2="0" y2="12" stroke="#451a03" stroke-width="1.5" />
+                        <line x1="12" y1="2" x2="12" y2="12" stroke="#451a03" stroke-width="1.5" />
+                        <!-- Tablones de madera -->
+                        <line x1="-3" y1="2" x2="15" y2="2" stroke="#78350f" stroke-width="2" />
+                        <circle cx="12" cy="0" r="1.2" fill="#fbbf24" filter="url(#lighthouseFresnelGlow)" />
+                      </g>
+
+                      <!-- Rompiente de Olas y Espuma Blanca en la Base -->
+                      <!-- Espuma Flanco Izquierdo -->
+                      <g class="lighthouse-wave-foam" transform="translate(-200, 250)">
+                        <ellipse cx="0" cy="0" rx="12" ry="3.5" fill="#ffffff" opacity="0.85" />
+                        <circle cx="-4" cy="-2" r="1.2" fill="#ffffff" class="lighthouse-splash-1" />
+                      </g>
+                      <!-- Espuma Frente Central -->
+                      <g class="lighthouse-wave-foam" transform="translate(-135, 251)">
+                        <ellipse cx="0" cy="0" rx="45" ry="4" fill="#ffffff" opacity="0.8" />
+                        <ellipse cx="-15" cy="2" rx="25" ry="3.5" fill="#f0f9ff" opacity="0.9" />
+                        <circle cx="10" cy="-3" r="1.5" fill="#ffffff" class="lighthouse-splash-1" />
+                        <circle cx="-20" cy="-2" r="1.3" fill="#ffffff" class="lighthouse-splash-2" />
+                      </g>
+                      <!-- Espuma Flanco Derecho y Muelle -->
+                      <g class="lighthouse-wave-foam" transform="translate(-60, 250)">
+                        <ellipse cx="0" cy="0" rx="18" ry="4" fill="#ffffff" opacity="0.85" />
+                        <ellipse cx="25" cy="3" rx="10" ry="3" fill="#ffffff" opacity="0.75" />
+                        <circle cx="8" cy="-3" r="1.4" fill="#ffffff" class="lighthouse-splash-2" />
+                      </g>
+                    </g>
+
+                    <!-- ==================== CASETA DEL GUARDIÁN (KEEPER'S COTTAGE) ==================== -->
+                    <g transform="translate(-106, 184)">
+                      <!-- Paredes de Piedra de la Casita -->
+                      <rect x="0" y="8" width="28" height="20" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+                      <!-- Tejado a Dos Aguas Rojo Teja -->
+                      <polygon points="-3,8 14,-2 31,8" fill="#991b1b" stroke="#7f1d1d" stroke-width="0.8" />
+                      <!-- Chimenea con Humo Flotante -->
+                      <rect x="20" y="-5" width="4" height="7" fill="#7f1d1d" stroke="#450a0a" stroke-width="0.6" />
+                      <g class="lighthouse-cottage-smoke" transform="translate(22, -6)">
+                        <circle cx="0" cy="-3" r="2" fill="rgba(241, 245, 249, 0.6)" class="lighthouse-smoke-1" />
+                        <circle cx="2" cy="-9" r="3" fill="rgba(241, 245, 249, 0.4)" class="lighthouse-smoke-2" />
+                        <circle cx="5" cy="-16" r="4" fill="rgba(241, 245, 249, 0.2)" class="lighthouse-smoke-3" />
+                      </g>
+                      <!-- Ventana con Luz Cálida Encendida -->
+                      <rect x="10" y="14" width="7" height="7" fill="#fbbf24" stroke="#78350f" stroke-width="0.6" filter="url(#lighthouseFresnelGlow)" />
+                      <line x1="13.5" y1="14" x2="13.5" y2="21" stroke="#78350f" stroke-width="0.5" />
+                      <line x1="10" y1="17.5" x2="17" y2="17.5" stroke="#78350f" stroke-width="0.5" />
+                    </g>
+
+                    <!-- ==================== LA TORRE DEL FARO EN EL EXTREMO IZQUIERDO ==================== -->
+                    <g transform="translate(-140, 97)">
+                      <!-- Base de Cantería Cilíndrica Sólida -->
+                      <rect x="-16" y="100" width="32" height="15" fill="#1e293b" stroke="#0f172a" stroke-width="1" />
+                      <!-- Puerta de Madera de Roble Arqueada -->
+                      <path d="M -4 115 L -4 105 A 4 4 0 0 1 4 105 L 4 115 Z" fill="#78350f" stroke="#451a03" stroke-width="0.6" />
+                      <circle cx="2" cy="110" r="0.6" fill="#fcd34d" />
+
+                      <!-- CUERPO CÓNICO DEL FARO (FRANJAS ROJAS Y BLANCAS) -->
+                      <!-- Franja 1 (Base - Rojo) -->
+                      <polygon points="-15,100 -13,78 13,78 15,100" fill="url(#towerRedGrad)" stroke="#0f172a" stroke-width="0.8" />
+                      <!-- Franja 2 (Blanco) -->
+                      <polygon points="-13,78 -11,56 11,56 13,78" fill="url(#towerWhiteGrad)" stroke="#0f172a" stroke-width="0.8" />
+                      <!-- Franja 3 (Rojo) -->
+                      <polygon points="-11,56 -9,34 9,34 11,56" fill="url(#towerRedGrad)" stroke="#0f172a" stroke-width="0.8" />
+                      <!-- Franja 4 (Tope - Blanco) -->
+                      <polygon points="-9,34 -7,16 7,16 9,34" fill="url(#towerWhiteGrad)" stroke="#0f172a" stroke-width="0.8" />
+
+                      <!-- Ventanas de la Torre con Luz Cálida -->
+                      <rect x="-2" y="44" width="4" height="6" rx="1" fill="#fbbf24" stroke="#78350f" stroke-width="0.5" />
+                      <rect x="-2" y="66" width="4" height="6" rx="1" fill="#fbbf24" stroke="#78350f" stroke-width="0.5" />
+
+                      <!-- Balcón / Galería de Hierro Forjado Negro -->
+                      <rect x="-12" y="13" width="24" height="3" fill="#0f172a" stroke="#020617" stroke-width="0.6" />
+                      <!-- Barandilla de Hierro -->
+                      <line x1="-12" y1="8" x2="12" y2="8" stroke="#334155" stroke-width="0.8" />
+                      <line x1="-10" y1="8" x2="-10" y2="13" stroke="#334155" stroke-width="0.6" />
+                      <line x1="-5" y1="8" x2="-5" y2="13" stroke="#334155" stroke-width="0.6" />
+                      <line x1="0" y1="8" x2="0" y2="13" stroke="#334155" stroke-width="0.6" />
+                      <line x1="5" y1="8" x2="5" y2="13" stroke="#334155" stroke-width="0.6" />
+                      <line x1="10" y1="8" x2="10" y2="13" stroke="#334155" stroke-width="0.6" />
+
+                      <!-- Linterna de Cristal (Lantern Room) -->
+                      <rect x="-7" y="0" width="14" height="13" fill="rgba(56, 189, 248, 0.25)" stroke="#0f172a" stroke-width="0.8" />
+                      <!-- Montantes de Cristal -->
+                      <line x1="-2.5" y1="0" x2="-2.5" y2="13" stroke="#0f172a" stroke-width="0.6" />
+                      <line x1="2.5" y1="0" x2="2.5" y2="13" stroke="#0f172a" stroke-width="0.6" />
+
+                      <!-- Lente de Fresnel / Lámpara de Alta Intensidad con Aura Difuminada -->
+                      <circle cx="0" cy="6.5" r="22" fill="url(#lighthouseLanternAuraGrad)" filter="url(#lighthouseAtmosphericMist)" />
+                      <circle cx="0" cy="6.5" r="5" fill="#fde047" filter="url(#navLightSoftHalo)" />
+                      <circle cx="0" cy="6.5" r="2.8" fill="#ffffff" />
+
+                      <!-- Cúpula de Cobre con Pátina Verde Esmeralda -->
+                      <path d="M -8 0 Q 0 -9, 8 0 Z" fill="url(#copperDomeGrad)" stroke="#042f2e" stroke-width="0.8" />
+                      <!-- Pararrayos y Veleta Superior -->
+                      <line x1="0" y1="-9" x2="0" y2="-17" stroke="#cbd5e1" stroke-width="0.8" />
+                      <circle cx="0" cy="-17" r="1" fill="#fde047" />
+                      <line x1="-3" y1="-14" x2="3" y2="-14" stroke="#cbd5e1" stroke-width="0.6" />
+                    </g>
+
+                    <!-- ==================== HAZ DE LUZ VOLUMÉTRICO ROTATORIO DIFUMINADO ==================== -->
+                    <g [style.opacity]="lighthouseBeamOpacity()" style="transition: opacity 1s ease-out;">
+                      <!-- Posición fija anclada en la linterna del faro en el extremo izquierdo profundo (x=-140, y=103.5) -->
+                      <g transform="translate(-140, 103.5)">
+                        <!-- Grupo animado con barrido rotatorio CSS centrado en (0,0) -->
+                        <g class="lighthouse-volumetric-beam">
+                          <!-- Capa 1: Vaho / Bruma Atmosférica Amplia Difuminada -->
+                          <polygon points="0,-8 650,-160 650,160 0,8" fill="url(#lighthouseBeamGrad)" opacity="0.4" filter="url(#lighthouseAtmosphericMist)" />
+                          <!-- Capa 2: Haz Volumétrico Principal Suavemente Difuminado -->
+                          <polygon points="0,-5 650,-100 650,100 0,5" fill="url(#lighthouseBeamGrad)" opacity="0.88" filter="url(#lighthouseBeamDiffusionFilter)" />
+                          <!-- Capa 3: Núcleo Láser Concentrado de Alta Intensidad -->
+                          <polygon points="0,-2 650,-40 650,40 0,2" fill="url(#lighthouseBeamCoreGrad)" opacity="0.9" filter="url(#lighthouseFresnelGlow)" />
+                          <!-- Haz Secundario Trasero Sutil Difuminado (Reflejo 180°) -->
+                          <polygon points="0,-2 -160,-25 -160,25 0,2" fill="url(#lighthouseBeamGrad)" opacity="0.3" filter="url(#lighthouseBeamDiffusionFilter)" />
+                          <!-- Aura Central en la Fuente del Haz -->
+                          <circle cx="0" cy="0" r="16" fill="url(#lighthouseLanternAuraGrad)" filter="url(#lighthouseAtmosphericMist)" />
+                          <circle cx="0" cy="0" r="4.5" fill="#ffffff" filter="url(#navLightSoftHalo)" />
+                        </g>
+                      </g>
+                    </g>
+
+                    <!-- ==================== GAVIOTAS AL AMANECER (PROGRESS >= 0.82) ==================== -->
+                    <g [style.opacity]="lighthouseSeagullsOpacity()" class="lighthouse-seagulls-flight" style="transition: opacity 1.5s ease-out;">
+                      <!-- Gaviota 1 -->
+                      <path d="M 240 105 Q 246 98, 252 104 Q 258 98, 264 105" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" />
+                      <!-- Gaviota 2 -->
+                      <path d="M 285 85 Q 290 80, 295 84 Q 300 80, 305 85" fill="none" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" />
+                      <!-- Gaviota 3 -->
+                      <path d="M 320 115 Q 324 110, 328 114 Q 332 110, 336 115" fill="none" stroke="#f8fafc" stroke-width="1.2" stroke-linecap="round" />
+                    </g>
+
+                    <!-- ==================== CRONÓMETRO DISCRETO DE CUENTA REGRESIVA SUPERIOR ==================== -->
+                    <g class="lighthouse-countdown-pill" transform="translate(230, 30)" style="cursor: default; user-select: none;">
+                      <!-- Sombra / Resplandor Atmosférico Sutil -->
+                      <rect x="-54" y="-13" width="108" height="26" rx="13" 
+                            fill="rgba(3, 11, 28, 0.85)" 
+                            stroke="rgba(56, 189, 248, 0.4)" 
+                            stroke-width="1.2" 
+                            filter="url(#lighthouseFresnelGlow)" />
+                      <!-- Cuerpo de Cristal Esmerilado Marina -->
+                      <rect x="-54" y="-13" width="108" height="26" rx="13" 
+                            fill="rgba(2, 6, 23, 0.75)" 
+                            stroke="rgba(255, 255, 255, 0.18)" 
+                            stroke-width="0.8" />
+
+                      <!-- Luz Destellante del Cronómetro Marino (Pulse Dot) -->
+                      <circle cx="-36" cy="0" r="3.2" fill="#38bdf8" class="lighthouse-timer-pulse-dot" filter="url(#navLightSoftHalo)" />
+                      <circle cx="-36" cy="0" r="1.5" fill="#ffffff" />
+
+                      <!-- Dígitos del Conteo Regresivo -->
+                      <text x="7" y="5" 
+                            text-anchor="middle" 
+                            fill="#f8fafc" 
+                            font-size="14.5" 
+                            font-weight="700" 
+                            font-family="'Space Grotesk', monospace" 
+                            letter-spacing="2px"
+                            style="text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);">
+                        {{ timeString() }}
+                      </text>
+                    </g>
+
+                  </svg>
+                </div>
+              </ng-container>
+
 
             </div>
 
@@ -2814,7 +3523,7 @@
 
 
                <!-- CUESTIONARIO POST-SESIÓN (en summary) -->
-                  <div *ngIf="arenaState() === 'summary' && (timerStyle() === 'digital' || timerStyle() === 'hourglass' || timerStyle() === 'ice' || timerStyle() === 'battery' || timerStyle() === 'ring' || timerStyle() === 'line' || timerStyle() === 'solar' || timerStyle() === 'satellite' || timerStyle() === 'moon' || timerStyle() === 'titanic')" class="summary-modal">
+                  <div *ngIf="arenaState() === 'summary' && (timerStyle() === 'digital' || timerStyle() === 'hourglass' || timerStyle() === 'ice' || timerStyle() === 'battery' || timerStyle() === 'ring' || timerStyle() === 'line' || timerStyle() === 'solar' || timerStyle() === 'satellite' || timerStyle() === 'moon' || timerStyle() === 'titanic' || timerStyle() === 'lighthouse')" class="summary-modal">
                    <div class="summary-header">
                      <span class="summary-header-label">Cierre Dopamínico</span>
                      <h3 class="summary-question">¿Lograste completar tu objetivo?</h3>
@@ -3586,13 +4295,13 @@
                 <span class="thumb-label" 
                       style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
                       [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
-                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : (bg === 'lofi_study_rain' ? 'Lluvia' : (bg === 'forest_campfire' ? 'Bosque' : (bg === 'lofi_space_nebula' ? 'Nebulosa' : (bg === 'lofi_space_moon' ? 'Luz Lunar' : (bg === 'lofi_titanic_ocean' ? 'Mar' : 'Espacio')))))))) }}
+                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : (bg === 'lofi_study_rain' ? 'Lluvia' : (bg === 'forest_campfire' ? 'Bosque' : (bg === 'lofi_space_nebula' ? 'Nebulosa' : (bg === 'lofi_space_moon' ? 'Luz Lunar' : (bg === 'lofi_lighthouse_ocean' ? 'Océano Estelar' : (bg === 'lofi_titanic_ocean' ? 'Mar' : 'Espacio'))))))))) }}
                 </span>
               </div>
             </div>
             
             <span style="font-size: var(--modal-subtext-size); color: var(--muted); line-height: 1.3; margin-top: 2px;">
-              {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : (activeBackground() === 'lofi_study_rain' ? 'Lluvia' : (activeBackground() === 'forest_campfire' ? 'Fogata Bosque' : (activeBackground() === 'lofi_space_nebula' ? 'Nebulosa Cósmica' : (activeBackground() === 'lofi_space_moon' ? 'Polvo Lunar y Vía Láctea' : (activeBackground() === 'lofi_titanic_ocean' ? 'Mar y Cielo Nocturno' : 'Espacio Cósmico con Saturno y Luceros')))))))) + '" activo con aura cósmica' }}
+              {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : (activeBackground() === 'lofi_study_rain' ? 'Lluvia' : (activeBackground() === 'forest_campfire' ? 'Fogata Bosque' : (activeBackground() === 'lofi_space_nebula' ? 'Nebulosa Cósmica' : (activeBackground() === 'lofi_space_moon' ? 'Polvo Lunar y Vía Láctea' : (activeBackground() === 'lofi_lighthouse_ocean' ? 'Océano Cósmico y Cielo Estelar' : (activeBackground() === 'lofi_titanic_ocean' ? 'Mar y Cielo Nocturno' : 'Espacio Cósmico con Saturno y Luceros'))))))))) + '" activo con aura cósmica' }}
             </span>
           </div>
 
@@ -3985,6 +4694,43 @@
                   </div>
                 </div>
                 <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'titanic' ? 'var(--accent)' : 'var(--muted)'">Titanic</span>
+              </div>
+
+
+              <!-- 12. El Faro en el Acantilado -->
+              <div (click)="setTimerStyle('lighthouse')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'lighthouse' ? 'true' : 'false'">
+                
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(14, 165, 233, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'lighthouse' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'lighthouse' ? '0 0 14px rgba(250, 204, 21, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Faro -->
+                  <svg viewBox="0 0 54 36" style="width: 80%; height: 80%;">
+                    <!-- Océano inferior -->
+                    <rect x="0" y="24" width="54" height="12" fill="#0369a1" opacity="0.9" />
+                    <!-- Acantilado izquierdo -->
+                    <polygon points="0,36 18,36 15,20 0,22" fill="#1e293b" />
+                    <!-- Faro miniatura con franjas rojas y blancas -->
+                    <polygon points="8,20 9,10 13,10 14,20" fill="#ffffff" />
+                    <polygon points="8.3,17 8.7,13 13.3,13 13.7,17" fill="#ef4444" />
+                    <!-- Linterna amarilla -->
+                    <circle cx="11" cy="9" r="2.2" fill="#fde047" />
+                    <polygon points="10,7 11,4 12,7" fill="#0d9488" />
+                    <!-- Haz de luz amarillo suave -->
+                    <polygon points="11,9 54,2 54,18" fill="rgba(254, 240, 138, 0.5)" />
+                  </svg>
+
+                  <div *ngIf="timerStyle() === 'lighthouse'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'lighthouse' ? 'var(--accent)' : 'var(--muted)'">El Faro</span>
               </div>
 
             </div>

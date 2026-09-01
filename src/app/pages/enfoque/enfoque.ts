@@ -137,11 +137,11 @@ export class Enfoque implements OnInit, OnDestroy {
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
-  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean'>(
+  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean'>(
     (localStorage.getItem('focus-active-bg') as any) || 'lofi_space_cosmos'
   );
-  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean')[] = [
-    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean'
+  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[] = [
+    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
   ];
   backgroundUrl = computed(() => {
     const bg = this.activeBackground();
@@ -154,6 +154,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_space_nebula') return 'assets/images/lofi_space_nebula.jpg';
     if (bg === 'lofi_space_moon') return 'assets/images/lofi_space_moon.jpg';
     if (bg === 'lofi_titanic_ocean') return 'assets/images/lofi_titanic_ocean.jpg';
+    if (bg === 'lofi_lighthouse_ocean') return 'assets/images/lofi_lighthouse_ocean.jpg';
     return '';
   });
   useFairyBackground = computed(() => this.activeBackground() !== 'off');
@@ -166,13 +167,83 @@ export class Enfoque implements OnInit, OnDestroy {
   // Lista de fondos disponibles según el estilo de reloj seleccionado
   availableBackgroundOptions = computed(() => {
     if (this.isOrbitalTimer()) {
-      return ['lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean')[];
+      return ['lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[];
+    }
+    if (this.timerStyle() === 'lighthouse') {
+      return ['lofi_lighthouse_ocean'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[];
     }
     if (this.timerStyle() === 'titanic') {
-      return ['lofi_titanic_ocean'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean')[];
+      return ['lofi_titanic_ocean'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[];
     }
-    // Para todos los demás relojes normales, NO incluir 'lofi_titanic_ocean' (Mar es exclusivo del Titanic)
-    return ['off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean')[];
+    // Para todos los demás relojes normales, NO incluir fondos marítimos exclusivos
+    return ['off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[];
+  });
+
+
+  // ==================== CINEMÁTICA Y FÍSICAS DE EL FARO EN EL ACANTILADO ====================
+  lighthouseProgress = computed(() => {
+    return Math.min(1, Math.max(0, 1 - this.timePercentage()));
+  });
+
+  // Fase del día en el Faro: 'night' (Noche con haz rotatorio) | 'twilight' (Crepúsculo estrellado) | 'sunrise' (Amanecer dorado)
+  lighthouseTimePhase = computed<'night' | 'twilight' | 'sunrise'>(() => {
+    const p = this.lighthouseProgress();
+    if (p < 0.45) return 'night';
+    if (p < 0.78) return 'twilight';
+    return 'sunrise';
+  });
+
+  // Opacidad del haz de luz del faro (se apaga suavemente al amanecer cuando sale el sol)
+  lighthouseBeamOpacity = computed(() => {
+    const p = this.lighthouseProgress();
+    if (p < 0.85) return 1.0;
+    const norm = (p - 0.85) / 0.15;
+    return Math.max(0, 1 - norm);
+  });
+
+  // Resplandor del amanecer dorado en el cielo y en el agua
+  lighthouseSunriseOpacity = computed(() => {
+    const p = this.lighthouseProgress();
+    if (p < 0.65) return 0.0;
+    const norm = (p - 0.65) / 0.35;
+    return Math.min(1.0, norm);
+  });
+
+  // Salida del Sol Dorado sobre el horizonte marino (sube entre p=0.72 y p=1.0)
+  lighthouseSunTransform = computed(() => {
+    const p = this.lighthouseProgress();
+    if (p < 0.72) return 'translate(350px, 260px) scale(0.6)';
+    const t = (p - 0.72) / 0.28;
+    const dy = 260 - (t * 110); // Sube de y=260 a y=150
+    const scale = 0.6 + (t * 0.4);
+    return `translate(350px, ${dy.toFixed(1)}px) scale(${scale.toFixed(2)})`;
+  });
+
+  // Desplazamiento continuo del Buque Balizador desde el confín derecho más lejano hasta el faro en el extremo izquierdo durante todo el Pomodoro
+  lighthouseSailboatTransform = computed(() => {
+    const p = this.lighthouseProgress();
+    const startX = 860; // Extremo derecho del horizonte marítimo (lo más alejado posible del faro)
+    const endX = -60;   // Muelle de atraque en el Faro a la izquierda profunda (llegada a las 00:00)
+    if (this.arenaState() === 'setup') return `translate(${startX}px, 248px) scale(0.85)`;
+    const currentX = startX - (p * (startX - endX));
+    const scale = 0.85 + (p * 0.65); // Comienza más pequeño a lo lejos (0.85x) y crece conforme se acerca (1.50x)
+    return `translate(${currentX.toFixed(1)}px, 248px) scale(${scale.toFixed(3)})`;
+  });
+
+  // Apagado de las luces del buque balizador al llegar a puerto (far muelle / llegada)
+  lighthouseBoatLightsOpacity = computed(() => {
+    if (this.arenaState() === 'summary') return 0.0;
+    const p = this.lighthouseProgress();
+    if (p < 0.95) return 1.0;
+    const norm = (p - 0.95) / 0.05;
+    return Math.max(0.0, 1.0 - norm);
+  });
+
+  // Gaviotas al amanecer (visibles al final cuando despunta el sol p >= 0.82)
+  lighthouseSeagullsOpacity = computed(() => {
+    const p = this.lighthouseProgress();
+    if (p < 0.82) return 0.0;
+    return Math.min(1.0, (p - 0.82) / 0.18);
   });
 
 
@@ -366,8 +437,8 @@ export class Enfoque implements OnInit, OnDestroy {
   private onActivityFn = () => this.onUserActivity();
   private onMouseLeaveFn = () => this.onMouseLeaveWindow();
 
-  // Estilo del Temporizador (Clásico vs Fuego Premium vs Órbita Solar)
-  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic'>(
+  // Estilo del Temporizador (Clásico vs Fuego Premium vs Órbita Solar vs Titanic vs El Faro)
+  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic' | 'lighthouse'>(
     (localStorage.getItem('focus-timer-style') as any) || 'digital'
   );
 
@@ -947,8 +1018,16 @@ export class Enfoque implements OnInit, OnDestroy {
     this.timeLeft.set(this.focusDuration() * 60);
   }
 
-  // Métodos para arrastrar la fogata
+  // Verificación si el cronómetro actual tiene habilitada la función de arrastre
+  isDraggableTimer = computed(() => {
+    const s = this.timerStyle();
+    return s === 'fire' || s === 'hourglass' || s === 'ice' || s === 'battery' || s === 'ring' || s === 'line';
+  });
+
+  // Métodos para arrastrar el cronómetro interactivo (Solo permitido en: fogata, reloj de arena, cubo de hielo, batería, anillo, línea)
   onDragStart(event: MouseEvent) {
+    if (!this.isDraggableTimer()) return;
+
     // Evitar iniciar arrastre si se hace click en algún botón o control interno
     const target = event.target as HTMLElement;
     if (target.closest('button') || target.closest('a')) return;
@@ -960,6 +1039,8 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   onTouchStart(event: TouchEvent) {
+    if (!this.isDraggableTimer()) return;
+
     const target = event.target as HTMLElement;
     if (target.closest('button') || target.closest('a')) return;
 
@@ -1445,7 +1526,15 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Setter de fondo de pantalla Zen con restricciones temáticas
-  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean') {
+  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean') {
+    // El fondo Océano Estelar es exclusivo del Faro
+    if (bg === 'lofi_lighthouse_ocean' && this.timerStyle() !== 'lighthouse') {
+      return;
+    }
+    // Si el cronómetro activo es El Faro, solo se permite Océano Estelar
+    if (this.timerStyle() === 'lighthouse' && bg !== 'lofi_lighthouse_ocean') {
+      return;
+    }
     // El fondo Mar es exclusivo e inseparable del Titanic
     if (bg === 'lofi_titanic_ocean' && this.timerStyle() !== 'titanic') {
       return;
@@ -1482,11 +1571,12 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_space_nebula') return 'assets/images/lofi_space_nebula.jpg';
     if (bg === 'lofi_space_moon') return 'assets/images/lofi_space_moon.jpg';
     if (bg === 'lofi_titanic_ocean') return 'assets/images/lofi_titanic_ocean.jpg';
+    if (bg === 'lofi_lighthouse_ocean') return 'assets/images/lofi_lighthouse_ocean.jpg';
     return '';
   }
 
   // Setter del estilo de cronómetro Zen (con verificación Premium)
-  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic') {
+  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic' | 'lighthouse') {
     if ((style === 'fire' || style === 'hourglass' || style === 'ice' || style === 'battery') && !this.membership.isPremium()) {
       this.showPaywallModal.set(true);
       return;
@@ -1495,12 +1585,15 @@ export class Enfoque implements OnInit, OnDestroy {
     localStorage.setItem('focus-timer-style', style);
 
     // Auto-asignación y validación de fondos según el cronómetro
-    if (style === 'titanic') {
+    if (style === 'lighthouse') {
+      this.activeBackground.set('lofi_lighthouse_ocean');
+      localStorage.setItem('focus-active-bg', 'lofi_lighthouse_ocean');
+    } else if (style === 'titanic') {
       this.activeBackground.set('lofi_titanic_ocean');
       localStorage.setItem('focus-active-bg', 'lofi_titanic_ocean');
     } else {
-      // Si se cambia a cualquier otro reloj que no sea el Titanic y el fondo actual es Mar, reasignar a un fondo compatible
-      if (this.activeBackground() === 'lofi_titanic_ocean') {
+      // Si se cambia a cualquier otro reloj que no sea marítimo y el fondo actual es marítimo exclusivo, reasignar
+      if (this.activeBackground() === 'lofi_titanic_ocean' || this.activeBackground() === 'lofi_lighthouse_ocean') {
         if (style === 'solar') {
           this.activeBackground.set('lofi_space_cosmos');
           localStorage.setItem('focus-active-bg', 'lofi_space_cosmos');
@@ -1536,6 +1629,12 @@ export class Enfoque implements OnInit, OnDestroy {
           this.setBackground('forest_campfire');
         }
       }
+    }
+
+    // Si el nuevo estilo no es arrastrable, centrarlo limpiamente a (0, 0)
+    if (!this.isDraggableTimer()) {
+      this.campfireX.set(0);
+      this.campfireY.set(0);
     }
   }
 

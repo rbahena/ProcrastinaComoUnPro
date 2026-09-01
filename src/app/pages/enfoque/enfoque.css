@@ -2575,14 +2575,14 @@
   }
 }
 
-/* ===== BATERÍA ZEN Y ÓRBITAS PREMIUM STYLE ===== */
-.battery-container, .ring-container, .line-container, .solar-container, .satellite-container, .moon-container, .titanic-container {
+/* ===== BATERÍA ZEN, ANILLO Y LÍNEA PREMIUM STYLE ===== */
+.battery-container, .ring-container, .line-container {
   cursor: grab !important;
   user-select: none !important;
   touch-action: none !important;
   max-width: 100%;
 }
-.battery-container:active, .ring-container:active, .line-container:active, .solar-container:active, .satellite-container:active, .moon-container:active, .titanic-container:active {
+.battery-container:active, .ring-container:active, .line-container:active {
   cursor: grabbing !important;
 }
 
@@ -2658,18 +2658,12 @@
 
 /* ===== ÓRBITA SOLAR (SOL Y TIERRA) PREMIUM STYLE ===== */
 .solar-container {
-  cursor: grab !important;
   user-select: none !important;
-  touch-action: none !important;
   transition: filter 0.3s ease;
 }
 
 .solar-container:hover {
   filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.25));
-}
-
-.solar-container:active {
-  cursor: grabbing !important;
 }
 
 /* Pulsación y Rotación Solar */
@@ -3264,6 +3258,14 @@
   background-image: linear-gradient(180deg, rgba(3, 7, 24, 0.45) 0%, rgba(2, 6, 23, 0.75) 100%), url('/assets/images/lofi_titanic_ocean.jpg') !important;
 }
 
+.bg-lighthouse-night {
+  background-color: #020617 !important;
+  background-blend-mode: overlay, normal;
+  background-image: linear-gradient(180deg, rgba(2, 6, 23, 0.35) 0%, rgba(2, 6, 23, 0.65) 60%, rgba(1, 4, 15, 0.95) 100%), url('/assets/images/lofi_lighthouse_ocean.jpg') !important;
+  background-position: center top !important;
+  background-size: cover !important;
+}
+
 /* ==================== PARPADEO ELÉCTRICO Y APAGÓN DEL TITANIC ==================== */
 @keyframes titanicElectricalFlicker {
   0% { opacity: 1; filter: drop-shadow(0 0 8px #fef08a); }
@@ -3291,4 +3293,200 @@
   opacity: 0 !important;
   visibility: hidden !important;
   transition: opacity 0.6s ease-out, visibility 0.6s !important;
+}
+
+/* ==================== EL FARO EN EL ACANTILADO ANIMACIONES ==================== */
+/* Haz de luz volumétrico rotatorio del faro */
+.lighthouse-volumetric-beam {
+  transform-origin: 0px 0px;
+  animation: lighthouseBeamSweep 8s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+@keyframes lighthouseBeamSweep {
+  0% {
+    transform: rotate(-25deg) scaleY(0.8);
+    opacity: 0.65;
+  }
+  50% {
+    transform: rotate(8deg) scaleY(1.05);
+    opacity: 0.95;
+    filter: drop-shadow(0 0 12px rgba(254, 240, 138, 0.4));
+  }
+  100% {
+    transform: rotate(36deg) scaleY(0.85);
+    opacity: 0.7;
+  }
+}
+
+/* Olas marinas dinámicas multicapa */
+.lighthouse-wave-anim-1 {
+  animation: lighthouseWaveFlow1 6s ease-in-out infinite alternate;
+}
+.lighthouse-wave-anim-2 {
+  animation: lighthouseWaveFlow2 7s ease-in-out infinite alternate;
+}
+.lighthouse-wave-anim-3 {
+  animation: lighthouseWaveFlow3 8.5s ease-in-out infinite alternate;
+}
+.lighthouse-wave-anim-4 {
+  animation: lighthouseWaveFlow4 5.5s ease-in-out infinite alternate;
+}
+
+@keyframes lighthouseWaveFlow1 {
+  0% { transform: translateX(0px) translateY(0px); }
+  100% { transform: translateX(-18px) translateY(2px); }
+}
+
+@keyframes lighthouseWaveFlow2 {
+  0% { transform: translateX(0px) translateY(0px); }
+  100% { transform: translateX(22px) translateY(-2px); }
+}
+
+@keyframes lighthouseWaveFlow3 {
+  0% { transform: translateX(0px) translateY(0px); }
+  100% { transform: translateX(-12px) translateY(1.5px); }
+}
+
+@keyframes lighthouseWaveFlow4 {
+  0% { transform: translateX(0px) translateY(0px); }
+  100% { transform: translateX(15px) translateY(-1.5px); }
+}
+
+/* Brillo y causticas del reflejo lunar sobre el agua */
+.lighthouse-moonlight-shimmer {
+  animation: moonlightShimmerAnim 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes moonlightShimmerAnim {
+  0% { opacity: 0.35; transform: scaleX(0.92) translateX(-4px); }
+  50% { opacity: 0.75; transform: scaleX(1.08) translateX(3px); }
+  100% { opacity: 0.45; transform: scaleX(0.95) translateX(-2px); }
+}
+
+/* Plancton bioluminiscente marino sutil */
+.lighthouse-plankton-sparkle-1 {
+  animation: planktonGlowAnim1 3s ease-in-out infinite alternate;
+}
+.lighthouse-plankton-sparkle-2 {
+  animation: planktonGlowAnim2 4.2s ease-in-out infinite alternate 0.9s;
+}
+.lighthouse-plankton-sparkle-3 {
+  animation: planktonGlowAnim3 3.6s ease-in-out infinite alternate 1.8s;
+}
+
+@keyframes planktonGlowAnim1 {
+  0% { opacity: 0.15; transform: scale(0.6) translateY(0px); }
+  50% { opacity: 0.7; transform: scale(1.2) translateY(-2px); filter: drop-shadow(0 0 3px #38bdf8); }
+  100% { opacity: 0.25; transform: scale(0.7) translateY(1px); }
+}
+
+@keyframes planktonGlowAnim2 {
+  0% { opacity: 0.2; transform: scale(0.7) translateY(0px); }
+  50% { opacity: 0.8; transform: scale(1.3) translateY(-1.5px); filter: drop-shadow(0 0 3px #2dd4bf); }
+  100% { opacity: 0.1; transform: scale(0.5) translateY(2px); }
+}
+
+@keyframes planktonGlowAnim3 {
+  0% { opacity: 0.1; transform: scale(0.5) translateY(0px); }
+  50% { opacity: 0.65; transform: scale(1.1) translateY(-2.5px); filter: drop-shadow(0 0 3px #7dd3fc); }
+  100% { opacity: 0.3; transform: scale(0.8) translateY(1px); }
+}
+
+/* Cabeceo náutico del velero lejano en línea recta */
+.lighthouse-sailboat-bobbing {
+  animation: sailboatBobbing 4s ease-in-out infinite alternate;
+  transform-origin: 0px 0px;
+}
+
+@keyframes sailboatBobbing {
+  0% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(0.8deg); }
+  100% { transform: rotate(-0.8deg); }
+}
+
+/* Titileo de estrellas en cielo nocturno */
+.lighthouse-star-1 {
+  animation: lighthouseStarTwinkle 2.5s ease-in-out infinite alternate;
+}
+.lighthouse-star-2 {
+  animation: lighthouseStarTwinkle 3.2s ease-in-out infinite alternate 0.8s;
+}
+.lighthouse-star-3 {
+  animation: lighthouseStarTwinkle 2.8s ease-in-out infinite alternate 1.6s;
+}
+
+@keyframes lighthouseStarTwinkle {
+  0% { opacity: 0.25; transform: scale(0.7); }
+  100% { opacity: 1; transform: scale(1.3); filter: drop-shadow(0 0 3px #ffffff); }
+}
+
+/* Humo de la chimenea de la caseta */
+.lighthouse-smoke-1 {
+  animation: cottageSmokeRise 3s ease-out infinite;
+  transform-origin: center center;
+}
+.lighthouse-smoke-2 {
+  animation: cottageSmokeRise 3.4s ease-out infinite 0.7s;
+  transform-origin: center center;
+}
+.lighthouse-smoke-3 {
+  animation: cottageSmokeRise 3.8s ease-out infinite 1.4s;
+  transform-origin: center center;
+}
+
+@keyframes cottageSmokeRise {
+  0% { opacity: 0.7; transform: translate(0, 0) scale(0.6); }
+  50% { opacity: 0.4; transform: translate(4px, -6px) scale(1.3); }
+  100% { opacity: 0; transform: translate(10px, -14px) scale(2.0); }
+}
+
+/* Salpicaduras de agua en las rocas */
+.lighthouse-splash-1 {
+  animation: rockSplashAnim1 2s ease-out infinite;
+}
+.lighthouse-splash-2 {
+  animation: rockSplashAnim2 2.4s ease-out infinite 0.9s;
+}
+
+@keyframes rockSplashAnim1 {
+  0% { opacity: 0; transform: translateY(0); }
+  40% { opacity: 0.9; transform: translateY(-4px) scale(1.3); }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.6); }
+}
+
+@keyframes rockSplashAnim2 {
+  0% { opacity: 0; transform: translateY(0); }
+  40% { opacity: 0.85; transform: translateY(-5px) scale(1.4); }
+  100% { opacity: 0; transform: translateY(-9px) scale(0.5); }
+}
+
+/* Vuelo de gaviotas al amanecer */
+.lighthouse-seagulls-flight {
+  animation: seagullsGliding 6s ease-in-out infinite alternate;
+}
+
+@keyframes seagullsGliding {
+  0% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(-5px) translateX(8px); }
+  100% { transform: translateY(3px) translateX(16px); }
+}
+
+/* Cronómetro discreto superior */
+.lighthouse-countdown-pill {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.lighthouse-countdown-pill:hover {
+  transform: translate(230px, 28px) scale(1.04);
+}
+
+.lighthouse-timer-pulse-dot {
+  animation: timerDotPulse 2s ease-in-out infinite alternate;
+  transform-origin: -36px 0px;
+}
+
+@keyframes timerDotPulse {
+  0% { opacity: 0.55; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1.2); filter: drop-shadow(0 0 5px #38bdf8); }
 }
