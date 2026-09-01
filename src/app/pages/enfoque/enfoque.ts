@@ -201,13 +201,65 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   });
 
-  // Difuminado de la Proa - Desaparece en el fondo marino en 00:00 (norm = 1.0)
+  // Difuminado de la Proa - Se mantiene sólida mientras desciende y se difumina en el abismo profundo
   titanicBowOpacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.5) return 1;
-    const norm = (p - 0.5) / 0.5;
+    if (p < 0.75) return 1;
+    const norm = (p - 0.75) / 0.25;
     return Math.max(0, 1 - norm);
   });
+
+  // Chimenea 1 (Delantera): Caída continua y fluida por gravedad, inclinándose la corona negra hacia el mar
+  titanicFunnel1Transform = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.38) {
+      // Posición erguida original con inclinación de 8°
+      return 'rotate(8deg)';
+    }
+
+    // Progreso continuo de caída y hundimiento (0.38 -> 1.0)
+    const t = (p - 0.38) / 0.62;
+
+    // Inclinación fluida hacia adelante: la parte superior negra cae primero hacia el mar
+    const rollProgress = Math.min(1, t / 0.15);
+    const rollEase = rollProgress * rollProgress * (3 - 2 * rollProgress); // Curva suave sin pausas
+    const angle = 8 + (rollEase * 86); // De 8° a 94°
+
+    // Desplazamiento continuo hacia la proa
+    const dx = (rollEase * 38) + (t * 18);
+
+    // Descenso continuo ininterrumpido hacia la superficie del agua y el fondo marino
+    const sinkEase = Math.pow(t, 1.25);
+    const dy = sinkEase * 280;
+
+    return `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${angle.toFixed(1)}deg)`;
+  });
+
+  // Opacidad de la Chimenea 1 caída al sumergirse en el abismo
+  titanicFunnel1Opacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.60) return 1;
+    // Al sumergirse profundamente hacia el fondo del mar, se difumina en la oscuridad abisal
+    const norm = (p - 0.60) / 0.35;
+    return Math.max(0, 1 - norm);
+  });
+
+  // Indica si la Chimenea 1 ya empezó a caer o ya cayó
+  titanicFunnel1Fallen = computed(() => this.titanicProgress() >= 0.38);
+
+  // Rayo ligero eléctrico en el punto exacto de ruptura cuando se desprende la chimenea
+  titanicFunnelRuptureLightning = computed(() => {
+    const p = this.titanicProgress();
+    return p >= 0.38 && p <= 0.415;
+  });
+
+  // Rayo azul eléctrico en el punto exacto de choque cuando la punta de la chimenea toca el agua
+  titanicFunnelWaterImpactLightning = computed(() => {
+    const p = this.titanicProgress();
+    return p >= 0.425 && p <= 0.465;
+  });
+
+
 
   // Transformación de la Popa (Stern) - Se alza a 90°, flota un instante, y se hunde bajo el mar
   titanicSternTransform = computed(() => {
@@ -242,15 +294,14 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   });
 
-  // Difuminado de la Popa - Se sumerge y desaparece por completo bajo el mar al terminar el tiempo (00:00)
+  // Difuminado de la Popa - Se mantiene 100% sólida e intacta mientras entra al agua
+  // Solo se difumina suavemente en el lecho marino cuando ya está en las profundidades abisales cerca del final (00:00)
   titanicSternOpacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.5) return 1;
-    const norm = (p - 0.5) / 0.5;
-    // Se mantiene sólida mientras entra al agua, y entre el 70% y 100% de la fase 2
-    // se difumina hacia 0.0 desapareciendo en el fondo del mar exactamente al llegar a 00:00
-    if (norm < 0.70) return 1;
-    return Math.max(0, 1 - ((norm - 0.70) / 0.30));
+    if (p < 0.85) return 1;
+    // Difuminado gradual en las profundidades del lecho marino entre el 85% y 100% (00:00)
+    const norm = (p - 0.85) / 0.15;
+    return Math.max(0, 1 - norm);
   });
 
     // Estado de las luces del Titanic: 'on' (encendidas) | 'flicker' (parpadeo eléctrico al partirse) | 'off' (apagón total)
@@ -262,6 +313,12 @@ export class Enfoque implements OnInit, OnDestroy {
   });
 
   titanicIsSplit = computed(() => this.titanicProgress() >= 0.5);
+
+  // Rayos y chispas de la fractura: activos solo mientras se parte en superficie y se apagan al sumergirse ambas partes
+  titanicShowBreakSparks = computed(() => {
+    const p = this.titanicProgress();
+    return p >= 0.50 && p < 0.65;
+  });
 
 
   // Opciones de sonido para evitar errores de tipado estricto en plantillas Angular
