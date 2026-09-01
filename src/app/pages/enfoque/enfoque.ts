@@ -179,6 +179,42 @@ export class Enfoque implements OnInit, OnDestroy {
     return ['off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[];
   });
 
+  // Información de color y fondo de la cuenta regresiva según el tema visual activo (samurai, cyberpunk, aurora, zen)
+  countdownThemeInfo = computed(() => {
+    const theme = this.membership.selectedTheme();
+    switch (theme) {
+      case 'cyberpunk':
+        return {
+          bg: 'radial-gradient(circle at 50% 0%, #201026 0%, #0b0b14 80%)',
+          accent: '#ff5376',
+          glow: 'rgba(255, 83, 118, 0.55)',
+          name: 'Cyberpunk'
+        };
+      case 'aurora':
+        return {
+          bg: 'radial-gradient(circle at 50% 0%, #141b35 0%, #0b0f19 80%)',
+          accent: '#5e62f5',
+          glow: 'rgba(94, 98, 245, 0.55)',
+          name: 'Aurora'
+        };
+      case 'zen':
+        return {
+          bg: 'radial-gradient(circle at 50% 0%, #0f241a 0%, #0c0f0d 80%)',
+          accent: '#5c8f75',
+          glow: 'rgba(92, 143, 117, 0.55)',
+          name: 'Zen'
+        };
+      case 'samurai':
+      default:
+        return {
+          bg: 'radial-gradient(circle at 50% 0%, #0c1630 0%, #050811 80%)',
+          accent: '#00f2fe',
+          glow: 'rgba(0, 242, 254, 0.55)',
+          name: 'Samurai'
+        };
+    }
+  });
+
 
   // ==================== CINEMÁTICA Y FÍSICAS DE EL FARO EN EL ACANTILADO ====================
   lighthouseProgress = computed(() => {
@@ -246,6 +282,131 @@ export class Enfoque implements OnInit, OnDestroy {
     return Math.min(1.0, (p - 0.82) / 0.18);
   });
 
+
+  // ==================== CINEMÁTICA Y FÍSICAS DEL AVIÓN EN ATERRIZAJE (RUNWAY APPROACH) ====================
+  airplaneProgress = computed(() => {
+    return Math.min(1, Math.max(0, 1 - this.timePercentage()));
+  });
+
+  // Fase de vuelo del avión: 'cruise' | 'descent' | 'approach' | 'flare' | 'rollout'
+  airplaneFlightPhase = computed<'cruise' | 'descent' | 'approach' | 'flare' | 'rollout'>(() => {
+    const p = this.airplaneProgress();
+    if (p < 0.30) return 'cruise';
+    if (p < 0.65) return 'descent';
+    if (p < 0.88) return 'approach';
+    if (p < 0.94) return 'flare';
+    return 'rollout';
+  });
+
+  // Altitud aeronáutica simulada (de FL380 a 0 FT)
+  airplaneAltitudeText = computed(() => {
+    const p = this.airplaneProgress();
+    if (p < 0.30) {
+      const alt = Math.round(38000 - (p / 0.30) * 8000);
+      return `FL${Math.round(alt / 100)}`;
+    }
+    if (p < 0.88) {
+      const norm = (p - 0.30) / 0.58;
+      const alt = Math.round(30000 - (norm * 28500));
+      return `${alt.toLocaleString()} FT`;
+    }
+    if (p < 0.94) {
+      const norm = (p - 0.88) / 0.06;
+      const alt = Math.round(1500 - (norm * 1450));
+      return `${alt} FT`;
+    }
+    return '0 FT (GND)';
+  });
+
+  // Desplazamiento y ángulo de planeo del avión (Glide Slope continuo)
+  airplaneTransform = computed(() => {
+    const p = this.airplaneProgress();
+    const startX = 860;
+    const startY = 65;
+    const groundY = 244;
+
+    if (this.arenaState() === 'setup') {
+      return `translate(${startX}px, ${startY}px) rotate(-0.5deg) scale(0.85)`;
+    }
+
+    if (p < 0.30) {
+      // Fase 1: Vuelo de crucero en altitud alta
+      const t = p / 0.30;
+      const x = startX - (t * 260); // 860 -> 600
+      const y = startY + (t * 15);   // 65 -> 80
+      const pitch = -1.0;
+      const scale = 0.85 + (t * 0.15); // 0.85x -> 1.00x
+      return `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${pitch.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+    } else if (p < 0.88) {
+      // Fase 2: Senda de planeo y descenso diagonal hacia la pista (Glide Slope 3°)
+      const t = (p - 0.30) / 0.58;
+      const x = 600 - (t * 400); // 600 -> 200
+      const y = 80 + (t * 155);   // 80 -> 235
+      const pitch = -3.5; // Pitch down en senda de planeo
+      const scale = 1.00 + (t * 0.40); // 1.00x -> 1.40x
+      return `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${pitch.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+    } else if (p < 0.94) {
+      // Fase 3: Nivelación y Flare (Eleva el morro para toma con tren principal)
+      const t = (p - 0.88) / 0.06;
+      const x = 200 - (t * 60); // 200 -> 140
+      const y = 235 + (t * 9);   // 235 -> 244
+      const pitch = -3.5 + (t * 6.5); // -3.5° -> +3.0° (Flare de aterrizaje)
+      const scale = 1.40 + (t * 0.10); // 1.40x -> 1.50x
+      return `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${pitch.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+    } else {
+      // Fase 4: Carrera de frenado sobre la pista (Rollout, reversas y desaceleración)
+      const t = (p - 0.94) / 0.06;
+      const x = 140 - (t * 190); // 140 -> -50
+      const y = groundY;
+      const pitch = 3.0 - (t * 3.0); // +3.0° -> 0.0° (Apoya tren delantero)
+      const scale = 1.50;
+      return `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${pitch.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+    }
+  });
+
+  // Despliegue del tren de aterrizaje (baja entre p=0.45 y p=0.60)
+  airplaneGearDeployed = computed(() => {
+    const p = this.airplaneProgress();
+    if (p < 0.45) return 0.0;
+    if (p >= 0.60) return 1.0;
+    return (p - 0.45) / 0.15;
+  });
+
+  // Focos de aterrizaje frontales encendidos en aproximación final (p >= 0.38 y se apagan al frenar p >= 0.98 o summary)
+  airplaneLandingLightsOpacity = computed(() => {
+    if (this.arenaState() === 'summary') return 0.0;
+    const p = this.airplaneProgress();
+    if (p < 0.38) return 0.0;
+    if (p >= 0.98) {
+      const norm = (p - 0.98) / 0.02;
+      return Math.max(0.0, 1.0 - norm);
+    }
+    if (p < 0.48) {
+      return (p - 0.38) / 0.10;
+    }
+    return 1.0;
+  });
+
+  // Humo y chispas de toma de contacto en ruedas (Touchdown tire smoke puff entre p=0.93 y p=0.96)
+  airplaneTouchdownSmoke = computed(() => {
+    const p = this.airplaneProgress();
+    return p >= 0.93 && p <= 0.97;
+  });
+
+  // Spoilers e inversores de empuje activos durante el frenado (p >= 0.94)
+  airplaneReversesActive = computed(() => {
+    const p = this.airplaneProgress();
+    return p >= 0.94 && p < 0.99;
+  });
+
+  // Luces de la cabina y navegación del avión (se apagan suavemente al llegar a destino en summary o p >= 0.99)
+  airplaneCabinLightsOpacity = computed(() => {
+    if (this.arenaState() === 'summary') return 0.0;
+    const p = this.airplaneProgress();
+    if (p < 0.98) return 1.0;
+    const norm = (p - 0.98) / 0.02;
+    return Math.max(0.0, 1.0 - norm);
+  });
 
   // ==================== CINEMÁTICA Y FÍSICAS DEL TITANIC ====================
   titanicProgress = computed(() => {
@@ -437,8 +598,8 @@ export class Enfoque implements OnInit, OnDestroy {
   private onActivityFn = () => this.onUserActivity();
   private onMouseLeaveFn = () => this.onMouseLeaveWindow();
 
-  // Estilo del Temporizador (Clásico vs Fuego Premium vs Órbita Solar vs Titanic vs El Faro)
-  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic' | 'lighthouse'>(
+  // Estilo del Temporizador (Clásico vs Fuego Premium vs Órbita Solar vs Titanic vs El Faro vs Avión en Pista)
+  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic' | 'lighthouse' | 'airplane'>(
     (localStorage.getItem('focus-timer-style') as any) || 'digital'
   );
 
@@ -1575,10 +1736,107 @@ export class Enfoque implements OnInit, OnDestroy {
     return '';
   }
 
-  // Setter del estilo de cronómetro Zen (con verificación Premium)
-  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic' | 'lighthouse') {
-    if ((style === 'fire' || style === 'hourglass' || style === 'ice' || style === 'battery') && !this.membership.isPremium()) {
-      this.showPaywallModal.set(true);
+  // Información de nivel de complejidad y monetización del estilo de cronómetro
+  getTimerStyleTier(style: string): { label: string; class: string; icon: string; color: string; bg: string; type: 'free' | 'coins' | 'premium' } {
+    switch (style) {
+      // 🪙 MONEDAS (1,000 Monedas Especiales)
+      case 'titanic':
+      case 'moon':
+        return { label: '1,000', class: 'tier-coins-1000', icon: 'fa-coins', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.18)', type: 'coins' };
+
+      // 🪙 MONEDAS (100 Monedas)
+      case 'fire':
+      case 'hourglass':
+      case 'ice':
+      case 'battery':
+        return { label: '100', class: 'tier-coins', icon: 'fa-coins', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)', type: 'coins' };
+
+      // 👑 PREMIUM (Corona)
+      case 'lighthouse':
+      case 'airplane':
+      case 'solar':
+      case 'satellite':
+        return { label: 'PREMIUM', class: 'tier-premium', icon: 'fa-crown', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', type: 'premium' };
+
+      // 🔓 GRATIS (Esenciales y Minimalistas)
+      case 'digital':
+      case 'ring':
+      case 'line':
+      default:
+        return { label: 'GRATIS', class: 'tier-free', icon: 'fa-lock-open', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.12)', type: 'free' };
+    }
+  }
+
+  // Verificación si un estilo está bloqueado por monedas o membresía
+  isTimerStyleLocked(style: string): boolean {
+    if (style === 'digital' || style === 'ring' || style === 'line') {
+      return false;
+    }
+    const tier = this.getTimerStyleTier(style);
+    if (tier.type === 'coins') {
+      return !this.membership.unlockedTimers().includes(style);
+    }
+    if (tier.type === 'premium') {
+      return !this.membership.isPremium();
+    }
+    return false;
+  }
+
+  // Estado del modal de desbloqueo con monedas
+  coinTimerToUnlock = signal<{ id: string; name: string; cost: number } | null>(null);
+
+  confirmUnlockWithCoins() {
+    const item = this.coinTimerToUnlock();
+    if (!item) return;
+    if (this.membership.proCoins() >= item.cost) {
+      this.membership.unlockTimerWithCoins(item.id, item.cost);
+      this.setTimerStyle(item.id as any);
+      this.coinTimerToUnlock.set(null);
+      this.partnerNotificationMessage.set(`¡${item.name} desbloqueado exitosamente!`);
+      this.partnerNotificationType.set('success');
+      this.showPartnerNotification.set(true);
+      setTimeout(() => this.showPartnerNotification.set(false), 3500);
+    }
+  }
+
+  closeCoinUnlockModal() {
+    this.coinTimerToUnlock.set(null);
+  }
+
+  goToMembership() {
+    this.showPaywallModal.set(false);
+    this.router.navigate(['/membresia']);
+  }
+
+  // Setter del estilo de cronómetro Zen (con verificación de Monedas o Premium)
+  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic' | 'lighthouse' | 'airplane') {
+    if (this.isTimerStyleLocked(style)) {
+      const tier = this.getTimerStyleTier(style);
+      if (tier.type === 'premium') {
+        this.showPaywallModal.set(true);
+      } else if (tier.type === 'coins') {
+        const names: Record<string, string> = {
+          fire: 'Fogata Sagrada',
+          hourglass: 'Reloj de Arena',
+          ice: 'Cubo de Hielo',
+          battery: 'Batería de Energía',
+          moon: 'Órbita Lunar',
+          titanic: 'Titanic Legendario'
+        };
+        const costs: Record<string, number> = {
+          fire: 100,
+          hourglass: 100,
+          ice: 100,
+          battery: 100,
+          moon: 1000,
+          titanic: 1000
+        };
+        this.coinTimerToUnlock.set({
+          id: style,
+          name: names[style] || 'Estilo de Reloj',
+          cost: costs[style] || 100
+        });
+      }
       return;
     }
     this.timerStyle.set(style);

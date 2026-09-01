@@ -3,14 +3,25 @@
 
     <app-navbar></app-navbar>
 
-    <!-- Fondo de Pantalla Zen Dinámico (Fijo detrás de la interfaz para evitar cortes y scrolls) -->
-    <div *ngIf="useFairyBackground()"
+    <!-- Fondo de Pantalla Zen Dinámico (Imágenes) - Se oculta completamente durante la cuenta regresiva -->
+    <div *ngIf="useFairyBackground() && arenaState() !== 'countdown' && timerStyle() !== 'airplane' && timerStyle() !== 'lighthouse' && timerStyle() !== 'titanic'"
          class="zen-bg-container"
          [class.bg-forest-campfire]="activeBackground() === 'forest_campfire'"
          [class.bg-space-cosmos]="activeBackground() === 'lofi_space_cosmos'"
          [class.bg-titanic-midnight]="activeBackground() === 'lofi_titanic_ocean'"
          [class.bg-lighthouse-night]="activeBackground() === 'lofi_lighthouse_ocean'"
          [style.backgroundImage]="activeBackground() === 'lofi_space_cosmos' ? 'linear-gradient(rgba(5, 5, 10, 0.12), rgba(5, 5, 10, 0.28)), url(\'' + backgroundUrl() + '\')' : 'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\')'">
+    </div>
+
+    <!-- Fondo Unificado del Color del Tema para Cuenta Regresiva (Color del Tema, Sin Imagen) -->
+    <div *ngIf="arenaState() === 'countdown'"
+         class="countdown-theme-backdrop"
+         [style.background]="countdownThemeInfo().bg"
+         style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; transition: background 0.5s ease;">
+      <!-- Halo de atmósfera central sutil del tema -->
+      <div [style.background]="countdownThemeInfo().accent"
+           style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; height: 450px; border-radius: 50%; filter: blur(120px); opacity: 0.18; pointer-events: none;">
+      </div>
     </div>
 
     <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
@@ -306,15 +317,17 @@
           <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
           <!-- Cabecera de Estado Sutil -->
-          <div *ngIf="arenaState() !== 'setup' && (arenaState() === 'countdown' || emergencyPauseActive() || isBreak())" class="hide-on-inactive" style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; margin-bottom: -8px;">
-            <span style="font-size: var(--state-label-size); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2px;"
-                  [style.color]="arenaState() === 'active' ? 'var(--accent)' : 'var(--muted)'">
-              {{ arenaState() === 'countdown' ? 'Preparando Mente' : (emergencyPauseActive() ? 'Enfoque Interrumpido' : (isBreak() ? 'Descanso Zen' : '')) }}
+          <div *ngIf="arenaState() !== 'setup' && (arenaState() === 'countdown' || emergencyPauseActive() || isBreak())" 
+               class="hide-on-inactive" 
+               style="display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 12; margin-bottom: -8px;">
+            <span style="font-size: var(--state-label-size); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 2.5px;"
+                  [style.color]="arenaState() === 'countdown' ? countdownThemeInfo().accent : (arenaState() === 'active' ? 'var(--accent)' : 'var(--muted)')">
+              {{ arenaState() === 'countdown' ? 'Es Hora de Avanzar' : (emergencyPauseActive() ? 'Enfoque Interrumpido' : (isBreak() ? 'Descanso Zen' : '')) }}
             </span>
           </div>
 
           <!-- Reloj Digital / Fuego Premium Contenedor -->
-          <div class="zen-timer" [class.has-fire]="timerStyle() === 'fire'" style="z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 16px;">
+          <div class="zen-timer" [class.has-fire]="timerStyle() === 'fire'" style="z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 16px;">
             
             <!-- Indicador sutil de arrastre de fogata (Desaparece tras unos segundos) -->
             <div *ngIf="showCampfireDragTooltip() && arenaState() === 'setup' && timerStyle() === 'fire'"
@@ -323,34 +336,36 @@
               <span>Puedes arrastrar la fogata a cualquier zona para que combine con tu fondo</span>
             </div>
             
-             <!-- CASO 1: Dígitos Clásicos (O conteo 3-2-1 en modo fuego) -->
+             <!-- CASO 1: Dígitos Clásicos y Cuenta Regresiva Universal -->
              <ng-container *ngIf="timerStyle() === 'digital' || arenaState() === 'countdown' || emergencyPauseActive()">
-               <!-- CASO 1.1: SETUP -->
-               <span *ngIf="arenaState() === 'setup' && timerStyle() === 'digital'"
-                     style="font-size: var(--timer-font-size); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                 {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
-               </span>
+                <!-- CASO 1.1: SETUP -->
+                <span *ngIf="arenaState() === 'setup' && timerStyle() === 'digital'"
+                      style="font-size: var(--timer-font-size); font-weight: 900; color: var(--text); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                  {{ focusDuration() < 10 ? '0' + focusDuration() : focusDuration() }}:00
+                </span>
 
-               <!-- CASO 1.2: COUNTDOWN -->
-               <span *ngIf="arenaState() === 'countdown'"
-                     class="countdown-pulse"
-                     style="font-size: var(--timer-font-size); font-weight: 900; color: var(--accent); font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 0 25px rgba(99, 102, 241, 0.4);">
-                 00:0{{ countdownValue() }}
-               </span>
+                <!-- CASO 1.2: COUNTDOWN (UNIFICADO PARA TODOS LOS TEMAS CON SU COLOR) -->
+                <span *ngIf="arenaState() === 'countdown'"
+                      class="countdown-pulse"
+                      [style.color]="countdownThemeInfo().accent"
+                      [style.textShadow]="'0 0 35px ' + countdownThemeInfo().glow"
+                      style="font-size: var(--timer-font-size); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; z-index: 12;">
+                  00:0{{ countdownValue() }}
+                </span>
 
-               <!-- CASO 1.3: ACTIVE -->
-               <span *ngIf="arenaState() === 'active' && (timerStyle() === 'digital' || emergencyPauseActive())"
-                     style="font-size: var(--timer-font-size); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
-                     [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
-                 {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
-               </span>
+                <!-- CASO 1.3: ACTIVE -->
+                <span *ngIf="arenaState() === 'active' && (timerStyle() === 'digital' || emergencyPauseActive())"
+                      style="font-size: var(--timer-font-size); font-weight: 900; font-family: 'Space Grotesk', monospace; letter-spacing: -3px; line-height: 1; text-shadow: 0 10px 30px rgba(0,0,0,0.5);"
+                      [style.color]="emergencyPauseActive() ? 'var(--red)' : 'var(--text)'">
+                  {{ emergencyPauseActive() ? emergencyTimeString() : timeString() }}
+                </span>
 
-               <!-- Texto de Advertencia de Interrupción -->
-               <div *ngIf="emergencyPauseActive()"
-                    style="margin-top: 14px; font-size: 11.5px; color: var(--red); font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px; animation: buttonGlowPulse 2s infinite ease-in-out;">
-                 ¡Regresa a tiempo o serás penalizado!
-               </div>
-             </ng-container>
+                <!-- Texto de Advertencia de Interrupción -->
+                <div *ngIf="emergencyPauseActive()"
+                     style="margin-top: 14px; font-size: 11.5px; color: var(--red); font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px; animation: buttonGlowPulse 2s infinite ease-in-out;">
+                  ¡Regresa a tiempo o serás penalizado!
+                </div>
+              </ng-container>
 
             <!-- CASO 2: Fuego Sagrado (Premium) -->
             <ng-container *ngIf="timerStyle() === 'fire'">
@@ -3444,10 +3459,443 @@
               </ng-container>
 
 
+              <!-- CASO 13: Avión en Aproximación y Aterrizaje en Pista (Runway Approach) -->
+              <ng-container *ngIf="timerStyle() === 'airplane'">
+                <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                     class="airplane-runway-container"
+                     style="position: relative; width: 440px; height: 360px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible; z-index: 1; pointer-events: none;">
+                  
+                  <!-- SVG Cinemático del Aterrizaje en Pista (Lienzo 460x320) -->
+                  <svg viewBox="0 0 460 320" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                    <defs>
+                      <!-- Filtros de iluminación aeronáutica -->
+                      <filter id="airplaneStrobeGlow" x="-60%" y="-60%" width="220%" height="220%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                      <filter id="airplaneLandingLightBeamFilter" x="-40%" y="-80%" width="180%" height="260%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="5.5" result="wide" />
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="sharp" />
+                        <feMerge>
+                          <feMergeNode in="wide" />
+                          <feMergeNode in="sharp" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                      <filter id="runwayLightsDiffusion" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" />
+                      </filter>
+
+                      <!-- Gradientes de cielo crepuscular y pista -->
+                      <linearGradient id="airplaneSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#020617" />
+                        <stop offset="40%" stop-color="#071739" />
+                        <stop offset="75%" stop-color="#0f2b48" />
+                        <stop offset="90%" stop-color="#1e3a5f" />
+                        <stop offset="100%" stop-color="#2d3748" />
+                      </linearGradient>
+                      
+                      <linearGradient id="runwayAsphaltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#0b1120" />
+                        <stop offset="15%" stop-color="#0f172a" />
+                        <stop offset="100%" stop-color="#020617" />
+                      </linearGradient>
+
+                      <linearGradient id="airplaneFuselageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#f8fafc" />
+                        <stop offset="45%" stop-color="#e2e8f0" />
+                        <stop offset="85%" stop-color="#94a3b8" />
+                        <stop offset="100%" stop-color="#334155" />
+                      </linearGradient>
+
+                      <linearGradient id="airplaneTurbineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#64748b" />
+                        <stop offset="50%" stop-color="#334155" />
+                        <stop offset="100%" stop-color="#0f172a" />
+                      </linearGradient>
+
+                      <!-- Haz de foco de aterrizaje -->
+                      <linearGradient id="landingBeamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                        <stop offset="25%" stop-color="#fef08a" stop-opacity="0.65" />
+                        <stop offset="70%" stop-color="#fde047" stop-opacity="0.2" />
+                        <stop offset="100%" stop-color="#fde047" stop-opacity="0" />
+                      </linearGradient>
+
+                      <!-- Gradientes de líneas aerodinámicas de viento (Speed Streaks) -->
+                      <linearGradient id="speedStreakGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0" />
+                        <stop offset="25%" stop-color="#38bdf8" stop-opacity="0.8" />
+                        <stop offset="75%" stop-color="#ffffff" stop-opacity="0.95" />
+                        <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+                      </linearGradient>
+
+                      <linearGradient id="speedStreakCyanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#818cf8" stop-opacity="0" />
+                        <stop offset="40%" stop-color="#38bdf8" stop-opacity="0.85" />
+                        <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+                      </linearGradient>
+                    </defs>
+
+                    <!-- ==================== CIELO EXTENDIDO ==================== -->
+                    <rect x="-1400" y="-800" width="3260" height="1050" fill="url(#airplaneSkyGrad)" />
+
+                    <!-- Capas de nubes dinámicas en movimiento horizontal (Parallax Drift) -->
+                    <g class="airplane-clouds-layer-slow" opacity="0.35">
+                      <ellipse cx="750" cy="45" rx="140" ry="16" fill="#1e293b" />
+                      <ellipse cx="380" cy="85" rx="180" ry="22" fill="#1e293b" />
+                      <ellipse cx="-50" cy="60" rx="160" ry="18" fill="#1e293b" />
+                      <ellipse cx="-480" cy="95" rx="200" ry="24" fill="#1e293b" />
+                    </g>
+                    <g class="airplane-clouds-layer-fast" opacity="0.45">
+                      <ellipse cx="620" cy="75" rx="95" ry="12" fill="#334155" />
+                      <ellipse cx="180" cy="110" rx="120" ry="15" fill="#334155" />
+                      <ellipse cx="-280" cy="80" rx="110" ry="14" fill="#334155" />
+                    </g>
+
+                    <!-- Líneas de velocidad y corrientes de viento aéreo (Aerodynamic Speed Streaks) -->
+                    <g class="airplane-speed-streaks" opacity="0.75">
+                      <line x1="0" y1="32" x2="160" y2="32" stroke="url(#speedStreakGrad)" stroke-width="1.2" stroke-linecap="round" class="speed-line-fast-1" />
+                      <line x1="0" y1="62" x2="240" y2="62" stroke="url(#speedStreakCyanGrad)" stroke-width="1.6" stroke-linecap="round" class="speed-line-fast-2" />
+                      <line x1="0" y1="88" x2="180" y2="88" stroke="url(#speedStreakGrad)" stroke-width="1.1" stroke-linecap="round" class="speed-line-fast-3" />
+                      <line x1="0" y1="118" x2="280" y2="118" stroke="url(#speedStreakCyanGrad)" stroke-width="1.8" stroke-linecap="round" class="speed-line-fast-4" />
+                      <line x1="0" y1="145" x2="210" y2="145" stroke="url(#speedStreakGrad)" stroke-width="1.3" stroke-linecap="round" class="speed-line-fast-5" />
+                      <line x1="0" y1="175" x2="250" y2="175" stroke="url(#speedStreakCyanGrad)" stroke-width="1.5" stroke-linecap="round" class="speed-line-fast-6" />
+                      <line x1="0" y1="48" x2="130" y2="48" stroke="url(#speedStreakGrad)" stroke-width="0.9" stroke-linecap="round" class="speed-line-fast-7" />
+                      <line x1="0" y1="135" x2="200" y2="135" stroke="url(#speedStreakGrad)" stroke-width="1.4" stroke-linecap="round" class="speed-line-fast-8" />
+                    </g>
+
+                    <!-- Estrellas y resplandor crepuscular -->
+                    <g class="airplane-stars" opacity="0.8">
+                      <circle cx="120" cy="35" r="1.2" fill="#ffffff" class="lighthouse-star-1" />
+                      <circle cx="280" cy="48" r="1.3" fill="#fef08a" class="lighthouse-star-2" />
+                      <circle cx="480" cy="28" r="1.4" fill="#ffffff" class="lighthouse-star-3" />
+                      <circle cx="640" cy="42" r="1.1" fill="#fef08a" class="lighthouse-star-1" />
+                      <circle cx="-120" cy="30" r="1.2" fill="#ffffff" class="lighthouse-star-2" />
+                    </g>
+
+                    <!-- ==================== SUELO DEL AEROPUERTO Y PISTA DE ATERRIZAJE (Y=250) ==================== -->
+                    <!-- Terreno y Asfalto -->
+                    <rect x="-1400" y="250" width="3260" height="1400" fill="url(#runwayAsphaltGrad)" />
+                    
+                    <!-- Línea de Horizonte Terrestre y Bruma de Pista con Reflejo Dinámico -->
+                    <line x1="-1400" y1="250" x2="1860" y2="250" stroke="#1e293b" stroke-width="1.4" />
+                    <ellipse cx="100" cy="250" rx="600" ry="8" fill="rgba(56, 189, 248, 0.08)" filter="url(#runwayLightsDiffusion)" class="runway-ambient-pulse" />
+
+                    <!-- ==================== ILUMINACIÓN Y ESTRUCTURA DE LA PISTA ==================== -->
+                    <!-- 1. Sistema de Luces de Aproximación Secuenciales "The Rabbit" (ALS Sequenced Flashers) -->
+                    <g class="runway-approach-lighting" transform="translate(180, 250)">
+                      <!-- Torres con destellos secuenciales ultrarrápidos corriendo hacia la pista -->
+                      <!-- Luz 9 (más lejana x=360) -->
+                      <line x1="360" y1="0" x2="360" y2="6" stroke="#475569" stroke-width="1.2" />
+                      <circle cx="360" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-9" />
+                      <circle cx="360" cy="0" r="1.2" fill="#ffffff" />
+
+                      <!-- Luz 8 (x=315) -->
+                      <line x1="315" y1="0" x2="315" y2="6" stroke="#475569" stroke-width="1.2" />
+                      <circle cx="315" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-8" />
+                      <circle cx="315" cy="0" r="1.2" fill="#ffffff" />
+
+                      <!-- Luz 7 (x=270) -->
+                      <line x1="270" y1="0" x2="270" y2="6" stroke="#475569" stroke-width="1.2" />
+                      <circle cx="270" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-7" />
+                      <circle cx="270" cy="0" r="1.2" fill="#ffffff" />
+
+                      <!-- Luz 6 (x=225) -->
+                      <line x1="225" y1="0" x2="225" y2="6" stroke="#475569" stroke-width="1.2" />
+                      <circle cx="225" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-6" />
+                      <circle cx="225" cy="0" r="1.2" fill="#ffffff" />
+
+                      <!-- Luz 5 (x=180) -->
+                      <line x1="180" y1="0" x2="180" y2="6" stroke="#475569" stroke-width="1.2" />
+                      <circle cx="180" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-5" />
+                      <circle cx="180" cy="0" r="1.2" fill="#ffffff" />
+
+                      <!-- Luz 4 (x=135) -->
+                      <line x1="135" y1="0" x2="135" y2="6" stroke="#475569" stroke-width="1.2" />
+                      <circle cx="135" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-4" />
+                      <circle cx="135" cy="0" r="1.2" fill="#ffffff" />
+
+                      <!-- Luz 3 (x=90) -->
+                      <line x1="90" y1="0" x2="90" y2="6" stroke="#475569" stroke-width="1.2" />
+                      <circle cx="90" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-3" />
+                      <circle cx="90" cy="0" r="1.2" fill="#ffffff" />
+
+                      <!-- Luz 2 (x=45) -->
+                      <line x1="45" y1="0" x2="45" y2="6" stroke="#475569" stroke-width="1.2" />
+                      <circle cx="45" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-2" />
+                      <circle cx="45" cy="0" r="1.2" fill="#ffffff" />
+
+                      <!-- Luz 1 (x=0 en el umbral) -->
+                      <line x1="0" y1="0" x2="0" y2="6" stroke="#475569" stroke-width="1.2" />
+                      <circle cx="0" cy="0" r="3.8" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-1" />
+                      <circle cx="0" cy="0" r="1.5" fill="#ffffff" />
+                    </g>
+
+                    <!-- 2. Pista de Asfalto Iluminada (Runway Tarmac de x=-600 a x=180) -->
+                    <g class="runway-markings">
+                      <!-- Franja de borde de pista blanca -->
+                      <line x1="-600" y1="248.5" x2="180" y2="248.5" stroke="#f8fafc" stroke-width="1.6" opacity="0.9" />
+                      
+                      <!-- Luces Verdes de Umbral de Pista (Runway Threshold Lights) en x=180 -->
+                      <g transform="translate(180, 248.5)">
+                        <circle cx="0" cy="0" r="3.2" fill="#10b981" filter="url(#runwayLightsDiffusion)" class="threshold-green-pulse" />
+                        <circle cx="0" cy="0" r="1.4" fill="#ffffff" />
+                        <circle cx="0" cy="4" r="2.6" fill="#10b981" filter="url(#runwayLightsDiffusion)" class="threshold-green-pulse" />
+                      </g>
+
+                      <!-- Marcas de Umbral (Piano Keys) en x=160..130 -->
+                      <g fill="#f8fafc" opacity="0.85">
+                        <rect x="135" y="250" width="4" height="6" />
+                        <rect x="143" y="250" width="4" height="6" />
+                        <rect x="151" y="250" width="4" height="6" />
+                        <rect x="159" y="250" width="4" height="6" />
+                        <rect x="167" y="250" width="4" height="6" />
+                      </g>
+
+                      <!-- Zona de Toma de Contacto (Touchdown Zone Markings) en x=80..120 -->
+                      <g fill="#f8fafc" opacity="0.8">
+                        <rect x="95" y="250" width="16" height="3" />
+                        <rect x="115" y="250" width="16" height="3" />
+                      </g>
+
+                      <!-- Eje de Pista Discontinuo (Centerline) -->
+                      <g stroke="#f8fafc" stroke-width="1.8" stroke-dasharray="14 10" opacity="0.85">
+                        <line x1="-550" y1="251.5" x2="130" y2="251.5" />
+                      </g>
+
+                      <!-- Luces de Borde de Pista Blancas/Ámbar con destello sutil -->
+                      <g class="runway-edge-lights">
+                        <circle cx="150" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="100" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="50" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="0" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="-50" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="-100" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="-150" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="-200" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="-250" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="-300" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                      </g>
+
+                      <!-- Sistema PAPI (Precision Approach Path Indicator: 4 luces blanco/rojo en x=90) -->
+                      <g transform="translate(90, 246)">
+                        <circle cx="0" cy="0" r="2.0" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="5" cy="0" r="2.0" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="10" cy="0" r="2.0" fill="#ef4444" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="15" cy="0" r="2.0" fill="#ef4444" filter="url(#runwayLightsDiffusion)" />
+                      </g>
+                    </g>
+
+                    <!-- 3. Torre de Control del Aeropuerto y Terminal al Fondo a la Izquierda (x=-110) -->
+                    <g id="airportControlTower" transform="translate(-110, 180)">
+                      <!-- Fuste / Columna de Hormigón de la Torre -->
+                      <polygon points="-8,70 8,70 6,20 -6,20" fill="#1e293b" stroke="#0f172a" stroke-width="0.8" />
+                      <!-- Cabina de Control Acristalada Octogonal (VTC Cab) -->
+                      <polygon points="-16,20 16,20 12,8 -12,8" fill="#0369a1" stroke="#0284c7" stroke-width="0.8" />
+                      <!-- Ventanales con luz verde/ámbar de radar interior -->
+                      <polygon points="-14,18 14,18 10,10 -10,10" fill="#38bdf8" opacity="0.85" filter="url(#airplaneStrobeGlow)" />
+                      <!-- Techo y Cúpula de Radar de Superficie -->
+                      <polygon points="-14,8 14,8 10,4 -10,4" fill="#0f172a" />
+                      <!-- Antena Radar Giratoria Superior -->
+                      <line x1="0" y1="4" x2="0" y2="-4" stroke="#94a3b8" stroke-width="1.2" />
+                      <line x1="-8" y1="-4" x2="8" y2="-4" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round" class="airport-radar-spin" />
+                      <!-- Baliza Aeronáutica Rotatoria (Airport Rotating Beacon: Verde y Blanco con Haz de Barrido) -->
+                      <circle cx="0" cy="-6" r="3.5" fill="#10b981" class="airport-beacon-flash" filter="url(#airplaneStrobeGlow)" />
+                      <circle cx="0" cy="-6" r="1.4" fill="#ffffff" />
+                    </g>
+
+                    <!-- Manga de Viento Iluminada (Windsock en x=-45 con balanceo suave) -->
+                    <g transform="translate(-45, 238)" class="windsock-flutter">
+                      <line x1="0" y1="12" x2="0" y2="0" stroke="#64748b" stroke-width="1.2" />
+                      <!-- Cono Naranja con Franjas Blancas ondeando a la izquierda -->
+                      <polygon points="0,0 -16,-3 -16,3 0,4" fill="#f97316" />
+                      <polygon points="-4,-1 -8,-1.5 -8,2.5 -4,2.8" fill="#ffffff" />
+                      <polygon points="-12,-2.2 -16,-3 -16,3 -12,2" fill="#ffffff" />
+                      <circle cx="0" cy="-1" r="1.2" fill="#fde047" filter="url(#runwayLightsDiffusion)" />
+                    </g>
+
+                    <!-- ==================== EL AVIÓN COMERCIAL EN APROXIMACIÓN (JET DE PASAJEROS) ==================== -->
+                    <g [style.transform]="airplaneTransform()" style="transition: transform 1.2s linear;">
+                      <!-- Contenedor con micro-físicas aerodinámicas vivas de cabeceo, alabeo y sustentación -->
+                      <g class="airplane-flight-attitude">
+
+                        <!-- 1. Haces Volumétricos de Focos de Aterrizaje Frontales (Landing Lights hacia la pista) -->
+                        <g [style.opacity]="airplaneLandingLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                          <!-- Haz Amplio Difuminado hacia adelante/abajo (a la izquierda) -->
+                          <polygon points="-38,-2 -190,26 -190,8 -38,-6" fill="url(#landingBeamGrad)" opacity="0.55" filter="url(#airplaneLandingLightBeamFilter)" />
+                          <polygon points="-38,-2 -130,16 -130,4 -38,-5" fill="url(#landingBeamGrad)" opacity="0.85" filter="url(#airplaneStrobeGlow)" />
+                          <!-- Foco LED de Morro -->
+                          <circle cx="-38" cy="-3" r="2.6" fill="#ffffff" filter="url(#airplaneStrobeGlow)" />
+                          <!-- Focos de Raíz Alar (Wing Root Landing Lights) -->
+                          <polygon points="-4,2 -160,32 -160,16 -4,0" fill="url(#landingBeamGrad)" opacity="0.45" filter="url(#airplaneLandingLightBeamFilter)" />
+                        </g>
+
+                        <!-- 2. Estela de Calor y Gases de Escape de Turbina (Jet Exhaust Heat Shimmer) -->
+                        <g class="jet-exhaust-shimmer" transform="translate(10, 2)">
+                          <polygon points="0,-1 28,-3 28,5 0,3" fill="rgba(56, 189, 248, 0.25)" filter="url(#airplaneLandingLightBeamFilter)" />
+                          <polygon points="0,0 18,-1 18,3 0,2" fill="rgba(254, 240, 138, 0.35)" />
+                        </g>
+
+                        <!-- 3. Humo de Neumáticos en la Toma de Contacto (Touchdown Smoke Puff) -->
+                        <g *ngIf="airplaneTouchdownSmoke()" class="airplane-tire-smoke" transform="translate(6, 6)">
+                          <circle cx="0" cy="0" r="4" fill="rgba(255,255,255,0.85)" />
+                          <circle cx="6" cy="-2" r="5" fill="rgba(241,245,249,0.7)" />
+                          <circle cx="14" cy="-4" r="7" fill="rgba(203,213,225,0.5)" />
+                        </g>
+
+                        <!-- 4. TREN DE ATERRIZAJE RETRÁCTIL (Desplegable) -->
+                        <!-- Tren Delantero (Nose Landing Gear en x=-32) -->
+                        <g [style.transform]="'scaleY(' + airplaneGearDeployed() + ')'" style="transform-origin: -32px 0px; transition: transform 1s ease-out;">
+                          <line x1="-32" y1="0" x2="-32" y2="6.5" stroke="#64748b" stroke-width="1.5" />
+                          <circle cx="-32" cy="6.5" r="2.0" fill="#0f172a" stroke="#334155" stroke-width="0.6" />
+                          <circle cx="-32" cy="6.5" r="0.8" fill="#94a3b8" />
+                        </g>
+
+                        <!-- Tren Principal (Main Landing Gear en x=4) -->
+                        <g [style.transform]="'scaleY(' + airplaneGearDeployed() + ')'" style="transform-origin: 4px 2px; transition: transform 1s ease-out;">
+                          <line x1="4" y1="0" x2="4" y2="6.8" stroke="#475569" stroke-width="2.0" />
+                          <circle cx="1.5" cy="6.8" r="2.6" fill="#0f172a" stroke="#1e293b" stroke-width="0.8" />
+                          <circle cx="1.5" cy="6.8" r="0.9" fill="#94a3b8" />
+                          <circle cx="6.5" cy="6.8" r="2.6" fill="#0f172a" stroke="#1e293b" stroke-width="0.8" />
+                          <circle cx="6.5" cy="6.8" r="0.9" fill="#94a3b8" />
+                        </g>
+
+                        <!-- 5. TURBINA / MOTOR TURBOFÁN BAJO EL ALA (En x=-2, y=2) -->
+                        <g transform="translate(-2, 1)">
+                          <path d="M -14 -2 L 8 -2 Q 12 0, 10 4 L -12 4 Q -15 2, -14 -2 Z" fill="url(#airplaneTurbineGrad)" stroke="#1e293b" stroke-width="0.7" />
+                          <ellipse cx="-13" cy="1" rx="1.5" ry="3" fill="#cbd5e1" stroke="#475569" stroke-width="0.5" />
+                          <ellipse cx="-13.5" cy="1" rx="0.8" ry="2.2" fill="#0f172a" />
+                          <path d="M 8 -1 L 12 0 L 12 3 L 8 3.5 Z" fill="#475569" />
+                          <rect *ngIf="airplaneReversesActive()" x="-3" y="-1" width="5" height="5" fill="#f97316" stroke="#c2410c" stroke-width="0.5" />
+                        </g>
+
+                        <!-- 6. ALA PRINCIPAL SWEPT-WING CON FLAPS Y WINGLETS (Con Wing Flex Reactivo) -->
+                        <g class="airplane-wing-flex">
+                          <polygon points="-8,0 36,-10 32,-4 -12,2" fill="#cbd5e1" stroke="#64748b" stroke-width="0.7" />
+                          <!-- Flap desplegado en borde de fuga durante aproximación -->
+                          <polygon points="12,-4 30,-5 28,-1 10,0" fill="#94a3b8" [style.transform]="airplaneProgress() > 0.4 ? 'rotate(5deg)' : 'none'" style="transform-origin: 12px -4px;" />
+                          <!-- Winglet vertical en la punta del ala -->
+                          <polygon points="36,-10 38,-16 34,-10" fill="#0284c7" stroke="#0369a1" stroke-width="0.5" />
+                        </g>
+
+                        <!-- 7. FUSELAJE PRINCIPAL DEL AVIÓN (Cuerpo aerodinámico comercial) -->
+                        <path d="M -42 -2 Q -42 -7, -25 -8.5 L 22 -8.5 Q 38 -7, 46 -3 Q 46 1, 30 1.5 L -26 1.5 Q -42 1, -42 -2 Z" 
+                              fill="url(#airplaneFuselageGrad)" 
+                              stroke="#475569" 
+                              stroke-width="0.8" />
+
+                        <!-- Franja de Librea Aerodinámica Corporativa -->
+                        <path d="M -38 -2 L 42 -2 L 40 0 L -36 0 Z" fill="#0284c7" />
+                        <path d="M -36 0 L 40 0 L 39 1 L -34 1 Z" fill="#f59e0b" />
+
+                        <!-- Parabrisas de la Cabina de Pilotos -->
+                        <polygon points="-40,-5 -35,-7 -34,-4 -39,-3" fill="#0369a1" stroke="#0c4a6e" stroke-width="0.4" />
+                        <polygon points="-39.5,-4.8 -35.5,-6.5 -34.8,-4.2 -38.8,-3.3" fill="#7dd3fc" opacity="0.9" />
+
+                        <!-- Fila de Ventanillas de Pasajeros Iluminadas -->
+                        <g [style.opacity]="airplaneCabinLightsOpacity()" fill="#fde047" style="transition: opacity 1.5s ease-out;">
+                          <rect x="-30" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="-26" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="-22" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="-18" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="-14" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="-10" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="-6" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="-2" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="2" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="6" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="10" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="14" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                          <rect x="18" y="-5.5" width="1.8" height="2.2" rx="0.5" />
+                        </g>
+
+                        <!-- Puertas de Pasajeros y Servicio -->
+                        <rect x="-33" y="-7" width="2.2" height="7.5" rx="0.4" fill="none" stroke="#64748b" stroke-width="0.5" />
+                        <rect x="20" y="-7" width="2.2" height="7.5" rx="0.4" fill="none" stroke="#64748b" stroke-width="0.5" />
+
+                        <!-- 8. COLA / EMPENAJE TRASERO -->
+                        <polygon points="28,-8.5 44,-25 48,-25 43,-5" fill="#0284c7" stroke="#0369a1" stroke-width="0.7" />
+                        <polygon points="34,-10 44,-24 47,-24 43,-8" fill="#0369a1" />
+                        <circle cx="43" cy="-18" r="2.2" fill="#ffffff" opacity="0.9" />
+                        <polygon points="38,-4 49,-9 47,-6 38,-2" fill="#94a3b8" stroke="#64748b" stroke-width="0.5" />
+
+                        <!-- 9. SISTEMA DE LUCES AERONÁUTICAS INTERMITENTES Y DE NAVEGACIÓN -->
+                        <g [style.opacity]="airplaneCabinLightsOpacity()" style="transition: opacity 1.5s ease-out;">
+                          <!-- Baliza Anticolisión Roja en el Lomo (Red Beacon Light Flashing) -->
+                          <circle cx="-5" cy="-9" r="2.4" fill="#ef4444" class="airplane-beacon-pulse" filter="url(#airplaneStrobeGlow)" />
+                          <circle cx="-5" cy="-9" r="1.0" fill="#ffffff" />
+
+                          <!-- Baliza Anticolisión Roja en el Vientre -->
+                          <circle cx="-4" cy="2" r="2.2" fill="#ef4444" class="airplane-beacon-pulse" filter="url(#airplaneStrobeGlow)" />
+
+                          <!-- Luz Estroboscópica Blanca de Punta de Ala (Wingtip Strobe con doble flash ágil) -->
+                          <circle cx="37" cy="-15" r="3.0" fill="#ffffff" class="airplane-strobe-flash" filter="url(#airplaneStrobeGlow)" />
+
+                          <!-- Luz de Navegación Verde en Punta de Ala Derecha (Starboard Green Light) -->
+                          <circle cx="37" cy="-12" r="1.8" fill="#10b981" filter="url(#airplaneStrobeGlow)" />
+                          <circle cx="37" cy="-12" r="0.8" fill="#ffffff" />
+
+                          <!-- Luz Blanca de Cola (Tail White Nav Light) -->
+                          <circle cx="47" cy="-4" r="1.6" fill="#ffffff" filter="url(#airplaneStrobeGlow)" />
+                        </g>
+
+                      </g>
+                    </g>
+
+                    <!-- ==================== HUD / CRONÓMETRO DISCRETO AERONÁUTICO SUPERIOR ==================== -->
+                    <g class="airplane-countdown-hud" transform="translate(230, 30)" style="cursor: default; user-select: none;">
+                      <!-- Cápsula de cristal aeronáutico -->
+                      <rect x="-75" y="-14" width="150" height="28" rx="14" 
+                            fill="rgba(3, 11, 28, 0.85)" 
+                            stroke="rgba(56, 189, 248, 0.4)" 
+                            stroke-width="1.2" 
+                            filter="url(#airplaneStrobeGlow)" />
+                      <rect x="-75" y="-14" width="150" height="28" rx="14" 
+                            fill="rgba(2, 6, 23, 0.75)" 
+                            stroke="rgba(255, 255, 255, 0.18)" 
+                            stroke-width="0.8" />
+
+                      <!-- Icono de Avión o Indicador de Estado -->
+                      <circle cx="-56" cy="0" r="3.2" fill="#38bdf8" class="airplane-hud-pulse" filter="url(#airplaneStrobeGlow)" />
+                      <circle cx="-56" cy="0" r="1.5" fill="#ffffff" />
+
+                      <!-- Dígitos del Conteo Regresivo -->
+                      <text x="-16" y="5" 
+                            text-anchor="middle" 
+                            fill="#f8fafc" 
+                            font-size="14" 
+                            font-weight="700" 
+                            font-family="'Space Grotesk', monospace" 
+                            letter-spacing="1.5px"
+                            style="text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);">
+                        {{ timeString() }}
+                      </text>
+
+                      <!-- Altitud en Tiempo Real -->
+                      <text x="36" y="4.5" 
+                            text-anchor="middle" 
+                            fill="#38bdf8" 
+                            font-size="10" 
+                            font-weight="800" 
+                            font-family="'Space Grotesk', monospace" 
+                            letter-spacing="0.5px">
+                        {{ airplaneAltitudeText() }}
+                      </text>
+                    </g>
+
+                  </svg>
+                </div>
+              </ng-container>
+
+
             </div>
 
 <!-- Controles de Acción Minimalistas -->
-             <div class="hide-on-inactive action-buttons-container" style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 15px; margin-bottom: 20px;">
+             <div class="action-buttons-container" style="position: relative; z-index: 100; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 15px; margin-bottom: 20px; pointer-events: auto;">
                
                <ng-container *ngIf="arenaState() !== 'summary'">
                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
@@ -3947,7 +4395,6 @@
 
 <!-- MODAL DE CONFIGURACIÓN Y PERSONALIZACIÓN ZEN (CON MENÚ LATERAL INTERNO) -->
 <div *ngIf="showSetupSettings() && arenaState() === 'setup'" 
-     class="hide-on-inactive"
      style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 15000; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Space Grotesk', sans-serif;">
   
   <div style="background: rgba(10, 10, 12, 0.98); border: 1.5px solid var(--border); border-radius: 20px; max-width: var(--modal-width); width: 100%; height: var(--modal-height); display: flex; box-shadow: 0 30px 70px rgba(0,0,0,0.7); position: relative; overflow: hidden; animation: slideDown 0.25s ease;">
@@ -4215,7 +4662,7 @@
           
           <!-- Tema Visual Selector -->
           <div style="display: flex; flex-direction: column; gap: 8px;">
-            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tema Visual de la Arena</span>
+            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tema Visual</span>
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
               <button *ngFor="let t of themeOptions" 
                       (click)="selectThemeOption(t)"
@@ -4234,7 +4681,7 @@
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
               <i class="fa-image fa-solid" style="color: var(--accent);"></i>
-              Fondo de Pantalla Zen (Premium)
+              Fondo de Pantalla 
             </span>
             
             <!-- Aviso de Fondos Permitidos para Relojes de Órbitas -->
@@ -4276,11 +4723,6 @@
                        [style.opacity]="bg === 'off' ? '0.3' : '1'">
                   </div>
 
-                  <div *ngIf="bg !== 'off' && !membership.isPremium()"
-                       style="position: absolute; inset: 0; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; z-index: 2;">
-                    <i class="fa-solid fa-lock" style="color: var(--yellow); font-size: 11px;"></i>
-                  </div>
-
                   <div *ngIf="activeBackground() === bg"
                        style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
@@ -4307,31 +4749,26 @@
 
         </div>
 
-        <!-- CONTENIDO TABS: TIMER STYLE (GALERÍA VISUAL CON MINIATURAS PREVIEW) -->
-        <div *ngIf="settingsActiveTab() === 'timerStyle'" style="display: flex; flex-direction: column; gap: 18px;">
+        <!-- CONTENIDO TABS: TIMER STYLE (GALERÍA VISUAL CLASIFICADA POR NIVELES DE COMPLEJIDAD) -->
+        <div *ngIf="settingsActiveTab() === 'timerStyle'" style="display: flex; flex-direction: column; gap: 22px;">
 
-          <!-- Estilo del Temporizador -->
+          <!-- ==================== CATEGORÍA 1: ESENCIALES Y MINIMALISTAS ==================== -->
           <div style="display: flex; flex-direction: column; gap: 10px;">
-            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
-              <i class="fa-solid fa-hourglass-half" style="color: var(--accent);"></i>
-              Estilo del Temporizador Zen (Vista Previa)
-            </span>
+            <div style="display: flex; align-items: center; border-bottom: 1px solid rgba(148, 163, 184, 0.2); padding-bottom: 6px;">
+              <span style="font-size: 11.5px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.2px;">
+                Esenciales y Minimalistas
+              </span>
+            </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px;">
               
-              <!-- 1. Digital Clásico -->
-              <div (click)="setTimerStyle('digital')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'digital' ? 'true' : 'false'">
-                
+              <!-- 1.1 Digital Clásico -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('digital')">
                 <div class="timer-thumb-wrapper"
                      style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(30, 41, 59, 0.5) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
                      [style.borderColor]="timerStyle() === 'digital' ? 'var(--accent)' : 'var(--border)'"
                      [style.boxShadow]="timerStyle() === 'digital' ? '0 0 14px rgba(99, 102, 241, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
                   
-                  <!-- Mini SVG Digital -->
                   <svg viewBox="0 0 60 36" style="width: 75%; height: 75%;">
                     <text x="30" y="22" text-anchor="middle" fill="#00f2fe" font-size="14" font-weight="900" font-family="'Space Grotesk', monospace" letter-spacing="-0.5" style="filter: drop-shadow(0 0 4px rgba(0, 242, 254, 0.7));">25:00</text>
                   </svg>
@@ -4344,172 +4781,13 @@
                 <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'digital' ? 'var(--accent)' : 'var(--muted)'">Digital</span>
               </div>
 
-
-              <!-- 2. Fogata Sagrada -->
-              <div (click)="setTimerStyle('fire')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%; position: relative;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'fire' ? 'true' : 'false'">
-                
-                <div class="timer-thumb-wrapper"
-                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(120, 53, 15, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
-                     [style.borderColor]="timerStyle() === 'fire' ? 'var(--accent)' : 'var(--border)'"
-                     [style.boxShadow]="timerStyle() === 'fire' ? '0 0 14px rgba(245, 158, 11, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
-                  
-                  <!-- Mini SVG Fogata -->
-                  <svg viewBox="0 0 50 36" style="width: 75%; height: 75%;">
-                    <!-- Leños -->
-                    <line x1="12" y1="28" x2="38" y2="28" stroke="#78350f" stroke-width="4" stroke-linecap="round" />
-                    <line x1="16" y1="30" x2="34" y2="24" stroke="#451a03" stroke-width="3" stroke-linecap="round" />
-                    <!-- Llama Naranja y Amarilla -->
-                    <path d="M 25 7 Q 33 18, 30 25 Q 25 29, 20 25 Q 17 18, 25 7 Z" fill="#f59e0b" style="filter: drop-shadow(0 0 4px #ea580c);" />
-                    <path d="M 25 14 Q 29 20, 27 24 Q 25 27, 23 24 Q 21 20, 25 14 Z" fill="#fef08a" />
-                  </svg>
-
-                  <div *ngIf="!membership.isPremium()" 
-                       style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2;">
-                    <i class="fa-solid fa-lock" style="color: var(--yellow); font-size: 11px;"></i>
-                  </div>
-
-                  <div *ngIf="timerStyle() === 'fire'"
-                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
-                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
-                  </div>
-                </div>
-                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'fire' ? 'var(--accent)' : 'var(--muted)'">Fogata</span>
-              </div>
-
-
-              <!-- 3. Reloj de Arena -->
-              <div (click)="setTimerStyle('hourglass')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%; position: relative;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'hourglass' ? 'true' : 'false'">
-                
-                <div class="timer-thumb-wrapper"
-                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(14, 116, 144, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
-                     [style.borderColor]="timerStyle() === 'hourglass' ? 'var(--accent)' : 'var(--border)'"
-                     [style.boxShadow]="timerStyle() === 'hourglass' ? '0 0 14px rgba(0, 242, 254, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
-                  
-                  <!-- Mini SVG Reloj de Arena -->
-                  <svg viewBox="0 0 40 36" style="width: 65%; height: 65%;">
-                    <!-- Cristal -->
-                    <path d="M 10 6 L 30 6 L 22 18 L 30 30 L 10 30 L 18 18 Z" fill="rgba(255,255,255,0.06)" stroke="#38bdf8" stroke-width="1.4" stroke-linejoin="round" />
-                    <!-- Base y Tapa -->
-                    <line x1="8" y1="6" x2="32" y2="6" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
-                    <line x1="8" y1="30" x2="32" y2="30" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
-                    <!-- Arena Dorada / Cian -->
-                    <path d="M 12 8 L 28 8 L 20 17 Z" fill="#00f2fe" opacity="0.85" />
-                    <path d="M 13 29 L 27 29 L 20 23 Z" fill="#00f2fe" opacity="0.95" />
-                    <line x1="20" y1="17" x2="20" y2="23" stroke="#00f2fe" stroke-width="1" stroke-dasharray="1 1" />
-                  </svg>
-
-                  <div *ngIf="!membership.isPremium()" 
-                       style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2;">
-                    <i class="fa-solid fa-lock" style="color: var(--yellow); font-size: 11px;"></i>
-                  </div>
-
-                  <div *ngIf="timerStyle() === 'hourglass'"
-                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
-                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
-                  </div>
-                </div>
-                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'hourglass' ? 'var(--accent)' : 'var(--muted)'">Reloj Arena</span>
-              </div>
-
-
-              <!-- 4. Cubo de Hielo -->
-              <div (click)="setTimerStyle('ice')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%; position: relative;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'ice' ? 'true' : 'false'">
-                
-                <div class="timer-thumb-wrapper"
-                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(3, 105, 161, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
-                     [style.borderColor]="timerStyle() === 'ice' ? 'var(--accent)' : 'var(--border)'"
-                     [style.boxShadow]="timerStyle() === 'ice' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
-                  
-                  <!-- Mini SVG Cubo de Hielo -->
-                  <svg viewBox="0 0 40 36" style="width: 65%; height: 65%;">
-                    <!-- Cara Superior -->
-                    <polygon points="20,6 32,12 20,18 8,12" fill="#7dd3fc" opacity="0.85" />
-                    <!-- Cara Izquierda -->
-                    <polygon points="8,12 20,18 20,30 8,24" fill="#0284c7" opacity="0.9" />
-                    <!-- Cara Derecha -->
-                    <polygon points="20,18 32,12 32,24 20,30" fill="#0369a1" opacity="0.95" />
-                    <!-- Brillo de Cristal -->
-                    <line x1="20" y1="6" x2="20" y2="18" stroke="#ffffff" stroke-width="1" opacity="0.8" />
-                    <circle cx="20" cy="33" r="1.5" fill="#38bdf8" />
-                  </svg>
-
-                  <div *ngIf="!membership.isPremium()" 
-                       style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2;">
-                    <i class="fa-solid fa-lock" style="color: var(--yellow); font-size: 11px;"></i>
-                  </div>
-
-                  <div *ngIf="timerStyle() === 'ice'"
-                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
-                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
-                  </div>
-                </div>
-                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'ice' ? 'var(--accent)' : 'var(--muted)'">Cubo Hielo</span>
-              </div>
-
-
-              <!-- 5. Batería Zen -->
-              <div (click)="setTimerStyle('battery')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%; position: relative;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'battery' ? 'true' : 'false'">
-                
-                <div class="timer-thumb-wrapper"
-                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(16, 185, 129, 0.35) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
-                     [style.borderColor]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--border)'"
-                     [style.boxShadow]="timerStyle() === 'battery' ? '0 0 14px rgba(16, 185, 129, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
-                  
-                  <!-- Mini SVG Batería -->
-                  <svg viewBox="0 0 44 36" style="width: 65%; height: 65%;">
-                    <!-- Cuerpo Batería -->
-                    <rect x="6" y="9" width="28" height="18" rx="4" fill="none" stroke="#64748b" stroke-width="1.8" />
-                    <!-- Borne Terminal -->
-                    <rect x="34" y="14" width="3" height="8" rx="1" fill="#64748b" />
-                    <!-- Celdas de Energía Verde Neón -->
-                    <rect x="9" y="12" width="6" height="12" rx="1.5" fill="#00e676" style="filter: drop-shadow(0 0 2px #00e676);" />
-                    <rect x="17" y="12" width="6" height="12" rx="1.5" fill="#00e676" style="filter: drop-shadow(0 0 2px #00e676);" />
-                    <rect x="25" y="12" width="6" height="12" rx="1.5" fill="#00e676" style="filter: drop-shadow(0 0 2px #00e676);" />
-                  </svg>
-
-                  <div *ngIf="!membership.isPremium()" 
-                       style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2;">
-                    <i class="fa-solid fa-lock" style="color: var(--yellow); font-size: 11px;"></i>
-                  </div>
-
-                  <div *ngIf="timerStyle() === 'battery'"
-                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
-                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
-                  </div>
-                </div>
-                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--muted)'">Batería</span>
-              </div>
-
-
-              <!-- 6. Anillo Zen -->
-              <div (click)="setTimerStyle('ring')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'ring' ? 'true' : 'false'">
-                
+              <!-- 1.2 Anillo Zen -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('ring')">
                 <div class="timer-thumb-wrapper"
                      style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(99, 102, 241, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
                      [style.borderColor]="timerStyle() === 'ring' ? 'var(--accent)' : 'var(--border)'"
                      [style.boxShadow]="timerStyle() === 'ring' ? '0 0 14px rgba(99, 102, 241, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
                   
-                  <!-- Mini SVG Anillo -->
                   <svg viewBox="0 0 36 36" style="width: 65%; height: 65%;">
                     <circle cx="18" cy="18" r="13" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2.5" />
                     <circle cx="18" cy="18" r="13" fill="none" stroke="#6366f1" stroke-width="3" stroke-dasharray="81" stroke-dashoffset="24" stroke-linecap="round" style="filter: drop-shadow(0 0 4px #6366f1);" />
@@ -4524,20 +4802,13 @@
                 <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'ring' ? 'var(--accent)' : 'var(--muted)'">Anillo</span>
               </div>
 
-
-              <!-- 7. Línea Zen -->
-              <div (click)="setTimerStyle('line')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'line' ? 'true' : 'false'">
-                
+              <!-- 1.3 Línea Zen -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('line')">
                 <div class="timer-thumb-wrapper"
                      style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(14, 165, 233, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
                      [style.borderColor]="timerStyle() === 'line' ? 'var(--accent)' : 'var(--border)'"
                      [style.boxShadow]="timerStyle() === 'line' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
                   
-                  <!-- Mini SVG Línea -->
                   <svg viewBox="0 0 46 36" style="width: 75%; height: 75%;">
                     <text x="23" y="14" text-anchor="middle" fill="#f8fafc" font-size="9" font-weight="900" font-family="'Space Grotesk', monospace">18:45</text>
                     <line x1="6" y1="23" x2="40" y2="23" stroke="rgba(255,255,255,0.15)" stroke-width="3" stroke-linecap="round" />
@@ -4552,132 +4823,281 @@
                 <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'line' ? 'var(--accent)' : 'var(--muted)'">Línea</span>
               </div>
 
+            </div>
+          </div>
 
-              <!-- 8. Órbita Solar -->
-              <div (click)="setTimerStyle('solar')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'solar' ? 'true' : 'false'">
-                
+
+          <!-- ==================== CATEGORÍA 2: ELEMENTOS Y OBJETOS ==================== -->
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
+            <div style="display: flex; align-items: center; border-bottom: 1px solid rgba(148, 163, 184, 0.2); padding-bottom: 6px;">
+              <span style="font-size: 11.5px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.2px;">
+                Elementos y Objetos
+              </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px;">
+              
+              <!-- 2.1 Fogata -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('fire')">
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(120, 53, 15, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'fire' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'fire' ? '0 0 14px rgba(245, 158, 11, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <svg viewBox="0 0 50 36" style="width: 75%; height: 75%;">
+                    <line x1="12" y1="28" x2="38" y2="28" stroke="#78350f" stroke-width="4" stroke-linecap="round" />
+                    <line x1="16" y1="30" x2="34" y2="24" stroke="#451a03" stroke-width="3" stroke-linecap="round" />
+                    <path d="M 25 7 Q 33 18, 30 25 Q 25 29, 20 25 Q 17 18, 25 7 Z" fill="#f59e0b" style="filter: drop-shadow(0 0 4px #ea580c);" />
+                    <path d="M 25 14 Q 29 20, 27 24 Q 25 27, 23 24 Q 21 20, 25 14 Z" fill="#fef08a" />
+                  </svg>
+
+                  <!-- Badge Candado Bloqueado en esquina -->
+                  <div *ngIf="isTimerStyleLocked('fire')"
+                       style="position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(3px); border: 1.2px solid #fbbf24; display: flex; align-items: center; justify-content: center; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-lock" style="color: #fbbf24; font-size: 8.5px;"></i>
+                  </div>
+
+                  <div *ngIf="timerStyle() === 'fire'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'fire' ? 'var(--accent)' : 'var(--muted)'">Fogata</span>
+                <span [style.background]="getTimerStyleTier('fire').bg" [style.color]="getTimerStyleTier('fire').color" style="font-size: 9px; font-weight: 900; padding: 2.5px 7px; border-radius: 5px; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.4px; display: inline-flex; align-items: center; gap: 4.5px;">
+                  <i class="fa-solid fa-coins" style="font-size: 11px; color: #fbbf24; filter: drop-shadow(0 0 2px rgba(251,191,36,0.6));"></i> {{ getTimerStyleTier('fire').label }}
+                </span>
+              </div>
+
+              <!-- 2.2 Reloj de Arena -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('hourglass')">
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(14, 116, 144, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'hourglass' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'hourglass' ? '0 0 14px rgba(0, 242, 254, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <svg viewBox="0 0 40 36" style="width: 65%; height: 65%;">
+                    <path d="M 10 6 L 30 6 L 22 18 L 30 30 L 10 30 L 18 18 Z" fill="rgba(255,255,255,0.06)" stroke="#38bdf8" stroke-width="1.4" stroke-linejoin="round" />
+                    <line x1="8" y1="6" x2="32" y2="6" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
+                    <line x1="8" y1="30" x2="32" y2="30" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 12 8 L 28 8 L 20 17 Z" fill="#00f2fe" opacity="0.85" />
+                    <path d="M 13 29 L 27 29 L 20 23 Z" fill="#00f2fe" opacity="0.95" />
+                    <line x1="20" y1="17" x2="20" y2="23" stroke="#00f2fe" stroke-width="1" stroke-dasharray="1 1" />
+                  </svg>
+
+                  <!-- Badge Candado Bloqueado en esquina -->
+                  <div *ngIf="isTimerStyleLocked('hourglass')"
+                       style="position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(3px); border: 1.2px solid #fbbf24; display: flex; align-items: center; justify-content: center; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-lock" style="color: #fbbf24; font-size: 8.5px;"></i>
+                  </div>
+
+                  <div *ngIf="timerStyle() === 'hourglass'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'hourglass' ? 'var(--accent)' : 'var(--muted)'">Reloj Arena</span>
+                <span [style.background]="getTimerStyleTier('hourglass').bg" [style.color]="getTimerStyleTier('hourglass').color" style="font-size: 9px; font-weight: 900; padding: 2.5px 7px; border-radius: 5px; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.4px; display: inline-flex; align-items: center; gap: 4.5px;">
+                  <i class="fa-solid fa-coins" style="font-size: 11px; color: #fbbf24; filter: drop-shadow(0 0 2px rgba(251,191,36,0.6));"></i> {{ getTimerStyleTier('hourglass').label }}
+                </span>
+              </div>
+
+              <!-- 2.3 Cubo de Hielo -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('ice')">
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(3, 105, 161, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'ice' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'ice' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <svg viewBox="0 0 40 36" style="width: 65%; height: 65%;">
+                    <polygon points="20,6 32,12 20,18 8,12" fill="#7dd3fc" opacity="0.85" />
+                    <polygon points="8,12 20,18 20,30 8,24" fill="#0284c7" opacity="0.9" />
+                    <polygon points="20,18 32,12 32,24 20,30" fill="#0369a1" opacity="0.95" />
+                    <line x1="20" y1="6" x2="20" y2="18" stroke="#ffffff" stroke-width="1" opacity="0.8" />
+                    <circle cx="20" cy="33" r="1.5" fill="#38bdf8" />
+                  </svg>
+
+                  <!-- Badge Candado Bloqueado en esquina -->
+                  <div *ngIf="isTimerStyleLocked('ice')"
+                       style="position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(3px); border: 1.2px solid #fbbf24; display: flex; align-items: center; justify-content: center; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-lock" style="color: #fbbf24; font-size: 8.5px;"></i>
+                  </div>
+
+                  <div *ngIf="timerStyle() === 'ice'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'ice' ? 'var(--accent)' : 'var(--muted)'">Cubo Hielo</span>
+                <span [style.background]="getTimerStyleTier('ice').bg" [style.color]="getTimerStyleTier('ice').color" style="font-size: 9px; font-weight: 900; padding: 2.5px 7px; border-radius: 5px; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.4px; display: inline-flex; align-items: center; gap: 4.5px;">
+                  <i class="fa-solid fa-coins" style="font-size: 11px; color: #fbbf24; filter: drop-shadow(0 0 2px rgba(251,191,36,0.6));"></i> {{ getTimerStyleTier('ice').label }}
+                </span>
+              </div>
+
+              <!-- 2.4 Batería -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('battery')">
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(16, 185, 129, 0.35) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'battery' ? '0 0 14px rgba(16, 185, 129, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <svg viewBox="0 0 44 36" style="width: 65%; height: 65%;">
+                    <rect x="6" y="9" width="28" height="18" rx="4" fill="none" stroke="#64748b" stroke-width="1.8" />
+                    <rect x="34" y="14" width="3" height="8" rx="1" fill="#64748b" />
+                    <rect x="9" y="12" width="6" height="12" rx="1.5" fill="#00e676" style="filter: drop-shadow(0 0 2px #00e676);" />
+                    <rect x="17" y="12" width="6" height="12" rx="1.5" fill="#00e676" style="filter: drop-shadow(0 0 2px #00e676);" />
+                    <rect x="25" y="12" width="6" height="12" rx="1.5" fill="#00e676" style="filter: drop-shadow(0 0 2px #00e676);" />
+                  </svg>
+
+                  <!-- Badge Candado Bloqueado en esquina -->
+                  <div *ngIf="isTimerStyleLocked('battery')"
+                       style="position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(3px); border: 1.2px solid #fbbf24; display: flex; align-items: center; justify-content: center; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-lock" style="color: #fbbf24; font-size: 8.5px;"></i>
+                  </div>
+
+                  <div *ngIf="timerStyle() === 'battery'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--muted)'">Batería</span>
+                <span [style.background]="getTimerStyleTier('battery').bg" [style.color]="getTimerStyleTier('battery').color" style="font-size: 9px; font-weight: 900; padding: 2.5px 7px; border-radius: 5px; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.4px; display: inline-flex; align-items: center; gap: 4.5px;">
+                  <i class="fa-solid fa-coins" style="font-size: 11px; color: #fbbf24; filter: drop-shadow(0 0 2px rgba(251,191,36,0.6));"></i> {{ getTimerStyleTier('battery').label }}
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- ==================== CATEGORÍA 3: ÓRBITAS Y COSMOS ==================== -->
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
+            <div style="display: flex; align-items: center; border-bottom: 1px solid rgba(148, 163, 184, 0.2); padding-bottom: 6px;">
+              <span style="font-size: 11.5px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.2px;">
+                Órbitas y Cosmos
+              </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px;">
+              
+              <!-- 3.1 Órbita Solar -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('solar')">
                 <div class="timer-thumb-wrapper"
                      style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(234, 88, 12, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
                      [style.borderColor]="timerStyle() === 'solar' ? 'var(--accent)' : 'var(--border)'"
                      [style.boxShadow]="timerStyle() === 'solar' ? '0 0 14px rgba(251, 191, 36, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
                   
-                  <!-- Mini SVG Sol y Tierra -->
                   <svg viewBox="0 0 40 36" style="width: 70%; height: 70%;">
-                    <!-- Órbita -->
                     <circle cx="20" cy="18" r="13" fill="none" stroke="rgba(251, 191, 36, 0.25)" stroke-width="0.9" stroke-dasharray="2 2" />
-                    <!-- Sol Luminoso Central -->
                     <circle cx="20" cy="18" r="6" fill="#f59e0b" style="filter: drop-shadow(0 0 5px #fbbf24);" />
                     <circle cx="20" cy="18" r="3.5" fill="#fef08a" />
-                    <!-- Tierra en Órbita -->
                     <circle cx="33" cy="18" r="2.8" fill="#38bdf8" style="filter: drop-shadow(0 0 2px #38bdf8);" />
                   </svg>
 
+                  <!-- Badge Corona Bloqueada en esquina -->
+                  <div *ngIf="isTimerStyleLocked('solar')"
+                       style="position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(3px); border: 1.2px solid #f59e0b; display: flex; align-items: center; justify-content: center; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b; font-size: 8.5px;"></i>
+                  </div>
+
                   <div *ngIf="timerStyle() === 'solar'"
-                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;">
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
                   </div>
                 </div>
                 <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'solar' ? 'var(--accent)' : 'var(--muted)'">Órbita Solar</span>
               </div>
 
-
-              <!-- 9. Satélite Orbital -->
-              <div (click)="setTimerStyle('satellite')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'satellite' ? 'true' : 'false'">
-                
+              <!-- 3.2 Satélite Orbital -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('satellite')">
                 <div class="timer-thumb-wrapper"
                      style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(2, 132, 199, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
                      [style.borderColor]="timerStyle() === 'satellite' ? 'var(--accent)' : 'var(--border)'"
                      [style.boxShadow]="timerStyle() === 'satellite' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
                   
-                  <!-- Mini SVG Satélite y Tierra -->
                   <svg viewBox="0 0 40 36" style="width: 70%; height: 70%;">
-                    <!-- Globo Tierra -->
                     <circle cx="18" cy="18" r="9" fill="#0284c7" style="filter: drop-shadow(0 0 4px rgba(56,189,248,0.5));" />
                     <circle cx="16" cy="16" r="3" fill="#22c55e" opacity="0.8" />
-                    <!-- Órbita Elíptica -->
                     <ellipse cx="18" cy="18" rx="14" ry="7" fill="none" stroke="#38bdf8" stroke-width="0.8" stroke-dasharray="1.5 1.5" transform="rotate(-25 18 18)" />
-                    <!-- Satélite Dorado con Paneles -->
                     <g transform="translate(30, 10) rotate(-25)">
                       <rect x="-2" y="-2" width="4" height="4" fill="#fde047" />
                       <line x1="-5" y1="0" x2="5" y2="0" stroke="#38bdf8" stroke-width="1.2" />
                     </g>
                   </svg>
 
+                  <!-- Badge Corona Bloqueada en esquina -->
+                  <div *ngIf="isTimerStyleLocked('satellite')"
+                       style="position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(3px); border: 1.2px solid #f59e0b; display: flex; align-items: center; justify-content: center; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b; font-size: 8.5px;"></i>
+                  </div>
+
                   <div *ngIf="timerStyle() === 'satellite'"
-                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;">
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
                   </div>
                 </div>
                 <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'satellite' ? 'var(--accent)' : 'var(--muted)'">Satélite</span>
               </div>
 
-
-              <!-- 10. Órbita Lunar -->
-              <div (click)="setTimerStyle('moon')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'moon' ? 'true' : 'false'">
-                
+              <!-- 3.3 Órbita Lunar -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('moon')">
                 <div class="timer-thumb-wrapper"
                      style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(148, 163, 184, 0.35) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
                      [style.borderColor]="timerStyle() === 'moon' ? 'var(--accent)' : 'var(--border)'"
                      [style.boxShadow]="timerStyle() === 'moon' ? '0 0 14px rgba(241, 245, 249, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
                   
-                  <!-- Mini SVG Tierra y Luna -->
                   <svg viewBox="0 0 40 36" style="width: 70%; height: 70%;">
-                    <!-- Órbita -->
                     <circle cx="18" cy="18" r="13" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" stroke-dasharray="2 2" />
-                    <!-- Tierra -->
                     <circle cx="18" cy="18" r="8" fill="#0369a1" />
                     <path d="M 18 10 A 8 8 0 0 1 18 26 Z" fill="#020617" opacity="0.65" />
-                    <!-- Luna Detallada en Órbita -->
                     <circle cx="31" cy="18" r="3.2" fill="#e2e8f0" style="filter: drop-shadow(0 0 3px #ffffff);" />
                     <circle cx="30.5" cy="17.5" r="0.7" fill="#64748b" />
                   </svg>
 
+                  <!-- Badge Candado Bloqueado en esquina -->
+                  <div *ngIf="isTimerStyleLocked('moon')"
+                       style="position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(3px); border: 1.2px solid #fbbf24; display: flex; align-items: center; justify-content: center; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-lock" style="color: #fbbf24; font-size: 8.5px;"></i>
+                  </div>
+
                   <div *ngIf="timerStyle() === 'moon'"
-                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;">
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
                   </div>
                 </div>
                 <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'moon' ? 'var(--accent)' : 'var(--muted)'">Órbita Lunar</span>
+                <span [style.background]="getTimerStyleTier('moon').bg" [style.color]="getTimerStyleTier('moon').color" style="font-size: 9px; font-weight: 900; padding: 2.5px 7px; border-radius: 5px; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.4px; display: inline-flex; align-items: center; gap: 4.5px;">
+                  <i class="fa-solid fa-coins" style="font-size: 11px; color: #fbbf24; filter: drop-shadow(0 0 2px rgba(251,191,36,0.6));"></i> {{ getTimerStyleTier('moon').label }}
+                </span>
               </div>
 
+            </div>
+          </div>
 
-              <!-- 11. El Titanic -->
-              <div (click)="setTimerStyle('titanic')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'titanic' ? 'true' : 'false'">
-                
+
+          <!-- ==================== CATEGORÍA 4: GRANDES ESCENARIOS ==================== -->
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
+            <div style="display: flex; align-items: center; border-bottom: 1px solid rgba(148, 163, 184, 0.2); padding-bottom: 6px;">
+              <span style="font-size: 11.5px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.2px;">
+                Grandes Escenarios
+              </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px;">
+              
+              <!-- 4.1 Titanic -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('titanic')">
                 <div class="timer-thumb-wrapper"
                      style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(3, 105, 161, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
                      [style.borderColor]="timerStyle() === 'titanic' ? 'var(--accent)' : 'var(--border)'"
                      [style.boxShadow]="timerStyle() === 'titanic' ? '0 0 14px rgba(14, 165, 233, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
                   
-                  <!-- Mini SVG Titanic -->
                   <svg viewBox="0 0 54 36" style="width: 80%; height: 80%;">
-                    <!-- Océano inferior -->
                     <rect x="0" y="24" width="54" height="12" fill="#0369a1" opacity="0.9" />
                     <line x1="0" y1="24" x2="54" y2="24" stroke="#38bdf8" stroke-width="1.2" />
-                    <!-- Iceberg lateral -->
                     <polygon points="43,24 47,15 51,24" fill="#7dd3fc" opacity="0.9" />
-                    <!-- Casco del Titanic (Acero negro nocturno con quilla sumergida) -->
                     <path d="M 6 24 L 8 18 L 38 18 Q 42 19, 44 24 Z" fill="#050811" />
                     <path d="M 6 24 L 7 23 L 39 23 Q 42 23.5, 44 24 Z" fill="#7f1d1d" opacity="0.85" />
-                    <!-- Cubierta en tono lunar -->
                     <rect x="10" y="15" width="26" height="3" fill="#cbd5e1" />
-                    <!-- Chimeneas Amarillo Ocre Nocturno con Tope Negro -->
                     <rect x="14" y="11" width="3" height="6" fill="#9a3412" />
                     <rect x="14" y="11" width="3" height="2" fill="#050811" />
                     <rect x="20" y="11" width="3" height="6" fill="#9a3412" />
@@ -4688,49 +5108,86 @@
                     <rect x="32" y="11" width="3" height="2" fill="#050811" />
                   </svg>
 
+                  <!-- Badge Candado Bloqueado en esquina -->
+                  <div *ngIf="isTimerStyleLocked('titanic')"
+                       style="position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(3px); border: 1.2px solid #fbbf24; display: flex; align-items: center; justify-content: center; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-lock" style="color: #fbbf24; font-size: 8.5px;"></i>
+                  </div>
+
                   <div *ngIf="timerStyle() === 'titanic'"
-                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;">
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
                   </div>
                 </div>
                 <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'titanic' ? 'var(--accent)' : 'var(--muted)'">Titanic</span>
+                <span [style.background]="getTimerStyleTier('titanic').bg" [style.color]="getTimerStyleTier('titanic').color" style="font-size: 9px; font-weight: 900; padding: 2.5px 7px; border-radius: 5px; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.4px; display: inline-flex; align-items: center; gap: 4.5px;">
+                  <i class="fa-solid fa-coins" style="font-size: 11px; color: #fbbf24; filter: drop-shadow(0 0 2px rgba(251,191,36,0.6));"></i> {{ getTimerStyleTier('titanic').label }}
+                </span>
               </div>
 
-
-              <!-- 12. El Faro en el Acantilado -->
-              <div (click)="setTimerStyle('lighthouse')"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
-                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
-                   [attr.data-active]="timerStyle() === 'lighthouse' ? 'true' : 'false'">
-                
+              <!-- 4.2 El Faro -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('lighthouse')">
                 <div class="timer-thumb-wrapper"
                      style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(14, 165, 233, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
                      [style.borderColor]="timerStyle() === 'lighthouse' ? 'var(--accent)' : 'var(--border)'"
                      [style.boxShadow]="timerStyle() === 'lighthouse' ? '0 0 14px rgba(250, 204, 21, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
                   
-                  <!-- Mini SVG Faro -->
                   <svg viewBox="0 0 54 36" style="width: 80%; height: 80%;">
-                    <!-- Océano inferior -->
                     <rect x="0" y="24" width="54" height="12" fill="#0369a1" opacity="0.9" />
-                    <!-- Acantilado izquierdo -->
                     <polygon points="0,36 18,36 15,20 0,22" fill="#1e293b" />
-                    <!-- Faro miniatura con franjas rojas y blancas -->
                     <polygon points="8,20 9,10 13,10 14,20" fill="#ffffff" />
                     <polygon points="8.3,17 8.7,13 13.3,13 13.7,17" fill="#ef4444" />
-                    <!-- Linterna amarilla -->
                     <circle cx="11" cy="9" r="2.2" fill="#fde047" />
                     <polygon points="10,7 11,4 12,7" fill="#0d9488" />
-                    <!-- Haz de luz amarillo suave -->
                     <polygon points="11,9 54,2 54,18" fill="rgba(254, 240, 138, 0.5)" />
                   </svg>
 
+                  <!-- Badge Corona Bloqueada en esquina -->
+                  <div *ngIf="isTimerStyleLocked('lighthouse')"
+                       style="position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(3px); border: 1.2px solid #f59e0b; display: flex; align-items: center; justify-content: center; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b; font-size: 8.5px;"></i>
+                  </div>
+
                   <div *ngIf="timerStyle() === 'lighthouse'"
-                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;">
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
                   </div>
                 </div>
                 <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'lighthouse' ? 'var(--accent)' : 'var(--muted)'">El Faro</span>
+              </div>
+
+              <!-- 4.3 Aterrizaje -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('airplane')">
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(3, 105, 161, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'airplane' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'airplane' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <svg viewBox="0 0 54 36" style="width: 80%; height: 80%;">
+                    <rect x="0" y="26" width="54" height="10" fill="#0f172a" />
+                    <line x1="0" y1="26" x2="54" y2="26" stroke="#475569" stroke-width="1.0" />
+                    <line x1="10" y1="28" x2="44" y2="28" stroke="#f8fafc" stroke-width="1.2" stroke-dasharray="4 3" />
+                    <g transform="translate(24, 16) rotate(-4) scale(0.65)">
+                      <polygon points="-6,0 24,-6 20,-2 -8,1" fill="#94a3b8" />
+                      <path d="M -26 -1 Q -26 -5, -15 -6 L 14 -6 Q 24 -5, 29 -2 Q 29 1, 20 1 L -16 1 Q -26 1, -26 -1 Z" fill="#f8fafc" stroke="#475569" stroke-width="0.7" />
+                      <polygon points="18,-6 28,-18 31,-18 27,-4" fill="#0284c7" />
+                      <rect x="-4" y="1" width="10" height="4" rx="1" fill="#334155" />
+                      <polygon points="-24,-1 -50,12 -50,6 -24,-2" fill="rgba(254, 240, 138, 0.6)" />
+                    </g>
+                  </svg>
+
+                  <!-- Badge Corona Bloqueada en esquina -->
+                  <div *ngIf="isTimerStyleLocked('airplane')"
+                       style="position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(3px); border: 1.2px solid #f59e0b; display: flex; align-items: center; justify-content: center; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b; font-size: 8.5px;"></i>
+                  </div>
+
+                  <div *ngIf="timerStyle() === 'airplane'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'airplane' ? 'var(--accent)' : 'var(--muted)'">Aterrizaje</span>
               </div>
 
             </div>
@@ -4742,6 +5199,221 @@
 
     </div>
 
+  </div>
+
+  <!-- ==================== MODAL: PAYWALL PREMIUM CON CORONA (DIRECTAMENTE SOBRE AJUSTES) ==================== -->
+  <div *ngIf="showPaywallModal()" 
+       style="position: fixed; inset: 0; z-index: 999999; background: rgba(5, 8, 17, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; padding: 20px;">
+    
+    <div style="background: linear-gradient(145deg, #181308 0%, #0d0c11 100%); border: 1.5px solid rgba(245, 158, 11, 0.5); border-radius: 22px; width: 100%; max-width: 460px; padding: 32px 26px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(245, 158, 11, 0.2); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; position: relative;">
+      
+      <!-- Botón Cerrar -->
+      <button (click)="showPaywallModal.set(false)" 
+              style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.06); border: none; width: 32px; height: 32px; border-radius: 50%; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+              onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';"
+              onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#94a3b8';">
+        <i class="fa-solid fa-xmark" style="font-size: 14px;"></i>
+      </button>
+
+      <!-- Corona Neón Dorada Grande -->
+      <div style="width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.05) 70%); border: 2px solid #f59e0b; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);">
+        <i class="fa-solid fa-crown" style="font-size: 38px; color: #f59e0b; filter: drop-shadow(0 0 10px #f59e0b);"></i>
+      </div>
+
+      <!-- Título y Subtítulo -->
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 20px; padding: 4px 12px; margin: 0 auto 4px auto;">
+          <i class="fa-solid fa-sparkles" style="color: #fbbf24; font-size: 11px;"></i>
+          <span style="font-size: 10px; font-weight: 900; color: #fbbf24; text-transform: uppercase; letter-spacing: 1px;">Experiencia Definitiva</span>
+        </div>
+        <h3 style="margin: 0; font-size: 22px; font-weight: 900; color: #ffffff; letter-spacing: -0.5px;">
+          Acceso Exclusivo Premium
+        </h3>
+        <p style="margin: 0; font-size: 13.5px; color: #cbd5e1; line-height: 1.45;">
+          Desbloquea los escenarios cinematográficos más avanzados: <strong style="color: #fbbf24;">Titanic, El Faro, Aterrizaje</strong> y todas las <strong style="color: #38bdf8;">Órbitas Cósmicas</strong>.
+        </p>
+      </div>
+
+      <!-- Lista de Beneficios -->
+      <div style="width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e2e8f0; font-weight: 600;">
+          <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
+          <span>Todos los Grandes Escenarios Cinematográficos</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e2e8f0; font-weight: 600;">
+          <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
+          <span>Órbitas y Cosmos (Sol, Satélite y Luna)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e2e8f0; font-weight: 600;">
+          <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
+          <span>Fondos exclusivos de alta definición y atmósfera zen</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e2e8f0; font-weight: 600;">
+          <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
+          <span>Todos los relojes de monedas desbloqueados</span>
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+        <button (click)="goToMembership()"
+                style="width: 100%; padding: 15px; border-radius: 12px; border: none; background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #ffffff; font-size: 14.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45); transition: transform 0.2s;"
+                onmouseover="this.style.transform='scale(1.02)'"
+                onmouseout="this.style.transform='scale(1)'">
+          <i class="fa-solid fa-crown" style="color: #fff;"></i>
+          <span>Obtener Membresía Premium</span>
+        </button>
+
+        <button (click)="showPaywallModal.set(false)"
+                style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: transparent; color: #94a3b8; font-size: 13px; font-weight: 700; cursor: pointer;">
+          Quizás más tarde
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: DESBLOQUEO / ADVERTENCIA DE MONEDAS (DIRECTAMENTE SOBRE AJUSTES) ==================== -->
+  <div *ngIf="coinTimerToUnlock() as item" 
+       style="position: fixed; inset: 0; z-index: 999999; background: rgba(5, 8, 17, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; padding: 20px;">
+    
+    <div style="background: linear-gradient(145deg, #13120a 0%, #0d0c11 100%); border: 1.5px solid rgba(251, 191, 36, 0.45); border-radius: 22px; width: 100%; max-width: 440px; padding: 30px 24px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(251, 191, 36, 0.15); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; position: relative;">
+      
+      <!-- Botón Cerrar -->
+      <button (click)="closeCoinUnlockModal()" 
+              style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.06); border: none; width: 32px; height: 32px; border-radius: 50%; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+              onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';"
+              onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#94a3b8';">
+        <i class="fa-solid fa-xmark" style="font-size: 14px;"></i>
+      </button>
+
+      <!-- ================= CASO 1: TIENE SUFICIENTES MONEDAS (CONFIRMAR COMPRA) ================= -->
+      <ng-container *ngIf="membership.proCoins() >= item.cost">
+        <!-- Ícono Monedas Oro Resplandeciente -->
+        <div style="width: 72px; height: 72px; border-radius: 50%; background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, rgba(251, 191, 36, 0.05) 70%); border: 2px solid #fbbf24; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(251, 191, 36, 0.45);">
+          <i class="fa-solid fa-coins" style="font-size: 32px; color: #fbbf24; filter: drop-shadow(0 0 8px #fbbf24);"></i>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 20px; padding: 3px 12px; margin: 0 auto;">
+            <i class="fa-solid fa-unlock" style="color: #fbbf24; font-size: 10px;"></i>
+            <span style="font-size: 10px; font-weight: 900; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.8px;">Desbloqueo de Estilo</span>
+          </div>
+          <h3 style="margin: 0; font-size: 21px; font-weight: 900; color: #ffffff; letter-spacing: -0.4px;">
+            ¿Desbloquear {{ item.name }}?
+          </h3>
+          <p style="margin: 0; font-size: 13px; color: #cbd5e1; line-height: 1.45;">
+            Estás a punto de desbloquear este estilo permanente para tus sesiones de enfoque.
+          </p>
+        </div>
+
+        <!-- Tarjeta de Saldo y Costo -->
+        <div style="width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 14px; padding: 14px 18px; display: flex; flex-direction: column; gap: 9px; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #cbd5e1;">
+            <span>Costo del estilo:</span>
+            <span style="font-weight: 900; color: #fbbf24; display: flex; align-items: center; gap: 5px;">
+              <i class="fa-solid fa-coins"></i> {{ item.cost | number }} Monedas
+            </span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #cbd5e1;">
+            <span>Tus monedas disponibles:</span>
+            <span style="font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 5px;">
+              <i class="fa-solid fa-wallet" style="color: #94a3b8;"></i> {{ membership.proCoins() | number }} Monedas
+            </span>
+          </div>
+          <div style="height: 1px; background: rgba(255,255,255,0.08); margin: 2px 0;"></div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #cbd5e1;">
+            <span>Saldo restante:</span>
+            <span style="font-weight: 900; color: #10b981; display: flex; align-items: center; gap: 5px;">
+              <i class="fa-solid fa-coins"></i> {{ (membership.proCoins() - item.cost) | number }} Monedas
+            </span>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+          <button (click)="confirmUnlockWithCoins()"
+                  style="width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: #000000; font-size: 14px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(251, 191, 36, 0.45); transition: transform 0.2s;"
+                  onmouseover="this.style.transform='scale(1.02)'"
+                  onmouseout="this.style.transform='scale(1)'">
+            <i class="fa-solid fa-coins"></i>
+            <span>Confirmar Desbloqueo ({{ item.cost | number }} Monedas)</span>
+          </button>
+
+          <button (click)="closeCoinUnlockModal()"
+                  style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: transparent; color: #94a3b8; font-size: 13px; font-weight: 700; cursor: pointer;">
+            Cancelar
+          </button>
+        </div>
+      </ng-container>
+
+      <!-- ================= CASO 2: MONEDAS INSUFICIENTES (ADVERTENCIA) ================= -->
+      <ng-container *ngIf="membership.proCoins() < item.cost">
+        <!-- Ícono Advertencia Monedas -->
+        <div style="width: 72px; height: 72px; border-radius: 50%; background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.05) 70%); border: 2px solid #ef4444; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);">
+          <i class="fa-solid fa-coins" style="font-size: 30px; color: #f87171; filter: drop-shadow(0 0 6px #ef4444);"></i>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 20px; padding: 3px 12px; margin: 0 auto;">
+            <i class="fa-solid fa-triangle-exclamation" style="color: #f87171; font-size: 10px;"></i>
+            <span style="font-size: 10px; font-weight: 900; color: #f87171; text-transform: uppercase; letter-spacing: 0.8px;">Monedas Insuficientes</span>
+          </div>
+          <h3 style="margin: 0; font-size: 21px; font-weight: 900; color: #ffffff; letter-spacing: -0.4px;">
+            Te faltan monedas
+          </h3>
+          <p style="margin: 0; font-size: 13px; color: #cbd5e1; line-height: 1.45;">
+            No tienes suficientes Pro Coins para desbloquear <strong style="color: #fbbf24;">{{ item.name }}</strong>.
+          </p>
+        </div>
+
+        <!-- Tarjeta de Monedas Faltantes -->
+        <div style="width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 14px; padding: 14px 18px; display: flex; flex-direction: column; gap: 9px; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #cbd5e1;">
+            <span>Costo requerido:</span>
+            <span style="font-weight: 900; color: #fbbf24; display: flex; align-items: center; gap: 5px;">
+              <i class="fa-solid fa-coins"></i> {{ item.cost | number }} Monedas
+            </span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #cbd5e1;">
+            <span>Tus monedas actuales:</span>
+            <span style="font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 5px;">
+              <i class="fa-solid fa-wallet" style="color: #94a3b8;"></i> {{ membership.proCoins() | number }} Monedas
+            </span>
+          </div>
+          <div style="height: 1px; background: rgba(255,255,255,0.08); margin: 2px 0;"></div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #cbd5e1;">
+            <span>Te faltan:</span>
+            <span style="font-weight: 900; color: #ef4444; display: flex; align-items: center; gap: 5px;">
+              <i class="fa-solid fa-circle-minus"></i> {{ (item.cost - membership.proCoins()) | number }} Monedas
+            </span>
+          </div>
+        </div>
+
+        <!-- Tip para ganar monedas -->
+        <div style="width: 100%; background: rgba(251, 191, 36, 0.08); border: 1px dashed rgba(251, 191, 36, 0.3); border-radius: 12px; padding: 10px 14px; text-align: left;">
+          <div style="font-size: 11.5px; color: #fef08a; line-height: 1.45; display: flex; gap: 8px;">
+            <i class="fa-solid fa-lightbulb" style="color: #fbbf24; font-size: 13px; margin-top: 2px;"></i>
+            <span>
+              <strong>¿Cómo ganar más monedas?</strong><br>
+              Completa sesiones de enfoque (<span style="color:#fbbf24;">+5 o +10 monedas</span>) o termina tus objetivos del día (<span style="color:#fbbf24;">+15 monedas</span>).
+            </span>
+          </div>
+        </div>
+
+        <!-- Botón de Acción -->
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+          <button (click)="closeCoinUnlockModal()"
+                  style="width: 100%; padding: 13px; border-radius: 12px; border: none; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000000; font-size: 14px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); transition: transform 0.2s;"
+                  onmouseover="this.style.transform='scale(1.02)'"
+                  onmouseout="this.style.transform='scale(1)'">
+            <i class="fa-solid fa-check"></i>
+            <span>Entendido</span>
+          </button>
+        </div>
+      </ng-container>
+
+    </div>
   </div>
 </div>
 
@@ -5102,6 +5774,5 @@
       </div>
     </div>
 
-  </div>
+  </div> <!-- Cierre de floating-drawer -->
 
-</div>

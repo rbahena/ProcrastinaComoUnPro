@@ -125,6 +125,9 @@ export class MembershipService {
   unlockedThemes = signal<string[]>(
     getMigratedValueJSON('unlocked-themes', ['samurai'])
   );
+  unlockedTimers = signal<string[]>(
+    getMigratedValueJSON('unlocked-timers', ['digital', 'ring', 'line'])
+  );
 
   // Perfil del usuario
   userName = signal<string>(
@@ -256,6 +259,12 @@ export class MembershipService {
       const val = JSON.stringify(this.unlockedThemes());
       localStorage.setItem('procrastina-unlocked-themes', val);
       localStorage.setItem(`user:${email}:unlocked-themes`, val);
+    });
+    effect(() => {
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = JSON.stringify(this.unlockedTimers());
+      localStorage.setItem('procrastina-unlocked-timers', val);
+      localStorage.setItem(`user:${email}:unlocked-timers`, val);
     });
     effect(() => {
       const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
@@ -876,5 +885,16 @@ export class MembershipService {
       case 'loro': return 'Alado';
       default: return 'Guerrero';
     }
+  }
+
+  // Desbloquear un cronómetro con Pro Coins
+  unlockTimerWithCoins(timerId: string, cost: number = 100): boolean {
+    if (this.unlockedTimers().includes(timerId)) return true;
+    if (this.proCoins() >= cost) {
+      this.proCoins.update(c => c - cost);
+      this.unlockedTimers.update(t => [...t, timerId]);
+      return true;
+    }
+    return false;
   }
 }
