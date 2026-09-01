@@ -181,7 +181,7 @@ export class Enfoque implements OnInit, OnDestroy {
   private onMouseLeaveFn = () => this.onMouseLeaveWindow();
 
   // Estilo del Temporizador (Clásico vs Fuego Premium vs Órbita Solar)
-  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar'>(
+  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite'>(
     (localStorage.getItem('focus-timer-style') as any) || 'digital'
   );
 
@@ -1285,7 +1285,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Setter del estilo de cronómetro Zen (con verificación Premium)
-  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar') {
+  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite') {
     if ((style === 'fire' || style === 'hourglass' || style === 'ice' || style === 'battery') && !this.membership.isPremium()) {
       this.showPaywallModal.set(true);
       return;

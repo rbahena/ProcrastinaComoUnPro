@@ -2862,3 +2862,60 @@
     margin-top: 55px !important;
   }
 }
+
+/* ===== SATÉLITE ORBITAL ANIMACIONES ===== */
+.satellite-beacon-blink {
+  animation: satBeaconPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes satBeaconPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.3); filter: drop-shadow(0 0 6px #38bdf8); }
+}
+
+.satellite-signal-wave {
+  animation: satSignalEmit 2s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+  transform-origin: 0 0;
+}
+
+@keyframes satSignalEmit {
+  0% { opacity: 0.8; transform: scale(0.6); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+.satellite-solar-panel-glimmer {
+  animation: satPanelGlimmer 4s ease-in-out infinite alternate;
+}
+
+@keyframes satPanelGlimmer {
+  0% { opacity: 0.75; }
+  100% { opacity: 1; filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.6)); }
+}
+
+/* ===== TIERRA ULTRA DETALLADA ANIMACIONES ===== */
+.earth-clouds-drift-fast {
+  animation: earthCloudsDriftFast 16s linear infinite;
+}
+
+@keyframes earthCloudsDriftFast {
+  0% { transform: translateX(0px); }
+  100% { transform: translateX(-160px); }
+}
+
+.earth-clouds-shadow-drift {
+  animation: earthCloudsShadowDrift 16s linear infinite;
+}
+
+@keyframes earthCloudsShadowDrift {
+  0% { transform: translateX(2px) translateY(2px); }
+  100% { transform: translateX(-158px) translateY(2px); }
+}
+
+.earth-city-lights-twinkle {
+  animation: earthCityTwinkle 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes earthCityTwinkle {
+  0% { opacity: 0.75; filter: drop-shadow(0 0 1px #fde047); }
+  100% { opacity: 1; filter: drop-shadow(0 0 3.5px #fde047); }
+}
