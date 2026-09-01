@@ -137,11 +137,11 @@ export class Enfoque implements OnInit, OnDestroy {
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
-  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire'>(
-    (localStorage.getItem('focus-active-bg') as any) || 'off'
+  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos'>(
+    (localStorage.getItem('focus-active-bg') as any) || 'lofi_space_cosmos'
   );
-  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire')[] = [
-    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire'
+  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos')[] = [
+    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos'
   ];
   backgroundUrl = computed(() => {
     const bg = this.activeBackground();
@@ -150,6 +150,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_moons') return 'assets/images/lofi_moons.webp';
     if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain_custom.jpg';
     if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
+    if (bg === 'lofi_space_cosmos') return 'assets/images/lofi_space_cosmos.jpg';
     return '';
   });
   useFairyBackground = computed(() => this.activeBackground() !== 'off');
@@ -179,8 +180,8 @@ export class Enfoque implements OnInit, OnDestroy {
   private onActivityFn = () => this.onUserActivity();
   private onMouseLeaveFn = () => this.onMouseLeaveWindow();
 
-  // Estilo del Temporizador (Clásico vs Fuego Premium)
-  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line'>(
+  // Estilo del Temporizador (Clásico vs Fuego Premium vs Órbita Solar)
+  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar'>(
     (localStorage.getItem('focus-timer-style') as any) || 'digital'
   );
 
@@ -1258,7 +1259,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Setter de fondo de pantalla Zen
-  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire') {
+  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos') {
     this.activeBackground.set(bg);
     localStorage.setItem('focus-active-bg', bg);
 
@@ -1279,11 +1280,12 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_moons') return 'assets/images/lofi_moons.webp';
     if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain_custom.jpg';
     if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
+    if (bg === 'lofi_space_cosmos') return 'assets/images/lofi_space_cosmos.jpg';
     return '';
   }
 
   // Setter del estilo de cronómetro Zen (con verificación Premium)
-  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line') {
+  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar') {
     if ((style === 'fire' || style === 'hourglass' || style === 'ice' || style === 'battery') && !this.membership.isPremium()) {
       this.showPaywallModal.set(true);
       return;

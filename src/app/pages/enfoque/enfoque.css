@@ -2651,3 +2651,211 @@
     opacity: 0;
   }
 }
+
+/* ===== ÓRBITA SOLAR (SOL Y TIERRA) PREMIUM STYLE ===== */
+.solar-container {
+  cursor: grab !important;
+  user-select: none !important;
+  touch-action: none !important;
+  transition: filter 0.3s ease;
+}
+
+.solar-container:hover {
+  filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.25));
+}
+
+.solar-container:active {
+  cursor: grabbing !important;
+}
+
+/* Pulsación y Rotación Solar */
+.solar-corona-pulse {
+  animation: solarCoronaPulse 3.5s ease-in-out infinite alternate;
+  transform-origin: 0px 0px;
+}
+
+@keyframes solarCoronaPulse {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(1.14);
+    opacity: 1;
+  }
+}
+
+.solar-flares-spin {
+  animation: solarFlaresSpin 30s linear infinite;
+  transform-origin: 0px 0px;
+}
+
+@keyframes solarFlaresSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.solar-corona-inner-spin {
+  animation: solarInnerSpin 18s linear infinite reverse;
+  transform-origin: 0px 0px;
+}
+
+@keyframes solarInnerSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Rotación orbital de la Luna alrededor de la Tierra */
+.moon-revolution-orbit {
+  animation: moonRevolution 5s linear infinite;
+  transform-origin: 0px 0px;
+}
+
+@keyframes moonRevolution {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Deriva de continentes sobre el globo terrestre */
+.earth-continents-drift {
+  animation: earthContinentsDrift 14s linear infinite;
+}
+
+@keyframes earthContinentsDrift {
+  0% {
+    transform: translateX(0px);
+  }
+  100% {
+    transform: translateX(-28px);
+  }
+}
+
+/* Deriva de nubes atmosféricas */
+.earth-clouds-drift {
+  animation: earthCloudsDrift 9s linear infinite;
+}
+
+@keyframes earthCloudsDrift {
+  0% {
+    transform: translateX(0px);
+  }
+  100% {
+    transform: translateX(-28px);
+  }
+}
+
+/* Titileo de estrellas de fondo */
+.star-twinkle-1 {
+  animation: starTwinkle 2.5s ease-in-out infinite alternate;
+}
+.star-twinkle-2 {
+  animation: starTwinkle 3.8s ease-in-out 0.8s infinite alternate;
+}
+.star-twinkle-3 {
+  animation: starTwinkle 4.5s ease-in-out 1.6s infinite alternate;
+}
+
+@keyframes starTwinkle {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.75);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+/* ===== SOL Y RESPLANDOR PURO (ZEN MINIMALISTA) ===== */
+.solar-corona-deep {
+  animation: solarDeepPulse 4s ease-in-out infinite alternate;
+  transform-origin: 0px 0px;
+}
+
+@keyframes solarDeepPulse {
+  0% { transform: scale(0.95); opacity: 0.6; }
+  100% { transform: scale(1.1); opacity: 0.85; }
+}
+
+.solar-inner-corona {
+  animation: solarInnerCoronaPulse 2.8s ease-in-out infinite alternate;
+  transform-origin: 0px 0px;
+}
+
+@keyframes solarInnerCoronaPulse {
+  0% { transform: scale(0.97); opacity: 0.75; }
+  100% { transform: scale(1.05); opacity: 0.95; }
+}
+
+
+
+@media (min-width: 1400px) {
+  
+}
+
+@media (min-width: 1800px) {
+  
+}
+
+
+
+
+
+/* Descenso Global del Cronómetro y Botonera */
+.focus-column-center.timer-column {
+  margin-top: 65px !important;
+  transition: margin-top 0.3s ease;
+}
+
+@media (min-width: 1400px) {
+  .focus-column-center.timer-column {
+    margin-top: 85px !important;
+  }
+}
+
+@media (min-width: 1800px) {
+  .focus-column-center.timer-column {
+    margin-top: 110px !important;
+  }
+}
+
+
+
+@media (min-width: 1400px) {
+  
+}
+
+@media (min-width: 1800px) {
+  
+}
+
+/* Descenso Especifico de la Botonera */
+.action-buttons-container {
+  margin-top: 35px !important;
+  margin-bottom: 20px !important;
+  transition: margin-top 0.3s ease;
+}
+
+@media (min-width: 1400px) {
+  .action-buttons-container {
+    margin-top: 45px !important;
+  }
+}
+
+@media (min-width: 1800px) {
+  .action-buttons-container {
+    margin-top: 55px !important;
+  }
+}

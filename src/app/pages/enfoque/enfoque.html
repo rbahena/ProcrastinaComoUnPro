@@ -7,7 +7,8 @@
     <div *ngIf="useFairyBackground()"
          class="zen-bg-container"
          [class.bg-forest-campfire]="activeBackground() === 'forest_campfire'"
-         [style.backgroundImage]="'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\')'">
+         [class.bg-space-cosmos]="activeBackground() === 'lofi_space_cosmos'"
+         [style.backgroundImage]="activeBackground() === 'lofi_space_cosmos' ? 'linear-gradient(rgba(5, 5, 10, 0.12), rgba(5, 5, 10, 0.28)), url(\'' + backgroundUrl() + '\')' : 'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\')'">
     </div>
 
     <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
@@ -296,7 +297,7 @@
       <!-- Estrategia de concentración movida a la consola unificada inferior izquierda -->
 
       <!-- COLUMNA CENTRAL: Reloj Digital -->
-      <div class="focus-column-center timer-column" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%; max-width: var(--timer-column-max-width); margin: 0 auto;">
+      <div class="focus-column-center timer-column" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%; max-width: var(--timer-column-max-width); margin: 0 auto; margin-top: 65px;">
         
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; min-height: 300px; width: 100%; position: relative;">
           <!-- Fondo decorativo con auras suaves -->
@@ -1138,17 +1139,222 @@
                          font-weight="950" 
                          font-family="'Space Grotesk', monospace" 
                          letter-spacing="-0.5">
-                     {{ timeString() }}
-                   </text>
-                 </svg>
+                      {{ timeString() }}
+                    </text>
+                  </svg>
 
-               </div>
-             </ng-container>
+                </div>
+              </ng-container>
 
-           </div>
+              <!-- CASO 8: Órbita Solar (Sol y Tierra) -->
+              <ng-container *ngIf="timerStyle() === 'solar'">
+                <!-- Órbita Solar interactiva arrastrable (Oculto en cuenta regresiva o interrupción) -->
+                <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                     class="solar-container"
+                     (mousedown)="onDragStart($event)"
+                     (touchstart)="onTouchStart($event)"
+                     (dblclick)="resetCampfirePosition()"
+                     [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
+                     style="position: relative; width: 380px; height: 380px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible;">
+                  
+                  <!-- SVG del Sistema Sol y Tierra (Órbita Ampliada a Radio 148) -->
+                  <svg viewBox="0 0 390 390" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                    <defs>
+                      <!-- Filtro atmósfera terrestre -->
+                      <filter id="earthAtmosphereGlow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <!-- Filtro Resplandor Solar Puro y Suave -->
+                      <filter id="pureSolarAura" x="-60%" y="-60%" width="220%" height="220%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur1" />
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur2" />
+                        <feMerge>
+                          <feMergeNode in="blur2" />
+                          <feMergeNode in="blur1" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <!-- Gradiente del Sol: Puro Resplandor Lácteo-Dorado -->
+                      <radialGradient id="pureSunCoreGrad" cx="45%" cy="42%" r="58%">
+                        <stop offset="0%" stop-color="#ffffff" />
+                        <stop offset="22%" stop-color="#fffbeb" />
+                        <stop offset="48%" stop-color="#fef08a" />
+                        <stop offset="72%" stop-color="#f59e0b" />
+                        <stop offset="90%" stop-color="#ea580c" />
+                        <stop offset="100%" stop-color="#c2410c" />
+                      </radialGradient>
+
+                      <!-- Gradiente Resplandor Exterior Suave del Sol -->
+                      <radialGradient id="pureSunAuraGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="rgba(255, 255, 255, 0.95)" />
+                        <stop offset="25%" stop-color="rgba(254, 240, 138, 0.75)" />
+                        <stop offset="50%" stop-color="rgba(245, 158, 11, 0.4)" />
+                        <stop offset="75%" stop-color="rgba(234, 88, 12, 0.15)" />
+                        <stop offset="100%" stop-color="rgba(234, 88, 12, 0)" />
+                      </radialGradient>
+
+                      <!-- Gradiente Océano Tierra -->
+                      <radialGradient id="earthOceanGrad" cx="35%" cy="35%" r="65%">
+                        <stop offset="0%" stop-color="#38bdf8" />
+                        <stop offset="35%" stop-color="#0284c7" />
+                        <stop offset="75%" stop-color="#0369a1" />
+                        <stop offset="100%" stop-color="#0c4a6e" />
+                      </radialGradient>
+
+                      <!-- Gradiente Continentes -->
+                      <linearGradient id="continentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#4ade80" />
+                        <stop offset="50%" stop-color="#16a34a" />
+                        <stop offset="100%" stop-color="#15803d" />
+                      </linearGradient>
+
+                      <!-- Gradiente Sombra Noche de la Tierra -->
+                      <linearGradient id="earthNightTerminator" x1="0%" y1="50%" x2="100%" y2="50%">
+                        <stop offset="0%" stop-color="rgba(0, 0, 0, 0)" />
+                        <stop offset="48%" stop-color="rgba(2, 6, 23, 0.35)" />
+                        <stop offset="100%" stop-color="rgba(2, 6, 23, 0.92)" />
+                      </linearGradient>
+
+                      <!-- Gradiente Estela de Órbita -->
+                      <linearGradient id="orbitTrailGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#38bdf8" />
+                        <stop offset="50%" stop-color="#fbbf24" />
+                        <stop offset="100%" stop-color="#f59e0b" />
+                      </linearGradient>
+
+                      <!-- Recorte esférico de la Tierra (r = 21) -->
+                      <clipPath id="earthGlobeClip">
+                        <circle cx="0" cy="0" r="21" />
+                      </clipPath>
+                    </defs>
+
+                    <!-- Fondo Cósmico Sutil (Estrellas Fijas y Destellos) -->
+                    <g class="cosmic-starfield" opacity="0.75">
+                      <circle cx="55" cy="65" r="1.3" fill="#ffffff" class="star-twinkle-1" />
+                      <circle cx="90" cy="295" r="1.0" fill="#93c5fd" class="star-twinkle-2" />
+                      <circle cx="320" cy="75" r="1.4" fill="#ffffff" class="star-twinkle-3" />
+                      <circle cx="340" cy="315" r="1.2" fill="#fde047" class="star-twinkle-1" />
+                      <circle cx="195" cy="35" r="0.9" fill="#ffffff" class="star-twinkle-2" />
+                      <circle cx="360" cy="190" r="1.1" fill="#93c5fd" class="star-twinkle-3" />
+                      <circle cx="30" cy="210" r="1.3" fill="#ffffff" class="star-twinkle-1" />
+                      <circle cx="155" cy="350" r="1.0" fill="#ffffff" class="star-twinkle-2" />
+                      <circle cx="250" cy="345" r="1.3" fill="#fde047" class="star-twinkle-3" />
+                    </g>
+
+                    <!-- Trayectoria Orbital Base (Guía de Órbita Ampliada, Radio 148, Centro 195, 195) -->
+                    <circle cx="195" cy="195" r="148" 
+                            fill="none" 
+                            stroke="rgba(255, 255, 255, 0.12)" 
+                            stroke-width="1.5" 
+                            stroke-dasharray="5 7" />
+
+                    <!-- Estela Luminosa del Recorrido (Trazo de Órbita con deslizamiento ultra suave) -->
+                    <circle cx="195" cy="195" r="148" 
+                            fill="none" 
+                            stroke="url(#orbitTrailGrad)" 
+                            stroke-width="3.2" 
+                            stroke-linecap="round"
+                            transform="rotate(-90 195 195)"
+                            stroke-dasharray="929.91"
+                            [attr.stroke-dashoffset]="929.91 * timePercentage()"
+                            [style.strokeDashoffset]="(929.91 * timePercentage()) + 'px'"
+                            style="transition: stroke-dashoffset 1s linear; filter: drop-shadow(0 0 9px rgba(251, 191, 36, 0.75));" />
+
+                    <!-- ==================== EL SOL PURO CON RESPLANDOR ==================== -->
+                    <g class="sun-system" transform="translate(195, 195)">
+                      <!-- Resplandor Exterior Suave y Envolvente (Aura Solar) -->
+                      <circle cx="0" cy="0" r="90" fill="url(#pureSunAuraGrad)" class="solar-corona-deep" />
+
+                      <!-- Resplandor Intermedio Cálido -->
+                      <circle cx="0" cy="0" r="58" fill="url(#pureSunAuraGrad)" filter="url(#pureSolarAura)" class="solar-inner-corona" />
+
+                      <!-- Disco Principal del Sol Radiante (Radio 38) -->
+                      <circle cx="0" cy="0" r="38" fill="url(#pureSunCoreGrad)" filter="url(#pureSolarAura)" />
+
+                      <!-- Núcleo Incandescente Central Lácteo-Dorado -->
+                      <circle cx="-1.5" cy="-1.5" r="19" fill="#ffffff" opacity="0.85" filter="drop-shadow(0 0 11px #ffffff)" />
+                      <circle cx="-0.8" cy="-0.8" r="9.5" fill="#ffffff" opacity="0.95" />
+                    </g>
+
+                    <!-- ==================== LA TIERRA Y LA LUNA EN ÓRBITA ==================== -->
+                    <!-- Rotación Orbital alrededor del Sol (Radio 148px) -->
+                    <g [attr.transform]="'rotate(' + ((1 - timePercentage()) * 360 - 90) + ' 195 195)'"
+                       [style.transform]="'rotate(' + ((1 - timePercentage()) * 360 - 90) + 'deg)'"
+                       style="transform-origin: 195px 195px; transition: transform 1s linear;">
+                      
+                      <!-- Contenedor del Sistema Tierra-Luna a radio 148px (x=343, y=195) -->
+                      <g transform="translate(343, 195)">
+                        
+                        <!-- Halo Atmosférico Exterior de la Tierra -->
+                        <circle cx="0" cy="0" r="27" fill="rgba(56, 189, 248, 0.22)" filter="url(#earthAtmosphereGlow)" />
+
+                        <!-- Órbita de la Luna alrededor de la Tierra -->
+                        <circle cx="0" cy="0" r="33" fill="none" stroke="rgba(255, 255, 255, 0.12)" stroke-width="0.75" stroke-dasharray="2.5 3" />
+
+                        <!-- Mini Luna dando vueltas a la Tierra -->
+                        <g class="moon-revolution-orbit">
+                          <g transform="translate(33, 0)">
+                            <circle cx="0" cy="0" r="4.2" fill="#e2e8f0" filter="drop-shadow(0 0 2.5px rgba(255,255,255,0.9))" />
+                            <!-- Cráteres lunares -->
+                            <circle cx="-1" cy="-0.7" r="0.9" fill="#94a3b8" opacity="0.6" />
+                            <circle cx="1" cy="0.8" r="0.7" fill="#94a3b8" opacity="0.5" />
+                          </g>
+                        </g>
+
+                        <!-- Globo de la Tierra con inclinación axial (23.5 grados, Radio 21) -->
+                        <g transform="rotate(23.5)">
+                          
+                          <!-- Océano Base -->
+                          <circle cx="0" cy="0" r="21" fill="url(#earthOceanGrad)" />
+
+                          <!-- Continentes y Masas de Tierra (Rotación continua de la Tierra) -->
+                          <g clip-path="url(#earthGlobeClip)">
+                            <g class="earth-continents-drift">
+                              <!-- Continentes Set 1 -->
+                              <path d="M -14 -6 Q -10 -14, -2 -10 Q 2 -14, 8 -8 Q 10 2, 2 10 Q -8 13, -13 4 Z" fill="url(#continentGrad)" />
+                              <path d="M -4 6 Q 4 2, 10 12 Q 6 18, -2 16 Z" fill="url(#continentGrad)" />
+                              <path d="M -18 2 Q -12 0, -9 8 Q -16 17, -18 11 Z" fill="url(#continentGrad)" />
+                              <path d="M 9 -16 Q 16 -10, 14 -2 Q 8 -6, 6 -13 Z" fill="url(#continentGrad)" />
+
+                              <!-- Continentes Set 2 (para bucle continuo de rotación) -->
+                              <path d="M 30 -6 Q 34 -14, 41 -10 Q 46 -14, 51 -8 Q 53 2, 46 10 Q 37 13, 32 4 Z" fill="url(#continentGrad)" />
+                              <path d="M 39 6 Q 47 2, 53 12 Q 49 18, 41 16 Z" fill="url(#continentGrad)" />
+                            </g>
+
+                            <!-- Nubes Atmosféricas Semitransparentes -->
+                            <g class="earth-clouds-drift" opacity="0.45">
+                              <ellipse cx="-6" cy="-7" rx="11" ry="3.1" fill="#ffffff" transform="rotate(-15 -6 -7)" />
+                              <ellipse cx="7" cy="6" rx="12" ry="3.5" fill="#ffffff" transform="rotate(10 7 6)" />
+                              <ellipse cx="38" cy="-7" rx="11" ry="3.1" fill="#ffffff" transform="rotate(-15 38 -7)" />
+                              <ellipse cx="50" cy="6" rx="12" ry="3.5" fill="#ffffff" transform="rotate(10 50 6)" />
+                            </g>
+                          </g>
+
+                          <!-- Sombra Noche/Día de la Tierra (el lado que mira al sol recibe luz directa) -->
+                          <circle cx="0" cy="0" r="21" fill="url(#earthNightTerminator)" clip-path="url(#earthGlobeClip)" />
+
+                          <!-- Borde Atmosférico Brillante -->
+                          <circle cx="0" cy="0" r="21" fill="none" stroke="rgba(56, 189, 248, 0.45)" stroke-width="1.0" />
+                        </g>
+
+                      </g>
+
+                    </g>
+
+                  </svg>
+                </div>
+              </ng-container>
+
+            </div>
 
 <!-- Controles de Acción Minimalistas -->
-             <div class="hide-on-inactive" style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px;">
+             <div class="hide-on-inactive action-buttons-container" style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 140px; margin-bottom: 24px;">
                
                <ng-container *ngIf="arenaState() !== 'summary'">
                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
@@ -1220,11 +1426,11 @@
                    <i class="fa-solid fa-forward" style="font-size: calc(var(--button-font-size) * 0.65);"></i>
                    <span>Simular Completar</span>
                  </button>
-               </ng-container>
+                </ng-container>
 
 
                <!-- CUESTIONARIO POST-SESIÓN (en summary) -->
-                  <div *ngIf="arenaState() === 'summary' && (timerStyle() === 'digital' || timerStyle() === 'hourglass' || timerStyle() === 'ice' || timerStyle() === 'battery' || timerStyle() === 'ring' || timerStyle() === 'line')" class="summary-modal">
+                  <div *ngIf="arenaState() === 'summary' && (timerStyle() === 'digital' || timerStyle() === 'hourglass' || timerStyle() === 'ice' || timerStyle() === 'battery' || timerStyle() === 'ring' || timerStyle() === 'line' || timerStyle() === 'solar')" class="summary-modal">
                    <div class="summary-header">
                      <span class="summary-header-label">Cierre Dopamínico</span>
                      <h3 class="summary-question">¿Lograste completar tu objetivo?</h3>
@@ -1938,7 +2144,7 @@
               Fondo de Pantalla Zen (Premium)
             </span>
             
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px;">
               <div *ngFor="let bg of backgroundOptions"
                    (click)="setBackground(bg)"
                    style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
@@ -1976,13 +2182,13 @@
                 <span class="thumb-label" 
                       style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
                       [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
-                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : (bg === 'lofi_study_rain' ? 'Lluvia' : 'Bosque')))) }}
+                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : (bg === 'lofi_study_rain' ? 'Lluvia' : (bg === 'forest_campfire' ? 'Bosque' : 'Espacio'))))) }}
                 </span>
               </div>
             </div>
             
             <span style="font-size: var(--modal-subtext-size); color: var(--muted); line-height: 1.3; margin-top: 2px;">
-              {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : (activeBackground() === 'lofi_study_rain' ? 'Lluvia' : 'Fogata Bosque')))) + '" activo con aura sutil' }}
+              {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : (activeBackground() === 'lofi_study_rain' ? 'Lluvia' : (activeBackground() === 'forest_campfire' ? 'Fogata Bosque' : 'Espacio Cósmico con Saturno y Luceros'))))) + '" activo con aura cósmica' }}
             </span>
           </div>
 
@@ -2096,6 +2302,18 @@
                       onmouseout="if(this.timerStyle() !== 'line') { this.style.borderColor='var(--border)' }">
                 <i class="fa-solid fa-grip-lines"></i>
                 Línea Zen
+              </button>
+
+              <!-- Opción 8: Órbita Solar (Sol y Tierra) -->
+              <button (click)="setTimerStyle('solar')"
+                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
+                      [style.background]="timerStyle() === 'solar' ? 'rgba(251, 191, 36, 0.12)' : 'transparent'"
+                      [style.borderColor]="timerStyle() === 'solar' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="timerStyle() === 'solar' ? 'var(--accent)' : 'var(--muted)'"
+                      onmouseover="this.style.borderColor='var(--accent)'"
+                      onmouseout="if(this.timerStyle() !== 'solar') { this.style.borderColor='var(--border)' }">
+                <i class="fa-solid fa-earth-americas"></i>
+                Órbita Solar
               </button>
             </div>
           </div>
