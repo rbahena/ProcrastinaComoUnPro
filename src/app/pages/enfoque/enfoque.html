@@ -8,6 +8,8 @@
          class="zen-bg-container"
          [class.bg-forest-campfire]="activeBackground() === 'forest_campfire'"
          [class.bg-space-cosmos]="activeBackground() === 'lofi_space_cosmos'"
+          [class.bg-titanic-midnight]="activeBackground() === 'lofi_titanic_ocean'"
+          [class.bg-titanic-midnight]="activeBackground() === 'lofi_titanic_ocean'"
          [style.backgroundImage]="activeBackground() === 'lofi_space_cosmos' ? 'linear-gradient(rgba(5, 5, 10, 0.12), rgba(5, 5, 10, 0.28)), url(\'' + backgroundUrl() + '\')' : 'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\')'">
     </div>
 
@@ -2109,6 +2111,389 @@
                 </div>
               </ng-container>
 
+              <!-- CASO 11: El Hundimiento del Titanic (Proa, Popa, Fractura, Iceberg Azul Oscuro y Mar Panorámico) -->
+              <ng-container *ngIf="timerStyle() === 'titanic'">
+                <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                     class="titanic-container"
+                     (mousedown)="onDragStart($event)"
+                     (touchstart)="onTouchStart($event)"
+                     (dblclick)="resetCampfirePosition()"
+                     [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
+                     style="position: relative; width: 440px; height: 360px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible; z-index: 6;">
+                  
+                  <!-- SVG Cinemático del Titanic (Lienzo 460x320, Línea de Agua en y=210) -->
+                  <svg viewBox="0 0 460 320" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                    <defs>
+                      <!-- Filtros -->
+                      <filter id="titanicLightGlow" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <filter id="icebergMistFilter" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <!-- Gradiente Casco de Acero Negro y Quilla Roja -->
+                      <linearGradient id="titanicHullGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#1e293b" />
+                        <stop offset="45%" stop-color="#090d16" />
+                        <stop offset="55%" stop-color="#7f1d1d" />
+                        <stop offset="100%" stop-color="#450a0a" />
+                      </linearGradient>
+
+                      <!-- Gradiente Chimeneas Amarillo Ocre Titanic -->
+                      <linearGradient id="titanicFunnelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#d97706" />
+                        <stop offset="40%" stop-color="#f59e0b" />
+                        <stop offset="80%" stop-color="#b45309" />
+                        <stop offset="100%" stop-color="#78350f" />
+                      </linearGradient>
+
+                      <!-- Gradiente Hélices de Bronce -->
+                      <linearGradient id="titanicPropellerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fef08a" />
+                        <stop offset="45%" stop-color="#d97706" />
+                        <stop offset="100%" stop-color="#78350f" />
+                      </linearGradient>
+
+                      <!-- Gradiente Océano Superficie a Abismo -->
+                      <linearGradient id="oceanWaterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <!-- Superficie de agua azul translúcida -->
+                        <stop offset="0%" stop-color="rgba(14, 165, 233, 0.48)" />
+                        <stop offset="5%" stop-color="rgba(3, 105, 161, 0.78)" />
+                        <stop offset="15%" stop-color="rgba(12, 74, 110, 0.92)" />
+                        <stop offset="35%" stop-color="rgba(2, 6, 23, 0.98)" />
+                        <!-- Difuminado suave hacia el fondo inferior de la pantalla -->
+                        <stop offset="70%" stop-color="rgba(2, 6, 23, 0.7)" />
+                        <stop offset="100%" stop-color="rgba(2, 6, 23, 0.0)" />
+                      </linearGradient>
+
+                      <filter id="oceanLineMistyBlur" x="-20%" y="-40%" width="140%" height="200%">
+                        <feGaussianBlur stdDeviation="5" />
+                      </filter>
+
+                      <!-- Gradientes de Hielo Azul Oscuro del Iceberg -->
+                      <linearGradient id="icebergFacetLight" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.95" />
+                        <stop offset="35%" stop-color="#0284c7" stop-opacity="0.92" />
+                        <stop offset="75%" stop-color="#0369a1" stop-opacity="0.95" />
+                        <stop offset="100%" stop-color="#075985" stop-opacity="0.98" />
+                      </linearGradient>
+
+                      <linearGradient id="icebergFacetShadow" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#0369a1" stop-opacity="0.9" />
+                        <stop offset="50%" stop-color="#0c4a6e" stop-opacity="0.95" />
+                        <stop offset="100%" stop-color="#082f49" stop-opacity="0.98" />
+                      </linearGradient>
+
+                      <linearGradient id="icebergUnderwater" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="rgba(3, 105, 161, 0.75)" />
+                        <stop offset="100%" stop-color="rgba(8, 47, 73, 0.0)" />
+                      </linearGradient>
+
+                      <!-- Recorte del Agua Submarina -->
+                      <clipPath id="oceanSurfaceClip">
+                        <rect x="-50" y="210" width="560" height="150" />
+                      </clipPath>
+                    </defs>
+
+                    <!-- ==================== CONTADOR DIGITAL AMBIENTAL SUTIL ==================== -->
+                    <g class="titanic-time-display" opacity="0.78">
+                      <!-- Contador Digital Sutil con Brillo de Luz de Luna -->
+                      <text x="230" y="42" 
+                            text-anchor="middle" 
+                            fill="rgba(241, 245, 249, 0.75)" 
+                            font-size="21" 
+                            font-weight="700" 
+                            font-family="'Space Grotesk', monospace" 
+                            letter-spacing="0.5"
+                            style="filter: drop-shadow(0 0 8px rgba(147, 197, 253, 0.35));">
+                        {{ timeString() }}
+                      </text>
+
+                      <!-- Línea de Progreso Fina y Minimalista -->
+                      <line x1="165" y1="52" x2="295" y2="52" 
+                            stroke="rgba(255, 255, 255, 0.08)" 
+                            stroke-width="1.8" 
+                            stroke-linecap="round" />
+
+                      <!-- Línea de Progreso Activa Suave -->
+                      <line x1="165" y1="52" [attr.x2]="165 + (130 * timePercentage())" y2="52" 
+                            stroke="rgba(147, 197, 253, 0.65)" 
+                            stroke-width="2.0" 
+                            stroke-linecap="round" 
+                            style="transition: x2 0.3s linear; filter: drop-shadow(0 0 4px rgba(147, 197, 253, 0.45));" />
+                    </g>
+
+                    <!-- Niebla Marina Flotante en el Horizonte -->
+                    <ellipse cx="230" cy="208" rx="220" ry="14" fill="rgba(224, 242, 254, 0.12)" filter="url(#icebergMistFilter)" />
+
+                    <!-- ==================== ICEBERG DE HIELO AZUL OSCURO ==================== -->
+                    <g class="titanic-iceberg" opacity="0.95">
+                      <!-- Masa Glaciar Sumergida de Hielo Azul Oscuro (y=210 a 242) -->
+                      <polygon points="365,210 445,210 435,242 375,242" fill="url(#icebergUnderwater)" />
+                      
+                      <!-- Bloque de Hielo Azul Oscuro Emergente sobre el Agua (y=148 a 210) -->
+                      <!-- Faceta Principal en Hielo Azul Zafiro Criógeno -->
+                      <polygon points="370,210 392,168 412,148 428,175 442,210" fill="url(#icebergFacetLight)" />
+                      
+                      <!-- Faceta de Sombra Glaciar Azul Oscuro Izquierda -->
+                      <polygon points="370,210 392,168 412,148 398,210" fill="url(#icebergFacetShadow)" opacity="0.75" />
+                      
+                      <!-- Faceta de Sombra Glaciar Azul Marino Profundo Derecha -->
+                      <polygon points="412,148 428,175 442,210 422,210" fill="url(#icebergFacetShadow)" opacity="0.92" />
+                      
+                      <!-- Aristas de Cristal de Hielo con Resplandor Azul Cian -->
+                      <polyline points="370,210 392,168 412,148 428,175 442,210" fill="none" stroke="#7dd3fc" stroke-width="1.1" opacity="0.85" />
+                      <line x1="412" y1="148" x2="408" y2="210" stroke="#38bdf8" stroke-width="0.9" opacity="0.8" />
+
+                      <!-- Estela y Ondulaciones en la Base de Hielo Azul -->
+                      <ellipse cx="406" cy="210" rx="38" ry="3.5" fill="none" stroke="#38bdf8" stroke-width="1.0" opacity="0.65" />
+                    </g>
+
+                    <!-- ==================== EL TITANIC (NAVÍO DIVIDIDO EN 2 SECCIONES) ==================== -->
+                    <!-- Contenedor Maestro centrado en el eje de rotación (230, 210) -->
+                    <g transform="translate(230, 210)">
+                      
+                      <!-- ==================== SECCIÓN 1: PROA (BOW) ==================== -->
+                      <g [style.transform]="titanicBowTransform()"
+                         [style.opacity]="titanicBowOpacity()"
+                         style="transform-origin: 0px 0px; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease;">
+                        
+                        <!-- Casco de Proa (De x=0 a x=165) -->
+                        <path d="M 0 -22 L 115 -22 Q 148 -20, 165 -30 L 165 -15 Q 145 14, 110 24 L 0 24 Z" 
+                              fill="url(#titanicHullGrad)" 
+                              stroke="#0f172a" 
+                              stroke-width="1.2" />
+
+                        <!-- Línea Dorada de Francobordo (Sheer Line) -->
+                        <path d="M 0 -21 L 115 -21 Q 148 -19, 165 -29" fill="none" stroke="#fde047" stroke-width="1.0" opacity="0.85" />
+                        <!-- Franja Blanca Superior de la Cubierta -->
+                        <path d="M 0 -22 L 120 -22 L 120 -27 L 0 -27 Z" fill="#f8fafc" />
+
+                        <!-- Ancla de Proa (Anchor) en la amura delantera -->
+                        <g transform="translate(150, -15)">
+                          <!-- Escobén del ancla -->
+                          <ellipse cx="0" cy="0" rx="3.2" ry="4.5" fill="#090d16" stroke="#475569" stroke-width="0.6" />
+                          <!-- Caña y Brazos del Ancla de Acero -->
+                          <line x1="0" y1="-2" x2="0" y2="7" stroke="#cbd5e1" stroke-width="1.2" />
+                          <path d="M -4 4 Q 0 8, 4 4" fill="none" stroke="#cbd5e1" stroke-width="1.3" />
+                          <!-- Anilla -->
+                          <circle cx="0" cy="-2" r="1.2" fill="none" stroke="#cbd5e1" stroke-width="0.8" />
+                        </g>
+
+                        <!-- Superestructura de Proa (Castillo, Puente de Mando y Cubiertas B/C/D) -->
+                        <rect x="0" y="-42" width="95" height="15" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.75" />
+                        <!-- Puente de Mando (Bridge) -->
+                        <path d="M 75 -42 L 95 -42 L 92 -52 L 75 -52 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.7" />
+                        <!-- Ventanas del Puente -->
+                        <rect x="78" y="-50" width="12" height="4" [attr.fill]="titanicLightsState() === 'off' ? '#0f172a' : '#0284c7'" [class.titanic-lights-flicker]="titanicLightsState() === 'flicker'" opacity="0.7" />
+
+                        <!-- Bengala de Proa (Se dispara antes de romperse el barco) -->
+                        <g *ngIf="!titanicIsSplit()" class="titanic-distress-rocket-1" transform="translate(85, -54)">
+                          <line x1="0" y1="0" x2="0" y2="24" stroke="rgba(254, 240, 138, 0.75)" stroke-width="1.3" stroke-linecap="round" />
+                          <circle cx="0" cy="0" r="1.4" fill="#ffffff" filter="drop-shadow(0 0 3px #fde047)" />
+                          <g opacity="0.9">
+                            <circle cx="0" cy="0" r="2.0" fill="#ffffff" />
+                            <line x1="-5" y1="0" x2="5" y2="0" stroke="#ffffff" stroke-width="0.7" />
+                            <line x1="0" y1="-5" x2="0" y2="5" stroke="#ffffff" stroke-width="0.7" />
+                            <circle cx="-2.5" cy="3" r="0.6" fill="#fde047" />
+                            <circle cx="2.5" cy="4" r="0.7" fill="#fde047" />
+                          </g>
+                        </g>
+
+                        <!-- Barandillas de Paseo (Promenade Railings) -->
+                        <line x1="0" y1="-43" x2="75" y2="-43" stroke="#64748b" stroke-width="0.8" stroke-dasharray="2 2" />
+                        <line x1="100" y1="-28" x2="155" y2="-28" stroke="#64748b" stroke-width="0.8" stroke-dasharray="2 2" />
+
+                        <!-- Botes Salvavidas en Proa (Boat Deck) -->
+                        <ellipse cx="25" cy="-45" rx="9" ry="3" fill="#ffffff" stroke="#94a3b8" stroke-width="0.6" />
+                        <ellipse cx="50" cy="-45" rx="9" ry="3" fill="#ffffff" stroke="#94a3b8" stroke-width="0.6" />
+
+                        <!-- Mástil de Proa con Nido de Cuervo (Crow's Nest) -->
+                        <line x1="105" y1="-22" x2="105" y2="-95" stroke="#cbd5e1" stroke-width="1.5" />
+                        <!-- Nido de Cuervo -->
+                        <rect x="102" y="-75" width="6" height="5" rx="1" fill="#475569" />
+                        <!-- Cables de Jarcia (Rigging) -->
+                        <line x1="105" y1="-95" x2="162" y2="-30" stroke="rgba(255,255,255,0.35)" stroke-width="0.6" />
+                        <line x1="105" y1="-95" x2="75" y2="-52" stroke="rgba(255,255,255,0.35)" stroke-width="0.6" />
+
+                        <!-- Ojos de Buey Iluminados en Proa (Portholes con Parpadeo y Apagón) -->
+                        <g [ngClass]="'titanic-lights-' + titanicLightsState()" fill="#fef08a" filter="url(#titanicLightGlow)">
+                          <circle cx="15" cy="-14" r="1.5" />
+                          <circle cx="30" cy="-14" r="1.5" />
+                          <circle cx="45" cy="-14" r="1.5" />
+                          <circle cx="60" cy="-14" r="1.5" />
+                          <circle cx="75" cy="-14" r="1.5" />
+                          <circle cx="90" cy="-14" r="1.5" />
+                          <circle cx="105" cy="-14" r="1.5" />
+                          <circle cx="120" cy="-14" r="1.5" />
+                          
+                          <circle cx="20" cy="-5" r="1.3" />
+                          <circle cx="38" cy="-5" r="1.3" />
+                          <circle cx="56" cy="-5" r="1.3" />
+                          <circle cx="74" cy="-5" r="1.3" />
+                          <circle cx="92" cy="-5" r="1.3" />
+                          <circle cx="110" cy="-5" r="1.3" />
+                        </g>
+
+                        <!-- Chimenea 1 (Delantera con Inclinación Rastrera Clásica) -->
+                        <g transform="translate(62, -42) rotate(8)">
+                          <rect x="-7" y="-35" width="14" height="35" rx="1.5" fill="url(#titanicFunnelGrad)" />
+                          <rect x="-7.2" y="-35" width="14.4" height="10" rx="1" fill="#0f172a" />
+                        </g>
+
+                        <!-- Chimenea 2 -->
+                        <g transform="translate(25, -42) rotate(8)">
+                          <rect x="-7" y="-35" width="14" height="35" rx="1.5" fill="url(#titanicFunnelGrad)" />
+                          <rect x="-7.2" y="-35" width="14.4" height="10" rx="1" fill="#0f172a" />
+                        </g>
+
+                        <!-- Fractura en el Extremo Trasero de la Proa (Cuando se parte) -->
+                        <path *ngIf="titanicIsSplit()" d="M 0 -42 L 3 -20 L -2 0 L 4 24" stroke="#f59e0b" stroke-width="2.5" fill="none" class="titanic-break-sparks" />
+                      </g>
+
+
+                      <!-- ==================== SECCIÓN 2: POPA (STERN) ==================== -->
+                      <g [style.transform]="titanicSternTransform()"
+                         [style.opacity]="titanicSternOpacity()"
+                         style="transform-origin: 0px 0px; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease;">
+                        
+                        <!-- Casco de Popa (De x=0 a x=-155) -->
+                        <path d="M 0 -22 L -115 -22 Q -145 -22, -155 -15 Q -158 5, -135 18 Q -105 24, 0 24 Z" 
+                              fill="url(#titanicHullGrad)" 
+                              stroke="#0f172a" 
+                              stroke-width="1.2" />
+
+                        <!-- Línea Dorada de Francobordo -->
+                        <path d="M 0 -21 L -115 -21 Q -145 -21, -155 -14" fill="none" stroke="#fde047" stroke-width="1.0" opacity="0.85" />
+                        <!-- Cubierta Blanca de Popa -->
+                        <path d="M 0 -22 L -120 -22 L -120 -27 L 0 -27 Z" fill="#f8fafc" />
+
+                        <!-- Superestructura de Popa (Cubiertas Aft y Puente de Atraque) -->
+                        <rect x="-95" y="-38" width="95" height="11" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.75" />
+                        <!-- Toldilla / Poop Deck -->
+                        <path d="M -115 -27 L -145 -27 L -140 -34 L -115 -34 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.7" />
+
+                        <!-- Bengala de Popa (Se dispara antes de romperse el barco) -->
+                        <g *ngIf="!titanicIsSplit()" class="titanic-distress-rocket-2" transform="translate(-100, -36)">
+                          <line x1="0" y1="0" x2="-3" y2="24" stroke="rgba(255, 255, 255, 0.65)" stroke-width="1.3" stroke-linecap="round" />
+                          <circle cx="0" cy="0" r="1.4" fill="#ffffff" filter="drop-shadow(0 0 3px #ffffff)" />
+                          <g opacity="0.9">
+                            <circle cx="0" cy="0" r="2.0" fill="#ffffff" />
+                            <line x1="-5" y1="0" x2="5" y2="0" stroke="#f0f9ff" stroke-width="0.7" />
+                            <line x1="0" y1="-5" x2="0" y2="5" stroke="#f0f9ff" stroke-width="0.7" />
+                            <circle cx="-3.5" cy="3" r="0.6" fill="#e0f2fe" />
+                            <circle cx="2.5" cy="4" r="0.7" fill="#e0f2fe" />
+                          </g>
+                        </g>
+
+                        <!-- Barandillas de Popa -->
+                        <line x1="0" y1="-39" x2="-95" y2="-39" stroke="#64748b" stroke-width="0.8" stroke-dasharray="2 2" />
+                        <line x1="-115" y1="-35" x2="-145" y2="-35" stroke="#64748b" stroke-width="0.8" stroke-dasharray="2 2" />
+
+                        <!-- Botes Salvavidas en Popa -->
+                        <ellipse cx="-40" cy="-41" rx="9" ry="3" fill="#ffffff" stroke="#94a3b8" stroke-width="0.6" />
+                        <ellipse cx="-70" cy="-41" rx="9" ry="3" fill="#ffffff" stroke="#94a3b8" stroke-width="0.6" />
+
+                        <!-- Mástil de Popa (Mainmast) con Luz de Navegación Blanca -->
+                        <line x1="-95" y1="-22" x2="-95" y2="-88" stroke="#cbd5e1" stroke-width="1.5" />
+                        <circle cx="-95" cy="-88" r="1.5" fill="#ffffff" filter="drop-shadow(0 0 3px #ffffff)" />
+                        <!-- Cables de Jarcia Popa -->
+                        <line x1="-95" y1="-88" x2="-152" y2="-28" stroke="rgba(255,255,255,0.35)" stroke-width="0.6" />
+                        <line x1="-95" y1="-88" x2="-25" y2="-40" stroke="rgba(255,255,255,0.35)" stroke-width="0.6" />
+
+                        <!-- Ojos de Buey Iluminados en Popa (Portholes con Parpadeo y Apagón) -->
+                        <g [ngClass]="'titanic-lights-' + titanicLightsState()" fill="#fef08a" filter="url(#titanicLightGlow)">
+                          <circle cx="-15" cy="-14" r="1.5" />
+                          <circle cx="-30" cy="-14" r="1.5" />
+                          <circle cx="-45" cy="-14" r="1.5" />
+                          <circle cx="-60" cy="-14" r="1.5" />
+                          <circle cx="-75" cy="-14" r="1.5" />
+                          <circle cx="-90" cy="-14" r="1.5" />
+                          <circle cx="-105" cy="-14" r="1.5" />
+                          <circle cx="-120" cy="-14" r="1.5" />
+
+                          <circle cx="-20" cy="-5" r="1.3" />
+                          <circle cx="-38" cy="-5" r="1.3" />
+                          <circle cx="-56" cy="-5" r="1.3" />
+                          <circle cx="-74" cy="-5" r="1.3" />
+                          <circle cx="-92" cy="-5" r="1.3" />
+                          <circle cx="-110" cy="-5" r="1.3" />
+                        </g>
+
+                        <!-- Chimenea 3 (Cae o suelta vapor durante la fractura) -->
+                        <g transform="translate(-25, -38) rotate(8)">
+                          <rect x="-7" y="-35" width="14" height="35" rx="1.5" fill="url(#titanicFunnelGrad)" />
+                          <rect x="-7.2" y="-35" width="14.4" height="10" rx="1" fill="#0f172a" />
+                        </g>
+
+                        <!-- Chimenea 4 (Dummie Funnel de ventilación) -->
+                        <g transform="translate(-65, -38) rotate(8)">
+                          <rect x="-7" y="-35" width="14" height="35" rx="1.5" fill="url(#titanicFunnelGrad)" />
+                          <rect x="-7.2" y="-35" width="14.4" height="10" rx="1" fill="#0f172a" />
+                        </g>
+
+                        <!-- ==================== LAS 3 HÉLICES DE BRONCE Y TIMÓN ==================== -->
+                        <!-- En la fase 2, al alzarse la popa a 85°, las hélices brillan en el aire -->
+                        <g transform="translate(-142, 14)" id="titanicPropellers">
+                          <!-- Timón (Rudder) -->
+                          <path d="M -8 -8 L 0 -8 L 0 10 L -6 8 Z" fill="#090d16" stroke="#475569" stroke-width="0.6" />
+                          <!-- Hélice Central (3 Palas de Bronce) -->
+                          <circle cx="2" cy="3" r="2.5" fill="#d97706" />
+                          <ellipse cx="2" cy="0" rx="1.8" ry="4.5" fill="url(#titanicPropellerGrad)" />
+                          <ellipse cx="2" cy="6" rx="1.8" ry="4.5" fill="url(#titanicPropellerGrad)" />
+                          <!-- Hélice Babor -->
+                          <ellipse cx="-4" cy="4" rx="3.8" ry="1.6" fill="url(#titanicPropellerGrad)" transform="rotate(30 -4 4)" />
+                          <!-- Hélice Estribor -->
+                          <ellipse cx="8" cy="4" rx="3.8" ry="1.6" fill="url(#titanicPropellerGrad)" transform="rotate(-30 8 4)" />
+                        </g>
+
+                        <!-- Fractura Delantera de la Popa con Chispas -->
+                        <g *ngIf="titanicIsSplit()">
+                          <path d="M 0 -38 L -4 -18 L 2 0 L -3 24" stroke="#f59e0b" stroke-width="2.5" fill="none" class="titanic-break-sparks" />
+                        </g>
+                      </g>
+
+                    </g>
+
+
+                    <!-- ==================== SUPERFICIE DEL OCÉANO ATLÁNTICO Y OLAS (EXPANDIDO DE LADO A LADO) ==================== -->
+                    <!-- Bloque de Agua Submarina Expandido de Lado a Lado de la Pantalla -->
+                    <rect x="-1400" y="210" width="3260" height="1400" fill="url(#oceanWaterGrad)" opacity="0.98" />
+
+                    <!-- Velo de Niebla Difuminada en la Línea de Flotación -->
+                    <ellipse cx="230" cy="210" rx="1400" ry="16" fill="rgba(148, 163, 184, 0.12)" filter="url(#oceanLineMistyBlur)" />
+
+                    <!-- Línea de Agua y Olas Rompientes Continuas de Extremo a Extremo -->
+                    <g class="titanic-ocean-wake">
+                      <!-- Olas Frontales con Espuma Marina Azul Brillante de Lado a Lado -->
+                      <path d="M -1400 210 Q -1150 206, -900 210 Q -650 214, -400 210 Q -150 206, 100 210 Q 350 214, 600 210 Q 850 206, 1100 210 Q 1350 214, 1600 210 Q 1750 208, 1860 210" 
+                            fill="none" 
+                            stroke="#38bdf8" 
+                            stroke-width="2.2" 
+                            opacity="0.85" />
+                      <!-- Estela Blanca de Espuma en Torno al Casco de Extremo a Extremo -->
+                      <path d="M -1400 211 Q -1150 208, -900 211 Q -650 212, -400 211 Q -150 208, 100 211 Q 350 212, 600 211 Q 850 208, 1100 211 Q 1350 212, 1600 211 Q 1750 209, 1860 211" 
+                            fill="none" 
+                            stroke="#f0f9ff" 
+                            stroke-width="1.6" 
+                            opacity="0.75" />
+                    </g>
+
+                  </svg>
+                </div>
+              </ng-container>
+
+
             </div>
 
 <!-- Controles de Acción Minimalistas -->
@@ -2188,7 +2573,7 @@
 
 
                <!-- CUESTIONARIO POST-SESIÓN (en summary) -->
-                  <div *ngIf="arenaState() === 'summary' && (timerStyle() === 'digital' || timerStyle() === 'hourglass' || timerStyle() === 'ice' || timerStyle() === 'battery' || timerStyle() === 'ring' || timerStyle() === 'line' || timerStyle() === 'solar' || timerStyle() === 'satellite')" class="summary-modal">
+                  <div *ngIf="arenaState() === 'summary' && (timerStyle() === 'digital' || timerStyle() === 'hourglass' || timerStyle() === 'ice' || timerStyle() === 'battery' || timerStyle() === 'ring' || timerStyle() === 'line' || timerStyle() === 'solar' || timerStyle() === 'satellite' || timerStyle() === 'moon' || timerStyle() === 'titanic')" class="summary-modal">
                    <div class="summary-header">
                      <span class="summary-header-label">Cierre Dopamínico</span>
                      <h3 class="summary-question">¿Lograste completar tu objetivo?</h3>
@@ -2902,8 +3287,28 @@
               Fondo de Pantalla Zen (Premium)
             </span>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px;">
-              <div *ngFor="let bg of backgroundOptions"
+            <!-- Aviso de Fondos Permitidos para Relojes de Órbitas -->
+            <div *ngIf="isOrbitalTimer()" 
+                 style="background: rgba(56, 189, 248, 0.08); border: 1.5px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
+              <i class="fa-solid fa-satellite" style="color: #38bdf8; font-size: 13px;"></i>
+              <div style="display: flex; flex-direction: column; text-align: left;">
+                <span style="font-size: 11.5px; font-weight: 800; color: #ffffff;">Fondos Espaciales Exclusivos</span>
+                <span style="font-size: 10px; color: var(--muted);">Para los relojes orbitales solo están disponibles los fondos: Espacio, Nebulosa y Lunar.</span>
+              </div>
+            </div>
+
+            <!-- Aviso de Fondo Fijo para el Titanic -->
+            <div *ngIf="timerStyle() === 'titanic'" 
+                 style="background: rgba(14, 165, 233, 0.08); border: 1.5px solid rgba(56, 189, 248, 0.35); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
+              <i class="fa-solid fa-lock" style="color: #38bdf8; font-size: 13px;"></i>
+              <div style="display: flex; flex-direction: column; text-align: left;">
+                <span style="font-size: 11.5px; font-weight: 800; color: #ffffff;">Fondo Mar Fijado</span>
+                <span style="font-size: 10px; color: var(--muted);">El reloj del Titanic utiliza por defecto el fondo Mar. No se puede modificar mientras esté seleccionado.</span>
+              </div>
+            </div>
+
+            <div [style.opacity]="timerStyle() === 'titanic' ? 0.45 : 1" [style.pointerEvents]="timerStyle() === 'titanic' ? 'none' : 'auto'" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px; transition: opacity 0.2s;">
+              <div *ngFor="let bg of availableBackgroundOptions()"
                    (click)="setBackground(bg)"
                    style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
                    onmouseover="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1.04)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color='var(--text)' };"
@@ -2940,13 +3345,13 @@
                 <span class="thumb-label" 
                       style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
                       [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
-                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : (bg === 'lofi_study_rain' ? 'Lluvia' : (bg === 'forest_campfire' ? 'Bosque' : (bg === 'lofi_space_nebula' ? 'Nebulosa' : (bg === 'lofi_space_moon' ? 'Luz Lunar' : 'Espacio'))))))) }}
+                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : (bg === 'lofi_study_rain' ? 'Lluvia' : (bg === 'forest_campfire' ? 'Bosque' : (bg === 'lofi_space_nebula' ? 'Nebulosa' : (bg === 'lofi_space_moon' ? 'Luz Lunar' : (bg === 'lofi_titanic_ocean' ? 'Mar' : 'Espacio')))))))) }}
                 </span>
               </div>
             </div>
             
             <span style="font-size: var(--modal-subtext-size); color: var(--muted); line-height: 1.3; margin-top: 2px;">
-              {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : (activeBackground() === 'lofi_study_rain' ? 'Lluvia' : (activeBackground() === 'forest_campfire' ? 'Fogata Bosque' : (activeBackground() === 'lofi_space_nebula' ? 'Nebulosa Cósmica' : (activeBackground() === 'lofi_space_moon' ? 'Polvo Lunar y Vía Láctea' : 'Espacio Cósmico con Saturno y Luceros'))))))) + '" activo con aura cósmica' }}
+              {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : (activeBackground() === 'lofi_study_rain' ? 'Lluvia' : (activeBackground() === 'forest_campfire' ? 'Fogata Bosque' : (activeBackground() === 'lofi_space_nebula' ? 'Nebulosa Cósmica' : (activeBackground() === 'lofi_space_moon' ? 'Polvo Lunar y Vía Láctea' : (activeBackground() === 'lofi_titanic_ocean' ? 'Mar y Cielo Nocturno' : 'Espacio Cósmico con Saturno y Luceros')))))))) + '" activo con aura cósmica' }}
             </span>
           </div>
 
@@ -3096,6 +3501,18 @@
                       onmouseout="if(this.timerStyle() !== 'moon') { this.style.borderColor='var(--border)' }">
                 <i class="fa-solid fa-moon"></i>
                 Órbita Lunar
+              </button>
+
+              <!-- Opción 11: El Titanic (Navío y Océano) -->
+              <button (click)="setTimerStyle('titanic')"
+                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
+                      [style.background]="timerStyle() === 'titanic' ? 'rgba(14, 165, 233, 0.14)' : 'transparent'"
+                      [style.borderColor]="timerStyle() === 'titanic' ? 'var(--accent)' : 'var(--border)'"
+                      [style.color]="timerStyle() === 'titanic' ? 'var(--accent)' : 'var(--muted)'"
+                      onmouseover="this.style.borderColor='var(--accent)'"
+                      onmouseout="if(this.timerStyle() !== 'titanic') { this.style.borderColor='var(--border)' }">
+                <i class="fa-solid fa-ship"></i>
+                El Titanic
               </button>
 
 

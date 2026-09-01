@@ -137,11 +137,11 @@ export class Enfoque implements OnInit, OnDestroy {
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
-  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon'>(
+  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean'>(
     (localStorage.getItem('focus-active-bg') as any) || 'lofi_space_cosmos'
   );
-  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon')[] = [
-    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'
+  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean')[] = [
+    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean'
   ];
   backgroundUrl = computed(() => {
     const bg = this.activeBackground();
@@ -153,9 +153,115 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_space_cosmos') return 'assets/images/lofi_space_cosmos.jpg';
     if (bg === 'lofi_space_nebula') return 'assets/images/lofi_space_nebula.jpg';
     if (bg === 'lofi_space_moon') return 'assets/images/lofi_space_moon.jpg';
+    if (bg === 'lofi_titanic_ocean') return 'assets/images/lofi_titanic_ocean.jpg';
     return '';
   });
   useFairyBackground = computed(() => this.activeBackground() !== 'off');
+  // Verificación si el cronómetro actual es un reloj orbital (Sol, Satélite, Luna)
+  isOrbitalTimer = computed(() => {
+    const s = this.timerStyle();
+    return s === 'solar' || s === 'satellite' || s === 'moon';
+  });
+
+  // Lista de fondos disponibles según el estilo de reloj seleccionado
+  availableBackgroundOptions = computed(() => {
+    if (this.isOrbitalTimer()) {
+      return ['lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean')[];
+    }
+    if (this.timerStyle() === 'titanic') {
+      return ['lofi_titanic_ocean'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean')[];
+    }
+    return this.backgroundOptions;
+  });
+
+
+  // ==================== CINEMÁTICA Y FÍSICAS DEL TITANIC ====================
+  titanicProgress = computed(() => {
+    // 0.0 al inicio (100% tiempo restante) -> 1.0 al final (00:00 tiempo)
+    return Math.min(1, Math.max(0, 1 - this.timePercentage()));
+  });
+
+  // Transformación de la Proa (Bow) - Cae en picada a 90° y se hunde hacia el fondo
+  titanicBowTransform = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.5) {
+      // Fase 1 (0.0 a 0.5): Inclinación inicial gradual hacia el agua
+      const norm = p / 0.5;
+      const angle = norm * 18;
+      const dy = norm * 22;
+      return `translate(0px, ${dy}px) rotate(${angle}deg)`;
+    } else {
+      // Fase 2 (0.5 a 1.0): Fractura y picada a 90° con descenso continuo al fondo del mar
+      const norm = (p - 0.5) / 0.5;
+      const angle = Math.min(90, 18 + (norm * 80)); // Alcanza 90° con el ancla abajo
+      const dy = 22 + (norm * 230);                 // Se sumerge a las profundidades
+      const dx = norm * 50;                         // Desplazamiento
+      return `translate(${dx}px, ${dy}px) rotate(${angle}deg)`;
+    }
+  });
+
+  // Difuminado de la Proa - Desaparece en el fondo marino en 00:00 (norm = 1.0)
+  titanicBowOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.5) return 1;
+    const norm = (p - 0.5) / 0.5;
+    return Math.max(0, 1 - norm);
+  });
+
+  // Transformación de la Popa (Stern) - Se alza a 90°, flota un instante, y se hunde bajo el mar
+  titanicSternTransform = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.5) {
+      // Fase 1 (0.0 a 0.5): Inclinación inicial
+      const norm = p / 0.5;
+      const angle = norm * 18;
+      const dy = norm * 22;
+      return `translate(0px, ${dy}px) rotate(${angle}deg)`;
+    } else {
+      // Fase 2 (0.5 a 1.0): Tras la fractura...
+      const norm = (p - 0.5) / 0.5; // 0.0 a 1.0
+      
+      // 1. La popa se alza de inmediato a 90° vertical
+      const angle = Math.min(90, 18 + (norm * 360));
+      
+      let dy = 22;
+      if (norm < 0.28) {
+        // 2A. Flotación vertical a 90° (balanceo sobre las olas)
+        const floatProgress = norm / 0.28;
+        const bobbing = Math.sin(floatProgress * Math.PI * 2) * 3;
+        dy = 22 + bobbing;
+      } else {
+        // 2B. Inmersión vertical a 90° completa hacia el abismo
+        const sinkNorm = (norm - 0.28) / 0.72; // 0.0 a 1.0
+        dy = 22 + (sinkNorm * 220);            // Desciende bajo el agua hacia el fondo
+      }
+      
+      const dx = -norm * 25;
+      return `translate(${dx}px, ${dy}px) rotate(${angle}deg)`;
+    }
+  });
+
+  // Difuminado de la Popa - Se sumerge y desaparece por completo bajo el mar al terminar el tiempo (00:00)
+  titanicSternOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.5) return 1;
+    const norm = (p - 0.5) / 0.5;
+    // Se mantiene sólida mientras entra al agua, y entre el 70% y 100% de la fase 2
+    // se difumina hacia 0.0 desapareciendo en el fondo del mar exactamente al llegar a 00:00
+    if (norm < 0.70) return 1;
+    return Math.max(0, 1 - ((norm - 0.70) / 0.30));
+  });
+
+    // Estado de las luces del Titanic: 'on' (encendidas) | 'flicker' (parpadeo eléctrico al partirse) | 'off' (apagón total)
+  titanicLightsState = computed<'on' | 'flicker' | 'off'>(() => {
+    const p = this.titanicProgress();
+    if (p < 0.47) return 'on';
+    if (p < 0.52) return 'flicker'; // Parpadeo eléctrico durante la fractura
+    return 'off';                   // Una vez partido, apagón total absoluto
+  });
+
+  titanicIsSplit = computed(() => this.titanicProgress() >= 0.5);
+
 
   // Opciones de sonido para evitar errores de tipado estricto en plantillas Angular
   soundOptions: ('zen' | 'digital' | 'chime')[] = ['zen', 'chime', 'digital'];
@@ -183,7 +289,7 @@ export class Enfoque implements OnInit, OnDestroy {
   private onMouseLeaveFn = () => this.onMouseLeaveWindow();
 
   // Estilo del Temporizador (Clásico vs Fuego Premium vs Órbita Solar)
-  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon'>(
+  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic'>(
     (localStorage.getItem('focus-timer-style') as any) || 'digital'
   );
 
@@ -1260,8 +1366,16 @@ export class Enfoque implements OnInit, OnDestroy {
     this.playAlarmTone();
   }
 
-  // Setter de fondo de pantalla Zen
-  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon') {
+  // Setter de fondo de pantalla Zen con restricciones temáticas
+  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean') {
+    // Si el cronómetro activo es el Titanic, solo se permite Espacio
+    if (this.timerStyle() === 'titanic' && bg !== 'lofi_titanic_ocean') {
+      return;
+    }
+    // Si el cronómetro activo es de órbitas (Sol, Satélite, Luna), solo se permiten Espacio, Nebulosa y Lunar
+    if (this.isOrbitalTimer() && bg !== 'lofi_space_cosmos' && bg !== 'lofi_space_nebula' && bg !== 'lofi_space_moon') {
+      return;
+    }
     this.activeBackground.set(bg);
     localStorage.setItem('focus-active-bg', bg);
 
@@ -1285,11 +1399,12 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_space_cosmos') return 'assets/images/lofi_space_cosmos.jpg';
     if (bg === 'lofi_space_nebula') return 'assets/images/lofi_space_nebula.jpg';
     if (bg === 'lofi_space_moon') return 'assets/images/lofi_space_moon.jpg';
+    if (bg === 'lofi_titanic_ocean') return 'assets/images/lofi_titanic_ocean.jpg';
     return '';
   }
 
   // Setter del estilo de cronómetro Zen (con verificación Premium)
-  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon') {
+  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic') {
     if ((style === 'fire' || style === 'hourglass' || style === 'ice' || style === 'battery') && !this.membership.isPremium()) {
       this.showPaywallModal.set(true);
       return;
@@ -1297,15 +1412,27 @@ export class Enfoque implements OnInit, OnDestroy {
     this.timerStyle.set(style);
     localStorage.setItem('focus-timer-style', style);
 
-    // Auto-asignación de fondo dedicado por cronómetro para máxima inmersión
+    // Auto-asignación y validación de fondos según el cronómetro
     if (style === 'solar') {
-      this.setBackground('lofi_space_cosmos');
+      const cur = this.activeBackground();
+      if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
+        this.setBackground('lofi_space_cosmos');
+      }
     } else if (style === 'satellite') {
-      this.setBackground('lofi_space_nebula');
+      const cur = this.activeBackground();
+      if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
+        this.setBackground('lofi_space_nebula');
+      }
     } else if (style === 'moon') {
-      this.setBackground('lofi_space_moon');
+      const cur = this.activeBackground();
+      if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
+        this.setBackground('lofi_space_moon');
+      }
     } else if (style === 'fire') {
       this.setBackground('forest_campfire');
+    } else if (style === 'titanic') {
+      this.activeBackground.set('lofi_titanic_ocean');
+      localStorage.setItem('focus-active-bg', 'lofi_titanic_ocean');
     }
   }
 
