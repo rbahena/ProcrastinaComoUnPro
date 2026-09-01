@@ -171,7 +171,8 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.timerStyle() === 'titanic') {
       return ['lofi_titanic_ocean'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean')[];
     }
-    return this.backgroundOptions;
+    // Para todos los demás relojes normales, NO incluir 'lofi_titanic_ocean' (Mar es exclusivo del Titanic)
+    return ['off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean')[];
   });
 
 
@@ -1368,7 +1369,11 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Setter de fondo de pantalla Zen con restricciones temáticas
   setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean') {
-    // Si el cronómetro activo es el Titanic, solo se permite Espacio
+    // El fondo Mar es exclusivo e inseparable del Titanic
+    if (bg === 'lofi_titanic_ocean' && this.timerStyle() !== 'titanic') {
+      return;
+    }
+    // Si el cronómetro activo es el Titanic, solo se permite Mar
     if (this.timerStyle() === 'titanic' && bg !== 'lofi_titanic_ocean') {
       return;
     }
@@ -1413,26 +1418,47 @@ export class Enfoque implements OnInit, OnDestroy {
     localStorage.setItem('focus-timer-style', style);
 
     // Auto-asignación y validación de fondos según el cronómetro
-    if (style === 'solar') {
-      const cur = this.activeBackground();
-      if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
-        this.setBackground('lofi_space_cosmos');
-      }
-    } else if (style === 'satellite') {
-      const cur = this.activeBackground();
-      if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
-        this.setBackground('lofi_space_nebula');
-      }
-    } else if (style === 'moon') {
-      const cur = this.activeBackground();
-      if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
-        this.setBackground('lofi_space_moon');
-      }
-    } else if (style === 'fire') {
-      this.setBackground('forest_campfire');
-    } else if (style === 'titanic') {
+    if (style === 'titanic') {
       this.activeBackground.set('lofi_titanic_ocean');
       localStorage.setItem('focus-active-bg', 'lofi_titanic_ocean');
+    } else {
+      // Si se cambia a cualquier otro reloj que no sea el Titanic y el fondo actual es Mar, reasignar a un fondo compatible
+      if (this.activeBackground() === 'lofi_titanic_ocean') {
+        if (style === 'solar') {
+          this.activeBackground.set('lofi_space_cosmos');
+          localStorage.setItem('focus-active-bg', 'lofi_space_cosmos');
+        } else if (style === 'satellite') {
+          this.activeBackground.set('lofi_space_nebula');
+          localStorage.setItem('focus-active-bg', 'lofi_space_nebula');
+        } else if (style === 'moon') {
+          this.activeBackground.set('lofi_space_moon');
+          localStorage.setItem('focus-active-bg', 'lofi_space_moon');
+        } else if (style === 'fire') {
+          this.setBackground('forest_campfire');
+        } else {
+          this.activeBackground.set('lofi_study_desktop');
+          localStorage.setItem('focus-active-bg', 'lofi_study_desktop');
+        }
+      } else {
+        if (style === 'solar') {
+          const cur = this.activeBackground();
+          if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
+            this.setBackground('lofi_space_cosmos');
+          }
+        } else if (style === 'satellite') {
+          const cur = this.activeBackground();
+          if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
+            this.setBackground('lofi_space_nebula');
+          }
+        } else if (style === 'moon') {
+          const cur = this.activeBackground();
+          if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
+            this.setBackground('lofi_space_moon');
+          }
+        } else if (style === 'fire') {
+          this.setBackground('forest_campfire');
+        }
+      }
     }
   }
 
