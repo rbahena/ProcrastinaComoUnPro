@@ -3357,164 +3357,393 @@
 
         </div>
 
-        <!-- CONTENIDO TABS: TIMER STYLE -->
+        <!-- CONTENIDO TABS: TIMER STYLE (GALERÍA VISUAL CON MINIATURAS PREVIEW) -->
         <div *ngIf="settingsActiveTab() === 'timerStyle'" style="display: flex; flex-direction: column; gap: 18px;">
 
           <!-- Estilo del Temporizador -->
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
               <i class="fa-solid fa-hourglass-half" style="color: var(--accent);"></i>
-              Estilo del Temporizador Zen
+              Estilo del Temporizador Zen (Vista Previa)
             </span>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-              <!-- Opción 1: Digital -->
-              <button (click)="setTimerStyle('digital')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
-                      [style.background]="timerStyle() === 'digital' ? 'rgba(255,255,255,0.08)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'digital' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'digital' ? 'var(--text)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'digital') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-clock"></i>
-                Dígitos Clásicos
-              </button>
 
-              <!-- Opción 2: Fuego Premium -->
-              <button (click)="setTimerStyle('fire')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; position: relative;"
-                      [style.background]="timerStyle() === 'fire' ? 'rgba(99, 102, 241, 0.12)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'fire' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'fire' ? 'var(--accent)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'fire') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-fire-flame-curved"></i>
-                Fuego Sagrado
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px;">
+              
+              <!-- 1. Digital Clásico -->
+              <div (click)="setTimerStyle('digital')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'digital' ? 'true' : 'false'">
                 
-                <i *ngIf="!membership.isPremium()" 
-                   class="fa-solid fa-lock" 
-                   style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
-              </button>
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(30, 41, 59, 0.5) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'digital' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'digital' ? '0 0 14px rgba(99, 102, 241, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Digital -->
+                  <svg viewBox="0 0 60 36" style="width: 75%; height: 75%;">
+                    <text x="30" y="22" text-anchor="middle" fill="#00f2fe" font-size="14" font-weight="900" font-family="'Space Grotesk', monospace" letter-spacing="-0.5" style="filter: drop-shadow(0 0 4px rgba(0, 242, 254, 0.7));">25:00</text>
+                  </svg>
 
-              <!-- Opción 3: Reloj de Arena -->
-              <button (click)="setTimerStyle('hourglass')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; position: relative;"
-                      [style.background]="timerStyle() === 'hourglass' ? 'rgba(0, 242, 254, 0.08)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'hourglass' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'hourglass' ? 'var(--accent)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'hourglass') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-hourglass-half"></i>
-                Reloj de Arena
+                  <div *ngIf="timerStyle() === 'digital'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'digital' ? 'var(--accent)' : 'var(--muted)'">Digital</span>
+              </div>
+
+
+              <!-- 2. Fogata Sagrada -->
+              <div (click)="setTimerStyle('fire')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%; position: relative;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'fire' ? 'true' : 'false'">
                 
-                <i *ngIf="!membership.isPremium()" 
-                   class="fa-solid fa-lock" 
-                   style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
-              </button>
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(120, 53, 15, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'fire' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'fire' ? '0 0 14px rgba(245, 158, 11, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Fogata -->
+                  <svg viewBox="0 0 50 36" style="width: 75%; height: 75%;">
+                    <!-- Leños -->
+                    <line x1="12" y1="28" x2="38" y2="28" stroke="#78350f" stroke-width="4" stroke-linecap="round" />
+                    <line x1="16" y1="30" x2="34" y2="24" stroke="#451a03" stroke-width="3" stroke-linecap="round" />
+                    <!-- Llama Naranja y Amarilla -->
+                    <path d="M 25 7 Q 33 18, 30 25 Q 25 29, 20 25 Q 17 18, 25 7 Z" fill="#f59e0b" style="filter: drop-shadow(0 0 4px #ea580c);" />
+                    <path d="M 25 14 Q 29 20, 27 24 Q 25 27, 23 24 Q 21 20, 25 14 Z" fill="#fef08a" />
+                  </svg>
 
-              <!-- Opción 4: Cubo de Hielo -->
-              <button (click)="setTimerStyle('ice')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; position: relative;"
-                      [style.background]="timerStyle() === 'ice' ? 'rgba(0, 229, 255, 0.08)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'ice' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'ice' ? 'var(--accent)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'ice') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-cube"></i>
-                Cubo de Hielo
+                  <div *ngIf="!membership.isPremium()" 
+                       style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2;">
+                    <i class="fa-solid fa-lock" style="color: var(--yellow); font-size: 11px;"></i>
+                  </div>
+
+                  <div *ngIf="timerStyle() === 'fire'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'fire' ? 'var(--accent)' : 'var(--muted)'">Fogata</span>
+              </div>
+
+
+              <!-- 3. Reloj de Arena -->
+              <div (click)="setTimerStyle('hourglass')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%; position: relative;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'hourglass' ? 'true' : 'false'">
                 
-                <i *ngIf="!membership.isPremium()" 
-                   class="fa-solid fa-lock" 
-                   style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
-              </button>
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(14, 116, 144, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'hourglass' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'hourglass' ? '0 0 14px rgba(0, 242, 254, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Reloj de Arena -->
+                  <svg viewBox="0 0 40 36" style="width: 65%; height: 65%;">
+                    <!-- Cristal -->
+                    <path d="M 10 6 L 30 6 L 22 18 L 30 30 L 10 30 L 18 18 Z" fill="rgba(255,255,255,0.06)" stroke="#38bdf8" stroke-width="1.4" stroke-linejoin="round" />
+                    <!-- Base y Tapa -->
+                    <line x1="8" y1="6" x2="32" y2="6" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
+                    <line x1="8" y1="30" x2="32" y2="30" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
+                    <!-- Arena Dorada / Cian -->
+                    <path d="M 12 8 L 28 8 L 20 17 Z" fill="#00f2fe" opacity="0.85" />
+                    <path d="M 13 29 L 27 29 L 20 23 Z" fill="#00f2fe" opacity="0.95" />
+                    <line x1="20" y1="17" x2="20" y2="23" stroke="#00f2fe" stroke-width="1" stroke-dasharray="1 1" />
+                  </svg>
 
-              <!-- Opción 5: Batería Eléctrica -->
-              <button (click)="setTimerStyle('battery')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; position: relative;"
-                      [style.background]="timerStyle() === 'battery' ? 'rgba(0, 230, 118, 0.08)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'battery') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-battery-three-quarters"></i>
-                Batería Zen
+                  <div *ngIf="!membership.isPremium()" 
+                       style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2;">
+                    <i class="fa-solid fa-lock" style="color: var(--yellow); font-size: 11px;"></i>
+                  </div>
+
+                  <div *ngIf="timerStyle() === 'hourglass'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'hourglass' ? 'var(--accent)' : 'var(--muted)'">Reloj Arena</span>
+              </div>
+
+
+              <!-- 4. Cubo de Hielo -->
+              <div (click)="setTimerStyle('ice')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%; position: relative;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'ice' ? 'true' : 'false'">
                 
-                <i *ngIf="!membership.isPremium()" 
-                   class="fa-solid fa-lock" 
-                   style="position: absolute; top: -4px; right: -4px; font-size: 7px; background: #000; padding: 2px; border-radius: 50%; color: var(--yellow);"></i>
-              </button>
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(3, 105, 161, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'ice' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'ice' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Cubo de Hielo -->
+                  <svg viewBox="0 0 40 36" style="width: 65%; height: 65%;">
+                    <!-- Cara Superior -->
+                    <polygon points="20,6 32,12 20,18 8,12" fill="#7dd3fc" opacity="0.85" />
+                    <!-- Cara Izquierda -->
+                    <polygon points="8,12 20,18 20,30 8,24" fill="#0284c7" opacity="0.9" />
+                    <!-- Cara Derecha -->
+                    <polygon points="20,18 32,12 32,24 20,30" fill="#0369a1" opacity="0.95" />
+                    <!-- Brillo de Cristal -->
+                    <line x1="20" y1="6" x2="20" y2="18" stroke="#ffffff" stroke-width="1" opacity="0.8" />
+                    <circle cx="20" cy="33" r="1.5" fill="#38bdf8" />
+                  </svg>
 
-              <!-- Opción 6: Anillo Zen -->
-              <button (click)="setTimerStyle('ring')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
-                      [style.background]="timerStyle() === 'ring' ? 'rgba(255,255,255,0.08)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'ring' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'ring' ? 'var(--text)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'ring') { this.style.borderColor='var(--border)' }">
-                <i class="fa-regular fa-circle"></i>
-                Anillo Zen
-              </button>
+                  <div *ngIf="!membership.isPremium()" 
+                       style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2;">
+                    <i class="fa-solid fa-lock" style="color: var(--yellow); font-size: 11px;"></i>
+                  </div>
 
-              <!-- Opción 7: Línea Zen -->
-              <button (click)="setTimerStyle('line')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
-                      [style.background]="timerStyle() === 'line' ? 'rgba(255,255,255,0.08)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'line' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'line' ? 'var(--text)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'line') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-grip-lines"></i>
-                Línea Zen
-              </button>
+                  <div *ngIf="timerStyle() === 'ice'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'ice' ? 'var(--accent)' : 'var(--muted)'">Cubo Hielo</span>
+              </div>
 
-              <!-- Opción 8: Órbita Solar (Sol y Tierra) -->
-              <button (click)="setTimerStyle('solar')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
-                      [style.background]="timerStyle() === 'solar' ? 'rgba(251, 191, 36, 0.12)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'solar' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'solar' ? 'var(--accent)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'solar') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-earth-americas"></i>
-                Órbita Solar
-              </button>
 
-              <!-- Opción 9: Satélite Orbital (Satélite y Tierra) -->
-              <button (click)="setTimerStyle('satellite')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
-                      [style.background]="timerStyle() === 'satellite' ? 'rgba(56, 189, 248, 0.12)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'satellite' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'satellite' ? 'var(--accent)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'satellite') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-satellite"></i>
-                Satélite Orbital
-              </button>
+              <!-- 5. Batería Zen -->
+              <div (click)="setTimerStyle('battery')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%; position: relative;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'battery' ? 'true' : 'false'">
+                
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(16, 185, 129, 0.35) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'battery' ? '0 0 14px rgba(16, 185, 129, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Batería -->
+                  <svg viewBox="0 0 44 36" style="width: 65%; height: 65%;">
+                    <!-- Cuerpo Batería -->
+                    <rect x="6" y="9" width="28" height="18" rx="4" fill="none" stroke="#64748b" stroke-width="1.8" />
+                    <!-- Borne Terminal -->
+                    <rect x="34" y="14" width="3" height="8" rx="1" fill="#64748b" />
+                    <!-- Celdas de Energía Verde Neón -->
+                    <rect x="9" y="12" width="6" height="12" rx="1.5" fill="#00e676" style="filter: drop-shadow(0 0 2px #00e676);" />
+                    <rect x="17" y="12" width="6" height="12" rx="1.5" fill="#00e676" style="filter: drop-shadow(0 0 2px #00e676);" />
+                    <rect x="25" y="12" width="6" height="12" rx="1.5" fill="#00e676" style="filter: drop-shadow(0 0 2px #00e676);" />
+                  </svg>
 
-              <!-- Opción 10: Órbita Lunar (Tierra y Luna) -->
-              <button (click)="setTimerStyle('moon')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
-                      [style.background]="timerStyle() === 'moon' ? 'rgba(241, 245, 249, 0.12)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'moon' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'moon' ? 'var(--accent)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'moon') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-moon"></i>
-                Órbita Lunar
-              </button>
+                  <div *ngIf="!membership.isPremium()" 
+                       style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2;">
+                    <i class="fa-solid fa-lock" style="color: var(--yellow); font-size: 11px;"></i>
+                  </div>
 
-              <!-- Opción 11: El Titanic (Navío y Océano) -->
-              <button (click)="setTimerStyle('titanic')"
-                      style="border: 1px solid var(--border); padding: 12px; border-radius: 10px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s;"
-                      [style.background]="timerStyle() === 'titanic' ? 'rgba(14, 165, 233, 0.14)' : 'transparent'"
-                      [style.borderColor]="timerStyle() === 'titanic' ? 'var(--accent)' : 'var(--border)'"
-                      [style.color]="timerStyle() === 'titanic' ? 'var(--accent)' : 'var(--muted)'"
-                      onmouseover="this.style.borderColor='var(--accent)'"
-                      onmouseout="if(this.timerStyle() !== 'titanic') { this.style.borderColor='var(--border)' }">
-                <i class="fa-solid fa-ship"></i>
-                El Titanic
-              </button>
+                  <div *ngIf="timerStyle() === 'battery'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--muted)'">Batería</span>
+              </div>
 
+
+              <!-- 6. Anillo Zen -->
+              <div (click)="setTimerStyle('ring')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'ring' ? 'true' : 'false'">
+                
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(99, 102, 241, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'ring' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'ring' ? '0 0 14px rgba(99, 102, 241, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Anillo -->
+                  <svg viewBox="0 0 36 36" style="width: 65%; height: 65%;">
+                    <circle cx="18" cy="18" r="13" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2.5" />
+                    <circle cx="18" cy="18" r="13" fill="none" stroke="#6366f1" stroke-width="3" stroke-dasharray="81" stroke-dashoffset="24" stroke-linecap="round" style="filter: drop-shadow(0 0 4px #6366f1);" />
+                    <circle cx="18" cy="18" r="2.5" fill="#ffffff" />
+                  </svg>
+
+                  <div *ngIf="timerStyle() === 'ring'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'ring' ? 'var(--accent)' : 'var(--muted)'">Anillo</span>
+              </div>
+
+
+              <!-- 7. Línea Zen -->
+              <div (click)="setTimerStyle('line')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'line' ? 'true' : 'false'">
+                
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(14, 165, 233, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'line' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'line' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Línea -->
+                  <svg viewBox="0 0 46 36" style="width: 75%; height: 75%;">
+                    <text x="23" y="14" text-anchor="middle" fill="#f8fafc" font-size="9" font-weight="900" font-family="'Space Grotesk', monospace">18:45</text>
+                    <line x1="6" y1="23" x2="40" y2="23" stroke="rgba(255,255,255,0.15)" stroke-width="3" stroke-linecap="round" />
+                    <line x1="6" y1="23" x2="28" y2="23" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" style="filter: drop-shadow(0 0 4px #38bdf8);" />
+                  </svg>
+
+                  <div *ngIf="timerStyle() === 'line'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'line' ? 'var(--accent)' : 'var(--muted)'">Línea</span>
+              </div>
+
+
+              <!-- 8. Órbita Solar -->
+              <div (click)="setTimerStyle('solar')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'solar' ? 'true' : 'false'">
+                
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(234, 88, 12, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'solar' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'solar' ? '0 0 14px rgba(251, 191, 36, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Sol y Tierra -->
+                  <svg viewBox="0 0 40 36" style="width: 70%; height: 70%;">
+                    <!-- Órbita -->
+                    <circle cx="20" cy="18" r="13" fill="none" stroke="rgba(251, 191, 36, 0.25)" stroke-width="0.9" stroke-dasharray="2 2" />
+                    <!-- Sol Luminoso Central -->
+                    <circle cx="20" cy="18" r="6" fill="#f59e0b" style="filter: drop-shadow(0 0 5px #fbbf24);" />
+                    <circle cx="20" cy="18" r="3.5" fill="#fef08a" />
+                    <!-- Tierra en Órbita -->
+                    <circle cx="33" cy="18" r="2.8" fill="#38bdf8" style="filter: drop-shadow(0 0 2px #38bdf8);" />
+                  </svg>
+
+                  <div *ngIf="timerStyle() === 'solar'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'solar' ? 'var(--accent)' : 'var(--muted)'">Órbita Solar</span>
+              </div>
+
+
+              <!-- 9. Satélite Orbital -->
+              <div (click)="setTimerStyle('satellite')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'satellite' ? 'true' : 'false'">
+                
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(2, 132, 199, 0.4) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'satellite' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'satellite' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Satélite y Tierra -->
+                  <svg viewBox="0 0 40 36" style="width: 70%; height: 70%;">
+                    <!-- Globo Tierra -->
+                    <circle cx="18" cy="18" r="9" fill="#0284c7" style="filter: drop-shadow(0 0 4px rgba(56,189,248,0.5));" />
+                    <circle cx="16" cy="16" r="3" fill="#22c55e" opacity="0.8" />
+                    <!-- Órbita Elíptica -->
+                    <ellipse cx="18" cy="18" rx="14" ry="7" fill="none" stroke="#38bdf8" stroke-width="0.8" stroke-dasharray="1.5 1.5" transform="rotate(-25 18 18)" />
+                    <!-- Satélite Dorado con Paneles -->
+                    <g transform="translate(30, 10) rotate(-25)">
+                      <rect x="-2" y="-2" width="4" height="4" fill="#fde047" />
+                      <line x1="-5" y1="0" x2="5" y2="0" stroke="#38bdf8" stroke-width="1.2" />
+                    </g>
+                  </svg>
+
+                  <div *ngIf="timerStyle() === 'satellite'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'satellite' ? 'var(--accent)' : 'var(--muted)'">Satélite</span>
+              </div>
+
+
+              <!-- 10. Órbita Lunar -->
+              <div (click)="setTimerStyle('moon')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'moon' ? 'true' : 'false'">
+                
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(148, 163, 184, 0.35) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'moon' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'moon' ? '0 0 14px rgba(241, 245, 249, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Tierra y Luna -->
+                  <svg viewBox="0 0 40 36" style="width: 70%; height: 70%;">
+                    <!-- Órbita -->
+                    <circle cx="18" cy="18" r="13" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" stroke-dasharray="2 2" />
+                    <!-- Tierra -->
+                    <circle cx="18" cy="18" r="8" fill="#0369a1" />
+                    <path d="M 18 10 A 8 8 0 0 1 18 26 Z" fill="#020617" opacity="0.65" />
+                    <!-- Luna Detallada en Órbita -->
+                    <circle cx="31" cy="18" r="3.2" fill="#e2e8f0" style="filter: drop-shadow(0 0 3px #ffffff);" />
+                    <circle cx="30.5" cy="17.5" r="0.7" fill="#64748b" />
+                  </svg>
+
+                  <div *ngIf="timerStyle() === 'moon'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'moon' ? 'var(--accent)' : 'var(--muted)'">Órbita Lunar</span>
+              </div>
+
+
+              <!-- 11. El Titanic -->
+              <div (click)="setTimerStyle('titanic')"
+                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
+                   onmouseover="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1.04)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color='var(--text)' };"
+                   onmouseout="const w = this.querySelector('.timer-thumb-wrapper'); if(w) { w.style.transform='scale(1)' }; const l = this.querySelector('.timer-thumb-label'); if(l) { l.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   [attr.data-active]="timerStyle() === 'titanic' ? 'true' : 'false'">
+                
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(3, 105, 161, 0.45) 0%, rgba(10, 10, 15, 0.95) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'titanic' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'titanic' ? '0 0 14px rgba(14, 165, 233, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <!-- Mini SVG Titanic -->
+                  <svg viewBox="0 0 54 36" style="width: 80%; height: 80%;">
+                    <!-- Océano inferior -->
+                    <rect x="0" y="24" width="54" height="12" fill="#0369a1" opacity="0.9" />
+                    <line x1="0" y1="24" x2="54" y2="24" stroke="#38bdf8" stroke-width="1.2" />
+                    <!-- Iceberg lateral -->
+                    <polygon points="43,24 47,15 51,24" fill="#7dd3fc" opacity="0.9" />
+                    <!-- Casco del Titanic -->
+                    <path d="M 6 24 L 8 20 L 38 20 Q 42 21, 44 24 Z" fill="#0f172a" stroke="#7f1d1d" stroke-width="0.7" />
+                    <!-- Cubierta Blanca -->
+                    <rect x="10" y="17" width="26" height="3" fill="#f8fafc" />
+                    <!-- Chimeneas Amarillo Ocre con Tope Negro -->
+                    <rect x="14" y="11" width="3" height="6" fill="#d97706" />
+                    <rect x="14" y="11" width="3" height="2" fill="#0f172a" />
+                    <rect x="20" y="11" width="3" height="6" fill="#d97706" />
+                    <rect x="20" y="11" width="3" height="2" fill="#0f172a" />
+                    <rect x="26" y="11" width="3" height="6" fill="#d97706" />
+                    <rect x="26" y="11" width="3" height="2" fill="#0f172a" />
+                    <rect x="32" y="11" width="3" height="6" fill="#d97706" />
+                    <rect x="32" y="11" width="3" height="2" fill="#0f172a" />
+                  </svg>
+
+                  <div *ngIf="timerStyle() === 'titanic'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'titanic' ? 'var(--accent)' : 'var(--muted)'">Titanic</span>
+              </div>
 
             </div>
           </div>
