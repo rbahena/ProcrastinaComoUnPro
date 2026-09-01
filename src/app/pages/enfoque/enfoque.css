@@ -1049,8 +1049,11 @@
   animation: none !important; /* Desactiva animaciones como consoleSlideUp con forwards */
 }
 
-:host.zen-inactive .zen-timer:not(.has-fire) {
-  opacity: 0.45 !important;
+/* El cronómetro siempre mantiene su brillo y opacidad máxima al 100% */
+:host.zen-inactive .zen-timer,
+.zen-timer {
+  opacity: 1 !important;
+  filter: none !important;
 }
 
 /* ===== FUEGO SAGRADO PREMIUM STYLE ===== */

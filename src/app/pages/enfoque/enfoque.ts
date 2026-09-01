@@ -1196,7 +1196,7 @@ export class Enfoque implements OnInit, OnDestroy {
       if (this.arenaState() !== 'summary') {
         this.isInactive.set(true);
       }
-    }, 3000); // 3 segundos tras salir de la ventana se activa el modo Zen
+    }, 60000); // 1 minuto tras salir de la ventana se activa el modo Zen
   }
 
   private resetInactivityTimer() {
@@ -1207,7 +1207,7 @@ export class Enfoque implements OnInit, OnDestroy {
       if (this.arenaState() !== 'summary') {
         this.isInactive.set(true);
       }
-    }, 8000); // 8 segundos de inactividad física
+    }, 60000); // 1 minuto (60s) de inactividad física
   }
 
   // Controles del Temporizador en Setup
