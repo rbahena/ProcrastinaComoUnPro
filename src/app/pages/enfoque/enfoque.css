@@ -2575,13 +2575,14 @@
   }
 }
 
-/* ===== BATERÍA ZEN PREMIUM STYLE ===== */
-.battery-container, .ring-container, .line-container {
+/* ===== BATERÍA ZEN Y ÓRBITAS PREMIUM STYLE ===== */
+.battery-container, .ring-container, .line-container, .solar-container, .satellite-container, .moon-container, .titanic-container {
   cursor: grab !important;
   user-select: none !important;
   touch-action: none !important;
+  max-width: 100%;
 }
-.battery-container:active, .ring-container:active, .line-container:active {
+.battery-container:active, .ring-container:active, .line-container:active, .solar-container:active, .satellite-container:active, .moon-container:active, .titanic-container:active {
   cursor: grabbing !important;
 }
 

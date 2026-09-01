@@ -299,9 +299,9 @@
       <!-- Estrategia de concentración movida a la consola unificada inferior izquierda -->
 
       <!-- COLUMNA CENTRAL: Reloj Digital -->
-      <div class="focus-column-center timer-column" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%; max-width: var(--timer-column-max-width); margin: 0 auto; margin-top: 65px;">
+      <div class="focus-column-center timer-column" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; width: 100%; max-width: var(--timer-column-max-width); margin: 0 auto; margin-top: 15px;">
         
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; min-height: 300px; width: 100%; position: relative;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 260px; width: 100%; position: relative;">
           <!-- Fondo decorativo con auras suaves -->
           <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
@@ -1157,10 +1157,10 @@
                      (touchstart)="onTouchStart($event)"
                      (dblclick)="resetCampfirePosition()"
                      [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                     style="position: relative; width: 380px; height: 380px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible;">
+                     style="position: relative; width: 330px; height: 330px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto;">
                   
                   <!-- SVG del Sistema Sol y Tierra (Órbita Ampliada a Radio 148) -->
-                  <svg viewBox="0 0 390 390" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                  <svg viewBox="0 0 390 390" style="width: 100%; height: 100%; overflow: hidden; z-index: 4;">
                     <defs>
                       <!-- Filtro atmósfera terrestre -->
                       <filter id="earthAtmosphereGlow" x="-50%" y="-50%" width="200%" height="200%">
@@ -1361,10 +1361,10 @@
                      (touchstart)="onTouchStart($event)"
                      (dblclick)="resetCampfirePosition()"
                      [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                     style="position: relative; width: 380px; height: 380px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible;">
+                     style="position: relative; width: 330px; height: 330px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto;">
                   
                   <!-- SVG del Sistema Satélite y Tierra Orgánica Estilizada (Lienzo 400x400, Centro 200, 200) -->
-                  <svg viewBox="0 0 400 400" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                  <svg viewBox="0 0 400 400" style="width: 100%; height: 100%; overflow: hidden; z-index: 4;">
                     <defs>
                       <!-- Filtros de Brillo y Atmósfera -->
                       <filter id="earthAtmosphereHalo" x="-50%" y="-50%" width="200%" height="200%">
@@ -1743,10 +1743,10 @@
                      (touchstart)="onTouchStart($event)"
                      (dblclick)="resetCampfirePosition()"
                      [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                     style="position: relative; width: 380px; height: 380px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible;">
+                     style="position: relative; width: 330px; height: 330px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto;">
                   
                   <!-- SVG del Sistema Tierra y Luna con Sombreado Dinámico Lunar (Lienzo 400x400, Centro 200, 200) -->
-                  <svg viewBox="0 0 400 400" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                  <svg viewBox="0 0 400 400" style="width: 100%; height: 100%; overflow: hidden; z-index: 4;">
                     <defs>
                       <!-- Filtros -->
                       <filter id="moonAtmosphereHalo" x="-50%" y="-50%" width="200%" height="200%">
@@ -2620,7 +2620,7 @@
             </div>
 
 <!-- Controles de Acción Minimalistas -->
-             <div class="hide-on-inactive action-buttons-container" style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 140px; margin-bottom: 24px;">
+             <div class="hide-on-inactive action-buttons-container" style="z-index: 2; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 15px; margin-bottom: 20px;">
                
                <ng-container *ngIf="arenaState() !== 'summary'">
                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
