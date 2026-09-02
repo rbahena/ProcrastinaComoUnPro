@@ -1231,6 +1231,9 @@ export class IdentitySettings implements OnInit {
       case 'loro': return '🦜';
       case 'hamster': return '🐹';
       case 'cuyo': return '🐹';
+      case 'dragon': return '🐉';
+      case 'fenix': return '🔥';
+      case 'grifo': return '🦅';
       case 'raton': return '🐭';
       case 'rana': return '🐸';
       default: return '🐾';

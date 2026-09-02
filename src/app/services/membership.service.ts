@@ -68,7 +68,7 @@ function getMigratedValueJSON<T>(key: string, defaultValue: T, legacyKeyPrefix =
 export const ALL_AVATARS_LIST = [
   'gato', 'perro', 'conejo', 'loro', 'hamster', 'raton', 'tortuga', 'hormiga', 'buho', 'rana', 
   'aguila', 'abeja', 'castor', 'zorro', 'lince', 'panda', 'oso', 'elefante', 'leon', 'tigre', 
-  'lobo', 'dragon', 'fenix'
+  'lobo', 'dragon', 'fenix', 'grifo'
 ];
 
 @Injectable({
@@ -166,7 +166,7 @@ export class MembershipService {
     getMigratedValueJSON('captured-ideas', [] as string[])
   );
 
-  // Catálogo completo de avatares disponibles (Gato, Perro, Conejo, Loro, Hámster, Tortuga, Hormiga, Búho, Rana, Águila, Abeja, Castor, Zorro, Lince, Panda, Oso, Elefante, León, Tigre, Lobo, Dragón, Fénix)
+  // Catálogo completo de avatares disponibles (Gato, Perro, Conejo, Loro, Hámster, Tortuga, Hormiga, Búho, Rana, Águila, Abeja, Castor, Zorro, Lince, Panda, Oso, Elefante, León, Tigre, Lobo, Dragón, Fénix, Grifo)
   avatarsCatalog = signal<AvatarItem[]>([
     { id: 'gato', name: 'Gato Lancero', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
     { id: 'perro', name: 'Perro Lancero', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
@@ -192,7 +192,8 @@ export class MembershipService {
     { id: 'tigre', name: 'Tigre', icon: 'fa-paw', color: '#f97316', isUnlocked: true },
     { id: 'lobo', name: 'Lobo', icon: 'fa-paw', color: '#ef4444', isUnlocked: true },
     { id: 'dragon', name: 'Dragón del Ego', icon: 'fa-dragon', color: '#d946ef', isUnlocked: true },
-    { id: 'fenix', name: 'Fénix', icon: 'fa-fire', color: '#f97316', isUnlocked: true }
+    { id: 'fenix', name: 'Fénix', icon: 'fa-fire', color: '#f97316', isUnlocked: true },
+    { id: 'grifo', name: 'Grifo', icon: 'fa-crow', color: '#eab308', isUnlocked: true }
   ]);
 
   // Catálogo completo de Cualidades (TORTUGA, HORMIGA, BÚHO, RANA, ÁGUILA, ABEJA, CASTOR)
@@ -803,7 +804,7 @@ export class MembershipService {
       lobo: 'Lobo', tortuga: 'Tortuga', hormiga: 'Hormiga', abeja: 'Abeja',
       castor: 'Castor', aguila: 'Águila', buho: 'Búho', panda: 'Panda',
       oso: 'Oso', elefante: 'Elefante',
-      leon: 'León', tigre: 'Tigre', dragon: 'Dragón del Ego', fenix: 'Fénix',
+      leon: 'León', tigre: 'Tigre', dragon: 'Dragón del Ego', fenix: 'Fénix', grifo: 'Grifo',
       hamster: 'Hámster Lancero', raton: 'Ratón Lancero', rana: 'Rana'
     };
     return names[id] || 'Gato';
@@ -816,7 +817,7 @@ export class MembershipService {
       lobo: '#ef4444', tortuga: '#22c55e', hormiga: '#78350f', abeja: '#eab308',
       castor: '#b45309', aguila: '#3b82f6', buho: '#6366f1', panda: '#6b7280',
       oso: '#78350f', elefante: '#6b7280',
-      leon: '#fbbf24', tigre: '#f97316', dragon: '#d946ef', fenix: '#ef4444',
+      leon: '#fbbf24', tigre: '#f97316', dragon: '#d946ef', fenix: '#ef4444', grifo: '#eab308',
       hamster: '#f97316', raton: '#ec4899', rana: '#22c55e'
     };
     return colors[id] || '#10b981';
@@ -824,7 +825,7 @@ export class MembershipService {
 
   getSelectedAvatarIcon(): string {
     const current = this.selectedAvatar();
-    if (['buho', 'aguila', 'fenix'].includes(current)) return 'fa-crow';
+    if (['buho', 'aguila', 'fenix', 'grifo'].includes(current)) return 'fa-crow';
     if (['panda'].includes(current)) return 'fa-spa';
     if (current === 'dragon') return 'fa-dragon';
     return 'fa-paw';
@@ -846,6 +847,7 @@ export class MembershipService {
       case 'tigre': return '🐯';
       case 'dragon': return '🐉';
       case 'fenix': return '🔥';
+      case 'grifo': return '🦅';
       case 'tortuga': return '🐢';
       case 'abeja': return '🐝';
       case 'castor': return '🦫';
@@ -880,6 +882,7 @@ export class MembershipService {
       case 'elefante': return 'Sabio';
       case 'dragon': return 'Señor del Ego';
       case 'fenix': return 'Inmortal';
+      case 'grifo': return 'Guardián Celestial';
       case 'hamster': return 'Veloz';
       case 'raton': return 'Astuto';
       case 'rana': return 'Saltarina';

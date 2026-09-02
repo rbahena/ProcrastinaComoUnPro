@@ -179,6 +179,7 @@ button { font-family: inherit; cursor: pointer; }
   animation: dragon-legendary-glow 3s infinite alternate;
 }
 .avatar-sprite.sprite-fenix { background-image: url('/assets/images/avatars/fenix.jpg'); }
+.avatar-sprite.sprite-grifo { background-image: url('/assets/images/avatars/grifo.jpg'); }
 
 @keyframes dragon-legendary-glow {
   0% {

@@ -205,7 +205,8 @@ export class Bitacora {
       tigre: '🐯',
       lobo: '🐺',
       dragon: '🐉',
-      fenix: '🐦'
+      fenix: '🔥',
+      grifo: '🦅'
     };
     return emojis[avatar] || '🐾';
   }
