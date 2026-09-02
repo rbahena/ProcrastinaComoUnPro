@@ -178,8 +178,18 @@ button { font-family: inherit; cursor: pointer; }
   border: 2px solid #10b981 !important;
   animation: dragon-legendary-glow 3s infinite alternate;
 }
-.avatar-sprite.sprite-fenix { background-image: url('/assets/images/avatars/fenix.jpg'); }
-.avatar-sprite.sprite-grifo { background-image: url('/assets/images/avatars/grifo.jpg'); }
+.avatar-sprite.sprite-fenix {
+  background-image: url('/assets/images/avatars/fenix.jpg');
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.6), 0 0 45px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(251, 146, 60, 0.35);
+  border: 2px solid #f97316 !important;
+  animation: fenix-legendary-glow 3s infinite alternate;
+}
+.avatar-sprite.sprite-grifo {
+  background-image: url('/assets/images/avatars/grifo.jpg');
+  box-shadow: 0 0 20px rgba(234, 179, 8, 0.6), 0 0 45px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(253, 224, 71, 0.35);
+  border: 2px solid #eab308 !important;
+  animation: grifo-legendary-glow 3s infinite alternate;
+}
 
 @keyframes dragon-legendary-glow {
   0% {
@@ -196,10 +206,46 @@ button { font-family: inherit; cursor: pointer; }
   }
 }
 
-/* Disable custom animations, shadows, and borders for locked dragon avatar */
+@keyframes fenix-legendary-glow {
+  0% {
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.5), 0 0 30px rgba(0, 0, 0, 0.8);
+    filter: brightness(0.95) contrast(1.05);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.75), 0 0 50px rgba(249, 115, 22, 0.5);
+    filter: brightness(1.15) contrast(1.1);
+  }
+  100% {
+    box-shadow: 0 0 35px rgba(251, 146, 60, 0.95), 0 0 70px rgba(0, 0, 0, 0.95);
+    filter: brightness(1.25) contrast(1.15);
+  }
+}
+
+@keyframes grifo-legendary-glow {
+  0% {
+    box-shadow: 0 0 15px rgba(234, 179, 8, 0.5), 0 0 30px rgba(0, 0, 0, 0.8);
+    filter: brightness(0.95) contrast(1.05);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(250, 204, 21, 0.75), 0 0 50px rgba(234, 179, 8, 0.5);
+    filter: brightness(1.15) contrast(1.1);
+  }
+  100% {
+    box-shadow: 0 0 35px rgba(254, 240, 138, 0.95), 0 0 70px rgba(0, 0, 0, 0.95);
+    filter: brightness(1.25) contrast(1.15);
+  }
+}
+
+/* Disable custom animations, shadows, and borders for locked legendary avatars */
 .locked .sprite-dragon,
+.locked .sprite-fenix,
+.locked .sprite-grifo,
 .locked-card .sprite-dragon,
-.locked-card.legendary-card .sprite-dragon {
+.locked-card .sprite-fenix,
+.locked-card .sprite-grifo,
+.locked-card.legendary-card .sprite-dragon,
+.locked-card.legendary-card .sprite-fenix,
+.locked-card.legendary-card .sprite-grifo {
   animation: none !important;
   box-shadow: none !important;
   border: none !important;

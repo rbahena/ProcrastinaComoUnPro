@@ -1325,9 +1325,9 @@ export class Cualidades implements OnInit {
       { id: 'lobo', name: 'Lobo', type: 'especial', emoji: '🐺', color: '#ef4444', role: 'Guía de Manada', cost: 350, qualityId: null, qualityName: 'Perseverancia', qualityReq: 'Adquiérelo por 350 Pro Coins 🪙 demostrando lealtad y consistencia en la Comunidad.' },
 
       // LEGENDARIOS
-      { id: 'dragon', name: 'Dragón del Ego', type: 'legendario', emoji: '🐉', color: '#10b981', role: 'Señor del Ego', cost: 600, qualityId: null, qualityName: 'Maestría', qualityReq: 'Desbloquea el poder supremo del Dragón del Ego por 600 Pro Coins 🪙 dominando el tiempo y tu mente.' },
-      { id: 'fenix', name: 'Fénix', type: 'legendario', emoji: '🔥', color: '#f97316', role: 'Inmortal de Fuego', cost: 500, qualityId: null, qualityName: 'Resiliencia', qualityReq: 'Adquiérelo por 500 Pro Coins 🪙 renaciendo de tus cenizas en momentos de procrastinación.' },
-      { id: 'grifo', name: 'Grifo', type: 'legendario', emoji: '🦅', color: '#eab308', role: 'Guardián Celestial', cost: 550, qualityId: null, qualityName: 'Honor', qualityReq: 'Adquiérelo por 550 Pro Coins 🪙 elevando tu estándar de enfoque y disciplina a alturas legendarias.' }
+      { id: 'dragon', name: 'Dragón del Ego', type: 'legendario', emoji: '🐉', color: '#10b981', role: 'Señor del Ego (Katana & Daga Rúnica)', cost: 600, qualityId: null, qualityName: 'Maestría', qualityReq: 'Empuña la Katana de Plasma Esmeralda, la Daga Rúnica y el Orbe del Vórtice por 600 Pro Coins 🪙 dominando el tiempo y tu mente.' },
+      { id: 'fenix', name: 'Fénix', type: 'legendario', emoji: '🔥', color: '#f97316', role: 'Inmortal de Fuego (Lanza & Espada Solar)', cost: 500, qualityId: null, qualityName: 'Resiliencia', qualityReq: 'Blande la Lanza Solar y la Espada de Ascuas bajo la Corona de Fuego Eterno por 500 Pro Coins 🪙 renaciendo de tus cenizas en cada sesión.' },
+      { id: 'grifo', name: 'Grifo', type: 'legendario', emoji: '🦅', color: '#eab308', role: 'Guardián Celestial (Alabarda & Espada del Alba)', cost: 550, qualityId: null, qualityName: 'Honor', qualityReq: 'Desata la Alabarda Celestial y la Espada Sagrada con el poder de la Rueda Astral por 550 Pro Coins 🪙 elevando tu enfoque a alturas legendarias.' }
     ];
 
     return list.map(item => {
