@@ -1325,7 +1325,7 @@ export class Cualidades implements OnInit {
       { id: 'lobo', name: 'Lobo', type: 'especial', emoji: '🐺', color: '#ef4444', role: 'Guía de Manada', cost: 350, qualityId: null, qualityName: 'Perseverancia', qualityReq: 'Adquiérelo por 350 Pro Coins 🪙 demostrando lealtad y consistencia en la Comunidad.' },
 
       // LEGENDARIOS
-      { id: 'dragon', name: 'Dragón del Ego', type: 'legendario', emoji: '🐉', color: '#d946ef', role: 'Señor del Ego', cost: 600, qualityId: null, qualityName: 'Maestría', qualityReq: 'Desbloquea el poder supremo del Dragón del Ego por 600 Pro Coins 🪙 dominando el tiempo y tu mente.' },
+      { id: 'dragon', name: 'Dragón del Ego', type: 'legendario', emoji: '🐉', color: '#10b981', role: 'Señor del Ego', cost: 600, qualityId: null, qualityName: 'Maestría', qualityReq: 'Desbloquea el poder supremo del Dragón del Ego por 600 Pro Coins 🪙 dominando el tiempo y tu mente.' },
       { id: 'fenix', name: 'Fénix', type: 'legendario', emoji: '🔥', color: '#f97316', role: 'Inmortal de Fuego', cost: 500, qualityId: null, qualityName: 'Resiliencia', qualityReq: 'Adquiérelo por 500 Pro Coins 🪙 renaciendo de tus cenizas en momentos de procrastinación.' }
     ];
 

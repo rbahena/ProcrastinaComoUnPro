@@ -136,7 +136,7 @@ button { font-family: inherit; cursor: pointer; }
   background-position: center;
 }
 
-.avatar-sprite.sprite-lobo { background-image: url('/assets/images/avatars/lobo.webp'); }
+.avatar-sprite.sprite-lobo { background-image: url('/assets/images/avatars/lobo.jpg'); }
 .avatar-sprite.sprite-hamster { background-image: url('/assets/images/avatars/hamster.jpg'); }
 .avatar-sprite.sprite-buho { background-image: url('/assets/images/avatars/buho.jpg'); }
 
@@ -151,15 +151,15 @@ button { font-family: inherit; cursor: pointer; }
 .avatar-sprite.sprite-octopus { background-image: url('/assets/images/avatars/octopus.webp'); }
 .avatar-sprite.sprite-aguila { background-image: url('/assets/images/avatars/aguila.jpg'); }
 .avatar-sprite.sprite-hormiga { background-image: url('/assets/images/avatars/hormiga.jpg'); }
-.avatar-sprite.sprite-elefante { background-image: url('/assets/images/avatars/elefante.webp'); }
+.avatar-sprite.sprite-elefante { background-image: url('/assets/images/avatars/elefante.jpg'); }
 
 .avatar-sprite.sprite-abeja_evolved { background-image: url('/assets/images/avatars/abeja_evolved.jpg'); }
 .avatar-sprite.sprite-castor_evolved { background-image: url('/assets/images/avatars/castor_evolved.jpg'); }
 .avatar-sprite.sprite-aguila_evolved { background-image: url('/assets/images/avatars/aguila_evolved.jpg'); }
 
 /* New Avatars */
-.avatar-sprite.sprite-gato { background-image: url('/assets/images/avatars/gato.webp'); }
-.avatar-sprite.sprite-perro { background-image: url('/assets/images/avatars/perro.webp'); }
+.avatar-sprite.sprite-gato { background-image: url('/assets/images/avatars/gato.jpg'); }
+.avatar-sprite.sprite-perro { background-image: url('/assets/images/avatars/perro.jpg'); }
 .avatar-sprite.sprite-conejo { background-image: url('/assets/images/avatars/conejo.jpg'); }
 .avatar-sprite.sprite-cuyo { background-image: url('/assets/images/avatars/cuyo.webp'); }
 .avatar-sprite.sprite-raton { background-image: url('/assets/images/avatars/raton.webp'); }
@@ -171,26 +171,26 @@ button { font-family: inherit; cursor: pointer; }
 .avatar-sprite.sprite-oso { background-image: url('/assets/images/avatars/oso.jpg'); }
 
 /* Backwards compatibility aliases */
-.avatar-sprite.sprite-leon { background-image: url('/assets/images/avatars/leon.webp'); }
+.avatar-sprite.sprite-leon { background-image: url('/assets/images/avatars/leon.jpg'); }
 .avatar-sprite.sprite-dragon {
-  background-image: url('/assets/images/avatars/dragon.webp');
-  box-shadow: 0 0 20px rgba(217, 70, 239, 0.6), 0 0 45px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(217, 70, 239, 0.35);
-  border: 2px solid #d946ef !important;
+  background-image: url('/assets/images/avatars/dragon.jpg');
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 45px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(0, 255, 157, 0.35);
+  border: 2px solid #10b981 !important;
   animation: dragon-legendary-glow 3s infinite alternate;
 }
 .avatar-sprite.sprite-fenix { background-image: url('/assets/images/avatars/fenix.jpg'); }
 
 @keyframes dragon-legendary-glow {
   0% {
-    box-shadow: 0 0 15px rgba(217, 70, 239, 0.5), 0 0 30px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5), 0 0 30px rgba(0, 0, 0, 0.8);
     filter: brightness(0.95) contrast(1.05);
   }
   50% {
-    box-shadow: 0 0 25px rgba(168, 85, 247, 0.75), 0 0 50px rgba(217, 70, 239, 0.5);
+    box-shadow: 0 0 25px rgba(0, 196, 159, 0.75), 0 0 50px rgba(16, 185, 129, 0.5);
     filter: brightness(1.15) contrast(1.1);
   }
   100% {
-    box-shadow: 0 0 35px rgba(217, 70, 239, 0.95), 0 0 70px rgba(0, 0, 0, 0.95);
+    box-shadow: 0 0 35px rgba(0, 255, 157, 0.95), 0 0 70px rgba(0, 0, 0, 0.95);
     filter: brightness(1.25) contrast(1.15);
   }
 }

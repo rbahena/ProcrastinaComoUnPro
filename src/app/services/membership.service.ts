@@ -65,6 +65,12 @@ function getMigratedValueJSON<T>(key: string, defaultValue: T, legacyKeyPrefix =
   return defaultValue;
 }
 
+export const ALL_AVATARS_LIST = [
+  'gato', 'perro', 'conejo', 'loro', 'hamster', 'raton', 'tortuga', 'hormiga', 'buho', 'rana', 
+  'aguila', 'abeja', 'castor', 'zorro', 'lince', 'panda', 'oso', 'elefante', 'leon', 'tigre', 
+  'lobo', 'dragon', 'fenix'
+];
+
 @Injectable({
   providedIn: 'root',
 })
@@ -118,9 +124,9 @@ export class MembershipService {
     this.focusTomatoes.update(t => t + tomatoes);
   }
 
-  // Cosméticos desbloqueados (por defecto los avatares iniciales)
+  // Cosméticos desbloqueados (todos los avatares desbloqueados por el momento)
   unlockedAvatars = signal<string[]>(
-    getMigratedValueJSON('unlocked-avatars', ['gato','perro','conejo','loro','hamster','raton'])
+    getMigratedValueJSON('unlocked-avatars', ALL_AVATARS_LIST)
   );
   unlockedThemes = signal<string[]>(
     getMigratedValueJSON('unlocked-themes', ['samurai'])
@@ -148,6 +154,7 @@ export class MembershipService {
   // Estado de onboarding completado
   onboardingCompleted = signal<boolean>(
     getMigratedValue('onboarding-completed', 'false') === 'true' ||
+    getMigratedValue('onboarding-completed', 'false') === 'true' ||
     (localStorage.getItem('procrastina-user-name') !== null && localStorage.getItem('procrastina-user-name') !== 'Ramiro')
   );
 
@@ -167,25 +174,25 @@ export class MembershipService {
     { id: 'loro', name: 'Loro Lancero', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
     { id: 'hamster', name: 'Hámster Lancero', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
     { id: 'raton', name: 'Ratón Lancero', icon: 'fa-paw', color: '#ec4899', isUnlocked: true, isInitial: true },
-    { id: 'tortuga', name: 'Tortuga', icon: 'fa-turtle', color: '#22c55e', isUnlocked: false },
-    // { id: 'tortuga_evolved', name: 'Tortuga Rúnica (Fase 2)', icon: 'fa-turtle', color: '#22c55e', isUnlocked: false },
-    // { id: 'tortuga_phase3', name: 'Místico Tortuga (Fase 3)', icon: 'fa-turtle', color: '#22c55e', isUnlocked: false },
-    { id: 'hormiga', name: 'Hormiga', icon: 'fa-bug', color: '#78350f', isUnlocked: false },
-    { id: 'buho', name: 'Búho', icon: 'fa-owl', color: '#6366f1', isUnlocked: false },
-    { id: 'rana', name: 'Rana', icon: 'fa-frog', color: '#22c55e', isUnlocked: false },
-    { id: 'aguila', name: 'Águila', icon: 'fa-dove', color: '#3b82f6', isUnlocked: false },
-    { id: 'abeja', name: 'Abeja', icon: 'fa-bee', color: '#eab308', isUnlocked: false },
-    { id: 'castor', name: 'Castor', icon: 'fa-paw', color: '#b45309', isUnlocked: false },
-    { id: 'zorro', name: 'Zorro', icon: 'fa-paw', color: '#f97316', isUnlocked: false },
-    { id: 'lince', name: 'Lince', icon: 'fa-paw', color: '#a855f7', isUnlocked: false },
-    { id: 'panda', name: 'Panda', icon: 'fa-paw', color: '#6b7280', isUnlocked: false },
-    { id: 'oso', name: 'Oso', icon: 'fa-paw', color: '#78350f', isUnlocked: false },
-    { id: 'elefante', name: 'Elefante', icon: 'fa-paw', color: '#6b7280', isUnlocked: false },
-    { id: 'leon', name: 'León', icon: 'fa-paw', color: '#fbbf24', isUnlocked: false },
-    { id: 'tigre', name: 'Tigre', icon: 'fa-paw', color: '#f97316', isUnlocked: false },
-    { id: 'lobo', name: 'Lobo', icon: 'fa-paw', color: '#ef4444', isUnlocked: false },
-    { id: 'dragon', name: 'Dragón del Ego', icon: 'fa-dragon', color: '#d946ef', isUnlocked: false },
-    { id: 'fenix', name: 'Fénix', icon: 'fa-fire', color: '#f97316', isUnlocked: false }
+    { id: 'tortuga', name: 'Tortuga', icon: 'fa-turtle', color: '#22c55e', isUnlocked: true },
+    // { id: 'tortuga_evolved', name: 'Tortuga Rúnica (Fase 2)', icon: 'fa-turtle', color: '#22c55e', isUnlocked: true },
+    // { id: 'tortuga_phase3', name: 'Místico Tortuga (Fase 3)', icon: 'fa-turtle', color: '#22c55e', isUnlocked: true },
+    { id: 'hormiga', name: 'Hormiga', icon: 'fa-bug', color: '#78350f', isUnlocked: true },
+    { id: 'buho', name: 'Búho', icon: 'fa-owl', color: '#6366f1', isUnlocked: true },
+    { id: 'rana', name: 'Rana', icon: 'fa-frog', color: '#22c55e', isUnlocked: true },
+    { id: 'aguila', name: 'Águila', icon: 'fa-dove', color: '#3b82f6', isUnlocked: true },
+    { id: 'abeja', name: 'Abeja', icon: 'fa-bee', color: '#eab308', isUnlocked: true },
+    { id: 'castor', name: 'Castor', icon: 'fa-paw', color: '#b45309', isUnlocked: true },
+    { id: 'zorro', name: 'Zorro', icon: 'fa-paw', color: '#f97316', isUnlocked: true },
+    { id: 'lince', name: 'Lince', icon: 'fa-paw', color: '#a855f7', isUnlocked: true },
+    { id: 'panda', name: 'Panda', icon: 'fa-paw', color: '#6b7280', isUnlocked: true },
+    { id: 'oso', name: 'Oso', icon: 'fa-paw', color: '#78350f', isUnlocked: true },
+    { id: 'elefante', name: 'Elefante', icon: 'fa-paw', color: '#6b7280', isUnlocked: true },
+    { id: 'leon', name: 'León', icon: 'fa-paw', color: '#fbbf24', isUnlocked: true },
+    { id: 'tigre', name: 'Tigre', icon: 'fa-paw', color: '#f97316', isUnlocked: true },
+    { id: 'lobo', name: 'Lobo', icon: 'fa-paw', color: '#ef4444', isUnlocked: true },
+    { id: 'dragon', name: 'Dragón del Ego', icon: 'fa-dragon', color: '#d946ef', isUnlocked: true },
+    { id: 'fenix', name: 'Fénix', icon: 'fa-fire', color: '#f97316', isUnlocked: true }
   ]);
 
   // Catálogo completo de Cualidades (TORTUGA, HORMIGA, BÚHO, RANA, ÁGUILA, ABEJA, CASTOR)
@@ -216,12 +223,8 @@ export class MembershipService {
     const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
     this.streak.set(this.calculateStreak(email));
 
-    // DESBLOQUEAR TODO AUTOMÁTICAMENTE PARA PRUEBAS
-    this.unlockedAvatars.set([
-      'gato', 'perro', 'conejo', 'loro', 'hamster', 'raton', 'tortuga', /* 'tortuga_evolved', 'tortuga_phase3', */ 'hormiga', 'buho', 'rana', 
-      'aguila', 'abeja', 'castor', 'zorro', 'lince', 'panda', 'oso', 'elefante', 'leon', 'tigre', 
-      'dragon', 'fenix'
-    ]);
+    // DESBLOQUEAR TODO AUTOMÁTICAMENTE PARA PRUEBAS (TODOS LOS AVATARES DESBLOQUEADOS)
+    this.unlockedAvatars.set([...ALL_AVATARS_LIST]);
 
     // Sincronizar automáticamente con localStorage al cambiar valores
     effect(() => {
@@ -658,7 +661,7 @@ export class MembershipService {
     localStorage.setItem(`user:${emailLower}:premium`, 'false');
     localStorage.setItem(`user:${emailLower}:focus-points`, '0');
     localStorage.setItem(`user:${emailLower}:pro-coins`, '0');
-    localStorage.setItem(`user:${emailLower}:unlocked-avatars`, JSON.stringify(['gato','perro','conejo','loro','hamster','cuyo','raton','rana']));
+    localStorage.setItem(`user:${emailLower}:unlocked-avatars`, JSON.stringify(ALL_AVATARS_LIST));
     localStorage.setItem(`user:${emailLower}:unlocked-themes`, JSON.stringify(['samurai']));
     localStorage.setItem(`user:${emailLower}:onboarding-completed`, 'false');
     localStorage.setItem(`user:${emailLower}:captured-ideas`, JSON.stringify([]));
@@ -685,7 +688,7 @@ export class MembershipService {
           localStorage.setItem(`user:demo@focusapp.com:premium`, 'false');
           localStorage.setItem(`user:demo@focusapp.com:focus-points`, '0');
           localStorage.setItem(`user:demo@focusapp.com:pro-coins`, '0');
-          localStorage.setItem(`user:demo@focusapp.com:unlocked-avatars`, JSON.stringify(['gato','perro','conejo','loro','hamster','cuyo','raton','rana']));
+          localStorage.setItem(`user:demo@focusapp.com:unlocked-avatars`, JSON.stringify(ALL_AVATARS_LIST));
           localStorage.setItem(`user:demo@focusapp.com:unlocked-themes`, JSON.stringify(['samurai']));
           localStorage.setItem(`user:demo@focusapp.com:onboarding-completed`, 'true');
         }
@@ -727,7 +730,8 @@ export class MembershipService {
     const isPremiumVal = localStorage.getItem(`user:${email}:premium`) === 'true';
     const focusPointsVal = parseInt(localStorage.getItem(`user:${email}:focus-points`) || '0', 10);
     const proCoinsVal = parseInt(localStorage.getItem(`user:${email}:pro-coins`) || '0', 10);
-    const unlockedAvatarsVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-avatars`) || '["gato","perro","conejo","loro","hamster","raton"]');
+    const unlockedAvatarsVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-avatars`) || JSON.stringify(ALL_AVATARS_LIST));
+    const mergedUnlockedAvatars = Array.from(new Set([...unlockedAvatarsVal, ...ALL_AVATARS_LIST]));
     const unlockedThemesVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-themes`) || '["samurai"]');
     const userNameVal = localStorage.getItem(`user:${email}:user-name`) || email.split('@')[0];
     const selectedAvatarVal = localStorage.getItem(`user:${email}:avatar`) || 'gato';
@@ -744,7 +748,7 @@ export class MembershipService {
     this.isPremium.set(isPremiumVal);
     this.focusPoints.set(focusPointsVal);
     this.proCoins.set(proCoinsVal);
-    this.unlockedAvatars.set(unlockedAvatarsVal);
+    this.unlockedAvatars.set(mergedUnlockedAvatars);
     this.unlockedThemes.set(unlockedThemesVal);
     this.userName.set(userNameVal);
     this.selectedAvatar.set(selectedAvatarVal);
@@ -771,7 +775,7 @@ export class MembershipService {
     localStorage.removeItem(`user:${email}:focus-points`);
     localStorage.removeItem(`user:${email}:rewarded-sessions`);
 
-    this.unlockedAvatars.set(['gato', 'perro', 'conejo', 'loro', 'hamster', 'raton']);
+    this.unlockedAvatars.set([...ALL_AVATARS_LIST]);
     this.unlockedThemes.set(['samurai']);
     this.userName.set(email.split('@')[0]);
     this.selectedAvatar.set('gato');
