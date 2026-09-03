@@ -3899,7 +3899,7 @@
                
                <ng-container *ngIf="arenaState() !== 'summary'">
                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
-                                       <!-- Iniciar / Iniciar Descanso (en setup) -->
+                                        <!-- Iniciar / Iniciar Descanso (en setup) -->
                     <button *ngIf="arenaState() === 'setup'" 
                             (click)="startFocusFlow()" 
                             style="border: none; background: var(--accent); color: #000; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--start-btn-width);"
@@ -3932,6 +3932,22 @@
                            title="Configuración de Pomodoro">
                      <i class="fa-solid fa-gear" style="font-size: calc(var(--settings-btn-size) * 0.36);"></i>
                    </button>
+
+                   <!-- Botón Nivel de Motivación y Batería (Al lado de Ajustes) -->
+                   <button *ngIf="arenaState() === 'setup' && showBatteryButtonInArena()" 
+                           (click)="showEnergyModal.set(true)"
+                           style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: var(--settings-btn-size); height: var(--settings-btn-size); border-radius: 12px; transition: all 0.2s; position: relative;"
+                           [style.borderColor]="showEnergyModal() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+                           onmouseover="this.style.background='rgba(255,255,255,0.05)';"
+                           onmouseout="this.style.background='rgba(255,255,255,0.02)';"
+                           title="Nivel de Motivación y Ritmo de Enfoque">
+                     <i class="fa-solid fa-battery-half" 
+                        [style.color]="energyLevel() === 'low' ? '#ef4444' : (energyLevel() === 'high' ? '#10b981' : '#f59e0b')" 
+                        style="font-size: calc(var(--settings-btn-size) * 0.4);"></i>
+                     <!-- Punto indicador de energía -->
+                     <span style="position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; border-radius: 50%;"
+                           [style.background]="energyLevel() === 'low' ? '#ef4444' : (energyLevel() === 'high' ? '#10b981' : '#f59e0b')"></span>
+                   </button>
  
                    <!-- Pausa (en active si no es descanso) -->
                     <button *ngIf="arenaState() === 'active' && !isBreak()" 
@@ -3948,11 +3964,11 @@
  
                    <!-- Abandonar (en active si no es descanso) -->
                     <button *ngIf="arenaState() === 'active' && !isBreak()" 
-                           (click)="abandonSession()" 
-                           style="display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
-                           onmouseover="this.style.background='rgba(239, 68, 68, 0.1)';"
-                           onmouseout="this.style.background='rgba(239, 68, 68, 0.05)';"
-                           title="Abandonar sesión">
+                            (click)="abandonSession()" 
+                            style="display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); color: #ef4444; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--action-btn-width);"
+                            onmouseover="this.style.background='rgba(239, 68, 68, 0.1)';"
+                            onmouseout="this.style.background='rgba(239, 68, 68, 0.05)';"
+                            title="Abandonar sesión">
                      <span>Abandonar</span>
                    </button>
                  </div>
@@ -3960,7 +3976,7 @@
                  <!-- Simular completar (en active) -->
                  <button *ngIf="arenaState() === 'active'"
                          (click)="simulateCompletion()" 
-                         style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: calc(var(--button-font-size) * 0.75); font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;"
+                         style="background: transparent; border: none; color: var(--accent); opacity: 0.5; padding: 4px 8px; cursor: pointer; font-size: calc(var(--button-font-size) * 0.75); font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; margin-top: 4px;"
                          onmouseover="this.style.opacity='1'; this.style.textDecoration='underline';"
                          onmouseout="this.style.opacity='0.5'; this.style.textDecoration='none';"
                          title="Simular completar la sesión de enfoque">
@@ -3978,6 +3994,13 @@
                      <p *ngIf="activeObjective() && activeObjective().trim()" class="summary-objective-text">
                        "{{ activeObjective() }}"
                      </p>
+                     
+                     <!-- Línea de Victoria de Sesión -->
+                     <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 6px 10px; margin-top: 4px;">
+                       <span style="font-size: 11px; color: #34d399; font-weight: 800;">
+                         🏆 ¡Le ganaste {{ focusDuration() }} min al auto-sabotaje!
+                       </span>
+                     </div>
                    </div>
 
                    <!-- Opciones de objetivo side-by-side (Tabs Horizontales) -->
@@ -4116,9 +4139,101 @@
         <!-- Indicador Llamativo (Punto de atención pulsante) -->
         <span style="position: absolute; top: 1px; right: 1px; width: 9px; height: 9px; background: var(--accent); border-radius: 50%; border: 1.5px solid #000; box-shadow: 0 0 8px var(--accent); animation: attentionDotPulse 2s infinite ease-in-out;"></span>
       </button>
-
     </div>
 
+    <!-- MODAL / POPOVER FLOTANTE DE MOTIVACIÓN Y RITMO (RESPONSIVE Y ALTA LEGIBILIDAD) -->
+    <div *ngIf="showEnergyModal()" class="energy-modal-overlay">
+      
+      <div class="energy-modal-card">
+        
+        <!-- Botón Cerrar -->
+        <button (click)="showEnergyModal.set(false)" class="energy-modal-close" title="Cerrar ventana">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <!-- Header -->
+        <div class="energy-modal-header">
+          <div class="energy-modal-header-top">
+            <div class="energy-modal-icon-badge">
+              <i class="fa-solid fa-battery-half"></i>
+            </div>
+            <h3 class="energy-modal-title">Nivel de Motivación</h3>
+          </div>
+          <p class="energy-modal-subtitle">
+            ¿Cómo está tu nivel de motivación para este bloque?
+          </p>
+        </div>
+
+        <!-- Opciones de Batería -->
+        <div class="energy-options-list">
+          <!-- Opción 1: Baja (10 min) -->
+          <button (click)="setEnergyLevel('low'); showEnergyModal.set(false)"
+                  type="button"
+                  class="energy-option-btn"
+                  [style.background]="energyLevel() === 'low' ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255, 255, 255, 0.03)'"
+                  [style.borderColor]="energyLevel() === 'low' ? '#ef4444' : 'rgba(255, 255, 255, 0.1)'">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="energy-option-dot" style="background: #ef4444; box-shadow: 0 0 8px #ef4444;"></span>
+              <div style="display: flex; flex-direction: column;">
+                <strong class="energy-option-label" style="color: #f87171;">🔴 Baja Motivación (10 min)</strong>
+                <span class="energy-option-desc">Arrancar sin fricción • +Bono Coraje 🛡️</span>
+              </div>
+            </div>
+            <i *ngIf="energyLevel() === 'low'" class="fa-solid fa-circle-check" style="color: #ef4444; font-size: clamp(14px, 3vw, 17px);"></i>
+          </button>
+
+          <!-- Opción 2: Media (25 min) -->
+          <button (click)="setEnergyLevel('medium'); showEnergyModal.set(false)"
+                  type="button"
+                  class="energy-option-btn"
+                  [style.background]="energyLevel() === 'medium' ? 'rgba(245, 158, 11, 0.18)' : 'rgba(255, 255, 255, 0.03)'"
+                  [style.borderColor]="energyLevel() === 'medium' ? '#f59e0b' : 'rgba(255, 255, 255, 0.1)'">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="energy-option-dot" style="background: #f59e0b; box-shadow: 0 0 8px #f59e0b;"></span>
+              <div style="display: flex; flex-direction: column;">
+                <strong class="energy-option-label" style="color: #fbbf24;">🟡 Media / Estándar (25 min)</strong>
+                <span class="energy-option-desc">Ritmo clásico Pomodoro</span>
+              </div>
+            </div>
+            <i *ngIf="energyLevel() === 'medium'" class="fa-solid fa-circle-check" style="color: #f59e0b; font-size: clamp(14px, 3vw, 17px);"></i>
+          </button>
+
+          <!-- Opción 3: Alta (45 min) -->
+          <button (click)="setEnergyLevel('high'); showEnergyModal.set(false)"
+                  type="button"
+                  class="energy-option-btn"
+                  [style.background]="energyLevel() === 'high' ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255, 255, 255, 0.03)'"
+                  [style.borderColor]="energyLevel() === 'high' ? '#10b981' : 'rgba(255, 255, 255, 0.1)'">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="energy-option-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+              <div style="display: flex; flex-direction: column;">
+                <strong class="energy-option-label" style="color: #34d399;">🟢 Alta / Modo Flow (45 min)</strong>
+                <span class="energy-option-desc">Inmersión profunda sin interrupciones</span>
+              </div>
+            </div>
+            <i *ngIf="energyLevel() === 'high'" class="fa-solid fa-circle-check" style="color: #10b981; font-size: clamp(14px, 3vw, 17px);"></i>
+          </button>
+        </div>
+
+        <!-- Reto de 5 min con salida libre -->
+        <button (click)="startFreeExit5MinChallenge(); showEnergyModal.set(false)"
+                type="button"
+                class="energy-challenge-btn"
+                title="5 minutos de prueba: Si aún tienes pereza, sales sin penalización">
+          <i class="fa-solid fa-bolt" style="color: var(--yellow); font-size: 1.1em;"></i>
+          <span>¿Mucha pereza? <strong>Probar 5 min (Salida libre)</strong></span>
+        </button>
+
+        <!-- Presencia en vivo al pie -->
+        <div class="energy-modal-footer" style="justify-content: center;">
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981; display: inline-block;"></span>
+            {{ bodyDoublingCount() }} personas enfocadas contigo en silencio
+          </span>
+        </div>
+
+      </div>
+    </div>
   
 </div>
 </ng-container>
@@ -4652,6 +4767,27 @@
                       [style.color]="soundType() === s ? 'var(--accent)' : 'var(--muted)'">
                 {{ s | titlecase }}
               </button>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: rgba(255,255,255,0.06); margin-top: 4px;"></div>
+
+          <!-- Acceso a Botón de Batería de Motivación -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-battery-half" style="color: var(--yellow);"></i>
+                  Batería de Motivación
+                </span>
+                <span style="font-size: var(--modal-subtext-size); color: var(--muted); opacity: 0.85;">
+                  Mostrar icono de batería en la barra de inicio
+                </span>
+              </div>
+              <input type="checkbox" 
+                     [ngModel]="showBatteryButtonInArena()" 
+                     (ngModelChange)="toggleBatteryButtonInArena()" 
+                     style="width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; border-radius: 4px;">
             </div>
           </div>
 

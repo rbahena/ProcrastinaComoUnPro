@@ -1,19 +1,20 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
 import { IdentitySettings } from '../../components/identity-settings';
 import { Navbar } from '../../components/navbar/navbar';
 
-interface Attempt {
+export interface Attempt {
   status: 'completed' | 'abandoned' | 'interrupted';
   time: string;
 }
 
-interface CalendarDay {
+export interface CalendarDay {
   dayNumber: number | null;
   pomodoros: number;
   isToday: boolean;
   isFuture: boolean;
+  level: number;
 }
 
 @Component({
@@ -24,80 +25,194 @@ interface CalendarDay {
   styleUrl: './estadisticas.css'
 })
 export class Estadisticas implements OnInit {
-  // Intentos del día actual cargados de localStorage
+  membership = inject(MembershipService);
+
+  // Intentos del día actual
   dailyAttempts = signal<Attempt[]>([]);
 
-  // Datos históricos para la semana (Lunes a Domingo)
-  weeklyHistorical = signal<number[]>([4, 5, 6, 3, 7, 2]); // Lun - Sab
+  // Datos históricos de la semana (Lunes a Sábado)
+  weeklyHistorical = signal<number[]>([4, 5, 6, 3, 7, 2]);
 
-  // Datos históricos para el año (Ene - Dic)
+  // Datos históricos para el año
   annualHistorical = signal<number[]>([85, 92, 110, 95, 104, 118, 125, 98, 0, 0, 0, 0]);
 
   // Estado del modal de compartir en LinkedIn
   showShareModal = signal(false);
-  userName!: any;
-  sidebarCollapsed!: any;
-  toggleSidebar() {
-    this.membership.toggleSidebar();
-  }
 
-  // Objetivos completados simulados
-  completedObjectivesTotal = 18;
-
-  constructor(public membership: MembershipService) {
-    this.userName = this.membership.userName;
-    this.sidebarCollapsed = this.membership.sidebarCollapsed;
-  }
+  sidebarCollapsed = this.membership.sidebarCollapsed;
+  userName = this.membership.userName;
 
   ngOnInit() {
     this.loadDailyAttempts();
+  }
+
+  toggleSidebar() {
+    this.membership.toggleSidebar();
   }
 
   loadDailyAttempts() {
     const saved = localStorage.getItem('daily-attempts');
     if (saved) {
       try {
-        this.dailyAttempts.set(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.dailyAttempts.set(parsed);
+          return;
+        }
       } catch (e) {
         console.error('Error parsing daily attempts', e);
       }
-    } else {
-      this.dailyAttempts.set([
-        { status: 'completed', time: '09:00' },
-        { status: 'completed', time: '10:30' },
-        { status: 'completed', time: '12:00' },
-        { status: 'abandoned', time: '13:15' },
-        { status: 'completed', time: '14:30' },
-        { status: 'interrupted', time: '15:45' },
-        { status: 'completed', time: '17:00' },
-        { status: 'completed', time: '18:30' }
-      ]);
     }
+
+    this.dailyAttempts.set([
+      { status: 'completed', time: '09:00' },
+      { status: 'completed', time: '10:30' },
+      { status: 'completed', time: '12:00' },
+      { status: 'abandoned', time: '13:15' },
+      { status: 'completed', time: '14:30' },
+      { status: 'interrupted', time: '15:45' },
+      { status: 'completed', time: '17:00' },
+      { status: 'completed', time: '18:30' }
+    ]);
   }
 
-
-  getAvatarIcon() {
-    return this.membership.getSelectedAvatarIcon();
-  }
-
-  getAvatarName() {
-    return this.membership.getSelectedAvatarName();
-  }
-
-  labels = computed(() => {
-    return {
-      logoText: 'COFU',
-      logoIcon: 'fa-yin-yang',
-      navTasks: 'Inicio',
-      navZen: 'Zona de concentración',
-      navTimer: 'Estadísticas',
-      navShield: 'Baúl de ideas',
-      title: 'Estadísticas de Productividad 📊',
-      desc: 'Métricas de tu camino de concentración y control sobre la procrastinación'
-    };
+  // --- CÁLCULOS DEL DÍA (HOY) ---
+  todayCompletedCount = computed(() => {
+    return this.dailyAttempts().filter(a => a.status === 'completed').length;
   });
 
-  // --- MÉTODOS PARA COMPARTIR EN LINKEDIN ---
+  todayFocusMinutes = computed(() => {
+    return this.todayCompletedCount() * 25;
+  });
+
+  todayFocusHoursFormatted = computed(() => {
+    const mins = this.todayFocusMinutes();
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h > 0 && m > 0) return `${h}h ${m}m`;
+    if (h > 0) return `${h}h`;
+    return `${m} min`;
+  });
+
+  // --- CÁLCULOS SEMANALES ---
+  weeklyLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+  weeklyData = computed(() => {
+    const currentWeek = [...this.weeklyHistorical()];
+    currentWeek.push(this.todayCompletedCount());
+    return currentWeek;
+  });
+
+  weeklyTotal = computed(() => {
+    return this.weeklyData().reduce((a, b) => a + b, 0);
+  });
+
+  weeklyAvg = computed(() => {
+    return (this.weeklyTotal() / 7).toFixed(1);
+  });
+
+  weeklyMax = computed(() => {
+    return Math.max(...this.weeklyData(), 1);
+  });
+
+  // --- RACHA ---
+  get longestStreak(): number {
+    return Math.max(14, this.membership.streak());
+  }
+
+  // --- CÁLCULOS ANUALES Y TOTALES ---
+  annualTotal = computed(() => {
+    const sum = this.annualHistorical().reduce((a, b) => a + b, 0);
+    return sum + this.todayCompletedCount();
+  });
+
+  totalFocusHours = computed(() => {
+    return (this.annualTotal() * 25 / 60).toFixed(0);
+  });
+
+  // --- CALENDARIO DEL MES ACTUAL ---
+  calendarWeekdays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+  currentMonthName = computed(() => {
+    const now = new Date();
+    const months = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    return `${months[now.getMonth()]} ${now.getFullYear()}`;
+  });
+
+  calendarDays = computed<CalendarDay[]>(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const todayDate = now.getDate();
+
+    const firstDay = new Date(year, month, 1);
+    const dayOfWeek = firstDay.getDay(); // 0 es Domingo
+    const offsetCount = (dayOfWeek + 6) % 7; // Ajuste a Lunes
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days: CalendarDay[] = [];
+
+    // Offset celdas vacías
+    for (let i = 0; i < offsetCount; i++) {
+      days.push({ dayNumber: null, pomodoros: 0, isToday: false, isFuture: false, level: 0 });
+    }
+
+    const sampleData: { [key: number]: number } = {
+      1: 4, 2: 2, 3: 5, 4: 6, 5: 4, 6: 5, 7: 6, 8: 3, 9: 2, 10: 7
+    };
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const isToday = d === todayDate;
+      const isFuture = d > todayDate;
+
+      let poms = 0;
+      if (isToday) {
+        poms = this.todayCompletedCount();
+      } else if (!isFuture) {
+        poms = sampleData[d] !== undefined ? sampleData[d] : ((d * 2 + 1) % 6);
+      }
+
+      let level = 0;
+      if (poms >= 5) level = 3;
+      else if (poms >= 3) level = 2;
+      else if (poms >= 1) level = 1;
+
+      days.push({
+        dayNumber: d,
+        pomodoros: poms,
+        isToday,
+        isFuture,
+        level
+      });
+    }
+
+    return days;
+  });
+
+  monthTotalPomodoros = computed(() => {
+    return this.calendarDays().reduce((acc, day) => acc + (day.dayNumber ? day.pomodoros : 0), 0);
+  });
+
+  // --- CÁLCULOS ANUALES ---
+  annualLabels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+  currentMonthIndex = computed(() => new Date().getMonth());
+
+  annualData = computed(() => {
+    const list = [...this.annualHistorical()];
+    const currentMonth = this.currentMonthIndex();
+    list[currentMonth] = 98 + this.todayCompletedCount();
+    return list;
+  });
+
+  annualMax = computed(() => {
+    return Math.max(...this.annualData(), 1);
+  });
+
+  // --- COMPARTIR EN LINKEDIN ---
   openShareModal() {
     this.showShareModal.set(true);
   }
@@ -108,90 +223,11 @@ export class Estadisticas implements OnInit {
 
   shareOnLinkedIn() {
     const text = encodeURIComponent(
-      `🎯 ¡He alcanzado el rango de Guerrero de Enfoque en COFU! 🧠🔥\n\n` +
-      `He completado con éxito ${this.annualTotal()} pomodoros de concentración y mantengo una racha activa de ${this.longestStreak} días venciendo la procrastinación.\n\n` +
-      `Compite conmigo en el comunidad de concentración y lleva tu enfoque al siguiente nivel: https://cofu.app`
+      `🎯 ¡He completado ${this.annualTotal()} sesiones de enfoque (${this.totalFocusHours()} horas) en COFU y mantengo una racha de ${this.longestStreak} días! 🔥🧠\n\n` +
+      `Supera la procrastinación en: https://cofu.app`
     );
     window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}`, '_blank');
     this.showShareModal.set(false);
   }
-
-  // --- CÁLCULOS DIARIOS (HOY) ---
-  todayCompletedCount = computed(() => {
-    return this.dailyAttempts().filter(a => a.status === 'completed').length;
-  });
-
-  todayTotalAttempts = computed(() => {
-    return this.dailyAttempts().length;
-  });
-
-  // --- ESTRUCTURA DEL CALENDARIO MENSUAL (Agosto 2026) ---
-  calendarDays = computed<CalendarDay[]>(() => {
-    const days: CalendarDay[] = [];
-    const offsetCount = 5;
-    
-    for (let i = 0; i < offsetCount; i++) {
-      days.push({ dayNumber: null, pomodoros: 0, isToday: false, isFuture: false });
-    }
-
-    const monthlyPomodorosData: { [key: number]: number } = {
-      1: 4, 2: 2, 3: 5, 4: 6, 5: 4, 6: 5, 7: 6, 8: 3, 9: 2, 10: 7,
-      11: this.todayCompletedCount()
-    };
-
-    const totalDaysInMonth = 31;
-    const todayDayNumber = 11;
-
-    for (let d = 1; d <= totalDaysInMonth; d++) {
-      const poms = monthlyPomodorosData[d] || 0;
-      days.push({
-        dayNumber: d,
-        pomodoros: poms,
-        isToday: d === todayDayNumber,
-        isFuture: d > todayDayNumber
-      });
-    }
-
-    return days;
-  });
-
-  calendarWeekdays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-
-  // --- CÁLCULOS SEMANALES ---
-  weeklyData = computed(() => {
-    const currentWeek = [...this.weeklyHistorical()];
-    currentWeek.push(this.todayCompletedCount());
-    return currentWeek;
-  });
-
-  weeklyLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-
-  weeklyTotal = computed(() => {
-    return this.weeklyData().reduce((a, b) => a + b, 0);
-  });
-
-  weeklyMax = computed(() => {
-    return Math.max(...this.weeklyData(), 1);
-  });
-
-  // --- CÁLCULOS ANUALES ---
-  annualData = computed(() => {
-    const currentYear = [...this.annualHistorical()];
-    currentYear[7] = 98 + this.todayCompletedCount();
-    return currentYear;
-  });
-
-  annualLabels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-
-  annualTotal = computed(() => {
-    return this.annualData().reduce((a, b) => a + b, 0);
-  });
-
-  annualMax = computed(() => {
-    return Math.max(...this.annualData(), 1);
-  });
-
-  get longestStreak(): number {
-    return Math.max(14, this.membership.streak());
-  }
 }
+

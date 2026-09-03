@@ -93,6 +93,80 @@ export class Enfoque implements OnInit, OnDestroy {
   // 'summary' -> Cierre dopamínico (Cuestionario post-sesión).
   arenaState = signal<'setup' | 'countdown' | 'active' | 'summary'>('setup');
 
+  // ==================== SUITE ANTI-PROCRASTINACIÓN: BATERÍA, BODY DOUBLING Y DISTRACCIONES ====================
+  energyLevel = signal<'low' | 'medium' | 'high'>('medium');
+  showEnergyModal = signal<boolean>(false);
+  showBatteryButtonInArena = signal<boolean>(localStorage.getItem('show-battery-button-in-arena') !== 'false');
+  isFreeExitChallenge = signal<boolean>(false);
+  bodyDoublingCount = signal<number>(142);
+  private bodyDoublingInterval: any = null;
+
+  toggleBatteryButtonInArena() {
+    const nextVal = !this.showBatteryButtonInArena();
+    this.showBatteryButtonInArena.set(nextVal);
+    localStorage.setItem('show-battery-button-in-arena', String(nextVal));
+  }
+
+  distractionInput = signal<string>('');
+  distractionsList = signal<{ id: string; text: string; time: string }[]>([]);
+  showDistractionFeedback = signal<boolean>(false);
+
+  setEnergyLevel(level: 'low' | 'medium' | 'high') {
+    this.energyLevel.set(level);
+    this.isFreeExitChallenge.set(false);
+    if (this.arenaState() === 'setup' && !this.isBreak()) {
+      let duration = 25;
+      if (level === 'low') duration = 10;
+      else if (level === 'high') duration = 45;
+      this.focusDuration.set(duration);
+      this.totalSessionTime.set(duration * 60);
+      this.timeLeft.set(duration * 60);
+    }
+  }
+
+  startFreeExit5MinChallenge() {
+    this.isFreeExitChallenge.set(true);
+    this.focusDuration.set(5);
+    this.totalSessionTime.set(5 * 60);
+    this.timeLeft.set(5 * 60);
+    this.startFocusFlow(true);
+  }
+
+  addDistraction() {
+    const text = this.distractionInput().trim();
+    if (!text) return;
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const item = {
+      id: 'dist-' + Date.now(),
+      text,
+      time: timeStr
+    };
+    this.distractionsList.update(list => [item, ...list]);
+    this.distractionInput.set('');
+    this.showDistractionFeedback.set(true);
+    setTimeout(() => {
+      this.showDistractionFeedback.set(false);
+    }, 3500);
+  }
+
+  removeDistraction(id: string) {
+    this.distractionsList.update(list => list.filter(d => d.id !== id));
+  }
+
+  recoveredLifeMinutes = computed(() => {
+    return this.completedPomodoros() * 25;
+  });
+
+  recoveredLifeFormatted = computed(() => {
+    const mins = this.recoveredLifeMinutes();
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h > 0 && m > 0) return `${h}h ${m}m`;
+    if (h > 0) return `${h}h`;
+    return `${m} min`;
+  });
+
   // Configuración del Pomodoro (Tiempos científicos fijos según el filtro Pareto)
   focusDuration = signal(25); // Predeterminado a 25 min (Estándar Pomodoro)
   breakDuration = signal(5);   // Predeterminado a 5 min (Descanso)
@@ -1146,6 +1220,12 @@ export class Enfoque implements OnInit, OnDestroy {
       this.tickCommunity();
     }, 4000);
 
+    // Fluctación orgánica de Body Doubling en silencio
+    this.bodyDoublingInterval = setInterval(() => {
+      const delta = (Math.floor(Math.random() * 5) - 2); // -2 a +2
+      this.bodyDoublingCount.update(c => Math.max(95, Math.min(180, c + delta)));
+    }, 12000);
+
     const draft = localStorage.getItem('activeObjectiveDraft');
     if (draft) {
       this.activeObjective.set(draft);
@@ -1458,6 +1538,15 @@ export class Enfoque implements OnInit, OnDestroy {
           objCompleted === 'yes',
           this.activeObjective()
         );
+
+        // Bono de Coraje (Grit Bonus): Si empezó con baja energía y venció la desmotivación
+        if (this.energyLevel() === 'low') {
+          this.membership.proCoins.update(c => c + 35);
+          if (this.membership.isPremium()) {
+            this.membership.addFocusPoints(50);
+          }
+          this.showToastFeedback('🛡️ ¡Bono de Coraje (+35 monedas)! Venciste la desmotivación.', 'success');
+        }
       } else if (currentStatus === 'abandoned' && this.membership.isPremium()) {
         // Castigo de -50 XP por abandonar
         this.membership.addFocusPoints(-50);
@@ -1914,6 +2003,8 @@ export class Enfoque implements OnInit, OnDestroy {
     this.stopBackgroundSound();
     if (this.countdownTimer) clearInterval(this.countdownTimer);
     if (this.communityInterval) clearInterval(this.communityInterval);
+    if (this.bodyDoublingInterval) clearInterval(this.bodyDoublingInterval);
+    if (this.toastTimeout) clearTimeout(this.toastTimeout);
 
     // Limpieza de escuchas de inactividad Zen
     document.removeEventListener('mousemove', this.onActivityFn);
