@@ -7,6 +7,19 @@ import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { IdentitySettings } from '../../components/identity-settings';
 import { Navbar } from '../../components/navbar/navbar';
 
+export interface MotivationItem {
+  id: string;
+  userName: string;
+  avatar: string;
+  text: string;
+  category: 'metas' | 'familia' | 'disciplina' | 'crecimiento' | 'pasion';
+  timestamp: string;
+  createdAt?: number;
+  likes: number;
+  isUser?: boolean;
+  likedByMe?: boolean;
+}
+
 @Component({
   selector: 'app-enfoque',
   standalone: true,
@@ -588,9 +601,314 @@ export class Enfoque implements OnInit, OnDestroy {
   showStrategyCard = signal(false);
   showBossCard = signal(false);
   showCommunityConsole = signal(false);
-  communityActiveTab = signal<'boss' | 'users' | 'strategy'>('strategy');
+  communityActiveTab = signal<'boss' | 'users' | 'strategy' | 'motivation'>('strategy');
   showCelebration = signal<boolean>(false);
   celebrationPieces = signal<any[]>([]);
+
+  // ==================== SISTEMA DE MOTIVACIÓN Y CHAT COLECTIVO ====================
+  newMotivationText = signal<string>('');
+  newMotivationCategory = signal<'metas' | 'familia' | 'disciplina' | 'crecimiento' | 'pasion'>('metas');
+  motivationCategories: ('metas' | 'familia' | 'disciplina' | 'crecimiento' | 'pasion')[] = [
+    'metas', 'familia', 'disciplina', 'crecimiento', 'pasion'
+  ];
+  motivationFilter = signal<'all' | 'mine' | 'popular' | 'metas' | 'familia' | 'disciplina' | 'crecimiento' | 'pasion'>('all');
+  pinnedMantra = signal<string>(localStorage.getItem('focus-pinned-mantra') || '');
+  motivationToast = signal<{ show: boolean; message: string; type: 'success' | 'info' | 'like' }>({
+    show: false,
+    message: '',
+    type: 'success'
+  });
+  private toastTimeout: any = null;
+
+  private initialMotivations: MotivationItem[] = [
+    {
+      id: 'mot-3',
+      userName: 'Mateo',
+      avatar: 'hamster',
+      text: 'La paz mental de irme a dormir sabiendo que no pospuse lo importante por distracciones tontas.',
+      category: 'disciplina',
+      timestamp: 'Hoy, 10:02',
+      createdAt: Date.now() - 1000 * 60 * 5,
+      likes: 35,
+      isUser: false,
+      likedByMe: false
+    },
+    {
+      id: 'mot-1',
+      userName: 'Sofía',
+      avatar: 'aguila',
+      text: 'Demostrarme a mí misma que soy capaz de terminar proyectos difíciles sin rendirme a la mitad.',
+      category: 'disciplina',
+      timestamp: 'Hoy, 09:15',
+      createdAt: Date.now() - 1000 * 60 * 25,
+      likes: 42,
+      isUser: false,
+      likedByMe: false
+    },
+    {
+      id: 'mot-2',
+      userName: 'Ramiro',
+      avatar: 'gato',
+      text: 'Darle una mejor calidad de vida a mi familia y construir algo de lo que me sienta verdaderamente orgulloso.',
+      category: 'familia',
+      timestamp: 'Hoy, 08:40',
+      createdAt: Date.now() - 1000 * 60 * 55,
+      likes: 58,
+      isUser: false,
+      likedByMe: true
+    },
+    {
+      id: 'mot-6',
+      userName: 'Ana',
+      avatar: 'lobo',
+      text: 'La increíble sensación de victoria cuando marcas esa tarea que llevabas semanas postergando.',
+      category: 'pasion',
+      timestamp: 'Ayer',
+      createdAt: Date.now() - 1000 * 60 * 60 * 18,
+      likes: 61,
+      isUser: false,
+      likedByMe: true
+    },
+    {
+      id: 'mot-5',
+      userName: 'Carlos',
+      avatar: 'panda',
+      text: 'Cada bloque de enfoque de 25 minutos me acerca un paso más a lanzar mi propia aplicación.',
+      category: 'metas',
+      timestamp: 'Ayer',
+      createdAt: Date.now() - 1000 * 60 * 60 * 22,
+      likes: 48,
+      isUser: false,
+      likedByMe: false
+    },
+    {
+      id: 'mot-4',
+      userName: 'Valentina',
+      avatar: 'buho',
+      text: 'Aprender algo nuevo cada día y convertirme en una experta en lo que me apasiona.',
+      category: 'crecimiento',
+      timestamp: 'Ayer',
+      createdAt: Date.now() - 1000 * 60 * 60 * 26,
+      likes: 29,
+      isUser: false,
+      likedByMe: false
+    },
+    {
+      id: 'mot-8',
+      userName: 'Clara',
+      avatar: 'tortuga',
+      text: 'Pasos pequeños pero constantes. No necesito ser la más rápida, solo necesito no detenerme.',
+      category: 'crecimiento',
+      timestamp: 'Hace 2 días',
+      createdAt: Date.now() - 1000 * 60 * 60 * 48,
+      likes: 53,
+      isUser: false,
+      likedByMe: false
+    },
+    {
+      id: 'mot-7',
+      userName: 'Lucas',
+      avatar: 'rana',
+      text: 'Vencer la resistencia inicial de los primeros 5 minutos. Sé que después de eso, todo fluye solo.',
+      category: 'disciplina',
+      timestamp: 'Hace 2 días',
+      createdAt: Date.now() - 1000 * 60 * 60 * 52,
+      likes: 27,
+      isUser: false,
+      likedByMe: false
+    },
+    {
+      id: 'mot-9',
+      userName: 'Esteban',
+      avatar: 'abeja',
+      text: 'Construir hábitos sólidos hoy para que mi futuro yo no tenga que sufrir por falta de disciplina.',
+      category: 'metas',
+      timestamp: 'Hace 3 días',
+      createdAt: Date.now() - 1000 * 60 * 60 * 72,
+      likes: 39,
+      isUser: false,
+      likedByMe: false
+    }
+  ];
+
+  motivationsList = signal<MotivationItem[]>(this.loadMotivations());
+
+  filteredMotivations = computed(() => {
+    const filter = this.motivationFilter();
+    const list = this.motivationsList();
+
+    let result: MotivationItem[];
+    if (filter === 'all') {
+      result = list;
+    } else if (filter === 'mine') {
+      result = list.filter(m => m.isUser);
+    } else if (filter === 'popular') {
+      // Pestaña Más Populares: ordenar prioritariamente por corazones
+      return [...list].sort((a, b) => b.likes - a.likes || (b.createdAt || 0) - (a.createdAt || 0));
+    } else {
+      result = list.filter(m => m.category === filter);
+    }
+
+    // Ordenar por fecha (recién publicados primero) y luego por corazones
+    return [...result].sort((a, b) => {
+      const timeDiff = (b.createdAt || 0) - (a.createdAt || 0);
+      if (timeDiff !== 0) {
+        return timeDiff;
+      }
+      return b.likes - a.likes;
+    });
+  });
+
+  myMotivationsCount = computed(() => {
+    return this.motivationsList().filter(m => m.isUser).length;
+  });
+
+  totalCommunityLikes = computed(() => {
+    return this.motivationsList().reduce((acc, m) => acc + m.likes, 0);
+  });
+
+  loadMotivations(): MotivationItem[] {
+    try {
+      const savedUserMotivations = localStorage.getItem('user-custom-motivations');
+      const userMots: MotivationItem[] = savedUserMotivations ? JSON.parse(savedUserMotivations) : [];
+      const savedLikedIds: string[] = JSON.parse(localStorage.getItem('user-liked-motivations') || '[]');
+      
+      const community = this.initialMotivations.map(m => ({
+        ...m,
+        likedByMe: savedLikedIds.includes(m.id) || m.likedByMe
+      }));
+
+      const all = [...userMots, ...community];
+      return all.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0) || b.likes - a.likes);
+    } catch (e) {
+      return [...this.initialMotivations].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0) || b.likes - a.likes);
+    }
+  }
+
+  saveCustomMotivations() {
+    try {
+      const userOnly = this.motivationsList().filter(m => m.isUser);
+      localStorage.setItem('user-custom-motivations', JSON.stringify(userOnly));
+    } catch (e) {}
+  }
+
+  saveLikedMotivations() {
+    try {
+      const likedIds = this.motivationsList().filter(m => m.likedByMe).map(m => m.id);
+      localStorage.setItem('user-liked-motivations', JSON.stringify(likedIds));
+    } catch (e) {}
+  }
+
+  addMotivation() {
+    const text = this.newMotivationText().trim();
+    if (!text) return;
+
+    const user = this.userName() || 'Tú';
+    const avatar = this.selectedAvatar() || 'gato';
+    const category = this.newMotivationCategory();
+
+    const newMot: MotivationItem = {
+      id: 'user-mot-' + Date.now(),
+      userName: user,
+      avatar: avatar,
+      text: text,
+      category: category,
+      timestamp: 'Justo ahora',
+      createdAt: Date.now(),
+      likes: 1,
+      isUser: true,
+      likedByMe: true
+    };
+
+    this.motivationsList.update(list => [newMot, ...list]);
+    this.newMotivationText.set('');
+    this.saveCustomMotivations();
+    this.saveLikedMotivations();
+
+    this.showToastFeedback('✨ ¡Tu motivación ha sido publicada en el muro!', 'success');
+  }
+
+  deleteMotivation(id: string) {
+    this.motivationsList.update(list => list.filter(m => m.id !== id));
+    this.saveCustomMotivations();
+    this.showToastFeedback('🗑️ Motivación eliminada', 'info');
+  }
+
+  toggleLikeMotivation(item: MotivationItem) {
+    this.motivationsList.update(list => {
+      return list.map(m => {
+        if (m.id === item.id) {
+          const liked = !m.likedByMe;
+          return {
+            ...m,
+            likedByMe: liked,
+            likes: liked ? m.likes + 1 : Math.max(0, m.likes - 1)
+          };
+        }
+        return m;
+      });
+    });
+    this.saveLikedMotivations();
+    if (!item.likedByMe) {
+      this.showToastFeedback('❤️ ¡Te inspira esta motivación!', 'like');
+    }
+  }
+
+  setMotivationAsObjective(text: string) {
+    this.activeObjective.set(text);
+    this.confirmObjective();
+    this.showToastFeedback('🎯 ¡Establecida como misión de tu sesión de enfoque!', 'success');
+  }
+
+  pinMotivationAsMantra(text: string) {
+    if (this.pinnedMantra() === text) {
+      this.pinnedMantra.set('');
+      localStorage.removeItem('focus-pinned-mantra');
+      this.showToastFeedback('Mantra de enfoque retirado', 'info');
+    } else {
+      this.pinnedMantra.set(text);
+      localStorage.setItem('focus-pinned-mantra', text);
+      this.showToastFeedback('🔥 ¡Mantra fijado para inspirar tu concentración!', 'success');
+    }
+  }
+
+  getRandomMotivation() {
+    const list = this.motivationsList();
+    if (list.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * list.length);
+    const mot = list[randomIndex];
+    this.showToastFeedback(`🎲 Inspiración de ${mot.userName}: "${mot.text}"`, 'info');
+  }
+
+  showToastFeedback(message: string, type: 'success' | 'info' | 'like' = 'success') {
+    if (this.toastTimeout) clearTimeout(this.toastTimeout);
+    this.motivationToast.set({ show: true, message, type });
+    this.toastTimeout = setTimeout(() => {
+      this.motivationToast.set({ show: false, message: '', type: 'success' });
+    }, 3500);
+  }
+
+  getCategoryLabel(category: string): string {
+    switch(category) {
+      case 'metas': return '🎯 Metas';
+      case 'familia': return '👨‍👩‍👧 Familia';
+      case 'disciplina': return '⚡ Disciplina';
+      case 'crecimiento': return '🧠 Crecimiento';
+      case 'pasion': return '🎨 Pasión';
+      default: return category;
+    }
+  }
+
+  getCategoryColor(category: string): string {
+    switch(category) {
+      case 'metas': return '#a855f7';
+      case 'familia': return '#f59e0b';
+      case 'disciplina': return '#00f2fe';
+      case 'crecimiento': return '#10b981';
+      case 'pasion': return '#ec4899';
+      default: return 'var(--accent)';
+    }
+  }
 
   // Inactividad y Modo Zen (Fondo Screensaver)
   isInactive = signal(false);
