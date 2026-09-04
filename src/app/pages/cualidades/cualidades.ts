@@ -116,36 +116,36 @@ interface CountryOption {
                   </p>
                 </div>
 
-                <!-- TELEMETRÍA EN EL EXTREMO DERECHO (MICRO-PÍLDORAS SIN TEXTO EXTRA) -->
+                <!-- TELEMETRÍA EN EL EXTREMO DERECHO (MICRO-PÍLDORAS CON TOOLTIPS ESTILIZADOS) -->
                 <div class="user-inline-telemetry">
-                  <div class="tele-pill tomato-pill" [class.is-zero]="membership.focusTomatoes() === 0" title="Tomates Pomodoro">
+                  <div class="tele-pill tomato-pill" [class.is-zero]="membership.focusTomatoes() === 0" data-tooltip="1 tomate por cada sesión completada">
                     <span class="tele-icon">🍅</span>
                     <span class="tele-num">{{ membership.focusTomatoes() }}</span>
                   </div>
 
-                  <div class="tele-pill coin-pill" title="Pro Coins">
-                    <span class="tele-icon">🪙</span>
+                  <div class="tele-pill coin-pill" data-tooltip="Monedas de concentración obtenidas">
+                    <span class="tele-icon"><i class="fa-solid fa-coins"></i></span>
                     <span class="tele-num">{{ membership.proCoins() }}</span>
                   </div>
 
-                  <div class="tele-pill streak-pill" title="Racha de Días">
-                    <span class="tele-icon">🔥</span>
+                  <div class="tele-pill streak-pill" data-tooltip="Días consecutivos enfocándote">
+                    <span class="tele-icon"><i class="fa-solid fa-fire"></i></span>
                     <span class="tele-num">{{ membership.streak() }}</span>
                   </div>
 
                   <!-- PODIO: TROFEO 1ER LUGAR, MEDALLA 2DO Y 3ER LUGAR -->
-                  <div class="tele-pill trophy-pill gold-pill" [class.is-zero]="membership.goldMedals() === 0" title="Podio 1.º Lugar (Trofeo)">
-                    <span class="tele-icon">🏆</span>
+                  <div class="tele-pill trophy-pill gold-pill" [class.is-zero]="membership.goldMedals() === 0" data-tooltip="Trofeos de oro ganados">
+                    <span class="tele-icon"><i class="fa-solid fa-trophy"></i></span>
                     <span class="tele-num">{{ membership.goldMedals() }}</span>
                   </div>
 
-                  <div class="tele-pill medal-pill silver-pill" [class.is-zero]="membership.silverMedals() === 0" title="Podio 2.º Lugar (Medalla de Plata)">
-                    <span class="tele-icon">🥈</span>
+                  <div class="tele-pill medal-pill silver-pill" [class.is-zero]="membership.silverMedals() === 0" data-tooltip="Medallas de plata ganadas">
+                    <span class="tele-icon"><i class="fa-solid fa-medal"></i></span>
                     <span class="tele-num">{{ membership.silverMedals() }}</span>
                   </div>
 
-                  <div class="tele-pill medal-pill bronze-pill" [class.is-zero]="membership.bronzeMedals() === 0" title="Podio 3.º Lugar (Medalla de Bronce)">
-                    <span class="tele-icon">🥉</span>
+                  <div class="tele-pill medal-pill bronze-pill" [class.is-zero]="membership.bronzeMedals() === 0" data-tooltip="Medallas de bronce ganadas">
+                    <span class="tele-icon"><i class="fa-solid fa-medal"></i></span>
                     <span class="tele-num">{{ membership.bronzeMedals() }}</span>
                   </div>
                 </div>
@@ -733,10 +733,14 @@ interface CountryOption {
       transform: translateY(-1px);
     }
     .tele-icon {
-      font-size: 13.5px;
+      font-size: 12.5px;
       line-height: 1;
       display: flex;
       align-items: center;
+      justify-content: center;
+    }
+    .tele-icon i {
+      font-size: 11.5px;
     }
     .tele-num {
       font-size: 13px;
@@ -745,12 +749,15 @@ interface CountryOption {
       letter-spacing: -0.2px;
       line-height: 1;
     }
+    .tomato-pill .tele-icon { font-size: 12px; }
     .tomato-pill:hover { border-color: rgba(239, 68, 68, 0.35); }
     .tomato-pill .tele-num { color: #f87171; }
 
+    .coin-pill .tele-icon i { color: #fbbf24; }
     .coin-pill:hover { border-color: rgba(251, 191, 36, 0.35); }
     .coin-pill .tele-num { color: #fbbf24; }
 
+    .streak-pill .tele-icon i { color: #f97316; }
     .streak-pill:hover { border-color: rgba(249, 115, 22, 0.35); }
     .streak-pill .tele-num { color: #fb923c; }
 
@@ -761,12 +768,15 @@ interface CountryOption {
     .trophy-pill {
       padding: 5px 9px;
     }
+    .gold-pill .tele-icon i { color: #fbbf24; }
     .gold-pill .tele-num { color: #fbbf24; }
     .gold-pill:hover { border-color: rgba(251, 191, 36, 0.35); }
 
+    .silver-pill .tele-icon i { color: #cbd5e1; }
     .silver-pill .tele-num { color: #cbd5e1; }
     .silver-pill:hover { border-color: rgba(203, 213, 225, 0.35); }
 
+    .bronze-pill .tele-icon i { color: #d97706; }
     .bronze-pill .tele-num { color: #d97706; }
     .bronze-pill:hover { border-color: rgba(217, 119, 6, 0.35); }
 
@@ -782,6 +792,68 @@ interface CountryOption {
     }
     .tele-pill.is-zero .tele-num {
       color: #64748b;
+    }
+
+    /* TOOLTIPS PERSONALIZADOS Y ELEGANTES PARA PÍLDORAS */
+    .tele-pill[data-tooltip] {
+      position: relative;
+    }
+    .tele-pill[data-tooltip]::before {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 9px);
+      left: 50%;
+      transform: translate(-50%, 6px) scale(0.96);
+      background: rgba(11, 15, 25, 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 11px;
+      border-radius: 8px;
+      color: #f1f5f9;
+      font-size: 11.5px;
+      font-weight: 550;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.2);
+      z-index: 1000;
+      line-height: 1.35;
+    }
+    .tele-pill[data-tooltip]::after {
+      content: '';
+      position: absolute;
+      bottom: calc(100% + 3px);
+      left: 50%;
+      transform: translate(-50%, 6px) scale(0.96);
+      border-width: 6px 5px 0 5px;
+      border-style: solid;
+      border-color: rgba(11, 15, 25, 0.95) transparent transparent transparent;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1001;
+    }
+    .tele-pill[data-tooltip]:hover::before,
+    .tele-pill[data-tooltip]:hover::after {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+    .bronze-pill[data-tooltip]::before {
+      left: auto;
+      right: 0;
+      transform: translate(0, 6px) scale(0.96);
+    }
+    .bronze-pill[data-tooltip]::after {
+      left: auto;
+      right: 14px;
+      transform: translate(0, 6px) scale(0.96);
+    }
+    .bronze-pill[data-tooltip]:hover::before,
+    .bronze-pill[data-tooltip]:hover::after {
+      transform: translate(0, 0) scale(1);
     }
 
     /* ==================================================== */
@@ -2593,18 +2665,18 @@ export class Cualidades implements OnInit {
     const raw = this.selectedActiveDays() || [];
     const days = [...raw].sort((a, b) => a - b);
     if (days.length === 0) return 'Sin días seleccionados';
-    if (days.length === 7) return 'Lun a Dom';
+    if (days.length === 7) return 'Lunes a Domingo';
     if (days.length === 5 && days[0] === 1 && days[1] === 2 && days[2] === 3 && days[3] === 4 && days[4] === 5) {
-      return 'Lun a Vie';
+      return 'Lunes a Viernes';
     }
     if (days.length === 6 && days[0] === 1 && days[1] === 2 && days[2] === 3 && days[3] === 4 && days[4] === 5 && days[5] === 6) {
-      return 'Lun a Sáb';
+      return 'Lunes a Sábado';
     }
     if (days.length === 2 && days.includes(6) && days.includes(7)) {
-      return 'Sáb y Dom';
+      return 'Sábado y Domingo';
     }
     const dayNames: { [k: number]: string } = {
-      1: 'Lun', 2: 'Mar', 3: 'Mié', 4: 'Jue', 5: 'Vie', 6: 'Sáb', 7: 'Dom'
+      1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo'
     };
     return days.map(d => dayNames[d]).filter(Boolean).join(', ');
   }

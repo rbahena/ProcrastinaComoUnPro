@@ -393,29 +393,29 @@ export class MembershipService {
     const raw = this.userActiveDays() || [];
     const days = [...raw].sort((a, b) => a - b);
     if (days.length === 0) return 'Sin días configurados';
-    if (days.length === 7) return 'Lun a Dom';
+    if (days.length === 7) return 'Lunes a Domingo';
     
     // Consecutivos Lunes a Viernes [1,2,3,4,5]
     if (days.length === 5 && days[0] === 1 && days[1] === 2 && days[2] === 3 && days[3] === 4 && days[4] === 5) {
-      return 'Lun a Vie';
+      return 'Lunes a Viernes';
     }
     // Consecutivos Lunes a Sábado [1,2,3,4,5,6]
     if (days.length === 6 && days[0] === 1 && days[1] === 2 && days[2] === 3 && days[3] === 4 && days[4] === 5 && days[5] === 6) {
-      return 'Lun a Sáb';
+      return 'Lunes a Sábado';
     }
     // Fines de semana [6,7]
     if (days.length === 2 && days.includes(6) && days.includes(7)) {
-      return 'Sáb y Dom';
+      return 'Sábado y Domingo';
     }
 
     const dayNames: { [k: number]: string } = {
-      1: 'Lun',
-      2: 'Mar',
-      3: 'Mié',
-      4: 'Jue',
-      5: 'Vie',
-      6: 'Sáb',
-      7: 'Dom'
+      1: 'Lunes',
+      2: 'Martes',
+      3: 'Miércoles',
+      4: 'Jueves',
+      5: 'Viernes',
+      6: 'Sábado',
+      7: 'Domingo'
     };
 
     return days.map(d => dayNames[d]).filter(Boolean).join(', ');
