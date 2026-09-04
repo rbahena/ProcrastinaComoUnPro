@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MembershipService, AvatarItem, QualityItem } from '../../services/membership.service';
@@ -18,6 +18,9 @@ export interface ComunidadAvatar {
   emoji: string;
   color: string;
   role: string;
+  lore: string;
+  weaponName: string;
+  weaponDesc: string;
   focusApplication: string;
   tacticalQuote: string;
   coinsPerPomodoro: number;
@@ -56,24 +59,24 @@ interface CountryOption {
       <div class="profile-layout-container">
         
         <!-- ==================================================== -->
-        <!-- SECCIÓN SUPERIOR: PERFIL + SKILLS (MINIMALISTA)       -->
+        <!-- 1. SECCIÓN SUPERIOR: PERFIL STRATIS (PERFIL.WEBP)    -->
         <!-- ==================================================== -->
         <div class="profile-upper-container">
           
-          <!-- 1. TARJETA PRINCIPAL DE PERFIL (INSPIRADA EN PERFIL.WEBP) -->
+          <!-- TARJETA PRINCIPAL DE PERFIL -->
           <div class="stratis-profile-card">
-            <!-- BANNER SUPERIOR CON FONDO COMBINADO AL COLOR DEL AVATAR -->
+            <!-- BANNER SUPERIOR CON AURA Y FONDO DINÁMICO -->
             <div class="profile-banner-cover" 
-                 [style.background]="'linear-gradient(135deg, ' + activeAvatar().color + '55 0%, ' + activeAvatar().color + '22 45%, rgba(15, 23, 42, 0.9) 100%), #141928'">
-              <div class="avatar-backdrop-aura" [style.background]="'radial-gradient(circle at 75px 140px, ' + activeAvatar().color + '99 0%, ' + activeAvatar().color + '33 45%, transparent 70%)'"></div>
-              <div class="banner-overlay-pattern" [style.background]="'radial-gradient(circle at 80% 20%, ' + activeAvatar().color + '44 0%, transparent 65%)'"></div>
+                 [style.background]="'linear-gradient(135deg, ' + activeAvatar().color + '44 0%, ' + activeAvatar().color + '18 45%, rgba(15, 23, 42, 0.95) 100%), #141928'">
+              <div class="avatar-backdrop-aura" [style.background]="'radial-gradient(circle at 80px 140px, ' + activeAvatar().color + '88 0%, ' + activeAvatar().color + '22 50%, transparent 70%)'"></div>
+              <div class="banner-overlay-pattern" [style.background]="'radial-gradient(circle at 85% 25%, ' + activeAvatar().color + '33 0%, transparent 65%)'"></div>
               
               <span class="plan-status-pill" [class.is-pro]="membership.isPremium()">
                 {{ membership.isPremium() ? 'Plan Pro ✦' : 'Plan Básico' }}
               </span>
             </div>
 
-            <!-- CONTENIDO INFERIOR DEL PERFIL (AVATAR CIRCULAR SUPERPUESTO) -->
+            <!-- CUERPO DE PERFIL CON AVATAR CIRCULAR SUPERPUESTO -->
             <div class="profile-body-content">
               
               <div class="avatar-overlapping-wrapper">
@@ -116,7 +119,7 @@ interface CountryOption {
                   </p>
                 </div>
 
-                <!-- TELEMETRÍA EN EL EXTREMO DERECHO (MICRO-PÍLDORAS CON TOOLTIPS ESTILIZADOS) -->
+                <!-- TELEMETRÍA EN LÍNEA -->
                 <div class="user-inline-telemetry">
                   <div class="tele-pill tomato-pill" [class.is-zero]="membership.focusTomatoes() === 0" data-tooltip="1 tomate por cada sesión completada">
                     <span class="tele-icon">🍅</span>
@@ -133,7 +136,6 @@ interface CountryOption {
                     <span class="tele-num">{{ membership.streak() }}</span>
                   </div>
 
-                  <!-- PODIO: TROFEO 1ER LUGAR, MEDALLA 2DO Y 3ER LUGAR -->
                   <div class="tele-pill trophy-pill gold-pill" [class.is-zero]="membership.goldMedals() === 0" data-tooltip="Trofeos de oro ganados">
                     <span class="tele-icon"><i class="fa-solid fa-trophy"></i></span>
                     <span class="tele-num">{{ membership.goldMedals() }}</span>
@@ -154,7 +156,7 @@ interface CountryOption {
             </div>
           </div>
 
-          <!-- 2. CARD DE CUALIDADES DE HONOR (SKILLS PILLS) - DISEÑO SUMAMENTE LIGERO -->
+          <!-- CARD DE CUALIDADES DE HONOR (SKILLS PILLS) -->
           <div class="stratis-skills-card">
             <div class="skills-bar-container">
               <div class="skills-lead-indicator" title="Cualidades de Honor">
@@ -181,120 +183,190 @@ interface CountryOption {
         </div>
 
         <!-- ==================================================== -->
-        <!-- 3. TARJETA TÁCTICA DE COMBATE (INSPIRADA EN CARD.PNG) -->
+        <!-- 2. SECCIÓN: CHARACTER TO PLAY (CARRUSEL AVATAR.PNG)   -->
         <!-- ==================================================== -->
-        <div class="tactical-showcase-section">
+        <div class="character-to-play-section">
           
-          <div class="section-title-line">
-            <div class="title-left">
-              <span class="subtag-code">SPECIMEN ARCHIVE & TACTICAL DOSSIER</span>
-              <h2 class="section-heading-txt">Arsenal de Guardianes</h2>
+          <div class="carousel-header-bar">
+            <div class="carousel-title-group">
+              <span class="carousel-subtag">// ROSTER SELECTION</span>
+              <h2 class="carousel-main-title">Character to play</h2>
             </div>
-            
-            <!-- SELECTOR DE FILTRO RÁPIDO -->
-            <div class="category-filter-chips">
-              <button (click)="setFilter('todos')" [class.active]="selectedCategory() === 'todos'">Todos ({{ allAvatars().length }})</button>
-              <button (click)="setFilter('desbloqueados')" [class.active]="selectedCategory() === 'desbloqueados'">En Escuadra ({{ getUnlockedAvatarsCount() }})</button>
-              <button (click)="setFilter('inicial')" [class.active]="selectedCategory() === 'inicial'">Comunes</button>
-              <button (click)="setFilter('cualidad')" [class.active]="selectedCategory() === 'cualidad'">🛡️ Retos</button>
-              <button (click)="setFilter('especial')" [class.active]="selectedCategory() === 'especial'">🎯 Cazadores</button>
-              <button (click)="setFilter('legendario')" [class.active]="selectedCategory() === 'legendario'">🔥 Legendarios</button>
+
+            <!-- CONTROLES: FILTROS Y FLECHAS DE NAVEGACIÓN -->
+            <div class="carousel-controls-group">
+              <div class="category-filter-chips">
+                <button (click)="setFilter('todos')" [class.active]="selectedCategory() === 'todos'">Todos ({{ allAvatars().length }})</button>
+                <button (click)="setFilter('desbloqueados')" [class.active]="selectedCategory() === 'desbloqueados'">En Escuadra ({{ getUnlockedAvatarsCount() }})</button>
+                <button (click)="setFilter('inicial')" [class.active]="selectedCategory() === 'inicial'">Comunes</button>
+                <button (click)="setFilter('cualidad')" [class.active]="selectedCategory() === 'cualidad'">🛡️ Retos</button>
+                <button (click)="setFilter('especial')" [class.active]="selectedCategory() === 'especial'">🎯 Cazadores</button>
+                <button (click)="setFilter('legendario')" [class.active]="selectedCategory() === 'legendario'">🔥 Legendarios</button>
+              </div>
+
+              <div class="carousel-nav-arrows">
+                <button class="btn-carousel-arrow" (click)="scrollCarousel('left')" title="Anterior">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button class="btn-carousel-arrow" (click)="scrollCarousel('right')" title="Siguiente">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- LA CARD TÁCTICA GAMING COMPACTA (CON FONDO Y AURA AL COLOR DEL AVATAR) -->
-          <div class="tactical-gaming-card" [style.--card-accent]="inspectedAvatar().color">
-            
-            <!-- COLUMNA IZQUIERDA: HERO CON FONDO COMBINADO Y HUD DUAL -->
-            <div class="gaming-card-left">
-              <div class="hero-frameless-dock"
-                   [style.background]="'radial-gradient(ellipse at 50% 55%, ' + inspectedAvatar().color + '44 0%, ' + inspectedAvatar().color + '15 45%, rgba(0,0,0,0.4) 80%)'"
-                   [style.box-shadow]="'inset 0 0 30px ' + inspectedAvatar().color + '22'">
-                <div class="cosmic-aura-blur" [style.background]="'radial-gradient(circle at center, ' + inspectedAvatar().color + '66 0%, transparent 70%)'"></div>
-                <div [class]="'avatar-sprite frameless-creature-sprite sprite-' + inspectedAvatar().id"></div>
-                <div class="hologram-ground-circle" [style.--glow-color]="inspectedAvatar().color"></div>
-              </div>
+          <!-- REEL DE CARTAS VERTICALES TIPO TRADING CARD (INSPIRADO EN AVATAR.PNG) -->
+          <div class="carousel-deck-wrapper">
+            <div class="carousel-cards-track" #carouselTrack>
+              
+              <div 
+                *ngFor="let avatar of visibleAvatars()"
+                (click)="selectAvatar(avatar)"
+                class="vertical-hero-card"
+                [class.is-active]="inspectedAvatar().id === avatar.id"
+                [class.is-equipped]="membership.selectedAvatar() === avatar.id"
+                [class.is-locked]="!avatar.isUnlocked"
+                [style.--card-theme]="avatar.color"
+              >
+                <!-- AURA DE FONDO -->
+                <div class="hero-card-glow" [style.background]="'radial-gradient(circle at 50% 30%, ' + avatar.color + '55 0%, transparent 75%)'"></div>
+                
+                <!-- BADGES SUPERIORES -->
+                <div class="hero-card-top-badges">
+                  <span class="card-tier-pill" [class]="'tier-' + avatar.tier.toLowerCase()">
+                    ★ {{ avatar.tier }}
+                  </span>
+                  <span class="card-evo-badge" *ngIf="avatar.hasEvolution">🧬 EVO</span>
+                  
+                  <span class="card-state-pill" *ngIf="membership.selectedAvatar() === avatar.id" title="Activo">
+                    <i class="fa-solid fa-shield-check"></i>
+                  </span>
+                  <span class="card-state-pill is-lock" *ngIf="!avatar.isUnlocked" title="Bloqueado">
+                    <i class="fa-solid fa-lock"></i>
+                  </span>
+                </div>
 
-              <!-- DUAL COMBAT HUD -->
-              <div class="dual-combat-grid">
-                <div class="combat-hud-pill win-pill">
-                  <span class="hud-label text-green"><i class="fa-solid fa-circle-check"></i> SI COMPLETAS</span>
-                  <div class="hud-digits">
-                    <strong class="text-green">+{{ inspectedAvatar().coinsPerPomodoro }} 🪙</strong>
-                    <small>⚔️ {{ inspectedAvatar().bossDamagePoints }} Pts Daño</small>
+                <!-- SPRITE DEL PERSONAJE DENTRO DE LA CARTA -->
+                <div class="hero-card-artwork-frame">
+                  <div [class]="'avatar-sprite hero-card-sprite sprite-' + avatar.id"></div>
+                </div>
+
+                <!-- OVERLAY INFERIOR CON NOMBRE Y SUBTÍTULO -->
+                <div class="hero-card-footer-glass">
+                  <h4 class="hero-card-name">{{ avatar.name }}</h4>
+                  <span class="hero-card-role-sub">as {{ avatar.role }}</span>
+                  
+                  <div class="hero-card-status-strip" [class.unlocked]="avatar.isUnlocked">
+                    <span *ngIf="membership.selectedAvatar() === avatar.id">ACTIVO EN PERFIL</span>
+                    <span *ngIf="membership.selectedAvatar() !== avatar.id && avatar.isUnlocked">EN TU ESCUADRA</span>
+                    <span *ngIf="!avatar.isUnlocked">BLOQUEADO</span>
                   </div>
                 </div>
 
-                <div class="combat-hud-pill fail-pill">
-                  <span class="hud-label text-red"><i class="fa-solid fa-circle-xmark"></i> SI ABANDONAS</span>
-                  <div class="hud-digits">
-                    <strong class="text-red">-{{ inspectedAvatar().pausePenaltyCoins }} 🪙</strong>
+                <!-- INDICADOR SELECCIONADO -->
+                <div class="active-card-indicator" *ngIf="inspectedAvatar().id === avatar.id">
+                  <div class="indicator-glow-dot"></div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- 3. SECCIÓN: CHARACTER SELECT & DOSSIER (AVATAR.PNG & CARD.PNG) -->
+        <!-- ==================================================== -->
+        <div class="character-select-spotlight-section" [style.--accent-color]="inspectedAvatar().color">
+          
+          <div class="spotlight-cinematic-container">
+            
+            <!-- COLUMNA IZQUIERDA: DOSSIER TÁCTICO, LORE & PROTOCOLOS -->
+            <div class="spotlight-left-dossier">
+              
+              <div class="dossier-header-box">
+                <span class="dossier-specimen-subtag">// SPECIMEN ARCHIVE & TACTICAL DOSSIER</span>
+                <h3 class="dossier-character-title">{{ inspectedAvatar().name | uppercase }}</h3>
+                <p class="dossier-species-desc">{{ inspectedAvatar().species }} — <strong>{{ inspectedAvatar().role }}</strong></p>
+                
+                <div class="dossier-badges-list">
+                  <span class="dossier-badge-pill" [class]="'tier-' + inspectedAvatar().tier.toLowerCase()">
+                    ★ RANGO {{ inspectedAvatar().tier | uppercase }}
+                  </span>
+                  <span class="dossier-badge-pill archetype-pill">
+                    {{ inspectedAvatar().archetypeBadge }}
+                  </span>
+                  <span class="dossier-badge-pill squad-pill" [class.is-unlocked]="inspectedAvatar().isUnlocked">
+                    <i [class]="inspectedAvatar().isUnlocked ? 'fa-solid fa-shield-check' : 'fa-solid fa-lock'"></i>
+                    {{ inspectedAvatar().isUnlocked ? 'EN TU ESCUADRA' : 'BLOQUEADO' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- LORE NARRATIVO DEL PERSONAJE -->
+              <div class="dossier-lore-box">
+                <p class="lore-text-paragraph">{{ inspectedAvatar().lore }}</p>
+              </div>
+
+              <!-- PROTOCOLO PSICOLÓGICO / HACK ANTI-PROCRASTINACIÓN -->
+              <div class="dossier-psych-card">
+                <div class="psych-card-head">
+                  <i class="fa-solid fa-brain text-purple"></i>
+                  <span>PROTOCOLO PSICOLÓGICO // HACK ANTI-PROCRASTINACIÓN</span>
+                </div>
+                <p class="psych-card-body">{{ inspectedAvatar().focusApplication }}</p>
+              </div>
+
+              <!-- DUAL COMBAT HUD (SI COMPLETAS / SI ABANDONAS) -->
+              <div class="dossier-combat-hud-grid">
+                <div class="combat-pill win-combat-pill">
+                  <span class="combat-tag text-green"><i class="fa-solid fa-circle-check"></i> SI COMPLETAS</span>
+                  <div class="combat-values">
+                    <strong class="text-green">+{{ inspectedAvatar().coinsPerPomodoro }} 🪙 Coins</strong>
+                    <small>⚔️ {{ inspectedAvatar().bossDamagePoints }} Pts Daño al Jefe</small>
+                  </div>
+                </div>
+
+                <div class="combat-pill fail-combat-pill">
+                  <span class="combat-tag text-red"><i class="fa-solid fa-circle-xmark"></i> SI ABANDONAS</span>
+                  <div class="combat-values">
+                    <strong class="text-red">-{{ inspectedAvatar().pausePenaltyCoins }} 🪙 Coins</strong>
                     <small class="text-red">🩸 +{{ inspectedAvatar().bossHealPoints }} HP Jefe</small>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- COLUMNA DERECHA: DOSSIER TÁCTICO & PROTOCOLOS -->
-            <div class="gaming-card-right">
-              
-              <div class="dossier-header-strip">
-                <div class="dossier-identity">
-                  <div class="dossier-badges-row">
-                    <span class="code-mono">SPECIMEN ARCHIVE</span>
-                    <span class="tier-pill" [class]="'tier-' + inspectedAvatar().tier.toLowerCase()">★ {{ inspectedAvatar().tier | uppercase }}</span>
-                    <span class="evo-sparkle-pill" *ngIf="inspectedAvatar().hasEvolution">🧬 PUEDE EVOLUCIONAR</span>
-                    <span class="archetype-pill">{{ inspectedAvatar().archetypeBadge }}</span>
-                  </div>
-                  <h3 class="hero-character-name">{{ inspectedAvatar().name | uppercase }}</h3>
-                  <span class="hero-role-caption">{{ inspectedAvatar().species }} — <strong>{{ inspectedAvatar().role }}</strong></span>
-                </div>
-
-                <div class="status-squad-badge" [class.unlocked]="inspectedAvatar().isUnlocked">
-                  <i [class]="inspectedAvatar().isUnlocked ? 'fa-solid fa-shield-check text-green' : 'fa-solid fa-lock text-orange'"></i>
-                  <span>{{ inspectedAvatar().isUnlocked ? 'EN TU ESCUADRA' : 'BLOQUEADO' }}</span>
-                </div>
-              </div>
-
-              <!-- HABILIDAD PASIVA -->
-              <div class="dossier-passive-matrix">
-                <div class="passive-header-line">
+              <!-- MATRIZ DE PASIVA TÁCTICA -->
+              <div class="dossier-passive-panel">
+                <div class="passive-panel-head">
                   <i class="fa-solid fa-bolt text-cyan"></i>
-                  <span class="passive-label">PASIVA TÁCTICA:</span>
-                  <strong class="passive-name-txt">{{ inspectedAvatar().passiveName }}</strong>
+                  <span class="passive-panel-title">EFECTO TÁCTICO // HABILIDAD PASIVA:</span>
+                  <strong class="passive-name-strong">{{ inspectedAvatar().passiveName }}</strong>
                 </div>
 
-                <div class="passive-columns-grid">
-                  <div class="col-item">
-                    <span class="col-tag text-green"><i class="fa-solid fa-plus"></i> Ventaja:</span>
+                <div class="passive-details-triad">
+                  <div class="triad-item">
+                    <span class="triad-label text-green"><i class="fa-solid fa-plus"></i> Ventaja:</span>
                     <p>{{ inspectedAvatar().passiveAdvantage }}</p>
                   </div>
-                  <div class="col-item">
-                    <span class="col-tag text-red"><i class="fa-solid fa-minus"></i> Riesgo:</span>
+                  <div class="triad-item">
+                    <span class="triad-label text-red"><i class="fa-solid fa-minus"></i> Riesgo:</span>
                     <p>{{ inspectedAvatar().passiveCondition }}</p>
                   </div>
-                  <div class="col-item">
-                    <span class="col-tag text-cyan"><i class="fa-solid fa-crosshairs"></i> Momento Ideal:</span>
+                  <div class="triad-item">
+                    <span class="triad-label text-cyan"><i class="fa-solid fa-crosshairs"></i> Momento Ideal:</span>
                     <p>{{ inspectedAvatar().passiveBestFor }}</p>
                   </div>
                 </div>
               </div>
 
-              <!-- HACK ANTI-PROCRASTINACIÓN -->
-              <div class="dossier-psych-matrix">
-                <div class="psych-header-line">
-                  <i class="fa-solid fa-brain text-purple"></i>
-                  <span>HACK ANTI-PROCRASTINACIÓN:</span>
-                </div>
-                <p class="psych-text-quote">{{ inspectedAvatar().focusApplication }}</p>
-              </div>
-
-              <!-- BOTONERA DE ACCIÓN Y CITA -->
-              <div class="dossier-footer-actions">
-                <div class="action-buttons-wrap">
+              <!-- BOTÓN DE ACCIÓN Y CITA TÁCTICA -->
+              <div class="dossier-action-footer">
+                <div class="action-cta-wrap">
                   <button 
                     *ngIf="membership.selectedAvatar() === inspectedAvatar().id" 
-                    class="btn-action-cta is-equipped" 
+                    class="btn-dossier-cta is-active-equipped" 
                     disabled
                   >
                     <i class="fa-solid fa-shield-halved"></i> GUARDIÁN ACTIVO EN TU PERFIL ✓
@@ -303,16 +375,16 @@ interface CountryOption {
                   <button 
                     *ngIf="inspectedAvatar().isUnlocked && membership.selectedAvatar() !== inspectedAvatar().id" 
                     (click)="equipAvatar(inspectedAvatar())" 
-                    class="btn-action-cta is-equip"
+                    class="btn-dossier-cta is-equip-btn"
                   >
-                    <i class="fa-solid fa-paw"></i> EQUIPAR ESTE GUARDIÁN
+                    <i class="fa-solid fa-paw"></i> DESPLEGAR Y EQUIPAR GUARDIÁN
                     <i class="fa-solid fa-arrow-right"></i>
                   </button>
 
                   <button 
                     *ngIf="!inspectedAvatar().isUnlocked && inspectedAvatar().qualityId && inspectedAvatar().quality" 
                     (click)="simulateUnlockQuality(inspectedAvatar().quality!)" 
-                    class="btn-action-cta is-challenge"
+                    class="btn-dossier-cta is-challenge-btn"
                   >
                     <i class="fa-solid fa-wand-magic-sparkles"></i> DEMOSTRAR CUALIDAD (TEST)
                     <i class="fa-solid fa-arrow-right"></i>
@@ -321,7 +393,7 @@ interface CountryOption {
                   <button 
                     *ngIf="!inspectedAvatar().isUnlocked && !inspectedAvatar().qualityId && inspectedAvatar().cost > 0" 
                     (click)="buyAvatar(inspectedAvatar())" 
-                    class="btn-action-cta is-buy"
+                    class="btn-dossier-cta is-buy-btn"
                     [disabled]="membership.proCoins() < inspectedAvatar().cost"
                   >
                     <i class="fa-solid fa-coins"></i> 
@@ -330,46 +402,101 @@ interface CountryOption {
                   </button>
                 </div>
 
-                <div class="quote-compact-bar">
-                  <i class="fa-solid fa-quote-left text-cyan"></i>
-                  <p>“{{ inspectedAvatar().tacticalQuote }}”</p>
+                <div class="dossier-quote-box">
+                  <i class="fa-solid fa-quote-left quote-icon text-cyan"></i>
+                  <p class="quote-text">“{{ inspectedAvatar().tacticalQuote }}”</p>
                 </div>
               </div>
 
             </div>
 
-          </div>
-
-          <!-- REEL / GRILLA DE SELECCIÓN DE GUARDIANES -->
-          <div class="guardian-selection-reel">
-            <div 
-              *ngFor="let avatar of visibleAvatars()"
-              (click)="selectAvatar(avatar)"
-              class="reel-avatar-card"
-              [class.is-inspected]="inspectedAvatar().id === avatar.id"
-              [class.is-equipped]="membership.selectedAvatar() === avatar.id"
-              [class.is-locked]="!avatar.isUnlocked"
-              [style.--avatar-color]="avatar.color"
-            >
-              <div class="reel-lock-badge" *ngIf="!avatar.isUnlocked"><i class="fa-solid fa-lock"></i></div>
-              <div class="reel-equipped-badge" *ngIf="membership.selectedAvatar() === avatar.id"><i class="fa-solid fa-check"></i></div>
-              <span class="reel-evo-tag" *ngIf="avatar.hasEvolution">🧬 EVO</span>
-
-              <div [class]="'avatar-sprite reel-sprite sprite-' + avatar.id"
-                   [style.background-color]="avatar.color + '22'"
-                   [style.box-shadow]="'0 0 10px ' + avatar.color + '33'"
-                   [style.border-color]="inspectedAvatar().id === avatar.id ? avatar.color : 'rgba(255,255,255,0.08)'"></div>
+            <!-- COLUMNA DERECHA: ESCENARIO CINEMÁTICO CON CALLOUTS (AVATAR.PNG) -->
+            <div class="spotlight-right-stage">
               
-              <div class="reel-info-col">
-                <strong class="reel-name-txt">{{ avatar.name }}</strong>
-                <span class="reel-tier-lbl">{{ avatar.tier }}</span>
+              <div class="cinematic-stage-card"
+                   [style.background]="'radial-gradient(ellipse at 50% 50%, ' + inspectedAvatar().color + '33 0%, ' + inspectedAvatar().color + '10 40%, rgba(10, 14, 22, 0.95) 85%)'">
+                
+                <!-- AURA DE ENERGÍA CÓSMICA -->
+                <div class="stage-energy-aura" [style.background]="'radial-gradient(circle at 50% 50%, ' + inspectedAvatar().color + '77 0%, transparent 65%)'"></div>
+                
+                <!-- TÍTULO SUPERIOR CHARACTER SELECT -->
+                <div class="stage-header-title">
+                  <span class="stage-select-sub">// FOCUS GUARDIAN</span>
+                  <h2 class="stage-select-main">CHARACTER SELECT</h2>
+                </div>
+
+                <!-- CONTENEDOR DEL HERO Y LOS PUNTEROS INTERACTIVOS (CALLOUTS) -->
+                <div class="stage-hero-center-dock">
+                  
+                  <!-- PUNTERO 1: ARMA / HERRAMIENTA TÁCTICA -->
+                  <div class="annotation-callout callout-weapon">
+                    <div class="callout-card">
+                      <div class="callout-header">
+                        <i class="fa-solid fa-wand-magic text-cyan"></i>
+                        <strong>{{ inspectedAvatar().weaponName }}</strong>
+                      </div>
+                      <p class="callout-desc">{{ inspectedAvatar().weaponDesc }}</p>
+                    </div>
+                    <div class="callout-pointer-line">
+                      <div class="pointer-dot"></div>
+                      <div class="pointer-arm"></div>
+                    </div>
+                  </div>
+
+                  <!-- PERSONAJE FLOTANTE EN SU PLATAFORMA HOLOGRÁFICA -->
+                  <div class="hero-character-floating-wrap">
+                    <div [class]="'avatar-sprite frameless-hero-sprite sprite-' + inspectedAvatar().id"></div>
+                    <div class="hologram-disk-platform" [style.--glow-color]="inspectedAvatar().color"></div>
+                  </div>
+
+                  <!-- PUNTERO 2: HABILIDAD PASIVA / EFECTO -->
+                  <div class="annotation-callout callout-passive">
+                    <div class="callout-pointer-line">
+                      <div class="pointer-dot"></div>
+                      <div class="pointer-arm"></div>
+                    </div>
+                    <div class="callout-card">
+                      <div class="callout-header">
+                        <i class="fa-solid fa-bolt text-yellow"></i>
+                        <strong>{{ inspectedAvatar().passiveName }}</strong>
+                      </div>
+                      <p class="callout-desc">{{ inspectedAvatar().passiveAdvantage }}</p>
+                    </div>
+                  </div>
+
+                  <!-- PUNTERO 3: RATING Y PODER (ESTRELLAS) -->
+                  <div class="annotation-callout callout-rating">
+                    <div class="callout-card">
+                      <div class="rating-row">
+                        <span class="rating-label">Rate :</span>
+                        <div class="rating-stars-list">
+                          <i *ngFor="let s of [1,2,3,4,5]" 
+                             class="fa-solid fa-star" 
+                             [class.is-lit]="s <= inspectedAvatar().stars"></i>
+                        </div>
+                      </div>
+                      <span class="rating-archetype-sub">{{ inspectedAvatar().archetype }} • {{ inspectedAvatar().tier }}</span>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- NOMBRE GRANDE INFERIOR ESTILO CINEMÁTICO -->
+                <div class="stage-footer-character-name">
+                  <span class="cinematic-name-glow">{{ inspectedAvatar().name | uppercase }}</span>
+                </div>
+
               </div>
+
             </div>
+
           </div>
 
         </div>
 
-        <!-- MODAL DE EDICIÓN FLOTANTE -->
+        <!-- ==================================================== -->
+        <!-- 4. MODAL DE EDICIÓN FLOTANTE                        -->
+        <!-- ==================================================== -->
         <div class="edit-modal-backdrop" *ngIf="isEditingProfile()" (click)="toggleEditProfile()">
           <div class="edit-modal-window" (click)="$event.stopPropagation()">
             <div class="modal-window-head">
@@ -467,7 +594,7 @@ interface CountryOption {
   `,
   styles: [`
     /* ==================================================== */
-    /* 1. LAYOUT CONTENEDOR PRINCIPAL                      */
+    /* 1. LAYOUT PRINCIPAL Y CONTENEDORES                  */
     /* ==================================================== */
     .profile-page-wrapper {
       padding: 92px 32px 60px;
@@ -476,23 +603,23 @@ interface CountryOption {
       width: 100%;
     }
     .profile-layout-container {
-      max-width: 1100px;
+      max-width: 1140px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 22px;
+      gap: 26px;
     }
 
-    /* CONTENEDOR SUPERIOR */
+    /* CONTENEDOR SUPERIOR DE PERFIL */
     .profile-upper-container {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
       width: 100%;
     }
 
     /* ==================================================== */
-    /* 2. TARJETA STRATIS DE PERFIL (INSPIRADA EN PERFIL.WEBP) */
+    /* 2. TARJETA STRATIS DE PERFIL (PERFIL.WEBP)           */
     /* ==================================================== */
     .stratis-profile-card {
       background: rgba(18, 22, 32, 0.85);
@@ -504,9 +631,8 @@ interface CountryOption {
       position: relative;
     }
 
-    /* BANNER SUPERIOR */
     .profile-banner-cover {
-      height: 140px;
+      height: 135px;
       position: relative;
       display: flex;
       justify-content: flex-end;
@@ -529,24 +655,22 @@ interface CountryOption {
       transition: background 0.4s ease;
     }
 
-    /* CONTENIDO INFERIOR DEL PERFIL */
     .profile-body-content {
       padding: 0 28px 24px;
       position: relative;
     }
 
-    /* AVATAR CIRCULAR SUPERPUESTO */
     .avatar-overlapping-wrapper {
       position: relative;
-      width: 110px;
-      height: 110px;
-      margin-top: -55px;
+      width: 105px;
+      height: 105px;
+      margin-top: -52px;
       margin-bottom: 12px;
       z-index: 10;
     }
     .round-avatar-frame {
-      width: 110px;
-      height: 110px;
+      width: 105px;
+      height: 105px;
       border-radius: 50%;
       border: 4px solid #121620;
       overflow: hidden;
@@ -558,11 +682,11 @@ interface CountryOption {
       transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, transform 0.2s ease;
     }
     .round-avatar-frame:hover {
-      transform: scale(1.02);
+      transform: scale(1.03);
     }
     .sprite-circle {
-      width: 102px;
-      height: 102px;
+      width: 98px;
+      height: 98px;
       border-radius: 50%;
       background-size: cover;
       background-position: center;
@@ -590,23 +714,7 @@ interface CountryOption {
       transform: scale(1.15);
       filter: brightness(1.2);
     }
-    .user-level-badge {
-      position: absolute;
-      bottom: 2px;
-      right: 0;
-      color: #000;
-      font-size: 8.5px;
-      font-weight: 900;
-      padding: 2px 6px;
-      border-radius: 10px;
-      border: 2px solid #121620;
-      letter-spacing: 0.4px;
-      transition: background 0.3s ease;
-    }
 
-    /* ==================================================== */
-    /* DATOS DEL USUARIO (MINIMALISTA Y ELEGANTE)          */
-    /* ==================================================== */
     .user-details-row {
       display: flex;
       justify-content: space-between;
@@ -617,7 +725,7 @@ interface CountryOption {
     .user-primary-info {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       min-width: 0;
     }
     .user-name-title-row {
@@ -626,7 +734,7 @@ interface CountryOption {
       gap: 12px;
     }
     .user-display-name {
-      font-size: 25px;
+      font-size: 24px;
       font-weight: 850;
       color: #fff;
       margin: 0;
@@ -640,8 +748,8 @@ interface CountryOption {
       line-height: 1.4;
     }
     .user-profession-txt {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 15px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14.5px;
       font-weight: 650;
       color: #f1f5f9;
       letter-spacing: -0.2px;
@@ -658,8 +766,8 @@ interface CountryOption {
       line-height: 1;
     }
     .country-name-txt {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 13.5px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
       font-weight: 500;
       color: #94a3b8;
       letter-spacing: -0.1px;
@@ -671,13 +779,13 @@ interface CountryOption {
       line-height: 1.4;
     }
     .active-week-txt {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 12.5px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
       font-weight: 500;
       color: #64748b;
     }
     .week-summary-highlight {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 11.5px;
       font-weight: 550;
       color: #94a3b8;
@@ -685,7 +793,6 @@ interface CountryOption {
       border: 1px solid rgba(255, 255, 255, 0.08);
       padding: 1.5px 7px;
       border-radius: 6px;
-      letter-spacing: 0.1px;
     }
     .plan-status-pill {
       position: relative;
@@ -699,9 +806,7 @@ interface CountryOption {
       border-radius: 6px;
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      white-space: nowrap;
       backdrop-filter: blur(10px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
     }
     .plan-status-pill.is-pro {
       background: rgba(99, 102, 241, 0.3);
@@ -710,7 +815,6 @@ interface CountryOption {
       box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
     }
 
-    /* TELEMETRÍA EN LÍNEA ALINEADA A LA DERECHA (MICRO-PÍLDORAS) */
     .user-inline-telemetry {
       display: inline-flex;
       align-items: center;
@@ -728,6 +832,7 @@ interface CountryOption {
       border-radius: 8px;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       backdrop-filter: blur(8px);
+      position: relative;
     }
     .tele-pill:hover {
       background: rgba(255, 255, 255, 0.07);
@@ -751,38 +856,18 @@ interface CountryOption {
       letter-spacing: -0.2px;
       line-height: 1;
     }
-    .tomato-pill .tele-icon { font-size: 12px; }
-    .tomato-pill:hover { border-color: rgba(239, 68, 68, 0.35); }
     .tomato-pill .tele-num { color: #f87171; }
-
     .coin-pill .tele-icon i { color: #fbbf24; }
-    .coin-pill:hover { border-color: rgba(251, 191, 36, 0.35); }
     .coin-pill .tele-num { color: #fbbf24; }
-
     .streak-pill .tele-icon i { color: #f97316; }
-    .streak-pill:hover { border-color: rgba(249, 115, 22, 0.35); }
     .streak-pill .tele-num { color: #fb923c; }
-
-    .focus-pill:hover { border-color: rgba(6, 182, 212, 0.35); }
-    .focus-pill .tele-num { color: #38bdf8; }
-
-    .medal-pill,
-    .trophy-pill {
-      padding: 5px 9px;
-    }
     .gold-pill .tele-icon i { color: #fbbf24; }
     .gold-pill .tele-num { color: #fbbf24; }
-    .gold-pill:hover { border-color: rgba(251, 191, 36, 0.35); }
-
     .silver-pill .tele-icon i { color: #cbd5e1; }
     .silver-pill .tele-num { color: #cbd5e1; }
-    .silver-pill:hover { border-color: rgba(203, 213, 225, 0.35); }
-
     .bronze-pill .tele-icon i { color: #d97706; }
     .bronze-pill .tele-num { color: #d97706; }
-    .bronze-pill:hover { border-color: rgba(217, 119, 6, 0.35); }
 
-    /* ESTADO GRIS CUANDO ESTÁN EN CERO */
     .tele-pill.is-zero {
       opacity: 0.38;
       border-color: rgba(255, 255, 255, 0.05);
@@ -796,10 +881,6 @@ interface CountryOption {
       color: #64748b;
     }
 
-    /* TOOLTIPS PERSONALIZADOS Y ELEGANTES PARA PÍLDORAS */
-    .tele-pill[data-tooltip] {
-      position: relative;
-    }
     .tele-pill[data-tooltip]::before {
       content: attr(data-tooltip);
       position: absolute;
@@ -808,21 +889,18 @@ interface CountryOption {
       transform: translate(-50%, 6px) scale(0.96);
       background: rgba(11, 15, 25, 0.95);
       backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       padding: 6px 11px;
       border-radius: 8px;
       color: #f1f5f9;
       font-size: 11.5px;
       font-weight: 550;
-      font-family: 'Plus Jakarta Sans', sans-serif;
       white-space: nowrap;
       opacity: 0;
       pointer-events: none;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
       z-index: 1000;
-      line-height: 1.35;
     }
     .tele-pill[data-tooltip]::after {
       content: '';
@@ -843,32 +921,14 @@ interface CountryOption {
       opacity: 1;
       transform: translate(-50%, 0) scale(1);
     }
-    .bronze-pill[data-tooltip]::before {
-      left: auto;
-      right: 0;
-      transform: translate(0, 6px) scale(0.96);
-    }
-    .bronze-pill[data-tooltip]::after {
-      left: auto;
-      right: 14px;
-      transform: translate(0, 6px) scale(0.96);
-    }
-    .bronze-pill[data-tooltip]:hover::before,
-    .bronze-pill[data-tooltip]:hover::after {
-      transform: translate(0, 0) scale(1);
-    }
 
-    /* ==================================================== */
-    /* 3. CARD DE SKILLS / CUALIDADES (ULTRA LIGERO)        */
-    /* ==================================================== */
+    /* CARD DE SKILLS */
     .stratis-skills-card {
       background: rgba(14, 18, 28, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 14px;
       padding: 10px 16px;
       backdrop-filter: blur(10px);
-      display: flex;
-      flex-direction: column;
     }
     .skills-bar-container {
       display: flex;
@@ -888,12 +948,6 @@ interface CountryOption {
       font-size: 11px;
       font-weight: 700;
       flex-shrink: 0;
-      user-select: none;
-    }
-    .skills-lead-indicator i {
-      font-size: 13px;
-      color: var(--accent, #6366f1);
-      opacity: 0.9;
     }
     .skills-counter-badge {
       font-size: 10.5px;
@@ -929,65 +983,55 @@ interface CountryOption {
       border-color: rgba(16, 185, 129, 0.3);
       color: #f1f5f9;
     }
-    .quality-skill-pill.is-unlocked:hover {
-      border-color: rgba(16, 185, 129, 0.5);
-    }
-    .pill-icon {
-      font-size: 12px;
-      line-height: 1;
-    }
-    .pill-name {
-      font-weight: 700;
-      font-size: 11px;
-    }
-    .pill-status-dot {
-      color: #10b981;
-      font-weight: 900;
-      font-size: 10px;
-      line-height: 1;
-    }
-    .pill-progress-tag {
-      font-size: 9.5px;
-      font-weight: 750;
-      color: #64748b;
-    }
+    .pill-icon { font-size: 12px; }
+    .pill-name { font-weight: 700; font-size: 11px; }
+    .pill-status-dot { color: #10b981; font-weight: 900; font-size: 10px; }
+    .pill-progress-tag { font-size: 9.5px; font-weight: 750; color: #64748b; }
 
     /* ==================================================== */
-    /* 4. SHOWCASE DE CARD TÁCTICA                         */
+    /* 3. SECCIÓN: CHARACTER TO PLAY (CARRUSEL AVATAR.PNG)   */
     /* ==================================================== */
-    .tactical-showcase-section {
+    .character-to-play-section {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
+      width: 100%;
     }
-    .section-title-line {
+
+    .carousel-header-bar {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
       gap: 16px;
       flex-wrap: wrap;
     }
-    .title-left {
+    .carousel-title-group {
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
-    .subtag-code {
-      font-size: 9px;
+    .carousel-subtag {
+      font-size: 9.5px;
       font-weight: 800;
-      color: var(--accent, #6366f1);
-      letter-spacing: 0.8px;
+      color: var(--accent, #00f2fe);
+      letter-spacing: 1px;
       font-family: monospace;
     }
-    .section-heading-txt {
-      font-size: 18px;
+    .carousel-main-title {
+      font-size: 22px;
       font-weight: 900;
       color: #fff;
       margin: 0;
-      letter-spacing: -0.2px;
+      letter-spacing: -0.3px;
+      font-family: 'Space Grotesk', sans-serif;
     }
 
-    /* CHIPS DE FILTRADO */
+    .carousel-controls-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
     .category-filter-chips {
       display: flex;
       gap: 6px;
@@ -995,125 +1039,387 @@ interface CountryOption {
     }
     .category-filter-chips button {
       background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       color: #94a3b8;
-      padding: 5px 12px;
+      padding: 6px 13px;
       border-radius: 8px;
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 750;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .category-filter-chips button:hover {
       background: rgba(255, 255, 255, 0.08);
       color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
     }
     .category-filter-chips button.active {
-      background: rgba(99, 102, 241, 0.2);
-      border-color: rgba(99, 102, 241, 0.6);
-      color: #fff;
+      background: rgba(0, 242, 254, 0.15);
+      border-color: rgba(0, 242, 254, 0.6);
+      color: #00f2fe;
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
     }
 
-    /* CARD TÁCTICA GAMING COMPACTA */
-    .tactical-gaming-card {
-      background: linear-gradient(145deg, rgba(14, 18, 26, 0.96) 0%, rgba(8, 10, 15, 0.99) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-left: 3px solid var(--card-accent, #10b981);
-      border-radius: 18px;
-      padding: 18px 22px;
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      gap: 24px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 35px var(--card-accent, rgba(16, 185, 129, 0.06));
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    .tactical-gaming-card::after {
-      content: '';
-      position: absolute;
-      top: -40%;
-      right: -20%;
-      width: 280px;
-      height: 280px;
-      background: radial-gradient(circle, var(--card-accent, #10b981) 0%, transparent 70%);
-      opacity: 0.08;
-      pointer-events: none;
-    }
-
-    /* HERO IZQUIERDO CON FONDO COMBINADO AL COLOR */
-    .gaming-card-left {
+    .carousel-nav-arrows {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-      align-items: center;
+      gap: 6px;
     }
-    .hero-frameless-dock {
-      position: relative;
-      width: 100%;
-      height: 190px;
+    .btn-carousel-arrow {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 14px;
-      overflow: hidden;
-      transition: background 0.4s ease, box-shadow 0.4s ease;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    .cosmic-aura-blur {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      transition: background 0.4s ease;
-    }
-    .frameless-creature-sprite {
-      width: 180px;
-      height: 180px;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      position: relative;
-      z-index: 2;
-      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.6));
-      -webkit-mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 80%);
-      mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 80%);
-      transition: transform 0.3s ease;
-    }
-    .frameless-creature-sprite:hover {
-      transform: scale(1.05);
-    }
-    .hologram-ground-circle {
-      position: absolute;
-      bottom: 8px;
-      width: 140px;
-      height: 22px;
-      border-radius: 50%;
-      background: radial-gradient(ellipse at center, var(--glow-color, #10b981) 0%, transparent 70%);
-      border: 1px solid var(--glow-color, #10b981);
-      opacity: 0.45;
-      transform: perspective(200px) rotateX(60deg);
-      transition: all 0.3s ease;
+    .btn-carousel-arrow:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
     }
 
-    /* DUAL HUD */
-    .dual-combat-grid {
+    /* DECK DE CARTAS VERTICALES */
+    .carousel-deck-wrapper {
+      position: relative;
       width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
+      overflow: hidden;
+      padding: 10px 4px 18px;
     }
-    .combat-hud-pill {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      padding: 6px 8px;
+    .carousel-cards-track {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+    .carousel-cards-track::-webkit-scrollbar {
+      height: 5px;
+    }
+    .carousel-cards-track::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+
+    /* TARJETA VERTICAL HERO (AVATAR.PNG) */
+    .vertical-hero-card {
+      flex: 0 0 156px;
+      height: 228px;
+      border-radius: 16px;
+      background: #0f1422;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      user-select: none;
+    }
+    .vertical-hero-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6);
+    }
+    .vertical-hero-card.is-active {
+      transform: translateY(-9px) scale(1.03);
+      border-color: var(--card-theme, var(--accent));
+      box-shadow: 0 0 24px var(--card-theme, rgba(0, 242, 254, 0.4)), 0 16px 36px rgba(0, 0, 0, 0.7);
+    }
+    .vertical-hero-card.is-locked {
+      opacity: 0.65;
+    }
+    .vertical-hero-card.is-locked .hero-card-sprite {
+      filter: grayscale(1) brightness(0.6);
+    }
+
+    .hero-card-glow {
+      position: absolute;
+      inset: 0;
+      opacity: 0.45;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .vertical-hero-card.is-active .hero-card-glow {
+      opacity: 0.85;
+    }
+
+    .hero-card-top-badges {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+    }
+    .card-tier-pill {
+      font-size: 8px;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .card-tier-pill.tier-común { background: rgba(156, 163, 175, 0.2); color: #e2e8f0; border: 1px solid rgba(156, 163, 175, 0.3); }
+    .card-tier-pill.tier-raro { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); }
+    .card-tier-pill.tier-épico { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .card-tier-pill.tier-legendario { background: rgba(251, 191, 36, 0.2); color: #fde047; border: 1px solid rgba(251, 191, 36, 0.5); }
+
+    .card-evo-badge {
+      font-size: 7.5px;
+      font-weight: 900;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 1.5px 5px;
+      border-radius: 4px;
+    }
+    .card-state-pill {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #10b981;
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 900;
+    }
+    .card-state-pill.is-lock {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    .hero-card-artwork-frame {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+    .hero-card-sprite {
+      width: 130px;
+      height: 130px;
+      background-size: cover;
+      background-position: center;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+    }
+    .vertical-hero-card:hover .hero-card-sprite {
+      transform: scale(1.08);
+    }
+
+    .hero-card-footer-glass {
+      position: relative;
+      z-index: 5;
+      background: linear-gradient(180deg, transparent 0%, rgba(10, 14, 24, 0.92) 30%, rgba(8, 11, 18, 0.98) 100%);
+      padding: 24px 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
       gap: 2px;
     }
-    .combat-hud-pill.win-pill { border-left: 2px solid #10b981; }
-    .combat-hud-pill.fail-pill { border-left: 2px solid #ef4444; }
-    .hud-label {
-      font-size: 8px;
+    .hero-card-name {
+      font-size: 12px;
+      font-weight: 850;
+      color: #fff;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .hero-card-role-sub {
+      font-size: 9px;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .hero-card-status-strip {
+      margin-top: 4px;
+      font-size: 7.5px;
+      font-weight: 850;
+      letter-spacing: 0.5px;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+    .hero-card-status-strip.unlocked {
+      color: var(--card-theme, var(--green));
+    }
+
+    .active-card-indicator {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+    .indicator-glow-dot {
+      width: 14px;
+      height: 3px;
+      border-radius: 4px;
+      background: var(--card-theme, var(--accent));
+      box-shadow: 0 0 8px var(--card-theme, var(--accent));
+    }
+
+    /* ==================================================== */
+    /* 4. SPOTLIGHT: CHARACTER SELECT & DOSSIER             */
+    /* ==================================================== */
+    .character-select-spotlight-section {
+      width: 100%;
+      margin-top: 6px;
+    }
+    .spotlight-cinematic-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      background: linear-gradient(145deg, rgba(14, 18, 28, 0.95) 0%, rgba(8, 11, 17, 0.98) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 3px solid var(--accent-color, #00f2fe);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px var(--accent-color, rgba(0, 242, 254, 0.08));
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    /* COLUMNA IZQUIERDA: DOSSIER TÁCTICO */
+    .spotlight-left-dossier {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .dossier-header-box {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 10px;
+    }
+    .dossier-specimen-subtag {
+      font-size: 8.5px;
+      font-weight: 850;
+      color: #64748b;
+      letter-spacing: 0.8px;
+      font-family: monospace;
+    }
+    .dossier-character-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #fff;
+      margin: 0;
+      letter-spacing: -0.3px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .dossier-species-desc {
+      font-size: 11.5px;
+      color: #94a3b8;
+      margin: 0;
+    }
+    .dossier-species-desc strong {
+      color: #e2e8f0;
+    }
+
+    .dossier-badges-list {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .dossier-badge-pill {
+      font-size: 8.5px;
+      font-weight: 850;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .dossier-badge-pill.tier-común { background: rgba(156, 163, 175, 0.15); color: #d1d5db; border: 1px solid rgba(156, 163, 175, 0.3); }
+    .dossier-badge-pill.tier-raro { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .dossier-badge-pill.tier-épico { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .dossier-badge-pill.tier-legendario { background: rgba(251, 191, 36, 0.15); color: #fde047; border: 1px solid rgba(251, 191, 36, 0.4); }
+    .archetype-pill { background: rgba(255, 255, 255, 0.04); color: #94a3b8; }
+    .squad-pill { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .squad-pill.is-unlocked { background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(16, 185, 129, 0.35); }
+
+    .dossier-lore-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .lore-text-paragraph {
+      margin: 0;
+      font-size: 11px;
+      color: #cbd5e1;
+      line-height: 1.45;
+      font-style: italic;
+    }
+
+    /* PROTOCOLO PSICOLÓGICO */
+    .dossier-psych-card {
+      background: rgba(168, 85, 247, 0.06);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .psych-card-head {
+      font-size: 9px;
+      font-weight: 850;
+      color: #c084fc;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.4px;
+    }
+    .psych-card-body {
+      margin: 0;
+      font-size: 10.5px;
+      color: #f1f5f9;
+      line-height: 1.35;
+    }
+
+    /* DUAL HUD COMBATE */
+    .dossier-combat-hud-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .combat-pill {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .combat-pill.win-combat-pill { border-left: 3px solid #10b981; }
+    .combat-pill.fail-combat-pill { border-left: 3px solid #ef4444; }
+    .combat-tag {
+      font-size: 8.5px;
       font-weight: 900;
       letter-spacing: 0.5px;
       text-transform: uppercase;
@@ -1121,204 +1427,82 @@ interface CountryOption {
       align-items: center;
       gap: 4px;
     }
-    .hud-digits {
-      display: flex;
-      flex-direction: column;
-    }
-    .hud-digits strong {
-      font-size: 11px;
+    .combat-values strong {
+      font-size: 12px;
       font-weight: 850;
+      display: block;
     }
-    .hud-digits small {
-      font-size: 9px;
+    .combat-values small {
+      font-size: 9.5px;
       color: #94a3b8;
     }
 
-    /* DOSSIER DERECHO */
-    .gaming-card-right {
+    /* MATRIZ DE PASIVA */
+    .dossier-passive-panel {
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 9px 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      min-width: 0;
+      gap: 6px;
     }
-    .dossier-header-strip {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      padding-bottom: 8px;
-    }
-    .dossier-identity {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
-    .dossier-badges-row {
+    .passive-panel-head {
       display: flex;
       align-items: center;
       gap: 6px;
-      flex-wrap: wrap;
-    }
-    .code-mono {
-      font-size: 8.5px;
-      font-weight: 800;
-      color: #64748b;
-      font-family: monospace;
-    }
-    .tier-pill {
-      font-size: 8.5px;
-      font-weight: 900;
-      padding: 2px 7px;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
-    .tier-pill.tier-común { background: rgba(156, 163, 175, 0.15); color: #d1d5db; border: 1px solid rgba(156, 163, 175, 0.3); }
-    .tier-pill.tier-raro { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-    .tier-pill.tier-épico { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-    .tier-pill.tier-legendario { background: rgba(251, 191, 36, 0.15); color: #fde047; border: 1px solid rgba(251, 191, 36, 0.4); }
-
-    .evo-sparkle-pill {
-      font-size: 8.5px;
-      font-weight: 900;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      padding: 2px 7px;
-      border-radius: 4px;
-    }
-    .archetype-pill {
-      font-size: 8.5px;
-      font-weight: 800;
-      color: #94a3b8;
-      background: rgba(255, 255, 255, 0.04);
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    .hero-character-name {
-      font-size: 18px;
-      font-weight: 900;
-      color: #fff;
-      margin: 2px 0 0;
-    }
-    .hero-role-caption {
       font-size: 10.5px;
-      color: #94a3b8;
     }
-    .hero-role-caption strong {
-      color: #cbd5e1;
-    }
-    .status-squad-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 9px;
-      border-radius: 6px;
+    .passive-panel-title {
       font-size: 9px;
-      font-weight: 900;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #f87171;
-      white-space: nowrap;
-    }
-    .status-squad-badge.unlocked {
-      background: rgba(16, 185, 129, 0.1);
-      border-color: rgba(16, 185, 129, 0.3);
-      color: #34d399;
-    }
-
-    /* MATRIZ PASIVAS */
-    .dossier-passive-matrix {
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      border-radius: 8px;
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .passive-header-line {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 10px;
-    }
-    .passive-label {
-      color: #94a3b8;
       font-weight: 800;
+      color: #94a3b8;
     }
-    .passive-name-txt {
+    .passive-name-strong {
       color: #fff;
       font-weight: 850;
     }
-    .passive-columns-grid {
+    .passive-details-triad {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 8px;
     }
-    .col-item {
+    .triad-item {
       display: flex;
       flex-direction: column;
-      gap: 1px;
+      gap: 2px;
     }
-    .col-tag {
-      font-size: 8px;
+    .triad-label {
+      font-size: 8.5px;
       font-weight: 850;
       text-transform: uppercase;
       display: flex;
       align-items: center;
       gap: 3px;
     }
-    .col-item p {
+    .triad-item p {
       margin: 0;
       font-size: 9.5px;
       color: #cbd5e1;
       line-height: 1.25;
     }
 
-    /* PROTOCOLO PSICOLÓGICO */
-    .dossier-psych-matrix {
-      background: rgba(99, 102, 241, 0.04);
-      border: 1px solid rgba(99, 102, 241, 0.12);
-      border-radius: 8px;
-      padding: 7px 10px;
+    /* FOOTER DE ACCIONES */
+    .dossier-action-footer {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 8px;
+      margin-top: 4px;
     }
-    .psych-header-line {
-      font-size: 8.5px;
-      font-weight: 850;
-      color: #c084fc;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .psych-text-quote {
-      margin: 0;
-      font-size: 9.5px;
-      color: #e2e8f0;
-      line-height: 1.3;
-      font-style: italic;
-    }
-
-    /* ACCIONES Y CITA */
-    .dossier-footer-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-top: 2px;
-    }
-    .action-buttons-wrap {
+    .action-cta-wrap {
       display: flex;
       gap: 8px;
     }
-    .btn-action-cta {
+    .btn-dossier-cta {
       flex: 1;
-      padding: 9px 14px;
-      border-radius: 8px;
-      font-size: 10.5px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 11px;
       font-weight: 900;
       cursor: pointer;
       display: flex;
@@ -1326,156 +1510,261 @@ interface CountryOption {
       justify-content: center;
       gap: 8px;
       border: none;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
-    .btn-action-cta.is-equipped {
+    .btn-dossier-cta.is-active-equipped {
       background: rgba(16, 185, 129, 0.12);
       color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      border: 1px solid rgba(16, 185, 129, 0.35);
       cursor: default;
     }
-    .btn-action-cta.is-equip {
-      background: var(--accent, #6366f1);
+    .btn-dossier-cta.is-equip-btn {
+      background: var(--accent-color, #00f2fe);
       color: #000;
+      box-shadow: 0 4px 16px var(--accent-color, rgba(0, 242, 254, 0.3));
     }
-    .btn-action-cta.is-equip:hover {
+    .btn-dossier-cta.is-equip-btn:hover {
       filter: brightness(1.15);
       transform: translateY(-1px);
     }
-    .btn-action-cta.is-challenge {
+    .btn-dossier-cta.is-challenge-btn {
       background: rgba(16, 185, 129, 0.15);
       border: 1.5px solid #10b981;
       color: #10b981;
     }
-    .btn-action-cta.is-challenge:hover {
+    .btn-dossier-cta.is-challenge-btn:hover {
       background: rgba(16, 185, 129, 0.25);
     }
-    .btn-action-cta.is-buy {
+    .btn-dossier-cta.is-buy-btn {
       background: #fbbf24;
       color: #000;
+      box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
     }
-    .btn-action-cta.is-buy:hover:not(:disabled) {
+    .btn-dossier-cta.is-buy-btn:hover:not(:disabled) {
       filter: brightness(1.1);
     }
-    .btn-action-cta.is-buy:disabled {
+    .btn-dossier-cta.is-buy-btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
 
-    .quote-compact-bar {
+    .dossier-quote-box {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 9px;
+      gap: 8px;
+      font-size: 10px;
       color: #94a3b8;
       font-style: italic;
+      padding: 0 4px;
     }
-    .quote-compact-bar p {
-      margin: 0;
-    }
+    .quote-icon { font-size: 11px; opacity: 0.8; }
+    .quote-text { margin: 0; }
 
-    /* REEL DE SELECCIÓN DE GUARDIANES */
-    .guardian-selection-reel {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 10px;
-    }
-    .reel-avatar-card {
-      background: rgba(18, 22, 32, 0.65);
-      border: 1.5px solid rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 10px 8px;
+    /* ==================================================== */
+    /* 5. COLUMNA DERECHA: CINEMATIC STAGE (AVATAR.PNG)     */
+    /* ==================================================== */
+    .spotlight-right-stage {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .cinematic-stage-card {
+      flex: 1;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       position: relative;
-      transition: all 0.2s ease;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+      min-height: 480px;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7);
     }
-    .reel-avatar-card:hover {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.15);
-      transform: translateY(-2px);
-    }
-    .reel-avatar-card.is-inspected {
-      border-color: var(--avatar-color, var(--accent));
-      box-shadow: 0 0 14px rgba(99, 102, 241, 0.25);
-      background: rgba(99, 102, 241, 0.05);
-    }
-    .reel-avatar-card.is-locked {
-      opacity: 0.6;
-    }
-    .reel-avatar-card.is-locked .reel-sprite {
-      filter: grayscale(1) brightness(0.65);
-    }
-    .reel-lock-badge {
+
+    .stage-energy-aura {
       position: absolute;
-      top: 6px;
-      right: 6px;
-      color: var(--red, #ef4444);
-      font-size: 9px;
+      inset: 0;
+      opacity: 0.5;
+      pointer-events: none;
+      transition: background 0.4s ease;
     }
-    .reel-equipped-badge {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      background: #10b981;
-      color: #000;
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
+
+    .stage-header-title {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+    }
+    .stage-select-sub {
+      font-size: 8.5px;
+      font-weight: 800;
+      color: var(--accent-color, #00f2fe);
+      letter-spacing: 1px;
+      font-family: monospace;
+    }
+    .stage-select-main {
+      font-size: 18px;
+      font-weight: 900;
+      color: #fff;
+      margin: 0;
+      letter-spacing: 1px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* HEROCENTER CON PLATAFORMA Y CALLOUTS */
+    .stage-hero-center-dock {
+      position: relative;
+      z-index: 5;
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 8.5px;
-      font-weight: 900;
+      min-height: 320px;
     }
-    .reel-evo-tag {
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      background: rgba(56, 189, 248, 0.2);
-      border: 1px solid rgba(56, 189, 248, 0.5);
-      color: #38bdf8;
-      font-size: 7px;
-      font-weight: 900;
-      padding: 1px 3px;
-      border-radius: 3px;
-    }
-    .reel-sprite {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background-size: cover;
-      background-position: center;
-      border: 2px solid rgba(255, 255, 255, 0.06);
-      transition: all 0.2s ease;
-    }
-    .reel-info-col {
+
+    .hero-character-floating-wrap {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 100%;
+      justify-content: center;
+      z-index: 10;
+      animation: floatHero 4s ease-in-out infinite alternate;
     }
-    .reel-name-txt {
-      font-size: 10.5px;
-      font-weight: 800;
+    @keyframes floatHero {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-10px); }
+    }
+
+    .frameless-hero-sprite {
+      width: 200px;
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 50%;
+      border: 3px solid var(--accent-color, rgba(0, 242, 254, 0.4));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 30px var(--accent-color, rgba(0, 242, 254, 0.35));
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .frameless-hero-sprite:hover {
+      transform: scale(1.05);
+    }
+
+    .hologram-disk-platform {
+      width: 170px;
+      height: 26px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, var(--glow-color, #00f2fe) 0%, transparent 70%);
+      border: 1.5px solid var(--glow-color, #00f2fe);
+      opacity: 0.55;
+      transform: perspective(200px) rotateX(65deg);
+      margin-top: -12px;
+      box-shadow: 0 0 20px var(--glow-color, rgba(0, 242, 254, 0.6));
+    }
+
+    /* CALLOUTS / PUNTEROS TÁCTICOS (INSPIRADOS EN AVATAR.PNG) */
+    .annotation-callout {
+      position: absolute;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      max-width: 170px;
+      pointer-events: auto;
+    }
+
+    .annotation-callout .callout-card {
+      background: rgba(10, 14, 24, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      padding: 7px 10px;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .callout-header {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
       color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-      text-align: center;
     }
-    .reel-tier-lbl {
+    .callout-desc {
+      margin: 0;
       font-size: 8.5px;
+      color: #94a3b8;
+      line-height: 1.25;
+    }
+
+    /* POSICIONAMIENTO DE PUNTEROS */
+    .callout-weapon {
+      top: 15px;
+      left: 10px;
+    }
+    .callout-weapon .callout-pointer-line {
+      display: flex;
+      align-items: center;
+    }
+    .callout-passive {
+      top: 35px;
+      right: 10px;
+    }
+    .callout-rating {
+      bottom: 20px;
+      right: 15px;
+    }
+
+    .rating-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rating-label {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #cbd5e1;
+    }
+    .rating-stars-list {
+      display: flex;
+      gap: 2px;
+      font-size: 9px;
+      color: #475569;
+    }
+    .rating-stars-list i.is-lit {
+      color: #fbbf24;
+      text-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+    }
+    .rating-archetype-sub {
+      font-size: 8px;
       color: #64748b;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .stage-footer-character-name {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding-top: 6px;
+    }
+    .cinematic-name-glow {
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #fff;
+      text-shadow: 0 0 12px var(--accent-color, rgba(0, 242, 254, 0.6));
+      font-family: 'Space Grotesk', sans-serif;
     }
 
     /* ==================================================== */
-    /* 5. MODALES Y TOASTS                                  */
+    /* 6. MODALES Y TOASTS                                  */
     /* ==================================================== */
     .edit-modal-backdrop {
       position: fixed;
@@ -1549,14 +1838,13 @@ interface CountryOption {
       outline: none;
     }
     .text-input-field:focus, .select-input-field:focus {
-      border-color: var(--accent, #6366f1);
+      border-color: var(--accent, #00f2fe);
     }
     .form-error-msg {
       font-size: 9px;
       color: #ef4444;
     }
 
-    /* ESTILOS DE CONTROL DE SEMANA ACTIVA */
     .active-week-form-section {
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.07);
@@ -1578,7 +1866,6 @@ interface CountryOption {
       border: 1px solid rgba(16, 185, 129, 0.3);
       padding: 2px 7px;
       border-radius: 6px;
-      letter-spacing: 0.3px;
     }
     .form-helper-desc {
       font-size: 11px;
@@ -1617,44 +1904,9 @@ interface CountryOption {
       color: #34d399;
       box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
     }
-    .day-short-name {
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-    }
-    .day-check-indicator {
-      font-size: 9px;
-      font-weight: 850;
-      line-height: 1;
-      opacity: 0.8;
-    }
-    .week-presets-row {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
-    .presets-lbl {
-      font-size: 9.5px;
-      font-weight: 700;
-      color: #64748b;
-    }
-    .btn-preset-chip {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #cbd5e1;
-      font-size: 9px;
-      font-weight: 700;
-      padding: 3px 7px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .btn-preset-chip:hover {
-      background: rgba(56, 189, 248, 0.12);
-      border-color: rgba(56, 189, 248, 0.3);
-      color: #38bdf8;
-    }
+    .day-short-name { font-size: 11px; font-weight: 800; }
+    .day-check-indicator { font-size: 9px; font-weight: 850; }
+
     .modal-window-foot {
       display: flex;
       justify-content: flex-end;
@@ -1669,7 +1921,7 @@ interface CountryOption {
       cursor: pointer;
     }
     .btn-save-confirm {
-      background: var(--accent, #6366f1);
+      background: var(--accent, #00f2fe);
       color: #000;
       border: none;
       padding: 8px 16px;
@@ -1702,12 +1954,7 @@ interface CountryOption {
       gap: 10px;
       box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
     }
-    .success-badge {
-      font-size: 10px;
-      font-weight: 900;
-      color: #10b981;
-      letter-spacing: 1px;
-    }
+    .success-badge { font-size: 10px; font-weight: 900; color: #10b981; letter-spacing: 1px; }
     .sprite-reward {
       width: 90px;
       height: 90px;
@@ -1716,23 +1963,9 @@ interface CountryOption {
       background-position: center;
       border: 3px solid #10b981;
     }
-    .reward-title {
-      font-size: 17px;
-      font-weight: 900;
-      color: #fff;
-      margin: 0;
-    }
-    .success-quality {
-      font-size: 13px;
-      font-weight: 800;
-      color: #10b981;
-    }
-    .reward-description {
-      font-size: 11.5px;
-      color: #94a3b8;
-      margin: 0;
-      line-height: 1.4;
-    }
+    .reward-title { font-size: 17px; font-weight: 900; color: #fff; margin: 0; }
+    .success-quality { font-size: 13px; font-weight: 800; color: #10b981; }
+    .reward-description { font-size: 11.5px; color: #94a3b8; margin: 0; line-height: 1.4; }
     .btn-equip-now-action {
       margin-top: 6px;
       background: #10b981;
@@ -1764,27 +1997,41 @@ interface CountryOption {
       z-index: 2000;
     }
 
-    /* COLORES AUXILIARES */
     .text-green { color: #10b981; }
     .text-red { color: #ef4444; }
-    .text-cyan { color: #06b6d4; }
+    .text-cyan { color: #00f2fe; }
     .text-purple { color: #c084fc; }
+    .text-yellow { color: #fbbf24; }
     .text-orange { color: #f97316; }
 
+    @media (max-width: 1024px) {
+      .spotlight-cinematic-container {
+        grid-template-columns: 1fr;
+      }
+      .annotation-callout {
+        position: static;
+        max-width: 100%;
+        margin: 6px 0;
+      }
+      .stage-hero-center-dock {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
     @media (max-width: 900px) {
       .profile-page-wrapper {
         padding: 80px 16px 40px;
       }
-      .tactical-gaming-card {
-        grid-template-columns: 1fr;
-      }
       .user-details-row {
         flex-direction: column;
+        align-items: flex-start;
       }
     }
   `]
 })
 export class Cualidades implements OnInit {
+  @ViewChild('carouselTrack') carouselTrack?: ElementRef<HTMLDivElement>;
+
   Math = Math;
   isEditingProfile = signal<boolean>(false);
   selectedCategory = signal<string>('todos');
@@ -1842,7 +2089,10 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🐱', 
         color: '#10b981', 
-        role: 'Centinela de la Comunidad', 
+        role: 'Centinela de la Comunidad',
+        lore: 'El Gato Lancero posee una compostura ágil y serena. Simboliza la habilidad de dar el primer paso sin titubear, rompiendo la parálisis por análisis al instante.',
+        weaponName: 'Lanza de Bambú Sagrado',
+        weaponDesc: 'Forjada con madera flexible de cañaveral ancestral para disolver la inercia mental al arrancar cada sesión.',
         focusApplication: 'Usa la técnica de los 2 minutos: empieza sin pensar en la meta final para romper la inercia mental.',
         tacticalQuote: 'Un zarpazo certero a la vez disuelve cualquier muralla.',
         coinsPerPomodoro: 5,
@@ -1859,7 +2109,7 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'perro', 
-        name: 'Perro Guardián', 
+        name: 'Borek el Guardián', 
         species: 'Canino Leal',
         type: 'inicial', 
         tier: 'Común',
@@ -1868,7 +2118,10 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🐶', 
         color: '#3a86f0', 
-        role: 'Guardia de la Comunidad', 
+        role: 'Guardia de la Comunidad',
+        lore: 'Borek es el compañero leal por excelencia. Su presencia infunde devoción inquebrantable a una sola tarea hasta que el temporizador llegue a cero.',
+        weaponName: 'Lanza de Acero & Escudo Canino',
+        weaponDesc: 'Forjada en aleación templada para custodiar la mesa de trabajo contra notificaciones e interrupciones.',
         focusApplication: 'Protege tu espacio de trabajo: aleja el teléfono móvil antes de encender el temporizador.',
         tacticalQuote: 'La fidelidad a tu propósito vence al impulso pasajero.',
         coinsPerPomodoro: 6,
@@ -1894,7 +2147,10 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🐰', 
         color: '#9ca3af', 
-        role: 'Explorador de la Comunidad', 
+        role: 'Explorador de la Comunidad',
+        lore: 'El Explorador veloz no teme a los retos desconocidos; abre caminos rápidos y despeja tareas pendientes en tiempo récord.',
+        weaponName: 'Dagas Gemelas de Impulso',
+        weaponDesc: 'Hojas ultraligeras diseñadas para sprints de alta velocidad de 15 minutos sin agotamiento.',
         focusApplication: 'Aplica sprints cortos de 15 minutos cuando sientas apatía o bloqueo creativo.',
         tacticalQuote: 'La agilidad supera al titubeo.',
         coinsPerPomodoro: 5,
@@ -1920,7 +2176,10 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🦜', 
         color: '#fbbf24', 
-        role: 'Centinela Alado', 
+        role: 'Centinela Alado',
+        lore: 'Vigía alado de aguda percepción. Demuestra que quien es capaz de articular una idea en voz alta domina completamente la materia.',
+        weaponName: 'Báculo de Resonancia Feynman',
+        weaponDesc: 'Canaliza frecuencias vocales que estructuran conceptos abstractos en explicaciones simples.',
         focusApplication: 'Explica en voz alta lo que vas a aprender o resolver (Efecto Feynman).',
         tacticalQuote: 'La claridad vocal ahuyenta la niebla mental.',
         coinsPerPomodoro: 6,
@@ -1946,7 +2205,10 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🐹', 
         color: '#f97316', 
-        role: 'Guardián Veloz', 
+        role: 'Guardián Veloz',
+        lore: 'Inspirador del movimiento perpetuo: demuestra que pequeñas victorias acumuladas derrotan a cualquier montaña de pendientes.',
+        weaponName: 'Esferas Cinemáticas de Momentum',
+        weaponDesc: 'Orbes giratorios que convierten micrometas de 10 minutos en una inercia de trabajo constante e imparable.',
         focusApplication: 'Divide metas titánicas en micrometas de 10 minutos para mantener el impulso.',
         tacticalQuote: 'El movimiento continuo acumula victorias colosales.',
         coinsPerPomodoro: 5,
@@ -1972,7 +2234,10 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🐭', 
         color: '#ec4899', 
-        role: 'Explorador Sigiloso', 
+        role: 'Explorador Sigiloso',
+        lore: 'Maestro del sigilo táctico: opera en las horas silenciosas donde nadie interrumpe y el flujo de trabajo alcanza su máxima pureza.',
+        weaponName: 'Daga Sombría de Aislamiento',
+        weaponDesc: 'Corta el ruido ambiental y la tentación digital para sumergirte en un silencio absoluto de alta concentración.',
         focusApplication: 'Apaga todas las notificaciones antes de arrancar. El silencio es tu mejor aliado.',
         tacticalQuote: 'En la quietud absoluta el trabajo avanza sin resistencia.',
         coinsPerPomodoro: 6,
@@ -2000,7 +2265,10 @@ export class Cualidades implements OnInit {
         stars: 2,
         emoji: '🐢', 
         color: '#22c55e', 
-        role: 'Sabio Paciente', 
+        role: 'Sabio Paciente',
+        lore: 'La Tortuga Ancestral comprende que la constancia supera a la velocidad efímera. Su caparazón resiste cualquier tempestad de distracciones.',
+        weaponName: 'Caparazón Rúnico Ancestral',
+        weaponDesc: 'Placa grabada con glifos de resistencia que protege contra la fatiga en sesiones densas de lectura y código.',
         focusApplication: 'Acepta el avance milimétrico. No busques rapidez, busca no detenerte.',
         tacticalQuote: 'Lento pero implacable, el caparazón resiste cualquier tormenta.',
         coinsPerPomodoro: 12,
@@ -2027,7 +2295,10 @@ export class Cualidades implements OnInit {
         stars: 2,
         emoji: '🐜', 
         color: '#78350f', 
-        role: 'Esfuerzo Diario', 
+        role: 'Esfuerzo Diario',
+        lore: 'Símbolo del esfuerzo disciplinado e incansable: no se detiene ante la magnitud del trabajo, solo ejecuta el siguiente bloque.',
+        weaponName: 'Mandíbula de Asedio Titánico',
+        weaponDesc: 'Herramienta de agarre indestructible, diseñada para fragmentar tareas colosales en granos manejables.',
         focusApplication: 'Carga una sola roca a la vez. No mires toda la montaña, solo tu bloque actual.',
         tacticalQuote: 'La fuerza no radica en el tamaño, sino en la repetición inquebrantable.',
         coinsPerPomodoro: 14,
@@ -2054,7 +2325,10 @@ export class Cualidades implements OnInit {
         stars: 2,
         emoji: '🦉', 
         color: '#6366f1', 
-        role: 'Estratega Sabio', 
+        role: 'Estratega Sabio',
+        lore: 'Estratega nocturno de mirada penetrante: ahorra horas de esfuerzo ciego aplicando discernimiento agudo y priorización táctica.',
+        weaponName: 'Orbe Ocular de Atenea (80/20)',
+        weaponDesc: 'Lente óptico que filtra el ruido secundario para iluminar el 20% de tareas críticas que producen el 80% de impacto.',
         focusApplication: 'Identifica el 20% de tareas que producirá el 80% del resultado antes de trabajar.',
         tacticalQuote: 'La mirada aguda ahorra horas de vuelo inútil.',
         coinsPerPomodoro: 16,
@@ -2081,7 +2355,10 @@ export class Cualidades implements OnInit {
         stars: 2,
         emoji: '🐸', 
         color: '#10b981', 
-        role: 'Saltarina Cazadora', 
+        role: 'Saltarina Cazadora',
+        lore: 'Cazadora intrépida que salta sin dudar al desafío más amargo. Vence la tarea difícil al inicio y el resto de la jornada fluye con liviandad.',
+        weaponName: 'Arpón Traga-Sapos',
+        weaponDesc: 'Lanza de captura instantánea afinada para embestir la tarea más temida e intimidante a primera hora de la mañana.',
         focusApplication: 'Trágate ese sapo: ejecuta tu tarea más difícil e intimidante a primera hora.',
         tacticalQuote: 'Vence lo peor primero y el resto del día será un paseo.',
         coinsPerPomodoro: 18,
@@ -2108,7 +2385,10 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🦅', 
         color: '#3b82f6', 
-        role: 'Ojo de Halcón', 
+        role: 'Ojo de Halcón',
+        lore: 'Soberana de las alturas: vuela por encima de las contingencias menores manteniendo la vista clavada en la meta suprema.',
+        weaponName: 'Arco de Precisión Telemetría',
+        weaponDesc: 'Arco compuesto de largo alcance con mira prismática, enfocado en el objetivo final sin desviar la mirada.',
         focusApplication: 'Mantén los ojos en el objetivo final. Los obstáculos son lo que ves cuando desvías la mirada.',
         tacticalQuote: 'Desde las alturas ningún laberinto tiene secretos.',
         coinsPerPomodoro: 20,
@@ -2135,7 +2415,10 @@ export class Cualidades implements OnInit {
         stars: 2,
         emoji: '🐝', 
         color: '#eab308', 
-        role: 'Obrero Incansable', 
+        role: 'Obrero Incansable',
+        lore: 'Espíritu de trabajo en equipo y armonía: cada gota de enfoque individual fortalece la colmena y multiplica el progreso.',
+        weaponName: 'Aguijón de Resonancia Colectiva',
+        weaponDesc: 'Canalizador de sincronía que potencia la concentración y disciplina compartida en salas comunitarias.',
         focusApplication: 'Sincroniza tu sesión con otros miembros de la comunidad para potenciar la disciplina colectiva.',
         tacticalQuote: 'La colmena edifica imperios flor a flor.',
         coinsPerPomodoro: 15,
@@ -2162,7 +2445,10 @@ export class Cualidades implements OnInit {
         stars: 2,
         emoji: '🦫', 
         color: '#b45309', 
-        role: 'Constructor Feroz', 
+        role: 'Constructor Feroz',
+        lore: 'Ingeniero incansable de la naturaleza: no concluye el día sin haber dejado una estructura firme y un entregable tangible.',
+        weaponName: 'Hacha de Construcción Sólida',
+        weaponDesc: 'Herramienta pesada para edificar proyectos complejos leño a leño sin dejar cabos sueltos.',
         focusApplication: 'Coloca cada leño con precisión: no cierres el día sin haber entregado una parte tangible.',
         tacticalQuote: 'Tronco a tronco se desvía el cauce del río.',
         coinsPerPomodoro: 16,
@@ -2191,7 +2477,10 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🦊', 
         color: '#f97316', 
-        role: 'Espía de Sombras', 
+        role: 'Espía de Sombras',
+        lore: 'Estratega ágil de reflejos agudos: cuando la procrastinación bloquea el camino habitual, el zorro encuentra un sendero alterno.',
+        weaponName: 'Kopis Fantasma de Infiltración',
+        weaponDesc: 'Hoja curva diseñada para flanquear bloqueos creativos y maniobrar en entornos cambiantes.',
         focusApplication: 'Cambia de entorno de trabajo si notas que la procrastinación se ha arraigado en tu mesa.',
         tacticalQuote: 'La astucia rodea la trampa antes de que se active.',
         coinsPerPomodoro: 22,
@@ -2219,7 +2508,10 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🐱', 
         color: '#a855f7', 
-        role: 'Felino Sigiloso', 
+        role: 'Felino Sigiloso',
+        lore: 'Depredador de la nieve: espera pacientemente en quietud absoluta hasta ejecutar el zarpazo perfecto en el momento exacto.',
+        weaponName: 'Garras de Cuarzo Boreal',
+        weaponDesc: 'Cuchillas de cristal de alta precisión, calibradas para tareas críticas con tolerancia cero a errores.',
         focusApplication: 'Mira fijo a un solo objetivo. Elimina cualquier pestaña o libro secundario de tu campo visual.',
         tacticalQuote: 'La mirada congelada antes del zarpazo infalible.',
         coinsPerPomodoro: 26,
@@ -2247,7 +2539,10 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🐼', 
         color: '#6b7280', 
-        role: 'Maestro Zen', 
+        role: 'Maestro Zen',
+        lore: 'Maestro de la serenidad interior: enseña que la mente en calma es un refugio impenetrable ante la ansiedad por entregas.',
+        weaponName: 'Vara Zen de Bambú Cósmico',
+        weaponDesc: 'Báculo equilibrador que disipa el cortisol y ralentiza el pulso para mantener la lucidez bajo presión.',
         focusApplication: 'Inhala profundamente 4 segundos y exhala en 6 antes de iniciar: calma el cortisol.',
         tacticalQuote: 'La mente en paz es un escudo impermeable.',
         coinsPerPomodoro: 24,
@@ -2275,7 +2570,10 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🐻', 
         color: '#78350f', 
-        role: 'Fuerza Inquebrantable', 
+        role: 'Fuerza Inquebrantable',
+        lore: 'Titán de la fuerza bruta y la resistencia: se planta como una montaña inamovible frente a cualquier impulso de evasión.',
+        weaponName: 'Maza de Roca Telúrica',
+        weaponDesc: 'Arma pesada forjada en granito, ideal para anclar al usuario a su estación durante 50 minutos de hiperfoco.',
         focusApplication: 'Planta tus pies en el suelo y no te levantes de la silla hasta que el cronómetro llegue a cero.',
         tacticalQuote: 'La montaña no se inmuta ante el aullido del viento.',
         coinsPerPomodoro: 28,
@@ -2303,7 +2601,10 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🐘', 
         color: '#6b7280', 
-        role: 'Memoria Ancestral', 
+        role: 'Memoria Ancestral',
+        lore: 'Custodio de la sabiduría acumulada: sus pasos firmes construyen una base de conocimiento profunda y duradera.',
+        weaponName: 'Colmillos de Registro Ancestral',
+        weaponDesc: 'Pilares rúnicos que fijan conceptos en la memoria de largo plazo mediante bitácoras de aprendizaje.',
         focusApplication: 'Registra tus aprendizajes en tu bitácora al final de cada bloque para consolidar memoria.',
         tacticalQuote: 'Los pasos firmes del gigante dejan huellas imborrables.',
         coinsPerPomodoro: 30,
@@ -2331,7 +2632,10 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🦁', 
         color: '#fbbf24', 
-        role: 'Rey de la Comunidad', 
+        role: 'Rey de la Comunidad',
+        lore: 'Monarca del reino: no busca excusas externas; asume el destino de sus proyectos con coraje y determinación regia.',
+        weaponName: 'Cetro de Mando Imperial',
+        weaponDesc: 'Insignia dorada que canaliza la autoridad personal para asumir el liderazgo y la responsabilidad total.',
         focusApplication: 'Asume la responsabilidad total de tus metas. Nadie vendrá a hacer el trabajo por ti.',
         tacticalQuote: 'El rugido del rey ordena el caos del reino.',
         coinsPerPomodoro: 32,
@@ -2359,7 +2663,10 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🐅', 
         color: '#f97316', 
-        role: 'Fuerza de Voluntad', 
+        role: 'Fuerza de Voluntad',
+        lore: 'Fuerza de voluntad implacable: cuando el plazo se estrecha, el tigre intensifica su marcha con enfoque destructor.',
+        weaponName: 'Cuchillas Dentadas de Furia',
+        weaponDesc: 'Armas dobles forjadas para asaltos finales y días de entrega límite donde se requiere máxima potencia.',
         focusApplication: 'Visualiza la recompensa de terminar antes de que el cansancio te convenza de parar.',
         tacticalQuote: 'El cazador no pestañea cuando la presa está a tiro.',
         coinsPerPomodoro: 35,
@@ -2387,7 +2694,10 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🐺', 
         color: '#ef4444', 
-        role: 'Guía de Manada', 
+        role: 'Guía de Manada',
+        lore: 'Líder de la manada: guía con el ejemplo y mantiene la promesa sagrada de concluir lo empezado pase lo que pase.',
+        weaponName: 'Garras Tácticas de Manada',
+        weaponDesc: 'Emblema de pacto de honor: garantiza el cumplimiento del compromiso diario sin concesiones.',
         focusApplication: 'Mantén el pacto contigo mismo: si dijiste que estudiarías hoy, cúmplelo sin excusas.',
         tacticalQuote: 'La manada avanza unida bajo el aullido del líder.',
         coinsPerPomodoro: 38,
@@ -2417,7 +2727,10 @@ export class Cualidades implements OnInit {
         stars: 5,
         emoji: '🐉', 
         color: '#10b981', 
-        role: 'Señor del Ego (Katana & Daga Rúnica)', 
+        role: 'Señor del Ego',
+        lore: 'Sierpe cósmica legendaria: domina la batalla mental definitiva comprendiendo que el único adversario real a vencer es uno mismo.',
+        weaponName: 'Katana de Plasma & Orbe Rúnico',
+        weaponDesc: 'Empuñadura forjada con fuego astral que corta la resistencia interna y somete al ego procrastinador.',
         focusApplication: 'Domina tu propio ego: el mayor rival a vencer no es la tarea, es tu resistencia a empezar.',
         tacticalQuote: 'Quien doblega su propio ego gobierna su destino.',
         coinsPerPomodoro: 60,
@@ -2445,7 +2758,10 @@ export class Cualidades implements OnInit {
         stars: 5,
         emoji: '🔥', 
         color: '#f97316', 
-        role: 'Inmortal de Fuego (Lanza & Espada Solar)', 
+        role: 'Inmortal de Fuego',
+        lore: 'Ave sagrada de renacimiento: enseña que ningún error del pasado define el presente, pues cada bloque es una nueva oportunidad.',
+        weaponName: 'Lanza Solar de Ascuas Eternas',
+        weaponDesc: 'Canalizador de calor solar que consume la culpa del ayer para renacer con energía renovada en cada sesión.',
         focusApplication: 'Si tuviste un mal día ayer, hoy renaces de tus cenizas sin culpa ni remordimientos.',
         tacticalQuote: 'De las cenizas del tropiezo brota la llama de la victoria.',
         coinsPerPomodoro: 55,
@@ -2473,7 +2789,10 @@ export class Cualidades implements OnInit {
         stars: 5,
         emoji: '🦅', 
         color: '#eab308', 
-        role: 'Guardián Celestial (Alabarda & Espada del Alba)', 
+        role: 'Guardián Celestial',
+        lore: 'Guardián de la pureza y el honor: vuela en las alturas del compromiso absoluto donde solo existe la misión y la verdad.',
+        weaponName: 'Alabarda Sagrada & Rueda Astral',
+        weaponDesc: 'Arma bendecida por la luz solar, creada para sesiones de concentración sagrada con cero ventanas trampa.',
         focusApplication: 'Trabaja con honor impecable: no abras redes ni pestañas trampa durante el hiperfoco.',
         tacticalQuote: 'La alabarda sagrada solo corta cuando el alma es pura.',
         coinsPerPomodoro: 58,
@@ -2576,6 +2895,13 @@ export class Cualidades implements OnInit {
     this.selectedActiveDays.set([...(this.membership.userActiveDays() || [1, 2, 3, 4, 5])]);
   }
 
+  scrollCarousel(direction: 'left' | 'right') {
+    if (this.carouselTrack?.nativeElement) {
+      const scrollAmount = direction === 'left' ? -340 : 340;
+      this.carouselTrack.nativeElement.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  }
+
   setFilter(category: string) {
     this.selectedCategory.set(category);
   }
@@ -2623,17 +2949,12 @@ export class Cualidades implements OnInit {
       raw.toLowerCase().startsWith(c.name.toLowerCase())
     );
     if (opt) return opt.name;
-    // Remove any ISO codes or bracket suffixes like (MX), MX, - MX, , MX
     return raw.replace(/\s*\([A-Za-z]{2,3}\)/g, '')
               .replace(/[\-,]\s*[A-Za-z]{2,3}$/g, '')
               .replace(/\b[A-Z]{2}\b/g, '')
               .replace(/["'\\]+/g, '')
               .replace(/\s+/g, ' ')
               .trim() || 'México';
-  }
-
-  getCleanHandle(): string {
-    return (this.membership.userName() || 'piloto').toLowerCase().replace(/\s+/g, '_');
   }
 
   getCleanProfession(): string {
@@ -2677,7 +2998,7 @@ export class Cualidades implements OnInit {
   toggleActiveDay(dayId: number) {
     const current = [...this.selectedActiveDays()];
     if (current.includes(dayId)) {
-      if (current.length <= 1) return; // Mínimo 1 día seleccionado
+      if (current.length <= 1) return;
       this.selectedActiveDays.set(current.filter(d => d !== dayId).sort((a, b) => a - b));
     } else {
       this.selectedActiveDays.set([...current, dayId].sort((a, b) => a - b));
