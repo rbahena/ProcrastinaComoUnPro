@@ -154,24 +154,26 @@ interface CountryOption {
             </div>
           </div>
 
-          <!-- 2. CARD DE CUALIDADES DE HONOR (SKILLS PILLS)       -->
+          <!-- 2. CARD DE CUALIDADES DE HONOR (SKILLS PILLS) - DISEÑO SUMAMENTE LIGERO -->
           <div class="stratis-skills-card">
-            <div class="skills-card-head">
-              <h3 class="skills-card-title">Cualidades de Honor Demostradas</h3>
-              <span class="skills-counter-badge">{{ getUnlockedQualitiesCount() }} / {{ membership.qualitiesCatalog().length }} Activas</span>
-            </div>
+            <div class="skills-bar-container">
+              <div class="skills-lead-indicator" title="Cualidades de Honor">
+                <i class="fa-solid fa-award"></i>
+                <span class="skills-counter-badge">{{ getUnlockedQualitiesCount() }}/{{ membership.qualitiesCatalog().length }}</span>
+              </div>
 
-            <div class="skills-pills-matrix">
-              <div 
-                *ngFor="let q of membership.qualitiesCatalog()" 
-                class="quality-skill-pill"
-                [class.is-unlocked]="q.isUnlocked"
-                [title]="q.unlockRequirement"
-              >
-                <span class="pill-icon">{{ membership.getEmoji(q.animal) }}</span>
-                <span class="pill-name">{{ q.name }}</span>
-                <span class="pill-status-dot" *ngIf="q.isUnlocked">✓</span>
-                <span class="pill-progress-tag" *ngIf="!q.isUnlocked">{{ q.unlockProgress }}/{{ q.unlockTotal }}</span>
+              <div class="skills-pills-matrix">
+                <div 
+                  *ngFor="let q of membership.qualitiesCatalog()" 
+                  class="quality-skill-pill"
+                  [class.is-unlocked]="q.isUnlocked"
+                  [title]="q.name + (q.isUnlocked ? ' (Desbloqueada)' : ': ' + q.unlockRequirement)"
+                >
+                  <span class="pill-icon">{{ membership.getEmoji(q.animal) }}</span>
+                  <span class="pill-name">{{ q.name }}</span>
+                  <span class="pill-status-dot" *ngIf="q.isUnlocked">✓</span>
+                  <span class="pill-progress-tag" *ngIf="!q.isUnlocked">{{ q.unlockProgress }}/{{ q.unlockTotal }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -857,75 +859,96 @@ interface CountryOption {
     }
 
     /* ==================================================== */
-    /* 3. CARD DE SKILLS / CUALIDADES                      */
+    /* 3. CARD DE SKILLS / CUALIDADES (ULTRA LIGERO)        */
     /* ==================================================== */
     .stratis-skills-card {
-      background: rgba(18, 22, 32, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 18px 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(12px);
+      background: rgba(14, 18, 28, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 10px 16px;
+      backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
-      gap: 12px;
     }
-    .skills-card-head {
+    .skills-bar-container {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .skills-card-title {
-      font-size: 14px;
-      font-weight: 850;
-      color: #fff;
-      margin: 0;
-      letter-spacing: 0.2px;
+    .skills-lead-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .skills-lead-indicator i {
+      font-size: 13px;
+      color: var(--accent, #6366f1);
+      opacity: 0.9;
     }
     .skills-counter-badge {
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 800;
-      color: #94a3b8;
-      background: rgba(255, 255, 255, 0.04);
-      padding: 3px 8px;
-      border-radius: 10px;
+      color: #cbd5e1;
     }
     .skills-pills-matrix {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
+      align-items: center;
+      flex: 1;
     }
     .quality-skill-pill {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 11.5px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 4px 10px;
+      font-size: 11px;
       color: #94a3b8;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
+      gap: 5px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .quality-skill-pill:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
     }
     .quality-skill-pill.is-unlocked {
-      background: rgba(16, 185, 129, 0.1);
-      border-color: rgba(16, 185, 129, 0.35);
-      color: #e2e8f0;
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #f1f5f9;
+    }
+    .quality-skill-pill.is-unlocked:hover {
+      border-color: rgba(16, 185, 129, 0.5);
     }
     .pill-icon {
-      font-size: 13px;
+      font-size: 12px;
+      line-height: 1;
     }
     .pill-name {
-      font-weight: 750;
+      font-weight: 700;
+      font-size: 11px;
     }
     .pill-status-dot {
       color: #10b981;
       font-weight: 900;
       font-size: 10px;
+      line-height: 1;
     }
     .pill-progress-tag {
       font-size: 9.5px;
-      font-weight: 800;
+      font-weight: 750;
       color: #64748b;
     }
 
