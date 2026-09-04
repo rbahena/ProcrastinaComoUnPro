@@ -28,6 +28,29 @@ function getUserKeyStatic(key: string): string {
   return `user:${email}:${key}`;
 }
 
+function cleanQuotedString(val: string): string {
+  if (!val) return '';
+  let str = String(val).trim();
+  while (
+    (str.startsWith('"') && str.endsWith('"') && str.length >= 2) ||
+    (str.startsWith("'") && str.endsWith("'") && str.length >= 2) ||
+    (str.startsWith('\\"') && str.endsWith('\\"')) ||
+    (str.startsWith('\\') && str.length > 1)
+  ) {
+    if (str.startsWith('\\"') && str.endsWith('\\"')) {
+      str = str.slice(2, -2).trim();
+    } else if (
+      (str.startsWith('"') && str.endsWith('"')) ||
+      (str.startsWith("'") && str.endsWith("'"))
+    ) {
+      str = str.slice(1, -1).trim();
+    } else if (str.startsWith('\\')) {
+      str = str.replace(/^\\+|\\+$/g, '').trim();
+    }
+  }
+  return str.replace(/["'\\]+/g, '').replace(/[\/\\]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 function getMigratedValue(key: string, defaultValue: string): string {
   const userKey = getUserKeyStatic(key);
   const userVal = localStorage.getItem(userKey);
@@ -139,6 +162,19 @@ export class MembershipService {
   userName = signal<string>(
     getMigratedValue('user-name', 'Ramiro')
   );
+  userProfession = signal<string>(
+    cleanQuotedString(getMigratedValue('user-profession', 'Desarrollador de Software'))
+  );
+  // Días activos de la semana (1: Lun, 2: Mar, 3: Mié, 4: Jue, 5: Vie, 6: Sáb, 7: Dom)
+  userActiveDays = signal<number[]>(
+    getMigratedValueJSON('user-active-days', [1, 2, 3, 4, 5])
+  );
+  userCountry = signal<string>(
+    cleanQuotedString(getMigratedValue('user-country', 'México'))
+  );
+  userCountryCode = signal<string>(
+    getMigratedValue('user-country-code', 'MX')
+  );
   selectedAvatar = signal<string>(
     getMigratedValue('avatar', 'gato')
   );
@@ -149,6 +185,15 @@ export class MembershipService {
   // Medallas ganadas en podios
   podiumWins = signal<number>(
     parseInt(getMigratedValue('podium-wins', '3'), 10)
+  );
+  goldMedals = signal<number>(
+    parseInt(getMigratedValue('gold-medals', '3'), 10)
+  );
+  silverMedals = signal<number>(
+    parseInt(getMigratedValue('silver-medals', '1'), 10)
+  );
+  bronzeMedals = signal<number>(
+    parseInt(getMigratedValue('bronze-medals', '0'), 10)
   );
 
   // Estado de onboarding completado
@@ -278,6 +323,30 @@ export class MembershipService {
     });
     effect(() => {
       const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = cleanQuotedString(this.userProfession());
+      localStorage.setItem('procrastina-user-profession', val);
+      localStorage.setItem(`user:${email}:user-profession`, val);
+    });
+    effect(() => {
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = JSON.stringify(this.userActiveDays());
+      localStorage.setItem('procrastina-user-active-days', val);
+      localStorage.setItem(`user:${email}:user-active-days`, val);
+    });
+    effect(() => {
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = this.userCountry();
+      localStorage.setItem('procrastina-user-country', val);
+      localStorage.setItem(`user:${email}:user-country`, val);
+    });
+    effect(() => {
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = this.userCountryCode();
+      localStorage.setItem('procrastina-user-country-code', val);
+      localStorage.setItem(`user:${email}:user-country-code`, val);
+    });
+    effect(() => {
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
       const val = this.selectedAvatar();
       localStorage.setItem('procrastina-avatar', val);
       localStorage.setItem(`user:${email}:avatar`, val);
@@ -300,6 +369,56 @@ export class MembershipService {
       localStorage.setItem('captured-ideas', val);
       localStorage.setItem(`user:${email}:captured-ideas`, val);
     });
+    effect(() => {
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = String(this.goldMedals());
+      localStorage.setItem('procrastina-gold-medals', val);
+      localStorage.setItem(`user:${email}:gold-medals`, val);
+    });
+    effect(() => {
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = String(this.silverMedals());
+      localStorage.setItem('procrastina-silver-medals', val);
+      localStorage.setItem(`user:${email}:silver-medals`, val);
+    });
+    effect(() => {
+      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const val = String(this.bronzeMedals());
+      localStorage.setItem('procrastina-bronze-medals', val);
+      localStorage.setItem(`user:${email}:bronze-medals`, val);
+    });
+  }
+
+  getActiveDaysSummary(): string {
+    const raw = this.userActiveDays() || [];
+    const days = [...raw].sort((a, b) => a - b);
+    if (days.length === 0) return 'Sin días configurados';
+    if (days.length === 7) return 'Lun a Dom';
+    
+    // Consecutivos Lunes a Viernes [1,2,3,4,5]
+    if (days.length === 5 && days[0] === 1 && days[1] === 2 && days[2] === 3 && days[3] === 4 && days[4] === 5) {
+      return 'Lun a Vie';
+    }
+    // Consecutivos Lunes a Sábado [1,2,3,4,5,6]
+    if (days.length === 6 && days[0] === 1 && days[1] === 2 && days[2] === 3 && days[3] === 4 && days[4] === 5 && days[5] === 6) {
+      return 'Lun a Sáb';
+    }
+    // Fines de semana [6,7]
+    if (days.length === 2 && days.includes(6) && days.includes(7)) {
+      return 'Sáb y Dom';
+    }
+
+    const dayNames: { [k: number]: string } = {
+      1: 'Lun',
+      2: 'Mar',
+      3: 'Mié',
+      4: 'Jue',
+      5: 'Vie',
+      6: 'Sáb',
+      7: 'Dom'
+    };
+
+    return days.map(d => dayNames[d]).filter(Boolean).join(', ');
   }
 
   getTotalCompletedPomodoros(): number {
@@ -331,11 +450,11 @@ export class MembershipService {
   }
 
   // Simulación de persistencia en Supabase (profiles table)
-  async saveSupabaseProfile(username: string, avatarId: string): Promise<{ success: boolean; error?: string }> {
-    console.log(`[SUPABASE API MOCK] UPDATE profiles SET username = '${username}', avatar_id = '${avatarId}' WHERE id = auth.uid()`);
+  async saveSupabaseProfile(username: string, avatarId: string, country?: string, countryCode?: string, profession?: string, activeDays?: number[]): Promise<{ success: boolean; error?: string }> {
+    console.log(`[SUPABASE API MOCK] UPDATE profiles SET username = '${username}', avatar_id = '${avatarId}', country = '${country || ''}', profession = '${profession || ''}', active_days = '${JSON.stringify(activeDays || [])}' WHERE id = auth.uid()`);
     
     // Simular retraso de red
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 400));
 
     // Validar nombres ocupados en simulación
     const busyNames = ['admin', 'administrator', 'support', 'system', 'moderator', 'ocupado', 'ramiro_admin'];
@@ -345,6 +464,10 @@ export class MembershipService {
 
     this.userName.set(username);
     this.selectedAvatar.set(avatarId as any);
+    if (country) this.userCountry.set(country);
+    if (countryCode) this.userCountryCode.set(countryCode);
+    if (profession !== undefined) this.userProfession.set(cleanQuotedString(profession));
+    if (activeDays !== undefined) this.userActiveDays.set(activeDays);
     this.onboardingCompleted.set(true);
 
     return { success: true };
@@ -386,9 +509,11 @@ export class MembershipService {
       JSON.stringify(Array.from(this.rewardedSessions))
     );
 
-    // Todos los usuarios ganan 1 tomate y 5 monedas (más 5 extra si es compartido) por sesión completada
+    // Recompensa de monedas basada en el avatar equipado
+    const avatarId = this.selectedAvatar();
+    const baseAvatarCoins = this.getAvatarCoinsPerPomodoro(avatarId);
     const tomatoesEarned = 1;
-    const coinsEarned = 5 + (isShared ? 5 : 0);
+    const coinsEarned = baseAvatarCoins + (isShared ? 5 : 0);
     this.addFocusTomatoes(tomatoesEarned);
     this.addProCoins(coinsEarned);
 
@@ -399,6 +524,23 @@ export class MembershipService {
     }
 
     return { points: pointsEarned, coins: coinsEarned, tomatoes: tomatoesEarned, isNew: true };
+  }
+
+  // Monedas aportadas por cada avatar al completar un pomodoro
+  getAvatarCoinsPerPomodoro(avatarId: string): number {
+    switch (avatarId) {
+      case 'dragon': return 25;
+      case 'grifo': return 24;
+      case 'fenix': return 22;
+      case 'lobo': return 16;
+      case 'leon': case 'tigre': return 15;
+      case 'oso': case 'elefante': return 14;
+      case 'zorro': case 'lince': case 'panda': return 12;
+      case 'buho': case 'aguila': case 'abeja': return 9;
+      case 'tortuga': case 'hormiga': case 'rana': case 'castor': return 8;
+      case 'conejo': case 'hamster': return 6;
+      default: return 5;
+    }
   }
 
   // Intentar recompensar objetivo terminado (idempotente)
