@@ -245,7 +245,7 @@ export class MembershipService {
   qualitiesCatalog = signal<QualityItem[]>([
     { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 3, unlockTotal: 7 },
     { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: false, unlockProgress: 5, unlockTotal: 15 },
-    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto (80/20).', isUnlocked: false, unlockProgress: 2, unlockTotal: 5 },
+    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: false, unlockProgress: 2, unlockTotal: 5 },
     { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: false, unlockProgress: 1, unlockTotal: 5 },
     { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: false, unlockProgress: 1, unlockTotal: 5 },
     { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 3, unlockTotal: 5 },
@@ -930,7 +930,7 @@ export class MembershipService {
     this.qualitiesCatalog.set([
       { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 3, unlockTotal: 7 },
       { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: false, unlockProgress: 5, unlockTotal: 15 },
-      { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto (80/20).', isUnlocked: false, unlockProgress: 2, unlockTotal: 5 },
+      { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: false, unlockProgress: 2, unlockTotal: 5 },
       { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: false, unlockProgress: 1, unlockTotal: 5 },
       { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: false, unlockProgress: 1, unlockTotal: 5 },
       { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 3, unlockTotal: 5 },
@@ -941,15 +941,15 @@ export class MembershipService {
   // Auxiliares globales para avatars
   getAvatarNameById(id: string): string {
     const names: { [key: string]: string } = {
-      gato: 'Gato Lancero', perro: 'Perro Lancero', conejo: 'Conejo Lancero',
-      loro: 'Loro Lancero', zorro: 'Zorro', lince: 'Lince',
-      lobo: 'Lobo', tortuga: 'Tortuga', hormiga: 'Hormiga', abeja: 'Abeja',
-      castor: 'Castor', aguila: 'Águila', buho: 'Búho', panda: 'Panda',
-      oso: 'Oso', elefante: 'Elefante',
-      leon: 'León', tigre: 'Tigre', dragon: 'Dragón del Ego', fenix: 'Fénix', grifo: 'Grifo',
-      hamster: 'Hámster Lancero', raton: 'Ratón Lancero', rana: 'Rana'
+      gato: 'Kuro', perro: 'Borek', conejo: 'Zephyr',
+      loro: 'Ario', zorro: 'Renard', lince: 'Silas',
+      lobo: 'Fenrir', tortuga: 'Genbu', hormiga: 'Vargas', abeja: 'Vespia',
+      castor: 'Barris', aguila: 'Valkor', buho: 'Noctis', panda: 'Tao',
+      oso: 'Bjorn', elefante: 'Titanis',
+      leon: 'Leónidas', tigre: 'Rakan', dragon: 'Bahamut', fenix: 'Ignis', grifo: 'Aethel',
+      hamster: 'Pip', raton: 'Sombra', rana: 'Kero'
     };
-    return names[id] || 'Gato';
+    return names[id] || 'Kuro';
   }
 
   getAvatarColorById(id: string): string {

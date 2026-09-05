@@ -18,9 +18,7 @@ export interface ComunidadAvatar {
   emoji: string;
   color: string;
   role: string;
-  lore: string;
   weaponName: string;
-  weaponDesc: string;
   focusApplication: string;
   tacticalQuote: string;
   coinsPerPomodoro: number;
@@ -29,11 +27,10 @@ export interface ComunidadAvatar {
   bossHealPoints: number;
   passiveName: string;
   passiveAdvantage: string;
-  passiveCondition: string;
-  passiveBestFor: string;
   cost: number;
   qualityId: string | null;
   qualityName?: string;
+  displayName?: string;
   qualityReq?: string;
   unlockTotal?: number;
   isUnlocked?: boolean;
@@ -189,8 +186,8 @@ interface CountryOption {
           
           <div class="carousel-header-bar">
             <div class="carousel-title-group">
-              <span class="carousel-subtag">// ROSTER SELECTION</span>
-              <h2 class="carousel-main-title">Character to play</h2>
+              <span class="carousel-subtag">Colección de Guardianes</span>
+              <h2 class="carousel-main-title">Elige tu Guardián de Enfoque</h2>
             </div>
 
             <!-- CONTROLES: FILTROS Y FLECHAS DE NAVEGACIÓN -->
@@ -254,7 +251,7 @@ interface CountryOption {
                 <!-- OVERLAY INFERIOR CON NOMBRE Y SUBTÍTULO -->
                 <div class="hero-card-footer-glass">
                   <h4 class="hero-card-name">{{ avatar.name }}</h4>
-                  <span class="hero-card-role-sub">as {{ avatar.role }}</span>
+                  <span class="hero-card-role-sub">{{ avatar.species }}</span>
                   
                   <div class="hero-card-status-strip" [class.unlocked]="avatar.isUnlocked">
                     <span *ngIf="membership.selectedAvatar() === avatar.id">ACTIVO EN PERFIL</span>
@@ -276,218 +273,196 @@ interface CountryOption {
         </div>
 
         <!-- ==================================================== -->
-        <!-- 3. SECCIÓN: CHARACTER SELECT & DOSSIER (AVATAR.PNG & CARD.PNG) -->
+        <!-- 3. SECCIÓN: DETALLE DEL GUARDIÁN SELECCIONADO        -->
         <!-- ==================================================== -->
-        <div class="character-select-spotlight-section" [style.--accent-color]="inspectedAvatar().color">
+        <div class="guardian-detail-card">
           
-          <div class="spotlight-cinematic-container">
+          <!-- COLUMNA IZQUIERDA: RETRATO HERO GRANDE & ELEGANTE -->
+          <div class="guardian-portrait-dock">
             
-            <!-- COLUMNA IZQUIERDA: DOSSIER TÁCTICO, LORE & PROTOCOLOS -->
-            <div class="spotlight-left-dossier">
+            <div class="portrait-card-stage">
+              <!-- IMAGEN DEL AVATAR GRANDE Y NÍTIDA -->
+              <div [class]="'avatar-sprite hero-portrait-sprite sprite-' + inspectedAvatar().id"></div>
               
-              <div class="dossier-header-box">
-                <span class="dossier-specimen-subtag">// SPECIMEN ARCHIVE & TACTICAL DOSSIER</span>
-                <h3 class="dossier-character-title">{{ inspectedAvatar().name | uppercase }}</h3>
-                <p class="dossier-species-desc">{{ inspectedAvatar().species }} — <strong>{{ inspectedAvatar().role }}</strong></p>
-                
-                <div class="dossier-badges-list">
-                  <span class="dossier-badge-pill" [class]="'tier-' + inspectedAvatar().tier.toLowerCase()">
-                    ★ RANGO {{ inspectedAvatar().tier | uppercase }}
-                  </span>
-                  <span class="dossier-badge-pill archetype-pill">
-                    {{ inspectedAvatar().archetypeBadge }}
-                  </span>
-                  <span class="dossier-badge-pill squad-pill" [class.is-unlocked]="inspectedAvatar().isUnlocked">
-                    <i [class]="inspectedAvatar().isUnlocked ? 'fa-solid fa-shield-check' : 'fa-solid fa-lock'"></i>
-                    {{ inspectedAvatar().isUnlocked ? 'EN TU ESCUADRA' : 'BLOQUEADO' }}
-                  </span>
-                </div>
-              </div>
+              <!-- DEGRADADO SUAVE PARA LEGIBILIDAD INFERIOR -->
+              <div class="portrait-vignette-overlay"></div>
 
-              <!-- LORE NARRATIVO DEL PERSONAJE -->
-              <div class="dossier-lore-box">
-                <p class="lore-text-paragraph">{{ inspectedAvatar().lore }}</p>
-              </div>
+              <!-- TIPO DE AVATAR Y ARMA SUPERIOR EN EL RETRATO -->
+              <div class="portrait-top-header">
+                <span class="guardian-tier-pill" [class]="'tier-' + inspectedAvatar().tier.toLowerCase()">
+                  {{ inspectedAvatar().tier }}
+                </span>
 
-              <!-- PROTOCOLO PSICOLÓGICO / HACK ANTI-PROCRASTINACIÓN -->
-              <div class="dossier-psych-card">
-                <div class="psych-card-head">
-                  <i class="fa-solid fa-brain text-purple"></i>
-                  <span>PROTOCOLO PSICOLÓGICO // HACK ANTI-PROCRASTINACIÓN</span>
-                </div>
-                <p class="psych-card-body">{{ inspectedAvatar().focusApplication }}</p>
-              </div>
-
-              <!-- DUAL COMBAT HUD (SI COMPLETAS / SI ABANDONAS) -->
-              <div class="dossier-combat-hud-grid">
-                <div class="combat-pill win-combat-pill">
-                  <span class="combat-tag text-green"><i class="fa-solid fa-circle-check"></i> SI COMPLETAS</span>
-                  <div class="combat-values">
-                    <strong class="text-green">+{{ inspectedAvatar().coinsPerPomodoro }} 🪙 Coins</strong>
-                    <small>⚔️ {{ inspectedAvatar().bossDamagePoints }} Pts Daño al Jefe</small>
-                  </div>
-                </div>
-
-                <div class="combat-pill fail-combat-pill">
-                  <span class="combat-tag text-red"><i class="fa-solid fa-circle-xmark"></i> SI ABANDONAS</span>
-                  <div class="combat-values">
-                    <strong class="text-red">-{{ inspectedAvatar().pausePenaltyCoins }} 🪙 Coins</strong>
-                    <small class="text-red">🩸 +{{ inspectedAvatar().bossHealPoints }} HP Jefe</small>
-                  </div>
-                </div>
-              </div>
-
-              <!-- MATRIZ DE PASIVA TÁCTICA -->
-              <div class="dossier-passive-panel">
-                <div class="passive-panel-head">
-                  <i class="fa-solid fa-bolt text-cyan"></i>
-                  <span class="passive-panel-title">EFECTO TÁCTICO // HABILIDAD PASIVA:</span>
-                  <strong class="passive-name-strong">{{ inspectedAvatar().passiveName }}</strong>
-                </div>
-
-                <div class="passive-details-triad">
-                  <div class="triad-item">
-                    <span class="triad-label text-green"><i class="fa-solid fa-plus"></i> Ventaja:</span>
-                    <p>{{ inspectedAvatar().passiveAdvantage }}</p>
-                  </div>
-                  <div class="triad-item">
-                    <span class="triad-label text-red"><i class="fa-solid fa-minus"></i> Riesgo:</span>
-                    <p>{{ inspectedAvatar().passiveCondition }}</p>
-                  </div>
-                  <div class="triad-item">
-                    <span class="triad-label text-cyan"><i class="fa-solid fa-crosshairs"></i> Momento Ideal:</span>
-                    <p>{{ inspectedAvatar().passiveBestFor }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- BOTÓN DE ACCIÓN Y CITA TÁCTICA -->
-              <div class="dossier-action-footer">
-                <div class="action-cta-wrap">
-                  <button 
-                    *ngIf="membership.selectedAvatar() === inspectedAvatar().id" 
-                    class="btn-dossier-cta is-active-equipped" 
-                    disabled
-                  >
-                    <i class="fa-solid fa-shield-halved"></i> GUARDIÁN ACTIVO EN TU PERFIL ✓
-                  </button>
-
-                  <button 
-                    *ngIf="inspectedAvatar().isUnlocked && membership.selectedAvatar() !== inspectedAvatar().id" 
-                    (click)="equipAvatar(inspectedAvatar())" 
-                    class="btn-dossier-cta is-equip-btn"
-                  >
-                    <i class="fa-solid fa-paw"></i> DESPLEGAR Y EQUIPAR GUARDIÁN
-                    <i class="fa-solid fa-arrow-right"></i>
-                  </button>
-
-                  <button 
-                    *ngIf="!inspectedAvatar().isUnlocked && inspectedAvatar().qualityId && inspectedAvatar().quality" 
-                    (click)="simulateUnlockQuality(inspectedAvatar().quality!)" 
-                    class="btn-dossier-cta is-challenge-btn"
-                  >
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> DEMOSTRAR CUALIDAD (TEST)
-                    <i class="fa-solid fa-arrow-right"></i>
-                  </button>
-
-                  <button 
-                    *ngIf="!inspectedAvatar().isUnlocked && !inspectedAvatar().qualityId && inspectedAvatar().cost > 0" 
-                    (click)="buyAvatar(inspectedAvatar())" 
-                    class="btn-dossier-cta is-buy-btn"
-                    [disabled]="membership.proCoins() < inspectedAvatar().cost"
-                  >
-                    <i class="fa-solid fa-coins"></i> 
-                    {{ membership.proCoins() >= inspectedAvatar().cost ? 'CANJEAR POR ' + inspectedAvatar().cost + ' PRO COINS' : 'FALTAN ' + (inspectedAvatar().cost - membership.proCoins()) + ' COINS' }}
-                    <i class="fa-solid fa-arrow-right"></i>
-                  </button>
-                </div>
-
-                <div class="dossier-quote-box">
-                  <i class="fa-solid fa-quote-left quote-icon text-cyan"></i>
-                  <p class="quote-text">“{{ inspectedAvatar().tacticalQuote }}”</p>
+                <div class="guardian-weapon-badge" *ngIf="inspectedAvatar().weaponName">
+                  <i class="fa-solid fa-wand-magic-sparkles text-accent"></i>
+                  <span class="weapon-key">Arma:</span>
+                  <span class="weapon-val">{{ inspectedAvatar().weaponName }}</span>
                 </div>
               </div>
 
             </div>
 
-            <!-- COLUMNA DERECHA: ESCENARIO CINEMÁTICO CON CALLOUTS (AVATAR.PNG) -->
-            <div class="spotlight-right-stage">
+          </div>
+
+          <!-- COLUMNA DERECHA: PANEL DE INFORMACIÓN, MECÁNICAS Y ACCIÓN -->
+          <div class="guardian-info-dock">
+            
+            <!-- 1. ENCABEZADO DE IDENTIDAD -->
+            <div class="guardian-header-block">
+              <div class="guardian-title-area">
+                <div class="guardian-heading-group">
+                  <h3 class="guardian-display-name">{{ inspectedAvatar().name }}</h3>
+                  <span class="guardian-species-pill">{{ inspectedAvatar().species }}</span>
+                  <p class="guardian-role-desc">
+                    <i class="fa-solid fa-compass text-muted-icon"></i>
+                    <span>Rol táctico: <strong>{{ inspectedAvatar().role }}</strong></span>
+                  </p>
+                </div>
+
+                <!-- ESTADO EN EL PERFIL / ESCUADRA -->
+                <div class="guardian-status-tag" 
+                     [class.is-equipped]="membership.selectedAvatar() === inspectedAvatar().id" 
+                     [class.is-unlocked]="inspectedAvatar().isUnlocked && membership.selectedAvatar() !== inspectedAvatar().id"
+                     [class.is-locked]="!inspectedAvatar().isUnlocked">
+                  <i [class]="membership.selectedAvatar() === inspectedAvatar().id ? 'fa-solid fa-circle-check' : (inspectedAvatar().isUnlocked ? 'fa-solid fa-shield-cat' : 'fa-solid fa-lock')"></i>
+                  <span>{{ membership.selectedAvatar() === inspectedAvatar().id ? 'Activo en tu Perfil' : (inspectedAvatar().isUnlocked ? 'En tu Escuadra' : 'Bloqueado') }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. IMPACTO EN SESIONES POMODORO (RECOMPENSA vs RIESGO) -->
+            <div class="pomodoro-impact-grid">
               
-              <div class="cinematic-stage-card"
-                   [style.background]="'radial-gradient(ellipse at 50% 50%, ' + inspectedAvatar().color + '33 0%, ' + inspectedAvatar().color + '10 40%, rgba(10, 14, 22, 0.95) 85%)'">
-                
-                <!-- AURA DE ENERGÍA CÓSMICA -->
-                <div class="stage-energy-aura" [style.background]="'radial-gradient(circle at 50% 50%, ' + inspectedAvatar().color + '77 0%, transparent 65%)'"></div>
-                
-                <!-- TÍTULO SUPERIOR CHARACTER SELECT -->
-                <div class="stage-header-title">
-                  <span class="stage-select-sub">// FOCUS GUARDIAN</span>
-                  <h2 class="stage-select-main">CHARACTER SELECT</h2>
+              <!-- COMPLETAR SESIÓN (POSITIVO) -->
+              <div class="impact-stat-card card-reward-focus">
+                <div class="impact-card-top">
+                  <span class="impact-state-badge badge-success">
+                    <i class="fa-solid fa-circle-check"></i> Al completar
+                  </span>
+                  <span class="impact-subtag">Recompensa</span>
                 </div>
 
-                <!-- CONTENEDOR DEL HERO Y LOS PUNTEROS INTERACTIVOS (CALLOUTS) -->
-                <div class="stage-hero-center-dock">
-                  
-                  <!-- PUNTERO 1: ARMA / HERRAMIENTA TÁCTICA -->
-                  <div class="annotation-callout callout-weapon">
-                    <div class="callout-card">
-                      <div class="callout-header">
-                        <i class="fa-solid fa-wand-magic text-cyan"></i>
-                        <strong>{{ inspectedAvatar().weaponName }}</strong>
-                      </div>
-                      <p class="callout-desc">{{ inspectedAvatar().weaponDesc }}</p>
-                    </div>
-                    <div class="callout-pointer-line">
-                      <div class="pointer-dot"></div>
-                      <div class="pointer-arm"></div>
-                    </div>
+                <div class="impact-metrics-row">
+                  <div class="impact-metric-item">
+                    <span class="metric-val text-success">🪙 +{{ inspectedAvatar().coinsPerPomodoro }}</span>
+                    <span class="metric-lbl">Pro Coins</span>
                   </div>
-
-                  <!-- PERSONAJE FLOTANTE EN SU PLATAFORMA HOLOGRÁFICA -->
-                  <div class="hero-character-floating-wrap">
-                    <div [class]="'avatar-sprite frameless-hero-sprite sprite-' + inspectedAvatar().id"></div>
-                    <div class="hologram-disk-platform" [style.--glow-color]="inspectedAvatar().color"></div>
+                  <div class="metric-v-sep"></div>
+                  <div class="impact-metric-item">
+                    <span class="metric-val text-light">⚔️ {{ inspectedAvatar().bossDamagePoints }}</span>
+                    <span class="metric-lbl">Daño a Jefes</span>
                   </div>
-
-                  <!-- PUNTERO 2: HABILIDAD PASIVA / EFECTO -->
-                  <div class="annotation-callout callout-passive">
-                    <div class="callout-pointer-line">
-                      <div class="pointer-dot"></div>
-                      <div class="pointer-arm"></div>
-                    </div>
-                    <div class="callout-card">
-                      <div class="callout-header">
-                        <i class="fa-solid fa-bolt text-yellow"></i>
-                        <strong>{{ inspectedAvatar().passiveName }}</strong>
-                      </div>
-                      <p class="callout-desc">{{ inspectedAvatar().passiveAdvantage }}</p>
-                    </div>
-                  </div>
-
-                  <!-- PUNTERO 3: RATING Y PODER (ESTRELLAS) -->
-                  <div class="annotation-callout callout-rating">
-                    <div class="callout-card">
-                      <div class="rating-row">
-                        <span class="rating-label">Rate :</span>
-                        <div class="rating-stars-list">
-                          <i *ngFor="let s of [1,2,3,4,5]" 
-                             class="fa-solid fa-star" 
-                             [class.is-lit]="s <= inspectedAvatar().stars"></i>
-                        </div>
-                      </div>
-                      <span class="rating-archetype-sub">{{ inspectedAvatar().archetype }} • {{ inspectedAvatar().tier }}</span>
-                    </div>
-                  </div>
-
                 </div>
-
-                <!-- NOMBRE GRANDE INFERIOR ESTILO CINEMÁTICO -->
-                <div class="stage-footer-character-name">
-                  <span class="cinematic-name-glow">{{ inspectedAvatar().name | uppercase }}</span>
-                </div>
-
               </div>
 
+              <!-- ABANDONO O PAUSA (RIESGO) -->
+              <div class="impact-stat-card card-penalty-focus">
+                <div class="impact-card-top">
+                  <span class="impact-state-badge badge-danger">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Si abandonas
+                  </span>
+                  <span class="impact-subtag">Penalización</span>
+                </div>
+
+                <div class="impact-metrics-row">
+                  <div class="impact-metric-item">
+                    <span class="metric-val text-danger">🪙 -{{ inspectedAvatar().pausePenaltyCoins }}</span>
+                    <span class="metric-lbl">Pro Coins</span>
+                  </div>
+                  <div class="metric-v-sep"></div>
+                  <div class="impact-metric-item">
+                    <span class="metric-val text-warning-light">🩸 +{{ inspectedAvatar().bossHealPoints }}</span>
+                    <span class="metric-lbl">Salud al Jefe</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- 3. HABILIDAD PASIVA & TÉCNICA DE PRODUCTIVIDAD -->
+            <div class="guardian-lore-grid">
+              
+              <!-- HABILIDAD PASIVA -->
+              <div class="guardian-lore-card card-passive-ability">
+                <div class="lore-card-header">
+                  <span class="lore-label-chip chip-passive">
+                    <i class="fa-solid fa-bolt-lightning"></i> Habilidad Pasiva
+                  </span>
+                  <span class="lore-specialty-name">{{ inspectedAvatar().passiveName }}</span>
+                </div>
+                <p class="lore-description-body">
+                  {{ inspectedAvatar().passiveAdvantage }}
+                </p>
+              </div>
+
+              <!-- HACK DE ENFOQUE -->
+              <div class="guardian-lore-card card-focus-technique">
+                <div class="lore-card-header">
+                  <span class="lore-label-chip chip-strategy">
+                    <i class="fa-solid fa-brain"></i> Estrategia Mental
+                  </span>
+                  <span class="lore-specialty-name">Hack Anti-Procrastinación</span>
+                </div>
+                <p class="lore-description-body">
+                  {{ inspectedAvatar().focusApplication }}
+                </p>
+              </div>
+
+            </div>
+
+            <!-- 4. BANNER DE CONDICIONES DE DESBLOQUEO (SI ESTÁ BLOQUEADO) -->
+            <div class="guardian-unlock-notice" *ngIf="!inspectedAvatar().isUnlocked">
+              <div class="notice-icon-box">
+                <i [class]="inspectedAvatar().qualityId ? 'fa-solid fa-scroll' : 'fa-solid fa-store'"></i>
+              </div>
+              <div class="notice-text-content">
+                <h4 class="notice-headline">
+                  {{ inspectedAvatar().qualityId ? 'Cualidad Requerida: ' + (inspectedAvatar().displayName || inspectedAvatar().qualityName) : 'Desbloqueo en Tienda de Monedas' }}
+                </h4>
+                <p class="notice-subtext">
+                  {{ inspectedAvatar().displayReq || ('Canjea este guardián por ' + inspectedAvatar().cost + ' Pro Coins 🪙 acumuladas en tus sesiones.') }}
+                </p>
+              </div>
+            </div>
+
+            <!-- 5. BOTÓN DE ACCIÓN PRINCIPAL -->
+            <div class="guardian-action-footer">
+              <button 
+                *ngIf="membership.selectedAvatar() === inspectedAvatar().id" 
+                class="btn-guardian-action btn-is-equipped" 
+                disabled
+              >
+                <i class="fa-solid fa-circle-check text-success"></i> Guardián Activo en tu Perfil
+              </button>
+
+              <button 
+                *ngIf="inspectedAvatar().isUnlocked && membership.selectedAvatar() !== inspectedAvatar().id" 
+                (click)="equipAvatar(inspectedAvatar())" 
+                class="btn-guardian-action btn-equip-action"
+              >
+                <i class="fa-solid fa-paw"></i> Equipar a {{ inspectedAvatar().name }}
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+
+              <button 
+                *ngIf="!inspectedAvatar().isUnlocked && inspectedAvatar().qualityId && inspectedAvatar().quality" 
+                (click)="simulateUnlockQuality(inspectedAvatar().quality!)" 
+                class="btn-guardian-action btn-challenge-action"
+              >
+                <i class="fa-solid fa-award"></i> Demostrar Cualidad: {{ (inspectedAvatar().displayName || inspectedAvatar().qualityName) }}
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+
+              <button 
+                *ngIf="!inspectedAvatar().isUnlocked && !inspectedAvatar().qualityId && inspectedAvatar().cost > 0" 
+                (click)="buyAvatar(inspectedAvatar())" 
+                class="btn-guardian-action btn-buy-action"
+                [disabled]="membership.proCoins() < inspectedAvatar().cost"
+              >
+                <i class="fa-solid fa-coins"></i> 
+                {{ membership.proCoins() >= inspectedAvatar().cost ? 'Canjear por ' + inspectedAvatar().cost + ' Pro Coins' : 'Faltan ' + (inspectedAvatar().cost - membership.proCoins()) + ' Pro Coins' }}
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
             </div>
 
           </div>
@@ -607,14 +582,14 @@ interface CountryOption {
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 26px;
+      gap: 22px;
     }
 
     /* CONTENEDOR SUPERIOR DE PERFIL */
     .profile-upper-container {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       width: 100%;
     }
 
@@ -632,7 +607,7 @@ interface CountryOption {
     }
 
     .profile-banner-cover {
-      height: 135px;
+      height: 130px;
       position: relative;
       display: flex;
       justify-content: flex-end;
@@ -656,21 +631,21 @@ interface CountryOption {
     }
 
     .profile-body-content {
-      padding: 0 28px 24px;
+      padding: 0 28px 22px;
       position: relative;
     }
 
     .avatar-overlapping-wrapper {
       position: relative;
-      width: 105px;
-      height: 105px;
-      margin-top: -52px;
-      margin-bottom: 12px;
+      width: 102px;
+      height: 102px;
+      margin-top: -51px;
+      margin-bottom: 10px;
       z-index: 10;
     }
     .round-avatar-frame {
-      width: 105px;
-      height: 105px;
+      width: 102px;
+      height: 102px;
       border-radius: 50%;
       border: 4px solid #121620;
       overflow: hidden;
@@ -685,8 +660,8 @@ interface CountryOption {
       transform: scale(1.03);
     }
     .sprite-circle {
-      width: 98px;
-      height: 98px;
+      width: 94px;
+      height: 94px;
       border-radius: 50%;
       background-size: cover;
       background-position: center;
@@ -725,7 +700,7 @@ interface CountryOption {
     .user-primary-info {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
       min-width: 0;
     }
     .user-name-title-row {
@@ -734,7 +709,7 @@ interface CountryOption {
       gap: 12px;
     }
     .user-display-name {
-      font-size: 24px;
+      font-size: 23px;
       font-weight: 850;
       color: #fff;
       margin: 0;
@@ -744,12 +719,12 @@ interface CountryOption {
     .user-profession-line {
       display: flex;
       align-items: center;
-      margin: 2px 0 1px;
+      margin: 1px 0;
       line-height: 1.4;
     }
     .user-profession-txt {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14.5px;
+      font-size: 14px;
       font-weight: 650;
       color: #f1f5f9;
       letter-spacing: -0.2px;
@@ -762,7 +737,7 @@ interface CountryOption {
       line-height: 1.4;
     }
     .country-flag-icon {
-      font-size: 14.5px;
+      font-size: 14px;
       line-height: 1;
     }
     .country-name-txt {
@@ -770,12 +745,11 @@ interface CountryOption {
       font-size: 13px;
       font-weight: 500;
       color: #94a3b8;
-      letter-spacing: -0.1px;
     }
     .user-active-week-line {
       display: flex;
       align-items: center;
-      margin: 2px 0 0;
+      margin: 1px 0 0;
       line-height: 1.4;
     }
     .active-week-txt {
@@ -846,9 +820,7 @@ interface CountryOption {
       align-items: center;
       justify-content: center;
     }
-    .tele-icon i {
-      font-size: 11.5px;
-    }
+    .tele-icon i { font-size: 11.5px; }
     .tele-num {
       font-size: 13px;
       font-weight: 850;
@@ -877,9 +849,7 @@ interface CountryOption {
       filter: grayscale(100%);
       opacity: 0.55;
     }
-    .tele-pill.is-zero .tele-num {
-      color: #64748b;
-    }
+    .tele-pill.is-zero .tele-num { color: #64748b; }
 
     .tele-pill[data-tooltip]::before {
       content: attr(data-tooltip);
@@ -927,7 +897,7 @@ interface CountryOption {
       background: rgba(14, 18, 28, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 14px;
-      padding: 10px 16px;
+      padding: 9px 15px;
       backdrop-filter: blur(10px);
     }
     .skills-bar-container {
@@ -994,7 +964,7 @@ interface CountryOption {
     .character-to-play-section {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       width: 100%;
     }
 
@@ -1011,14 +981,14 @@ interface CountryOption {
       gap: 2px;
     }
     .carousel-subtag {
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: 800;
       color: var(--accent, #00f2fe);
       letter-spacing: 1px;
       font-family: monospace;
     }
     .carousel-main-title {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 900;
       color: #fff;
       margin: 0;
@@ -1041,7 +1011,7 @@ interface CountryOption {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.08);
       color: #94a3b8;
-      padding: 6px 13px;
+      padding: 5px 12px;
       border-radius: 8px;
       font-size: 11px;
       font-weight: 750;
@@ -1065,8 +1035,8 @@ interface CountryOption {
       gap: 6px;
     }
     .btn-carousel-arrow {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1089,19 +1059,19 @@ interface CountryOption {
       position: relative;
       width: 100%;
       overflow: hidden;
-      padding: 10px 4px 18px;
+      padding: 6px 2px 14px;
     }
     .carousel-cards-track {
       display: flex;
-      gap: 14px;
+      gap: 12px;
       overflow-x: auto;
       scroll-behavior: smooth;
-      padding-bottom: 8px;
+      padding-bottom: 6px;
       scrollbar-width: thin;
       scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
     }
     .carousel-cards-track::-webkit-scrollbar {
-      height: 5px;
+      height: 4px;
     }
     .carousel-cards-track::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.15);
@@ -1110,8 +1080,8 @@ interface CountryOption {
 
     /* TARJETA VERTICAL HERO (AVATAR.PNG) */
     .vertical-hero-card {
-      flex: 0 0 156px;
-      height: 228px;
+      flex: 0 0 148px;
+      height: 215px;
       border-radius: 16px;
       background: #0f1422;
       border: 1.5px solid rgba(255, 255, 255, 0.08);
@@ -1126,17 +1096,17 @@ interface CountryOption {
       user-select: none;
     }
     .vertical-hero-card:hover {
-      transform: translateY(-6px);
+      transform: translateY(-5px);
       border-color: rgba(255, 255, 255, 0.25);
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
     }
     .vertical-hero-card.is-active {
-      transform: translateY(-9px) scale(1.03);
+      transform: translateY(-7px) scale(1.03);
       border-color: var(--card-theme, var(--accent));
-      box-shadow: 0 0 24px var(--card-theme, rgba(0, 242, 254, 0.4)), 0 16px 36px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 0 22px var(--card-theme, rgba(0, 242, 254, 0.4)), 0 14px 32px rgba(0, 0, 0, 0.7);
     }
     .vertical-hero-card.is-locked {
-      opacity: 0.65;
+      opacity: 0.6;
     }
     .vertical-hero-card.is-locked .hero-card-sprite {
       filter: grayscale(1) brightness(0.6);
@@ -1159,7 +1129,7 @@ interface CountryOption {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 10px;
+      padding: 7px 9px;
     }
     .card-tier-pill {
       font-size: 8px;
@@ -1184,15 +1154,15 @@ interface CountryOption {
       border-radius: 4px;
     }
     .card-state-pill {
-      width: 18px;
-      height: 18px;
+      width: 17px;
+      height: 17px;
       border-radius: 50%;
       background: #10b981;
       color: #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 900;
     }
     .card-state-pill.is-lock {
@@ -1210,8 +1180,8 @@ interface CountryOption {
       z-index: 2;
     }
     .hero-card-sprite {
-      width: 130px;
-      height: 130px;
+      width: 120px;
+      height: 120px;
       background-size: cover;
       background-position: center;
       filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
@@ -1219,22 +1189,22 @@ interface CountryOption {
       transition: transform 0.3s ease;
     }
     .vertical-hero-card:hover .hero-card-sprite {
-      transform: scale(1.08);
+      transform: scale(1.06);
     }
 
     .hero-card-footer-glass {
       position: relative;
       z-index: 5;
-      background: linear-gradient(180deg, transparent 0%, rgba(10, 14, 24, 0.92) 30%, rgba(8, 11, 18, 0.98) 100%);
-      padding: 24px 10px 8px;
+      background: linear-gradient(180deg, transparent 0%, rgba(10, 14, 24, 0.92) 28%, rgba(8, 11, 18, 0.98) 100%);
+      padding: 20px 8px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 2px;
+      gap: 1px;
     }
     .hero-card-name {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 850;
       color: #fff;
       margin: 0;
@@ -1244,7 +1214,7 @@ interface CountryOption {
       max-width: 100%;
     }
     .hero-card-role-sub {
-      font-size: 9px;
+      font-size: 8.5px;
       color: #94a3b8;
       white-space: nowrap;
       overflow: hidden;
@@ -1252,7 +1222,7 @@ interface CountryOption {
       max-width: 100%;
     }
     .hero-card-status-strip {
-      margin-top: 4px;
+      margin-top: 3px;
       font-size: 7.5px;
       font-weight: 850;
       letter-spacing: 0.5px;
@@ -1271,7 +1241,7 @@ interface CountryOption {
       z-index: 10;
     }
     .indicator-glow-dot {
-      width: 14px;
+      width: 12px;
       height: 3px;
       border-radius: 4px;
       background: var(--card-theme, var(--accent));
@@ -1279,492 +1249,518 @@ interface CountryOption {
     }
 
     /* ==================================================== */
-    /* 4. SPOTLIGHT: CHARACTER SELECT & DOSSIER             */
+    /* 4. TARJETA DE DETALLE DEL GUARDIÁN (CLEAN & HERO)   */
     /* ==================================================== */
-    .character-select-spotlight-section {
-      width: 100%;
-      margin-top: 6px;
-    }
-    .spotlight-cinematic-container {
+    .guardian-detail-card {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
-      background: linear-gradient(145deg, rgba(14, 18, 28, 0.95) 0%, rgba(8, 11, 17, 0.98) 100%);
+      grid-template-columns: 350px 1fr;
+      gap: 26px;
+      background: #111726;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-left: 3px solid var(--accent-color, #00f2fe);
       border-radius: 20px;
       padding: 24px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px var(--accent-color, rgba(0, 242, 254, 0.08));
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(255, 255, 255, 0.05);
       position: relative;
       overflow: hidden;
-      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
 
-    /* COLUMNA IZQUIERDA: DOSSIER TÁCTICO */
-    .spotlight-left-dossier {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .dossier-header-box {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      padding-bottom: 10px;
-    }
-    .dossier-specimen-subtag {
-      font-size: 8.5px;
-      font-weight: 850;
-      color: #64748b;
-      letter-spacing: 0.8px;
-      font-family: monospace;
-    }
-    .dossier-character-title {
-      font-size: 24px;
-      font-weight: 900;
-      color: #fff;
-      margin: 0;
-      letter-spacing: -0.3px;
-      font-family: 'Space Grotesk', sans-serif;
-    }
-    .dossier-species-desc {
-      font-size: 11.5px;
-      color: #94a3b8;
-      margin: 0;
-    }
-    .dossier-species-desc strong {
-      color: #e2e8f0;
-    }
-
-    .dossier-badges-list {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 4px;
-    }
-    .dossier-badge-pill {
-      font-size: 8.5px;
-      font-weight: 850;
-      padding: 2px 7px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-    .dossier-badge-pill.tier-común { background: rgba(156, 163, 175, 0.15); color: #d1d5db; border: 1px solid rgba(156, 163, 175, 0.3); }
-    .dossier-badge-pill.tier-raro { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-    .dossier-badge-pill.tier-épico { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-    .dossier-badge-pill.tier-legendario { background: rgba(251, 191, 36, 0.15); color: #fde047; border: 1px solid rgba(251, 191, 36, 0.4); }
-    .archetype-pill { background: rgba(255, 255, 255, 0.04); color: #94a3b8; }
-    .squad-pill { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-    .squad-pill.is-unlocked { background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(16, 185, 129, 0.35); }
-
-    .dossier-lore-box {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      padding: 10px 14px;
-    }
-    .lore-text-paragraph {
-      margin: 0;
-      font-size: 11px;
-      color: #cbd5e1;
-      line-height: 1.45;
-      font-style: italic;
-    }
-
-    /* PROTOCOLO PSICOLÓGICO */
-    .dossier-psych-card {
-      background: rgba(168, 85, 247, 0.06);
-      border: 1px solid rgba(168, 85, 247, 0.2);
-      border-radius: 10px;
-      padding: 9px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .psych-card-head {
-      font-size: 9px;
-      font-weight: 850;
-      color: #c084fc;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      letter-spacing: 0.4px;
-    }
-    .psych-card-body {
-      margin: 0;
-      font-size: 10.5px;
-      color: #f1f5f9;
-      line-height: 1.35;
-    }
-
-    /* DUAL HUD COMBATE */
-    .dossier-combat-hud-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .combat-pill {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 10px;
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .combat-pill.win-combat-pill { border-left: 3px solid #10b981; }
-    .combat-pill.fail-combat-pill { border-left: 3px solid #ef4444; }
-    .combat-tag {
-      font-size: 8.5px;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .combat-values strong {
-      font-size: 12px;
-      font-weight: 850;
-      display: block;
-    }
-    .combat-values small {
-      font-size: 9.5px;
-      color: #94a3b8;
-    }
-
-    /* MATRIZ DE PASIVA */
-    .dossier-passive-panel {
-      background: rgba(0, 0, 0, 0.28);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      padding: 9px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .passive-panel-head {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 10.5px;
-    }
-    .passive-panel-title {
-      font-size: 9px;
-      font-weight: 800;
-      color: #94a3b8;
-    }
-    .passive-name-strong {
-      color: #fff;
-      font-weight: 850;
-    }
-    .passive-details-triad {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-    }
-    .triad-item {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .triad-label {
-      font-size: 8.5px;
-      font-weight: 850;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-    .triad-item p {
-      margin: 0;
-      font-size: 9.5px;
-      color: #cbd5e1;
-      line-height: 1.25;
-    }
-
-    /* FOOTER DE ACCIONES */
-    .dossier-action-footer {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 4px;
-    }
-    .action-cta-wrap {
-      display: flex;
-      gap: 8px;
-    }
-    .btn-dossier-cta {
-      flex: 1;
-      padding: 10px 16px;
-      border-radius: 10px;
-      font-size: 11px;
-      font-weight: 900;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      border: none;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-    .btn-dossier-cta.is-active-equipped {
-      background: rgba(16, 185, 129, 0.12);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      cursor: default;
-    }
-    .btn-dossier-cta.is-equip-btn {
-      background: var(--accent-color, #00f2fe);
-      color: #000;
-      box-shadow: 0 4px 16px var(--accent-color, rgba(0, 242, 254, 0.3));
-    }
-    .btn-dossier-cta.is-equip-btn:hover {
-      filter: brightness(1.15);
-      transform: translateY(-1px);
-    }
-    .btn-dossier-cta.is-challenge-btn {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1.5px solid #10b981;
-      color: #10b981;
-    }
-    .btn-dossier-cta.is-challenge-btn:hover {
-      background: rgba(16, 185, 129, 0.25);
-    }
-    .btn-dossier-cta.is-buy-btn {
-      background: #fbbf24;
-      color: #000;
-      box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
-    }
-    .btn-dossier-cta.is-buy-btn:hover:not(:disabled) {
-      filter: brightness(1.1);
-    }
-    .btn-dossier-cta.is-buy-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .dossier-quote-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      color: #94a3b8;
-      font-style: italic;
-      padding: 0 4px;
-    }
-    .quote-icon { font-size: 11px; opacity: 0.8; }
-    .quote-text { margin: 0; }
-
-    /* ==================================================== */
-    /* 5. COLUMNA DERECHA: CINEMATIC STAGE (AVATAR.PNG)     */
-    /* ==================================================== */
-    .spotlight-right-stage {
+    /* COLUMNA IZQUIERDA: RETRATO HERO GRANDE */
+    .guardian-portrait-dock {
       display: flex;
       flex-direction: column;
       width: 100%;
       height: 100%;
     }
-    .cinematic-stage-card {
-      flex: 1;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+
+    .portrait-card-stage {
       position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 440px;
+      border-radius: 16px;
       overflow: hidden;
+      background: #0b0f19;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 10px 25px rgba(0, 0, 0, 0.4);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 16px;
-      min-height: 480px;
-      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7);
     }
 
-    .stage-energy-aura {
+    .hero-portrait-sprite {
       position: absolute;
       inset: 0;
-      opacity: 0.5;
-      pointer-events: none;
-      transition: background 0.4s ease;
-    }
-
-    .stage-header-title {
-      position: relative;
-      z-index: 5;
-      display: flex;
-      flex-direction: column;
-    }
-    .stage-select-sub {
-      font-size: 8.5px;
-      font-weight: 800;
-      color: var(--accent-color, #00f2fe);
-      letter-spacing: 1px;
-      font-family: monospace;
-    }
-    .stage-select-main {
-      font-size: 18px;
-      font-weight: 900;
-      color: #fff;
-      margin: 0;
-      letter-spacing: 1px;
-      font-family: 'Space Grotesk', sans-serif;
-    }
-
-    /* HEROCENTER CON PLATAFORMA Y CALLOUTS */
-    .stage-hero-center-dock {
-      position: relative;
-      z-index: 5;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 320px;
-    }
-
-    .hero-character-floating-wrap {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      animation: floatHero 4s ease-in-out infinite alternate;
-    }
-    @keyframes floatHero {
-      0% { transform: translateY(0px); }
-      100% { transform: translateY(-10px); }
-    }
-
-    .frameless-hero-sprite {
-      width: 200px;
-      height: 200px;
+      width: 100%;
+      height: 100%;
       background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      border-radius: 50%;
-      border: 3px solid var(--accent-color, rgba(0, 242, 254, 0.4));
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 30px var(--accent-color, rgba(0, 242, 254, 0.35));
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .frameless-hero-sprite:hover {
-      transform: scale(1.05);
+      background-position: center top;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .hologram-disk-platform {
-      width: 170px;
-      height: 26px;
-      border-radius: 50%;
-      background: radial-gradient(ellipse at center, var(--glow-color, #00f2fe) 0%, transparent 70%);
-      border: 1.5px solid var(--glow-color, #00f2fe);
-      opacity: 0.55;
-      transform: perspective(200px) rotateX(65deg);
-      margin-top: -12px;
-      box-shadow: 0 0 20px var(--glow-color, rgba(0, 242, 254, 0.6));
+    .portrait-card-stage:hover .hero-portrait-sprite {
+      transform: scale(1.03);
     }
 
-    /* CALLOUTS / PUNTEROS TÁCTICOS (INSPIRADOS EN AVATAR.PNG) */
-    .annotation-callout {
+    .portrait-vignette-overlay {
       position: absolute;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      max-width: 170px;
-      pointer-events: auto;
+      inset: 0;
+      background: linear-gradient(
+        180deg, 
+        rgba(11, 15, 25, 0.45) 0%, 
+        rgba(11, 15, 25, 0.05) 25%, 
+        rgba(11, 15, 25, 0.5) 60%, 
+        rgba(11, 15, 25, 0.95) 100%
+      );
+      pointer-events: none;
+      z-index: 1;
     }
 
-    .annotation-callout .callout-card {
-      background: rgba(10, 14, 24, 0.85);
+    .portrait-top-header {
+      position: relative;
+      z-index: 2;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .guardian-tier-pill {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(12px);
-      padding: 7px 10px;
-      border-radius: 8px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .callout-header {
-      display: flex;
-      align-items: center;
-      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 20px;
       font-size: 10px;
-      color: #fff;
-    }
-    .callout-desc {
-      margin: 0;
-      font-size: 8.5px;
-      color: #94a3b8;
-      line-height: 1.25;
+      font-weight: 800;
+      color: #f1f5f9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
     }
 
-    /* POSICIONAMIENTO DE PUNTEROS */
-    .callout-weapon {
-      top: 15px;
-      left: 10px;
-    }
-    .callout-weapon .callout-pointer-line {
-      display: flex;
-      align-items: center;
-    }
-    .callout-passive {
-      top: 35px;
-      right: 10px;
-    }
-    .callout-rating {
-      bottom: 20px;
-      right: 15px;
-    }
-
-    .rating-row {
-      display: flex;
+    .guardian-weapon-badge {
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-    }
-    .rating-label {
-      font-size: 9.5px;
-      font-weight: 800;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 5px 12px;
+      border-radius: 10px;
+      font-size: 11.5px;
       color: #cbd5e1;
+      width: fit-content;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
-    .rating-stars-list {
-      display: flex;
-      gap: 2px;
-      font-size: 9px;
-      color: #475569;
-    }
-    .rating-stars-list i.is-lit {
-      color: #fbbf24;
-      text-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
-    }
-    .rating-archetype-sub {
-      font-size: 8px;
-      color: #64748b;
+
+    .guardian-weapon-badge .weapon-key {
+      font-size: 10px;
       font-weight: 700;
+      color: #94a3b8;
       text-transform: uppercase;
       letter-spacing: 0.3px;
     }
 
-    .stage-footer-character-name {
-      position: relative;
-      z-index: 5;
-      text-align: center;
-      padding-top: 6px;
-    }
-    .cinematic-name-glow {
-      font-size: 15px;
-      font-weight: 900;
-      letter-spacing: 2px;
+    .guardian-weapon-badge .weapon-val {
+      font-weight: 750;
       color: #fff;
-      text-shadow: 0 0 12px var(--accent-color, rgba(0, 242, 254, 0.6));
+    }
+
+    /* COLUMNA DERECHA: DASHBOARD DE INFORMACIÓN */
+    .guardian-info-dock {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .guardian-header-block {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      padding-bottom: 12px;
+    }
+
+    .guardian-title-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .guardian-heading-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .guardian-display-name {
       font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+      letter-spacing: -0.4px;
+      line-height: 1.15;
+    }
+
+    .guardian-species-pill {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 3px 10px;
+      border-radius: 6px;
+      width: fit-content;
+      display: inline-block;
+    }
+
+    .guardian-role-desc {
+      margin: 0;
+      font-size: 12.5px;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .guardian-role-desc strong {
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    .text-muted-icon {
+      color: #64748b;
+      font-size: 11px;
+    }
+
+    .guardian-status-tag {
+      font-size: 11px;
+      font-weight: 750;
+      padding: 5px 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.3px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .guardian-status-tag.is-equipped {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+    }
+
+    .guardian-status-tag.is-unlocked {
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+    }
+
+    .guardian-status-tag.is-locked {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+    }
+
+    /* FILA DE IMPACTO POMODORO (EQUILIBRADA) */
+    .pomodoro-impact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .impact-stat-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.2s ease;
+    }
+
+    .impact-stat-card:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .impact-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .impact-state-badge {
+      font-size: 9.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2.5px 7px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .impact-state-badge.badge-success {
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+    }
+
+    .impact-state-badge.badge-danger {
+      background: rgba(239, 68, 68, 0.14);
+      color: #f87171;
+    }
+
+    .impact-subtag {
+      font-size: 10px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .impact-metrics-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+      padding: 6px 12px;
+    }
+
+    .impact-metric-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      flex: 1;
+    }
+
+    .metric-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+    }
+
+    .metric-val.text-success { color: #34d399; }
+    .metric-val.text-light { color: #f8fafc; }
+    .metric-val.text-danger { color: #f87171; }
+    .metric-val.text-warning-light { color: #fca5a5; }
+
+    .metric-lbl {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .metric-v-sep {
+      width: 1px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 0 4px;
+    }
+
+    /* FILA DE LORE & ESTRATEGIA (EQUILIBRADA) */
+    .guardian-lore-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .guardian-lore-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 11px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      transition: border-color 0.2s ease;
+    }
+
+    .guardian-lore-card:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .lore-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .lore-label-chip {
+      font-size: 9.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2.5px 7px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .lore-label-chip.chip-passive {
+      background: rgba(0, 196, 159, 0.12);
+      color: #00c49f;
+    }
+
+    .lore-label-chip.chip-strategy {
+      background: rgba(59, 130, 246, 0.12);
+      color: #60a5fa;
+    }
+
+    .lore-specialty-name {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #e2e8f0;
+      letter-spacing: 0.2px;
+    }
+
+    .lore-description-body {
+      margin: 0;
+      font-size: 12.5px;
+      font-weight: 450;
+      line-height: 1.45;
+      color: #cbd5e1;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* BANNER DE DESBLOQUEO */
+    .guardian-unlock-notice {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 11px 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .notice-icon-box {
+      font-size: 18px;
+      color: #fbbf24;
+      flex-shrink: 0;
+    }
+
+    .notice-text-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .notice-headline {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .notice-subtext {
+      margin: 0;
+      font-size: 12px;
+      color: #e2e8f0;
+      line-height: 1.35;
+    }
+
+    /* BOTONERA DE ACCIÓN */
+    .guardian-action-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-guardian-action {
+      width: 100%;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Space Grotesk', sans-serif;
+      box-sizing: border-box;
+    }
+
+    .btn-guardian-action.btn-is-equipped {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: default;
+    }
+
+    .btn-guardian-action.btn-equip-action {
+      background: linear-gradient(135deg, #00c49f 0%, #00ff9d 100%);
+      color: #0a0d14;
+      font-weight: 900;
+      box-shadow: 0 4px 14px rgba(0, 196, 159, 0.3);
+    }
+
+    .btn-guardian-action.btn-equip-action:hover {
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 196, 159, 0.45);
+    }
+
+    .btn-guardian-action.btn-challenge-action {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #34d399;
+    }
+
+    .btn-guardian-action.btn-challenge-action:hover {
+      background: rgba(16, 185, 129, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .btn-guardian-action.btn-buy-action {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0b0f19;
+      font-weight: 900;
+      box-shadow: 0 4px 14px rgba(251, 191, 36, 0.3);
+    }
+
+    .btn-guardian-action.btn-buy-action:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.45);
+    }
+
+    .btn-guardian-action.btn-buy-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: grayscale(0.5);
     }
 
     /* ==================================================== */
-    /* 6. MODALES Y TOASTS                                  */
+    /* 5. MODALES Y TOASTS                                  */
     /* ==================================================== */
     .edit-modal-backdrop {
       position: fixed;
@@ -2004,23 +2000,23 @@ interface CountryOption {
     .text-yellow { color: #fbbf24; }
     .text-orange { color: #f97316; }
 
-    @media (max-width: 1024px) {
-      .spotlight-cinematic-container {
-        grid-template-columns: 1fr;
-      }
-      .annotation-callout {
-        position: static;
-        max-width: 100%;
-        margin: 6px 0;
-      }
-      .stage-hero-center-dock {
-        flex-direction: column;
-        gap: 12px;
-      }
-    }
     @media (max-width: 900px) {
       .profile-page-wrapper {
         padding: 80px 16px 40px;
+      }
+      .guardian-detail-card {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 18px;
+      }
+      .portrait-card-stage {
+        min-height: 340px;
+      }
+      .pomodoro-impact-grid {
+        grid-template-columns: 1fr;
+      }
+      .guardian-lore-grid {
+        grid-template-columns: 1fr;
       }
       .user-details-row {
         flex-direction: column;
@@ -2080,8 +2076,8 @@ export class Cualidades implements OnInit {
       // 1. INICIALES
       { 
         id: 'gato', 
-        name: 'Gato Lancero', 
-        species: 'Felino Sigiloso',
+        name: 'Kuro', 
+        species: 'Gato Lancero (Felino Sigiloso)',
         type: 'inicial', 
         tier: 'Común',
         archetype: 'Inicial',
@@ -2089,11 +2085,9 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🐱', 
         color: '#10b981', 
-        role: 'Centinela de la Comunidad',
-        lore: 'El Gato Lancero posee una compostura ágil y serena. Simboliza la habilidad de dar el primer paso sin titubear, rompiendo la parálisis por análisis al instante.',
-        weaponName: 'Lanza de Bambú Sagrado',
-        weaponDesc: 'Forjada con madera flexible de cañaveral ancestral para disolver la inercia mental al arrancar cada sesión.',
-        focusApplication: 'Usa la técnica de los 2 minutos: empieza sin pensar en la meta final para romper la inercia mental.',
+        role: 'Centinela del Silencio',
+        weaponName: 'Lanza de Bambú',
+        focusApplication: 'Técnica de los 2 min: empieza sin pensar en la meta final.',
         tacticalQuote: 'Un zarpazo certero a la vez disuelve cualquier muralla.',
         coinsPerPomodoro: 5,
         pausePenaltyCoins: 2,
@@ -2101,16 +2095,14 @@ export class Cualidades implements OnInit {
         bossHealPoints: 5,
         passiveName: 'Paso Ligero',
         passiveAdvantage: 'Ritmo estable con penalización mínima ante distracciones.',
-        passiveCondition: 'Recompensa estándar sin multiplicadores de daño.',
-        passiveBestFor: 'Arranques de jornada y tareas de baja a mediana complejidad.',
         cost: 0, 
         qualityId: null,
         hasEvolution: false
       },
       { 
         id: 'perro', 
-        name: 'Borek el Guardián', 
-        species: 'Canino Leal',
+        name: 'Borek', 
+        species: 'Perro Pastor (Canino Leal)',
         type: 'inicial', 
         tier: 'Común',
         archetype: 'Inicial',
@@ -2118,11 +2110,9 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🐶', 
         color: '#3a86f0', 
-        role: 'Guardia de la Comunidad',
-        lore: 'Borek es el compañero leal por excelencia. Su presencia infunde devoción inquebrantable a una sola tarea hasta que el temporizador llegue a cero.',
-        weaponName: 'Lanza de Acero & Escudo Canino',
-        weaponDesc: 'Forjada en aleación templada para custodiar la mesa de trabajo contra notificaciones e interrupciones.',
-        focusApplication: 'Protege tu espacio de trabajo: aleja el teléfono móvil antes de encender el temporizador.',
+        role: 'Guardián Leal',
+        weaponName: 'Lanza & Escudo Canino',
+        focusApplication: 'Monotarea radical: aleja el móvil antes de encender el temporizador.',
         tacticalQuote: 'La fidelidad a tu propósito vence al impulso pasajero.',
         coinsPerPomodoro: 6,
         pausePenaltyCoins: 2,
@@ -2130,16 +2120,14 @@ export class Cualidades implements OnInit {
         bossHealPoints: 5,
         passiveName: 'Guardia Firme',
         passiveAdvantage: 'Generación consistente de monedas en sesiones consecutivas.',
-        passiveCondition: 'Penalización base si se interrumpe la sesión.',
-        passiveBestFor: 'Estudio matutino y lecturas de preparación.',
         cost: 0, 
         qualityId: null,
         hasEvolution: false
       },
       { 
         id: 'conejo', 
-        name: 'Conejo Explorador', 
-        species: 'Liebre Veloz',
+        name: 'Zephyr', 
+        species: 'Conejo Explorador (Liebre Veloz)',
         type: 'inicial', 
         tier: 'Común',
         archetype: 'Inicial',
@@ -2147,28 +2135,24 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🐰', 
         color: '#9ca3af', 
-        role: 'Explorador de la Comunidad',
-        lore: 'El Explorador veloz no teme a los retos desconocidos; abre caminos rápidos y despeja tareas pendientes en tiempo récord.',
-        weaponName: 'Dagas Gemelas de Impulso',
-        weaponDesc: 'Hojas ultraligeras diseñadas para sprints de alta velocidad de 15 minutos sin agotamiento.',
-        focusApplication: 'Aplica sprints cortos de 15 minutos cuando sientas apatía o bloqueo creativo.',
+        role: 'Explorador del Viento',
+        weaponName: 'Dagas de Impulso',
+        focusApplication: 'Sprints rápidos de 15 minutos para romper bloqueos creativos.',
         tacticalQuote: 'La agilidad supera al titubeo.',
         coinsPerPomodoro: 5,
         pausePenaltyCoins: 3,
         bossDamagePoints: 11,
         bossHealPoints: 6,
         passiveName: 'Salto Rápido',
-        passiveAdvantage: 'Facilita la entrada en flujo inmediato.',
-        passiveCondition: 'Penalización algo mayor si te desconectas a mitad del sprint.',
-        passiveBestFor: 'Revisiones rápidas, redacción de correos y limpieza de bandeja.',
+        passiveAdvantage: 'Entrada en flujo inmediato con bajo tiempo de arranque.',
         cost: 0, 
         qualityId: null,
         hasEvolution: false
       },
       { 
         id: 'loro', 
-        name: 'Loro Centinela', 
-        species: 'Ave Vigía',
+        name: 'Ario', 
+        species: 'Loro Centinela (Ave Vigía)',
         type: 'inicial', 
         tier: 'Común',
         archetype: 'Inicial',
@@ -2177,27 +2161,23 @@ export class Cualidades implements OnInit {
         emoji: '🦜', 
         color: '#fbbf24', 
         role: 'Centinela Alado',
-        lore: 'Vigía alado de aguda percepción. Demuestra que quien es capaz de articular una idea en voz alta domina completamente la materia.',
-        weaponName: 'Báculo de Resonancia Feynman',
-        weaponDesc: 'Canaliza frecuencias vocales que estructuran conceptos abstractos en explicaciones simples.',
-        focusApplication: 'Explica en voz alta lo que vas a aprender o resolver (Efecto Feynman).',
+        weaponName: 'Báculo Feynman',
+        focusApplication: 'Efecto Feynman: explica en voz alta tu meta antes de comenzar.',
         tacticalQuote: 'La claridad vocal ahuyenta la niebla mental.',
         coinsPerPomodoro: 6,
         pausePenaltyCoins: 2,
         bossDamagePoints: 12,
         bossHealPoints: 5,
         passiveName: 'Voz Guía',
-        passiveAdvantage: 'Mayor retención conceptual y ritmo claro.',
-        passiveCondition: 'Requiere entorno donde puedas articular tus metas.',
-        passiveBestFor: 'Estudio de conceptos abstractos y memorización activa.',
+        passiveAdvantage: 'Mayor retención conceptual y claridad de objetivos.',
         cost: 0, 
         qualityId: null,
         hasEvolution: false
       },
       { 
         id: 'hamster', 
-        name: 'Hámster Veloz', 
-        species: 'Roedor Dinámico',
+        name: 'Pip', 
+        species: 'Hámster Veloz (Roedor Dinámico)',
         type: 'inicial', 
         tier: 'Común',
         archetype: 'Inicial',
@@ -2205,11 +2185,9 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🐹', 
         color: '#f97316', 
-        role: 'Guardián Veloz',
-        lore: 'Inspirador del movimiento perpetuo: demuestra que pequeñas victorias acumuladas derrotan a cualquier montaña de pendientes.',
-        weaponName: 'Esferas Cinemáticas de Momentum',
-        weaponDesc: 'Orbes giratorios que convierten micrometas de 10 minutos en una inercia de trabajo constante e imparable.',
-        focusApplication: 'Divide metas titánicas en micrometas de 10 minutos para mantener el impulso.',
+        role: 'Impulsor de Momentum',
+        weaponName: 'Esferas de Momentum',
+        focusApplication: 'Micrometas de 10 minutos para mantener un impulso continuo.',
         tacticalQuote: 'El movimiento continuo acumula victorias colosales.',
         coinsPerPomodoro: 5,
         pausePenaltyCoins: 2,
@@ -2217,16 +2195,14 @@ export class Cualidades implements OnInit {
         bossHealPoints: 4,
         passiveName: 'Rueda Constante',
         passiveAdvantage: 'Bajo costo de fallo y gran facilidad de repetición.',
-        passiveCondition: 'Daño moderado por sesión.',
-        passiveBestFor: 'Tareas administrativas y procesamiento de datos.',
         cost: 0, 
         qualityId: null,
         hasEvolution: false
       },
       { 
         id: 'raton', 
-        name: 'Ratón Sigiloso', 
-        species: 'Roedor Táctico',
+        name: 'Sombra', 
+        species: 'Ratón Sigiloso (Roedor Táctico)',
         type: 'inicial', 
         tier: 'Común',
         archetype: 'Inicial',
@@ -2234,20 +2210,16 @@ export class Cualidades implements OnInit {
         stars: 1,
         emoji: '🐭', 
         color: '#ec4899', 
-        role: 'Explorador Sigiloso',
-        lore: 'Maestro del sigilo táctico: opera en las horas silenciosas donde nadie interrumpe y el flujo de trabajo alcanza su máxima pureza.',
-        weaponName: 'Daga Sombría de Aislamiento',
-        weaponDesc: 'Corta el ruido ambiental y la tentación digital para sumergirte en un silencio absoluto de alta concentración.',
-        focusApplication: 'Apaga todas las notificaciones antes de arrancar. El silencio es tu mejor aliado.',
+        role: 'Infiltrador Nocturno',
+        weaponName: 'Daga Sombría',
+        focusApplication: 'Cero ruido: apaga toda notificación antes de arrancar.',
         tacticalQuote: 'En la quietud absoluta el trabajo avanza sin resistencia.',
         coinsPerPomodoro: 6,
         pausePenaltyCoins: 2,
         bossDamagePoints: 11,
         bossHealPoints: 5,
         passiveName: 'Infiltración',
-        passiveAdvantage: 'Evita distracciones externas con facilidad.',
-        passiveCondition: 'Sensible a interrupciones no programadas.',
-        passiveBestFor: 'Trabajo silencioso nocturno o de primera hora.',
+        passiveAdvantage: 'Escudo protector ante distracciones del entorno.',
         cost: 0, 
         qualityId: null,
         hasEvolution: false
@@ -2256,8 +2228,8 @@ export class Cualidades implements OnInit {
       // 2. RETOS DE CUALIDADES
       { 
         id: 'tortuga', 
-        name: 'Tortuga Sabia', 
-        species: 'Reptil Ancestral',
+        name: 'Genbu', 
+        species: 'Tortuga Sabia (Reptil Ancestral)',
         type: 'cualidad', 
         tier: 'Raro',
         archetype: 'Cualidad',
@@ -2266,19 +2238,15 @@ export class Cualidades implements OnInit {
         emoji: '🐢', 
         color: '#22c55e', 
         role: 'Sabio Paciente',
-        lore: 'La Tortuga Ancestral comprende que la constancia supera a la velocidad efímera. Su caparazón resiste cualquier tempestad de distracciones.',
-        weaponName: 'Caparazón Rúnico Ancestral',
-        weaponDesc: 'Placa grabada con glifos de resistencia que protege contra la fatiga en sesiones densas de lectura y código.',
-        focusApplication: 'Acepta el avance milimétrico. No busques rapidez, busca no detenerte.',
+        weaponName: 'Caparazón Rúnico',
+        focusApplication: 'Avance milimétrico sostenido: no busques velocidad, busca no parar.',
         tacticalQuote: 'Lento pero implacable, el caparazón resiste cualquier tormenta.',
         coinsPerPomodoro: 12,
         pausePenaltyCoins: 4,
         bossDamagePoints: 24,
         bossHealPoints: 8,
         passiveName: 'Caparazón Imperturbable',
-        passiveAdvantage: '+100% de daño sostenido al jefe si encadenas tus pomodoros.',
-        passiveCondition: 'Si abandonas pierdes 4 monedas y curas 8 HP al Jefe.',
-        passiveBestFor: 'Sesiones largas de lectura densa y programación profunda.',
+        passiveAdvantage: '+100% de daño sostenido al jefe en pomodoros consecutivos.',
         cost: 50, 
         qualityId: 'constancia', 
         unlockTotal: 7,
@@ -2286,8 +2254,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'hormiga', 
-        name: 'Hormiga Guerrera', 
-        species: 'Himenóptero',
+        name: 'Vargas', 
+        species: 'Hormiga Guerrera (Himenóptero)',
         type: 'cualidad', 
         tier: 'Raro',
         archetype: 'Cualidad',
@@ -2296,19 +2264,15 @@ export class Cualidades implements OnInit {
         emoji: '🐜', 
         color: '#78350f', 
         role: 'Esfuerzo Diario',
-        lore: 'Símbolo del esfuerzo disciplinado e incansable: no se detiene ante la magnitud del trabajo, solo ejecuta el siguiente bloque.',
-        weaponName: 'Mandíbula de Asedio Titánico',
-        weaponDesc: 'Herramienta de agarre indestructible, diseñada para fragmentar tareas colosales en granos manejables.',
-        focusApplication: 'Carga una sola roca a la vez. No mires toda la montaña, solo tu bloque actual.',
-        tacticalQuote: 'La fuerza no radica en el tamaño, sino en la repetición inquebrantable.',
+        weaponName: 'Mandíbula Titánica',
+        focusApplication: 'Carga una sola roca a la vez: mira solo tu bloque actual.',
+        tacticalQuote: 'La fuerza radica en la repetición inquebrantable.',
         coinsPerPomodoro: 14,
         pausePenaltyCoins: 5,
         bossDamagePoints: 28,
         bossHealPoints: 10,
         passiveName: 'Carga Titánica',
         passiveAdvantage: 'Duplica el impacto en la salud del Jefe comunitario.',
-        passiveCondition: 'Castigo moderado si te rindes ante la fatiga.',
-        passiveBestFor: 'Jornadas de estudio intenso y preparación de exámenes.',
         cost: 60, 
         qualityId: 'disciplina', 
         unlockTotal: 15,
@@ -2316,29 +2280,25 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'buho', 
-        name: 'Búho Erudito', 
-        species: 'Rapaz Nocturna',
+        name: 'Noctis', 
+        species: 'Búho Erudito (Rapaz Nocturna)',
         type: 'cualidad', 
         tier: 'Raro',
         archetype: 'Cualidad',
-        archetypeBadge: 'SABIDURÍA (80/20)',
+        archetypeBadge: 'SABIDURÍA',
         stars: 2,
         emoji: '🦉', 
         color: '#6366f1', 
         role: 'Estratega Sabio',
-        lore: 'Estratega nocturno de mirada penetrante: ahorra horas de esfuerzo ciego aplicando discernimiento agudo y priorización táctica.',
-        weaponName: 'Orbe Ocular de Atenea (80/20)',
-        weaponDesc: 'Lente óptico que filtra el ruido secundario para iluminar el 20% de tareas críticas que producen el 80% de impacto.',
-        focusApplication: 'Identifica el 20% de tareas que producirá el 80% del resultado antes de trabajar.',
+        weaponName: 'Orbe Ocular',
+        focusApplication: 'Enfoca las tareas esenciales que producen el mayor impacto.',
         tacticalQuote: 'La mirada aguda ahorra horas de vuelo inútil.',
         coinsPerPomodoro: 16,
         pausePenaltyCoins: 6,
         bossDamagePoints: 32,
         bossHealPoints: 12,
-        passiveName: 'Visión Nocturna 80/20',
-        passiveAdvantage: '+32 Puntos de daño por cada sesión de alto impacto completada.',
-        passiveCondition: 'Penalización de 6 monedas si interrumpes el análisis.',
-        passiveBestFor: 'Planificación estratégica y resolución de problemas complejos.',
+        passiveName: 'Visión Nocturna',
+        passiveAdvantage: '+32 Puntos de daño por sesión estratégica completada.',
         cost: 120, 
         qualityId: 'sabiduria', 
         unlockTotal: 5,
@@ -2346,8 +2306,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'rana', 
-        name: 'Rana Cazadora', 
-        species: 'Anfibio Táctico',
+        name: 'Kero', 
+        species: 'Rana Cazadora (Anfibio Táctico)',
         type: 'cualidad', 
         tier: 'Raro',
         archetype: 'Cualidad',
@@ -2356,10 +2316,8 @@ export class Cualidades implements OnInit {
         emoji: '🐸', 
         color: '#10b981', 
         role: 'Saltarina Cazadora',
-        lore: 'Cazadora intrépida que salta sin dudar al desafío más amargo. Vence la tarea difícil al inicio y el resto de la jornada fluye con liviandad.',
         weaponName: 'Arpón Traga-Sapos',
-        weaponDesc: 'Lanza de captura instantánea afinada para embestir la tarea más temida e intimidante a primera hora de la mañana.',
-        focusApplication: 'Trágate ese sapo: ejecuta tu tarea más difícil e intimidante a primera hora.',
+        focusApplication: 'Trágate ese sapo: ejecuta tu tarea más difícil a primera hora.',
         tacticalQuote: 'Vence lo peor primero y el resto del día será un paseo.',
         coinsPerPomodoro: 18,
         pausePenaltyCoins: 7,
@@ -2367,8 +2325,6 @@ export class Cualidades implements OnInit {
         bossHealPoints: 14,
         passiveName: 'Salto al Abismo',
         passiveAdvantage: 'Recompensa premium al vencer tareas procrastinadas.',
-        passiveCondition: 'Penalización severa de 7 monedas si pospones la tarea.',
-        passiveBestFor: 'La primera sesión de la mañana enfrentando la tarea más temida.',
         cost: 50, 
         qualityId: 'superacion', 
         unlockTotal: 5,
@@ -2376,8 +2332,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'aguila', 
-        name: 'Águila Imperial', 
-        species: 'Rapaz Soberana',
+        name: 'Valkor', 
+        species: 'Águila Imperial (Rapaz Soberana)',
         type: 'cualidad', 
         tier: 'Raro',
         archetype: 'Cualidad',
@@ -2386,10 +2342,8 @@ export class Cualidades implements OnInit {
         emoji: '🦅', 
         color: '#3b82f6', 
         role: 'Ojo de Halcón',
-        lore: 'Soberana de las alturas: vuela por encima de las contingencias menores manteniendo la vista clavada en la meta suprema.',
-        weaponName: 'Arco de Precisión Telemetría',
-        weaponDesc: 'Arco compuesto de largo alcance con mira prismática, enfocado en el objetivo final sin desviar la mirada.',
-        focusApplication: 'Mantén los ojos en el objetivo final. Los obstáculos son lo que ves cuando desvías la mirada.',
+        weaponName: 'Arco Telemetría',
+        focusApplication: 'Ojos fijos en la meta: no desvíes la vista del objetivo final.',
         tacticalQuote: 'Desde las alturas ningún laberinto tiene secretos.',
         coinsPerPomodoro: 20,
         pausePenaltyCoins: 8,
@@ -2397,8 +2351,6 @@ export class Cualidades implements OnInit {
         bossHealPoints: 16,
         passiveName: 'Foco Telemetría',
         passiveAdvantage: 'Máxima generación de daño y monedas en su categoría.',
-        passiveCondition: '8 monedas y +16 HP curados al jefe si abandonas.',
-        passiveBestFor: 'Redacción de informes finales y proyectos cruciales.',
         cost: 200, 
         qualityId: 'vision', 
         unlockTotal: 5,
@@ -2406,8 +2358,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'abeja', 
-        name: 'Abeja Obrera', 
-        species: 'Antófilo Incansable',
+        name: 'Vespia', 
+        species: 'Abeja Obrera (Antófilo Incansable)',
         type: 'cualidad', 
         tier: 'Raro',
         archetype: 'Cualidad',
@@ -2415,20 +2367,16 @@ export class Cualidades implements OnInit {
         stars: 2,
         emoji: '🐝', 
         color: '#eab308', 
-        role: 'Obrero Incansable',
-        lore: 'Espíritu de trabajo en equipo y armonía: cada gota de enfoque individual fortalece la colmena y multiplica el progreso.',
-        weaponName: 'Aguijón de Resonancia Colectiva',
-        weaponDesc: 'Canalizador de sincronía que potencia la concentración y disciplina compartida en salas comunitarias.',
-        focusApplication: 'Sincroniza tu sesión con otros miembros de la comunidad para potenciar la disciplina colectiva.',
+        role: 'Obrera de la Colmena',
+        weaponName: 'Aguijón de Enjambre',
+        focusApplication: 'Sincronízate con la comunidad para potenciar la disciplina.',
         tacticalQuote: 'La colmena edifica imperios flor a flor.',
         coinsPerPomodoro: 15,
         pausePenaltyCoins: 5,
         bossDamagePoints: 30,
         bossHealPoints: 10,
         passiveName: 'Zumbido de Enjambre',
-        passiveAdvantage: 'Excelente bonificación en salas comunitarias.',
-        passiveCondition: 'Penalización moderada al salir prematuramente.',
-        passiveBestFor: 'Sesiones de estudio grupal y trabajo colaborativo.',
+        passiveAdvantage: 'Bonificación multiplicada en salas comunitarias.',
         cost: 70, 
         qualityId: 'colaboracion', 
         unlockTotal: 5,
@@ -2436,8 +2384,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'castor', 
-        name: 'Castor Ingeniero', 
-        species: 'Roedor Constructor',
+        name: 'Barris', 
+        species: 'Castor Ingeniero (Roedor Constructor)',
         type: 'cualidad', 
         tier: 'Raro',
         archetype: 'Cualidad',
@@ -2445,20 +2393,16 @@ export class Cualidades implements OnInit {
         stars: 2,
         emoji: '🦫', 
         color: '#b45309', 
-        role: 'Constructor Feroz',
-        lore: 'Ingeniero incansable de la naturaleza: no concluye el día sin haber dejado una estructura firme y un entregable tangible.',
-        weaponName: 'Hacha de Construcción Sólida',
-        weaponDesc: 'Herramienta pesada para edificar proyectos complejos leño a leño sin dejar cabos sueltos.',
-        focusApplication: 'Coloca cada leño con precisión: no cierres el día sin haber entregado una parte tangible.',
+        role: 'Ingeniero Feroz',
+        weaponName: 'Hacha de Ingeniero',
+        focusApplication: 'No cierres el día sin haber completado un entregable tangible.',
         tacticalQuote: 'Tronco a tronco se desvía el cauce del río.',
         coinsPerPomodoro: 16,
         pausePenaltyCoins: 6,
         bossDamagePoints: 32,
         bossHealPoints: 12,
         passiveName: 'Dique Inexpugnable',
-        passiveAdvantage: 'Gran rendimiento en bloques de 3 pomodoros consecutivos.',
-        passiveCondition: 'Riesgo medio de penalización si se interrumpe la racha.',
-        passiveBestFor: 'Proyectos de desarrollo, arquitectura y diseño estructural.',
+        passiveAdvantage: 'Alto rendimiento en bloques de 3 pomodoros seguidos.',
         cost: 80, 
         qualityId: 'construccion', 
         unlockTotal: 3,
@@ -2468,8 +2412,8 @@ export class Cualidades implements OnInit {
       // 3. CAZADORES
       { 
         id: 'zorro', 
-        name: 'Zorro Astuto', 
-        species: 'Cánido Táctico',
+        name: 'Renard', 
+        species: 'Zorro Astuto (Cánido Táctico)',
         type: 'especial', 
         tier: 'Épico',
         archetype: 'Cazador',
@@ -2478,19 +2422,15 @@ export class Cualidades implements OnInit {
         emoji: '🦊', 
         color: '#f97316', 
         role: 'Espía de Sombras',
-        lore: 'Estratega ágil de reflejos agudos: cuando la procrastinación bloquea el camino habitual, el zorro encuentra un sendero alterno.',
-        weaponName: 'Kopis Fantasma de Infiltración',
-        weaponDesc: 'Hoja curva diseñada para flanquear bloqueos creativos y maniobrar en entornos cambiantes.',
-        focusApplication: 'Cambia de entorno de trabajo si notas que la procrastinación se ha arraigado en tu mesa.',
+        weaponName: 'Kopis Fantasma',
+        focusApplication: 'Cambia de entorno si notas que la desidia se arraigó en tu mesa.',
         tacticalQuote: 'La astucia rodea la trampa antes de que se active.',
         coinsPerPomodoro: 22,
         pausePenaltyCoins: 9,
         bossDamagePoints: 44,
         bossHealPoints: 18,
         passiveName: 'Paso Fantasma',
-        passiveAdvantage: '+22 Coins directas con alto daño de asedio.',
-        passiveCondition: 'Pérdida de 9 coins y +18 HP al jefe si abandonas.',
-        passiveBestFor: 'Romper bloqueos creativos y sesiones dinámicas.',
+        passiveAdvantage: '+22 Coins directas con alto daño de asedio al jefe.',
         cost: 100, 
         qualityId: null, 
         qualityName: 'Astucia', 
@@ -2499,8 +2439,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'lince', 
-        name: 'Lince Cazador', 
-        species: 'Felino Boreal',
+        name: 'Silas', 
+        species: 'Lince Cazador (Felino Boreal)',
         type: 'especial', 
         tier: 'Épico',
         archetype: 'Cazador',
@@ -2508,11 +2448,9 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🐱', 
         color: '#a855f7', 
-        role: 'Felino Sigiloso',
-        lore: 'Depredador de la nieve: espera pacientemente en quietud absoluta hasta ejecutar el zarpazo perfecto en el momento exacto.',
-        weaponName: 'Garras de Cuarzo Boreal',
-        weaponDesc: 'Cuchillas de cristal de alta precisión, calibradas para tareas críticas con tolerancia cero a errores.',
-        focusApplication: 'Mira fijo a un solo objetivo. Elimina cualquier pestaña o libro secundario de tu campo visual.',
+        role: 'Alta Precisión',
+        weaponName: 'Garras de Cuarzo',
+        focusApplication: 'Elimina cualquier pestaña secundaria: tolerancia cero al error.',
         tacticalQuote: 'La mirada congelada antes del zarpazo infalible.',
         coinsPerPomodoro: 26,
         pausePenaltyCoins: 11,
@@ -2520,8 +2458,6 @@ export class Cualidades implements OnInit {
         bossHealPoints: 22,
         passiveName: 'Enfoque Puntería',
         passiveAdvantage: 'Altísimo multiplicador de daño (+52 Pts al Jefe).',
-        passiveCondition: 'Penalización de 11 monedas si cedes ante la tentación.',
-        passiveBestFor: 'Tareas críticas que requieren 0% margen de error.',
         cost: 180, 
         qualityId: null, 
         qualityName: 'Precisión', 
@@ -2530,8 +2466,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'panda', 
-        name: 'Panda Maestro', 
-        species: 'Úrsido Zen',
+        name: 'Tao', 
+        species: 'Panda Maestro (Úrsido Zen)',
         type: 'especial', 
         tier: 'Épico',
         archetype: 'Cazador',
@@ -2539,11 +2475,9 @@ export class Cualidades implements OnInit {
         stars: 3,
         emoji: '🐼', 
         color: '#6b7280', 
-        role: 'Maestro Zen',
-        lore: 'Maestro de la serenidad interior: enseña que la mente en calma es un refugio impenetrable ante la ansiedad por entregas.',
-        weaponName: 'Vara Zen de Bambú Cósmico',
-        weaponDesc: 'Báculo equilibrador que disipa el cortisol y ralentiza el pulso para mantener la lucidez bajo presión.',
-        focusApplication: 'Inhala profundamente 4 segundos y exhala en 6 antes de iniciar: calma el cortisol.',
+        role: 'Maestro de la Calma',
+        weaponName: 'Vara de Bambú Zen',
+        focusApplication: 'Inhala 4s y exhala 6s antes de iniciar para calmar el cortisol.',
         tacticalQuote: 'La mente en paz es un escudo impermeable.',
         coinsPerPomodoro: 24,
         pausePenaltyCoins: 8,
@@ -2551,8 +2485,6 @@ export class Cualidades implements OnInit {
         bossHealPoints: 16,
         passiveName: 'Paz de Bambú',
         passiveAdvantage: 'Protección equilibrada con gran rendimiento de monedas.',
-        passiveCondition: 'Penalización controlada si necesitas pausar.',
-        passiveBestFor: 'Momentos de alta presión, estrés o ansiedad por entregas.',
         cost: 150, 
         qualityId: null, 
         qualityName: 'Serenidad', 
@@ -2561,8 +2493,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'oso', 
-        name: 'Oso Implacable', 
-        species: 'Úrsido Titánico',
+        name: 'Bjorn', 
+        species: 'Oso Implacable (Úrsido Titánico)',
         type: 'especial', 
         tier: 'Épico',
         archetype: 'Cazador',
@@ -2571,19 +2503,15 @@ export class Cualidades implements OnInit {
         emoji: '🐻', 
         color: '#78350f', 
         role: 'Fuerza Inquebrantable',
-        lore: 'Titán de la fuerza bruta y la resistencia: se planta como una montaña inamovible frente a cualquier impulso de evasión.',
-        weaponName: 'Maza de Roca Telúrica',
-        weaponDesc: 'Arma pesada forjada en granito, ideal para anclar al usuario a su estación durante 50 minutos de hiperfoco.',
-        focusApplication: 'Planta tus pies en el suelo y no te levantes de la silla hasta que el cronómetro llegue a cero.',
+        weaponName: 'Maza de Granito',
+        focusApplication: 'No te levantes de la silla hasta que el cronómetro llegue a cero.',
         tacticalQuote: 'La montaña no se inmuta ante el aullido del viento.',
         coinsPerPomodoro: 28,
         pausePenaltyCoins: 12,
         bossDamagePoints: 56,
         bossHealPoints: 24,
         passiveName: 'Zarpazo Telúrico',
-        passiveAdvantage: 'Golpes masivos a la barra de vida del Jefe (+56 Pts).',
-        passiveCondition: 'Penalización de 12 coins y +24 HP al jefe si desistes.',
-        passiveBestFor: 'Bloques largos de 45 o 50 minutos de hiperfoco.',
+        passiveAdvantage: 'Golpes masivos directos a la barra de vida del Jefe.',
         cost: 200, 
         qualityId: null, 
         qualityName: 'Resistencia', 
@@ -2592,8 +2520,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'elefante', 
-        name: 'Elefante Titán', 
-        species: 'Proboscídeo Ancestral',
+        name: 'Titanis', 
+        species: 'Elefante Titán (Proboscídeo Ancestral)',
         type: 'especial', 
         tier: 'Épico',
         archetype: 'Cazador',
@@ -2602,10 +2530,8 @@ export class Cualidades implements OnInit {
         emoji: '🐘', 
         color: '#6b7280', 
         role: 'Memoria Ancestral',
-        lore: 'Custodio de la sabiduría acumulada: sus pasos firmes construyen una base de conocimiento profunda y duradera.',
-        weaponName: 'Colmillos de Registro Ancestral',
-        weaponDesc: 'Pilares rúnicos que fijan conceptos en la memoria de largo plazo mediante bitácoras de aprendizaje.',
-        focusApplication: 'Registra tus aprendizajes en tu bitácora al final de cada bloque para consolidar memoria.',
+        weaponName: 'Colmillos Rúnicos',
+        focusApplication: 'Registra tus aprendizajes en tu bitácora tras cada bloque.',
         tacticalQuote: 'Los pasos firmes del gigante dejan huellas imborrables.',
         coinsPerPomodoro: 30,
         pausePenaltyCoins: 14,
@@ -2613,8 +2539,6 @@ export class Cualidades implements OnInit {
         bossHealPoints: 26,
         passiveName: 'Memoria de Roca',
         passiveAdvantage: 'Recompensa de élite con +30 monedas por sesión completada.',
-        passiveCondition: 'Penalización rigurosa de 14 monedas por interrupción.',
-        passiveBestFor: 'Estudio de leyes, medicina y repaso de temarios densos.',
         cost: 220, 
         qualityId: null, 
         qualityName: 'Estabilidad', 
@@ -2623,8 +2547,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'leon', 
-        name: 'León Monarca', 
-        species: 'Felino Real',
+        name: 'Leónidas', 
+        species: 'León Monarca (Felino Real)',
         type: 'especial', 
         tier: 'Épico',
         archetype: 'Cazador',
@@ -2633,10 +2557,8 @@ export class Cualidades implements OnInit {
         emoji: '🦁', 
         color: '#fbbf24', 
         role: 'Rey de la Comunidad',
-        lore: 'Monarca del reino: no busca excusas externas; asume el destino de sus proyectos con coraje y determinación regia.',
-        weaponName: 'Cetro de Mando Imperial',
-        weaponDesc: 'Insignia dorada que canaliza la autoridad personal para asumir el liderazgo y la responsabilidad total.',
-        focusApplication: 'Asume la responsabilidad total de tus metas. Nadie vendrá a hacer el trabajo por ti.',
+        weaponName: 'Cetro Imperial',
+        focusApplication: 'Responsabilidad total: nadie vendrá a hacer el trabajo por ti.',
         tacticalQuote: 'El rugido del rey ordena el caos del reino.',
         coinsPerPomodoro: 32,
         pausePenaltyCoins: 15,
@@ -2644,8 +2566,6 @@ export class Cualidades implements OnInit {
         bossHealPoints: 28,
         passiveName: 'Rugido Imperial',
         passiveAdvantage: 'Multiplicador de ataque de asedio masivo contra el Jefe.',
-        passiveCondition: 'Penalización severa de 15 monedas si abandonas.',
-        passiveBestFor: 'Liderar proyectos y alcanzar metas profesionales ambiciosas.',
         cost: 250, 
         qualityId: null, 
         qualityName: 'Liderazgo', 
@@ -2654,8 +2574,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'tigre', 
-        name: 'Tigre Feroz', 
-        species: 'Felino Rayado',
+        name: 'Rakan', 
+        species: 'Tigre Feroz (Felino Rayado)',
         type: 'especial', 
         tier: 'Épico',
         archetype: 'Cazador',
@@ -2664,10 +2584,8 @@ export class Cualidades implements OnInit {
         emoji: '🐅', 
         color: '#f97316', 
         role: 'Fuerza de Voluntad',
-        lore: 'Fuerza de voluntad implacable: cuando el plazo se estrecha, el tigre intensifica su marcha con enfoque destructor.',
-        weaponName: 'Cuchillas Dentadas de Furia',
-        weaponDesc: 'Armas dobles forjadas para asaltos finales y días de entrega límite donde se requiere máxima potencia.',
-        focusApplication: 'Visualiza la recompensa de terminar antes de que el cansancio te convenza de parar.',
+        weaponName: 'Cuchillas Dentadas',
+        focusApplication: 'Visualiza la meta antes de que el cansancio te convenza de parar.',
         tacticalQuote: 'El cazador no pestañea cuando la presa está a tiro.',
         coinsPerPomodoro: 35,
         pausePenaltyCoins: 16,
@@ -2675,8 +2593,6 @@ export class Cualidades implements OnInit {
         bossHealPoints: 30,
         passiveName: 'Furia Determinada',
         passiveAdvantage: '+70 Puntos de daño directo por cada pomodoro finalizado.',
-        passiveCondition: 'Penalización de 16 coins si quiebras la sesión.',
-        passiveBestFor: 'Días de entrega límite y sprints finales de alta exigencia.',
         cost: 300, 
         qualityId: null, 
         qualityName: 'Determinación', 
@@ -2685,8 +2601,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'lobo', 
-        name: 'Lobo Alfa', 
-        species: 'Cánido Salvaje',
+        name: 'Fenrir', 
+        species: 'Lobo Alfa (Cánido Salvaje)',
         type: 'especial', 
         tier: 'Épico',
         archetype: 'Cazador',
@@ -2695,19 +2611,15 @@ export class Cualidades implements OnInit {
         emoji: '🐺', 
         color: '#ef4444', 
         role: 'Guía de Manada',
-        lore: 'Líder de la manada: guía con el ejemplo y mantiene la promesa sagrada de concluir lo empezado pase lo que pase.',
-        weaponName: 'Garras Tácticas de Manada',
-        weaponDesc: 'Emblema de pacto de honor: garantiza el cumplimiento del compromiso diario sin concesiones.',
-        focusApplication: 'Mantén el pacto contigo mismo: si dijiste que estudiarías hoy, cúmplelo sin excusas.',
+        weaponName: 'Garras Tácticas',
+        focusApplication: 'Cumple el pacto contigo: si dijiste que estudiarías, hazlo.',
         tacticalQuote: 'La manada avanza unida bajo el aullido del líder.',
         coinsPerPomodoro: 38,
         pausePenaltyCoins: 18,
         bossDamagePoints: 76,
         bossHealPoints: 32,
         passiveName: 'Aullido Alfa',
-        passiveAdvantage: 'La cúspide de los cazadores épicos: +38 Coins y +76 daño.',
-        passiveCondition: 'Riesgo alto: 18 monedas de multa al pausar.',
-        passiveBestFor: 'Jornadas de estudio comunitario y desafíos de fin de semana.',
+        passiveAdvantage: 'La cúspide de los cazadores: +38 Coins y +76 daño.',
         cost: 350, 
         qualityId: null, 
         qualityName: 'Perseverancia', 
@@ -2718,8 +2630,8 @@ export class Cualidades implements OnInit {
       // 4. LEGENDARIOS
       { 
         id: 'dragon', 
-        name: 'Dragón del Ego', 
-        species: 'Sierpe Cósmica',
+        name: 'Bahamut', 
+        species: 'Dragón del Ego (Sierpe Cósmica)',
         type: 'legendario', 
         tier: 'Legendario',
         archetype: 'Alto Riesgo',
@@ -2728,19 +2640,15 @@ export class Cualidades implements OnInit {
         emoji: '🐉', 
         color: '#10b981', 
         role: 'Señor del Ego',
-        lore: 'Sierpe cósmica legendaria: domina la batalla mental definitiva comprendiendo que el único adversario real a vencer es uno mismo.',
-        weaponName: 'Katana de Plasma & Orbe Rúnico',
-        weaponDesc: 'Empuñadura forjada con fuego astral que corta la resistencia interna y somete al ego procrastinador.',
-        focusApplication: 'Domina tu propio ego: el mayor rival a vencer no es la tarea, es tu resistencia a empezar.',
+        weaponName: 'Katana de Plasma',
+        focusApplication: 'Domina tu ego: el rival real no es la tarea, es tu resistencia.',
         tacticalQuote: 'Quien doblega su propio ego gobierna su destino.',
         coinsPerPomodoro: 60,
         pausePenaltyCoins: 35,
         bossDamagePoints: 130,
         bossHealPoints: 60,
-        passiveName: 'Llama del Vórtice Rúnico',
-        passiveAdvantage: 'Recompensa colosal: +60 Coins y +130 Daño fulminante al Jefe.',
-        passiveCondition: 'Castigo extremo: Si pausas pierdes 35 Coins y curas 60 HP al Jefe.',
-        passiveBestFor: 'Sesiones cumbre donde no existe la opción de rendirse.',
+        passiveName: 'Llama del Vórtice',
+        passiveAdvantage: '+60 Coins y +130 Daño fulminante al Jefe.',
         cost: 600, 
         qualityId: null, 
         qualityName: 'Maestría', 
@@ -2749,8 +2657,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'fenix', 
-        name: 'Fénix Inmortal', 
-        species: 'Ave de Fuego Eterno',
+        name: 'Ignis', 
+        species: 'Fénix Inmortal (Ave de Fuego)',
         type: 'legendario', 
         tier: 'Legendario',
         archetype: 'Alto Riesgo',
@@ -2759,19 +2667,15 @@ export class Cualidades implements OnInit {
         emoji: '🔥', 
         color: '#f97316', 
         role: 'Inmortal de Fuego',
-        lore: 'Ave sagrada de renacimiento: enseña que ningún error del pasado define el presente, pues cada bloque es una nueva oportunidad.',
-        weaponName: 'Lanza Solar de Ascuas Eternas',
-        weaponDesc: 'Canalizador de calor solar que consume la culpa del ayer para renacer con energía renovada en cada sesión.',
-        focusApplication: 'Si tuviste un mal día ayer, hoy renaces de tus cenizas sin culpa ni remordimientos.',
+        weaponName: 'Lanza Solar',
+        focusApplication: 'Renace sin culpa ni remordimientos de cualquier mal día.',
         tacticalQuote: 'De las cenizas del tropiezo brota la llama de la victoria.',
         coinsPerPomodoro: 55,
         pausePenaltyCoins: 30,
         bossDamagePoints: 120,
         bossHealPoints: 50,
-        passiveName: 'Corona Solar de Ascuas',
-        passiveAdvantage: 'Generación estelar de +55 Coins y +120 Daño Solar al Jefe.',
-        passiveCondition: 'Penalización masiva de 30 monedas si abandonas el vuelo.',
-        passiveBestFor: 'Retomar el hábito tras una mala racha o bloqueo prolongado.',
+        passiveName: 'Corona Solar',
+        passiveAdvantage: 'Generación estelar de +55 Coins y +120 Daño Solar.',
         cost: 500, 
         qualityId: null, 
         qualityName: 'Resiliencia', 
@@ -2780,8 +2684,8 @@ export class Cualidades implements OnInit {
       },
       { 
         id: 'grifo', 
-        name: 'Grifo Celestial', 
-        species: 'Híbrido de Luz',
+        name: 'Aethel', 
+        species: 'Grifo Celestial (Híbrido de Luz)',
         type: 'legendario', 
         tier: 'Legendario',
         archetype: 'Alto Riesgo',
@@ -2790,19 +2694,15 @@ export class Cualidades implements OnInit {
         emoji: '🦅', 
         color: '#eab308', 
         role: 'Guardián Celestial',
-        lore: 'Guardián de la pureza y el honor: vuela en las alturas del compromiso absoluto donde solo existe la misión y la verdad.',
-        weaponName: 'Alabarda Sagrada & Rueda Astral',
-        weaponDesc: 'Arma bendecida por la luz solar, creada para sesiones de concentración sagrada con cero ventanas trampa.',
-        focusApplication: 'Trabaja con honor impecable: no abras redes ni pestañas trampa durante el hiperfoco.',
+        weaponName: 'Alabarda Sagrada',
+        focusApplication: 'Honor impecable: cero ventanas trampa durante el hiperfoco.',
         tacticalQuote: 'La alabarda sagrada solo corta cuando el alma es pura.',
         coinsPerPomodoro: 58,
         pausePenaltyCoins: 32,
         bossDamagePoints: 125,
         bossHealPoints: 55,
-        passiveName: 'Rueda Astral del Alba',
-        passiveAdvantage: '+58 Coins y +125 Daño Astral directo al Jefe de la Comunidad.',
-        passiveCondition: 'Penalización de 32 monedas y +55 HP al jefe si rompes el honor.',
-        passiveBestFor: 'Sesiones sagradas de concentración profunda ininterrumpida.',
+        passiveName: 'Rueda Astral',
+        passiveAdvantage: '+58 Coins y +125 Daño Astral directo al Jefe.',
         cost: 550, 
         qualityId: null, 
         qualityName: 'Honor', 
@@ -2838,7 +2738,7 @@ export class Cualidades implements OnInit {
         else if (item.qualityId === 'constancia') taskName = `día${total > 1 ? 's' : ''} de racha consecutiva`;
         else if (item.qualityId === 'colaboracion') taskName = `pomodoro${total > 1 ? 's' : ''} en modo comunitario`;
         else if (item.qualityId === 'construccion') taskName = `meta${total > 1 ? 's' : ''} completada con 3 pomodoros consecutivos el mismo día`;
-        else if (item.qualityId === 'sabiduria') taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Pareto (80/20)`;
+        else if (item.qualityId === 'sabiduria') taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Pareto`;
         else if (item.qualityId === 'superacion') taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Sapo/Rana completado`;
 
         displayReq = `Demuestra la cualidad de ${quality.name}: completa ${total} ${taskName} (Progreso: ${progress}/${total}).`;
