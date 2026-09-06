@@ -49,7 +49,12 @@ import { MembershipService, AvatarItem, QualityItem } from '../services/membersh
             <div class="unlock-details-card" (click)="$event.stopPropagation()">
               <button class="close-btn" (click)="selectedLockedQuality.set(null)">×</button>
               
-              <div class="avatar-sprite" [class]="'sprite-' + selectedLockedQuality()?.animal" style="width: 96px; height: 96px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); margin: 0 auto 12px; filter: grayscale(1) brightness(0.6);"></div>
+              <div class="locked-details-wrapper" style="position: relative; width: 96px; height: 96px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;">
+                <div class="avatar-sprite is-locked-sprite" [class]="'sprite-' + selectedLockedQuality()?.animal" style="width: 96px; height: 96px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15);"></div>
+                <div class="locked-watermark-badge" style="position: absolute; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle, rgba(15,20,32,0.92) 0%, rgba(8,11,18,0.98) 100%); border: 1.5px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.8);">
+                  <i class="fa-solid fa-lock" style="font-size: 18px; color: rgba(255,255,255,0.85);"></i>
+                </div>
+              </div>
               
               <h3 style="font-size: 15px; font-weight: 800; color: #fff; margin: 0; text-transform: uppercase;">{{ selectedLockedQuality()?.name }}</h3>
               <span class="locked-badge" style="color: var(--red); font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -241,7 +246,12 @@ import { MembershipService, AvatarItem, QualityItem } from '../services/membersh
                   <i class="fa-solid fa-lock"></i>
                 </div>
                 
-                <div [class]="'card-emoji-container avatar-sprite sprite-' + qual.animal" style="width: 68px; height: 68px; margin-bottom: 8px;"></div>
+                <div class="locked-card-wrapper" style="position: relative; width: 68px; height: 68px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
+                  <div [class]="'card-emoji-container avatar-sprite is-locked-sprite sprite-' + qual.animal" style="width: 68px; height: 68px; margin-bottom: 0;"></div>
+                  <div class="locked-watermark-badge" style="position: absolute; width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle, rgba(15,20,32,0.92) 0%, rgba(8,11,18,0.98) 100%); border: 1.2px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.8);">
+                    <i class="fa-solid fa-lock" style="font-size: 12px; color: rgba(255,255,255,0.85);"></i>
+                  </div>
+                </div>
                 <span class="card-name" style="font-size: 11px; margin-top: 2px;">{{ qual.name }}</span>
               </div>
             </div>
@@ -628,6 +638,53 @@ import { MembershipService, AvatarItem, QualityItem } from '../services/membersh
 
     .avatar-card.locked {
       opacity: 0.45;
+    }
+
+    .locked-card-mystery-circle {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, rgba(15, 20, 32, 0.85) 80%);
+      border: 1.5px dashed rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.7);
+      margin-bottom: 8px;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .locked-card-mystery-circle i {
+      font-size: 26px;
+      color: rgba(255, 255, 255, 0.2);
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+      transition: color 0.2s, transform 0.2s;
+    }
+    .avatar-card.locked-card:hover .locked-card-mystery-circle {
+      transform: scale(1.08);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+    .avatar-card.locked-card:hover .locked-card-mystery-circle i {
+      color: rgba(255, 255, 255, 0.35);
+      transform: scale(1.05);
+    }
+
+    .locked-details-mystery-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(15, 20, 32, 0.95) 75%);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 0 18px rgba(0, 0, 0, 0.8);
+      transition: all 0.3s ease;
+    }
+    .locked-details-mystery-circle i {
+      font-size: 38px;
+      color: rgba(255, 255, 255, 0.22);
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
     }
 
     .lock-indicator {

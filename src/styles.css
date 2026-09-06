@@ -248,6 +248,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 /* Disable custom animations, shadows, and borders for locked legendary avatars */
+.avatar-sprite.is-locked-sprite,
 .locked .sprite-dragon,
 .locked .sprite-fenix,
 .locked .sprite-grifo,
@@ -260,8 +261,8 @@ button { font-family: inherit; cursor: pointer; }
   animation: none !important;
   box-shadow: none !important;
   border: none !important;
-  filter: grayscale(1) brightness(0.35) contrast(0.9) !important;
-  opacity: 0.75 !important;
+  filter: grayscale(100%) brightness(0.32) contrast(1.1) !important;
+  opacity: 0.7 !important;
 }
 
 /* Disable legendary glows, custom borders, and animations on podium avatars globally */

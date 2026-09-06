@@ -248,4 +248,79 @@ export class SupabaseService {
 
     return { error: null };
   }
+
+  // ==========================================
+  // COSMÉTICOS E INVENTARIO DESBLOQUEADO
+  // ==========================================
+
+  async getUnlockedItems(userId: string): Promise<{ items: string[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { items: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('user_unlocked_items')
+        .select('item_id')
+        .eq('user_id', userId);
+
+      if (error) {
+        return { items: [], error: error.message };
+      }
+
+      const items = (data || []).map((row: any) => row.item_id);
+      return { items, error: null };
+    } catch (e: any) {
+      return { items: [], error: e.message || 'Error al obtener inventario' };
+    }
+  }
+
+  async buyCatalogItem(itemId: string): Promise<{ success: boolean; error?: string; remainingCoins?: number }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase.rpc('buy_catalog_item', { p_item_id: itemId });
+      if (error) {
+        // Fallback si la función RPC aún no está creada en Supabase
+        const user = await this.getCurrentUser();
+        if (user) {
+          const { error: insertErr } = await this.supabase
+            .from('user_unlocked_items')
+            .insert({ user_id: user.id, item_id: itemId });
+          if (insertErr && !insertErr.message.includes('duplicate key')) {
+            return { success: false, error: insertErr.message };
+          }
+          return { success: true };
+        }
+        return { success: false, error: error.message };
+      }
+
+      if (data && data.success === false) {
+        return { success: false, error: data.error || 'Error al comprar cosmético' };
+      }
+
+      return { success: true, remainingCoins: data?.remaining_coins };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al comprar cosmético' };
+    }
+  }
+
+  async unlockItemDirectly(userId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('user_unlocked_items')
+        .upsert({ user_id: userId, item_id: itemId }, { onConflict: 'user_id, item_id' });
+
+      if (error) return { success: false, error: error.message };
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  }
 }

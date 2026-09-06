@@ -82,6 +82,10 @@ function getMigratedValueJSON<T>(key: string, defaultValue: T, legacyKeyPrefix =
       return defaultValue;
     }
   }
+  // No migrar desbloqueables antiguos residuales para que usuarios nuevos comiencen estrictamente con los comunes
+  if (key === 'unlocked-avatars' || key === 'unlocked-themes' || key === 'unlocked-timers') {
+    return defaultValue;
+  }
   const legacyKey = key === 'captured-ideas' ? 'captured-ideas' : `${legacyKeyPrefix}${key}`;
   const globalVal = localStorage.getItem(legacyKey);
   if (globalVal !== null) {
@@ -93,6 +97,10 @@ function getMigratedValueJSON<T>(key: string, defaultValue: T, legacyKeyPrefix =
   }
   return defaultValue;
 }
+
+export const INITIAL_AVATARS_LIST = [
+  'gato', 'perro', 'conejo', 'loro', 'hamster', 'raton'
+];
 
 export const ALL_AVATARS_LIST = [
   'gato', 'perro', 'conejo', 'loro', 'hamster', 'raton', 'tortuga', 'hormiga', 'buho', 'rana', 
@@ -156,9 +164,9 @@ export class MembershipService {
     this.focusTomatoes.update(t => t + tomatoes);
   }
 
-  // Cosméticos desbloqueados
+  // Cosméticos desbloqueados (por defecto solo los 6 avatares comunes iniciales)
   unlockedAvatars = signal<string[]>(
-    getMigratedValueJSON('unlocked-avatars', ALL_AVATARS_LIST)
+    getMigratedValueJSON('unlocked-avatars', INITIAL_AVATARS_LIST)
   );
   unlockedThemes = signal<string[]>(
     getMigratedValueJSON('unlocked-themes', ['samurai'])
@@ -218,7 +226,7 @@ export class MembershipService {
     getMigratedValueJSON('captured-ideas', [] as string[])
   );
 
-  // Catálogo completo de avatares disponibles
+  // Catálogo completo de avatares disponibles (Solo los iniciales comunes vienen desbloqueados gratis)
   avatarsCatalog = signal<AvatarItem[]>([
     { id: 'gato', name: 'Gato Lancero', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
     { id: 'perro', name: 'Perro Lancero', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
@@ -226,24 +234,24 @@ export class MembershipService {
     { id: 'loro', name: 'Loro Lancero', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
     { id: 'hamster', name: 'Hámster Lancero', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
     { id: 'raton', name: 'Ratón Lancero', icon: 'fa-paw', color: '#ec4899', isUnlocked: true, isInitial: true },
-    { id: 'tortuga', name: 'Tortuga', icon: 'fa-turtle', color: '#22c55e', isUnlocked: true },
-    { id: 'hormiga', name: 'Hormiga', icon: 'fa-bug', color: '#78350f', isUnlocked: true },
-    { id: 'buho', name: 'Búho', icon: 'fa-owl', color: '#6366f1', isUnlocked: true },
-    { id: 'rana', name: 'Rana', icon: 'fa-frog', color: '#22c55e', isUnlocked: true },
-    { id: 'aguila', name: 'Águila', icon: 'fa-dove', color: '#3b82f6', isUnlocked: true },
-    { id: 'abeja', name: 'Abeja', icon: 'fa-bee', color: '#eab308', isUnlocked: true },
-    { id: 'castor', name: 'Castor', icon: 'fa-paw', color: '#b45309', isUnlocked: true },
-    { id: 'zorro', name: 'Zorro', icon: 'fa-paw', color: '#f97316', isUnlocked: true },
-    { id: 'lince', name: 'Lince', icon: 'fa-paw', color: '#a855f7', isUnlocked: true },
-    { id: 'panda', name: 'Panda', icon: 'fa-paw', color: '#6b7280', isUnlocked: true },
-    { id: 'oso', name: 'Oso', icon: 'fa-paw', color: '#78350f', isUnlocked: true },
-    { id: 'elefante', name: 'Elefante', icon: 'fa-paw', color: '#6b7280', isUnlocked: true },
-    { id: 'leon', name: 'León', icon: 'fa-paw', color: '#fbbf24', isUnlocked: true },
-    { id: 'tigre', name: 'Tigre', icon: 'fa-paw', color: '#f97316', isUnlocked: true },
-    { id: 'lobo', name: 'Lobo', icon: 'fa-paw', color: '#ef4444', isUnlocked: true },
-    { id: 'dragon', name: 'Dragón del Ego', icon: 'fa-dragon', color: '#d946ef', isUnlocked: true },
-    { id: 'fenix', name: 'Fénix', icon: 'fa-fire', color: '#f97316', isUnlocked: true },
-    { id: 'grifo', name: 'Grifo', icon: 'fa-crow', color: '#eab308', isUnlocked: true }
+    { id: 'tortuga', name: 'Tortuga', icon: 'fa-turtle', color: '#22c55e', isUnlocked: false },
+    { id: 'hormiga', name: 'Hormiga', icon: 'fa-bug', color: '#78350f', isUnlocked: false },
+    { id: 'buho', name: 'Búho', icon: 'fa-owl', color: '#6366f1', isUnlocked: false },
+    { id: 'rana', name: 'Rana', icon: 'fa-frog', color: '#22c55e', isUnlocked: false },
+    { id: 'aguila', name: 'Águila', icon: 'fa-dove', color: '#3b82f6', isUnlocked: false },
+    { id: 'abeja', name: 'Abeja', icon: 'fa-bee', color: '#eab308', isUnlocked: false },
+    { id: 'castor', name: 'Castor', icon: 'fa-paw', color: '#b45309', isUnlocked: false },
+    { id: 'zorro', name: 'Zorro', icon: 'fa-paw', color: '#f97316', isUnlocked: false },
+    { id: 'lince', name: 'Lince', icon: 'fa-paw', color: '#a855f7', isUnlocked: false },
+    { id: 'panda', name: 'Panda', icon: 'fa-paw', color: '#6b7280', isUnlocked: false },
+    { id: 'oso', name: 'Oso', icon: 'fa-paw', color: '#78350f', isUnlocked: false },
+    { id: 'elefante', name: 'Elefante', icon: 'fa-paw', color: '#6b7280', isUnlocked: false },
+    { id: 'leon', name: 'León', icon: 'fa-paw', color: '#fbbf24', isUnlocked: false },
+    { id: 'tigre', name: 'Tigre', icon: 'fa-paw', color: '#f97316', isUnlocked: false },
+    { id: 'lobo', name: 'Lobo', icon: 'fa-paw', color: '#ef4444', isUnlocked: false },
+    { id: 'dragon', name: 'Dragón del Ego', icon: 'fa-dragon', color: '#d946ef', isUnlocked: false },
+    { id: 'fenix', name: 'Fénix', icon: 'fa-fire', color: '#f97316', isUnlocked: false },
+    { id: 'grifo', name: 'Grifo', icon: 'fa-crow', color: '#eab308', isUnlocked: false }
   ]);
 
   // Catálogo completo de Cualidades (TORTUGA, HORMIGA, BÚHO, RANA, ÁGUILA, ABEJA, CASTOR)
@@ -280,7 +288,18 @@ export class MembershipService {
       this.streak.set(this.calculateStreak(email));
     }
 
-    // Sincronizar perfil automáticamente cuando Supabase tenga sesión activa
+    // Sanitizar clave legacy global si contenía todos los avatares
+    const globalAvatars = localStorage.getItem('procrastina-unlocked-avatars');
+    if (globalAvatars) {
+      try {
+        const parsed = JSON.parse(globalAvatars);
+        if (Array.isArray(parsed) && parsed.length > INITIAL_AVATARS_LIST.length) {
+          localStorage.setItem('procrastina-unlocked-avatars', JSON.stringify(INITIAL_AVATARS_LIST));
+        }
+      } catch (e) {}
+    }
+
+    // Sincronizar perfil e inventario automáticamente cuando Supabase tenga sesión activa
     effect(() => {
       const user = this.supabaseService.currentUser();
       if (user && this.supabaseService.isConfigured()) {
@@ -290,6 +309,11 @@ export class MembershipService {
         this.supabaseService.getProfile(user.id).then(({ profile }) => {
           if (profile) {
             this.applySupabaseProfile(profile);
+          }
+        });
+        this.supabaseService.getUnlockedItems(user.id).then(({ items, error }) => {
+          if (!error && items) {
+            this.applySupabaseUnlockedItems(items);
           }
         });
       }
@@ -656,6 +680,13 @@ export class MembershipService {
           if (isNowUnlocked && !this.unlockedAvatars().includes(q.animal)) {
             // Desbloquear avatar correspondiente de forma automática
             this.unlockedAvatars.update(unlocked => [...unlocked, q.animal]);
+            if (this.supabaseService.isConfigured()) {
+              this.supabaseService.getCurrentUser().then(user => {
+                if (user) {
+                  this.supabaseService.unlockItemDirectly(user.id, q.animal);
+                }
+              });
+            }
           }
 
           return {
@@ -784,6 +815,14 @@ export class MembershipService {
 
     this.proCoins.update(c => c - cost);
     this.unlockedAvatars.update(list => [...list, avatar]);
+
+    if (this.supabaseService.isConfigured()) {
+      this.supabaseService.buyCatalogItem(avatar).then(res => {
+        if (res.remainingCoins !== undefined) {
+          this.proCoins.set(res.remainingCoins);
+        }
+      });
+    }
     return true;
   }
 
@@ -823,6 +862,8 @@ export class MembershipService {
     }
 
     if (user) {
+      localStorage.setItem('procrastina-current-user-email', emailLower);
+      this.resetNewUserAccount();
       this.loadUserData(emailLower);
       return { success: true };
     }
@@ -848,12 +889,18 @@ export class MembershipService {
     }
 
     if (user) {
+      localStorage.setItem('procrastina-current-user-email', emailLower);
+      this.loadUserData(emailLower);
       // Cargar perfil desde Supabase
       const { profile } = await this.supabaseService.getProfile(user.id);
       if (profile) {
         this.applySupabaseProfile(profile);
       }
-      this.loadUserData(emailLower);
+      // Cargar items desbloqueados desde Supabase
+      const { items } = await this.supabaseService.getUnlockedItems(user.id);
+      if (items && items.length > 0) {
+        this.applySupabaseUnlockedItems(items);
+      }
       return { success: true };
     }
 
@@ -901,6 +948,43 @@ export class MembershipService {
     if (p.onboarding_completed !== undefined) this.onboardingCompleted.set(p.onboarding_completed);
   }
 
+  // Aplicar items desbloqueados desde Supabase (user_unlocked_items)
+  applySupabaseUnlockedItems(itemIds: string[]) {
+    const allKnownAvatars = ALL_AVATARS_LIST;
+    const knownThemes = ['samurai', 'cyberpunk', 'aurora', 'zen'];
+    const knownTimers = ['digital', 'ring', 'line'];
+
+    const avatars = Array.from(new Set([
+      ...INITIAL_AVATARS_LIST,
+      ...(itemIds || []).filter(id => allKnownAvatars.includes(id))
+    ]));
+
+    const themes = Array.from(new Set([
+      'samurai',
+      ...(itemIds || []).filter(id => knownThemes.includes(id))
+    ]));
+
+    const timers = Array.from(new Set([
+      'digital', 'ring', 'line',
+      ...(itemIds || []).filter(id => knownTimers.includes(id))
+    ]));
+
+    this.unlockedAvatars.set(avatars);
+    this.unlockedThemes.set(themes);
+    this.unlockedTimers.set(timers);
+
+    if (!avatars.includes(this.selectedAvatar())) {
+      this.selectedAvatar.set('gato');
+    }
+
+    const email = this.getCurrentUserEmail();
+    if (email) {
+      localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(avatars));
+      localStorage.setItem(`user:${email}:unlocked-themes`, JSON.stringify(themes));
+      localStorage.setItem(`user:${email}:unlocked-timers`, JSON.stringify(timers));
+    }
+  }
+
   // Cargar datos de usuario
   loadUserData(email: string) {
     localStorage.setItem('procrastina-current-user-email', email);
@@ -909,11 +993,34 @@ export class MembershipService {
     const isPremiumVal = localStorage.getItem(`user:${email}:premium`) === 'true';
     const focusPointsVal = parseInt(localStorage.getItem(`user:${email}:focus-points`) || '0', 10);
     const proCoinsVal = parseInt(localStorage.getItem(`user:${email}:pro-coins`) || '0', 10);
-    const unlockedAvatarsVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-avatars`) || JSON.stringify(ALL_AVATARS_LIST));
-    const mergedUnlockedAvatars = Array.from(new Set([...unlockedAvatarsVal, ...ALL_AVATARS_LIST]));
+    const focusTomatoesVal = parseInt(localStorage.getItem(`user:${email}:focus-tomatoes`) || '0', 10);
+
+    let mergedUnlockedAvatars: string[];
+    const storedAvatars = localStorage.getItem(`user:${email}:unlocked-avatars`);
+    if (storedAvatars) {
+      try {
+        const parsed = JSON.parse(storedAvatars);
+        // Si tiene todos los avatares pero nunca ha tenido puntos, monedas ni pomodoros, fue una migración errónea antigua: sanear a los 6 iniciales
+        if (Array.isArray(parsed) && parsed.length >= ALL_AVATARS_LIST.length && focusPointsVal === 0 && proCoinsVal === 0 && focusTomatoesVal === 0) {
+          mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
+          localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(mergedUnlockedAvatars));
+        } else {
+          mergedUnlockedAvatars = Array.from(new Set([...parsed, ...INITIAL_AVATARS_LIST]));
+        }
+      } catch {
+        mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
+      }
+    } else {
+      mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
+      localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(mergedUnlockedAvatars));
+    }
+
     const unlockedThemesVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-themes`) || '["samurai"]');
     const userNameVal = localStorage.getItem(`user:${email}:user-name`) || email.split('@')[0];
-    const selectedAvatarVal = localStorage.getItem(`user:${email}:avatar`) || 'gato';
+    let selectedAvatarVal = localStorage.getItem(`user:${email}:avatar`) || 'gato';
+    if (!mergedUnlockedAvatars.includes(selectedAvatarVal)) {
+      selectedAvatarVal = 'gato';
+    }
     const selectedThemeVal = (localStorage.getItem(`user:${email}:theme`) as any) || 'samurai';
     const userProfessionVal = localStorage.getItem(`user:${email}:user-profession`);
     const userCountryVal = localStorage.getItem(`user:${email}:user-country`);
@@ -931,6 +1038,7 @@ export class MembershipService {
     this.isPremium.set(isPremiumVal);
     this.focusPoints.set(focusPointsVal);
     this.proCoins.set(proCoinsVal);
+    this.focusTomatoes.set(focusTomatoesVal);
     this.unlockedAvatars.set(mergedUnlockedAvatars);
     this.unlockedThemes.set(unlockedThemesVal);
     this.userName.set(userNameVal);
@@ -963,7 +1071,7 @@ export class MembershipService {
     localStorage.removeItem(`user:${email}:focus-points`);
     localStorage.removeItem(`user:${email}:rewarded-sessions`);
 
-    this.unlockedAvatars.set([...ALL_AVATARS_LIST]);
+    this.unlockedAvatars.set([...INITIAL_AVATARS_LIST]);
     this.unlockedThemes.set(['samurai']);
     this.userName.set(email.split('@')[0]);
     this.selectedAvatar.set('gato');
