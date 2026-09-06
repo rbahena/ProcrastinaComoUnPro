@@ -555,7 +555,7 @@ interface CountryOption {
                   type="text" 
                   [value]="inputProfession()"
                   (input)="onProfessionInput($event)"
-                  placeholder="Tu profesión o actividad"
+                  placeholder="Desarrollador, Estudiante, Diseñador..."
                   class="text-input-field"
                 />
               </div>
