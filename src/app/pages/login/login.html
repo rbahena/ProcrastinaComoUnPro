@@ -27,16 +27,6 @@
       <p class="auth-subtitle">Ingresa tus credenciales para acceder a la plataforma</p>
     </div>
 
-    <!-- Info de Credenciales de Prueba -->
-    <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 12.5px; text-align: left; line-height: 1.5;">
-      <div style="font-weight: 700; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-        <span>Credenciales de Demostración</span>
-        <button type="button" class="btn btn-accent btn-sm" style="padding: 4px 10px; font-size: 10.5px; border-radius: 4px; height: auto;" (click)="prefill(emailInput, passwordInput)">Autocompletar</button>
-      </div>
-      <div style="color: var(--text); opacity: 0.95; margin-bottom: 4px;"><strong>Usuario:</strong> demo@focusapp.com</div>
-      <div style="color: var(--text); opacity: 0.95;"><strong>Contraseña:</strong> demo12345</div>
-    </div>
-
     @if (loginError()) {
       <div style="background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 18px; color: var(--red); font-size: 12.5px; text-align: center; font-weight: 500;">
         {{ errorMessage() || 'Las credenciales de acceso ingresadas son incorrectas.' }}

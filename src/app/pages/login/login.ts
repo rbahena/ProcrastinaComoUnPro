@@ -46,11 +46,4 @@ export class Login {
       this.errorMessage.set(result.error);
     }
   }
-
-  prefill(emailInput: HTMLInputElement, passwordInput: HTMLInputElement) {
-    emailInput.value = 'demo@focusapp.com';
-    passwordInput.value = 'demo12345';
-    this.loginError.set(false);
-    this.errorMessage.set(null);
-  }
 }

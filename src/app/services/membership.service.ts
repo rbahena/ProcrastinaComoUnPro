@@ -1,4 +1,5 @@
 import { Injectable, signal, effect, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
 
 export interface AvatarItem {
@@ -25,8 +26,8 @@ export interface QualityItem {
 }
 
 function getUserKeyStatic(key: string): string {
-  const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
-  return `user:${email}:${key}`;
+  const email = localStorage.getItem('procrastina-current-user-email') || '';
+  return email ? `user:${email}:${key}` : `procrastina-${key}`;
 }
 
 function cleanQuotedString(val: string): string {
@@ -104,6 +105,7 @@ export const ALL_AVATARS_LIST = [
 })
 export class MembershipService {
   private supabaseService = inject(SupabaseService);
+  private router = inject(Router);
 
   // Estado de membresía
   isPremium = signal<boolean>(
@@ -154,7 +156,7 @@ export class MembershipService {
     this.focusTomatoes.update(t => t + tomatoes);
   }
 
-  // Cosméticos desbloqueados (todos los avatares desbloqueados por el momento)
+  // Cosméticos desbloqueados
   unlockedAvatars = signal<string[]>(
     getMigratedValueJSON('unlocked-avatars', ALL_AVATARS_LIST)
   );
@@ -167,7 +169,7 @@ export class MembershipService {
 
   // Perfil del usuario
   userName = signal<string>(
-    getMigratedValue('user-name', 'Ramiro')
+    getMigratedValue('user-name', 'Guerrero')
   );
   userProfession = signal<string>(
     cleanQuotedString(getMigratedValue('user-profession', ''))
@@ -191,13 +193,13 @@ export class MembershipService {
 
   // Medallas ganadas en podios
   podiumWins = signal<number>(
-    parseInt(getMigratedValue('podium-wins', '3'), 10)
+    parseInt(getMigratedValue('podium-wins', '0'), 10)
   );
   goldMedals = signal<number>(
-    parseInt(getMigratedValue('gold-medals', '3'), 10)
+    parseInt(getMigratedValue('gold-medals', '0'), 10)
   );
   silverMedals = signal<number>(
-    parseInt(getMigratedValue('silver-medals', '1'), 10)
+    parseInt(getMigratedValue('silver-medals', '0'), 10)
   );
   bronzeMedals = signal<number>(
     parseInt(getMigratedValue('bronze-medals', '0'), 10)
@@ -205,9 +207,7 @@ export class MembershipService {
 
   // Estado de onboarding completado
   onboardingCompleted = signal<boolean>(
-    getMigratedValue('onboarding-completed', 'false') === 'true' ||
-    getMigratedValue('onboarding-completed', 'false') === 'true' ||
-    (localStorage.getItem('procrastina-user-name') !== null && localStorage.getItem('procrastina-user-name') !== 'Ramiro')
+    getMigratedValue('onboarding-completed', 'false') === 'true'
   );
 
   // Control global para abrir el modal de configuración de identidad
@@ -218,7 +218,7 @@ export class MembershipService {
     getMigratedValueJSON('captured-ideas', [] as string[])
   );
 
-  // Catálogo completo de avatares disponibles (Gato, Perro, Conejo, Loro, Hámster, Tortuga, Hormiga, Búho, Rana, Águila, Abeja, Castor, Zorro, Lince, Panda, Oso, Elefante, León, Tigre, Lobo, Dragón, Fénix, Grifo)
+  // Catálogo completo de avatares disponibles
   avatarsCatalog = signal<AvatarItem[]>([
     { id: 'gato', name: 'Gato Lancero', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
     { id: 'perro', name: 'Perro Lancero', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
@@ -227,8 +227,6 @@ export class MembershipService {
     { id: 'hamster', name: 'Hámster Lancero', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
     { id: 'raton', name: 'Ratón Lancero', icon: 'fa-paw', color: '#ec4899', isUnlocked: true, isInitial: true },
     { id: 'tortuga', name: 'Tortuga', icon: 'fa-turtle', color: '#22c55e', isUnlocked: true },
-    // { id: 'tortuga_evolved', name: 'Tortuga Rúnica (Fase 2)', icon: 'fa-turtle', color: '#22c55e', isUnlocked: true },
-    // { id: 'tortuga_phase3', name: 'Místico Tortuga (Fase 3)', icon: 'fa-turtle', color: '#22c55e', isUnlocked: true },
     { id: 'hormiga', name: 'Hormiga', icon: 'fa-bug', color: '#78350f', isUnlocked: true },
     { id: 'buho', name: 'Búho', icon: 'fa-owl', color: '#6366f1', isUnlocked: true },
     { id: 'rana', name: 'Rana', icon: 'fa-frog', color: '#22c55e', isUnlocked: true },
@@ -250,19 +248,23 @@ export class MembershipService {
 
   // Catálogo completo de Cualidades (TORTUGA, HORMIGA, BÚHO, RANA, ÁGUILA, ABEJA, CASTOR)
   qualitiesCatalog = signal<QualityItem[]>([
-    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 3, unlockTotal: 7 },
-    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: false, unlockProgress: 5, unlockTotal: 15 },
-    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: false, unlockProgress: 2, unlockTotal: 5 },
-    { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: false, unlockProgress: 1, unlockTotal: 5 },
-    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: false, unlockProgress: 1, unlockTotal: 5 },
-    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 3, unlockTotal: 5 },
-    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: false, unlockProgress: 1, unlockTotal: 3 }
+    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 0, unlockTotal: 7 },
+    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+    { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: false, unlockProgress: 0, unlockTotal: 3 }
   ]);
 
   // Registro de sesiones procesadas para idempotencia
   private rewardedSessions = new Set<string>(
     getMigratedValueJSON('rewarded-sessions', [] as string[])
   );
+
+  private getCurrentUserEmail(): string {
+    return localStorage.getItem('procrastina-current-user-email') || this.supabaseService.currentUser()?.email || '';
+  }
 
   constructor() {
     // Cerrar menú de avatar al hacer click fuera
@@ -273,13 +275,18 @@ export class MembershipService {
     }
 
     // Calcular la racha inicial
-    const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
-    this.streak.set(this.calculateStreak(email));
+    const email = this.getCurrentUserEmail();
+    if (email) {
+      this.streak.set(this.calculateStreak(email));
+    }
 
     // Sincronizar perfil automáticamente cuando Supabase tenga sesión activa
     effect(() => {
       const user = this.supabaseService.currentUser();
       if (user && this.supabaseService.isConfigured()) {
+        if (user.email) {
+          localStorage.setItem('procrastina-current-user-email', user.email);
+        }
         this.supabaseService.getProfile(user.id).then(({ profile }) => {
           if (profile) {
             this.applySupabaseProfile(profile);
@@ -290,118 +297,118 @@ export class MembershipService {
 
     // Sincronizar automáticamente con localStorage al cambiar valores
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = String(this.isPremium());
       localStorage.setItem('procrastina-premium', val);
-      localStorage.setItem(`user:${email}:premium`, val);
+      if (email) localStorage.setItem(`user:${email}:premium`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = String(this.focusPoints());
       localStorage.setItem('procrastina-focus-points', val);
-      localStorage.setItem(`user:${email}:focus-points`, val);
+      if (email) localStorage.setItem(`user:${email}:focus-points`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = String(this.proCoins());
       localStorage.setItem('procrastina-pro-coins', val);
-      localStorage.setItem(`user:${email}:pro-coins`, val);
+      if (email) localStorage.setItem(`user:${email}:pro-coins`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = String(this.focusTomatoes());
       localStorage.setItem('procrastina-focus-tomatoes', val);
-      localStorage.setItem(`user:${email}:focus-tomatoes`, val);
+      if (email) localStorage.setItem(`user:${email}:focus-tomatoes`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = JSON.stringify(this.unlockedAvatars());
       localStorage.setItem('procrastina-unlocked-avatars', val);
-      localStorage.setItem(`user:${email}:unlocked-avatars`, val);
+      if (email) localStorage.setItem(`user:${email}:unlocked-avatars`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = JSON.stringify(this.unlockedThemes());
       localStorage.setItem('procrastina-unlocked-themes', val);
-      localStorage.setItem(`user:${email}:unlocked-themes`, val);
+      if (email) localStorage.setItem(`user:${email}:unlocked-themes`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = JSON.stringify(this.unlockedTimers());
       localStorage.setItem('procrastina-unlocked-timers', val);
-      localStorage.setItem(`user:${email}:unlocked-timers`, val);
+      if (email) localStorage.setItem(`user:${email}:unlocked-timers`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = this.userName();
       localStorage.setItem('procrastina-user-name', val);
-      localStorage.setItem(`user:${email}:user-name`, val);
+      if (email) localStorage.setItem(`user:${email}:user-name`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = cleanQuotedString(this.userProfession());
       localStorage.setItem('procrastina-user-profession', val);
-      localStorage.setItem(`user:${email}:user-profession`, val);
+      if (email) localStorage.setItem(`user:${email}:user-profession`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = JSON.stringify(this.userActiveDays());
       localStorage.setItem('procrastina-user-active-days', val);
-      localStorage.setItem(`user:${email}:user-active-days`, val);
+      if (email) localStorage.setItem(`user:${email}:user-active-days`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = this.userCountry();
       localStorage.setItem('procrastina-user-country', val);
-      localStorage.setItem(`user:${email}:user-country`, val);
+      if (email) localStorage.setItem(`user:${email}:user-country`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = this.userCountryCode();
       localStorage.setItem('procrastina-user-country-code', val);
-      localStorage.setItem(`user:${email}:user-country-code`, val);
+      if (email) localStorage.setItem(`user:${email}:user-country-code`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = this.selectedAvatar();
       localStorage.setItem('procrastina-avatar', val);
-      localStorage.setItem(`user:${email}:avatar`, val);
+      if (email) localStorage.setItem(`user:${email}:avatar`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = this.selectedTheme();
       localStorage.setItem('procrastina-theme', val);
-      localStorage.setItem(`user:${email}:theme`, val);
+      if (email) localStorage.setItem(`user:${email}:theme`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = String(this.onboardingCompleted());
       localStorage.setItem('procrastina-onboarding-completed', val);
-      localStorage.setItem(`user:${email}:onboarding-completed`, val);
+      if (email) localStorage.setItem(`user:${email}:onboarding-completed`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = JSON.stringify(this.capturedIdeas());
       localStorage.setItem('captured-ideas', val);
-      localStorage.setItem(`user:${email}:captured-ideas`, val);
+      if (email) localStorage.setItem(`user:${email}:captured-ideas`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = String(this.goldMedals());
       localStorage.setItem('procrastina-gold-medals', val);
-      localStorage.setItem(`user:${email}:gold-medals`, val);
+      if (email) localStorage.setItem(`user:${email}:gold-medals`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = String(this.silverMedals());
       localStorage.setItem('procrastina-silver-medals', val);
-      localStorage.setItem(`user:${email}:silver-medals`, val);
+      if (email) localStorage.setItem(`user:${email}:silver-medals`, val);
     });
     effect(() => {
-      const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+      const email = this.getCurrentUserEmail();
       const val = String(this.bronzeMedals());
       localStorage.setItem('procrastina-bronze-medals', val);
-      localStorage.setItem(`user:${email}:bronze-medals`, val);
+      if (email) localStorage.setItem(`user:${email}:bronze-medals`, val);
     });
   }
 
@@ -531,11 +538,13 @@ export class MembershipService {
 
     // Registrar sesión
     this.rewardedSessions.add(sessionId);
-    const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
-    localStorage.setItem(
-      `user:${email}:rewarded-sessions`,
-      JSON.stringify(Array.from(this.rewardedSessions))
-    );
+    const email = this.getCurrentUserEmail();
+    if (email) {
+      localStorage.setItem(
+        `user:${email}:rewarded-sessions`,
+        JSON.stringify(Array.from(this.rewardedSessions))
+      );
+    }
 
     // Recompensa de monedas basada en el avatar equipado
     const avatarId = this.selectedAvatar();
@@ -579,13 +588,15 @@ export class MembershipService {
     }
 
     this.rewardedSessions.add(key);
-    const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
-    localStorage.setItem(
-      `user:${email}:rewarded-sessions`,
-      JSON.stringify(Array.from(this.rewardedSessions))
-    );
+    const email = this.getCurrentUserEmail();
+    if (email) {
+      localStorage.setItem(
+        `user:${email}:rewarded-sessions`,
+        JSON.stringify(Array.from(this.rewardedSessions))
+      );
+    }
 
-    // Todos los usuarios ganan 15 monedas por objetivo completado
+    // Monedas por objetivo completado
     const coinsEarned = 15;
     this.addProCoins(coinsEarned);
 
@@ -633,15 +644,6 @@ export class MembershipService {
 
     // 7. Constancia (Tortuga) - Racha de 7 días.
     this.updateStreakProgress();
-
-    // 8. Evolución de Tortuga (Fase 2 y Fase 3) - OCULTO DE MOMENTO
-    // const totalSessions = Array.from(this.rewardedSessions).filter(id => id.startsWith('session-')).length;
-    // if (totalSessions >= 100 && !this.unlockedAvatars().includes('tortuga_evolved')) {
-    //   this.unlockedAvatars.update(unlocked => [...unlocked, 'tortuga_evolved']);
-    // }
-    // if (totalSessions >= 250 && !this.unlockedAvatars().includes('tortuga_phase3')) {
-    //   this.unlockedAvatars.update(unlocked => [...unlocked, 'tortuga_phase3']);
-    // }
   }
 
   private updateQualityProgress(id: string, amount: number) {
@@ -687,7 +689,8 @@ export class MembershipService {
   }
 
   private updateStreakProgress() {
-    const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+    const email = this.getCurrentUserEmail();
+    if (!email) return;
     const key = `user:${email}:streak-dates`;
     const savedDates = localStorage.getItem(key);
     let dates: string[] = savedDates ? JSON.parse(savedDates) : [];
@@ -733,6 +736,7 @@ export class MembershipService {
   }
 
   calculateStreak(email: string): number {
+    if (!email) return 0;
     const key = `user:${email}:streak-dates`;
     const savedDates = localStorage.getItem(key);
     if (!savedDates) return 0;
@@ -793,7 +797,7 @@ export class MembershipService {
     return true;
   }
 
-  // Registrar un nuevo usuario (Soporta Supabase y Fallback Local)
+  // Registrar un nuevo usuario (EXCLUSIVAMENTE EN SUPABASE)
   async registerUser(email: string, pass: string): Promise<{ success: boolean; error?: string }> {
     if (!email || !pass) {
       return { success: false, error: 'Por favor, completa todos los campos.' };
@@ -808,144 +812,62 @@ export class MembershipService {
       return { success: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
     }
 
-    // El correo demo está reservado
-    if (emailLower === 'demo@focusapp.com') {
-      return { success: false, error: 'Este correo electrónico de demostración ya está en uso. Por favor usa otro correo.' };
+    if (!this.supabaseService.isConfigured()) {
+      return { success: false, error: 'El servicio de base de datos no está disponible. Contacta al administrador.' };
     }
 
-    // Si Supabase está configurado, registrar en la nube
-    if (this.supabaseService.isConfigured()) {
-      const defaultUsername = emailLower.split('@')[0];
-      const { user, error } = await this.supabaseService.signUp(emailLower, pass, defaultUsername);
-      if (error) {
-        return { success: false, error: error };
-      }
-      if (user) {
-        this.loadUserData(emailLower);
-        return { success: true };
-      }
-    }
-
-    // Modo local / demostración
-    const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
-
-    const exists = users.some((u: any) => u.email.toLowerCase() === emailLower);
-    if (exists) {
-      return { success: false, error: 'Este correo electrónico ya está registrado.' };
-    }
-
-    // Guardar el nuevo usuario en el listado
-    users.push({ email: emailLower, password: pass });
-    localStorage.setItem('procrastina-registered-users', JSON.stringify(users));
-
-    // Inicializar los datos del nuevo usuario en localStorage
     const defaultUsername = emailLower.split('@')[0];
-    localStorage.setItem(`user:${emailLower}:user-name`, defaultUsername);
-    localStorage.setItem(`user:${emailLower}:avatar`, 'gato');
-    localStorage.setItem(`user:${emailLower}:theme`, 'samurai');
-    localStorage.setItem(`user:${emailLower}:premium`, 'false');
-    localStorage.setItem(`user:${emailLower}:focus-points`, '0');
-    localStorage.setItem(`user:${emailLower}:pro-coins`, '0');
-    localStorage.setItem(`user:${emailLower}:unlocked-avatars`, JSON.stringify(ALL_AVATARS_LIST));
-    localStorage.setItem(`user:${emailLower}:unlocked-themes`, JSON.stringify(['samurai']));
-    localStorage.setItem(`user:${emailLower}:onboarding-completed`, 'false');
-    localStorage.setItem(`user:${emailLower}:captured-ideas`, JSON.stringify([]));
-    localStorage.setItem(`user:${emailLower}:rewarded-sessions`, JSON.stringify([]));
-
-    // Loguear e iniciar el sitio con el nuevo usuario
-    this.loadUserData(emailLower);
-
-    return { success: true };
-  }
-
-  // Iniciar sesión (Soporta Supabase y Fallback Local)
-  async loginUser(email: string, pass: string): Promise<{ success: boolean; error?: string }> {
-    const emailLower = email.toLowerCase().trim();
-
-    // Validar contra demo o registrados
-    if (emailLower === 'demo@focusapp.com') {
-      if (pass === 'demo12345') {
-        // Inicializar demo@focusapp.com en localStorage si es la primera vez que se accede
-        if (localStorage.getItem(`user:demo@focusapp.com:user-name`) === null) {
-          localStorage.setItem(`user:demo@focusapp.com:user-name`, 'Ramiro');
-          localStorage.setItem(`user:demo@focusapp.com:avatar`, 'gato');
-          localStorage.setItem(`user:demo@focusapp.com:theme`, 'samurai');
-          localStorage.setItem(`user:demo@focusapp.com:premium`, 'false');
-          localStorage.setItem(`user:demo@focusapp.com:focus-points`, '0');
-          localStorage.setItem(`user:demo@focusapp.com:pro-coins`, '0');
-          localStorage.setItem(`user:demo@focusapp.com:unlocked-avatars`, JSON.stringify(ALL_AVATARS_LIST));
-          localStorage.setItem(`user:demo@focusapp.com:unlocked-themes`, JSON.stringify(['samurai']));
-          localStorage.setItem(`user:demo@focusapp.com:onboarding-completed`, 'true');
-        }
-
-        // Generar racha de 14 días si no hay fechas guardadas
-        if (localStorage.getItem(`user:demo@focusapp.com:streak-dates`) === null) {
-          const demoDates: string[] = [];
-          for (let i = 0; i < 14; i++) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            demoDates.push(d.toLocaleDateString());
-          }
-          localStorage.setItem(`user:demo@focusapp.com:streak-dates`, JSON.stringify(demoDates));
-        }
-
-        this.loadUserData(emailLower);
-        return { success: true };
-      } else {
-        return { success: false, error: 'Contraseña incorrecta para la cuenta demo.' };
-      }
+    const { user, error } = await this.supabaseService.signUp(emailLower, pass, defaultUsername);
+    if (error) {
+      return { success: false, error };
     }
 
-    // Si Supabase está configurado, autenticar en la nube
-    if (this.supabaseService.isConfigured()) {
-      const { user, error } = await this.supabaseService.signIn(emailLower, pass);
-      if (error) {
-        return { success: false, error };
-      }
-      if (user) {
-        // Cargar perfil desde Supabase
-        const { profile } = await this.supabaseService.getProfile(user.id);
-        if (profile) {
-          this.applySupabaseProfile(profile);
-        }
-        this.loadUserData(emailLower);
-        return { success: true };
-      }
-    }
-
-    const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
-    const user = users.find((u: any) => u.email.toLowerCase() === emailLower);
-
-    if (user && user.password === pass) {
+    if (user) {
       this.loadUserData(emailLower);
       return { success: true };
     }
 
-    return { success: false, error: 'Correo o contraseña incorrectos.' };
+    return { success: false, error: 'No se pudo completar el registro en Supabase.' };
   }
 
-  // Iniciar sesión con Google (Supabase o Demo)
-  async loginWithGoogle(): Promise<{ success: boolean; error?: string }> {
-    if (this.supabaseService.isConfigured()) {
-      const { error } = await this.supabaseService.signInWithGoogle();
-      if (error) return { success: false, error };
+  // Iniciar sesión (EXCLUSIVAMENTE EN SUPABASE)
+  async loginUser(email: string, pass: string): Promise<{ success: boolean; error?: string }> {
+    if (!email || !pass) {
+      return { success: false, error: 'Por favor, ingresa tu correo y contraseña.' };
+    }
+
+    const emailLower = email.toLowerCase().trim();
+
+    if (!this.supabaseService.isConfigured()) {
+      return { success: false, error: 'El servicio de base de datos no está disponible. Contacta al administrador.' };
+    }
+
+    const { user, error } = await this.supabaseService.signIn(emailLower, pass);
+    if (error) {
+      return { success: false, error };
+    }
+
+    if (user) {
+      // Cargar perfil desde Supabase
+      const { profile } = await this.supabaseService.getProfile(user.id);
+      if (profile) {
+        this.applySupabaseProfile(profile);
+      }
+      this.loadUserData(emailLower);
       return { success: true };
     }
 
-    const googleEmail = 'google_guerrero@focusapp.com';
-    const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
-    const exists = users.some((u: any) => u.email.toLowerCase() === googleEmail.toLowerCase());
-    
-    if (!exists) {
-      await this.registerUser(googleEmail, 'google12345');
-    } else {
-      await this.loginUser(googleEmail, 'google12345');
-    }
-    
-    if (this.userName() === 'google_guerrero') {
-      this.userName.set('guerrero_comunidad');
+    return { success: false, error: 'Las credenciales no corresponden a un usuario registrado en Supabase.' };
+  }
+
+  // Iniciar sesión con Google (Supabase OAuth)
+  async loginWithGoogle(): Promise<{ success: boolean; error?: string }> {
+    if (!this.supabaseService.isConfigured()) {
+      return { success: false, error: 'El servicio de base de datos no está disponible.' };
     }
 
+    const { error } = await this.supabaseService.signInWithGoogle();
+    if (error) return { success: false, error };
     return { success: true };
   }
 
@@ -956,6 +878,7 @@ export class MembershipService {
     }
     localStorage.removeItem('procrastina-current-user-email');
     this.closeAvatarMenu();
+    this.router.navigate(['/login']);
   }
 
   // Aplicar datos del perfil de Supabase a las señales
@@ -1027,7 +950,8 @@ export class MembershipService {
 
   // Restablecer cuenta para nuevo registro desde cero
   resetNewUserAccount() {
-    const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
+    const email = this.getCurrentUserEmail();
+    if (!email) return;
     
     localStorage.removeItem(`user:${email}:unlocked-avatars`);
     localStorage.removeItem(`user:${email}:unlocked-themes`);
@@ -1049,13 +973,13 @@ export class MembershipService {
     this.rewardedSessions.clear();
     // Reestablecer cualidades
     this.qualitiesCatalog.set([
-      { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 3, unlockTotal: 7 },
-      { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: false, unlockProgress: 5, unlockTotal: 15 },
-      { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: false, unlockProgress: 2, unlockTotal: 5 },
-      { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: false, unlockProgress: 1, unlockTotal: 5 },
-      { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: false, unlockProgress: 1, unlockTotal: 5 },
-      { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 3, unlockTotal: 5 },
-      { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: false, unlockProgress: 1, unlockTotal: 3 }
+      { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 0, unlockTotal: 7 },
+      { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+      { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+      { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+      { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+      { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+      { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: false, unlockProgress: 0, unlockTotal: 3 }
     ]);
   }
 
