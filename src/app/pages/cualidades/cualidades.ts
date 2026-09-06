@@ -212,8 +212,8 @@ interface CountryOption {
           
           <div class="carousel-header-bar">
             <div class="carousel-title-group">
-              <span class="carousel-subtag">Colección de Guardianes</span>
-              <h2 class="carousel-main-title">Elige tu Guardián de Enfoque</h2>
+              <span class="carousel-subtag">Avatares</span>
+              <h2 class="carousel-main-title">Selecciona tu Avatar</h2>
             </div>
 
             <!-- CONTROLES: FILTROS Y FLECHAS DE NAVEGACIÓN -->
@@ -299,194 +299,227 @@ interface CountryOption {
         </div>
 
         <!-- ==================================================== -->
-        <!-- 3. SECCIÓN: DETALLE DEL GUARDIÁN SELECCIONADO        -->
+        <!-- 3. SECCIÓN: SPOTLIGHT DETALLE LIMPIO & DINÁMICO     -->
         <!-- ==================================================== -->
-        <div class="guardian-detail-card">
+        <div class="clean-spotlight-card" [style.--accent-color]="inspectedAvatar().color">
           
-          <!-- COLUMNA IZQUIERDA: RETRATO HERO GRANDE & ELEGANTE -->
-          <div class="guardian-portrait-dock">
+          <!-- COLUMNA IZQUIERDA: HERO VISUAL DOCK -->
+          <div class="hero-visual-dock">
             
-            <div class="portrait-card-stage">
-              <!-- IMAGEN DEL AVATAR GRANDE Y NÍTIDA -->
-              <div [class]="'avatar-sprite hero-portrait-sprite sprite-' + inspectedAvatar().id"></div>
-              
-              <!-- DEGRADADO SUAVE PARA LEGIBILIDAD INFERIOR -->
-              <div class="portrait-vignette-overlay"></div>
+            <!-- AURA AMBIENTAL CON COLOR DEL AVATAR -->
+            <div class="hero-aura-ambient" [style.background]="'radial-gradient(circle at 50% 45%, ' + inspectedAvatar().color + '38 0%, transparent 72%)'"></div>
 
-              <!-- TIPO DE AVATAR Y ARMA SUPERIOR EN EL RETRATO -->
-              <div class="portrait-top-header">
-                <span class="guardian-tier-pill" [class]="'tier-' + inspectedAvatar().tier.toLowerCase()">
-                  {{ inspectedAvatar().tier }}
-                </span>
+            <!-- BARRA SUPERIOR DEL HERO: ESTRELLAS Y ARQUETIPO -->
+            <div class="hero-top-bar">
+              <div class="hero-stars-pill" title="Tier y Rareza">
+                <i *ngFor="let s of [1,2,3,4,5]" 
+                   class="fa-solid fa-star" 
+                   [class.is-lit]="s <= inspectedAvatar().stars"></i>
+                <span class="hero-tier-name">{{ inspectedAvatar().tier }}</span>
+              </div>
+              <span class="hero-badge-tag" *ngIf="inspectedAvatar().archetypeBadge">
+                {{ inspectedAvatar().archetypeBadge }}
+              </span>
+            </div>
 
-                <div class="guardian-weapon-badge" *ngIf="inspectedAvatar().weaponName">
-                  <i class="fa-solid fa-wand-magic-sparkles text-accent"></i>
-                  <span class="weapon-key">Arma:</span>
-                  <span class="weapon-val">{{ inspectedAvatar().weaponName }}</span>
-                </div>
+            <!-- SPRITE HERO CENTRAL CON PLATAFORMA -->
+            <div class="hero-sprite-showcase">
+              <div [class]="'avatar-sprite main-hero-sprite sprite-' + inspectedAvatar().id"></div>
+              <div class="hologram-disk-platform" [style.--glow-color]="inspectedAvatar().color"></div>
+            </div>
+
+            <!-- INFORMACIÓN DE COMBATE / ARMA -->
+            <div class="hero-bottom-info">
+              <div class="hero-weapon-pill">
+                <i class="fa-solid fa-wand-magic-sparkles text-cyan"></i>
+                <span class="weapon-label">Arma:</span>
+                <span class="weapon-value">{{ inspectedAvatar().weaponName }}</span>
               </div>
 
+              <!-- CITA TÁCTICA ELEGANTE -->
+              <div class="hero-quote-box" *ngIf="inspectedAvatar().tacticalQuote">
+                <i class="fa-solid fa-quote-left text-cyan"></i>
+                <span class="quote-text">“{{ inspectedAvatar().tacticalQuote }}”</span>
+              </div>
             </div>
 
           </div>
 
-          <!-- COLUMNA DERECHA: PANEL DE INFORMACIÓN, MECÁNICAS Y ACCIÓN -->
-          <div class="guardian-info-dock">
+          <!-- COLUMNA DERECHA: DASHBOARD DE STATS Y ACCIONES -->
+          <div class="hero-dashboard-dock">
             
-            <!-- 1. ENCABEZADO DE IDENTIDAD -->
-            <div class="guardian-header-block">
-              <div class="guardian-title-area">
-                <div class="guardian-heading-group">
-                  <h3 class="guardian-display-name">{{ inspectedAvatar().name }}</h3>
-                  <span class="guardian-species-pill">{{ inspectedAvatar().species }}</span>
-                  <p class="guardian-role-desc">
-                    <i class="fa-solid fa-compass text-muted-icon"></i>
-                    <span>Rol táctico: <strong>{{ inspectedAvatar().role }}</strong></span>
-                  </p>
+            <!-- 1. CABECERA DE IDENTIDAD -->
+            <div class="dock-identity-header">
+              <div class="identity-top-line">
+                <div class="identity-title-group">
+                  <h3 class="dock-avatar-name" [style.color]="inspectedAvatar().color">{{ inspectedAvatar().name | uppercase }}</h3>
+                  <span class="dock-species-tag">{{ inspectedAvatar().species }}</span>
                 </div>
 
-                <!-- ESTADO EN EL PERFIL / ESCUADRA -->
-                <div class="guardian-status-tag" 
-                     [class.is-equipped]="membership.selectedAvatar() === inspectedAvatar().id" 
-                     [class.is-unlocked]="inspectedAvatar().isUnlocked && membership.selectedAvatar() !== inspectedAvatar().id"
-                     [class.is-locked]="!inspectedAvatar().isUnlocked">
-                  <i [class]="membership.selectedAvatar() === inspectedAvatar().id ? 'fa-solid fa-circle-check' : (inspectedAvatar().isUnlocked ? 'fa-solid fa-shield-cat' : 'fa-solid fa-lock')"></i>
-                  <span>{{ membership.selectedAvatar() === inspectedAvatar().id ? 'Activo en tu Perfil' : (inspectedAvatar().isUnlocked ? 'En tu Escuadra' : 'Bloqueado') }}</span>
+                <!-- BADGE DE ESTADO DEL GUARDIÁN -->
+                <div class="dock-status-badges">
+                  <span class="dock-role-chip">
+                    <i class="fa-solid fa-shield-halved text-cyan"></i> {{ inspectedAvatar().role }}
+                  </span>
+                  <span class="dock-squad-chip" [class.is-equipped]="membership.selectedAvatar() === inspectedAvatar().id" [class.is-unlocked]="inspectedAvatar().isUnlocked && membership.selectedAvatar() !== inspectedAvatar().id">
+                    <i [class]="membership.selectedAvatar() === inspectedAvatar().id ? 'fa-solid fa-circle-check' : (inspectedAvatar().isUnlocked ? 'fa-solid fa-shield-cat' : 'fa-solid fa-lock')"></i>
+                    {{ membership.selectedAvatar() === inspectedAvatar().id ? 'ACTIVO EN PERFIL' : (inspectedAvatar().isUnlocked ? 'EN TU ESCUADRA' : 'BLOQUEADO') }}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <!-- 2. IMPACTO EN SESIONES POMODORO (RECOMPENSA vs RIESGO) -->
-            <div class="pomodoro-impact-grid">
+            <!-- 2. MÉTRICAS DE ENFOQUE Y COMBATE (FILA DE 2 CARDS AMPLIAS Y LEGIBLES) -->
+            <div class="tactical-metrics-row">
               
-              <!-- COMPLETAR SESIÓN (POSITIVO) -->
-              <div class="impact-stat-card card-reward-focus">
-                <div class="impact-card-top">
-                  <span class="impact-state-badge badge-success">
-                    <i class="fa-solid fa-circle-check"></i> Al completar
+              <!-- TARJETA: RECOMPENSA AL COMPLETAR -->
+              <div class="metric-tactical-card card-reward">
+                <div class="metric-card-header">
+                  <span class="metric-header-tag tag-green">
+                    <i class="fa-solid fa-circle-check"></i> AL COMPLETAR SESIÓN
                   </span>
-                  <span class="impact-subtag">Recompensa</span>
+                  <span class="metric-header-sub">Éxito de Enfoque</span>
                 </div>
 
-                <div class="impact-metrics-row">
-                  <div class="impact-metric-item">
-                    <span class="metric-val text-success">🪙 +{{ inspectedAvatar().coinsPerPomodoro }}</span>
-                    <span class="metric-lbl">Pro Coins</span>
+                <div class="metric-stats-container">
+                  <div class="metric-stat-box">
+                    <div class="stat-main-value text-green">
+                      <span class="stat-icon">🪙</span>
+                      <span class="stat-num">+{{ inspectedAvatar().coinsPerPomodoro }}</span>
+                    </div>
+                    <span class="stat-sub-label">Pro Coins</span>
                   </div>
-                  <div class="metric-v-sep"></div>
-                  <div class="impact-metric-item">
-                    <span class="metric-val text-light">⚔️ {{ inspectedAvatar().bossDamagePoints }}</span>
-                    <span class="metric-lbl">Daño a Jefes</span>
+
+                  <div class="metric-stat-divider"></div>
+
+                  <div class="metric-stat-box">
+                    <div class="stat-main-value text-white">
+                      <span class="stat-icon">⚔️</span>
+                      <span class="stat-num">{{ inspectedAvatar().bossDamagePoints }}</span>
+                    </div>
+                    <span class="stat-sub-label">Daño al Jefe</span>
                   </div>
                 </div>
               </div>
 
-              <!-- ABANDONO O PAUSA (RIESGO) -->
-              <div class="impact-stat-card card-penalty-focus">
-                <div class="impact-card-top">
-                  <span class="impact-state-badge badge-danger">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Si abandonas
+              <!-- TARJETA: PENALIZACIÓN SI ABANDONAS -->
+              <div class="metric-tactical-card card-penalty">
+                <div class="metric-card-header">
+                  <span class="metric-header-tag tag-red">
+                    <i class="fa-solid fa-triangle-exclamation"></i> SI ABANDONAS O PAUSAS
                   </span>
-                  <span class="impact-subtag">Penalización</span>
+                  <span class="metric-header-sub">Riesgo / Distracción</span>
                 </div>
 
-                <div class="impact-metrics-row">
-                  <div class="impact-metric-item">
-                    <span class="metric-val text-danger">🪙 -{{ inspectedAvatar().pausePenaltyCoins }}</span>
-                    <span class="metric-lbl">Pro Coins</span>
+                <div class="metric-stats-container">
+                  <div class="metric-stat-box">
+                    <div class="stat-main-value text-red">
+                      <span class="stat-icon">🪙</span>
+                      <span class="stat-num">-{{ inspectedAvatar().pausePenaltyCoins }}</span>
+                    </div>
+                    <span class="stat-sub-label">Pro Coins</span>
                   </div>
-                  <div class="metric-v-sep"></div>
-                  <div class="impact-metric-item">
-                    <span class="metric-val text-warning-light">🩸 +{{ inspectedAvatar().bossHealPoints }}</span>
-                    <span class="metric-lbl">Salud al Jefe</span>
+
+                  <div class="metric-stat-divider"></div>
+
+                  <div class="metric-stat-box">
+                    <div class="stat-main-value text-red-light">
+                      <span class="stat-icon">🩸</span>
+                      <span class="stat-num">+{{ inspectedAvatar().bossHealPoints }}</span>
+                    </div>
+                    <span class="stat-sub-label">Salud al Jefe</span>
                   </div>
                 </div>
               </div>
 
             </div>
 
-            <!-- 3. HABILIDAD PASIVA & TÉCNICA DE PRODUCTIVIDAD -->
-            <div class="guardian-lore-grid">
+            <!-- 3. HABILIDADES Y ESTRATEGIA (2 TARJETAS AMPLIAS DE TEXTO) -->
+            <div class="tactical-lore-row">
               
               <!-- HABILIDAD PASIVA -->
-              <div class="guardian-lore-card card-passive-ability">
-                <div class="lore-card-header">
-                  <span class="lore-label-chip chip-passive">
-                    <i class="fa-solid fa-bolt-lightning"></i> Habilidad Pasiva
+              <div class="tactical-ability-card card-passive">
+                <div class="ability-card-head">
+                  <span class="ability-tag tag-cyan">
+                    <i class="fa-solid fa-bolt-lightning"></i> HABILIDAD PASIVA
                   </span>
-                  <span class="lore-specialty-name">{{ inspectedAvatar().passiveName }}</span>
+                  <span class="ability-name-highlight">{{ inspectedAvatar().passiveName }}</span>
                 </div>
-                <p class="lore-description-body">
-                  {{ inspectedAvatar().passiveAdvantage }}
+                <p class="ability-desc-txt">
+                  <i class="fa-solid fa-wand-magic-sparkles text-cyan"></i>
+                  <span>{{ inspectedAvatar().passiveAdvantage }}</span>
                 </p>
               </div>
 
-              <!-- HACK DE ENFOQUE -->
-              <div class="guardian-lore-card card-focus-technique">
-                <div class="lore-card-header">
-                  <span class="lore-label-chip chip-strategy">
-                    <i class="fa-solid fa-brain"></i> Estrategia Mental
+              <!-- HACK ANTI-PROCRASTINACIÓN -->
+              <div class="tactical-ability-card card-hack">
+                <div class="ability-card-head">
+                  <span class="ability-tag tag-purple">
+                    <i class="fa-solid fa-brain"></i> HACK DE ENFOQUE
                   </span>
-                  <span class="lore-specialty-name">Hack Anti-Procrastinación</span>
+                  <span class="ability-name-highlight text-purple-sub">Técnica Mental</span>
                 </div>
-                <p class="lore-description-body">
-                  {{ inspectedAvatar().focusApplication }}
+                <p class="ability-desc-txt text-purple-txt">
+                  <i class="fa-solid fa-lightbulb text-purple"></i>
+                  <span>{{ inspectedAvatar().focusApplication }}</span>
                 </p>
               </div>
 
             </div>
 
-            <!-- 4. BANNER DE CONDICIONES DE DESBLOQUEO (SI ESTÁ BLOQUEADO) -->
-            <div class="guardian-unlock-notice" *ngIf="!inspectedAvatar().isUnlocked">
-              <div class="notice-icon-box">
-                <i [class]="inspectedAvatar().qualityId ? 'fa-solid fa-scroll' : 'fa-solid fa-store'"></i>
-              </div>
-              <div class="notice-text-content">
-                <h4 class="notice-headline">
-                  {{ inspectedAvatar().qualityId ? 'Cualidad Requerida: ' + (inspectedAvatar().displayName || inspectedAvatar().qualityName) : 'Desbloqueo en Tienda de Monedas' }}
-                </h4>
-                <p class="notice-subtext">
-                  {{ inspectedAvatar().displayReq || ('Canjea este guardián por ' + inspectedAvatar().cost + ' Pro Coins 🪙 acumuladas en tus sesiones.') }}
-                </p>
+            <!-- 4. REQUISITO DE DESBLOQUEO (BANNER INFORMATIVO SI ESTÁ BLOQUEADO) -->
+            <div class="dock-unlock-banner" *ngIf="!inspectedAvatar().isUnlocked">
+              <div class="unlock-banner-content">
+                <div class="unlock-banner-icon">
+                  <i [class]="inspectedAvatar().qualityId ? 'fa-solid fa-scroll text-yellow' : 'fa-solid fa-store text-yellow'"></i>
+                </div>
+                <div class="unlock-banner-text">
+                  <div class="unlock-banner-title">
+                    {{ inspectedAvatar().qualityId ? 'Cualidad Requerida: ' + (inspectedAvatar().displayName || inspectedAvatar().qualityName) : 'Desbloqueo en Tienda' }}
+                  </div>
+                  <div class="unlock-banner-desc">
+                    {{ inspectedAvatar().displayReq || ('Canjea este guardián por ' + inspectedAvatar().cost + ' Pro Coins 🪙') }}
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- 5. BOTÓN DE ACCIÓN PRINCIPAL -->
-            <div class="guardian-action-footer">
+            <!-- 5. BOTONERA DE ACCIÓN PRINCIPAL -->
+            <div class="dock-action-section">
               <button 
                 *ngIf="membership.selectedAvatar() === inspectedAvatar().id" 
-                class="btn-guardian-action btn-is-equipped" 
+                class="btn-clean-cta is-active-equipped" 
                 disabled
               >
-                <i class="fa-solid fa-circle-check text-success"></i> Guardián Activo en tu Perfil
+                <i class="fa-solid fa-shield-check text-green"></i> GUARDIÁN ACTIVO EN TU PERFIL ✓
               </button>
 
               <button 
                 *ngIf="inspectedAvatar().isUnlocked && membership.selectedAvatar() !== inspectedAvatar().id" 
                 (click)="equipAvatar(inspectedAvatar())" 
-                class="btn-guardian-action btn-equip-action"
+                class="btn-clean-cta is-equip-btn"
               >
-                <i class="fa-solid fa-paw"></i> Equipar a {{ inspectedAvatar().name }}
+                <i class="fa-solid fa-paw"></i> EQUIPAR A {{ inspectedAvatar().name | uppercase }}
                 <i class="fa-solid fa-arrow-right"></i>
               </button>
 
               <button 
                 *ngIf="!inspectedAvatar().isUnlocked && inspectedAvatar().qualityId && inspectedAvatar().quality" 
                 (click)="simulateUnlockQuality(inspectedAvatar().quality!)" 
-                class="btn-guardian-action btn-challenge-action"
+                class="btn-clean-cta is-challenge-btn"
               >
-                <i class="fa-solid fa-award"></i> Demostrar Cualidad: {{ (inspectedAvatar().displayName || inspectedAvatar().qualityName) }}
+                <i class="fa-solid fa-wand-magic-sparkles"></i> DEMOSTRAR CUALIDAD: {{ (inspectedAvatar().displayName || inspectedAvatar().qualityName) | uppercase }} (TEST)
                 <i class="fa-solid fa-arrow-right"></i>
               </button>
 
               <button 
                 *ngIf="!inspectedAvatar().isUnlocked && !inspectedAvatar().qualityId && inspectedAvatar().cost > 0" 
                 (click)="buyAvatar(inspectedAvatar())" 
-                class="btn-guardian-action btn-buy-action"
+                class="btn-clean-cta is-buy-btn"
                 [disabled]="membership.proCoins() < inspectedAvatar().cost"
               >
                 <i class="fa-solid fa-coins"></i> 
-                {{ membership.proCoins() >= inspectedAvatar().cost ? 'Canjear por ' + inspectedAvatar().cost + ' Pro Coins' : 'Faltan ' + (inspectedAvatar().cost - membership.proCoins()) + ' Pro Coins' }}
+                {{ membership.proCoins() >= inspectedAvatar().cost ? 'CANJEAR POR ' + inspectedAvatar().cost + ' PRO COINS' : 'FALTAN ' + (inspectedAvatar().cost - membership.proCoins()) + ' PRO COINS' }}
                 <i class="fa-solid fa-arrow-right"></i>
               </button>
             </div>
@@ -1321,133 +1354,198 @@ interface CountryOption {
     }
 
     /* ==================================================== */
-    /* 4. TARJETA DE DETALLE DEL GUARDIÁN (CLEAN & HERO)   */
+    /* 4. SPOTLIGHT DETALLE LIMPIO (CARD & AVATAR CLEAN)    */
     /* ==================================================== */
-    .guardian-detail-card {
+    .clean-spotlight-card {
       display: grid;
-      grid-template-columns: 350px 1fr;
-      gap: 26px;
-      background: #111726;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(255, 255, 255, 0.05);
+      grid-template-columns: 310px 1fr;
+      gap: 28px;
+      background: linear-gradient(145deg, rgba(14, 18, 28, 0.95) 0%, rgba(8, 11, 18, 0.98) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-left: 4px solid var(--accent-color, #00f2fe);
+      border-radius: 22px;
+      padding: 26px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 35px var(--accent-color, rgba(0, 242, 254, 0.1));
       position: relative;
       overflow: hidden;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
 
-    /* COLUMNA IZQUIERDA: RETRATO HERO GRANDE */
-    .guardian-portrait-dock {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      height: 100%;
-    }
-
-    .portrait-card-stage {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      min-height: 440px;
-      border-radius: 16px;
-      overflow: hidden;
-      background: #0b0f19;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 10px 25px rgba(0, 0, 0, 0.4);
+    /* COLUMNA IZQUIERDA: HERO VISUAL */
+    .hero-visual-dock {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-    }
-
-    .hero-portrait-sprite {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center top;
-      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .portrait-card-stage:hover .hero-portrait-sprite {
-      transform: scale(1.03);
-    }
-
-    .portrait-vignette-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        180deg, 
-        rgba(11, 15, 25, 0.45) 0%, 
-        rgba(11, 15, 25, 0.05) 25%, 
-        rgba(11, 15, 25, 0.5) 60%, 
-        rgba(11, 15, 25, 0.95) 100%
-      );
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .portrait-top-header {
+      align-items: center;
       position: relative;
-      z-index: 2;
-      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0.45) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 16px 14px;
+      min-height: 380px;
+      gap: 14px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .hero-aura-ambient {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      transition: background 0.4s ease;
+    }
+
+    .hero-top-bar {
+      width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
+      z-index: 5;
     }
-
-    .guardian-tier-pill {
+    .hero-stars-pill {
       display: inline-flex;
       align-items: center;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      gap: 3px;
+      background: rgba(10, 14, 24, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 4px 12px;
+      padding: 4px 9px;
       border-radius: 20px;
-      font-size: 10px;
+      font-size: 9.5px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .hero-stars-pill i {
+      font-size: 8.5px;
+      color: #475569;
+    }
+    .hero-stars-pill i.is-lit {
+      color: #fbbf24;
+      text-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+    }
+    .hero-tier-name {
+      font-size: 9.5px;
       font-weight: 800;
-      color: #f1f5f9;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-    }
-
-    .guardian-weapon-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(15, 23, 42, 0.88);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 5px 12px;
-      border-radius: 10px;
-      font-size: 11.5px;
-      color: #cbd5e1;
-      width: fit-content;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .guardian-weapon-badge .weapon-key {
-      font-size: 10px;
-      font-weight: 700;
-      color: #94a3b8;
+      color: #e2e8f0;
+      margin-left: 3px;
       text-transform: uppercase;
       letter-spacing: 0.3px;
     }
 
-    .guardian-weapon-badge .weapon-val {
-      font-weight: 750;
+    .hero-badge-tag {
+      font-size: 8.5px;
+      font-weight: 850;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .hero-sprite-showcase {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      padding: 10px 0;
+      animation: floatShowcase 4s ease-in-out infinite alternate;
+    }
+    @keyframes floatShowcase {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-8px); }
+    }
+
+    .main-hero-sprite {
+      width: 145px;
+      height: 145px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 50%;
+      border: 3px solid var(--accent-color, rgba(0, 242, 254, 0.5));
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75), 0 0 30px var(--accent-color, rgba(0, 242, 254, 0.35));
+      transition: transform 0.3s ease;
+    }
+    .main-hero-sprite:hover {
+      transform: scale(1.06);
+    }
+
+    .hologram-disk-platform {
+      width: 120px;
+      height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, var(--glow-color, #00f2fe) 0%, transparent 70%);
+      border: 1px solid var(--glow-color, #00f2fe);
+      opacity: 0.6;
+      transform: perspective(200px) rotateX(65deg);
+      margin-top: -6px;
+      box-shadow: 0 0 18px var(--glow-color, rgba(0, 242, 254, 0.5));
+    }
+
+    .hero-bottom-info {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 5;
+    }
+    .hero-weapon-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(10, 14, 24, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      color: #cbd5e1;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .hero-weapon-pill .weapon-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+    .hero-weapon-pill .weapon-value {
+      font-weight: 800;
       color: #fff;
     }
 
-    /* COLUMNA DERECHA: DASHBOARD DE INFORMACIÓN */
-    .guardian-info-dock {
+    .hero-quote-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px dashed rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 10.5px;
+      font-style: italic;
+      color: #94a3b8;
+      line-height: 1.35;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+      justify-content: center;
+    }
+    .hero-quote-box i {
+      font-size: 9px;
+      color: var(--accent-color, #00f2fe);
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    /* COLUMNA DERECHA: DASHBOARD DE STATS */
+    .hero-dashboard-dock {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -1455,377 +1553,385 @@ interface CountryOption {
       min-width: 0;
     }
 
-    .guardian-header-block {
+    .dock-identity-header {
       border-bottom: 1px solid rgba(255, 255, 255, 0.07);
       padding-bottom: 12px;
     }
-
-    .guardian-title-area {
+    .identity-top-line {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 12px;
       flex-wrap: wrap;
     }
-
-    .guardian-heading-group {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 6px;
-    }
-
-    .guardian-display-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 26px;
-      font-weight: 700;
-      color: #f8fafc;
-      margin: 0;
-      letter-spacing: -0.4px;
-      line-height: 1.15;
-    }
-
-    .guardian-species-pill {
-      font-size: 12px;
-      font-weight: 600;
-      color: #94a3b8;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 3px 10px;
-      border-radius: 6px;
-      width: fit-content;
-      display: inline-block;
-    }
-
-    .guardian-role-desc {
-      margin: 0;
-      font-size: 12.5px;
-      color: #94a3b8;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .guardian-role-desc strong {
-      color: #e2e8f0;
-      font-weight: 600;
-    }
-
-    .text-muted-icon {
-      color: #64748b;
-      font-size: 11px;
-    }
-
-    .guardian-status-tag {
-      font-size: 11px;
-      font-weight: 750;
-      padding: 5px 12px;
-      border-radius: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      letter-spacing: 0.3px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .guardian-status-tag.is-equipped {
-      background: rgba(16, 185, 129, 0.12);
-      color: #34d399;
-    }
-
-    .guardian-status-tag.is-unlocked {
-      background: rgba(56, 189, 248, 0.12);
-      color: #38bdf8;
-    }
-
-    .guardian-status-tag.is-locked {
-      background: rgba(239, 68, 68, 0.1);
-      color: #f87171;
-    }
-
-    /* FILA DE IMPACTO POMODORO (EQUILIBRADA) */
-    .pomodoro-impact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .impact-stat-card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: 12px;
-      padding: 10px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      transition: border-color 0.2s ease;
-    }
-
-    .impact-stat-card:hover {
-      border-color: rgba(255, 255, 255, 0.14);
-    }
-
-    .impact-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .impact-state-badge {
-      font-size: 9.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 2.5px 7px;
-      border-radius: 4px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .impact-state-badge.badge-success {
-      background: rgba(16, 185, 129, 0.14);
-      color: #34d399;
-    }
-
-    .impact-state-badge.badge-danger {
-      background: rgba(239, 68, 68, 0.14);
-      color: #f87171;
-    }
-
-    .impact-subtag {
-      font-size: 10px;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-
-    .impact-metrics-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      border-radius: 8px;
-      padding: 6px 12px;
-    }
-
-    .impact-metric-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1px;
-      flex: 1;
-    }
-
-    .metric-val {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      white-space: nowrap;
-    }
-
-    .metric-val.text-success { color: #34d399; }
-    .metric-val.text-light { color: #f8fafc; }
-    .metric-val.text-danger { color: #f87171; }
-    .metric-val.text-warning-light { color: #fca5a5; }
-
-    .metric-lbl {
-      font-size: 9.5px;
-      font-weight: 700;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-
-    .metric-v-sep {
-      width: 1px;
-      height: 20px;
-      background: rgba(255, 255, 255, 0.08);
-      margin: 0 4px;
-    }
-
-    /* FILA DE LORE & ESTRATEGIA (EQUILIBRADA) */
-    .guardian-lore-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .guardian-lore-card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: 12px;
-      padding: 11px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      transition: border-color 0.2s ease;
-    }
-
-    .guardian-lore-card:hover {
-      border-color: rgba(255, 255, 255, 0.14);
-    }
-
-    .lore-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .lore-label-chip {
-      font-size: 9.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 2.5px 7px;
-      border-radius: 4px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .lore-label-chip.chip-passive {
-      background: rgba(0, 196, 159, 0.12);
-      color: #00c49f;
-    }
-
-    .lore-label-chip.chip-strategy {
-      background: rgba(59, 130, 246, 0.12);
-      color: #60a5fa;
-    }
-
-    .lore-specialty-name {
-      font-size: 11.5px;
-      font-weight: 700;
-      color: #e2e8f0;
-      letter-spacing: 0.2px;
-    }
-
-    .lore-description-body {
-      margin: 0;
-      font-size: 12.5px;
-      font-weight: 450;
-      line-height: 1.45;
-      color: #cbd5e1;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    /* BANNER DE DESBLOQUEO */
-    .guardian-unlock-notice {
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 11px 15px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .notice-icon-box {
-      font-size: 18px;
-      color: #fbbf24;
-      flex-shrink: 0;
-    }
-
-    .notice-text-content {
+    .identity-title-group {
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
-
-    .notice-headline {
+    .dock-avatar-name {
+      font-size: 24px;
+      font-weight: 900;
       margin: 0;
-      font-size: 12px;
-      font-weight: 800;
-      color: #fbbf24;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: -0.3px;
+      font-family: 'Space Grotesk', sans-serif;
+      text-shadow: 0 0 20px var(--accent-color, rgba(0, 242, 254, 0.3));
+    }
+    .dock-species-tag {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
     }
 
-    .notice-subtext {
+    .dock-status-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .dock-role-chip {
+      font-size: 11px;
+      font-weight: 750;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .dock-squad-chip {
+      font-size: 10.5px;
+      font-weight: 850;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.12);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .dock-squad-chip.is-unlocked {
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+    .dock-squad-chip.is-equipped {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.45);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+    }
+
+    /* FILA DE MÉTRICAS TÁCTICAS (RECOMPENSA Y PENALIZACIÓN) */
+    .tactical-metrics-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .metric-tactical-card {
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .metric-tactical-card.card-reward {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(10, 16, 26, 0.95) 100%);
+      border-left: 3.5px solid #10b981;
+    }
+    .metric-tactical-card.card-penalty {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(16, 10, 16, 0.95) 100%);
+      border-left: 3.5px solid #ef4444;
+    }
+    .metric-tactical-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    .metric-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .metric-header-tag {
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 2.5px 8px;
+      border-radius: 5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .metric-header-tag.tag-green {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .metric-header-tag.tag-red {
+      background: rgba(239, 68, 68, 0.16);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .metric-header-sub {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .metric-stats-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .metric-stat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+    }
+    .stat-main-value {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .stat-main-value .stat-icon {
+      font-size: 14px;
+    }
+    .stat-main-value .stat-num {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .stat-main-value.text-green .stat-num { color: #34d399; text-shadow: 0 0 10px rgba(16, 185, 129, 0.35); }
+    .stat-main-value.text-white .stat-num { color: #f8fafc; }
+    .stat-main-value.text-red .stat-num { color: #f87171; text-shadow: 0 0 10px rgba(239, 68, 68, 0.35); }
+    .stat-main-value.text-red-light .stat-num { color: #fca5a5; }
+
+    .stat-sub-label {
+      font-size: 10px;
+      font-weight: 750;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .metric-stat-divider {
+      width: 1px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 8px;
+    }
+
+    /* FILA DE HABILIDADES Y ESTRATEGIA (2 CARDS AMPLIAS) */
+    .tactical-lore-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .tactical-ability-card {
+      background: rgba(14, 18, 28, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tactical-ability-card.card-passive {
+      border-left: 3.5px solid #00f2fe;
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.05) 0%, rgba(12, 16, 26, 0.85) 100%);
+    }
+    .tactical-ability-card.card-hack {
+      border-left: 3.5px solid #c084fc;
+      background: linear-gradient(135deg, rgba(192, 132, 252, 0.05) 0%, rgba(16, 12, 26, 0.85) 100%);
+    }
+    .tactical-ability-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .ability-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .ability-tag {
+      font-size: 9.5px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 2.5px 7px;
+      border-radius: 5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .ability-tag.tag-cyan {
+      background: rgba(0, 242, 254, 0.16);
+      color: #38bdf8;
+      border: 1px solid rgba(0, 242, 254, 0.4);
+    }
+    .ability-tag.tag-purple {
+      background: rgba(192, 132, 252, 0.16);
+      color: #d8b4fe;
+      border: 1px solid rgba(192, 132, 252, 0.4);
+    }
+
+    .ability-name-highlight {
+      font-size: 11.5px;
+      font-weight: 850;
+      color: #e0f2fe;
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      padding: 2px 9px;
+      border-radius: 6px;
+      letter-spacing: 0.2px;
+    }
+    .ability-name-highlight.text-purple-sub {
+      color: #f3e8ff;
+      background: rgba(192, 132, 252, 0.1);
+      border-color: rgba(192, 132, 252, 0.25);
+    }
+
+    .ability-desc-txt {
       margin: 0;
+      font-size: 13px;
+      font-weight: 550;
+      color: #f1f5f9;
+      line-height: 1.45;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .ability-desc-txt i {
+      font-size: 13px;
+      margin-top: 2.5px;
+      flex-shrink: 0;
+    }
+    .ability-desc-txt.text-purple-txt {
+      color: #f5f3ff;
+    }
+
+    /* REQUISITO DE DESBLOQUEO */
+    .dock-unlock-banner {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 12px;
+      padding: 11px 15px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    }
+    .unlock-banner-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .unlock-banner-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .unlock-banner-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .unlock-banner-title {
       font-size: 12px;
+      font-weight: 850;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .unlock-banner-desc {
+      font-size: 12px;
+      font-weight: 550;
       color: #e2e8f0;
       line-height: 1.35;
     }
 
     /* BOTONERA DE ACCIÓN */
-    .guardian-action-footer {
+    .dock-action-section {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-
-    .btn-guardian-action {
+    .btn-clean-cta {
       width: 100%;
       padding: 12px 20px;
       border-radius: 12px;
       font-size: 12.5px;
-      font-weight: 800;
+      font-weight: 900;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
       border: none;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: inherit;
       box-sizing: border-box;
     }
-
-    .btn-guardian-action.btn-is-equipped {
+    .btn-clean-cta.is-active-equipped {
       background: rgba(16, 185, 129, 0.12);
       color: #34d399;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1.5px solid rgba(16, 185, 129, 0.4);
       cursor: default;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.15);
     }
-
-    .btn-guardian-action.btn-equip-action {
-      background: linear-gradient(135deg, #00c49f 0%, #00ff9d 100%);
-      color: #0a0d14;
-      font-weight: 900;
-      box-shadow: 0 4px 14px rgba(0, 196, 159, 0.3);
+    .btn-clean-cta.is-equip-btn {
+      background: linear-gradient(135deg, var(--accent-color, #00f2fe) 0%, #38bdf8 100%);
+      color: #050b14;
+      box-shadow: 0 6px 20px var(--accent-color, rgba(0, 242, 254, 0.35));
     }
-
-    .btn-guardian-action.btn-equip-action:hover {
-      filter: brightness(1.08);
+    .btn-clean-cta.is-equip-btn:hover {
+      filter: brightness(1.15);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 196, 159, 0.45);
+      box-shadow: 0 8px 25px var(--accent-color, rgba(0, 242, 254, 0.5));
     }
-
-    .btn-guardian-action.btn-challenge-action {
+    .btn-clean-cta.is-challenge-btn {
       background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1.5px solid #10b981;
       color: #34d399;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
     }
-
-    .btn-guardian-action.btn-challenge-action:hover {
+    .btn-clean-cta.is-challenge-btn:hover {
       background: rgba(16, 185, 129, 0.25);
       transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
     }
-
-    .btn-guardian-action.btn-buy-action {
+    .btn-clean-cta.is-buy-btn {
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       color: #0b0f19;
-      font-weight: 900;
-      box-shadow: 0 4px 14px rgba(251, 191, 36, 0.3);
+      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.35);
     }
-
-    .btn-guardian-action.btn-buy-action:hover:not(:disabled) {
-      filter: brightness(1.08);
+    .btn-clean-cta.is-buy-btn:hover:not(:disabled) {
+      filter: brightness(1.1);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.45);
+      box-shadow: 0 8px 25px rgba(251, 191, 36, 0.5);
     }
-
-    .btn-guardian-action.btn-buy-action:disabled {
+    .btn-clean-cta.is-buy-btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
       filter: grayscale(0.5);
@@ -2076,19 +2182,20 @@ interface CountryOption {
       .profile-page-wrapper {
         padding: 80px 16px 40px;
       }
-      .guardian-detail-card {
+      .clean-spotlight-card {
         grid-template-columns: 1fr;
         gap: 20px;
         padding: 18px;
       }
-      .portrait-card-stage {
-        min-height: 340px;
-      }
-      .pomodoro-impact-grid {
+      .tactical-metrics-row {
         grid-template-columns: 1fr;
       }
-      .guardian-lore-grid {
+      .tactical-lore-row {
         grid-template-columns: 1fr;
+      }
+      .hero-visual-dock {
+        min-height: auto;
+        padding: 18px;
       }
       .user-details-row {
         flex-direction: column;
@@ -2357,19 +2464,19 @@ export class Cualidades implements OnInit {
         type: 'cualidad', 
         tier: 'Raro',
         archetype: 'Cualidad',
-        archetypeBadge: 'SABIDURÍA',
+        archetypeBadge: 'SABIDURÍA (80/20)',
         stars: 2,
         emoji: '🦉', 
         color: '#6366f1', 
         role: 'Estratega Sabio',
-        weaponName: 'Orbe Ocular',
-        focusApplication: 'Enfoca las tareas esenciales que producen el mayor impacto.',
+        weaponName: 'Orbe Ocular 80/20',
+        focusApplication: 'Enfoca el 20% de tareas que producirá el 80% del impacto.',
         tacticalQuote: 'La mirada aguda ahorra horas de vuelo inútil.',
         coinsPerPomodoro: 16,
         pausePenaltyCoins: 6,
         bossDamagePoints: 32,
         bossHealPoints: 12,
-        passiveName: 'Visión Nocturna',
+        passiveName: 'Visión Nocturna 80/20',
         passiveAdvantage: '+32 Puntos de daño por sesión estratégica completada.',
         cost: 120, 
         qualityId: 'sabiduria', 
@@ -2810,7 +2917,7 @@ export class Cualidades implements OnInit {
         else if (item.qualityId === 'constancia') taskName = `día${total > 1 ? 's' : ''} de racha consecutiva`;
         else if (item.qualityId === 'colaboracion') taskName = `pomodoro${total > 1 ? 's' : ''} en modo comunitario`;
         else if (item.qualityId === 'construccion') taskName = `meta${total > 1 ? 's' : ''} completada con 3 pomodoros consecutivos el mismo día`;
-        else if (item.qualityId === 'sabiduria') taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Pareto`;
+        else if (item.qualityId === 'sabiduria') taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Pareto (80/20)`;
         else if (item.qualityId === 'superacion') taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Sapo/Rana completado`;
 
         displayReq = `Demuestra la cualidad de ${quality.name}: completa ${total} ${taskName} (Progreso: ${progress}/${total}).`;
@@ -2922,7 +3029,7 @@ export class Cualidades implements OnInit {
 
   getCleanCountry(): string {
     const raw = (this.membership.userCountry() || '').trim();
-    if (!raw) return 'Sin país configurado';
+    if (!raw) return '';
     const opt = this.countryOptions.find(c => 
       c.name.toLowerCase() === raw.toLowerCase() ||
       c.code.toLowerCase() === raw.toLowerCase() ||
@@ -2934,12 +3041,12 @@ export class Cualidades implements OnInit {
               .replace(/\b[A-Z]{2}\b/g, '')
               .replace(/["'\\]+/g, '')
               .replace(/\s+/g, ' ')
-              .trim() || 'Sin país configurado';
+              .trim();
   }
 
   getCleanProfession(): string {
     const raw = this.membership.userProfession() || '';
-    if (!raw.trim()) return 'Sin profesión configurada';
+    if (!raw.trim()) return '';
     let str = String(raw).trim();
     while (
       (str.startsWith('"') && str.endsWith('"') && str.length >= 2) ||
@@ -2958,7 +3065,7 @@ export class Cualidades implements OnInit {
         str = str.replace(/^\\+|\\+$/g, '').trim();
       }
     }
-    return str.replace(/["'\\]+/g, '').replace(/[\/\\]+/g, ' ').replace(/\s+/g, ' ').trim() || 'Sin profesión configurada';
+    return str.replace(/["'\\]+/g, '').replace(/[\/\\]+/g, ' ').replace(/\s+/g, ' ').trim();
   }
 
   toggleEditProfile() {
