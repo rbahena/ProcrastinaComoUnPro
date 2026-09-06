@@ -11,8 +11,13 @@ import { MembershipService } from '../../services/membership.service';
 export class Registro {
   registroError = signal<string | null>(null);
   isLoading = signal(false);
+  showPassword = signal(false);
 
   constructor(private router: Router, private membership: MembershipService) {}
+
+  togglePasswordVisibility() {
+    this.showPassword.update(show => !show);
+  }
 
   async onSubmit(event: Event, email: string, pass: string) {
     event.preventDefault();

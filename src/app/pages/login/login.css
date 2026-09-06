@@ -134,6 +134,45 @@
   color: rgba(255, 255, 255, 0.2);
 }
 
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  padding-right: 44px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.password-toggle-btn:hover {
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
 .btn.w-100 {
   width: 100%;
   display: flex;
@@ -242,6 +281,7 @@
   .form-group input {
     font-size: 16px; /* Evita zoom automático en móviles */
     padding: 11px 14px;
+    padding-right: 44px;
   }
 }
 
@@ -268,4 +308,3 @@
     border-radius: 10px;
   }
 }
-

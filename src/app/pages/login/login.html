@@ -45,7 +45,25 @@
           <label for="password">Contraseña</label>
           <a class="forgot-link">¿Olvidaste tu contraseña?</a>
         </div>
-        <input #passwordInput type="password" id="password" placeholder="••••••••" required autocomplete="current-password" [disabled]="isLoading()">
+        <div class="password-input-wrapper">
+          <input 
+            #passwordInput 
+            [type]="showPassword() ? 'text' : 'password'" 
+            id="password" 
+            placeholder="••••••••" 
+            required 
+            autocomplete="current-password" 
+            [disabled]="isLoading()">
+          <button 
+            type="button" 
+            class="password-toggle-btn" 
+            (click)="togglePasswordVisibility()" 
+            [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Ver contraseña'"
+            [title]="showPassword() ? 'Ocultar contraseña' : 'Ver contraseña'"
+            tabindex="-1">
+            <i [class]="showPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+          </button>
+        </div>
       </div>
 
       <button type="submit" class="btn btn-accent w-100" [disabled]="isLoading()" style="margin-top: 10px; border: 1px solid var(--accent) !important; background: rgba(6, 8, 19, 0.45) !important; color: var(--accent) !important; display: flex; align-items: center; justify-content: center; gap: 8px;">
