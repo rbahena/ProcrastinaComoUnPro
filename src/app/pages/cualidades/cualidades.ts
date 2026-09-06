@@ -100,18 +100,44 @@ interface CountryOption {
                     <h1 class="user-display-name">{{ membership.userName() }}</h1>
                   </div>
 
-                  <p class="user-profession-line">
-                    <span class="user-profession-txt">{{ getCleanProfession() }}</span>
-                  </p>
+                  @if (hasCustomIdentity()) {
+                    <div class="user-identity-metadata">
+                      @if (membership.userProfession()) {
+                        <span class="identity-chip profession-chip">
+                          <i class="fa-solid fa-briefcase"></i>
+                          <span>{{ getCleanProfession() }}</span>
+                        </span>
+                      } @else {
+                        <button class="btn-add-chip" (click)="toggleEditProfile()" title="Añadir tu profesión">
+                          <i class="fa-solid fa-plus"></i> Profesión
+                        </button>
+                      }
 
-                  <p class="user-location-line">
-                    <span class="country-flag-icon">{{ getCountryFlag(membership.userCountry()) }}</span>
-                    <span class="country-name-txt">{{ getCleanCountry() }}</span>
-                  </p>
+                      @if (membership.userCountry()) {
+                        <span class="identity-chip country-chip">
+                          <span class="country-flag-icon">{{ getCountryFlag(membership.userCountry()) }}</span>
+                          <span>{{ getCleanCountry() }}</span>
+                        </span>
+                      } @else {
+                        <button class="btn-add-chip" (click)="toggleEditProfile()" title="Añadir tu país">
+                          <i class="fa-solid fa-plus"></i> País
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <div class="user-unconfigured-cta">
+                      <button class="btn-complete-profile" (click)="toggleEditProfile()">
+                        <i class="fa-solid fa-wand-magic-sparkles text-accent"></i>
+                        <span>Completar perfil (Profesión y País)</span>
+                      </button>
+                    </div>
+                  }
 
                   <p class="user-active-week-line">
                     <span class="active-week-txt" title="Días activos para el control de rachas">
-                      <strong class="week-summary-highlight">{{ membership.getActiveDaysSummary() }}</strong>
+                      <strong class="week-summary-highlight">
+                        <i class="fa-regular fa-calendar-check"></i> {{ membership.getActiveDaysSummary() }}
+                      </strong>
                     </span>
                   </p>
                 </div>
@@ -503,6 +529,7 @@ interface CountryOption {
               <div class="form-group-item">
                 <label>País</label>
                 <select [value]="selectedCountry()" (change)="onCountrySelect($event)" class="select-input-field">
+                  <option value="" disabled selected>-- Selecciona tu país --</option>
                   <option *ngFor="let country of countryOptions" [value]="country.name">
                     {{ country.flag }} {{ country.name }}
                   </option>
@@ -716,40 +743,82 @@ interface CountryOption {
       letter-spacing: -0.4px;
       line-height: 1.15;
     }
-    .user-profession-line {
+    .user-identity-metadata {
       display: flex;
       align-items: center;
-      margin: 1px 0;
-      line-height: 1.4;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 4px 0;
     }
-    .user-profession-txt {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 650;
-      color: #f1f5f9;
-      letter-spacing: -0.2px;
-    }
-    .user-location-line {
-      display: flex;
+    .identity-chip {
+      display: inline-flex;
       align-items: center;
-      gap: 7px;
-      margin: 1px 0;
-      line-height: 1.4;
-    }
-    .country-flag-icon {
-      font-size: 14px;
-      line-height: 1;
-    }
-    .country-name-txt {
+      gap: 6px;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 13px;
+      font-weight: 600;
+      color: #f1f5f9;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 3px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+    }
+    .identity-chip i {
+      color: var(--accent, #6366f1);
+      font-size: 11.5px;
+    }
+    .identity-chip .country-flag-icon {
+      font-size: 13.5px;
+      line-height: 1;
+    }
+    .btn-add-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: transparent;
+      border: 1px dashed rgba(255, 255, 255, 0.16);
+      color: #64748b;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
       font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-add-chip:hover {
+      border-color: var(--accent, #6366f1);
+      color: var(--accent, #6366f1);
+      background: rgba(99, 102, 241, 0.08);
+    }
+    .user-unconfigured-cta {
+      margin: 4px 0;
+    }
+    .btn-complete-profile {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
       color: #94a3b8;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 550;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-complete-profile:hover {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.4);
+      color: #fff;
+      transform: translateY(-1px);
     }
     .user-active-week-line {
       display: flex;
       align-items: center;
-      margin: 1px 0 0;
+      margin: 3px 0 0;
       line-height: 1.4;
     }
     .active-week-txt {
@@ -767,6 +836,9 @@ interface CountryOption {
       border: 1px solid rgba(255, 255, 255, 0.08);
       padding: 1.5px 7px;
       border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
     .plan-status-pill {
       position: relative;
@@ -2035,7 +2107,7 @@ export class Cualidades implements OnInit {
 
   inputName = signal<string>('');
   inputProfession = signal<string>('');
-  selectedCountry = signal<string>('México');
+  selectedCountry = signal<string>('');
   selectedActiveDays = signal<number[]>([1, 2, 3, 4, 5]);
   usernameError = signal<string | null>(null);
   toastMessage = signal<string | null>(null);
@@ -2787,11 +2859,17 @@ export class Cualidades implements OnInit {
     return (this.membership.focusTomatoes() * 0.42).toFixed(1);
   });
 
+  hasCustomIdentity(): boolean {
+    const prof = this.membership.userProfession();
+    const country = this.membership.userCountry();
+    return !!((prof && prof.trim()) || (country && country.trim()));
+  }
+
   ngOnInit() {
     this.inspectedAvatar.set(this.activeAvatar());
     this.inputName.set(this.membership.userName());
-    this.inputProfession.set(this.membership.userProfession() || 'Desarrollador de Software');
-    this.selectedCountry.set(this.membership.userCountry() || 'México');
+    this.inputProfession.set(this.membership.userProfession() || '');
+    this.selectedCountry.set(this.membership.userCountry() || '');
     this.selectedActiveDays.set([...(this.membership.userActiveDays() || [1, 2, 3, 4, 5])]);
   }
 
@@ -2833,16 +2911,18 @@ export class Cualidades implements OnInit {
 
   getCountryFlag(countryName: string): string {
     const raw = (countryName || '').trim();
+    if (!raw) return '📍';
     const opt = this.countryOptions.find(c => 
       c.name.toLowerCase() === raw.toLowerCase() ||
       c.code.toLowerCase() === raw.toLowerCase() ||
       raw.toLowerCase().startsWith(c.name.toLowerCase())
     );
-    return opt ? opt.flag : '🇲🇽';
+    return opt ? opt.flag : '🌐';
   }
 
   getCleanCountry(): string {
     const raw = (this.membership.userCountry() || '').trim();
+    if (!raw) return 'Sin país configurado';
     const opt = this.countryOptions.find(c => 
       c.name.toLowerCase() === raw.toLowerCase() ||
       c.code.toLowerCase() === raw.toLowerCase() ||
@@ -2854,11 +2934,12 @@ export class Cualidades implements OnInit {
               .replace(/\b[A-Z]{2}\b/g, '')
               .replace(/["'\\]+/g, '')
               .replace(/\s+/g, ' ')
-              .trim() || 'México';
+              .trim() || 'Sin país configurado';
   }
 
   getCleanProfession(): string {
-    const raw = this.membership.userProfession() || 'Desarrollador de Software';
+    const raw = this.membership.userProfession() || '';
+    if (!raw.trim()) return 'Sin profesión configurada';
     let str = String(raw).trim();
     while (
       (str.startsWith('"') && str.endsWith('"') && str.length >= 2) ||
@@ -2877,15 +2958,15 @@ export class Cualidades implements OnInit {
         str = str.replace(/^\\+|\\+$/g, '').trim();
       }
     }
-    return str.replace(/["'\\]+/g, '').replace(/[\/\\]+/g, ' ').replace(/\s+/g, ' ').trim() || 'Desarrollador de Software';
+    return str.replace(/["'\\]+/g, '').replace(/[\/\\]+/g, ' ').replace(/\s+/g, ' ').trim() || 'Sin profesión configurada';
   }
 
   toggleEditProfile() {
     this.isEditingProfile.set(!this.isEditingProfile());
     if (this.isEditingProfile()) {
       this.inputName.set(this.membership.userName());
-      this.inputProfession.set(this.getCleanProfession());
-      this.selectedCountry.set(this.membership.userCountry() || 'México');
+      this.inputProfession.set(this.membership.userProfession() || '');
+      this.selectedCountry.set(this.membership.userCountry() || '');
       this.selectedActiveDays.set([...(this.membership.userActiveDays() || [1, 2, 3, 4, 5])]);
       this.usernameError.set(null);
     }
@@ -2960,7 +3041,6 @@ export class Cualidades implements OnInit {
     if (this.usernameError()) return;
 
     let prof = (this.inputProfession() || '').replace(/["'\\]+/g, '').replace(/[\/\\]+/g, ' ').replace(/\s+/g, ' ').trim();
-    if (!prof) prof = 'Desarrollador de Software';
     const activeDays = this.selectedActiveDays();
     this.membership.userName.set(cleaned);
     this.membership.userProfession.set(prof);

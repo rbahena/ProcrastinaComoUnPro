@@ -94,24 +94,65 @@ export class SupabaseService {
   // AUTENTICACIÓN (LOGIN & REGISTRO)
   // ==========================================
 
+  async isEmailRegistered(email: string): Promise<boolean> {
+    if (!this.isConfigured()) return false;
+    try {
+      const { data, error } = await this.supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email.toLowerCase().trim())
+        .maybeSingle();
+      if (error) return false;
+      return !!data;
+    } catch {
+      return false;
+    }
+  }
+
   async signUp(email: string, password: string, username?: string): Promise<{ user: User | null; error: string | null }> {
     if (!this.isConfigured()) {
       return { user: null, error: 'SUPABASE_NOT_CONFIGURED' };
     }
 
+    const emailClean = email.toLowerCase().trim();
+
+    // 1. Verificación previa en profiles
+    const alreadyExists = await this.isEmailRegistered(emailClean);
+    if (alreadyExists) {
+      return { user: null, error: 'Este correo electrónico ya se encuentra registrado. Intenta iniciar sesión.' };
+    }
+
     const { data, error } = await this.supabase.auth.signUp({
-      email,
+      email: emailClean,
       password,
       options: {
         data: {
-          user_name: username || email.split('@')[0],
-          full_name: username || email.split('@')[0]
+          user_name: username || emailClean.split('@')[0],
+          full_name: username || emailClean.split('@')[0]
         }
       }
     });
 
     if (error) {
-      return { user: null, error: error.message };
+      let msg = error.message;
+      if (msg.includes('For security purposes')) {
+        msg = 'Por motivos de seguridad, espera unos segundos antes de intentar crear otra cuenta.';
+      } else if (
+        msg.includes('User already registered') || 
+        msg.includes('already registered') || 
+        msg.includes('already in use') || 
+        msg.includes('duplicate key')
+      ) {
+        msg = 'Este correo electrónico ya se encuentra registrado. Intenta iniciar sesión.';
+      } else if (msg.includes('Password should be at least')) {
+        msg = 'La contraseña debe tener al menos 8 caracteres.';
+      }
+      return { user: null, error: msg };
+    }
+
+    // 2. Detección de identidad duplicada (Supabase retorna identities vacías si el correo ya existe)
+    if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      return { user: null, error: 'Este correo electrónico ya se encuentra registrado. Intenta iniciar sesión.' };
     }
 
     return { user: data.user, error: null };
@@ -128,7 +169,13 @@ export class SupabaseService {
     });
 
     if (error) {
-      return { user: null, session: null, error: error.message };
+      let msg = error.message;
+      if (msg.includes('Invalid login credentials')) {
+        msg = 'El correo o la contraseña son incorrectos.';
+      } else if (msg.includes('Email not confirmed')) {
+        msg = 'Debes confirmar tu correo electrónico antes de iniciar sesión.';
+      }
+      return { user: null, session: null, error: msg };
     }
 
     return { user: data.user, session: data.session, error: null };

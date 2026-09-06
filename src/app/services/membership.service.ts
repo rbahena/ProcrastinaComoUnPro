@@ -58,6 +58,10 @@ function getMigratedValue(key: string, defaultValue: string): string {
   if (userVal !== null) {
     return userVal;
   }
+  // No migrar valores antiguos residuales de profesión ni país
+  if (key === 'user-profession' || key === 'user-country' || key === 'user-country-code') {
+    return defaultValue;
+  }
   const globalKey = `procrastina-${key}`;
   const globalVal = localStorage.getItem(globalKey);
   if (globalVal !== null) {
@@ -166,17 +170,17 @@ export class MembershipService {
     getMigratedValue('user-name', 'Ramiro')
   );
   userProfession = signal<string>(
-    cleanQuotedString(getMigratedValue('user-profession', 'Desarrollador de Software'))
+    cleanQuotedString(getMigratedValue('user-profession', ''))
   );
   // Días activos de la semana (1: Lun, 2: Mar, 3: Mié, 4: Jue, 5: Vie, 6: Sáb, 7: Dom)
   userActiveDays = signal<number[]>(
     getMigratedValueJSON('user-active-days', [1, 2, 3, 4, 5])
   );
   userCountry = signal<string>(
-    cleanQuotedString(getMigratedValue('user-country', 'México'))
+    cleanQuotedString(getMigratedValue('user-country', ''))
   );
   userCountryCode = signal<string>(
-    getMigratedValue('user-country-code', 'MX')
+    getMigratedValue('user-country-code', '')
   );
   selectedAvatar = signal<string>(
     getMigratedValue('avatar', 'gato')
@@ -272,8 +276,17 @@ export class MembershipService {
     const email = localStorage.getItem('procrastina-current-user-email') || 'demo@focusapp.com';
     this.streak.set(this.calculateStreak(email));
 
-    // DESBLOQUEAR TODO AUTOMÁTICAMENTE PARA PRUEBAS (TODOS LOS AVATARES DESBLOQUEADOS)
-    this.unlockedAvatars.set([...ALL_AVATARS_LIST]);
+    // Sincronizar perfil automáticamente cuando Supabase tenga sesión activa
+    effect(() => {
+      const user = this.supabaseService.currentUser();
+      if (user && this.supabaseService.isConfigured()) {
+        this.supabaseService.getProfile(user.id).then(({ profile }) => {
+          if (profile) {
+            this.applySupabaseProfile(profile);
+          }
+        });
+      }
+    });
 
     // Sincronizar automáticamente con localStorage al cambiar valores
     effect(() => {
@@ -795,6 +808,11 @@ export class MembershipService {
       return { success: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
     }
 
+    // El correo demo está reservado
+    if (emailLower === 'demo@focusapp.com') {
+      return { success: false, error: 'Este correo electrónico de demostración ya está en uso. Por favor usa otro correo.' };
+    }
+
     // Si Supabase está configurado, registrar en la nube
     if (this.supabaseService.isConfigured()) {
       const defaultUsername = emailLower.split('@')[0];
@@ -810,11 +828,6 @@ export class MembershipService {
 
     // Modo local / demostración
     const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
-    
-    // El correo demo está reservado
-    if (emailLower === 'demo@focusapp.com') {
-      return { success: false, error: 'Este correo electrónico de demostración ya está en uso.' };
-    }
 
     const exists = users.some((u: any) => u.email.toLowerCase() === emailLower);
     if (exists) {
@@ -950,9 +963,9 @@ export class MembershipService {
     if (p.username) this.userName.set(p.username);
     if (p.selected_avatar) this.selectedAvatar.set(p.selected_avatar);
     if (p.selected_theme) this.selectedTheme.set(p.selected_theme);
-    if (p.profession) this.userProfession.set(cleanQuotedString(p.profession));
-    if (p.country) this.userCountry.set(p.country);
-    if (p.country_code) this.userCountryCode.set(p.country_code);
+    this.userProfession.set(p.profession ? cleanQuotedString(p.profession) : '');
+    this.userCountry.set(p.country ? cleanQuotedString(p.country) : '');
+    this.userCountryCode.set(p.country_code ? p.country_code : '');
     if (p.active_days) this.userActiveDays.set(p.active_days);
     if (p.is_premium !== undefined) this.isPremium.set(p.is_premium);
     if (p.pro_coins !== undefined) this.proCoins.set(p.pro_coins);
@@ -969,7 +982,7 @@ export class MembershipService {
   loadUserData(email: string) {
     localStorage.setItem('procrastina-current-user-email', email);
 
-    // Leer valores de localStorage con su prefijo, o usar valores por defecto
+    // Leer valores de localStorage con su prefijo, o usar valores por defecto limpios
     const isPremiumVal = localStorage.getItem(`user:${email}:premium`) === 'true';
     const focusPointsVal = parseInt(localStorage.getItem(`user:${email}:focus-points`) || '0', 10);
     const proCoinsVal = parseInt(localStorage.getItem(`user:${email}:pro-coins`) || '0', 10);
@@ -979,7 +992,11 @@ export class MembershipService {
     const userNameVal = localStorage.getItem(`user:${email}:user-name`) || email.split('@')[0];
     const selectedAvatarVal = localStorage.getItem(`user:${email}:avatar`) || 'gato';
     const selectedThemeVal = (localStorage.getItem(`user:${email}:theme`) as any) || 'samurai';
-    const podiumWinsVal = parseInt(localStorage.getItem(`user:${email}:podium-wins`) || '3', 10);
+    const userProfessionVal = localStorage.getItem(`user:${email}:user-profession`);
+    const userCountryVal = localStorage.getItem(`user:${email}:user-country`);
+    const userCountryCodeVal = localStorage.getItem(`user:${email}:user-country-code`);
+    const userActiveDaysVal = JSON.parse(localStorage.getItem(`user:${email}:user-active-days`) || '[1, 2, 3, 4, 5]');
+    const podiumWinsVal = parseInt(localStorage.getItem(`user:${email}:podium-wins`) || '0', 10);
     const onboardingCompletedVal = localStorage.getItem(`user:${email}:onboarding-completed`) === 'true';
     const capturedIdeasVal = JSON.parse(localStorage.getItem(`user:${email}:captured-ideas`) || '[]');
 
@@ -987,7 +1004,7 @@ export class MembershipService {
       JSON.parse(localStorage.getItem(`user:${email}:rewarded-sessions`) || '[]')
     );
 
-    // Actualizar señales (los efectos las guardarán en el prefijo correcto)
+    // Actualizar señales
     this.isPremium.set(isPremiumVal);
     this.focusPoints.set(focusPointsVal);
     this.proCoins.set(proCoinsVal);
@@ -996,6 +1013,10 @@ export class MembershipService {
     this.userName.set(userNameVal);
     this.selectedAvatar.set(selectedAvatarVal);
     this.selectedTheme.set(selectedThemeVal);
+    this.userProfession.set(userProfessionVal ? cleanQuotedString(userProfessionVal) : '');
+    this.userCountry.set(userCountryVal ? cleanQuotedString(userCountryVal) : '');
+    this.userCountryCode.set(userCountryCodeVal || '');
+    this.userActiveDays.set(userActiveDaysVal);
     this.podiumWins.set(podiumWinsVal);
     this.onboardingCompleted.set(onboardingCompletedVal);
     this.capturedIdeas.set(capturedIdeasVal);
