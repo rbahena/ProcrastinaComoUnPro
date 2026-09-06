@@ -1,4 +1,5 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal, effect, inject } from '@angular/core';
+import { SupabaseService } from './supabase.service';
 
 export interface AvatarItem {
   id: string;
@@ -98,6 +99,8 @@ export const ALL_AVATARS_LIST = [
   providedIn: 'root',
 })
 export class MembershipService {
+  private supabaseService = inject(SupabaseService);
+
   // Estado de membresía
   isPremium = signal<boolean>(
     getMigratedValue('premium', 'false') === 'true'
@@ -449,24 +452,36 @@ export class MembershipService {
     });
   }
 
-  // Simulación de persistencia en Supabase (profiles table)
+  // Persistencia en Supabase (profiles table)
   async saveSupabaseProfile(username: string, avatarId: string, country?: string, countryCode?: string, profession?: string, activeDays?: number[]): Promise<{ success: boolean; error?: string }> {
-    console.log(`[SUPABASE API MOCK] UPDATE profiles SET username = '${username}', avatar_id = '${avatarId}', country = '${country || ''}', profession = '${profession || ''}', active_days = '${JSON.stringify(activeDays || [])}' WHERE id = auth.uid()`);
+    const cleanProf = profession !== undefined ? cleanQuotedString(profession) : undefined;
     
-    // Simular retraso de red
-    await new Promise(resolve => setTimeout(resolve, 400));
+    // Si Supabase está configurado y hay usuario activo, guardar en base de datos real
+    if (this.supabaseService.isConfigured()) {
+      const user = await this.supabaseService.getCurrentUser();
+      if (user) {
+        const updates: any = {
+          username,
+          selected_avatar: avatarId,
+          onboarding_completed: true
+        };
+        if (country) updates.country = country;
+        if (countryCode) updates.country_code = countryCode;
+        if (cleanProf !== undefined) updates.profession = cleanProf;
+        if (activeDays !== undefined) updates.active_days = activeDays;
 
-    // Validar nombres ocupados en simulación
-    const busyNames = ['admin', 'administrator', 'support', 'system', 'moderator', 'ocupado', 'ramiro_admin'];
-    if (busyNames.includes(username.toLowerCase())) {
-      return { success: false, error: 'Este nombre ya está ocupado o no está permitido. Prueba con otro.' };
+        const { error } = await this.supabaseService.updateProfile(user.id, updates);
+        if (error) {
+          console.error('[Supabase Profile Update Error]', error);
+        }
+      }
     }
 
     this.userName.set(username);
     this.selectedAvatar.set(avatarId as any);
     if (country) this.userCountry.set(country);
     if (countryCode) this.userCountryCode.set(countryCode);
-    if (profession !== undefined) this.userProfession.set(cleanQuotedString(profession));
+    if (cleanProf !== undefined) this.userProfession.set(cleanProf);
     if (activeDays !== undefined) this.userActiveDays.set(activeDays);
     this.onboardingCompleted.set(true);
 
@@ -765,8 +780,8 @@ export class MembershipService {
     return true;
   }
 
-  // Registrar un nuevo usuario
-  registerUser(email: string, pass: string): { success: boolean; error?: string } {
+  // Registrar un nuevo usuario (Soporta Supabase y Fallback Local)
+  async registerUser(email: string, pass: string): Promise<{ success: boolean; error?: string }> {
     if (!email || !pass) {
       return { success: false, error: 'Por favor, completa todos los campos.' };
     }
@@ -780,6 +795,20 @@ export class MembershipService {
       return { success: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
     }
 
+    // Si Supabase está configurado, registrar en la nube
+    if (this.supabaseService.isConfigured()) {
+      const defaultUsername = emailLower.split('@')[0];
+      const { user, error } = await this.supabaseService.signUp(emailLower, pass, defaultUsername);
+      if (error) {
+        return { success: false, error: error };
+      }
+      if (user) {
+        this.loadUserData(emailLower);
+        return { success: true };
+      }
+    }
+
+    // Modo local / demostración
     const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
     
     // El correo demo está reservado
@@ -816,8 +845,8 @@ export class MembershipService {
     return { success: true };
   }
 
-  // Iniciar sesión
-  loginUser(email: string, pass: string): { success: boolean; error?: string } {
+  // Iniciar sesión (Soporta Supabase y Fallback Local)
+  async loginUser(email: string, pass: string): Promise<{ success: boolean; error?: string }> {
     const emailLower = email.toLowerCase().trim();
 
     // Validar contra demo o registrados
@@ -854,6 +883,23 @@ export class MembershipService {
       }
     }
 
+    // Si Supabase está configurado, autenticar en la nube
+    if (this.supabaseService.isConfigured()) {
+      const { user, error } = await this.supabaseService.signIn(emailLower, pass);
+      if (error) {
+        return { success: false, error };
+      }
+      if (user) {
+        // Cargar perfil desde Supabase
+        const { profile } = await this.supabaseService.getProfile(user.id);
+        if (profile) {
+          this.applySupabaseProfile(profile);
+        }
+        this.loadUserData(emailLower);
+        return { success: true };
+      }
+    }
+
     const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
     const user = users.find((u: any) => u.email.toLowerCase() === emailLower);
 
@@ -863,6 +909,60 @@ export class MembershipService {
     }
 
     return { success: false, error: 'Correo o contraseña incorrectos.' };
+  }
+
+  // Iniciar sesión con Google (Supabase o Demo)
+  async loginWithGoogle(): Promise<{ success: boolean; error?: string }> {
+    if (this.supabaseService.isConfigured()) {
+      const { error } = await this.supabaseService.signInWithGoogle();
+      if (error) return { success: false, error };
+      return { success: true };
+    }
+
+    const googleEmail = 'google_guerrero@focusapp.com';
+    const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
+    const exists = users.some((u: any) => u.email.toLowerCase() === googleEmail.toLowerCase());
+    
+    if (!exists) {
+      await this.registerUser(googleEmail, 'google12345');
+    } else {
+      await this.loginUser(googleEmail, 'google12345');
+    }
+    
+    if (this.userName() === 'google_guerrero') {
+      this.userName.set('guerrero_comunidad');
+    }
+
+    return { success: true };
+  }
+
+  // Cerrar Sesión
+  async logout() {
+    if (this.supabaseService.isConfigured()) {
+      await this.supabaseService.signOut();
+    }
+    localStorage.removeItem('procrastina-current-user-email');
+    this.closeAvatarMenu();
+  }
+
+  // Aplicar datos del perfil de Supabase a las señales
+  private applySupabaseProfile(p: any) {
+    if (p.username) this.userName.set(p.username);
+    if (p.selected_avatar) this.selectedAvatar.set(p.selected_avatar);
+    if (p.selected_theme) this.selectedTheme.set(p.selected_theme);
+    if (p.profession) this.userProfession.set(cleanQuotedString(p.profession));
+    if (p.country) this.userCountry.set(p.country);
+    if (p.country_code) this.userCountryCode.set(p.country_code);
+    if (p.active_days) this.userActiveDays.set(p.active_days);
+    if (p.is_premium !== undefined) this.isPremium.set(p.is_premium);
+    if (p.pro_coins !== undefined) this.proCoins.set(p.pro_coins);
+    if (p.focus_points !== undefined) this.focusPoints.set(p.focus_points);
+    if (p.focus_tomatoes !== undefined) this.focusTomatoes.set(p.focus_tomatoes);
+    if (p.streak_days !== undefined) this.streak.set(p.streak_days);
+    if (p.gold_medals !== undefined) this.goldMedals.set(p.gold_medals);
+    if (p.silver_medals !== undefined) this.silverMedals.set(p.silver_medals);
+    if (p.bronze_medals !== undefined) this.bronzeMedals.set(p.bronze_medals);
+    if (p.onboarding_completed !== undefined) this.onboardingCompleted.set(p.onboarding_completed);
   }
 
   // Cargar datos de usuario

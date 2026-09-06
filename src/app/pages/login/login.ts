@@ -11,12 +11,19 @@ import { MembershipService } from '../../services/membership.service';
 export class Login {
   loginError = signal(false);
   errorMessage = signal<string | null>(null);
+  isLoading = signal(false);
 
   constructor(private router: Router, private membership: MembershipService) {}
 
-  onSubmit(event: Event, email: string, pass: string) {
+  async onSubmit(event: Event, email: string, pass: string) {
     event.preventDefault();
-    const result = this.membership.loginUser(email, pass);
+    this.isLoading.set(true);
+    this.loginError.set(false);
+    this.errorMessage.set(null);
+
+    const result = await this.membership.loginUser(email, pass);
+    this.isLoading.set(false);
+
     if (result.success) {
       this.loginError.set(false);
       this.errorMessage.set(null);
@@ -27,18 +34,17 @@ export class Login {
     }
   }
 
-  loginWithGoogle() {
-    const googleEmail = 'google_guerrero@focusapp.com';
-    const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
-    const exists = users.some((u: any) => u.email.toLowerCase() === googleEmail.toLowerCase());
-    
-    if (!exists) {
-      this.membership.registerUser(googleEmail, 'google12345');
-    } else {
-      this.membership.loginUser(googleEmail, 'google12345');
+  async loginWithGoogle() {
+    this.isLoading.set(true);
+    const result = await this.membership.loginWithGoogle();
+    this.isLoading.set(false);
+
+    if (result.success) {
+      this.router.navigate(['/home']);
+    } else if (result.error) {
+      this.loginError.set(true);
+      this.errorMessage.set(result.error);
     }
-    
-    this.router.navigate(['/home']);
   }
 
   prefill(emailInput: HTMLInputElement, passwordInput: HTMLInputElement) {

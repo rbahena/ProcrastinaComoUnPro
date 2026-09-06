@@ -10,39 +10,37 @@ import { MembershipService } from '../../services/membership.service';
 })
 export class Registro {
   registroError = signal<string | null>(null);
+  isLoading = signal(false);
 
   constructor(private router: Router, private membership: MembershipService) {}
 
-  onSubmit(event: Event, email: string, pass: string) {
+  async onSubmit(event: Event, email: string, pass: string) {
     event.preventDefault();
-    
-    const result = this.membership.registerUser(email, pass);
+    this.isLoading.set(true);
+    this.registroError.set(null);
+
+    const result = await this.membership.registerUser(email, pass);
+    this.isLoading.set(false);
+
     if (result.success) {
       this.registroError.set(null);
       localStorage.setItem('procrastina-just-registered', 'true');
-      // Redirigir a la pantalla de cualidades e identidad
       this.router.navigate(['/cualidades']);
     } else {
       this.registroError.set(result.error || 'Ocurrió un error en el registro.');
     }
   }
 
-  registerWithGoogle() {
-    const googleEmail = 'google_guerrero@focusapp.com';
-    const users = JSON.parse(localStorage.getItem('procrastina-registered-users') || '[]');
-    const exists = users.some((u: any) => u.email.toLowerCase() === googleEmail.toLowerCase());
-    
-    if (!exists) {
-      this.membership.registerUser(googleEmail, 'google12345');
-    } else {
-      this.membership.loginUser(googleEmail, 'google12345');
-    }
-    
-    if (this.membership.userName() === 'google_guerrero') {
-      this.membership.userName.set('guerrero_comunidad');
-    }
+  async registerWithGoogle() {
+    this.isLoading.set(true);
+    const result = await this.membership.loginWithGoogle();
+    this.isLoading.set(false);
 
-    localStorage.setItem('procrastina-just-registered', 'true');
-    this.router.navigate(['/cualidades']);
+    if (result.success) {
+      localStorage.setItem('procrastina-just-registered', 'true');
+      this.router.navigate(['/cualidades']);
+    } else if (result.error) {
+      this.registroError.set(result.error);
+    }
   }
 }
