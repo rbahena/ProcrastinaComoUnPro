@@ -161,7 +161,23 @@ export class SupabaseService {
       return { user: null, error: 'Este correo electrónico ya se encuentra registrado. Intenta iniciar sesión.' };
     }
 
-    return { user: data.user, error: null };
+    // 3. Garantizar sesión activa inmediata
+    let session = data.session;
+    let user = data.user;
+    if (!session && user) {
+      const signInRes = await this.signIn(emailClean, password);
+      if (signInRes.session) {
+        session = signInRes.session;
+        user = signInRes.user;
+      }
+    }
+
+    if (session) {
+      this.currentSession.set(session);
+      this.currentUser.set(user);
+    }
+
+    return { user, error: null };
   }
 
   async signIn(email: string, password: string): Promise<{ user: User | null; session: Session | null; error: string | null }> {

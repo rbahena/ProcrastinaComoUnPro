@@ -15,8 +15,15 @@ export const authGuard: CanActivateFn = async (route, state) => {
     return false;
   }
 
+  // 1. Si ya tiene usuario en señal reactiva
+  if (supabase.currentUser()) {
+    return true;
+  }
+
+  // 2. Si tiene sesión persistida en Supabase
   const user = await supabase.getCurrentUser();
   if (user) {
+    supabase.currentUser.set(user);
     return true;
   }
 

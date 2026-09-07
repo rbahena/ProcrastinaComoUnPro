@@ -865,6 +865,15 @@ export class MembershipService {
       localStorage.setItem('procrastina-current-user-email', emailLower);
       this.resetNewUserAccount();
       this.loadUserData(emailLower);
+      // Cargar perfil e inventario inicial de Supabase de inmediato
+      const { profile } = await this.supabaseService.getProfile(user.id);
+      if (profile) {
+        this.applySupabaseProfile(profile);
+      }
+      const { items } = await this.supabaseService.getUnlockedItems(user.id);
+      if (items && items.length > 0) {
+        this.applySupabaseUnlockedItems(items);
+      }
       return { success: true };
     }
 
