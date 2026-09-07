@@ -2660,6 +2660,167 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
+-- ==============================================================================
+-- 📦 PASO 8: SALÓN DE LA FAMA, MEDALLERO Y RÉCORDS HISTÓRICOS (/medallero)
+-- ==============================================================================
+-- 🎯 PANTALLAS Y MÓDULOS DE USO EN EL FRONTEND:
+-- • /medallero (Vista de Récords & Salón de la Fama):
+--   - Slider de 4 Récords Históricos Destacados:
+--     * Récord 1: "Mejor Racha" (Usuario con mayor racha consecutiva de días de enfoque).
+--     * Récord 2: "Sesiones de Concentración" (Usuario con más pomodoros completados).
+--     * Récord 3: "El Magnate de Focus" (Usuario con más Pro Coins acumuladas).
+--     * Récord 4: "Podios Conquistados" (Usuario con más victorias en podios comunitarios).
+--   - 4 Pestañas de Tablas y Rankings de la Comunidad:
+--     * Tab 'objectives': Ranking ordenado por puntos de enfoque (focus_points DESC).
+--     * Tab 'pomodoros': Ranking ordenado por bloques de pomodoros completados (focus_tomatoes DESC).
+--     * Tab 'streaks': Ranking ordenado por días de racha activa/máxima (longest_streak DESC).
+--     * Tab 'boss': Ranking ordenado por daño total infligido al Jefe de Raid Comunitario (damage_dealt DESC).
+--
+-- Propósito:
+-- Proporcionar un procedimiento almacenado seguro, atómico y optimizado (get_medallero_records_dashboard)
+-- que calcula simultáneamente los líderes históricos de cada categoría y los 4 rankings competitivos
+-- de la comunidad para renderizar la pantalla del Medallero sin realizar múltiples consultas dispersas.
+-- ==============================================================================
+
+-- ------------------------------------------------------------------------------
+-- 1. PROCEDIMIENTO RPC PARA TELEMETRÍA DE RÉCORDS Y SALÓN DE LA FAMA
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC / FUNCIÓN DE TELEMETRÍA GLOBAL (SECURITY DEFINER FUNCTION)]
+-- ¿Qué es? Procedimiento almacenado que agrega las marcas históricas y rankings del medallero.
+-- ¿Para qué sirve? Retorna en un solo objeto JSON:
+--   1. records.best_streak: Datos del usuario con la racha más larga de la plataforma.
+--   2. records.most_tomatoes: Datos del usuario con mayor cantidad de sesiones terminadas.
+--   3. records.most_coins: Datos del usuario con mayor saldo histórico de Pro Coins.
+--   4. records.most_podiums: Datos del usuario con más podios semanales conquistados.
+--   5. rankings.objectives: Top 10 usuarios ordenados por puntos de honor y objetivos cumplidos.
+--   6. rankings.pomodoros: Top 10 usuarios ordenados por pomodoros totales.
+--   7. rankings.streaks: Top 10 usuarios ordenados por días de racha consecutiva.
+--   8. rankings.boss: Top 10 guerreros con mayor daño histórico asestado a los jefes de raid.
+CREATE OR REPLACE FUNCTION public.get_medallero_records_dashboard()
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_best_streak JSON;
+    v_most_tomatoes JSON;
+    v_most_coins JSON;
+    v_most_podiums JSON;
+    v_ranking_objectives JSON;
+    v_ranking_pomodoros JSON;
+    v_ranking_streaks JSON;
+    v_ranking_boss JSON;
+BEGIN
+    -- 1. Récord Histórico: Mejor Racha
+    SELECT json_build_object(
+        'holder', username,
+        'avatar', selected_avatar,
+        'flag', COALESCE(LOWER(country_code), 'mx'),
+        'streak', GREATEST(longest_streak, streak_days),
+        'user_id', id
+    ) INTO v_best_streak
+    FROM public.profiles
+    ORDER BY GREATEST(longest_streak, streak_days) DESC, created_at ASC
+    LIMIT 1;
+
+    -- 2. Récord Histórico: Más Sesiones de Concentración (Pomodoros)
+    SELECT json_build_object(
+        'holder', username,
+        'avatar', selected_avatar,
+        'flag', COALESCE(LOWER(country_code), 'mx'),
+        'tomatoes', focus_tomatoes,
+        'user_id', id
+    ) INTO v_most_tomatoes
+    FROM public.profiles
+    ORDER BY focus_tomatoes DESC, created_at ASC
+    LIMIT 1;
+
+    -- 3. Récord Histórico: El Magnate de Focus (Pro Coins)
+    SELECT json_build_object(
+        'holder', username,
+        'avatar', selected_avatar,
+        'flag', COALESCE(LOWER(country_code), 'mx'),
+        'coins', pro_coins,
+        'user_id', id
+    ) INTO v_most_coins
+    FROM public.profiles
+    ORDER BY pro_coins DESC, created_at ASC
+    LIMIT 1;
+
+    -- 4. Récord Histórico: Podios Conquistados
+    SELECT json_build_object(
+        'holder', username,
+        'avatar', selected_avatar,
+        'flag', COALESCE(LOWER(country_code), 'mx'),
+        'podiums', podium_wins,
+        'user_id', id
+    ) INTO v_most_podiums
+    FROM public.profiles
+    ORDER BY podium_wins DESC, gold_medals DESC, created_at ASC
+    LIMIT 1;
+
+    -- 5. Ranking por Puntos de Enfoque y Objetivos (Top 10)
+    SELECT COALESCE(json_agg(r), '[]'::json) INTO v_ranking_objectives FROM (
+        SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
+               focus_points, focus_tomatoes, podium_wins, streak_days
+        FROM public.profiles
+        ORDER BY focus_points DESC, created_at ASC
+        LIMIT 10
+    ) r;
+
+    -- 6. Ranking por Pomodoros Completados (Top 10)
+    SELECT COALESCE(json_agg(r), '[]'::json) INTO v_ranking_pomodoros FROM (
+        SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
+               focus_tomatoes, focus_points, streak_days
+        FROM public.profiles
+        ORDER BY focus_tomatoes DESC, created_at ASC
+        LIMIT 10
+    ) r;
+
+    -- 7. Ranking por Rachas Consecutivas (Top 10)
+    SELECT COALESCE(json_agg(r), '[]'::json) INTO v_ranking_streaks FROM (
+        SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
+               GREATEST(longest_streak, streak_days) as streak_count, streak_days
+        FROM public.profiles
+        ORDER BY GREATEST(longest_streak, streak_days) DESC, streak_days DESC, created_at ASC
+        LIMIT 10
+    ) r;
+
+    -- 8. Ranking por Aporte y Daño a Villanos (Top 10)
+    SELECT COALESCE(json_agg(b), '[]'::json) INTO v_ranking_boss FROM (
+        SELECT 
+            COALESCE(p.id::text, ba.user_name) as id,
+            COALESCE(p.username, ba.user_name) as username,
+            COALESCE(p.selected_avatar, ba.user_avatar, 'lobo') as selected_avatar,
+            COALESCE(LOWER(p.country_code), 'mx') as country_code,
+            SUM(ba.damage_dealt)::BIGINT as total_damage
+        FROM public.community_boss_attacks ba
+        LEFT JOIN public.profiles p ON p.id = ba.user_id
+        WHERE ba.damage_dealt > 0
+        GROUP BY p.id, p.username, p.selected_avatar, p.country_code, ba.user_name, ba.user_avatar
+        ORDER BY total_damage DESC
+        LIMIT 10
+    ) b;
+
+    RETURN json_build_object(
+        'success', TRUE,
+        'records', json_build_object(
+            'best_streak', v_best_streak,
+            'most_tomatoes', v_most_tomatoes,
+            'most_coins', v_most_coins,
+            'most_podiums', v_most_podiums
+        ),
+        'rankings', json_build_object(
+            'objectives', v_ranking_objectives,
+            'pomodoros', v_ranking_pomodoros,
+            'streaks', v_ranking_streaks,
+            'boss', v_ranking_boss
+        )
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+
 
 
 

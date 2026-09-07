@@ -194,6 +194,70 @@ export interface CommunityHomeDashboardData {
   recent_avatars: CommunityLeaderboardUser[];
 }
 
+export interface MedalleroBrokenRecordHolder {
+  holder: string;
+  avatar: string;
+  flag: string;
+  streak?: number;
+  tomatoes?: number;
+  coins?: number;
+  podiums?: number;
+  user_id?: string;
+}
+
+export interface MedalleroRankingObjectivesItem {
+  id: string;
+  username: string;
+  selected_avatar: string;
+  country_code: string;
+  focus_points: number;
+  focus_tomatoes?: number;
+  podium_wins?: number;
+  streak_days?: number;
+}
+
+export interface MedalleroRankingPomodorosItem {
+  id: string;
+  username: string;
+  selected_avatar: string;
+  country_code: string;
+  focus_tomatoes: number;
+  focus_points?: number;
+  streak_days?: number;
+}
+
+export interface MedalleroRankingStreaksItem {
+  id: string;
+  username: string;
+  selected_avatar: string;
+  country_code: string;
+  streak_count: number;
+  streak_days?: number;
+}
+
+export interface MedalleroRankingBossItem {
+  id: string;
+  username: string;
+  selected_avatar: string;
+  country_code: string;
+  total_damage: number;
+}
+
+export interface MedalleroDashboardData {
+  records: {
+    best_streak: MedalleroBrokenRecordHolder | null;
+    most_tomatoes: MedalleroBrokenRecordHolder | null;
+    most_coins: MedalleroBrokenRecordHolder | null;
+    most_podiums: MedalleroBrokenRecordHolder | null;
+  };
+  rankings: {
+    objectives: MedalleroRankingObjectivesItem[];
+    pomodoros: MedalleroRankingPomodorosItem[];
+    streaks: MedalleroRankingStreaksItem[];
+    boss: MedalleroRankingBossItem[];
+  };
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -1277,7 +1341,191 @@ export class SupabaseService {
       return { data: null, error: e.message || 'Error al obtener dashboard de comunidad' };
     }
   }
+
+  // ==========================================
+  // SALÓN DE LA FAMA & RÉCORDS HISTÓRICOS (MEDALLERO)
+  // ==========================================
+
+  async getMedalleroData(): Promise<{ data: MedalleroDashboardData | null; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { data: null, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      // 1. Intentar llamar al RPC get_medallero_records_dashboard
+      const { data: rpcData, error: rpcError } = await this.supabase.rpc('get_medallero_records_dashboard');
+      if (!rpcError && rpcData && rpcData.success) {
+        return {
+          data: {
+            records: {
+              best_streak: rpcData.records?.best_streak || null,
+              most_tomatoes: rpcData.records?.most_tomatoes || null,
+              most_coins: rpcData.records?.most_coins || null,
+              most_podiums: rpcData.records?.most_podiums || null
+            },
+            rankings: {
+              objectives: rpcData.rankings?.objectives || [],
+              pomodoros: rpcData.rankings?.pomodoros || [],
+              streaks: rpcData.rankings?.streaks || [],
+              boss: rpcData.rankings?.boss || []
+            }
+          },
+          error: null
+        };
+      }
+
+      // 2. Fallback con queries directas a profiles y community_boss_attacks
+      const { data: profiles, error: profilesError } = await this.supabase
+        .from('profiles')
+        .select('id, username, selected_avatar, country_code, pro_coins, focus_points, focus_tomatoes, streak_days, longest_streak, podium_wins, gold_medals, created_at');
+
+      if (profilesError) {
+        return { data: null, error: profilesError.message };
+      }
+
+      const allProfiles = profiles || [];
+
+      // A. Récords
+      const sortedByStreak = [...allProfiles].sort((a, b) => 
+        Math.max(b.longest_streak || 0, b.streak_days || 0) - Math.max(a.longest_streak || 0, a.streak_days || 0)
+      );
+      const topStreak = sortedByStreak[0];
+
+      const sortedByTomatoes = [...allProfiles].sort((a, b) => 
+        (b.focus_tomatoes || 0) - (a.focus_tomatoes || 0)
+      );
+      const topTomatoes = sortedByTomatoes[0];
+
+      const sortedByCoins = [...allProfiles].sort((a, b) => 
+        (b.pro_coins || 0) - (a.pro_coins || 0)
+      );
+      const topCoins = sortedByCoins[0];
+
+      const sortedByPodiums = [...allProfiles].sort((a, b) => 
+        (b.podium_wins || 0) - (a.podium_wins || 0)
+      );
+      const topPodiums = sortedByPodiums[0];
+
+      // B. Rankings
+      const objectives = [...allProfiles]
+        .sort((a, b) => (b.focus_points || 0) - (a.focus_points || 0))
+        .slice(0, 10)
+        .map(p => ({
+          id: p.id,
+          username: p.username || 'Guerrero',
+          selected_avatar: p.selected_avatar || 'gato',
+          country_code: (p.country_code || 'mx').toLowerCase(),
+          focus_points: p.focus_points || 0,
+          focus_tomatoes: p.focus_tomatoes || 0,
+          podium_wins: p.podium_wins || 0,
+          streak_days: p.streak_days || 0
+        }));
+
+      const pomodoros = [...allProfiles]
+        .sort((a, b) => (b.focus_tomatoes || 0) - (a.focus_tomatoes || 0))
+        .slice(0, 10)
+        .map(p => ({
+          id: p.id,
+          username: p.username || 'Guerrero',
+          selected_avatar: p.selected_avatar || 'gato',
+          country_code: (p.country_code || 'mx').toLowerCase(),
+          focus_tomatoes: p.focus_tomatoes || 0,
+          focus_points: p.focus_points || 0,
+          streak_days: p.streak_days || 0
+        }));
+
+      const streaks = [...allProfiles]
+        .sort((a, b) => Math.max(b.longest_streak || 0, b.streak_days || 0) - Math.max(a.longest_streak || 0, a.streak_days || 0))
+        .slice(0, 10)
+        .map(p => ({
+          id: p.id,
+          username: p.username || 'Guerrero',
+          selected_avatar: p.selected_avatar || 'gato',
+          country_code: (p.country_code || 'mx').toLowerCase(),
+          streak_count: Math.max(p.longest_streak || 0, p.streak_days || 0),
+          streak_days: p.streak_days || 0
+        }));
+
+      // C. Boss damage ranking
+      const { data: bossAttacks } = await this.supabase
+        .from('community_boss_attacks')
+        .select('user_id, user_name, user_avatar, damage_dealt')
+        .gt('damage_dealt', 0);
+
+      const bossDamageMap = new Map<string, { id: string; username: string; selected_avatar: string; total_damage: number }>();
+      (bossAttacks || []).forEach((att: any) => {
+        const key = att.user_id || att.user_name || 'Desconocido';
+        const existing = bossDamageMap.get(key);
+        if (existing) {
+          existing.total_damage += att.damage_dealt;
+        } else {
+          bossDamageMap.set(key, {
+            id: att.user_id || key,
+            username: att.user_name || 'Guerrero',
+            selected_avatar: att.user_avatar || 'lobo',
+            total_damage: att.damage_dealt
+          });
+        }
+      });
+
+      const bossRanking: MedalleroRankingBossItem[] = Array.from(bossDamageMap.values())
+        .sort((a, b) => b.total_damage - a.total_damage)
+        .slice(0, 10)
+        .map(b => ({
+          id: b.id,
+          username: b.username,
+          selected_avatar: b.selected_avatar,
+          country_code: 'mx',
+          total_damage: b.total_damage
+        }));
+
+      return {
+        data: {
+          records: {
+            best_streak: topStreak ? {
+              holder: topStreak.username || 'Guerrero',
+              avatar: topStreak.selected_avatar || 'panda',
+              flag: (topStreak.country_code || 'mx').toLowerCase(),
+              streak: Math.max(topStreak.longest_streak || 0, topStreak.streak_days || 0),
+              user_id: topStreak.id
+            } : null,
+            most_tomatoes: topTomatoes ? {
+              holder: topTomatoes.username || 'Guerrero',
+              avatar: topTomatoes.selected_avatar || 'tortuga',
+              flag: (topTomatoes.country_code || 'pe').toLowerCase(),
+              tomatoes: topTomatoes.focus_tomatoes || 0,
+              user_id: topTomatoes.id
+            } : null,
+            most_coins: topCoins ? {
+              holder: topCoins.username || 'Guerrero',
+              avatar: topCoins.selected_avatar || 'rana',
+              flag: (topCoins.country_code || 'es').toLowerCase(),
+              coins: topCoins.pro_coins || 0,
+              user_id: topCoins.id
+            } : null,
+            most_podiums: topPodiums ? {
+              holder: topPodiums.username || 'Guerrero',
+              avatar: topPodiums.selected_avatar || 'zorro',
+              flag: (topPodiums.country_code || 'cl').toLowerCase(),
+              podiums: topPodiums.podium_wins || 0,
+              user_id: topPodiums.id
+            } : null
+          },
+          rankings: {
+            objectives,
+            pomodoros,
+            streaks,
+            boss: bossRanking
+          }
+        },
+        error: null
+      };
+    } catch (e: any) {
+      return { data: null, error: e.message || 'Error al obtener récords del medallero' };
+    }
+  }
 }
+
 
 
 
