@@ -325,6 +325,11 @@ export class MembershipService {
             this.applySupabaseQualityProgress(progress);
           }
         });
+        this.supabaseService.getCapturedIdeas(user.id).then(({ ideas, error }) => {
+          if (!error && ideas && ideas.length > 0) {
+            this.capturedIdeas.set(ideas.map(i => i.content));
+          }
+        });
         this.loadCatalogFromSupabase();
       }
     });
@@ -484,8 +489,15 @@ export class MembershipService {
 
   addIdea(idea: string) {
     if (!idea.trim()) return;
+    const cleanIdea = idea.trim();
     const current = this.capturedIdeas();
-    this.capturedIdeas.set([idea.trim(), ...current]);
+    this.capturedIdeas.set([cleanIdea, ...current]);
+
+    if (this.supabaseService.isConfigured()) {
+      this.supabaseService.saveCapturedIdea(cleanIdea).catch(err => {
+        console.warn('[Supabase Idea Save Error]', err);
+      });
+    }
   }
 
   removeIdea(index: number) {
@@ -926,6 +938,11 @@ export class MembershipService {
       const { progress } = await this.supabaseService.getUserQualityProgress(user.id);
       if (progress && progress.length > 0) {
         this.applySupabaseQualityProgress(progress);
+      }
+      // Cargar ideas desde Supabase
+      const { ideas } = await this.supabaseService.getCapturedIdeas(user.id);
+      if (ideas && ideas.length > 0) {
+        this.capturedIdeas.set(ideas.map(i => i.content));
       }
       return { success: true };
     }

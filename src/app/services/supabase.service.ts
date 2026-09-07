@@ -134,6 +134,43 @@ export interface BossAttackEvent {
   created_at?: string;
 }
 
+export interface TemporalDeadline {
+  id?: string;
+  user_id?: string;
+  title: string;
+  description?: string;
+  deadline_at: string;
+  priority: 'baja' | 'media' | 'alta' | 'critica';
+  category: string;
+  is_completed: boolean;
+  completed_at?: string;
+  estimated_pomodoros: number;
+  completed_pomodoros: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface FirewallBlockedSite {
+  id?: string;
+  user_id?: string;
+  domain: string;
+  category: string;
+  is_active: boolean;
+  blocked_attempts_count: number;
+  last_blocked_at?: string;
+  created_at?: string;
+}
+
+export interface CapturedIdea {
+  id?: string;
+  user_id?: string;
+  content: string;
+  is_converted_to_objective: boolean;
+  converted_at?: string;
+  display_order: number;
+  created_at?: string;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -814,6 +851,322 @@ export class SupabaseService {
       return { success: true, result: data };
     } catch (e: any) {
       return { success: false, error: e.message || 'Error al cambiar jefe' };
+    }
+  }
+
+  // ==========================================
+  // ARENA TEMPORAL, CORTAFUEGOS & BAÚL DE IDEAS
+  // ==========================================
+
+  // --- ARENA TEMPORAL (/fechas) ---
+  async getDeadlines(userId: string): Promise<{ deadlines: TemporalDeadline[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { deadlines: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('temporal_deadlines')
+        .select('*')
+        .eq('user_id', userId)
+        .order('deadline_at', { ascending: true });
+
+      if (error) {
+        return { deadlines: [], error: error.message };
+      }
+
+      return { deadlines: (data || []) as TemporalDeadline[], error: null };
+    } catch (e: any) {
+      return { deadlines: [], error: e.message || 'Error al obtener deadlines' };
+    }
+  }
+
+  async createDeadline(deadline: Omit<TemporalDeadline, 'id' | 'created_at' | 'updated_at'>): Promise<{ success: boolean; error?: string; deadline?: TemporalDeadline }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) return { success: false, error: 'No autenticado' };
+
+      const { data, error } = await this.supabase
+        .from('temporal_deadlines')
+        .insert({ ...deadline, user_id: user.id })
+        .select()
+        .single();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, deadline: data as TemporalDeadline };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al crear deadline' };
+    }
+  }
+
+  async updateDeadline(id: string, updates: Partial<TemporalDeadline>): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('temporal_deadlines')
+        .update(updates)
+        .eq('id', id);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al actualizar deadline' };
+    }
+  }
+
+  async toggleDeadlineCompleted(id: string, isCompleted: boolean): Promise<{ success: boolean; error?: string }> {
+    return this.updateDeadline(id, {
+      is_completed: isCompleted,
+      completed_at: isCompleted ? new Date().toISOString() : undefined
+    });
+  }
+
+  async deleteDeadline(id: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('temporal_deadlines')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al eliminar deadline' };
+    }
+  }
+
+  // --- CORTAFUEGOS (/bloqueador) ---
+  async getBlockedSites(userId: string): Promise<{ sites: FirewallBlockedSite[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { sites: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('firewall_blocked_sites')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        return { sites: [], error: error.message };
+      }
+
+      return { sites: (data || []) as FirewallBlockedSite[], error: null };
+    } catch (e: any) {
+      return { sites: [], error: e.message || 'Error al obtener sitios bloqueados' };
+    }
+  }
+
+  async addBlockedSite(domain: string, category: string = 'redes_sociales'): Promise<{ success: boolean; error?: string; site?: FirewallBlockedSite }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) return { success: false, error: 'No autenticado' };
+
+      const cleanDomain = domain.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].trim();
+
+      const { data, error } = await this.supabase
+        .from('firewall_blocked_sites')
+        .insert({
+          user_id: user.id,
+          domain: cleanDomain,
+          category,
+          is_active: true
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, site: data as FirewallBlockedSite };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al agregar sitio bloqueado' };
+    }
+  }
+
+  async toggleBlockedSite(id: string, isActive: boolean): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('firewall_blocked_sites')
+        .update({ is_active: isActive })
+        .eq('id', id);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al cambiar estado de bloqueo' };
+    }
+  }
+
+  async deleteBlockedSite(id: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('firewall_blocked_sites')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al eliminar sitio bloqueado' };
+    }
+  }
+
+  async registerFirewallBlock(domain: string): Promise<{ success: boolean; error?: string; result?: any }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase.rpc('register_firewall_block', {
+        p_domain: domain
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, result: data };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al registrar bloqueo' };
+    }
+  }
+
+  // --- BAÚL DE IDEAS (/ideas) ---
+  async getCapturedIdeas(userId: string): Promise<{ ideas: CapturedIdea[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { ideas: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('captured_ideas')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_converted_to_objective', false)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        return { ideas: [], error: error.message };
+      }
+
+      return { ideas: (data || []) as CapturedIdea[], error: null };
+    } catch (e: any) {
+      return { ideas: [], error: e.message || 'Error al obtener ideas' };
+    }
+  }
+
+  async saveCapturedIdea(content: string, displayOrder: number = 1): Promise<{ success: boolean; error?: string; idea?: CapturedIdea }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) return { success: false, error: 'No autenticado' };
+
+      const { data, error } = await this.supabase
+        .from('captured_ideas')
+        .insert({
+          user_id: user.id,
+          content: content.trim(),
+          display_order: displayOrder
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, idea: data as CapturedIdea };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al guardar idea' };
+    }
+  }
+
+  async deleteCapturedIdea(id: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('captured_ideas')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al eliminar idea' };
+    }
+  }
+
+  async convertIdeaToObjective(ideaId: string): Promise<{ success: boolean; error?: string; objectiveText?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase.rpc('convert_idea_to_objective', {
+        p_idea_id: ideaId
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data && data.success === false) {
+        return { success: false, error: data.error || 'Error al convertir idea' };
+      }
+
+      return { success: true, objectiveText: data?.objective_text };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al convertir idea' };
     }
   }
 }

@@ -17,7 +17,7 @@
 -- [x] PASO 3: Catálogo y Progreso de Cualidades Maestras -> COMPLETADO
 -- [x] PASO 4: Sesiones de Enfoque, Bitácora & Blindaje Anti-Exploits -> COMPLETADO
 -- [x] PASO 5: Jefes de Raid Comunitarios & WebSockets Realtime -> COMPLETADO
--- [ ] PASO 6: Arena Temporal (/fechas), Cortafuegos (/bloqueador) y Baúl de Ideas -> PENDIENTE
+-- [x] PASO 6: Arena Temporal (/fechas), Cortafuegos (/bloqueador) y Baúl de Ideas -> COMPLETADO
 -- ==============================================================================
 
 
@@ -2294,6 +2294,238 @@ CREATE POLICY "Usuarios autenticados registran eventos de combate"
 -- ¿Para qué sirve? Transmite cada milisegundo los golpes asestados, curas y estado de victoria a todos los navegadores conectados.
 ALTER PUBLICATION supabase_realtime ADD TABLE public.community_bosses;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.community_boss_attacks;
+
+
+
+-- ==============================================================================
+-- 📦 PASO 6: ARENA TEMPORAL (/fechas), CORTAFUEGOS (/bloqueador) Y BAÚL DE IDEAS
+-- ==============================================================================
+-- Propósito:
+-- Completar la suite de productividad con los 3 módulos auxiliares de enfoque:
+-- 1. Arena Temporal (/fechas): Tareas con fechas límite estrictas (Deadlines) y cuenta atrás.
+-- 2. Cortafuegos (/bloqueador): Lista negra de sitios web distractores y telemetría de bloqueos.
+-- 3. Baúl de Ideas (/ideas): Brain Dump rápido para capturar pensamientos fugaces y convertirlos en objetivos.
+-- ==============================================================================
+
+-- ------------------------------------------------------------------------------
+-- 1. TABLA DE ARENA TEMPORAL (DEADLINES ESTRICTOS Y CUENTA ATRÁS)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: TABLA (TABLE)]
+-- ¿Qué es? Registro de metas, proyectos y tareas con fechas de entrega inaplazables.
+-- ¿Para qué sirve? Combate el sesgo del presente y la Ley de Parkinson calculando en tiempo real
+-- la urgencia y el tiempo exacto restante (días, horas, minutos) antes del vencimiento.
+CREATE TABLE IF NOT EXISTS public.temporal_deadlines (
+    -- [COLUMNA: IDENTIFICADORES Y VINCULACIÓN]
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    
+    -- [COLUMNAS: DETALLES DE LA META O ENTREGA]
+    -- title: Título del entregable o proyecto (ej. 'Entrega del Reporte Trimestral').
+    title TEXT NOT NULL,
+    -- description: Alcance y especificaciones de la tarea.
+    description TEXT DEFAULT NULL,
+    -- deadline_at: Fecha y hora exacta (UTC) de vencimiento.
+    deadline_at TIMESTAMPTZ NOT NULL,
+    -- priority: Nivel de urgencia ('baja', 'media', 'alta', 'critica').
+    priority VARCHAR(20) NOT NULL DEFAULT 'media' CHECK (priority IN ('baja', 'media', 'alta', 'critica')),
+    -- category: Área de la vida o trabajo ('trabajo', 'estudio', 'personal', 'proyecto').
+    category VARCHAR(50) NOT NULL DEFAULT 'general',
+    
+    -- [COLUMNAS: ESTADO Y POMODOROS ESTIMADOS]
+    -- is_completed: Flag que indica si el entregable fue terminado antes o después del deadline.
+    is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    -- completed_at: Marca de tiempo exacta en que se marcó como completado.
+    completed_at TIMESTAMPTZ DEFAULT NULL,
+    -- estimated_pomodoros: Cantidad de bloques de 25 min estimados para completar la tarea.
+    estimated_pomodoros SMALLINT NOT NULL DEFAULT 4 CHECK (estimated_pomodoros >= 1),
+    -- completed_pomodoros: Bloques de enfoque efectivamente invertidos en esta meta.
+    completed_pomodoros SMALLINT NOT NULL DEFAULT 0 CHECK (completed_pomodoros >= 0),
+    
+    -- [COLUMNAS: AUDITORÍA TEMPORAL]
+    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- [TIPO DE OBJETO: ÍNDICE B-TREE (INDEX)]
+-- ¿Para qué sirve? Permite ordenar cronológicamente las entregas más próximas y urgentes.
+CREATE INDEX IF NOT EXISTS idx_temporal_deadlines_user_date ON public.temporal_deadlines(user_id, deadline_at ASC);
+CREATE INDEX IF NOT EXISTS idx_temporal_deadlines_completed ON public.temporal_deadlines(user_id, is_completed);
+
+-- [TIPO DE OBJETO: TRIGGER DE AUDITORÍA (TRIGGER)]
+DROP TRIGGER IF EXISTS set_temporal_deadlines_updated_at ON public.temporal_deadlines;
+CREATE TRIGGER set_temporal_deadlines_updated_at
+    BEFORE UPDATE ON public.temporal_deadlines
+    FOR EACH ROW EXECUTE FUNCTION public.set_current_timestamp_updated_at();
+
+
+-- ------------------------------------------------------------------------------
+-- 2. TABLA DE CORTAFUEGOS Y SITIOS BLOQUEADOS (FIREWALL BLOCKED SITES)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: TABLA (TABLE)]
+-- ¿Qué es? Lista de dominios distractores configurados por el usuario para bloqueo.
+-- ¿Para qué sirve? Alimenta el escudo del navegador y registra cuántas veces se impidió caer en tentación.
+CREATE TABLE IF NOT EXISTS public.firewall_blocked_sites (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    
+    -- [COLUMNA: DOMINIO A BLOQUEAR]
+    -- domain: URL o dominio distractor (ej. 'youtube.com', 'x.com', 'instagram.com', 'reddit.com').
+    domain TEXT NOT NULL,
+    -- category: Clasificación del distractor ('redes_sociales', 'video_streaming', 'noticias', 'videojuegos', 'personalizado').
+    category VARCHAR(50) NOT NULL DEFAULT 'redes_sociales',
+    -- is_active: Interruptor para pausar o reactivar el bloqueo sin borrar el registro.
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    
+    -- [COLUMNAS: TELEMETRÍA Y MÉTRICAS DE ESCUDO]
+    -- blocked_attempts_count: Cantidad total de veces que el cortafuegos frenó al usuario.
+    blocked_attempts_count INTEGER NOT NULL DEFAULT 0 CHECK (blocked_attempts_count >= 0),
+    -- last_blocked_at: Momento del intento de distracción más reciente.
+    last_blocked_at TIMESTAMPTZ DEFAULT NULL,
+    
+    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    UNIQUE(user_id, domain)
+);
+
+-- [TIPO DE OBJETO: ÍNDICE B-TREE (INDEX)]
+-- ¿Para qué sirve? Agiliza la validación instantánea del cortafuegos activo.
+CREATE INDEX IF NOT EXISTS idx_firewall_user_domain ON public.firewall_blocked_sites(user_id, is_active);
+
+
+-- ------------------------------------------------------------------------------
+-- 3. TABLA DEL BAÚL DE IDEAS (BRAIN DUMP & PARKING LOT)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: TABLA (TABLE)]
+-- ¿Qué es? Depósito rápido de pensamientos fugaces capturados durante el hiperfoco.
+-- ¿Para qué sirve? Evita que el usuario abra pestañas secundarias o interrumpa su pomodoro actual,
+-- permitiéndole aparcar ideas y convertirlas luego en objetivos de sesión con 1 solo clic.
+CREATE TABLE IF NOT EXISTS public.captured_ideas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    
+    -- [COLUMNAS: CONTENIDO DE LA IDEA]
+    -- content: Texto o pensamiento anotado (ej. 'Revisar presupuesto para el servidor').
+    content TEXT NOT NULL,
+    -- is_converted_to_objective: Flag para marcar si la idea ya fue convertida en una sesión de enfoque.
+    is_converted_to_objective BOOLEAN NOT NULL DEFAULT FALSE,
+    -- converted_at: Momento exacto de la conversión.
+    converted_at TIMESTAMPTZ DEFAULT NULL,
+    -- display_order: Orden personalizado en la lista.
+    display_order INTEGER NOT NULL DEFAULT 1,
+    
+    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- [TIPO DE OBJETO: ÍNDICE B-TREE (INDEX)]
+CREATE INDEX IF NOT EXISTS idx_captured_ideas_user ON public.captured_ideas(user_id, created_at DESC);
+
+
+-- ------------------------------------------------------------------------------
+-- 4. PROCEDIMIENTOS ALMACENADOS RPC (OPERACIONES TRANSACCIONALES)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC PARA REGISTRAR INTENTO DE DISTRACCIÓN BLOQUEADO]
+CREATE OR REPLACE FUNCTION public.register_firewall_block(p_domain TEXT)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_new_count INTEGER;
+BEGIN
+    IF v_user_id IS NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
+    END IF;
+
+    UPDATE public.firewall_blocked_sites
+    SET 
+        blocked_attempts_count = blocked_attempts_count + 1,
+        last_blocked_at = TIMEZONE('utc'::text, NOW())
+    WHERE user_id = v_user_id AND domain = p_domain
+    RETURNING blocked_attempts_count INTO v_new_count;
+
+    IF NOT FOUND THEN
+        INSERT INTO public.firewall_blocked_sites (user_id, domain, blocked_attempts_count, last_blocked_at)
+        VALUES (v_user_id, p_domain, 1, TIMEZONE('utc'::text, NOW()))
+        RETURNING blocked_attempts_count INTO v_new_count;
+    END IF;
+
+    RETURN json_build_object('success', TRUE, 'domain', p_domain, 'blocked_count', v_new_count);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC PARA CONVERTIR IDEA EN OBJETIVO ACTIVO]
+CREATE OR REPLACE FUNCTION public.convert_idea_to_objective(p_idea_id UUID)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_idea RECORD;
+BEGIN
+    IF v_user_id IS NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
+    END IF;
+
+    UPDATE public.captured_ideas
+    SET 
+        is_converted_to_objective = TRUE,
+        converted_at = TIMEZONE('utc'::text, NOW())
+    WHERE id = p_idea_id AND user_id = v_user_id
+    RETURNING * INTO v_idea;
+
+    IF NOT FOUND THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Idea no encontrada');
+    END IF;
+
+    RETURN json_build_object(
+        'success', TRUE,
+        'idea_id', v_idea.id,
+        'objective_text', v_idea.content
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ------------------------------------------------------------------------------
+-- 5. SEGURIDAD Y PERMISOS: RLS EN ARENA TEMPORAL, CORTAFUEGOS Y BAÚL DE IDEAS
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: DIRECTIVAS DE SEGURIDAD (ROW LEVEL SECURITY - RLS)]
+ALTER TABLE public.temporal_deadlines ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.firewall_blocked_sites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.captured_ideas ENABLE ROW LEVEL SECURITY;
+
+-- [TIPO DE OBJETO: POLÍTICAS RLS EN TEMPORAL_DEADLINES]
+DROP POLICY IF EXISTS "Usuarios gestionan sus propios deadlines" ON public.temporal_deadlines;
+CREATE POLICY "Usuarios gestionan sus propios deadlines"
+    ON public.temporal_deadlines FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- [TIPO DE OBJETO: POLÍTICAS RLS EN FIREWALL_BLOCKED_SITES]
+DROP POLICY IF EXISTS "Usuarios gestionan su lista de cortafuegos" ON public.firewall_blocked_sites;
+CREATE POLICY "Usuarios gestionan su lista de cortafuegos"
+    ON public.firewall_blocked_sites FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- [TIPO DE OBJETO: POLÍTICAS RLS EN CAPTURED_IDEAS]
+DROP POLICY IF EXISTS "Usuarios gestionan su propio baúl de ideas" ON public.captured_ideas;
+CREATE POLICY "Usuarios gestionan su propio baúl de ideas"
+    ON public.captured_ideas FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+
+-- ------------------------------------------------------------------------------
+-- 6. SUSCRIPCIÓN EN TIEMPO REAL (WEBSOCKETS REALTIME)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PUBLICACIÓN REALTIME (SUPABASE REALTIME PUBLICATION)]
+ALTER PUBLICATION supabase_realtime ADD TABLE public.temporal_deadlines;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.firewall_blocked_sites;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.captured_ideas;
+
 
 
 
