@@ -320,6 +320,11 @@ export class MembershipService {
             this.applySupabaseUnlockedItems(items);
           }
         });
+        this.supabaseService.getUserQualityProgress(user.id).then(({ progress, error }) => {
+          if (!error && progress) {
+            this.applySupabaseQualityProgress(progress);
+          }
+        });
         this.loadCatalogFromSupabase();
       }
     });
@@ -672,6 +677,12 @@ export class MembershipService {
   }
 
   private updateQualityProgress(id: string, amount: number) {
+    if (this.supabaseService.isConfigured()) {
+      this.supabaseService.advanceQualityProgress(id, amount).catch(err => {
+        console.warn('[Supabase Quality Advance Error]', err);
+      });
+    }
+
     this.qualitiesCatalog.update(list => {
       return list.map(q => {
         if (q.id === id && !q.isUnlocked) {
@@ -911,6 +922,11 @@ export class MembershipService {
       if (items && items.length > 0) {
         this.applySupabaseUnlockedItems(items);
       }
+      // Cargar progreso de cualidades desde Supabase
+      const { progress } = await this.supabaseService.getUserQualityProgress(user.id);
+      if (progress && progress.length > 0) {
+        this.applySupabaseQualityProgress(progress);
+      }
       return { success: true };
     }
 
@@ -1024,6 +1040,27 @@ export class MembershipService {
       localStorage.setItem(`user:${email}:unlocked-themes`, JSON.stringify(finalThemes));
       localStorage.setItem(`user:${email}:unlocked-timers`, JSON.stringify(finalTimers));
     }
+  }
+
+  // Aplicar progreso de cualidades desde Supabase (user_quality_progress)
+  applySupabaseQualityProgress(progress: any[]) {
+    if (!progress || progress.length === 0) return;
+    const progressMap = new Map(progress.map(p => [p.quality_id, p]));
+
+    this.qualitiesCatalog.update(list => {
+      return list.map(q => {
+        const item: any = progressMap.get(q.id);
+        if (item) {
+          return {
+            ...q,
+            unlockProgress: item.current_progress ?? q.unlockProgress,
+            isUnlocked: item.is_unlocked ?? q.isUnlocked,
+            unlockedAt: item.unlocked_at ? new Date(item.unlocked_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : q.unlockedAt
+          };
+        }
+        return q;
+      });
+    });
   }
 
   // Cargar datos de usuario

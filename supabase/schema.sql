@@ -14,7 +14,7 @@
 -- CONTROL DE PROGRESO DE MIGRACIONES:
 -- [x] PASO 1: Autenticación, Perfiles & Preferencias de Idioma -> COMPLETADO
 -- [x] PASO 2: Desbloqueables, Cosméticos & Atributos RPG Multilingüe (N:M) -> COMPLETADO
--- [ ] PASO 3: Catálogo y Progreso de Cualidades Maestras -> PENDIENTE
+-- [x] PASO 3: Catálogo y Progreso de Cualidades Maestras -> COMPLETADO
 -- [ ] PASO 4: Sesiones de Enfoque, Bitácora & Blindaje Anti-Exploits -> PENDIENTE
 -- [ ] PASO 5: Jefes de Raid Comunitarios & WebSockets Realtime -> PENDIENTE
 -- [ ] PASO 6: Arena Temporal (/fechas), Cortafuegos (/bloqueador) y Baúl de Ideas -> PENDIENTE
@@ -1089,3 +1089,367 @@ FROM public.profiles p
 CROSS JOIN public.catalog_items c
 WHERE c.is_initial = TRUE
 ON CONFLICT (user_id, item_id) DO NOTHING;
+
+
+
+-- ==============================================================================
+-- 📦 PASO 3: CATÁLOGO Y PROGRESO DE CUALIDADES MAESTRAS (MASTER QUALITIES & CHALLENGES)
+-- ==============================================================================
+-- Propósito:
+-- Definir el sistema de virtudes, retos y méritos de concentración ("Cualidades Maestras")
+-- en formato nativo multilingüe JSONB {"es": "...", "en": "..."}.
+-- Administra el progreso individual de cada usuario hacia la maestría y desbloquea
+-- automáticamente a los 7 Guardianes de Reto (Tortuga, Hormiga, Búho, Rana, Águila, Abeja, Castor)
+-- al cumplir los objetivos mediante procedimientos almacenados seguros y atómicos (RPC).
+-- ==============================================================================
+
+-- ------------------------------------------------------------------------------
+-- 1. CATÁLOGO GLOBAL DE CUALIDADES MAESTRAS (MULTILINGÜE JSONB)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: TABLA (TABLE)]
+-- ¿Qué es? Catálogo maestro de las 7 virtudes/cualidades de honor de la aplicación.
+-- ¿Para qué sirve? Almacena la definición universal de cada cualidad, su animal representativo,
+-- el guardián vinculado que se desbloquea al completarla, los textos explicativos en español e inglés,
+-- la meta cuantitativa requerida (target_total) y el tipo de métrica a registrar.
+CREATE TABLE IF NOT EXISTS public.master_qualities (
+    -- [COLUMNA: IDENTIFICADOR ÚNICO DE LA CUALIDAD]
+    -- id: Slug semántico único (ej. 'constancia', 'disciplina', 'sabiduria', 'superacion', 'vision', 'colaboracion', 'construccion').
+    id VARCHAR(50) PRIMARY KEY,
+    
+    -- [COLUMNAS: VINCULACIÓN ZOOLÓGICA Y COSMÉTICA]
+    -- animal_id: Slug del animal representativo (ej. 'tortuga', 'hormiga', 'buho', 'rana', 'aguila', 'abeja', 'castor').
+    animal_id VARCHAR(50) NOT NULL,
+    -- associated_avatar_id: Guardián que se otorga como recompensa al completar el reto (FK hacia catalog_items).
+    associated_avatar_id VARCHAR(50) REFERENCES public.catalog_items(id) ON DELETE SET NULL,
+    
+    -- [COLUMNAS: BALANCE DE RETOS Y MÉTRICAS]
+    -- target_total: Cantidad de repeticiones o unidades requeridas para alcanzar el 100% y desbloquear el avatar.
+    target_total INTEGER NOT NULL CHECK (target_total > 0),
+    -- metric_type: Tipo de telemetría a medir ('streak_days', 'total_pomodoros', 'pareto_pomodoros', 'sapo_pomodoros', 'normal_pomodoros', 'community_pomodoros', 'chained_objective_pomodoros').
+    metric_type VARCHAR(50) NOT NULL,
+    -- icon: Clase de icono FontAwesome representativo para la tarjeta o píldora de cualidad.
+    icon VARCHAR(50) NOT NULL DEFAULT 'fa-solid fa-award',
+    -- color: Código hexadecimal distintivo de la cualidad.
+    color VARCHAR(20) NOT NULL DEFAULT '#10b981',
+    -- display_order: Orden de presentación en la interfaz gráfica.
+    display_order SMALLINT NOT NULL DEFAULT 1,
+    
+    -- [COLUMNAS MULTILINGÜES JSONB: {"es": "...", "en": "..."}]
+    -- name: Nombre público de la virtud o cualidad (ej. 'Constancia', 'Disciplina').
+    name JSONB NOT NULL,
+    -- description: Lema o enseñanza filosófica vinculada a la cualidad.
+    description JSONB NOT NULL,
+    -- unlock_requirement: Instrucción explícita del reto a superar para el usuario.
+    unlock_requirement JSONB NOT NULL,
+    
+    -- [COLUMNAS: AUDITORÍA Y ESTADO]
+    -- is_active: Permite habilitar o deshabilitar cualidades del dojo sin borrar datos históricos.
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    -- created_at: Fecha y hora exacta (UTC) de registro de la cualidad.
+    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+
+-- ------------------------------------------------------------------------------
+-- 2. TABLA DE PROGRESO INDIVIDUAL DE CUALIDADES (RELACIÓN N:M)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: TABLA (RELACIÓN N:M / INTERSECCIÓN CON ESTADO)]
+-- ¿Qué es? Tabla intermedia que conecta a cada usuario (profiles) con sus retos de cualidades (master_qualities).
+-- ¿Para qué sirve? Guarda el avance numérico actual (current_progress), si el reto ya fue superado (is_unlocked),
+-- la fecha exacta de coronación (unlocked_at) y la última actualización para sincronización en tiempo real.
+CREATE TABLE IF NOT EXISTS public.user_quality_progress (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    quality_id VARCHAR(50) NOT NULL REFERENCES public.master_qualities(id) ON DELETE CASCADE,
+    current_progress INTEGER NOT NULL DEFAULT 0 CHECK (current_progress >= 0),
+    is_unlocked BOOLEAN NOT NULL DEFAULT FALSE,
+    unlocked_at TIMESTAMPTZ DEFAULT NULL,
+    updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    UNIQUE(user_id, quality_id)
+);
+
+-- [TIPO DE OBJETO: ÍNDICE B-TREE (INDEX)]
+-- ¿Qué es? Estructura de indexación en PostgreSQL.
+-- ¿Para qué sirve? Acelera las consultas al renderizar el perfil del usuario o verificar si una cualidad está desbloqueada.
+CREATE INDEX IF NOT EXISTS idx_user_quality_progress_user ON public.user_quality_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_quality_progress_quality ON public.user_quality_progress(quality_id);
+CREATE INDEX IF NOT EXISTS idx_user_quality_progress_unlocked ON public.user_quality_progress(user_id, is_unlocked);
+
+-- [TIPO DE OBJETO: TRIGGER DE AUDITORÍA (TRIGGER)]
+-- ¿Para qué sirve? Actualiza automáticamente la columna updated_at antes de cada UPDATE en user_quality_progress.
+DROP TRIGGER IF EXISTS set_user_quality_progress_updated_at ON public.user_quality_progress;
+CREATE TRIGGER set_user_quality_progress_updated_at
+    BEFORE UPDATE ON public.user_quality_progress
+    FOR EACH ROW EXECUTE FUNCTION public.set_current_timestamp_updated_at();
+
+
+-- ------------------------------------------------------------------------------
+-- 3. SEMILLA DE DATOS COMPLETA (7 CUALIDADES DE HONOR MULTILINGÜE)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: SENTENCIA DML DE INSERCIÓN MASIVA CON UPSERT (INSERT ... ON CONFLICT)]
+-- ¿Qué es? Conjunto de datos base para las 7 cualidades maestras en español e inglés.
+-- ¿Para qué sirve? Carga todas las virtudes del dojo con sus metas calibradas y las vincula con sus avatares correspondientes.
+INSERT INTO public.master_qualities (
+    id, animal_id, associated_avatar_id, target_total, metric_type, icon, color, display_order,
+    name, description, unlock_requirement
+) VALUES
+(
+    'constancia', 'tortuga', 'tortuga', 7, 'streak_days', 'fa-solid fa-fire', '#10b981', 1,
+    '{"es": "Constancia", "en": "Consistency"}',
+    '{"es": "Cada día cuenta. Mantén el ritmo firme sin importar la velocidad.", "en": "Every day counts. Keep a steady pace regardless of speed."}',
+    '{"es": "Mantener una racha de 7 días consecutivos completando pomodoros.", "en": "Maintain a 7-day consecutive streak completing pomodoros."}'
+),
+(
+    'disciplina', 'hormiga', 'hormiga', 15, 'total_pomodoros', 'fa-solid fa-dumbbell', '#ef4444', 2,
+    '{"es": "Disciplina", "en": "Discipline"}',
+    '{"es": "Los pequeños pasos construyen grandes resultados. La disciplina supera a la motivación.", "en": "Small steps build great results. Discipline overcomes motivation."}',
+    '{"es": "Completar 15 pomodoros en total.", "en": "Complete 15 total pomodoros."}'
+),
+(
+    'sabiduria', 'buho', 'buho', 5, 'pareto_pomodoros', 'fa-solid fa-brain', '#3b82f6', 3,
+    '{"es": "Sabiduría", "en": "Wisdom"}',
+    '{"es": "La estrategia supera a la fuerza bruta. Identifica el 20% que genera el 80% del resultado.", "en": "Strategy overcomes brute force. Identify the 20% that produces 80% of the result."}',
+    '{"es": "Completar 5 pomodoros con la metodología Pareto (80/20).", "en": "Complete 5 pomodoros using the Pareto (80/20) methodology."}'
+),
+(
+    'superacion', 'rana', 'rana', 5, 'sapo_pomodoros', 'fa-solid fa-mountain-sun', '#84cc16', 4,
+    '{"es": "Superación", "en": "Overcoming"}',
+    '{"es": "Enfréntate a lo más difícil de inmediato. Trágate el sapo a primera hora.", "en": "Face the hardest task immediately. Eat the frog first thing in the morning."}',
+    '{"es": "Completar 5 pomodoros con la metodología Sapo/Rana y objetivo cumplido.", "en": "Complete 5 pomodoros using the Frog methodology and goal accomplished."}'
+),
+(
+    'vision', 'aguila', 'aguila', 5, 'normal_pomodoros', 'fa-solid fa-eye', '#06b6d4', 5,
+    '{"es": "Visión", "en": "Vision"}',
+    '{"es": "No pierdas de vista hacia dónde vas. Eleva tu perspectiva sobre el ruido exterior.", "en": "Never lose sight of where you are going. Elevate your perspective above outside noise."}',
+    '{"es": "Completar 5 pomodoros con la metodología Normal.", "en": "Complete 5 pomodoros using the Normal methodology."}'
+),
+(
+    'colaboracion', 'abeja', 'abeja', 5, 'community_pomodoros', 'fa-solid fa-users', '#eab308', 6,
+    '{"es": "Colaboración", "en": "Collaboration"}',
+    '{"es": "El enfoque también puede compartirse. Acompaña y déjate acompañar en el dojo.", "en": "Focus can also be shared. Accompany and be accompanied in the dojo."}',
+    '{"es": "Participar en 5 sesiones de coworking comunitario.", "en": "Participate in 5 community coworking sessions."}'
+),
+(
+    'construccion', 'castor', 'castor', 3, 'chained_objective_pomodoros', 'fa-solid fa-hammer', '#78350f', 7,
+    '{"es": "Construcción", "en": "Construction"}',
+    '{"es": "Construye hoy lo que quieres terminar mañana. Cierra bloques con entregables reales.", "en": "Build today what you want to finish tomorrow. Close blocks with real deliverables."}',
+    '{"es": "Completar 3 pomodoros seguidos para un mismo objetivo en un solo día.", "en": "Complete 3 pomodoros in a row for the same goal in a single day."}'
+)
+ON CONFLICT (id) DO UPDATE SET
+    animal_id = EXCLUDED.animal_id,
+    associated_avatar_id = EXCLUDED.associated_avatar_id,
+    target_total = EXCLUDED.target_total,
+    metric_type = EXCLUDED.metric_type,
+    icon = EXCLUDED.icon,
+    color = EXCLUDED.color,
+    display_order = EXCLUDED.display_order,
+    name = EXCLUDED.name,
+    description = EXCLUDED.description,
+    unlock_requirement = EXCLUDED.unlock_requirement;
+
+
+-- ------------------------------------------------------------------------------
+-- 4. FUNCIONES Y TRIGGERS PARA INICIALIZACIÓN DE CUALIDADES
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: FUNCIÓN (FUNCTION / PLPGSQL CON SECURITY DEFINER)]
+-- ¿Qué es? Función automatizada disparada tras registrarse un nuevo perfil.
+-- ¿Para qué sirve? Crea los 7 registros de seguimiento en user_quality_progress para el nuevo usuario,
+-- garantizando que su casillero de virtudes esté listo con progreso inicial en 0.
+CREATE OR REPLACE FUNCTION public.handle_initial_user_qualities()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.user_quality_progress (user_id, quality_id, current_progress, is_unlocked)
+    SELECT NEW.id, id, 0, FALSE
+    FROM public.master_qualities
+    WHERE is_active = TRUE
+    ON CONFLICT (user_id, quality_id) DO NOTHING;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- [TIPO DE OBJETO: TRIGGER / DISPARADOR (TRIGGER)]
+-- ¿Para qué sirve? Ejecuta handle_initial_user_qualities() automáticamente tras cada inserción en public.profiles.
+DROP TRIGGER IF EXISTS on_profile_created_init_qualities ON public.profiles;
+CREATE TRIGGER on_profile_created_init_qualities
+    AFTER INSERT ON public.profiles
+    FOR EACH ROW EXECUTE FUNCTION public.handle_initial_user_qualities();
+
+
+-- ------------------------------------------------------------------------------
+-- 5. PROCEDIMIENTOS ALMACENADOS RPC (AVANCE Y DESBLOQUEO ATÓMICO)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC / FUNCIÓN TRANSACCIONAL (SECURITY DEFINER FUNCTION)]
+-- ¿Qué es? Función invocable desde el frontend vía supabase.rpc('advance_user_quality_progress').
+-- ¿Para qué sirve? Realiza el avance seguro de una cualidad en el servidor:
+--   1. Valida autenticación del usuario (auth.uid()).
+--   2. Obtiene la meta de la cualidad desde master_qualities.
+--   3. Bloquea la fila del usuario en user_quality_progress para evitar colisiones.
+--   4. Suma el incremento con tope máximo en target_total.
+--   5. Si se alcanza la meta y no estaba desbloqueada, marca is_unlocked = TRUE, asigna unlocked_at
+--      y DESBLOQUEA AUTOMÁTICAMENTE el guardián asociado en user_unlocked_items ('quality_reward').
+--   6. Retorna un JSON con el estado de avance, si fue recién desbloqueado y el avatar obtenido.
+CREATE OR REPLACE FUNCTION public.advance_user_quality_progress(
+    p_quality_id VARCHAR,
+    p_increment INTEGER DEFAULT 1
+)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_quality RECORD;
+    v_progress RECORD;
+    v_new_progress INTEGER;
+    v_is_now_unlocked BOOLEAN := FALSE;
+    v_newly_unlocked BOOLEAN := FALSE;
+BEGIN
+    -- 1. Validar usuario autenticado
+    IF v_user_id IS NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
+    END IF;
+
+    -- 2. Obtener definición de la cualidad maestra
+    SELECT * INTO v_quality FROM public.master_qualities WHERE id = p_quality_id AND is_active = TRUE;
+    IF NOT FOUND THEN
+        RETURN json_build_object('success', FALSE, 'error', 'La cualidad no existe o está inactiva');
+    END IF;
+
+    -- 3. Asegurar que exista la fila de progreso para el usuario
+    INSERT INTO public.user_quality_progress (user_id, quality_id, current_progress, is_unlocked)
+    VALUES (v_user_id, p_quality_id, 0, FALSE)
+    ON CONFLICT (user_id, quality_id) DO NOTHING;
+
+    -- Bloquear la fila para actualización atómica
+    SELECT * INTO v_progress FROM public.user_quality_progress 
+    WHERE user_id = v_user_id AND quality_id = p_quality_id 
+    FOR UPDATE;
+
+    -- 4. Si ya estaba desbloqueada, retornar estado actual sin alterar
+    IF v_progress.is_unlocked THEN
+        RETURN json_build_object(
+            'success', TRUE,
+            'quality_id', p_quality_id,
+            'current_progress', v_progress.current_progress,
+            'target_total', v_quality.target_total,
+            'is_unlocked', TRUE,
+            'newly_unlocked', FALSE,
+            'unlocked_avatar_id', v_quality.associated_avatar_id
+        );
+    END IF;
+
+    -- 5. Calcular nuevo progreso acotado al objetivo
+    v_new_progress := LEAST(v_quality.target_total, v_progress.current_progress + p_increment);
+    v_is_now_unlocked := (v_new_progress >= v_quality.target_total);
+    v_newly_unlocked := v_is_now_unlocked AND NOT v_progress.is_unlocked;
+
+    -- 6. Actualizar registro de progreso
+    UPDATE public.user_quality_progress
+    SET 
+        current_progress = v_new_progress,
+        is_unlocked = v_is_now_unlocked,
+        unlocked_at = CASE WHEN v_newly_unlocked THEN TIMEZONE('utc'::text, NOW()) ELSE unlocked_at END,
+        updated_at = TIMEZONE('utc'::text, NOW())
+    WHERE user_id = v_user_id AND quality_id = p_quality_id;
+
+    -- 7. Si se completó el reto, otorgar el avatar correspondiente en el inventario
+    IF v_newly_unlocked AND v_quality.associated_avatar_id IS NOT NULL THEN
+        INSERT INTO public.user_unlocked_items (user_id, item_id, unlock_source)
+        VALUES (v_user_id, v_quality.associated_avatar_id, 'quality_reward')
+        ON CONFLICT (user_id, item_id) DO NOTHING;
+    END IF;
+
+    -- 8. Respuesta estructurada
+    RETURN json_build_object(
+        'success', TRUE,
+        'quality_id', p_quality_id,
+        'current_progress', v_new_progress,
+        'target_total', v_quality.target_total,
+        'is_unlocked', v_is_now_unlocked,
+        'newly_unlocked', v_newly_unlocked,
+        'unlocked_avatar_id', v_quality.associated_avatar_id
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ------------------------------------------------------------------------------
+-- 6. SEGURIDAD Y PERMISOS: RLS EN CUALIDADES Y PROGRESO
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: DIRECTIVA DE SEGURIDAD (ROW LEVEL SECURITY - RLS)]
+-- ¿Para qué sirve? Activa la protección granular por fila en ambas tablas.
+ALTER TABLE public.master_qualities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_quality_progress ENABLE ROW LEVEL SECURITY;
+
+-- [TIPO DE OBJETO: POLÍTICA RLS (SECURITY POLICY - SELECT)]
+-- ¿Para qué sirve? Permite que todos los usuarios puedan consultar el catálogo de cualidades maestras.
+DROP POLICY IF EXISTS "Cualidades maestras visibles públicamente" ON public.master_qualities;
+CREATE POLICY "Cualidades maestras visibles públicamente"
+    ON public.master_qualities FOR SELECT
+    USING (is_active = TRUE);
+
+-- [TIPO DE OBJETO: POLÍTICA RLS (SECURITY POLICY - SELECT)]
+-- ¿Para qué sirve? Permite consultar el progreso de cualidades (necesario para medallas visibles en perfil y comunidad).
+DROP POLICY IF EXISTS "Progreso de cualidades visible públicamente" ON public.user_quality_progress;
+CREATE POLICY "Progreso de cualidades visible públicamente"
+    ON public.user_quality_progress FOR SELECT
+    USING (true);
+
+-- [TIPO DE OBJETO: POLÍTICA RLS (SECURITY POLICY - INSERT)]
+-- ¿Para qué sirve? Garantiza que un usuario solo pueda registrar progreso para su propio ID.
+DROP POLICY IF EXISTS "Usuarios insertan su propio progreso de cualidades" ON public.user_quality_progress;
+CREATE POLICY "Usuarios insertan su propio progreso de cualidades"
+    ON public.user_quality_progress FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+-- [TIPO DE OBJETO: POLÍTICA RLS (SECURITY POLICY - UPDATE)]
+-- ¿Para qué sirve? Garantiza que un usuario solo pueda modificar sus propias filas de cualidad.
+DROP POLICY IF EXISTS "Usuarios actualizan su propio progreso de cualidades" ON public.user_quality_progress;
+CREATE POLICY "Usuarios actualizan su propio progreso de cualidades"
+    ON public.user_quality_progress FOR UPDATE
+    USING (auth.uid() = user_id);
+
+
+-- ------------------------------------------------------------------------------
+-- 7. SUSCRIPCIÓN EN TIEMPO REAL (WEBSOCKETS)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PUBLICACIÓN REALTIME (SUPABASE REALTIME PUBLICATION)]
+-- ¿Qué es? Canal de eventos WebSockets.
+-- ¿Para qué sirve? Notifica reactivamente al frontend cuando un usuario avanza o desbloquea una cualidad,
+-- actualizando la barra de progreso y el medallero en vivo sin recargar la página.
+ALTER PUBLICATION supabase_realtime ADD TABLE public.user_quality_progress;
+
+
+-- ------------------------------------------------------------------------------
+-- 8. MIGRACIÓN DE DATOS RETROACTIVA Y SINCRONIZACIÓN DE LOGROS
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: SENTENCIA DML DE MIGRACIÓN RETROACTIVA (CROSS JOIN INSERT)]
+-- ¿Para qué sirve? Si ya existen perfiles registrados, les crea automáticamente las 7 filas de cualidad con progreso 0.
+INSERT INTO public.user_quality_progress (user_id, quality_id, current_progress, is_unlocked)
+SELECT p.id, q.id, 0, FALSE
+FROM public.profiles p
+CROSS JOIN public.master_qualities q
+WHERE q.is_active = TRUE
+ON CONFLICT (user_id, quality_id) DO NOTHING;
+
+-- [TIPO DE OBJETO: SENTENCIA DML DE SINCRONIZACIÓN RETROACTIVA (UPDATE CON JOIN)]
+-- ¿Para qué sirve? Si algún usuario ya tenía desbloqueado uno de los guardianes de reto en su inventario,
+-- marca automáticamente la cualidad correspondiente como completada al 100% (is_unlocked = TRUE).
+UPDATE public.user_quality_progress uqp
+SET 
+    is_unlocked = TRUE,
+    current_progress = mq.target_total,
+    unlocked_at = COALESCE(uui.unlocked_at, TIMEZONE('utc'::text, NOW()))
+FROM public.master_qualities mq
+JOIN public.user_unlocked_items uui 
+    ON uui.item_id = mq.associated_avatar_id
+WHERE uqp.quality_id = mq.id 
+  AND uqp.user_id = uui.user_id 
+  AND uqp.is_unlocked = FALSE;
+

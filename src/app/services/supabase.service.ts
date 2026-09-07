@@ -39,6 +39,32 @@ export interface CatalogItem {
   created_at?: string;
 }
 
+export interface MasterQuality {
+  id: string;
+  animal_id: string;
+  associated_avatar_id?: string;
+  target_total: number;
+  metric_type: string;
+  icon: string;
+  color: string;
+  display_order: number;
+  name: MultilingualText;
+  description: MultilingualText;
+  unlock_requirement: MultilingualText;
+  is_active: boolean;
+  created_at?: string;
+}
+
+export interface UserQualityProgress {
+  id: string;
+  user_id: string;
+  quality_id: string;
+  current_progress: number;
+  is_unlocked: boolean;
+  unlocked_at?: string;
+  updated_at?: string;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -409,4 +435,77 @@ export class SupabaseService {
       return { success: false, error: e.message };
     }
   }
+
+  // ==========================================
+  // CUALIDADES MAESTRAS Y PROGRESO DE RETOS
+  // ==========================================
+
+  async getMasterQualities(): Promise<{ qualities: MasterQuality[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { qualities: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('master_qualities')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        return { qualities: [], error: error.message };
+      }
+
+      return { qualities: (data || []) as MasterQuality[], error: null };
+    } catch (e: any) {
+      return { qualities: [], error: e.message || 'Error al obtener cualidades maestras' };
+    }
+  }
+
+  async getUserQualityProgress(userId: string): Promise<{ progress: UserQualityProgress[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { progress: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('user_quality_progress')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (error) {
+        return { progress: [], error: error.message };
+      }
+
+      return { progress: (data || []) as UserQualityProgress[], error: null };
+    } catch (e: any) {
+      return { progress: [], error: e.message || 'Error al obtener progreso de cualidades' };
+    }
+  }
+
+  async advanceQualityProgress(qualityId: string, increment: number = 1): Promise<{ success: boolean; error?: string; result?: any }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase.rpc('advance_user_quality_progress', {
+        p_quality_id: qualityId,
+        p_increment: increment
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data && data.success === false) {
+        return { success: false, error: data.error || 'Error al avanzar cualidad' };
+      }
+
+      return { success: true, result: data };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al avanzar cualidad' };
+    }
+  }
 }
+
