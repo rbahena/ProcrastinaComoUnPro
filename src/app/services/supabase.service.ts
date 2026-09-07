@@ -65,6 +65,44 @@ export interface UserQualityProgress {
   updated_at?: string;
 }
 
+export interface FocusSessionData {
+  id?: string;
+  nonce_id: string;
+  user_id?: string;
+  objective_text: string;
+  status: 'completed' | 'abandoned' | 'interrupted';
+  methodology: 'normal' | 'sapo' | 'pareto';
+  coworking_mode: 'individual' | 'comunitario';
+  energy_level: 'low' | 'medium' | 'high';
+  planned_duration_seconds: number;
+  actual_duration_seconds: number;
+  pause_count: number;
+  total_pause_seconds: number;
+  objective_completed: 'yes' | 'no' | 'progress' | 'partial';
+  avatar_id: string;
+  coins_earned?: number;
+  coins_penalized?: number;
+  xp_earned?: number;
+  boss_damage_dealt?: number;
+  boss_hp_healed?: number;
+  is_critical_hit?: boolean;
+  grit_bonus_applied?: boolean;
+  started_at?: string;
+  completed_at?: string;
+  created_at?: string;
+}
+
+export interface FocusLogEntry {
+  id?: string;
+  user_id?: string;
+  session_id?: string;
+  title: string;
+  learnings?: string;
+  distractions_recorded?: any[];
+  mood_score?: number;
+  created_at?: string;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -507,5 +545,125 @@ export class SupabaseService {
       return { success: false, error: e.message || 'Error al avanzar cualidad' };
     }
   }
+
+  // ==========================================
+  // SESIONES DE ENFOQUE & BITÁCORA ANTI-EXPLOITS
+  // ==========================================
+
+  async settleFocusSession(
+    data: FocusSessionData,
+    logLearnings?: string,
+    distractions: any[] = []
+  ): Promise<{ success: boolean; error?: string; result?: any }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data: rpcData, error } = await this.supabase.rpc('settle_focus_session', {
+        p_nonce_id: data.nonce_id,
+        p_avatar_id: data.avatar_id,
+        p_methodology: data.methodology,
+        p_coworking_mode: data.coworking_mode,
+        p_energy_level: data.energy_level,
+        p_objective_text: data.objective_text,
+        p_planned_seconds: data.planned_duration_seconds,
+        p_actual_seconds: data.actual_duration_seconds,
+        p_pause_count: data.pause_count,
+        p_total_pause_seconds: data.total_pause_seconds,
+        p_status: data.status,
+        p_objective_completed: data.objective_completed,
+        p_log_learnings: logLearnings || null,
+        p_distractions: distractions
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (rpcData && rpcData.success === false) {
+        return { success: false, error: rpcData.error || 'Error al liquidar sesión' };
+      }
+
+      return { success: true, result: rpcData };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al liquidar sesión' };
+    }
+  }
+
+  async getFocusSessions(userId: string, limit: number = 20): Promise<{ sessions: FocusSessionData[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { sessions: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('focus_sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        return { sessions: [], error: error.message };
+      }
+
+      return { sessions: (data || []) as FocusSessionData[], error: null };
+    } catch (e: any) {
+      return { sessions: [], error: e.message || 'Error al obtener sesiones' };
+    }
+  }
+
+  async addFocusLog(
+    title: string,
+    learnings: string,
+    distractions: any[] = [],
+    moodScore: number = 4
+  ): Promise<{ success: boolean; error?: string; logId?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase.rpc('add_focus_log_entry', {
+        p_title: title,
+        p_learnings: learnings,
+        p_distractions: distractions,
+        p_mood_score: moodScore
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, logId: data?.log_id };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al guardar bitácora' };
+    }
+  }
+
+  async getFocusLogs(userId: string, limit: number = 30): Promise<{ logs: FocusLogEntry[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { logs: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('focus_logs')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        return { logs: [], error: error.message };
+      }
+
+      return { logs: (data || []) as FocusLogEntry[], error: null };
+    } catch (e: any) {
+      return { logs: [], error: e.message || 'Error al obtener bitácora' };
+    }
+  }
 }
+
 

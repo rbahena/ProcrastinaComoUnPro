@@ -15,7 +15,7 @@
 -- [x] PASO 1: Autenticación, Perfiles & Preferencias de Idioma -> COMPLETADO
 -- [x] PASO 2: Desbloqueables, Cosméticos & Atributos RPG Multilingüe (N:M) -> COMPLETADO
 -- [x] PASO 3: Catálogo y Progreso de Cualidades Maestras -> COMPLETADO
--- [ ] PASO 4: Sesiones de Enfoque, Bitácora & Blindaje Anti-Exploits -> PENDIENTE
+-- [x] PASO 4: Sesiones de Enfoque, Bitácora & Blindaje Anti-Exploits -> COMPLETADO
 -- [ ] PASO 5: Jefes de Raid Comunitarios & WebSockets Realtime -> PENDIENTE
 -- [ ] PASO 6: Arena Temporal (/fechas), Cortafuegos (/bloqueador) y Baúl de Ideas -> PENDIENTE
 -- ==============================================================================
@@ -1452,4 +1452,458 @@ JOIN public.user_unlocked_items uui
 WHERE uqp.quality_id = mq.id 
   AND uqp.user_id = uui.user_id 
   AND uqp.is_unlocked = FALSE;
+
+
+
+-- ==============================================================================
+-- 📦 PASO 4: SESIONES DE ENFOQUE, BITÁCORA & BLINDAJE ANTI-EXPLOITS
+-- ==============================================================================
+-- Propósito:
+-- Gestionar el ciclo de vida completo de cada sesión de hiperfoco (Pomodoro),
+-- el registro histórico de reflexiones/aprendizajes en la Bitácora y el motor
+-- de liquidación algorítmica con blindaje anti-trampas (Snapshots inmutables,
+-- idempotencia mediante Nonce UUID, piso de billetera Floor 0 y periodo de gracia).
+-- ==============================================================================
+
+-- ------------------------------------------------------------------------------
+-- 1. TIPOS ENUMERADOS PARA SESIONES DE ENFOQUE
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: ENUM / TIPOS ENUMERADOS (ENUMERATED TYPES)]
+-- ¿Para qué sirven? Garantizan integridad estricta en los estados y modos de sesión permitidos.
+DO $$ BEGIN
+    CREATE TYPE focus_session_status_enum AS ENUM ('completed', 'abandoned', 'interrupted');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE focus_methodology_enum AS ENUM ('normal', 'sapo', 'pareto');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE coworking_mode_enum AS ENUM ('individual', 'comunitario');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE energy_level_enum AS ENUM ('low', 'medium', 'high');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+
+-- ------------------------------------------------------------------------------
+-- 2. TABLA DE SESIONES DE ENFOQUE (TELEMETRÍA REAL E INMUTABLE)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: TABLA (TABLE)]
+-- ¿Qué es? Registro histórico inmutable de cada bloque de concentración ejecutado.
+-- ¿Para qué sirve? Almacena la telemetría de tiempos planeados vs reales, pausas, metodología utilizada,
+-- modo de sesión, nivel de energía inicial, snapshot del avatar activo y recompensas/daños liquidados.
+CREATE TABLE IF NOT EXISTS public.focus_sessions (
+    -- [COLUMNA: IDENTIFICADORES Y VINCULACIÓN]
+    -- id: Identificador único autogenerado de la sesión en base de datos.
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    -- nonce_id: Identificador único de idempotencia para prevenir cobros o recompensas duplicadas.
+    nonce_id UUID UNIQUE NOT NULL,
+    -- user_id: Usuario que ejecutó la sesión (FK hacia profiles).
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    
+    -- [COLUMNAS: CONFIGURACIÓN Y METADATOS DE SESIÓN]
+    -- objective_text: Meta o tarea declarada por el usuario antes de desenvainar el reloj.
+    objective_text TEXT NOT NULL DEFAULT 'Sesión de Enfoque',
+    -- status: Resultado final ('completed', 'abandoned', 'interrupted').
+    status focus_session_status_enum NOT NULL DEFAULT 'completed',
+    -- methodology: Metodología aplicada ('normal', 'sapo', 'pareto').
+    methodology focus_methodology_enum NOT NULL DEFAULT 'normal',
+    -- coworking_mode: Entorno de sesión ('individual', 'comunitario').
+    coworking_mode coworking_mode_enum NOT NULL DEFAULT 'individual',
+    -- energy_level: Nivel de batería/energía declarado al inicio ('low', 'medium', 'high').
+    energy_level energy_level_enum NOT NULL DEFAULT 'medium',
+    
+    -- [COLUMNAS: TELEMETRÍA TEMPORAL Y CONTROL DE PAUSAS]
+    -- planned_duration_seconds: Duración programada en segundos (ej. 1500 para 25 min).
+    planned_duration_seconds INTEGER NOT NULL DEFAULT 1500 CHECK (planned_duration_seconds >= 60),
+    -- actual_duration_seconds: Tiempo real efectivo transcurrido en el temporizador antes de finalizar.
+    actual_duration_seconds INTEGER NOT NULL DEFAULT 1500 CHECK (actual_duration_seconds >= 0),
+    -- pause_count: Total de pausas o interrupciones registradas durante el bloque.
+    pause_count SMALLINT NOT NULL DEFAULT 0 CHECK (pause_count >= 0),
+    -- total_pause_seconds: Tiempo acumulado consumido en pausas de emergencia.
+    total_pause_seconds INTEGER NOT NULL DEFAULT 0 CHECK (total_pause_seconds >= 0),
+    -- objective_completed: Respuesta en el cierre dopamínico ('yes', 'no', 'progress', 'partial').
+    objective_completed VARCHAR(10) DEFAULT 'yes' CHECK (objective_completed IN ('yes', 'no', 'progress', 'partial')),
+    
+    -- [COLUMNAS: SNAPSHOT INMUTABLE DE AVATAR Y RECOMPENSAS]
+    -- avatar_id: Identificador del guardián equipado al momento exacto de arrancar (Snapshot inmutable).
+    avatar_id VARCHAR(50) NOT NULL REFERENCES public.catalog_items(id),
+    -- coins_earned: Monedas acreditadas en la sesión.
+    coins_earned BIGINT NOT NULL DEFAULT 0 CHECK (coins_earned >= 0),
+    -- coins_penalized: Monedas deducidas por abandono o interrupción prolongada.
+    coins_penalized BIGINT NOT NULL DEFAULT 0 CHECK (coins_penalized >= 0),
+    -- xp_earned: Puntos de honor/experiencia obtenidos.
+    xp_earned INTEGER NOT NULL DEFAULT 0 CHECK (xp_earned >= 0),
+    -- boss_damage_dealt: Daño asestado al Oni / Jefe de Raid de la comunidad.
+    boss_damage_dealt INTEGER NOT NULL DEFAULT 0 CHECK (boss_damage_dealt >= 0),
+    -- boss_hp_healed: Puntos de salud que el Oni recuperó si el usuario abandonó tras el periodo de gracia.
+    boss_hp_healed INTEGER NOT NULL DEFAULT 0 CHECK (boss_hp_healed >= 0),
+    -- is_critical_hit: Flag booleano que indica si se activó un golpe crítico (ej. Metodología Sapo).
+    is_critical_hit BOOLEAN NOT NULL DEFAULT FALSE,
+    -- grit_bonus_applied: Flag booleano que indica si se acreditó el Bono de Coraje por vencer baja energía.
+    grit_bonus_applied BOOLEAN NOT NULL DEFAULT FALSE,
+    
+    -- [COLUMNAS: MARCAS TEMPORALES]
+    -- started_at: Momento exacto en que comenzó el temporizador.
+    started_at TIMESTAMPTZ NOT NULL DEFAULT TIMEZONE('utc'::text, NOW()),
+    -- completed_at: Momento en que la sesión fue liquidada.
+    completed_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()),
+    -- created_at: Fecha y hora de inserción en base de datos.
+    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- [TIPO DE OBJETO: ÍNDICES B-TREE (INDEXES)]
+-- ¿Para qué sirven? Aceleran la carga del historial en la bitácora, estadísticas semanales y validación de idempotencia.
+CREATE INDEX IF NOT EXISTS idx_focus_sessions_user_date ON public.focus_sessions(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_focus_sessions_status ON public.focus_sessions(status);
+CREATE INDEX IF NOT EXISTS idx_focus_sessions_nonce ON public.focus_sessions(nonce_id);
+
+
+-- ------------------------------------------------------------------------------
+-- 3. TABLA DE BITÁCORA DE APRENDIZAJES (FOCUS LOGS)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: TABLA (TABLE)]
+-- ¿Qué es? Registro de notas, reflexiones, distracciones capturadas y aprendizajes post-sesión.
+-- ¿Para qué sirve? Permite al usuario consultar su diario de evolución personal y retener lo aprendido.
+CREATE TABLE IF NOT EXISTS public.focus_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    session_id UUID REFERENCES public.focus_sessions(id) ON DELETE SET NULL,
+    title TEXT NOT NULL,
+    learnings TEXT DEFAULT NULL,
+    distractions_recorded JSONB DEFAULT '[]'::jsonb,
+    mood_score SMALLINT DEFAULT 3 CHECK (mood_score BETWEEN 1 AND 5),
+    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- [TIPO DE OBJETO: ÍNDICE B-TREE (INDEX)]
+-- ¿Para qué sirve? Agiliza la consulta cronológica de notas en la sección /bitacora.
+CREATE INDEX IF NOT EXISTS idx_focus_logs_user_date ON public.focus_logs(user_id, created_at DESC);
+
+
+-- ------------------------------------------------------------------------------
+-- 4. PROCEDIMIENTO RPC MAESTRO DE LIQUIDACIÓN Y BLINDAJE ANTI-EXPLOITS
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC / FUNCIÓN TRANSACCIONAL (SECURITY DEFINER FUNCTION)]
+-- ¿Qué es? El motor de liquidación algorítmica de sesiones de enfoque en el servidor.
+-- ¿Para qué sirve? Aplica las 5 reglas de blindaje anti-trampas:
+--   1. Idempotencia con Nonce UUID: Si el nonce ya fue procesado, retorna el resultado previo sin alterar saldos.
+--   2. Snapshot Inmutable: Valida los atributos RPG del avatar registrado al iniciar, previniendo alteraciones intermedias.
+--   3. Periodo de Gracia (120 Segundos): Cancelaciones en los primeros 2 minutos no aplican multa ni curan al jefe.
+--   4. Escalado Proporcional de Tiempo: factor = Math.min(1.0, actual_seconds / 1500). Sesiones < 120s no dan monedas.
+--   5. Piso de Billetera Floor 0: new_balance = Math.max(0, current_coins - penalty). Jamás genera saldos negativos.
+CREATE OR REPLACE FUNCTION public.settle_focus_session(
+    p_nonce_id UUID,
+    p_avatar_id VARCHAR,
+    p_methodology VARCHAR,
+    p_coworking_mode VARCHAR,
+    p_energy_level VARCHAR,
+    p_objective_text TEXT,
+    p_planned_seconds INTEGER,
+    p_actual_seconds INTEGER,
+    p_pause_count INTEGER,
+    p_total_pause_seconds INTEGER,
+    p_status VARCHAR,
+    p_objective_completed VARCHAR,
+    p_log_learnings TEXT DEFAULT NULL,
+    p_distractions JSONB DEFAULT '[]'::jsonb
+)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_user RECORD;
+    v_avatar RECORD;
+    v_existing_session RECORD;
+    v_time_factor NUMERIC := 1.0;
+    v_coins_earned BIGINT := 0;
+    v_coins_penalized BIGINT := 0;
+    v_xp_earned INTEGER := 0;
+    v_boss_damage INTEGER := 0;
+    v_boss_heal INTEGER := 0;
+    v_is_critical BOOLEAN := FALSE;
+    v_grit_bonus BOOLEAN := FALSE;
+    v_new_session_id UUID;
+    v_today DATE := CURRENT_DATE;
+    v_new_streak INTEGER;
+    v_new_longest_streak INTEGER;
+BEGIN
+    -- 1. Validar autenticación
+    IF v_user_id IS NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
+    END IF;
+
+    -- 2. Idempotencia: Verificar si el nonce ya fue liquidado
+    SELECT * INTO v_existing_session FROM public.focus_sessions WHERE nonce_id = p_nonce_id;
+    IF FOUND THEN
+        RETURN json_build_object(
+            'success', TRUE,
+            'is_duplicate', TRUE,
+            'session_id', v_existing_session.id,
+            'coins_earned', v_existing_session.coins_earned,
+            'coins_penalized', v_existing_session.coins_penalized,
+            'xp_earned', v_existing_session.xp_earned,
+            'boss_damage', v_existing_session.boss_damage_dealt,
+            'boss_heal', v_existing_session.boss_hp_healed
+        );
+    END IF;
+
+    -- 3. Obtener avatar del snapshot inmutable
+    SELECT * INTO v_avatar FROM public.catalog_items WHERE id = p_avatar_id AND is_active = TRUE;
+    IF NOT FOUND THEN
+        -- Fallback seguro a gato común si el ID no se encuentra
+        SELECT * INTO v_avatar FROM public.catalog_items WHERE id = 'gato';
+    END IF;
+
+    -- 4. Bloquear perfil para actualización atómica sin condiciones de carrera
+    SELECT * INTO v_user FROM public.profiles WHERE id = v_user_id FOR UPDATE;
+
+    -- 5. Lógica de Liquidación según Estado
+    IF p_status = 'completed' THEN
+        -- Anti-Exploit de tiempo: mínimo 120 segundos para otorgar recompensas
+        IF p_actual_seconds >= 120 THEN
+            -- Factor de tiempo proporcional respecto al estándar (25 min = 1500s)
+            v_time_factor := LEAST(1.0, p_actual_seconds::numeric / 1500.0);
+            
+            -- Monedas base escaladas
+            v_coins_earned := ROUND(v_avatar.coins_per_pomodoro * v_time_factor);
+            
+            -- Daño base al Boss escalado
+            v_boss_damage := ROUND(v_avatar.boss_damage_points * v_time_factor);
+
+            -- Pasiva Táctica: Metodología Sapo / Rana (Golpe Crítico)
+            IF p_methodology = 'sapo' AND (p_objective_completed = 'yes' OR p_objective_completed = 'progress') THEN
+                v_is_critical := TRUE;
+                v_boss_damage := GREATEST(v_boss_damage, 300);
+                v_coins_earned := v_coins_earned + 8;
+            END IF;
+
+            -- Pasiva Táctica: Metodología Pareto 80/20 (Búho / Enfoque Estratégico)
+            IF p_methodology = 'pareto' THEN
+                v_boss_damage := v_boss_damage * 2;
+                v_coins_earned := v_coins_earned + 5;
+            END IF;
+
+            -- Pasiva Táctica: Coworking Comunitario (Abeja / Apoyo de Enjambre)
+            IF p_coworking_mode = 'comunitario' THEN
+                v_coins_earned := v_coins_earned + 5;
+                v_boss_damage := v_boss_damage + 20;
+            END IF;
+
+            -- Pasiva Táctica: Bono de Coraje (Baja energía vencida)
+            IF p_energy_level = 'low' THEN
+                v_grit_bonus := TRUE;
+                -- Si el avatar es Renard (zorro), el bono se duplica a +70
+                IF p_avatar_id = 'zorro' THEN
+                    v_coins_earned := v_coins_earned + 70;
+                ELSE
+                    v_coins_earned := v_coins_earned + 35;
+                END IF;
+                IF v_user.is_premium THEN
+                    v_xp_earned := v_xp_earned + 50;
+                END IF;
+            END IF;
+
+            -- Pasiva Táctica: Cero Pausas (Sombra / Lince / Aethel)
+            IF p_pause_count = 0 THEN
+                v_boss_damage := ROUND(v_boss_damage * 1.15);
+            END IF;
+
+            -- Bono de Objetivo Cumplido
+            IF p_objective_completed = 'yes' THEN
+                v_coins_earned := v_coins_earned + 15;
+                IF v_user.is_premium THEN
+                    v_xp_earned := v_xp_earned + 30;
+                END IF;
+            END IF;
+
+            -- XP base de enfoque
+            IF v_user.is_premium THEN
+                v_xp_earned := v_xp_earned + 10;
+            END IF;
+        ELSE
+            -- Sesión completada en menos de 2 minutos: sin monedas (prevención de granja)
+            v_coins_earned := 0;
+            v_boss_damage := 5;
+        END IF;
+
+        -- Cálculo seguro de Racha (Streak)
+        IF v_user.last_focus_date IS NULL THEN
+            v_new_streak := 1;
+        ELSIF v_user.last_focus_date = v_today THEN
+            v_new_streak := v_user.streak_days;
+        ELSIF v_user.last_focus_date = v_today - INTERVAL '1 day' THEN
+            v_new_streak := v_user.streak_days + 1;
+        ELSE
+            v_new_streak := 1;
+        END IF;
+        v_new_longest_streak := GREATEST(v_user.longest_streak, v_new_streak);
+
+        -- Actualizar perfil con ganancias
+        UPDATE public.profiles
+        SET 
+            pro_coins = pro_coins + v_coins_earned,
+            focus_tomatoes = focus_tomatoes + 1,
+            focus_points = focus_points + v_xp_earned,
+            streak_days = v_new_streak,
+            longest_streak = v_new_longest_streak,
+            last_focus_date = v_today
+        WHERE id = v_user_id;
+
+    ELSE
+        -- Estado: Abandonado o Interrumpido
+        -- Regla Anti-Exploit: Periodo de Gracia de 120 segundos
+        IF p_actual_seconds < 120 THEN
+            v_coins_penalized := 0;
+            v_boss_heal := 0;
+        ELSE
+            -- Penalización calculada según el avatar del snapshot
+            v_coins_penalized := v_avatar.pause_penalty_coins + 15;
+            v_boss_heal := v_avatar.boss_heal_points + 20;
+
+            -- Regla Floor 0: La billetera jamás queda en números negativos
+            UPDATE public.profiles
+            SET 
+                pro_coins = GREATEST(0, pro_coins - v_coins_penalized),
+                focus_points = CASE WHEN is_premium THEN GREATEST(0, focus_points - 50) ELSE focus_points END
+            WHERE id = v_user_id;
+        END IF;
+    END IF;
+
+    -- 6. Insertar registro de sesión inmutable
+    INSERT INTO public.focus_sessions (
+        nonce_id, user_id, objective_text, status, methodology, coworking_mode, energy_level,
+        planned_duration_seconds, actual_duration_seconds, pause_count, total_pause_seconds,
+        objective_completed, avatar_id, coins_earned, coins_penalized, xp_earned,
+        boss_damage_dealt, boss_hp_healed, is_critical_hit, grit_bonus_applied,
+        started_at, completed_at
+    ) VALUES (
+        p_nonce_id, v_user_id, p_objective_text, p_status::focus_session_status_enum,
+        p_methodology::focus_methodology_enum, p_coworking_mode::coworking_mode_enum,
+        p_energy_level::energy_level_enum, p_planned_seconds, p_actual_seconds,
+        p_pause_count, p_total_pause_seconds, p_objective_completed, p_avatar_id,
+        v_coins_earned, v_coins_penalized, v_xp_earned, v_boss_damage, v_boss_heal,
+        v_is_critical, v_grit_bonus,
+        TIMEZONE('utc'::text, NOW() - (p_actual_seconds || ' seconds')::interval),
+        TIMEZONE('utc'::text, NOW())
+    )
+    RETURNING id INTO v_new_session_id;
+
+    -- 7. Si se proporcionó nota de bitácora, guardarla vinculada a la sesión
+    IF p_log_learnings IS NOT NULL AND TRIM(p_log_learnings) <> '' THEN
+        INSERT INTO public.focus_logs (
+            user_id, session_id, title, learnings, distractions_recorded, mood_score
+        ) VALUES (
+            v_user_id, v_new_session_id, p_objective_text, p_log_learnings, p_distractions, 4
+        );
+    END IF;
+
+    -- 8. Retornar payload con telemetría de liquidación
+    RETURN json_build_object(
+        'success', TRUE,
+        'session_id', v_new_session_id,
+        'status', p_status,
+        'coins_earned', v_coins_earned,
+        'coins_penalized', v_coins_penalized,
+        'xp_earned', v_xp_earned,
+        'boss_damage', v_boss_damage,
+        'boss_heal', v_boss_heal,
+        'is_critical', v_is_critical,
+        'grit_bonus', v_grit_bonus,
+        'streak_days', COALESCE(v_new_streak, v_user.streak_days),
+        'remaining_coins', (SELECT pro_coins FROM public.profiles WHERE id = v_user_id)
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ------------------------------------------------------------------------------
+-- 5. PROCEDIMIENTO RPC PARA GUARDAR ENTRADAS EN LA BITÁCORA
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC / FUNCIÓN SEGURA (SECURITY DEFINER FUNCTION)]
+-- ¿Para qué sirve? Permite guardar notas y reflexiones en focus_logs de forma directa desde la vista /bitacora.
+CREATE OR REPLACE FUNCTION public.add_focus_log_entry(
+    p_title TEXT,
+    p_learnings TEXT,
+    p_distractions JSONB DEFAULT '[]'::jsonb,
+    p_mood_score SMALLINT DEFAULT 3
+)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_log_id UUID;
+BEGIN
+    IF v_user_id IS NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
+    END IF;
+
+    INSERT INTO public.focus_logs (user_id, title, learnings, distractions_recorded, mood_score)
+    VALUES (v_user_id, p_title, p_learnings, p_distractions, p_mood_score)
+    RETURNING id INTO v_log_id;
+
+    RETURN json_build_object('success', TRUE, 'log_id', v_log_id);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ------------------------------------------------------------------------------
+-- 6. SEGURIDAD Y PERMISOS: RLS EN SESIONES Y BITÁCORA
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: DIRECTIVA DE SEGURIDAD (ROW LEVEL SECURITY - RLS)]
+-- ¿Para qué sirve? Aísla y protege los registros de sesiones y notas personales.
+ALTER TABLE public.focus_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.focus_logs ENABLE ROW LEVEL SECURITY;
+
+-- [TIPO DE OBJETO: POLÍTICAS RLS EN FOCUS_SESSIONS]
+DROP POLICY IF EXISTS "Sesiones visibles por su propietario" ON public.focus_sessions;
+CREATE POLICY "Sesiones visibles por su propietario"
+    ON public.focus_sessions FOR SELECT
+    USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Usuarios registran sus propias sesiones" ON public.focus_sessions;
+CREATE POLICY "Usuarios registran sus propias sesiones"
+    ON public.focus_sessions FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+-- [TIPO DE OBJETO: POLÍTICAS RLS EN FOCUS_LOGS]
+DROP POLICY IF EXISTS "Bitácora visible por su propietario" ON public.focus_logs;
+CREATE POLICY "Bitácora visible por su propietario"
+    ON public.focus_logs FOR SELECT
+    USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Usuarios insertan sus propias notas de bitácora" ON public.focus_logs;
+CREATE POLICY "Usuarios insertan sus propias notas de bitácora"
+    ON public.focus_logs FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Usuarios eliminan sus propias notas de bitácora" ON public.focus_logs;
+CREATE POLICY "Usuarios eliminan sus propias notas de bitácora"
+    ON public.focus_logs FOR DELETE
+    USING (auth.uid() = user_id);
+
+
+-- ------------------------------------------------------------------------------
+-- 7. SUSCRIPCIÓN EN TIEMPO REAL (WEBSOCKETS)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PUBLICACIÓN REALTIME (SUPABASE REALTIME PUBLICATION)]
+-- ¿Para qué sirve? Notifica en tiempo real al registrar sesiones o notas en la bitácora.
+ALTER PUBLICATION supabase_realtime ADD TABLE public.focus_sessions;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.focus_logs;
+
 
