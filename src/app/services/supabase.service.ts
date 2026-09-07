@@ -171,6 +171,29 @@ export interface CapturedIdea {
   created_at?: string;
 }
 
+export interface CommunityLeaderboardUser {
+  id: string;
+  username: string;
+  selected_avatar: string;
+  selected_theme?: string;
+  focus_points?: number;
+  focus_tomatoes?: number;
+  streak_days?: number;
+  podium_wins?: number;
+  gold_medals?: number;
+  silver_medals?: number;
+  bronze_medals?: number;
+}
+
+export interface CommunityHomeDashboardData {
+  total_users: number;
+  completed_today: number;
+  user_rank: number;
+  podium: CommunityLeaderboardUser[];
+  top_records: CommunityLeaderboardUser[];
+  recent_avatars: CommunityLeaderboardUser[];
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -1167,6 +1190,91 @@ export class SupabaseService {
       return { success: true, objectiveText: data?.objective_text };
     } catch (e: any) {
       return { success: false, error: e.message || 'Error al convertir idea' };
+    }
+  }
+
+  // ==========================================
+  // DASHBOARD DE LA COMUNIDAD (HOME)
+  // ==========================================
+
+  async getCommunityHomeDashboard(): Promise<{ data: CommunityHomeDashboardData | null; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { data: null, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      // 1. Intentar llamar al RPC get_community_home_dashboard
+      const { data: rpcData, error: rpcError } = await this.supabase.rpc('get_community_home_dashboard');
+      if (!rpcError && rpcData && rpcData.success) {
+        return {
+          data: {
+            total_users: rpcData.total_users ?? 0,
+            completed_today: rpcData.completed_today ?? 0,
+            user_rank: rpcData.user_rank ?? 1,
+            podium: rpcData.podium ?? [],
+            top_records: rpcData.top_records ?? [],
+            recent_avatars: rpcData.recent_avatars ?? []
+          },
+          error: null
+        };
+      }
+
+      // 2. Fallback con queries directas a profiles y focus_sessions
+      const currentUser = await this.getCurrentUser();
+      
+      const { data: profiles, error: profilesError } = await this.supabase
+        .from('profiles')
+        .select('id, username, selected_avatar, selected_theme, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, updated_at')
+        .order('focus_points', { ascending: false });
+
+      if (profilesError) {
+        return { data: null, error: profilesError.message };
+      }
+
+      const allProfiles: CommunityLeaderboardUser[] = profiles || [];
+      const totalUsers = allProfiles.length;
+
+      // Calcular user_rank
+      let userRank = 1;
+      if (currentUser) {
+        const foundIdx = allProfiles.findIndex(p => p.id === currentUser.id);
+        if (foundIdx !== -1) {
+          userRank = foundIdx + 1;
+        }
+      }
+
+      // Podio: Top 3 por focus_points
+      const podium = allProfiles.slice(0, 3);
+
+      // Top récords: Top 5 por focus_tomatoes
+      const topRecords = [...allProfiles]
+        .sort((a, b) => (b.focus_tomatoes || 0) - (a.focus_tomatoes || 0))
+        .slice(0, 5);
+
+      // Recientes
+      const recentAvatars = allProfiles.slice(0, 6);
+
+      // Conteo de sesiones hoy
+      const todayISO = new Date().toISOString().split('T')[0];
+      const { count: completedToday } = await this.supabase
+        .from('focus_sessions')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'completed')
+        .gte('completed_at', todayISO);
+
+      return {
+        data: {
+          total_users: totalUsers,
+          completed_today: completedToday || 0,
+          user_rank: userRank,
+          podium,
+          top_records: topRecords,
+          recent_avatars: recentAvatars
+        },
+        error: null
+      };
+    } catch (e: any) {
+      return { data: null, error: e.message || 'Error al obtener dashboard de comunidad' };
     }
   }
 }

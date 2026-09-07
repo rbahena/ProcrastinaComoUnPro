@@ -11,19 +11,26 @@
 -- permitiendo consultas ultrarrápidas en una sola petición sin JOINs y soporte
 -- nativo para agregar cualquier idioma futuro sin alterar el esquema ni romper la base de datos.
 --
--- CONTROL DE PROGRESO DE MIGRACIONES:
--- [x] PASO 1: Autenticación, Perfiles & Preferencias de Idioma -> COMPLETADO
--- [x] PASO 2: Desbloqueables, Cosméticos & Atributos RPG Multilingüe (N:M) -> COMPLETADO
--- [x] PASO 3: Catálogo y Progreso de Cualidades Maestras -> COMPLETADO
--- [x] PASO 4: Sesiones de Enfoque, Bitácora & Blindaje Anti-Exploits -> COMPLETADO
--- [x] PASO 5: Jefes de Raid Comunitarios & WebSockets Realtime -> COMPLETADO
--- [x] PASO 6: Arena Temporal (/fechas), Cortafuegos (/bloqueador) y Baúl de Ideas -> COMPLETADO
+-- GUÍA DE MIGRACIONES Y PANTALLAS EN EL FRONTEND:
+-- [x] PASO 1: Auth & Perfiles -> /login, /registro, /home (Navbar), Configuración de Identidad
+-- [x] PASO 2: Desbloqueables RPG -> /membresia (Tienda y Casillero), /enfoque (Bonos de Avatares)
+-- [x] PASO 3: Cualidades Maestras -> /cualidades (Dojo de 7 Virtudes), /enfoque (Retos de Foco)
+-- [x] PASO 4: Sesiones de Enfoque -> /enfoque (Pomodoro & Metodologías), /bitacora (Diario de Notas)
+-- [x] PASO 5: Jefes de Raid -> /enfoque (Coworking Comunitario & Boss), /bestiario (Catálogo de Jefes)
+-- [x] PASO 6: Productividad Auxiliar -> /fechas (Deadlines), /bloqueador (Cortafuegos), /ideas (Baúl)
+-- [x] PASO 7: Telemetría Global -> /home (Cards en Vivo, Podio Semanal, Récords Históricos), /medallero
 -- ==============================================================================
 
 
 -- ==============================================================================
 -- 📦 PASO 1: AUTENTICACIÓN Y PERFILES DE USUARIO
 -- ==============================================================================
+-- 🎯 PANTALLAS Y MÓDULOS DE USO EN EL FRONTEND:
+-- • /login y /registro: Registro seguro con Email/Contraseña y Google OAuth, creación automática de perfil.
+-- • /home (Navbar y Encabezado): Renderizado de nombre de usuario, avatar activo, balance de Pro Coins y tomates.
+-- • Modal de Configuración de Identidad: Edición de nombre, país, profesión, idioma y días de enfoque activo.
+-- • /membresia: Estado de suscripción Pro (is_premium), palmarés competitivo y medallas ganadas.
+--
 -- Propósito:
 -- Gestionar la identidad, personalización estética, telemetría de productividad,
 -- idioma de interfaz, suscripción y palmarés competitivo de cada usuario registrado.
@@ -280,6 +287,12 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
 -- ==============================================================================
 -- 📦 PASO 2: DESBLOQUEABLES, COSMÉTICOS E INVENTARIOS MULTILINGÜE (N:M)
 -- ==============================================================================
+-- 🎯 PANTALLAS Y MÓDULOS DE USO EN EL FRONTEND:
+-- • /membresia (Tienda del Dojo): Catálogo de 24 avatares, temas, cronómetros y armas con compra por Pro Coins.
+-- • /membresia (Casillero / Inventario): Visualización de cosméticos desbloqueados y equipamiento activo.
+-- • /enfoque (Zona de Concentración): Cálculo de monedas ganadas por bloque y daño al jefe según el avatar equipado.
+-- • Modal de Zoom de Avatar (en /home y /medallero): Ficha técnica RPG con atributos, frase táctica y pasivas.
+--
 -- Propósito:
 -- Catálogo universal de artículos (avatares, armas, temas, cronómetros) con soporte
 -- nativo multilingüe en JSONB {"es": "...", "en": "..."} y relación N:M con perfiles.
@@ -1095,6 +1108,11 @@ ON CONFLICT (user_id, item_id) DO NOTHING;
 -- ==============================================================================
 -- 📦 PASO 3: CATÁLOGO Y PROGRESO DE CUALIDADES MAESTRAS (MASTER QUALITIES & CHALLENGES)
 -- ==============================================================================
+-- 🎯 PANTALLAS Y MÓDULOS DE USO EN EL FRONTEND:
+-- • /cualidades (Dojo de Honor): Visualización de las 7 virtudes maestras, porcentaje de avance cuantitativo y medallas.
+-- • /enfoque (Zona de Concentración): Disparo de telemetría y desbloqueo automático de los 7 avatares guardianes al cumplir metas.
+-- • /medallero: Progreso de hazañas individuales, retos superados y virtudes dominadas.
+--
 -- Propósito:
 -- Definir el sistema de virtudes, retos y méritos de concentración ("Cualidades Maestras")
 -- en formato nativo multilingüe JSONB {"es": "...", "en": "..."}.
@@ -1458,6 +1476,11 @@ WHERE uqp.quality_id = mq.id
 -- ==============================================================================
 -- 📦 PASO 4: SESIONES DE ENFOQUE, BITÁCORA & BLINDAJE ANTI-EXPLOITS
 -- ==============================================================================
+-- 🎯 PANTALLAS Y MÓDULOS DE USO EN EL FRONTEND:
+-- • /enfoque (Arena de Hiperfoco): Temporizador Pomodoro, selección de metodologías (Normal, Sapo, Pareto) y liquidación segura con monedas/XP.
+-- • /bitacora (Diario de Productividad): Registro histórico de reflexiones, aprendizajes, distracciones y estado de ánimo post-sesión.
+-- • /estadisticas: Gráficos de tiempo efectivo enfocado, distribución de metodologías y rachas semanales.
+--
 -- Propósito:
 -- Gestionar el ciclo de vida completo de cada sesión de hiperfoco (Pomodoro),
 -- el registro histórico de reflexiones/aprendizajes en la Bitácora y el motor
@@ -1911,6 +1934,11 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.focus_logs;
 -- ==============================================================================
 -- 📦 PASO 5: JEFES DE RAID COMUNITARIOS & WEBSOCKETS REALTIME
 -- ==============================================================================
+-- 🎯 PANTALLAS Y MÓDULOS DE USO EN EL FRONTEND:
+-- • /enfoque (Modo Coworking Comunitario): Barra de salud colectiva del Jefe de Raid, asalto cooperativo y feed de batalla en vivo.
+-- • /home (Card 2 - Jefe de la Comunidad): Widget de estado del jefe en tiempo real, HP restante y porcentaje de daño.
+-- • /bestiario: Catálogo de amenazas psicológicas, debilidades y recompensas de raid.
+--
 -- Propósito:
 -- Implementar el motor de combate cooperativo masivo (Raid Boss de la Comunidad).
 -- Todos los usuarios enfocados en coworking comunitario infligen daño colectivo a un
@@ -2298,8 +2326,14 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.community_boss_attacks;
 
 
 -- ==============================================================================
--- 📦 PASO 6: ARENA TEMPORAL (/fechas), CORTAFUEGOS (/bloqueador) Y BAÚL DE IDEAS
+-- 📦 PASO 6: ARENA TEMPORAL (/fechas), CORTAFUEGOS (/bloqueador) Y BAÚL DE IDEAS (/ideas)
 -- ==============================================================================
+-- 🎯 PANTALLAS Y MÓDULOS DE USO EN EL FRONTEND:
+-- • /fechas (Arena Temporal): Entregables inaplazables con fechas límite estrictas, cálculo de urgencia y pomodoros estimados.
+-- • /bloqueador (Cortafuegos): Lista negra de sitios web distractores, interruptores de bloqueo y telemetría de intentos frenados.
+-- • /ideas (Baúl de Ideas & Brain Dump): Captura instantánea de pensamientos durante el estudio y conversión a objetivo activo con 1 solo clic.
+-- • Botón Flotante / Atajo Alt + I: Captura de ideas rápida desde cualquier vista de la plataforma.
+--
 -- Propósito:
 -- Completar la suite de productividad con los 3 módulos auxiliares de enfoque:
 -- 1. Arena Temporal (/fechas): Tareas con fechas límite estrictas (Deadlines) y cuenta atrás.
@@ -2525,6 +2559,106 @@ CREATE POLICY "Usuarios gestionan su propio baúl de ideas"
 ALTER PUBLICATION supabase_realtime ADD TABLE public.temporal_deadlines;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.firewall_blocked_sites;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.captured_ideas;
+
+
+-- ==============================================================================
+-- 📦 PASO 7: TELEMETRÍA GLOBAL, PODIO SEMANAL Y RÉCORDS EN VIVO (/home & /medallero)
+-- ==============================================================================
+-- 🎯 PANTALLAS Y MÓDULOS DE USO EN EL FRONTEND:
+-- • /home (Pantalla Principal):
+--   - Card 1 (Personas Enfocadas): Total de guerreros activos y stack dinámico de avatares en vivo.
+--   - Card 3 (Desempeño de Hoy): Posición real del usuario (#rank), percentil de comunidad y monedas potenciales.
+--   - Card 4 (Templo de Enfoque Colectivo): Conteo de objetivos completados hoy y nombres de compañeros en sala.
+--   - Card 5 (Podio Semanal): Top 3 de guerreros por puntos de enfoque (1º, 2º, 3º lugar en hilera con medallas).
+--   - Card 6 (Récords Históricos): Top 5 histórico de maestros con más pomodoros completados en la plataforma.
+-- • /medallero: Tablas de clasificación histórica de la comunidad y podios conquistados.
+--
+-- Propósito:
+-- Consolidar mediante un procedimiento RPC de alto rendimiento (get_community_home_dashboard)
+-- todas las métricas agregadas en tiempo real para alimentar la pantalla principal (Home),
+-- el podio semanal y los récords históricos de la comunidad en una sola llamada atómica.
+-- ==============================================================================
+
+-- ------------------------------------------------------------------------------
+-- 1. PROCEDIMIENTO RPC PARA TELEMETRÍA Y MÉTRICAS DEL HOME DASHBOARD
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC / FUNCIÓN DE TELEMETRÍA GLOBAL (SECURITY DEFINER FUNCTION)]
+-- ¿Qué es? Procedimiento almacenado que agrega y consolida todas las métricas en vivo para la pantalla principal (Home).
+-- ¿Para qué sirve? Alimenta con una sola llamada eficiente y atómica:
+--   1. Total de guerreros de la comunidad y sesiones completadas hoy.
+--   2. Posición y percentil real del usuario autenticado en el ranking global.
+--   3. Podio Semanal (Top 3 por puntos de enfoque / focus_points).
+--   4. Récords Históricos (Top 5 por pomodoros acumulados / focus_tomatoes).
+--   5. Lista de usuarios activos recientes con avatares para el carrusel de presencia en vivo.
+CREATE OR REPLACE FUNCTION public.get_community_home_dashboard()
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_total_users INTEGER := 0;
+    v_today_sessions INTEGER := 0;
+    v_user_rank INTEGER := 1;
+    v_podium JSON;
+    v_top_records JSON;
+    v_recent_avatars JSON;
+BEGIN
+    -- 1. Total de usuarios registrados en la comunidad
+    SELECT COUNT(*) INTO v_total_users FROM public.profiles;
+
+    -- 2. Total de sesiones de enfoque completadas hoy
+    SELECT COUNT(*) INTO v_today_sessions 
+    FROM public.focus_sessions 
+    WHERE status = 'completed' AND completed_at >= CURRENT_DATE;
+
+    -- 3. Calcular posición exacta del usuario en el ranking global
+    IF v_user_id IS NOT NULL THEN
+        SELECT rank INTO v_user_rank FROM (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY focus_points DESC, focus_tomatoes DESC, created_at ASC) as rank
+            FROM public.profiles
+        ) ranks
+        WHERE id = v_user_id;
+        
+        IF v_user_rank IS NULL THEN
+            v_user_rank := 1;
+        END IF;
+    END IF;
+
+    -- 4. Podio Semanal: Top 3 usuarios por puntos de enfoque
+    SELECT COALESCE(json_agg(p), '[]'::json) INTO v_podium FROM (
+        SELECT id, username, selected_avatar, selected_theme, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals
+        FROM public.profiles
+        ORDER BY focus_points DESC, focus_tomatoes DESC, created_at ASC
+        LIMIT 3
+    ) p;
+
+    -- 5. Récords Históricos: Top 5 maestros del pomodoro
+    SELECT COALESCE(json_agg(r), '[]'::json) INTO v_top_records FROM (
+        SELECT id, username, selected_avatar, selected_theme, focus_tomatoes, focus_points, streak_days, podium_wins, gold_medals
+        FROM public.profiles
+        ORDER BY focus_tomatoes DESC, focus_points DESC, created_at ASC
+        LIMIT 5
+    ) r;
+
+    -- 6. Usuarios recientes para presencia comunitaria en vivo
+    SELECT COALESCE(json_agg(a), '[]'::json) INTO v_recent_avatars FROM (
+        SELECT id, username, selected_avatar, selected_theme, focus_tomatoes, podium_wins
+        FROM public.profiles
+        ORDER BY last_focus_date DESC NULLS LAST, updated_at DESC
+        LIMIT 6
+    ) a;
+
+    RETURN json_build_object(
+        'success', TRUE,
+        'total_users', v_total_users,
+        'completed_today', v_today_sessions,
+        'user_rank', COALESCE(v_user_rank, 1),
+        'podium', v_podium,
+        'top_records', v_top_records,
+        'recent_avatars', v_recent_avatars
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 
 
 

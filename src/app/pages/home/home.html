@@ -49,23 +49,14 @@
         <div class="card-sub-desc">están trabajando.</div>
       </div>
       
-      <!-- FOOTER: Avatares -->
+      <!-- FOOTER: Avatares en Vivo -->
       <div class="avatar-stack-container" style="border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
         <div class="avatar-stack-list">
-          <div class="avatar-stack-item avatar-sprite sprite-lobo" (click)="zoomAvatar('lobo', 'Alejandro', 'Lobo', '#3a86f0', 3)">
-            <span class="avatar-tooltip">Lobo Samurai</span>
-          </div>
-          <div class="avatar-stack-item avatar-sprite sprite-zorro" (click)="zoomAvatar('zorro', 'Beatriz', 'Zorro', '#ff007f', 4)">
-            <span class="avatar-tooltip">Zorro Ninja</span>
-          </div>
-          <div class="avatar-stack-item avatar-sprite sprite-leon" (click)="zoomAvatar('leon', 'Cristian', 'León', '#e67e22', 2)">
-            <span class="avatar-tooltip">León Shogun</span>
-          </div>
-          <div class="avatar-stack-item avatar-sprite sprite-buho" (click)="zoomAvatar('buho', 'Diana', 'Búho', '#9b59b6', 1)">
-            <span class="avatar-tooltip">Búho Estratega</span>
-          </div>
-          <div class="avatar-stack-item avatar-sprite sprite-panda" (click)="zoomAvatar('panda', 'Eduardo', 'Panda', '#2ecc71', 0)">
-            <span class="avatar-tooltip">Panda Ninja</span>
+          <div *ngFor="let user of liveCommunityUsers().slice(0, 5)"
+               class="avatar-stack-item avatar-sprite"
+               [class]="'sprite-' + user.avatar"
+               (click)="zoomAvatar(user.avatar, user.name, getAvatarTitle(user.avatar), user.color, user.wins)">
+            <span class="avatar-tooltip">{{ user.name }}</span>
           </div>
         </div>
         <span class="card-title-text" style="color: var(--muted); font-weight: 500; font-size: 8.5px;">en directo</span>
@@ -306,14 +297,20 @@
           <!-- Preview de Compañeros (Avatar Stack y Texto descriptivo) -->
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 6px;">
             <span style="font-size: 11px; color: var(--muted); font-weight: 500;">
-              Enfócate con **Ana**, **Ramiro** y **+70** compañeros en vivo
+              Enfócate con <strong style="color: var(--text);">{{ featuredCompanionName() }}</strong> y <strong style="color: var(--accent);">+{{ Math.max(1, liveFocusedUsersCount() - 1) }}</strong> compañeros en vivo
             </span>
             
             <!-- Stack de Avatares -->
             <div style="display: flex; align-items: center; position: relative; height: 24px; width: 68px; flex-shrink: 0; margin-left: 8px;">
-              <div class="avatar-sprite sprite-lobo" style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 0; z-index: 3; background-size: cover; background-position: center;"></div>
-              <div class="avatar-sprite sprite-zorro" style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 14px; z-index: 2; background-size: cover; background-position: center;"></div>
-              <div style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 28px; z-index: 1; background: var(--accent); color: #000; font-size: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center;">+70</div>
+              <div *ngFor="let user of liveCommunityUsers().slice(0, 2); let idx = index"
+                   class="avatar-sprite"
+                   [class]="'sprite-' + user.avatar"
+                   [style.left.px]="idx * 14"
+                   [style.z-index]="3 - idx"
+                   style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; background-size: cover; background-position: center;"></div>
+              <div style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 28px; z-index: 1; background: var(--accent); color: #000; font-size: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center;">
+                +{{ Math.max(1, liveFocusedUsersCount() - 2) }}
+              </div>
             </div>
           </div>
 
@@ -356,18 +353,19 @@
           </button> -->
         </div>
 
-        <!-- Podio (Vista en Hilera) -->
-        <div style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 180px; margin-top: 10px; padding-bottom: 5px;">
+        <!-- Podio (Vista en Hilera Dinámica) -->
+        <div *ngIf="rankingData().length >= 3" style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 180px; margin-top: 10px; padding-bottom: 5px;">
           
           <!-- 2º Puesto (Izquierda) -->
           <div class="podio-column second-place custom-tooltip-host" 
-               [attr.data-tooltip]="rankingData()[0].name + ' consiguió ' + rankingData()[0].value + ' la semana anterior'">
+               [attr.data-tooltip]="rankingData()[0].name + ' consiguió ' + rankingData()[0].value + ' en el dojo'">
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
-              <div class="podio-avatar avatar-sprite sprite-lobo" 
+              <div class="podio-avatar avatar-sprite"
+                   [class]="'sprite-' + rankingData()[0].avatar" 
                    [style.background-color]="rankingData()[0].color"
                    style="cursor: zoom-in;"
-                   (click)="zoomAvatar('lobo', 'Lobo Samurai', 'Lobo', '#3a86f0', 3)">
+                   (click)="zoomAvatar(rankingData()[0].avatar, rankingData()[0].name, getAvatarTitle(rankingData()[0].avatar), rankingData()[0].color, rankingData()[0].wins)">
               </div>
             </div>
             <span style="font-size: 11.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[0].name }}</span>
@@ -378,14 +376,15 @@
           <!-- 1º Puesto (Centro) -->
           <div class="podio-column first-place custom-tooltip-host" 
                style="transform: scale(1.05);"
-               [attr.data-tooltip]="rankingData()[1].name + ' lidera con ' + rankingData()[1].value + ' la semana anterior'">
+               [attr.data-tooltip]="rankingData()[1].name + ' lidera con ' + rankingData()[1].value + ' en el dojo'">
             <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 14px; margin-bottom: 4px; filter: drop-shadow(0 0 4px rgba(255,215,0,0.5));"></i>
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
-              <div class="podio-avatar avatar-sprite sprite-dragon" 
+              <div class="podio-avatar avatar-sprite"
+                   [class]="'sprite-' + rankingData()[1].avatar" 
                    [style.background-color]="rankingData()[1].color"
                    style="cursor: zoom-in;"
-                   (click)="zoomAvatar('dragon', 'Dragón Imperial', 'Dragón', '#a855f7', 5)">
+                   (click)="zoomAvatar(rankingData()[1].avatar, rankingData()[1].name, getAvatarTitle(rankingData()[1].avatar), rankingData()[1].color, rankingData()[1].wins)">
               </div>
             </div>
             <span style="font-size: 12.5px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[1].name }}</span>
@@ -395,13 +394,14 @@
 
           <!-- 3º Puesto (Derecha) -->
           <div class="podio-column third-place custom-tooltip-host" 
-               [attr.data-tooltip]="rankingData()[2].name + ' consiguió ' + rankingData()[2].value + ' la semana anterior'">
+               [attr.data-tooltip]="rankingData()[2].name + ' consiguió ' + rankingData()[2].value + ' en el dojo'">
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
-              <div class="podio-avatar avatar-sprite sprite-buho" 
+              <div class="podio-avatar avatar-sprite"
+                   [class]="'sprite-' + rankingData()[2].avatar" 
                    [style.background-color]="rankingData()[2].color"
                    style="cursor: zoom-in;"
-                   (click)="zoomAvatar('buho', 'Búho Sabio', 'Búho', '#10b981', 1)">
+                   (click)="zoomAvatar(rankingData()[2].avatar, rankingData()[2].name, getAvatarTitle(rankingData()[2].avatar), rankingData()[2].color, rankingData()[2].wins)">
               </div>
             </div>
             <span style="font-size: 11.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[2].name }}</span>
@@ -439,91 +439,26 @@
           </button>
         </div>
 
-        <!-- Listado -->
+        <!-- Listado Dinámico desde Base de Datos -->
         <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px; flex: 1; justify-content: center; z-index: 2;">
           
-          <!-- Fila 1 -->
-          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 8px 12px; transition: all 0.2s;"
+          <div *ngFor="let record of topHistoricalRecords(); let idx = index"
+               style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 8px 12px; transition: all 0.2s;"
                onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"
                onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.04)';"
-               title="Ver perfil de Dragón Imperial">
+               [title]="'Ver perfil de ' + record.name">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 10px; font-weight: 800; color: var(--yellow); width: 12px; text-align: center;">1</span>
-              <div class="avatar-sprite sprite-dragon" 
-                   style="width: 20px; height: 20px; border-radius: 50%; background-color: rgba(168, 85, 247, 0.2); cursor: zoom-in;"
-                   (click)="zoomAvatar('dragon', 'Dragón Imperial', 'Dragón', '#a855f7', 5)"></div>
-              <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">Dragón Imperial</span>
+              <span style="font-size: 10px; font-weight: 800; width: 12px; text-align: center;"
+                    [style.color]="idx === 0 ? 'var(--yellow)' : 'var(--muted)'">{{ record.rank }}</span>
+              <div class="avatar-sprite" 
+                   [class]="'sprite-' + record.avatar"
+                   [style.background-color]="record.color" 
+                   style="width: 20px; height: 20px; border-radius: 50%; cursor: zoom-in;"
+                   (click)="zoomAvatar(record.avatar, record.name, getAvatarTitle(record.avatar), record.color, record.wins)"></div>
+              <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">{{ record.name }}</span>
             </div>
             <span style="font-size: 10px; font-weight: 800; color: var(--green); display: flex; align-items: center; gap: 3px;">
-              🍅 142
-            </span>
-          </div>
-
-          <!-- Fila 2 -->
-          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 8px 12px; transition: all 0.2s;"
-               onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"
-               onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.04)';"
-               title="Ver perfil de Lobo Samurai">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 10px; font-weight: 800; color: var(--muted); width: 12px; text-align: center;">2</span>
-              <div class="avatar-sprite sprite-lobo" 
-                   style="width: 20px; height: 20px; border-radius: 50%; background-color: rgba(58, 134, 240, 0.2); cursor: zoom-in;"
-                   (click)="zoomAvatar('lobo', 'Lobo Samurai', 'Lobo', '#3a86f0', 3)"></div>
-              <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">Lobo Samurai</span>
-            </div>
-            <span style="font-size: 10px; font-weight: 800; color: var(--green); display: flex; align-items: center; gap: 3px;">
-              🍅 128
-            </span>
-          </div>
-
-          <!-- Fila 3 -->
-          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 8px 12px; transition: all 0.2s;"
-               onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"
-               onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.04)';"
-               title="Ver perfil de Búho Sabio">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 10px; font-weight: 800; color: var(--muted); width: 12px; text-align: center;">3</span>
-              <div class="avatar-sprite sprite-buho" 
-                   style="width: 20px; height: 20px; border-radius: 50%; background-color: rgba(16, 185, 129, 0.2); cursor: zoom-in;"
-                   (click)="zoomAvatar('buho', 'Búho Sabio', 'Búho', '#10b981', 1)"></div>
-              <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">Búho Sabio</span>
-            </div>
-            <span style="font-size: 10px; font-weight: 800; color: var(--green); display: flex; align-items: center; gap: 3px;">
-              🍅 105
-            </span>
-          </div>
-
-          <!-- Fila 4 -->
-          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 8px 12px; transition: all 0.2s;"
-               onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"
-               onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.04)';"
-               title="Ver perfil de Zorro Ninja">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 10px; font-weight: 800; color: var(--muted); width: 12px; text-align: center;">4</span>
-              <div class="avatar-sprite sprite-zorro" 
-                   style="width: 20px; height: 20px; border-radius: 50%; background-color: rgba(255, 0, 127, 0.2); cursor: zoom-in;"
-                   (click)="zoomAvatar('zorro', 'Zorro Ninja', 'Zorro', '#ec4899', 4)"></div>
-              <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">Zorro Ninja</span>
-            </div>
-            <span style="font-size: 10px; font-weight: 800; color: var(--green); display: flex; align-items: center; gap: 3px;">
-              🍅 94
-            </span>
-          </div>
-
-          <!-- Fila 5 -->
-          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 8px 12px; transition: all 0.2s;"
-               onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"
-               onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.04)';"
-               title="Ver perfil de Panda Zen">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 10px; font-weight: 800; color: var(--muted); width: 12px; text-align: center;">5</span>
-              <div class="avatar-sprite sprite-panda" 
-                   style="width: 20px; height: 20px; border-radius: 50%; background-color: rgba(46, 204, 113, 0.2); cursor: zoom-in;"
-                   (click)="zoomAvatar('panda', 'Panda Zen', 'Panda', '#2ecc71', 2)"></div>
-              <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">Panda Zen</span>
-            </div>
-            <span style="font-size: 10px; font-weight: 800; color: var(--green); display: flex; align-items: center; gap: 3px;">
-              🍅 81
+              🍅 {{ record.tomatoes }}
             </span>
           </div>
 
