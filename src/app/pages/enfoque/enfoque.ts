@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
+import { SupabaseService, FocusSessionData } from '../../services/supabase.service';
 import { Navbar } from '../../components/navbar/navbar';
 
 export interface MotivationItem {
@@ -30,6 +31,10 @@ export interface MotivationItem {
   }
 })
 export class Enfoque implements OnInit, OnDestroy {
+  public supabaseService = inject(SupabaseService);
+  currentSessionNonceId: string | null = null;
+  isSettlingSession = signal<boolean>(false);
+
   currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
   userName!: WritableSignal<string>;
   selectedAvatar!: WritableSignal<any>;
@@ -172,18 +177,24 @@ export class Enfoque implements OnInit, OnDestroy {
   longBreakInterval = signal(4); // 4 pomodoros antes de un descanso largo
   longBreakDuration = signal(15); // Duración de descanso largo (15 min)
   dailyAttempts = signal<{ status: 'completed' | 'abandoned' | 'interrupted', time: string }[]>(
-    localStorage.getItem('daily-attempts') 
-      ? JSON.parse(localStorage.getItem('daily-attempts')!) 
-      : [
-          { status: 'completed', time: '09:00' },
-          { status: 'completed', time: '10:30' },
-          { status: 'completed', time: '12:00' },
-          { status: 'abandoned', time: '13:15' },
-          { status: 'completed', time: '14:30' },
-          { status: 'interrupted', time: '15:45' },
-          { status: 'completed', time: '17:00' },
-          { status: 'completed', time: '18:30' }
-        ]
+    (() => {
+      const saved = localStorage.getItem('daily-attempts');
+      if (!saved) return [];
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Si es el array demo antiguo de 8 elementos con las horas 09:00, 10:30, limpiarlo
+          if (parsed.length === 8 && parsed[0]?.time === '09:00' && parsed[1]?.time === '10:30') {
+            localStorage.setItem('daily-attempts', '[]');
+            return [];
+          }
+          return parsed;
+        }
+        return [];
+      } catch {
+        return [];
+      }
+    })()
   );
   completedPomodoros = computed(() => {
     return this.dailyAttempts().filter(a => a.status === 'completed').length;
@@ -599,6 +610,24 @@ export class Enfoque implements OnInit, OnDestroy {
       setTimeout(() => {
         this.titanicDisableTransition.set(false);
       }, 60);
+
+      // Sincronizar de inmediato el tiempo real transcurrido según el reloj del sistema
+      this.checkAndRestoreActiveSession();
+      if (this.arenaState() !== 'active') {
+        this.stopTitleFlashing();
+      } else {
+        this.updateLiveTabTitle();
+      }
+    }
+  }
+
+  @HostListener('window:focus')
+  onWindowFocus() {
+    this.checkAndRestoreActiveSession();
+    if (this.arenaState() !== 'active') {
+      this.stopTitleFlashing();
+    } else {
+      this.updateLiveTabTitle();
     }
   }
 
@@ -1213,7 +1242,167 @@ export class Enfoque implements OnInit, OnDestroy {
     return 848 * (1 - pct);
   });
 
+  generateUUID(): string {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
+
+  async settleCurrentSession(
+    status: 'completed' | 'abandoned' | 'interrupted',
+    objCompleted?: 'yes' | 'no' | 'progress' | 'partial'
+  ) {
+    if (!this.supabaseService.isConfigured() || !this.supabaseService.currentUser()) {
+      return;
+    }
+
+    const nonceId = this.currentSessionNonceId || this.generateUUID();
+    const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
+    const actualSeconds = status === 'completed'
+      ? plannedSeconds
+      : Math.max(0, plannedSeconds - Math.max(0, this.timeLeft()));
+    
+    const objectiveCompletion = objCompleted || (this.objectiveCompleted() as any) || (status === 'completed' ? 'yes' : 'no');
+    
+    const distractions = this.distractionsList().map(d => ({
+      id: d.id,
+      text: d.text,
+      time: d.time
+    }));
+
+    const sessionPayload: FocusSessionData = {
+      nonce_id: nonceId,
+      avatar_id: this.membership.selectedAvatar() || 'gato',
+      methodology: this.activeMethodology() || 'normal',
+      coworking_mode: this.coworkingMode() === 'comunitario' ? 'comunitario' : 'individual',
+      energy_level: this.energyLevel() || 'medium',
+      objective_text: this.activeObjective()?.trim() || 'Sesión de Enfoque',
+      planned_duration_seconds: plannedSeconds,
+      actual_duration_seconds: actualSeconds,
+      pause_count: this.interruptedByPause() ? 1 : 0,
+      total_pause_seconds: 0,
+      status: status,
+      objective_completed: objectiveCompletion
+    };
+
+    try {
+      this.isSettlingSession.set(true);
+      const { success, result, error } = await this.supabaseService.settleFocusSession(
+        sessionPayload,
+        undefined,
+        distractions
+      );
+
+      if (success && result) {
+        if (result.remaining_coins !== undefined) {
+          this.membership.proCoins.set(result.remaining_coins);
+        }
+        if (result.streak_days !== undefined) {
+          this.membership.streak.set(result.streak_days);
+        }
+        // Sincronizar perfil completo desde Supabase
+        await this.membership.syncProfileFromSupabase();
+      } else if (error) {
+        console.warn('Error al liquidar sesión en Supabase:', error);
+      }
+    } catch (e) {
+      console.warn('Excepción al liquidar sesión en Supabase:', e);
+    } finally {
+      this.isSettlingSession.set(false);
+      this.currentSessionNonceId = null;
+    }
+  }
+
+  // ==========================================
+  // NOTIFICACIONES DE ESCRITORIO & ALERTAS DE PESTAÑA (B & C)
+  // ==========================================
+  private titleFlashingInterval: any = null;
+  private originalDocumentTitle = 'COFU - Procrastina Como un Pro';
+
+  requestNotificationPermission() {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            this.showToastFeedback('🔔 Notificaciones de escritorio activadas.', 'success');
+          }
+        });
+      }
+    }
+  }
+
+  sendDesktopNotification(title: string, body: string, icon: string = '/assets/images/cofu_logo.jpg') {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+
+    if (Notification.permission === 'granted') {
+      try {
+        const notif = new Notification(title, {
+          body,
+          icon,
+          badge: icon,
+          requireInteraction: true,
+          silent: false
+        });
+
+        notif.onclick = () => {
+          window.focus();
+          notif.close();
+        };
+      } catch (e) {
+        console.warn('Error al enviar notificación:', e);
+      }
+    }
+  }
+
+  startTitleFlashing(text1: string, text2: string) {
+    this.stopTitleFlashing();
+    let toggle = false;
+    document.title = text1;
+
+    this.titleFlashingInterval = setInterval(() => {
+      toggle = !toggle;
+      document.title = toggle ? text1 : text2;
+    }, 850);
+  }
+
+  stopTitleFlashing() {
+    if (this.titleFlashingInterval) {
+      clearInterval(this.titleFlashingInterval);
+      this.titleFlashingInterval = null;
+    }
+    document.title = this.originalDocumentTitle;
+  }
+
+  updateLiveTabTitle() {
+    if (this.titleFlashingInterval) return;
+
+    if (this.arenaState() === 'active') {
+      const timeStr = this.timeString();
+      if (this.emergencyPauseActive()) {
+        const pauseMin = Math.floor(this.emergencyTimeLeft() / 60);
+        const pauseSec = this.emergencyTimeLeft() % 60;
+        const pauseStr = `${pauseMin.toString().padStart(2, '0')}:${pauseSec.toString().padStart(2, '0')}`;
+        document.title = `COFU - ${pauseStr} ⏸️`;
+      } else if (!this.isBreak()) {
+        document.title = `COFU - ${timeStr} 🎯`;
+      } else {
+        document.title = `COFU - ${timeStr} ☕`;
+      }
+    } else if (this.arenaState() === 'countdown') {
+      document.title = `COFU - ${this.countdownValue()} ⚡`;
+    } else {
+      document.title = this.originalDocumentTitle;
+    }
+  }
+
   ngOnInit() {
+    this.requestNotificationPermission();
+    this.membership.syncProfileFromSupabase();
     this.initializeComunidadUsers();
     this.communityInterval = setInterval(() => {
       this.tickCommunity();
@@ -1253,10 +1442,14 @@ export class Enfoque implements OnInit, OnDestroy {
         this.showCampfireDragTooltip.set(false);
       }, 8000);
     }
+
+    // Verificar si hay una sesión activa persistente y restaurar el tiempo exacto
+    this.checkAndRestoreActiveSession();
   }
 
   // Iniciar Flujo: Lanza el Ritual 3-2-1
   startFocusFlow(bypassModal = false) {
+    this.stopTitleFlashing();
     this.showSupportMessageModal.set(false);
     this.manuallyAbandoned.set(false);
     this.interruptedByPause.set(false);
@@ -1275,16 +1468,21 @@ export class Enfoque implements OnInit, OnDestroy {
     if (!this.isBreak()) {
       this.totalSessionTime.set(this.focusDuration() * 60);
       this.timeLeft.set(this.focusDuration() * 60);
+      this.currentSessionNonceId = this.generateUUID();
+      this.membership.isFocusActive.set(true);
     } else {
       const isLongBreak = this.completedPomodoros() > 0 && (this.completedPomodoros() % this.longBreakInterval() === 0);
       const duration = isLongBreak ? this.longBreakDuration() : this.breakDuration();
       this.totalSessionTime.set(duration * 60);
       this.timeLeft.set(duration * 60);
+      this.currentSessionNonceId = null;
+      this.membership.isFocusActive.set(false);
     }
     
     // Cambiar a estado cuenta regresiva
     this.arenaState.set('countdown');
     this.countdownValue.set(5);
+    this.updateLiveTabTitle();
 
     // Sonido sutil de preparación
     this.playTone(220, 'sine', 0.1, 0.15);
@@ -1292,6 +1490,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.countdownTimer = setInterval(() => {
       if (this.countdownValue() > 1) {
         this.countdownValue.update(v => v - 1);
+        this.updateLiveTabTitle();
         this.playTone(220, 'sine', 0.1, 0.15);
       } else {
         // Al llegar a cero
@@ -1329,10 +1528,12 @@ export class Enfoque implements OnInit, OnDestroy {
       
       const limitSeconds = 120; // 2 minutos para todos
       this.emergencyTimeLeft.set(limitSeconds);
+      this.updateLiveTabTitle();
 
       this.emergencyTimer = setInterval(() => {
         if (this.emergencyTimeLeft() > 0) {
           this.emergencyTimeLeft.update(t => t - 1);
+          this.updateLiveTabTitle();
           
           // Ocasionalmente alertar en el feed que estás en pausa/interrupción
           if (this.emergencyTimeLeft() === 60 && this.coworkingMode() === 'comunitario') {
@@ -1344,6 +1545,7 @@ export class Enfoque implements OnInit, OnDestroy {
           this.stopTimerLoop();
           this.stopBackgroundSound();
           this.backgroundSound.set('off');
+          this.membership.isFocusActive.set(false);
           
           this.sessionEndingStatus.set('interrupted');
           this.interruptedByPause.set(true);
@@ -1369,6 +1571,10 @@ export class Enfoque implements OnInit, OnDestroy {
             this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} se distrajo por demasiado tiempo. ¡El Oni recupera fuerzas!`, 'reaction');
           }
 
+          // Liquidar sesión en Supabase y limpiar persistencia
+          this.settleCurrentSession('interrupted', 'no');
+          this.clearPersistedSession();
+
           // Reiniciar pomodoro directamente al estado setup
           this.isBreak.set(false);
           this.totalSessionTime.set(this.focusDuration() * 60);
@@ -1381,6 +1587,16 @@ export class Enfoque implements OnInit, OnDestroy {
           // Mostrar modal informativo de cancelación
           this.showInterruptedModal.set(true);
           this.playTone(150, 'sawtooth', 0.15, 0.5);
+
+          // Notificación de escritorio y alerta de pestaña
+          this.sendDesktopNotification(
+            '⚠️ ¡Tiempo de Pausa Agotado!',
+            'La sesión de enfoque se ha cancelado por inactividad prolongada.'
+          );
+          this.startTitleFlashing(
+            '⚠️ COFU - ¡SESIÓN CANCELADA! ⚠️',
+            '⚡ ¡Vuelve a COFU para intentarlo! ⚡'
+          );
         }
       }, 1000);
     }
@@ -1393,7 +1609,13 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Confirmación de Abandono (Ejecuta la penalización y reinicia el Pomodoro)
   confirmAbandon() {
+    this.stopTitleFlashing();
     this.showAbandonConfirmModal.set(false);
+    this.membership.isFocusActive.set(false);
+
+    // Liquidar sesión en Supabase con estado abandoned
+    this.settleCurrentSession('abandoned', 'no');
+    this.clearPersistedSession();
 
     // Penalización de monedas (ProCoins)
     this.membership.proCoins.update(coins => Math.max(0, coins - 50));
@@ -1438,6 +1660,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.timeLeft.set(0);
     this.stopTimerLoop();
     this.stopEmergencyTimer();
+    this.membership.isFocusActive.set(false);
     
     if (!this.isBreak()) {
       this.sessionEndingStatus.set('completed');
@@ -1445,11 +1668,29 @@ export class Enfoque implements OnInit, OnDestroy {
       this.arenaState.set('summary');
       this.playAlarmTone();
       this.triggerCelebration();
+
+      this.sendDesktopNotification(
+        '🍅 ¡Pomodoro Completado!',
+        '¡Excelente trabajo! Has completado tu bloque de concentración. Haz clic aquí para reclamar tus monedas y registrar tu progreso.'
+      );
+      this.startTitleFlashing(
+        '🔔 COFU - 00:00 ¡COMPLETADO! 🍅',
+        '✨ ¡CLIC AQUÍ PARA RECLAMAR MONEDAS! 🏆'
+      );
     } else {
       this.isBreak.set(false);
       this.totalSessionTime.set(this.focusDuration() * 60);
       this.timeLeft.set(this.focusDuration() * 60);
       this.arenaState.set('setup');
+
+      this.sendDesktopNotification(
+        '⚡ ¡Descanso Finalizado!',
+        'Tu energía está recargada. Haz clic aquí para iniciar tu sesión de enfoque.'
+      );
+      this.startTitleFlashing(
+        '🔔 COFU - 00:00 ¡DESCANSO TERMINADO! ⚡',
+        '🚀 ¡CLIC AQUÍ PARA CONCENTRARTE! 🎯'
+      );
     }
   }
 
@@ -1492,9 +1733,11 @@ export class Enfoque implements OnInit, OnDestroy {
     }, 8000);
   }
 
-  finishSessionAndStart(nextState: 'short' | 'long' | 'exit') {
+  async finishSessionAndStart(nextState: 'short' | 'long' | 'exit') {
+    this.stopTitleFlashing();
     this.stopBackgroundSound();
     this.backgroundSound.set('off');
+    this.membership.isFocusActive.set(false);
 
     const currentStatus = this.sessionEndingStatus();
     if (currentStatus) {
@@ -1550,6 +1793,13 @@ export class Enfoque implements OnInit, OnDestroy {
         // Castigo de -50 XP por abandonar
         this.membership.addFocusPoints(-50);
       }
+
+      // Liquidar e insertar la sesión inmutable en Supabase y actualizar perfil del usuario
+      await this.settleCurrentSession(
+        currentStatus as 'completed' | 'abandoned' | 'interrupted',
+        (this.objectiveCompleted() as any) || (currentStatus === 'completed' ? 'yes' : 'no')
+      );
+      this.clearPersistedSession();
     }
 
     // Configurar e INICIAR la siguiente sesión según la elección del usuario
@@ -1580,9 +1830,11 @@ export class Enfoque implements OnInit, OnDestroy {
 
   
   resetToFocus() {
+    this.stopTitleFlashing();
     this.isBreak.set(false);
     this.totalSessionTime.set(this.focusDuration() * 60);
     this.timeLeft.set(this.focusDuration() * 60);
+    this.membership.isFocusActive.set(false);
   }
 
   // Verificación si el cronómetro actual tiene habilitada la función de arrastre
@@ -1675,6 +1927,8 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Reiniciar desde Setup
   cancelAndExit() {
+    this.stopTitleFlashing();
+    this.clearPersistedSession();
     this.stopTimerLoop();
     this.stopEmergencyTimer();
     this.stopBackgroundSound();
@@ -1996,7 +2250,21 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent) {
+    if (this.membership.isFocusActive()) {
+      event.preventDefault();
+      event.returnValue = 'Tienes una sesión de concentración activa. Si sales, se cancelará o pausará tu progreso.';
+      return event.returnValue;
+    }
+    return undefined;
+  }
+
   ngOnDestroy() {
+    this.stopTitleFlashing();
+    if (!this.timerRunning() || this.isBreak()) {
+      this.membership.isFocusActive.set(false);
+    }
     this.stopTimerLoop();
     this.stopEmergencyTimer();
     this.stopBackgroundSound();
@@ -2029,10 +2297,10 @@ export class Enfoque implements OnInit, OnDestroy {
       clearTimeout(this.inactivityTimeout);
     }
     this.inactivityTimeout = setTimeout(() => {
-      if (this.arenaState() !== 'summary') {
+      if (this.arenaState() === 'active') {
         this.isInactive.set(true);
       }
-    }, 60000); // 1 minuto tras salir de la ventana se activa el modo Zen
+    }, 3000); // 3 segundos tras salir de la ventana se activa el modo Zen
   }
 
   private resetInactivityTimer() {
@@ -2040,10 +2308,10 @@ export class Enfoque implements OnInit, OnDestroy {
       clearTimeout(this.inactivityTimeout);
     }
     this.inactivityTimeout = setTimeout(() => {
-      if (this.arenaState() !== 'summary') {
+      if (this.arenaState() === 'active') {
         this.isInactive.set(true);
       }
-    }, 60000); // 1 minuto (60s) de inactividad física
+    }, 6000); // 6 segundos de inactividad física
   }
 
   // Controles del Temporizador en Setup
@@ -2056,11 +2324,13 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   resetTimer() {
+    this.clearPersistedSession();
     this.stopTimerLoop();
     this.timeLeft.set(this.totalSessionTime());
   }
 
   selectMode(mode: 'focus' | 'break') {
+    this.clearPersistedSession();
     this.stopTimerLoop();
     if (mode === 'focus') {
       this.isBreak.set(false);
@@ -2304,17 +2574,152 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   }
 
-  private startTimerLoop() {
+  private clearPersistedSession() {
+    localStorage.removeItem('focus-session-target-end');
+    localStorage.removeItem('focus-session-total-duration');
+    localStorage.removeItem('focus-session-is-break');
+    localStorage.removeItem('focus-session-objective');
+    localStorage.removeItem('focus-session-methodology');
+    localStorage.removeItem('focus-session-coworking');
+    localStorage.removeItem('focus-session-energy');
+    localStorage.removeItem('focus-session-started-at');
+    localStorage.removeItem('focus-session-nonce');
+    this.currentSessionNonceId = null;
+  }
+
+  private persistSessionState() {
+    const targetEndTime = Date.now() + this.timeLeft() * 1000;
+    localStorage.setItem('focus-session-target-end', targetEndTime.toString());
+    localStorage.setItem('focus-session-total-duration', this.totalSessionTime().toString());
+    localStorage.setItem('focus-session-is-break', this.isBreak().toString());
+    localStorage.setItem('focus-session-objective', this.activeObjective());
+    localStorage.setItem('focus-session-methodology', this.activeMethodology());
+    localStorage.setItem('focus-session-coworking', this.coworkingMode());
+    localStorage.setItem('focus-session-energy', this.energyLevel());
+    if (!this.currentSessionNonceId) {
+      this.currentSessionNonceId = localStorage.getItem('focus-session-nonce') || this.generateUUID();
+    }
+    localStorage.setItem('focus-session-nonce', this.currentSessionNonceId);
+    if (!localStorage.getItem('focus-session-started-at')) {
+      localStorage.setItem('focus-session-started-at', Date.now().toString());
+    }
+  }
+
+  checkAndRestoreActiveSession() {
+    const targetEndStr = localStorage.getItem('focus-session-target-end');
+    if (!targetEndStr) return;
+
+    const targetEndTime = parseInt(targetEndStr, 10);
+    if (isNaN(targetEndTime)) {
+      this.clearPersistedSession();
+      return;
+    }
+
+    const savedNonce = localStorage.getItem('focus-session-nonce');
+    if (savedNonce) {
+      this.currentSessionNonceId = savedNonce;
+    }
+
+    const now = Date.now();
+    const remaining = Math.round((targetEndTime - now) / 1000);
+
+    const totalDuration = parseInt(localStorage.getItem('focus-session-total-duration') || '1500', 10);
+    const isBreak = localStorage.getItem('focus-session-is-break') === 'true';
+    const objective = localStorage.getItem('focus-session-objective') || '';
+    const methodology = (localStorage.getItem('focus-session-methodology') as any) || 'normal';
+    const coworking = (localStorage.getItem('focus-session-coworking') as any) || 'comunitario';
+    const energy = (localStorage.getItem('focus-session-energy') as any) || 'medium';
+
+    this.totalSessionTime.set(totalDuration);
+    this.isBreak.set(isBreak);
+    if (objective) this.activeObjective.set(objective);
+    this.activeMethodology.set(methodology);
+    this.coworkingMode.set(coworking);
+    this.energyLevel.set(energy);
+
+    if (remaining > 0) {
+      // Sesión en curso: actualizar el tiempo exacto transcurrido y continuar
+      this.timeLeft.set(remaining);
+      this.arenaState.set('active');
+      if (!isBreak) {
+        this.membership.isFocusActive.set(true);
+      } else {
+        this.membership.isFocusActive.set(false);
+      }
+      if (!this.timerRunning() && !this.emergencyPauseActive()) {
+        this.startTimerLoop(true);
+      }
+    } else {
+      // El tiempo expiró mientras la pestaña estuvo cerrada o en segundo plano
+      this.clearPersistedSession();
+      this.timeLeft.set(0);
+      this.stopTimerLoop();
+      this.membership.isFocusActive.set(false);
+
+      if (!isBreak) {
+        this.sessionEndingStatus.set('completed');
+        this.objectiveCompleted.set('yes');
+        this.arenaState.set('summary');
+        this.playAlarmTone();
+        this.triggerCelebration();
+
+        this.sendDesktopNotification(
+          '🍅 ¡Pomodoro Completado!',
+          '¡Excelente trabajo! Has completado tu bloque de concentración. Haz clic aquí para reclamar tus monedas y registrar tu progreso.'
+        );
+        this.startTitleFlashing(
+          '🔔 COFU - 00:00 ¡COMPLETADO! 🍅',
+          '✨ ¡CLIC AQUÍ PARA RECLAMAR MONEDAS! 🏆'
+        );
+      } else {
+        this.isBreak.set(false);
+        this.totalSessionTime.set(this.focusDuration() * 60);
+        this.timeLeft.set(this.focusDuration() * 60);
+        this.arenaState.set('setup');
+
+        this.sendDesktopNotification(
+          '⚡ ¡Descanso Finalizado!',
+          'Tu energía está recargada. Haz clic aquí para iniciar tu sesión de enfoque.'
+        );
+        this.startTitleFlashing(
+          '🔔 COFU - 00:00 ¡DESCANSO TERMINADO! ⚡',
+          '🚀 ¡CLIC AQUÍ PARA CONCENTRARTE! 🎯'
+        );
+      }
+    }
+  }
+
+  private startTimerLoop(fromRestore: boolean = false) {
     this.timerRunning.set(true);
+    if (!this.isBreak()) {
+      this.membership.isFocusActive.set(true);
+    } else {
+      this.membership.isFocusActive.set(false);
+    }
+
+    if (!fromRestore) {
+      this.persistSessionState();
+    }
+
     if (this.backgroundSound() !== 'off') {
       this.updateBackgroundSound(this.backgroundSound());
     }
+
+    if (this.pomodoroTimer) {
+      clearInterval(this.pomodoroTimer);
+    }
+
     this.pomodoroTimer = setInterval(() => {
-      if (this.timeLeft() > 0) {
-        this.timeLeft.update(t => t - 1);
+      const targetEndStr = localStorage.getItem('focus-session-target-end');
+      if (targetEndStr) {
+        const targetEndTime = parseInt(targetEndStr, 10);
+        const now = Date.now();
+        const remaining = Math.max(0, Math.round((targetEndTime - now) / 1000));
+        this.timeLeft.set(remaining);
+        this.updateLiveTabTitle();
 
         // Simulación en tiempo real del Templo Comunitario y daño del Jefe
-        if (this.coworkingMode() === 'comunitario') {
+        if (this.coworkingMode() === 'comunitario' && remaining > 0) {
           this.partnerSessionTicks.update(ticks => ticks + 1);
           if (!this.isBreak() && this.bossService.activeBoss().status === 'active') {
             // El usuario inflige 1 de daño continuo por segundo
@@ -2332,22 +2737,51 @@ export class Enfoque implements OnInit, OnDestroy {
             });
           }
         }
+
+        if (remaining <= 0) {
+          // Al terminar con éxito
+          this.clearPersistedSession();
+          this.stopTimerLoop();
+          this.membership.isFocusActive.set(false);
+          if (!this.isBreak()) {
+            // Cambiar a descanso y lanzar cuestionario como completado
+            this.sessionEndingStatus.set('completed');
+            this.objectiveCompleted.set('yes');
+            this.arenaState.set('summary');
+            this.playAlarmTone();
+            this.triggerCelebration();
+
+            this.sendDesktopNotification(
+              '🍅 ¡Pomodoro Completado!',
+              '¡Excelente trabajo! Has completado tu bloque de concentración. Haz clic aquí para reclamar tus monedas y registrar tu progreso.'
+            );
+            this.startTitleFlashing(
+              '🔔 COFU - 00:00 ¡COMPLETADO! 🍅',
+              '✨ ¡CLIC AQUÍ PARA RECLAMAR MONEDAS! 🏆'
+            );
+          } else {
+            // Fin del descanso, vuelve a enfoque setup
+            this.isBreak.set(false);
+            this.totalSessionTime.set(this.focusDuration() * 60);
+            this.timeLeft.set(this.focusDuration() * 60);
+            this.arenaState.set('setup');
+
+            this.sendDesktopNotification(
+              '⚡ ¡Descanso Finalizado!',
+              'Tu energía está recargada. Haz clic aquí para iniciar tu sesión de enfoque.'
+            );
+            this.startTitleFlashing(
+              '🔔 COFU - 00:00 ¡DESCANSO TERMINADO! ⚡',
+              '🚀 ¡CLIC AQUÍ PARA CONCENTRARTE! 🎯'
+            );
+          }
+        }
       } else {
-        // Al terminar con éxito
-        this.stopTimerLoop();
-        if (!this.isBreak()) {
-          // Cambiar a descanso y lanzar cuestionario como completado
-          this.sessionEndingStatus.set('completed');
-          this.objectiveCompleted.set('yes');
-          this.arenaState.set('summary');
-          this.playAlarmTone();
-          this.triggerCelebration();
+        if (this.timeLeft() > 0) {
+          this.timeLeft.update(t => t - 1);
+          this.updateLiveTabTitle();
         } else {
-          // Fin del descanso, vuelve a enfoque setup
-          this.isBreak.set(false);
-          this.totalSessionTime.set(this.focusDuration() * 60);
-          this.timeLeft.set(this.focusDuration() * 60);
-          this.arenaState.set('setup');
+          this.stopTimerLoop();
         }
       }
     }, 1000);
@@ -2386,40 +2820,58 @@ export class Enfoque implements OnInit, OnDestroy {
     } catch(e){}
   }
 
-  // Campana sonora configurable
+  // Campana sonora configurable con ricas frecuencias y acordes
   playAlarmTone() {
     if (!this.soundEnabled()) return;
 
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
       const type = this.soundType();
+
       if (type === 'zen') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 1.2);
+        // Cuenco tibetano armónico / campana serena resonante
+        [528, 660, 792].forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (i * 0.08));
+          gain.gain.setValueAtTime(0.18 / (i + 1), audioCtx.currentTime + (i * 0.08));
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.4);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + (i * 0.08));
+          osc.stop(audioCtx.currentTime + 2.4);
+        });
       } else if (type === 'chime') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.6);
+        // Acorde alegre de campanadas (Do Mayor / Mi / Sol / Do agudo)
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, index) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (index * 0.12));
+          gain.gain.setValueAtTime(0.2, audioCtx.currentTime + (index * 0.12));
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (index * 0.12) + 1.4);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + (index * 0.12));
+          osc.stop(audioCtx.currentTime + (index * 0.12) + 1.4);
+        });
       } else {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.35);
+        // Fanfarria digital gamer victoriosa
+        const notes = [440, 554.37, 659.25, 880];
+        notes.forEach((freq, index) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (index * 0.1));
+          gain.gain.setValueAtTime(0.09, audioCtx.currentTime + (index * 0.1));
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (index * 0.1) + 0.5);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + (index * 0.1));
+          osc.stop(audioCtx.currentTime + (index * 0.1) + 0.5);
+        });
       }
     } catch(e){}
   }

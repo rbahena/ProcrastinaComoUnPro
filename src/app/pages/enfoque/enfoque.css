@@ -1035,6 +1035,7 @@
 .hide-on-inactive,
 ::ng-deep .sidebar,
 .floating-drawer,
+.action-buttons-container,
 .zen-timer {
   opacity: 1;
   pointer-events: auto;
@@ -1043,6 +1044,7 @@
 
 :host.zen-inactive .hide-on-inactive,
 :host.zen-inactive ::ng-deep .sidebar,
+:host.zen-inactive .action-buttons-container,
 :host.zen-inactive .floating-drawer:not(.console-pinned) {
   opacity: 0 !important;
   pointer-events: none !important;

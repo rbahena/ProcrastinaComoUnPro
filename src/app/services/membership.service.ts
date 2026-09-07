@@ -142,6 +142,9 @@ export class MembershipService {
     this.avatarMenuOpen.set(false);
   }
 
+  // Estado de bloqueo de navegación por Pomodoro activo (Solo durante enfoque, no en descansos)
+  isFocusActive = signal<boolean>(false);
+
   // Puntos de enfoque (para ranking)
   focusPoints = signal<number>(
     parseInt(getMigratedValue('focus-points', '0'), 10)
@@ -971,8 +974,21 @@ export class MembershipService {
     this.router.navigate(['/login']);
   }
 
+  // Sincronizar perfil completo desde Supabase a las señales
+  async syncProfileFromSupabase() {
+    const user = this.supabaseService.currentUser();
+    if (user && this.supabaseService.isConfigured()) {
+      const { profile, error } = await this.supabaseService.getProfile(user.id);
+      if (!error && profile) {
+        this.applySupabaseProfile(profile);
+        return profile;
+      }
+    }
+    return null;
+  }
+
   // Aplicar datos del perfil de Supabase a las señales
-  private applySupabaseProfile(p: any) {
+  applySupabaseProfile(p: any) {
     if (p.username) this.userName.set(p.username);
     if (p.selected_avatar) this.selectedAvatar.set(p.selected_avatar);
     if (p.selected_theme) this.selectedTheme.set(p.selected_theme);

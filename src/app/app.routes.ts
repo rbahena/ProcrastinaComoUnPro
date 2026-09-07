@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './guards/auth.guard';
+import { focusDeactivateGuard } from './guards/focus.guard';
 
 export const routes: Routes = [
   {
@@ -29,7 +30,8 @@ export const routes: Routes = [
   {
     path: 'enfoque',
     loadComponent: () => import('./pages/enfoque/enfoque').then(m => m.Enfoque),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    canDeactivate: [focusDeactivateGuard]
   },
   {
     path: 'fechas',
