@@ -147,56 +147,56 @@ button { font-family: inherit; cursor: pointer; }
   background-position: center;
 }
 
-.avatar-sprite.sprite-lobo { background-image: url('/assets/images/avatars/lobo.jpg'); }
-.avatar-sprite.sprite-hamster { background-image: url('/assets/images/avatars/hamster.jpg'); }
-.avatar-sprite.sprite-buho { background-image: url('/assets/images/avatars/buho.jpg'); }
+.avatar-sprite.sprite-lobo { background-image: url('/assets/images/avatars/lobo.webp'); }
+.avatar-sprite.sprite-hamster { background-image: url('/assets/images/avatars/hamster.webp'); }
+.avatar-sprite.sprite-buho { background-image: url('/assets/images/avatars/buho.webp'); }
 
-.avatar-sprite.sprite-panda { background-image: url('/assets/images/avatars/panda.jpg'); }
+.avatar-sprite.sprite-panda { background-image: url('/assets/images/avatars/panda.webp'); }
 .avatar-sprite.sprite-sloth { background-image: url('/assets/images/avatars/sloth.webp'); }
-.avatar-sprite.sprite-tortuga { background-image: url('/assets/images/avatars/tortuga.jpg'); }
-.avatar-sprite.sprite-tortuga_evolved { background-image: url('/assets/images/avatars/tortuga_evolved.jpg'); }
-.avatar-sprite.sprite-tortuga_phase3 { background-image: url('/assets/images/avatars/tortuga_phase3.jpg'); }
-.avatar-sprite.sprite-abeja { background-image: url('/assets/images/avatars/abeja.jpg'); }
+.avatar-sprite.sprite-tortuga { background-image: url('/assets/images/avatars/tortuga.webp'); }
+.avatar-sprite.sprite-tortuga_evolved { background-image: url('/assets/images/avatars/tortuga_evolved.webp'); }
+.avatar-sprite.sprite-tortuga_phase3 { background-image: url('/assets/images/avatars/tortuga_phase3.webp'); }
+.avatar-sprite.sprite-abeja { background-image: url('/assets/images/avatars/abeja.webp'); }
 
-.avatar-sprite.sprite-castor { background-image: url('/assets/images/avatars/castor.jpg'); }
+.avatar-sprite.sprite-castor { background-image: url('/assets/images/avatars/castor.webp'); }
 .avatar-sprite.sprite-octopus { background-image: url('/assets/images/avatars/octopus.webp'); }
-.avatar-sprite.sprite-aguila { background-image: url('/assets/images/avatars/aguila.jpg'); }
-.avatar-sprite.sprite-hormiga { background-image: url('/assets/images/avatars/hormiga.jpg'); }
-.avatar-sprite.sprite-elefante { background-image: url('/assets/images/avatars/elefante.jpg'); }
+.avatar-sprite.sprite-aguila { background-image: url('/assets/images/avatars/aguila.webp'); }
+.avatar-sprite.sprite-hormiga { background-image: url('/assets/images/avatars/hormiga.webp'); }
+.avatar-sprite.sprite-elefante { background-image: url('/assets/images/avatars/elefante.webp'); }
 
-.avatar-sprite.sprite-abeja_evolved { background-image: url('/assets/images/avatars/abeja_evolved.jpg'); }
-.avatar-sprite.sprite-castor_evolved { background-image: url('/assets/images/avatars/castor_evolved.jpg'); }
-.avatar-sprite.sprite-aguila_evolved { background-image: url('/assets/images/avatars/aguila_evolved.jpg'); }
+.avatar-sprite.sprite-abeja_evolved { background-image: url('/assets/images/avatars/abeja_evolved.webp'); }
+.avatar-sprite.sprite-castor_evolved { background-image: url('/assets/images/avatars/castor_evolved.webp'); }
+.avatar-sprite.sprite-aguila_evolved { background-image: url('/assets/images/avatars/aguila_evolved.webp'); }
 
 /* New Avatars */
-.avatar-sprite.sprite-gato { background-image: url('/assets/images/avatars/gato.jpg'); }
-.avatar-sprite.sprite-perro { background-image: url('/assets/images/avatars/perro.jpg'); }
-.avatar-sprite.sprite-conejo { background-image: url('/assets/images/avatars/conejo.jpg'); }
+.avatar-sprite.sprite-gato { background-image: url('/assets/images/avatars/gato.webp'); }
+.avatar-sprite.sprite-perro { background-image: url('/assets/images/avatars/perro.webp'); }
+.avatar-sprite.sprite-conejo { background-image: url('/assets/images/avatars/conejo.webp'); }
 .avatar-sprite.sprite-cuyo { background-image: url('/assets/images/avatars/cuyo.webp'); }
 .avatar-sprite.sprite-raton { background-image: url('/assets/images/avatars/raton.webp'); }
 .avatar-sprite.sprite-loro { background-image: url('/assets/images/avatars/loro.webp'); }
-.avatar-sprite.sprite-rana { background-image: url('/assets/images/avatars/rana.jpg'); }
-.avatar-sprite.sprite-zorro { background-image: url('/assets/images/avatars/zorro.jpg'); }
-.avatar-sprite.sprite-lince { background-image: url('/assets/images/avatars/lince.jpg'); }
-.avatar-sprite.sprite-tigre { background-image: url('/assets/images/avatars/tigre.jpg'); }
-.avatar-sprite.sprite-oso { background-image: url('/assets/images/avatars/oso.jpg'); }
+.avatar-sprite.sprite-rana { background-image: url('/assets/images/avatars/rana.webp'); }
+.avatar-sprite.sprite-zorro { background-image: url('/assets/images/avatars/zorro.webp'); }
+.avatar-sprite.sprite-lince { background-image: url('/assets/images/avatars/lince.webp'); }
+.avatar-sprite.sprite-tigre { background-image: url('/assets/images/avatars/tigre.webp'); }
+.avatar-sprite.sprite-oso { background-image: url('/assets/images/avatars/oso.webp'); }
 
 /* Backwards compatibility aliases */
-.avatar-sprite.sprite-leon { background-image: url('/assets/images/avatars/leon.jpg'); }
+.avatar-sprite.sprite-leon { background-image: url('/assets/images/avatars/leon.webp'); }
 .avatar-sprite.sprite-dragon {
-  background-image: url('/assets/images/avatars/dragon.jpg');
+  background-image: url('/assets/images/avatars/dragon.webp');
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 45px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(0, 255, 157, 0.35);
   border: 2px solid #10b981 !important;
   animation: dragon-legendary-glow 3s infinite alternate;
 }
 .avatar-sprite.sprite-fenix {
-  background-image: url('/assets/images/avatars/fenix.jpg');
+  background-image: url('/assets/images/avatars/fenix.webp');
   box-shadow: 0 0 20px rgba(249, 115, 22, 0.6), 0 0 45px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(251, 146, 60, 0.35);
   border: 2px solid #f97316 !important;
   animation: fenix-legendary-glow 3s infinite alternate;
 }
 .avatar-sprite.sprite-grifo {
-  background-image: url('/assets/images/avatars/grifo.jpg');
+  background-image: url('/assets/images/avatars/grifo.webp');
   box-shadow: 0 0 20px rgba(234, 179, 8, 0.6), 0 0 45px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(253, 224, 71, 0.35);
   border: 2px solid #eab308 !important;
   animation: grifo-legendary-glow 3s infinite alternate;
