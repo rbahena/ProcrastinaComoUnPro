@@ -258,6 +258,25 @@ export interface MedalleroDashboardData {
   };
 }
 
+export interface UserDailyAttempt {
+  status: 'completed' | 'abandoned' | 'interrupted';
+  time: string;
+  duration_seconds: number;
+}
+
+export interface UserFocusStatsData {
+  today_attempts: UserDailyAttempt[];
+  today_completed: number;
+  today_focus_seconds: number;
+  weekly_by_day: number[];
+  monthly_by_day: { [day: number]: number };
+  annual_by_month: number[];
+  streak_days: number;
+  longest_streak: number;
+  total_pomodoros: number;
+  total_focus_seconds: number;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -1521,7 +1540,145 @@ export class SupabaseService {
         error: null
       };
     } catch (e: any) {
-      return { data: null, error: e.message || 'Error al obtener récords del medallero' };
+      return {
+        data: null,
+        error: e.message || 'Error al obtener récords del medallero'
+      };
+    }
+  }
+
+  // ==========================================
+  // ESTADÍSTICAS INDIVIDUALES DE ENFOQUE (/estadisticas)
+  // ==========================================
+
+  async getUserFocusStats(): Promise<{ data: UserFocusStatsData | null; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { data: null, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) {
+        return { data: null, error: 'No autenticado' };
+      }
+
+      // 1. Intentar llamar al RPC get_user_focus_statistics
+      const { data: rpcData, error: rpcError } = await this.supabase.rpc('get_user_focus_statistics');
+      if (!rpcError && rpcData && rpcData.success) {
+        return {
+          data: {
+            today_attempts: rpcData.today_attempts || [],
+            today_completed: rpcData.today_completed || 0,
+            today_focus_seconds: rpcData.today_focus_seconds || 0,
+            weekly_by_day: rpcData.weekly_by_day || [0, 0, 0, 0, 0, 0, 0],
+            monthly_by_day: rpcData.monthly_by_day || {},
+            annual_by_month: rpcData.annual_by_month || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            streak_days: rpcData.streak_days || 0,
+            longest_streak: rpcData.longest_streak || 0,
+            total_pomodoros: rpcData.total_pomodoros || 0,
+            total_focus_seconds: rpcData.total_focus_seconds || 0
+          },
+          error: null
+        };
+      }
+
+      // 2. Fallback mediante consultas directas a profiles y focus_sessions
+      const { data: profile } = await this.supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      const { data: sessions, error: sessionsError } = await this.supabase
+        .from('focus_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('completed_at', { ascending: true });
+
+      if (sessionsError) {
+        return { data: null, error: sessionsError.message };
+      }
+
+      const allSessions: FocusSessionData[] = sessions || [];
+      const now = new Date();
+      const todayISO = now.toISOString().split('T')[0];
+
+      // Hoy
+      const todaySessions = allSessions.filter(s => {
+        const dateStr = (s.completed_at || s.created_at || '').split('T')[0];
+        return dateStr === todayISO;
+      });
+
+      const todayAttempts: UserDailyAttempt[] = todaySessions.map(s => {
+        const d = new Date(s.completed_at || s.created_at || '');
+        const timeStr = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+        return {
+          status: s.status,
+          time: timeStr,
+          duration_seconds: s.actual_duration_seconds || 0
+        };
+      });
+
+      const todayCompleted = todaySessions.filter(s => s.status === 'completed').length;
+      const todayFocusSeconds = todaySessions
+        .filter(s => s.status === 'completed')
+        .reduce((sum, s) => sum + (s.actual_duration_seconds || 0), 0);
+
+      // Semana actual (Lunes a Domingo)
+      const dayOfWeek = (now.getDay() + 6) % 7; // 0=Lun ... 6=Dom
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - dayOfWeek);
+      monday.setHours(0, 0, 0, 0);
+
+      const weeklyByDay = [0, 0, 0, 0, 0, 0, 0];
+      const monthlyByDay: { [day: number]: number } = {};
+      const annualByMonth = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let totalFocusSeconds = 0;
+
+      allSessions.forEach(s => {
+        if (s.status === 'completed') {
+          const d = new Date(s.completed_at || s.created_at || '');
+          totalFocusSeconds += (s.actual_duration_seconds || 0);
+
+          // Semana
+          if (d >= monday) {
+            const diffDays = Math.floor((d.getTime() - monday.getTime()) / (1000 * 60 * 60 * 24));
+            if (diffDays >= 0 && diffDays < 7) {
+              weeklyByDay[diffDays]++;
+            }
+          }
+
+          // Mes actual
+          if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) {
+            const dayNum = d.getDate();
+            monthlyByDay[dayNum] = (monthlyByDay[dayNum] || 0) + 1;
+          }
+
+          // Año actual
+          if (d.getFullYear() === now.getFullYear()) {
+            const m = d.getMonth();
+            annualByMonth[m]++;
+          }
+        }
+      });
+
+      return {
+        data: {
+          today_attempts: todayAttempts,
+          today_completed: todayCompleted,
+          today_focus_seconds: todayFocusSeconds,
+          weekly_by_day: weeklyByDay,
+          monthly_by_day: monthlyByDay,
+          annual_by_month: annualByMonth,
+          streak_days: profile?.streak_days || 0,
+          longest_streak: profile?.longest_streak || 0,
+          total_pomodoros: profile?.focus_tomatoes || 0,
+          total_focus_seconds: totalFocusSeconds
+        },
+        error: null
+      };
+    } catch (e: any) {
+      return { data: null, error: e.message || 'Error al obtener estadísticas de enfoque' };
     }
   }
 }

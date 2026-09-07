@@ -2820,6 +2820,153 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
+-- ==============================================================================
+-- 📦 PASO 9: MÉTRICAS INDIVIDUALES, RENDIMIENTO Y MAPA DE HÁBITOS (/estadisticas)
+-- ==============================================================================
+-- 🎯 PANTALLAS Y MÓDULOS DE USO EN EL FRONTEND:
+-- • /estadisticas (Tu Avance de Enfoque):
+--   - 4 Tarjetas KPI Principales:
+--     * KPI 1: "Hoy" (Pomodoros completados hoy y horas/minutos de concentración pura).
+--     * KPI 2: "Esta Semana" (Total de pomodoros de la semana y promedio diario).
+--     * KPI 3: "Racha de Disciplina" (Días consecutivos activos del usuario).
+--     * KPI 4: "Total Acumulado" (Sesiones históricas y total de horas enfocadas).
+--   - Gráfico de Columnas: "Rendimiento de Esta Semana" (Desglose real Lun-Dom).
+--   - Mapa de Calor / Calendario de Hábito: "Mapa de Hábitos" (Día por día del mes actual 1..31 con niveles de calor).
+--   - Gráfico Anual: "Historial y Tendencia Anual" (12 meses Ene-Dic).
+--   - Modal de Compartir Insignia en LinkedIn.
+--
+-- Propósito:
+-- Agregar y calcular las métricas personales del usuario autenticado en base a sus sesiones
+-- reales registradas en focus_sessions y su perfil en profiles.
+-- Cuando un usuario nuevo se registra, sus métricas inician en 0 real y aumentan
+-- progresivamente conforme completa pomodoros, eliminando datos simulados o ficticios.
+-- ==============================================================================
+
+-- ------------------------------------------------------------------------------
+-- 1. PROCEDIMIENTO RPC PARA TELEMETRÍA Y MÉTRICAS PERSONALES DEL USUARIO
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC / FUNCIÓN DE TELEMETRÍA INDIVIDUAL (SECURITY DEFINER FUNCTION)]
+-- ¿Qué es? Procedimiento almacenado para consultar las estadísticas completas del usuario autenticado.
+-- ¿Para qué sirve? Agrega y estructura en un solo payload JSON:
+--   1. Intentos de sesión del día actual con hora y estado.
+--   2. Conteo y tiempo efectivo de enfoque de hoy.
+--   3. Desglose diario de la semana en curso (Lunes a Domingo).
+--   4. Mapa diario del mes actual para el calendario de constancia.
+--   5. Desglose mensual del año actual (12 meses).
+--   6. Racha activa, racha histórica máxima y total acumulado de pomodoros y horas.
+CREATE OR REPLACE FUNCTION public.get_user_focus_statistics()
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_profile RECORD;
+    v_today DATE := CURRENT_DATE;
+    v_today_attempts JSON;
+    v_today_completed INTEGER := 0;
+    v_today_focus_seconds INTEGER := 0;
+    v_week_start DATE;
+    v_weekly_by_day INTEGER[] := ARRAY[0, 0, 0, 0, 0, 0, 0];
+    v_monthly_by_day JSON;
+    v_annual_by_month INTEGER[] := ARRAY[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    v_total_focus_seconds BIGINT := 0;
+    v_rec RECORD;
+    v_day_idx INTEGER;
+    v_month_idx INTEGER;
+BEGIN
+    -- 1. Validar autenticación
+    IF v_user_id IS NULL THEN
+        RETURN json_build_object(
+            'success', FALSE,
+            'error', 'No autenticado'
+        );
+    END IF;
+
+    -- 2. Obtener datos de perfil
+    SELECT * INTO v_profile FROM public.profiles WHERE id = v_user_id;
+
+    -- 3. Intentos de hoy
+    SELECT COALESCE(json_agg(json_build_object(
+        'status', status::text,
+        'time', to_char(completed_at AT TIME ZONE 'UTC', 'HH24:MI'),
+        'duration_seconds', actual_duration_seconds
+    ) ORDER BY completed_at ASC), '[]'::json) INTO v_today_attempts
+    FROM public.focus_sessions
+    WHERE user_id = v_user_id AND completed_at::date = v_today;
+
+    -- 4. Métricas completadas hoy
+    SELECT 
+        COUNT(*),
+        COALESCE(SUM(actual_duration_seconds), 0)
+    INTO v_today_completed, v_today_focus_seconds
+    FROM public.focus_sessions
+    WHERE user_id = v_user_id AND status = 'completed' AND completed_at::date = v_today;
+
+    -- 5. Métricas de la semana actual (Lunes a Domingo)
+    v_week_start := date_trunc('week', v_today)::date;
+
+    FOR v_rec IN 
+        SELECT (completed_at::date - v_week_start) as day_offset, COUNT(*) as cnt
+        FROM public.focus_sessions
+        WHERE user_id = v_user_id 
+          AND status = 'completed' 
+          AND completed_at::date >= v_week_start 
+          AND completed_at::date < v_week_start + INTERVAL '7 days'
+        GROUP BY (completed_at::date - v_week_start)
+    LOOP
+        v_day_idx := v_rec.day_offset + 1;
+        IF v_day_idx >= 1 AND v_day_idx <= 7 THEN
+            v_weekly_by_day[v_day_idx] := v_rec.cnt;
+        END IF;
+    END LOOP;
+
+    -- 6. Métricas del mes actual por día (1..31)
+    SELECT COALESCE(json_object_agg(day_num, cnt), '{}'::json) INTO v_monthly_by_day FROM (
+        SELECT EXTRACT(DAY FROM completed_at)::integer as day_num, COUNT(*) as cnt
+        FROM public.focus_sessions
+        WHERE user_id = v_user_id 
+          AND status = 'completed' 
+          AND date_trunc('month', completed_at)::date = date_trunc('month', v_today)::date
+        GROUP BY EXTRACT(DAY FROM completed_at)::integer
+    ) m;
+
+    -- 7. Métricas del año actual por mes (1..12)
+    FOR v_rec IN 
+        SELECT EXTRACT(MONTH FROM completed_at)::integer as month_num, COUNT(*) as cnt
+        FROM public.focus_sessions
+        WHERE user_id = v_user_id 
+          AND status = 'completed' 
+          AND EXTRACT(YEAR FROM completed_at) = EXTRACT(YEAR FROM v_today)
+        GROUP BY EXTRACT(MONTH FROM completed_at)::integer
+    LOOP
+        v_month_idx := v_rec.month_num;
+        IF v_month_idx >= 1 AND v_month_idx <= 12 THEN
+            v_annual_by_month[v_month_idx] := v_rec.cnt;
+        END IF;
+    END LOOP;
+
+    -- 8. Total histórico de tiempo enfocado
+    SELECT COALESCE(SUM(actual_duration_seconds), 0) INTO v_total_focus_seconds
+    FROM public.focus_sessions
+    WHERE user_id = v_user_id AND status = 'completed';
+
+    RETURN json_build_object(
+        'success', TRUE,
+        'today_attempts', v_today_attempts,
+        'today_completed', v_today_completed,
+        'today_focus_seconds', v_today_focus_seconds,
+        'weekly_by_day', v_weekly_by_day,
+        'monthly_by_day', v_monthly_by_day,
+        'annual_by_month', v_annual_by_month,
+        'streak_days', COALESCE(v_profile.streak_days, 0),
+        'longest_streak', COALESCE(v_profile.longest_streak, 0),
+        'total_pomodoros', COALESCE(v_profile.focus_tomatoes, 0),
+        'total_focus_seconds', v_total_focus_seconds
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+
 
 
 

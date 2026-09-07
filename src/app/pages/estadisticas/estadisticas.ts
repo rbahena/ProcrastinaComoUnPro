@@ -1,12 +1,8 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
+import { SupabaseService, UserDailyAttempt } from '../../services/supabase.service';
 import { Navbar } from '../../components/navbar/navbar';
-
-export interface Attempt {
-  status: 'completed' | 'abandoned' | 'interrupted';
-  time: string;
-}
 
 export interface CalendarDay {
   dayNumber: number | null;
@@ -23,17 +19,27 @@ export interface CalendarDay {
   templateUrl: './estadisticas.html',
   styleUrl: './estadisticas.css'
 })
-export class Estadisticas implements OnInit {
-  membership = inject(MembershipService);
+export class Estadisticas implements OnInit, OnDestroy {
+  public membership = inject(MembershipService);
+  private supabaseService = inject(SupabaseService);
 
-  // Intentos del día actual
-  dailyAttempts = signal<Attempt[]>([]);
+  // Intentos del día actual (reales)
+  dailyAttempts = signal<UserDailyAttempt[]>([]);
 
-  // Datos históricos de la semana (Lunes a Sábado)
-  weeklyHistorical = signal<number[]>([4, 5, 6, 3, 7, 2]);
+  // Datos de la semana en curso (Lunes a Domingo, 7 elementos)
+  weeklyHistorical = signal<number[]>([0, 0, 0, 0, 0, 0, 0]);
 
-  // Datos históricos para el año
-  annualHistorical = signal<number[]>([85, 92, 110, 95, 104, 118, 125, 98, 0, 0, 0, 0]);
+  // Datos del año en curso (Enero a Diciembre, 12 elementos)
+  annualHistorical = signal<number[]>([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+  // Mapa de pomodoros del mes actual por día del mes (1..31)
+  monthlyDayMap = signal<{ [day: number]: number }>({});
+
+  // Métricas agregadas reales
+  userStreak = signal<number>(0);
+  userLongestStreak = signal<number>(0);
+  userTotalPomodoros = signal<number>(0);
+  userTotalFocusSeconds = signal<number>(0);
 
   // Estado del modal de compartir en LinkedIn
   showShareModal = signal(false);
@@ -41,38 +47,62 @@ export class Estadisticas implements OnInit {
   sidebarCollapsed = this.membership.sidebarCollapsed;
   userName = this.membership.userName;
 
+  private realtimeChannel: any = null;
+
   ngOnInit() {
-    this.loadDailyAttempts();
+    this.loadStatsFromSupabase();
+
+    if (this.supabaseService.isConfigured()) {
+      this.realtimeChannel = this.supabaseService.client
+        .channel('public:user_focus_stats')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'focus_sessions' }, () => {
+          this.loadStatsFromSupabase();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+          this.loadStatsFromSupabase();
+        })
+        .subscribe();
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.realtimeChannel && this.supabaseService.isConfigured()) {
+      this.supabaseService.client.removeChannel(this.realtimeChannel);
+    }
   }
 
   toggleSidebar() {
     this.membership.toggleSidebar();
   }
 
-  loadDailyAttempts() {
-    const saved = localStorage.getItem('daily-attempts');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          this.dailyAttempts.set(parsed);
-          return;
-        }
-      } catch (e) {
-        console.error('Error parsing daily attempts', e);
-      }
+  async loadStatsFromSupabase() {
+    if (!this.supabaseService.isConfigured()) {
+      // Fallback local: usar datos de MembershipService si Supabase no está conectado
+      this.userStreak.set(this.membership.streak());
+      this.userTotalPomodoros.set(this.membership.focusTomatoes());
+      return;
     }
 
-    this.dailyAttempts.set([
-      { status: 'completed', time: '09:00' },
-      { status: 'completed', time: '10:30' },
-      { status: 'completed', time: '12:00' },
-      { status: 'abandoned', time: '13:15' },
-      { status: 'completed', time: '14:30' },
-      { status: 'interrupted', time: '15:45' },
-      { status: 'completed', time: '17:00' },
-      { status: 'completed', time: '18:30' }
-    ]);
+    try {
+      const { data, error } = await this.supabaseService.getUserFocusStats();
+      if (error || !data) {
+        // En caso de no tener sesiones aún, todo permanece limpiamente en 0
+        this.userStreak.set(this.membership.streak());
+        this.userTotalPomodoros.set(this.membership.focusTomatoes());
+        return;
+      }
+
+      this.dailyAttempts.set(data.today_attempts || []);
+      this.weeklyHistorical.set(data.weekly_by_day || [0, 0, 0, 0, 0, 0, 0]);
+      this.annualHistorical.set(data.annual_by_month || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+      this.monthlyDayMap.set(data.monthly_by_day || {});
+      this.userStreak.set(data.streak_days || 0);
+      this.userLongestStreak.set(data.longest_streak || 0);
+      this.userTotalPomodoros.set(data.total_pomodoros || 0);
+      this.userTotalFocusSeconds.set(data.total_focus_seconds || 0);
+    } catch (e) {
+      console.warn('[Estadísticas Load Error]', e);
+    }
   }
 
   // --- CÁLCULOS DEL DÍA (HOY) ---
@@ -81,7 +111,10 @@ export class Estadisticas implements OnInit {
   });
 
   todayFocusMinutes = computed(() => {
-    return this.todayCompletedCount() * 25;
+    const todayAttempts = this.dailyAttempts().filter(a => a.status === 'completed');
+    if (todayAttempts.length === 0) return 0;
+    const totalSecs = todayAttempts.reduce((sum, a) => sum + (a.duration_seconds || 1500), 0);
+    return Math.round(totalSecs / 60);
   });
 
   todayFocusHoursFormatted = computed(() => {
@@ -97,9 +130,7 @@ export class Estadisticas implements OnInit {
   weeklyLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
   weeklyData = computed(() => {
-    const currentWeek = [...this.weeklyHistorical()];
-    currentWeek.push(this.todayCompletedCount());
-    return currentWeek;
+    return this.weeklyHistorical();
   });
 
   weeklyTotal = computed(() => {
@@ -107,7 +138,8 @@ export class Estadisticas implements OnInit {
   });
 
   weeklyAvg = computed(() => {
-    return (this.weeklyTotal() / 7).toFixed(1);
+    const tot = this.weeklyTotal();
+    return (tot / 7).toFixed(1);
   });
 
   weeklyMax = computed(() => {
@@ -116,16 +148,20 @@ export class Estadisticas implements OnInit {
 
   // --- RACHA ---
   get longestStreak(): number {
-    return Math.max(14, this.membership.streak());
+    return Math.max(this.userStreak(), this.userLongestStreak(), this.membership.streak());
   }
 
   // --- CÁLCULOS ANUALES Y TOTALES ---
   annualTotal = computed(() => {
-    const sum = this.annualHistorical().reduce((a, b) => a + b, 0);
-    return sum + this.todayCompletedCount();
+    const sumAnnual = this.annualHistorical().reduce((a, b) => a + b, 0);
+    return Math.max(sumAnnual, this.userTotalPomodoros(), this.membership.focusTomatoes());
   });
 
   totalFocusHours = computed(() => {
+    const secs = this.userTotalFocusSeconds();
+    if (secs > 0) {
+      return (secs / 3600).toFixed(1);
+    }
     return (this.annualTotal() * 25 / 60).toFixed(0);
   });
 
@@ -159,9 +195,7 @@ export class Estadisticas implements OnInit {
       days.push({ dayNumber: null, pomodoros: 0, isToday: false, isFuture: false, level: 0 });
     }
 
-    const sampleData: { [key: number]: number } = {
-      1: 4, 2: 2, 3: 5, 4: 6, 5: 4, 6: 5, 7: 6, 8: 3, 9: 2, 10: 7
-    };
+    const monthMap = this.monthlyDayMap();
 
     for (let d = 1; d <= daysInMonth; d++) {
       const isToday = d === todayDate;
@@ -171,7 +205,7 @@ export class Estadisticas implements OnInit {
       if (isToday) {
         poms = this.todayCompletedCount();
       } else if (!isFuture) {
-        poms = sampleData[d] !== undefined ? sampleData[d] : ((d * 2 + 1) % 6);
+        poms = monthMap[d] || 0;
       }
 
       let level = 0;
@@ -201,10 +235,7 @@ export class Estadisticas implements OnInit {
   currentMonthIndex = computed(() => new Date().getMonth());
 
   annualData = computed(() => {
-    const list = [...this.annualHistorical()];
-    const currentMonth = this.currentMonthIndex();
-    list[currentMonth] = 98 + this.todayCompletedCount();
-    return list;
+    return this.annualHistorical();
   });
 
   annualMax = computed(() => {
@@ -229,4 +260,5 @@ export class Estadisticas implements OnInit {
     this.showShareModal.set(false);
   }
 }
+
 
