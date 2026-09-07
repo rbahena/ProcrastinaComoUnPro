@@ -213,9 +213,9 @@ export class MembershipService {
     parseInt(getMigratedValue('bronze-medals', '0'), 10)
   );
 
-  // Estado de onboarding completado
+  // Estado de onboarding completado (por defecto true para comenzar de inmediato)
   onboardingCompleted = signal<boolean>(
-    getMigratedValue('onboarding-completed', 'false') === 'true'
+    getMigratedValue('onboarding-completed', 'true') !== 'false'
   );
 
   // Control global para abrir el modal de configuración de identidad
@@ -1027,7 +1027,7 @@ export class MembershipService {
     const userCountryCodeVal = localStorage.getItem(`user:${email}:user-country-code`);
     const userActiveDaysVal = JSON.parse(localStorage.getItem(`user:${email}:user-active-days`) || '[1, 2, 3, 4, 5]');
     const podiumWinsVal = parseInt(localStorage.getItem(`user:${email}:podium-wins`) || '0', 10);
-    const onboardingCompletedVal = localStorage.getItem(`user:${email}:onboarding-completed`) === 'true';
+    const onboardingCompletedVal = localStorage.getItem(`user:${email}:onboarding-completed`) !== 'false';
     const capturedIdeasVal = JSON.parse(localStorage.getItem(`user:${email}:captured-ideas`) || '[]');
 
     this.rewardedSessions = new Set<string>(
@@ -1078,7 +1078,12 @@ export class MembershipService {
     this.selectedTheme.set('samurai');
     this.proCoins.set(0);
     this.focusPoints.set(0);
+    this.onboardingCompleted.set(true);
     this.rewardedSessions.clear();
+
+    localStorage.setItem(`user:${email}:avatar`, 'gato');
+    localStorage.setItem(`user:${email}:onboarding-completed`, 'true');
+    localStorage.setItem('procrastina-onboarding-completed', 'true');
     // Reestablecer cualidades
     this.qualitiesCatalog.set([
       { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 0, unlockTotal: 7 },

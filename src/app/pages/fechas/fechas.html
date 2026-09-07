@@ -13,8 +13,3 @@
     Área en blanco lista para diseñar.
   </div>
 </div>
-
-
-
-<!-- Modal de Identidad/Onboarding -->
-<app-identity-settings *ngIf="!membership.onboardingCompleted() || membership.showSettingsModal()" [onboardingMode]="!membership.onboardingCompleted()"></app-identity-settings>

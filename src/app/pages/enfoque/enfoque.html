@@ -4488,11 +4488,6 @@
   </div>
 </div>
 
-<!-- Modal de Identidad/Onboarding -->
-<app-identity-settings *ngIf="!membership.onboardingCompleted() || membership.showSettingsModal()" [onboardingMode]="!membership.onboardingCompleted()"></app-identity-settings>
-
-
-
 <!-- Efecto de Celebración (Confeti y Serpentinas) -->
 <div *ngIf="showCelebration()" 
      style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 100005; overflow: hidden;">

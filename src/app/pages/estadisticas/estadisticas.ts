@@ -1,7 +1,6 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
-import { IdentitySettings } from '../../components/identity-settings';
 import { Navbar } from '../../components/navbar/navbar';
 
 export interface Attempt {
@@ -20,7 +19,7 @@ export interface CalendarDay {
 @Component({
   selector: 'app-estadisticas',
   standalone: true,
-  imports: [CommonModule, IdentitySettings, Navbar],
+  imports: [CommonModule, Navbar],
   templateUrl: './estadisticas.html',
   styleUrl: './estadisticas.css'
 })

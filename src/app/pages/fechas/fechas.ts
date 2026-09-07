@@ -1,13 +1,12 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
-import { IdentitySettings } from '../../components/identity-settings';
 import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-fechas',
   standalone: true,
-  imports: [CommonModule, IdentitySettings, Navbar],
+  imports: [CommonModule, Navbar],
   templateUrl: './fechas.html',
   styleUrl: './fechas.css',
 })

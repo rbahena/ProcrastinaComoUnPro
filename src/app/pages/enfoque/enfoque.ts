@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
-import { IdentitySettings } from '../../components/identity-settings';
 import { Navbar } from '../../components/navbar/navbar';
 
 export interface MotivationItem {
@@ -23,7 +22,7 @@ export interface MotivationItem {
 @Component({
   selector: 'app-enfoque',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, IdentitySettings, Navbar],
+  imports: [CommonModule, RouterLink, FormsModule, Navbar],
   templateUrl: './enfoque.html',
   styleUrl: './enfoque.css',
   host: {

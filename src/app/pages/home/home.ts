@@ -2,14 +2,13 @@ import { Component, signal, computed, OnInit, OnDestroy, WritableSignal } from '
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
-import { IdentitySettings } from '../../components/identity-settings';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, IdentitySettings, Navbar],
+  imports: [CommonModule, RouterLink, Navbar],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
