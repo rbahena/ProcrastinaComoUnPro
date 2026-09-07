@@ -261,9 +261,36 @@ button { font-family: inherit; cursor: pointer; }
   animation: none !important;
   box-shadow: none !important;
   border: none !important;
-  filter: grayscale(100%) brightness(0.32) contrast(1.1) !important;
-  opacity: 0.7 !important;
+  opacity: 0.85 !important;
 }
+
+/* ===== MINIATURAS BLOQUEADAS (LOCKED AVATARS - CARGA LIGERA) ===== */
+.avatar-sprite.sprite-abeja.is-locked-sprite, .locked .avatar-sprite.sprite-abeja, .locked-card .avatar-sprite.sprite-abeja, .avatar-sprite.is-locked-sprite.sprite-abeja { background-image: url('/assets/images/avatars/abeja_locked.webp') !important; }
+.avatar-sprite.sprite-aguila.is-locked-sprite, .locked .avatar-sprite.sprite-aguila, .locked-card .avatar-sprite.sprite-aguila, .avatar-sprite.is-locked-sprite.sprite-aguila { background-image: url('/assets/images/avatars/aguila_locked.webp') !important; }
+.avatar-sprite.sprite-buho.is-locked-sprite, .locked .avatar-sprite.sprite-buho, .locked-card .avatar-sprite.sprite-buho, .avatar-sprite.is-locked-sprite.sprite-buho { background-image: url('/assets/images/avatars/buho_locked.webp') !important; }
+.avatar-sprite.sprite-castor.is-locked-sprite, .locked .avatar-sprite.sprite-castor, .locked-card .avatar-sprite.sprite-castor, .avatar-sprite.is-locked-sprite.sprite-castor { background-image: url('/assets/images/avatars/castor_locked.webp') !important; }
+.avatar-sprite.sprite-conejo.is-locked-sprite, .locked .avatar-sprite.sprite-conejo, .locked-card .avatar-sprite.sprite-conejo, .avatar-sprite.is-locked-sprite.sprite-conejo { background-image: url('/assets/images/avatars/conejo_locked.webp') !important; }
+.avatar-sprite.sprite-dragon.is-locked-sprite, .locked .avatar-sprite.sprite-dragon, .locked-card .avatar-sprite.sprite-dragon, .avatar-sprite.is-locked-sprite.sprite-dragon { background-image: url('/assets/images/avatars/dragon_locked.webp') !important; }
+.avatar-sprite.sprite-elefante.is-locked-sprite, .locked .avatar-sprite.sprite-elefante, .locked-card .avatar-sprite.sprite-elefante, .avatar-sprite.is-locked-sprite.sprite-elefante { background-image: url('/assets/images/avatars/elefante_locked.webp') !important; }
+.avatar-sprite.sprite-fenix.is-locked-sprite, .locked .avatar-sprite.sprite-fenix, .locked-card .avatar-sprite.sprite-fenix, .avatar-sprite.is-locked-sprite.sprite-fenix { background-image: url('/assets/images/avatars/fenix_locked.webp') !important; }
+.avatar-sprite.sprite-gato.is-locked-sprite, .locked .avatar-sprite.sprite-gato, .locked-card .avatar-sprite.sprite-gato, .avatar-sprite.is-locked-sprite.sprite-gato { background-image: url('/assets/images/avatars/gato_locked.webp') !important; }
+.avatar-sprite.sprite-grifo.is-locked-sprite, .locked .avatar-sprite.sprite-grifo, .locked-card .avatar-sprite.sprite-grifo, .avatar-sprite.is-locked-sprite.sprite-grifo { background-image: url('/assets/images/avatars/grifo_locked.webp') !important; }
+.avatar-sprite.sprite-hamster.is-locked-sprite, .locked .avatar-sprite.sprite-hamster, .locked-card .avatar-sprite.sprite-hamster, .avatar-sprite.is-locked-sprite.sprite-hamster { background-image: url('/assets/images/avatars/hamster_locked.webp') !important; }
+.avatar-sprite.sprite-hormiga.is-locked-sprite, .locked .avatar-sprite.sprite-hormiga, .locked-card .avatar-sprite.sprite-hormiga, .avatar-sprite.is-locked-sprite.sprite-hormiga { background-image: url('/assets/images/avatars/hormiga_locked.webp') !important; }
+.avatar-sprite.sprite-leon.is-locked-sprite, .locked .avatar-sprite.sprite-leon, .locked-card .avatar-sprite.sprite-leon, .avatar-sprite.is-locked-sprite.sprite-leon { background-image: url('/assets/images/avatars/leon_locked.webp') !important; }
+.avatar-sprite.sprite-lince.is-locked-sprite, .locked .avatar-sprite.sprite-lince, .locked-card .avatar-sprite.sprite-lince, .avatar-sprite.is-locked-sprite.sprite-lince { background-image: url('/assets/images/avatars/lince_locked.webp') !important; }
+.avatar-sprite.sprite-lobo.is-locked-sprite, .locked .avatar-sprite.sprite-lobo, .locked-card .avatar-sprite.sprite-lobo, .avatar-sprite.is-locked-sprite.sprite-lobo { background-image: url('/assets/images/avatars/lobo_locked.webp') !important; }
+.avatar-sprite.sprite-loro.is-locked-sprite, .locked .avatar-sprite.sprite-loro, .locked-card .avatar-sprite.sprite-loro, .avatar-sprite.is-locked-sprite.sprite-loro { background-image: url('/assets/images/avatars/loro_locked.webp') !important; }
+.avatar-sprite.sprite-oso.is-locked-sprite, .locked .avatar-sprite.sprite-oso, .locked-card .avatar-sprite.sprite-oso, .avatar-sprite.is-locked-sprite.sprite-oso { background-image: url('/assets/images/avatars/oso_locked.webp') !important; }
+.avatar-sprite.sprite-panda.is-locked-sprite, .locked .avatar-sprite.sprite-panda, .locked-card .avatar-sprite.sprite-panda, .avatar-sprite.is-locked-sprite.sprite-panda { background-image: url('/assets/images/avatars/panda_locked.webp') !important; }
+.avatar-sprite.sprite-perro.is-locked-sprite, .locked .avatar-sprite.sprite-perro, .locked-card .avatar-sprite.sprite-perro, .avatar-sprite.is-locked-sprite.sprite-perro { background-image: url('/assets/images/avatars/perro_locked.webp') !important; }
+.avatar-sprite.sprite-rana.is-locked-sprite, .locked .avatar-sprite.sprite-rana, .locked-card .avatar-sprite.sprite-rana, .avatar-sprite.is-locked-sprite.sprite-rana { background-image: url('/assets/images/avatars/rana_locked.webp') !important; }
+.avatar-sprite.sprite-raton.is-locked-sprite, .locked .avatar-sprite.sprite-raton, .locked-card .avatar-sprite.sprite-raton, .avatar-sprite.is-locked-sprite.sprite-raton { background-image: url('/assets/images/avatars/raton_locked.webp') !important; }
+.avatar-sprite.sprite-tigre.is-locked-sprite, .locked .avatar-sprite.sprite-tigre, .locked-card .avatar-sprite.sprite-tigre, .avatar-sprite.is-locked-sprite.sprite-tigre { background-image: url('/assets/images/avatars/tigre_locked.webp') !important; }
+.avatar-sprite.sprite-tortuga.is-locked-sprite, .locked .avatar-sprite.sprite-tortuga, .locked-card .avatar-sprite.sprite-tortuga, .avatar-sprite.is-locked-sprite.sprite-tortuga { background-image: url('/assets/images/avatars/tortuga_locked.webp') !important; }
+.avatar-sprite.sprite-tortuga_evolved.is-locked-sprite, .locked .avatar-sprite.sprite-tortuga_evolved, .locked-card .avatar-sprite.sprite-tortuga_evolved, .avatar-sprite.is-locked-sprite.sprite-tortuga_evolved { background-image: url('/assets/images/avatars/tortuga_evolved_locked.webp') !important; }
+.avatar-sprite.sprite-tortuga_phase3.is-locked-sprite, .locked .avatar-sprite.sprite-tortuga_phase3, .locked-card .avatar-sprite.sprite-tortuga_phase3, .avatar-sprite.is-locked-sprite.sprite-tortuga_phase3 { background-image: url('/assets/images/avatars/tortuga_phase3_locked.webp') !important; }
+.avatar-sprite.sprite-zorro.is-locked-sprite, .locked .avatar-sprite.sprite-zorro, .locked-card .avatar-sprite.sprite-zorro, .avatar-sprite.is-locked-sprite.sprite-zorro { background-image: url('/assets/images/avatars/zorro_locked.webp') !important; }
 
 /* Disable legendary glows, custom borders, and animations on podium avatars globally */
 .podio-avatar.avatar-sprite {

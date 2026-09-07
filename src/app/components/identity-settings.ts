@@ -51,8 +51,8 @@ import { MembershipService, AvatarItem, QualityItem } from '../services/membersh
               
               <div class="locked-details-wrapper" style="position: relative; width: 96px; height: 96px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;">
                 <div class="avatar-sprite is-locked-sprite" [class]="'sprite-' + selectedLockedQuality()?.animal" style="width: 96px; height: 96px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15);"></div>
-                <div class="locked-watermark-badge" style="position: absolute; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle, rgba(15,20,32,0.92) 0%, rgba(8,11,18,0.98) 100%); border: 1.5px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.8);">
-                  <i class="fa-solid fa-lock" style="font-size: 18px; color: rgba(255,255,255,0.85);"></i>
+                <div class="locked-watermark-badge" style="position: absolute; bottom: 2px; right: 2px; width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle, rgba(15,20,32,0.92) 0%, rgba(8,11,18,0.98) 100%); border: 1.2px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.8);">
+                  <i class="fa-solid fa-lock" style="font-size: 10px; color: rgba(255,255,255,0.9);"></i>
                 </div>
               </div>
               
@@ -248,8 +248,8 @@ import { MembershipService, AvatarItem, QualityItem } from '../services/membersh
                 
                 <div class="locked-card-wrapper" style="position: relative; width: 68px; height: 68px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
                   <div [class]="'card-emoji-container avatar-sprite is-locked-sprite sprite-' + qual.animal" style="width: 68px; height: 68px; margin-bottom: 0;"></div>
-                  <div class="locked-watermark-badge" style="position: absolute; width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle, rgba(15,20,32,0.92) 0%, rgba(8,11,18,0.98) 100%); border: 1.2px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.8);">
-                    <i class="fa-solid fa-lock" style="font-size: 12px; color: rgba(255,255,255,0.85);"></i>
+                  <div class="locked-watermark-badge" style="position: absolute; bottom: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle, rgba(15,20,32,0.92) 0%, rgba(8,11,18,0.98) 100%); border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.8);">
+                    <i class="fa-solid fa-lock" style="font-size: 8px; color: rgba(255,255,255,0.9);"></i>
                   </div>
                 </div>
                 <span class="card-name" style="font-size: 11px; margin-top: 2px;">{{ qual.name }}</span>

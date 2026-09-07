@@ -1215,13 +1215,11 @@ interface CountryOption {
       border-color: rgba(255, 255, 255, 0.2);
     }
     .avatar-sprite.is-locked-sprite {
-      filter: grayscale(100%) brightness(0.32) contrast(1.1) !important;
-      opacity: 0.65;
-      transition: filter 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+      opacity: 0.85;
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
     .vertical-hero-card:hover .avatar-sprite.is-locked-sprite {
-      filter: grayscale(100%) brightness(0.45) contrast(1.15) !important;
-      opacity: 0.85;
+      opacity: 1;
       transform: scale(1.06);
     }
 
@@ -1235,31 +1233,30 @@ interface CountryOption {
       z-index: 3;
     }
     .locked-watermark-container {
-      width: 36px;
-      height: 36px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: radial-gradient(circle at center, rgba(15, 20, 32, 0.88) 0%, rgba(8, 11, 18, 0.96) 100%);
-      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      background: radial-gradient(circle at center, rgba(15, 20, 32, 0.85) 0%, rgba(8, 11, 18, 0.95) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.85), inset 0 0 8px rgba(255, 255, 255, 0.05);
-      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+      transition: transform 0.3s ease, border-color 0.3s ease;
     }
     .vertical-hero-card:hover .locked-watermark-container {
-      transform: scale(1.1);
-      border-color: rgba(255, 255, 255, 0.4);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.95), 0 0 12px rgba(255, 255, 255, 0.2);
+      transform: scale(1.15);
+      border-color: rgba(255, 255, 255, 0.45);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
     }
     .locked-watermark-container i {
-      font-size: 15px;
-      color: rgba(255, 255, 255, 0.75);
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
-      transition: color 0.3s ease, transform 0.3s ease;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.8);
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+      transition: color 0.3s ease;
     }
     .vertical-hero-card:hover .locked-watermark-container i {
       color: #ffffff;
-      transform: scale(1.08);
     }
 
     .hero-card-glow {
@@ -1464,14 +1461,19 @@ interface CountryOption {
     }
     .hero-portrait-locked-overlay {
       position: absolute;
-      inset: 0;
+      bottom: 2px;
+      right: 2px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      background: rgba(10, 14, 24, 0.8);
+      background: radial-gradient(circle at center, rgba(15, 20, 32, 0.9) 0%, rgba(8, 11, 18, 0.98) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 20px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
     }
 
     .hero-identity-body {
