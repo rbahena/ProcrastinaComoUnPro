@@ -103,6 +103,37 @@ export interface FocusLogEntry {
   created_at?: string;
 }
 
+export interface CommunityBossData {
+  id: string;
+  name: MultilingualText;
+  description: MultilingualText;
+  boss_type: string;
+  max_hp: number;
+  current_hp: number;
+  status: 'active' | 'defeated';
+  community_shield: number;
+  max_community_shield: number;
+  defeat_reward_coins: number;
+  is_current_active: boolean;
+  defeated_at?: string;
+  respawn_at?: string;
+  updated_at?: string;
+}
+
+export interface BossAttackEvent {
+  id: string;
+  boss_id: string;
+  user_id?: string;
+  user_name: string;
+  user_avatar?: string;
+  event_type: 'attack' | 'critical' | 'heal' | 'shield_absorb' | 'shield_break' | 'victory' | 'spawn';
+  damage_dealt: number;
+  hp_healed: number;
+  shield_damage: number;
+  message: string;
+  created_at?: string;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -664,6 +695,128 @@ export class SupabaseService {
       return { logs: [], error: e.message || 'Error al obtener bitácora' };
     }
   }
+
+  // ==========================================
+  // JEFES DE RAID COMUNITARIOS & REALTIME
+  // ==========================================
+
+  async getActiveBoss(): Promise<{ boss: CommunityBossData | null; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { boss: null, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('community_bosses')
+        .select('*')
+        .eq('is_current_active', true)
+        .maybeSingle();
+
+      if (error) {
+        return { boss: null, error: error.message };
+      }
+
+      return { boss: data as CommunityBossData, error: null };
+    } catch (e: any) {
+      return { boss: null, error: e.message || 'Error al obtener jefe activo' };
+    }
+  }
+
+  async dealBossDamage(
+    bossId: string,
+    damage: number,
+    isCritical: boolean = false,
+    userName: string = 'Guerrero'
+  ): Promise<{ success: boolean; error?: string; result?: any }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase.rpc('deal_boss_damage', {
+        p_boss_id: bossId,
+        p_damage: damage,
+        p_is_critical: isCritical,
+        p_user_name: userName
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, result: data };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al asestar daño al jefe' };
+    }
+  }
+
+  async healBossFromDistraction(
+    bossId: string,
+    playerName: string = 'Un Guerrero'
+  ): Promise<{ success: boolean; error?: string; result?: any }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase.rpc('heal_boss_from_distraction', {
+        p_boss_id: bossId,
+        p_player_name: playerName
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, result: data };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al curar al jefe' };
+    }
+  }
+
+  async getRecentBossEvents(bossId: string, limit: number = 30): Promise<{ events: BossAttackEvent[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { events: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('community_boss_attacks')
+        .select('*')
+        .eq('boss_id', bossId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        return { events: [], error: error.message };
+      }
+
+      return { events: (data || []) as BossAttackEvent[], error: null };
+    } catch (e: any) {
+      return { events: [], error: e.message || 'Error al obtener eventos de combate' };
+    }
+  }
+
+  async switchActiveBoss(bossType: string): Promise<{ success: boolean; error?: string; result?: any }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase.rpc('switch_active_boss', {
+        p_boss_type: bossType
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, result: data };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al cambiar jefe' };
+    }
+  }
 }
+
 
 

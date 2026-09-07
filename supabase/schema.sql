@@ -16,7 +16,7 @@
 -- [x] PASO 2: Desbloqueables, Cosméticos & Atributos RPG Multilingüe (N:M) -> COMPLETADO
 -- [x] PASO 3: Catálogo y Progreso de Cualidades Maestras -> COMPLETADO
 -- [x] PASO 4: Sesiones de Enfoque, Bitácora & Blindaje Anti-Exploits -> COMPLETADO
--- [ ] PASO 5: Jefes de Raid Comunitarios & WebSockets Realtime -> PENDIENTE
+-- [x] PASO 5: Jefes de Raid Comunitarios & WebSockets Realtime -> COMPLETADO
 -- [ ] PASO 6: Arena Temporal (/fechas), Cortafuegos (/bloqueador) y Baúl de Ideas -> PENDIENTE
 -- ==============================================================================
 
@@ -1905,5 +1905,395 @@ CREATE POLICY "Usuarios eliminan sus propias notas de bitácora"
 -- ¿Para qué sirve? Notifica en tiempo real al registrar sesiones o notas en la bitácora.
 ALTER PUBLICATION supabase_realtime ADD TABLE public.focus_sessions;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.focus_logs;
+
+
+
+-- ==============================================================================
+-- 📦 PASO 5: JEFES DE RAID COMUNITARIOS & WEBSOCKETS REALTIME
+-- ==============================================================================
+-- Propósito:
+-- Implementar el motor de combate cooperativo masivo (Raid Boss de la Comunidad).
+-- Todos los usuarios enfocados en coworking comunitario infligen daño colectivo a un
+-- Jefe colosal (ej. La Sirena de las Distracciones, El Kraken del Caos, El Dragón del Ego).
+-- Si un usuario abandona o se distrae, el Jefe recupera salud y golpea el Escudo Comunitario.
+-- Los cambios de vida y el feed de batalla se transmiten en milisegundos vía WebSockets Realtime.
+-- ==============================================================================
+
+-- ------------------------------------------------------------------------------
+-- 1. TIPOS ENUMERADOS PARA EL SISTEMA DE JEFES DE RAID
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: ENUM / TIPOS ENUMERADOS (ENUMERATED TYPES)]
+-- ¿Para qué sirven? Clasifican el estado de la raid y los tipos de eventos en el feed de combate.
+DO $$ BEGIN
+    CREATE TYPE boss_status_enum AS ENUM ('active', 'defeated');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE boss_event_type_enum AS ENUM ('attack', 'critical', 'heal', 'shield_absorb', 'shield_break', 'victory', 'spawn');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+
+-- ------------------------------------------------------------------------------
+-- 2. TABLA DE ESTADO GLOBAL DE JEFES DE RAID (COMMUNITY BOSSES)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: TABLA (TABLE)]
+-- ¿Qué es? La entidad de combate central que almacena la vida actual, vida máxima, escudo de comunidad y estado de victoria.
+-- ¿Para qué sirve? Permite que todos los clientes sincronizados consulten la misma barra de vida comunitaria.
+-- La columna boss_type es VARCHAR(50) para permitir agregar libremente cualquier jefe futuro sin alterar esquemas.
+CREATE TABLE IF NOT EXISTS public.community_bosses (
+    -- [COLUMNA: IDENTIFICADOR ÚNICO DEL JEFE]
+    -- id: Slug semántico del oponente (ej. 'siren', 'kraken', etc.).
+    id VARCHAR(50) PRIMARY KEY,
+    
+    -- [COLUMNAS MULTILINGÜES JSONB: {"es": "...", "en": "..."}]
+    -- name: Nombre descriptivo y temático del Jefe.
+    name JSONB NOT NULL,
+    -- description: Explicación de la amenaza psicológica que encarna este oponente.
+    description JSONB NOT NULL,
+    
+    -- [COLUMNAS: ESTADÍSTICAS DE COMBATE RPG]
+    -- boss_type: Tipo/arquetipo del jefe (ej. 'siren', 'hidra', 'kraken', etc.).
+    boss_type VARCHAR(50) NOT NULL UNIQUE,
+    -- max_hp: Puntos de salud máximos de la raid.
+    max_hp INTEGER NOT NULL CHECK (max_hp > 0),
+    -- current_hp: Salud actual restante (0 = derrotado).
+    current_hp INTEGER NOT NULL CHECK (current_hp >= 0),
+    -- status: Estado actual ('active' o 'defeated').
+    status boss_status_enum NOT NULL DEFAULT 'active',
+    -- community_shield: Puntos del escudo defensivo compartido (0 a 1000).
+    community_shield INTEGER NOT NULL DEFAULT 850 CHECK (community_shield >= 0 AND community_shield <= 1000),
+    -- max_community_shield: Capacidad máxima del escudo colectivo.
+    max_community_shield INTEGER NOT NULL DEFAULT 1000,
+    -- defeat_reward_coins: Monedas otorgadas a los guerreros al vencerlo.
+    defeat_reward_coins INTEGER NOT NULL DEFAULT 150 CHECK (defeat_reward_coins >= 0),
+    
+    -- [COLUMNAS: ROTACIÓN Y CONTROL TEMPORAL]
+    -- is_current_active: Si es TRUE, este es el jefe actualmente invocado en la sala de coworking.
+    is_current_active BOOLEAN NOT NULL DEFAULT FALSE,
+    -- defeated_at: Momento exacto en que fue derrocado.
+    defeated_at TIMESTAMPTZ DEFAULT NULL,
+    -- respawn_at: Momento programado para el resurgimiento de un nuevo desafío.
+    respawn_at TIMESTAMPTZ DEFAULT NULL,
+    -- updated_at: Marca temporal de la última modificación para WebSockets.
+    updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- [TIPO DE OBJETO: ÍNDICE B-TREE (INDEX)]
+-- ¿Para qué sirve? Permite obtener instantáneamente el jefe activo sin escanear toda la tabla.
+CREATE INDEX IF NOT EXISTS idx_community_bosses_active ON public.community_bosses(is_current_active, status);
+
+-- [TIPO DE OBJETO: TRIGGER DE AUDITORÍA (TRIGGER)]
+-- ¿Para qué sirve? Actualiza updated_at antes de cada golpe o curación.
+DROP TRIGGER IF EXISTS set_community_bosses_updated_at ON public.community_bosses;
+CREATE TRIGGER set_community_bosses_updated_at
+    BEFORE UPDATE ON public.community_bosses
+    FOR EACH ROW EXECUTE FUNCTION public.set_current_timestamp_updated_at();
+
+
+-- ------------------------------------------------------------------------------
+-- 3. TABLA DE FEED DE COMBATE Y EVENTOS EN VIVO (COMMUNITY BOSS ATTACKS)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: TABLA (TABLE)]
+-- ¿Qué es? Registro cronológico en tiempo real de todos los ataques, golpes críticos y curaciones.
+-- ¿Para qué sirve? Alimenta el terminal de combate de la sala comunitaria en la vista de enfoque.
+CREATE TABLE IF NOT EXISTS public.community_boss_attacks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    boss_id VARCHAR(50) NOT NULL REFERENCES public.community_bosses(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    user_name TEXT NOT NULL DEFAULT 'Guerrero Anónimo',
+    user_avatar VARCHAR(50) DEFAULT 'gato',
+    event_type boss_event_type_enum NOT NULL DEFAULT 'attack',
+    damage_dealt INTEGER NOT NULL DEFAULT 0 CHECK (damage_dealt >= 0),
+    hp_healed INTEGER NOT NULL DEFAULT 0 CHECK (hp_healed >= 0),
+    shield_damage INTEGER NOT NULL DEFAULT 0 CHECK (shield_damage >= 0),
+    message TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- [TIPO DE OBJETO: ÍNDICE B-TREE (INDEX)]
+-- ¿Para qué sirve? Acelera la consulta de los últimos 30 eventos para el feed de batalla.
+CREATE INDEX IF NOT EXISTS idx_community_boss_attacks_boss_date ON public.community_boss_attacks(boss_id, created_at DESC);
+
+
+-- ------------------------------------------------------------------------------
+-- 4. SEMILLA DE DATOS INICIAL (LA SIRENA DE LAS DISTRACCIONES)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: SENTENCIA DML DE INSERCIÓN CON UPSERT (INSERT ... ON CONFLICT)]
+-- ¿Qué es? Carga únicamente a La Sirena como oponente activo inicial del dojo.
+-- ¿Nota de Extensibilidad? La tabla queda lista para recibir cualquier nuevo jefe que definas en el futuro.
+INSERT INTO public.community_bosses (
+    id, boss_type, max_hp, current_hp, status, community_shield, max_community_shield,
+    defeat_reward_coins, is_current_active, name, description
+) VALUES
+(
+    'siren', 'siren', 9000, 6750, 'active', 850, 1000, 150, TRUE,
+    '{"es": "La Sirena de las Distracciones", "en": "The Siren of Distractions"}',
+    '{"es": "Canta con notificaciones y pestañas infinitas para romper tu concentración.", "en": "Sings with infinite notifications and tabs to break your focus."}'
+)
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    description = EXCLUDED.description,
+    max_hp = EXCLUDED.max_hp,
+    defeat_reward_coins = EXCLUDED.defeat_reward_coins;
+
+-- ==============================================================================
+-- 💡 PLANTILLA PARA AGREGAR NUEVOS JEFES EN EL FUTURO (CUANDO LOS DEFINAS):
+-- ==============================================================================
+-- INSERT INTO public.community_bosses (id, boss_type, max_hp, current_hp, status, community_shield, max_community_shield, defeat_reward_coins, is_current_active, name, description)
+-- VALUES ('slug_jefe', 'slug_jefe', 10000, 10000, 'active', 1000, 1000, 150, FALSE, '{"es": "Nombre", "en": "Name"}', '{"es": "Descripción", "en": "Description"}')
+-- ON CONFLICT (id) DO NOTHING;
+-- ==============================================================================
+
+
+-- ------------------------------------------------------------------------------
+-- 5. PROCEDIMIENTOS ALMACENADOS RPC (COMBATE TRANSACCIONAL)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC / FUNCIÓN TRANSACCIONAL (SECURITY DEFINER FUNCTION)]
+-- ¿Para qué sirve? Aplica daño masivo al jefe activo de forma atómica y segura en el servidor.
+CREATE OR REPLACE FUNCTION public.deal_boss_damage(
+    p_boss_id VARCHAR,
+    p_damage INTEGER,
+    p_is_critical BOOLEAN DEFAULT FALSE,
+    p_user_name TEXT DEFAULT 'Guerrero'
+)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_boss RECORD;
+    v_new_hp INTEGER;
+    v_is_defeated BOOLEAN := FALSE;
+    v_message TEXT;
+    v_event_type boss_event_type_enum := 'attack';
+BEGIN
+    -- 1. Obtener y bloquear la fila del Boss para cálculo concurrente exacto
+    SELECT * INTO v_boss FROM public.community_bosses WHERE id = p_boss_id FOR UPDATE;
+    IF NOT FOUND THEN
+        -- Fallback al boss activo si no se especificó ID
+        SELECT * INTO v_boss FROM public.community_bosses WHERE is_current_active = TRUE LIMIT 1 FOR UPDATE;
+    END IF;
+
+    IF v_boss.status = 'defeated' THEN
+        RETURN json_build_object('success', TRUE, 'is_defeated', TRUE, 'current_hp', 0, 'status', 'defeated');
+    END IF;
+
+    -- 2. Restar daño con piso en 0
+    v_new_hp := GREATEST(0, v_boss.current_hp - p_damage);
+    v_is_defeated := (v_new_hp = 0);
+
+    -- 3. Redactar mensaje del feed
+    IF p_is_critical THEN
+        v_event_type := 'critical';
+        v_message := '🔥 ¡GOLPE CRÍTICO! ' || p_user_name || ' infligió ' || p_damage || ' de daño demoledor.';
+    ELSE
+        v_message := '⚔️ ' || p_user_name || ' completó su Pomodoro e infligió ' || p_damage || ' de daño.';
+    END IF;
+
+    -- 4. Actualizar estado del Boss
+    UPDATE public.community_bosses
+    SET 
+        current_hp = v_new_hp,
+        status = CASE WHEN v_is_defeated THEN 'defeated'::boss_status_enum ELSE status END,
+        defeated_at = CASE WHEN v_is_defeated THEN TIMEZONE('utc'::text, NOW()) ELSE defeated_at END,
+        updated_at = TIMEZONE('utc'::text, NOW())
+    WHERE id = v_boss.id;
+
+    -- 5. Insertar evento en el feed
+    INSERT INTO public.community_boss_attacks (
+        boss_id, user_id, user_name, event_type, damage_dealt, message
+    ) VALUES (
+        v_boss.id, v_user_id, p_user_name, v_event_type, p_damage, v_message
+    );
+
+    -- 6. Si fue derrotado, insertar evento de victoria
+    IF v_is_defeated THEN
+        INSERT INTO public.community_boss_attacks (
+            boss_id, user_id, user_name, event_type, message
+        ) VALUES (
+            v_boss.id, NULL, 'Sistema de Comunidad', 'victory',
+            '🏆 ¡VICTORIA! La comunidad ha derrotado a ' || (v_boss.name->>'es') || '. ¡+150 Pro Coins a todos!'
+        );
+
+        -- Acreditar recompensa a quien asestó el golpe final
+        IF v_user_id IS NOT NULL THEN
+            UPDATE public.profiles
+            SET pro_coins = pro_coins + v_boss.defeat_reward_coins
+            WHERE id = v_user_id;
+        END IF;
+    END IF;
+
+    -- 7. Retornar payload
+    RETURN json_build_object(
+        'success', TRUE,
+        'boss_id', v_boss.id,
+        'current_hp', v_new_hp,
+        'max_hp', v_boss.max_hp,
+        'is_defeated', v_is_defeated,
+        'damage_dealt', p_damage,
+        'status', CASE WHEN v_is_defeated THEN 'defeated' ELSE 'active' END
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC / FUNCIÓN TRANSACCIONAL (SECURITY DEFINER FUNCTION)]
+-- ¿Para qué sirve? Cura al jefe y reduce el escudo colectivo cuando un usuario abandona o se distrae en comunidad.
+CREATE OR REPLACE FUNCTION public.heal_boss_from_distraction(
+    p_boss_id VARCHAR,
+    p_player_name TEXT DEFAULT 'Un Guerrero'
+)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_boss RECORD;
+    v_heal_amount INTEGER;
+    v_new_hp INTEGER;
+    v_new_shield INTEGER;
+    v_message TEXT;
+BEGIN
+    -- 1. Obtener y bloquear la fila del Boss
+    SELECT * INTO v_boss FROM public.community_bosses WHERE id = p_boss_id FOR UPDATE;
+    IF NOT FOUND THEN
+        SELECT * INTO v_boss FROM public.community_bosses WHERE is_current_active = TRUE LIMIT 1 FOR UPDATE;
+    END IF;
+
+    IF v_boss.status = 'defeated' THEN
+        RETURN json_build_object('success', TRUE, 'status', 'defeated');
+    END IF;
+
+    -- 2. Calcular curación (2% del HP Máximo) y desgaste de escudo
+    v_heal_amount := ROUND(v_boss.max_hp * 0.02);
+    v_new_hp := LEAST(v_boss.max_hp, v_boss.current_hp + v_heal_amount);
+    v_new_shield := GREATEST(0, v_boss.community_shield - 40);
+
+    v_message := '🩸 El jefe recuperó +' || v_heal_amount || ' HP debido a la distracción de ' || p_player_name || '.';
+
+    -- 3. Actualizar estado
+    UPDATE public.community_bosses
+    SET 
+        current_hp = v_new_hp,
+        community_shield = v_new_shield,
+        updated_at = TIMEZONE('utc'::text, NOW())
+    WHERE id = v_boss.id;
+
+    -- 4. Insertar eventos en el feed
+    INSERT INTO public.community_boss_attacks (
+        boss_id, user_id, user_name, event_type, hp_healed, message
+    ) VALUES (
+        v_boss.id, v_user_id, p_player_name, 'heal', v_heal_amount, v_message
+    );
+
+    IF v_new_shield = 0 THEN
+        INSERT INTO public.community_boss_attacks (
+            boss_id, user_id, user_name, event_type, shield_damage, message
+        ) VALUES (
+            v_boss.id, NULL, 'Sistema de Comunidad', 'shield_break',
+            '⚠️ ¡El Escudo de la Comunidad ha colapsado! El Jefe ataca directamente.'
+        );
+    ELSE
+        INSERT INTO public.community_boss_attacks (
+            boss_id, user_id, user_name, event_type, shield_damage, message
+        ) VALUES (
+            v_boss.id, NULL, 'Sistema de Comunidad', 'shield_absorb',
+            '🛡️ El escudo comunitario absorbió el contraataque (-40 de escudo).'
+        );
+    END IF;
+
+    -- 5. Retornar payload
+    RETURN json_build_object(
+        'success', TRUE,
+        'boss_id', v_boss.id,
+        'current_hp', v_new_hp,
+        'hp_healed', v_heal_amount,
+        'community_shield', v_new_shield
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC PARA CAMBIAR O REINICIAR JEFE ACTIVO]
+CREATE OR REPLACE FUNCTION public.switch_active_boss(p_boss_type VARCHAR)
+RETURNS JSON AS $$
+DECLARE
+    v_boss RECORD;
+BEGIN
+    UPDATE public.community_bosses SET is_current_active = FALSE;
+    
+    UPDATE public.community_bosses
+    SET 
+        is_current_active = TRUE,
+        status = 'active',
+        current_hp = CASE WHEN status = 'defeated' OR current_hp <= 0 THEN max_hp ELSE current_hp END,
+        updated_at = TIMEZONE('utc'::text, NOW())
+    WHERE boss_type::text = p_boss_type
+    RETURNING * INTO v_boss;
+
+    IF NOT FOUND THEN
+        UPDATE public.community_bosses SET is_current_active = TRUE WHERE id = 'siren' RETURNING * INTO v_boss;
+    END IF;
+
+    INSERT INTO public.community_boss_attacks (
+        boss_id, user_id, user_name, event_type, message
+    ) VALUES (
+        v_boss.id, NULL, 'Sistema de Comunidad', 'spawn',
+        '👾 Ha aparecido un nuevo oponente en el templo: ' || (v_boss.name->>'es') || '.'
+    );
+
+    RETURN json_build_object(
+        'success', TRUE,
+        'boss_id', v_boss.id,
+        'name', v_boss.name,
+        'max_hp', v_boss.max_hp,
+        'current_hp', v_boss.current_hp,
+        'community_shield', v_boss.community_shield
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ------------------------------------------------------------------------------
+-- 6. SEGURIDAD Y PERMISOS: RLS EN JEFES Y FEED DE COMBATE
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: DIRECTIVA DE SEGURIDAD (ROW LEVEL SECURITY - RLS)]
+ALTER TABLE public.community_bosses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.community_boss_attacks ENABLE ROW LEVEL SECURITY;
+
+-- [TIPO DE OBJETO: POLÍTICAS RLS (SECURITY POLICIES - SELECT PÚBLICO)]
+-- ¿Para qué sirve? Permite que todos los participantes vean la barra de vida del Jefe y el feed en vivo.
+DROP POLICY IF EXISTS "Jefes comunitarios visibles públicamente" ON public.community_bosses;
+CREATE POLICY "Jefes comunitarios visibles públicamente"
+    ON public.community_bosses FOR SELECT
+    USING (true);
+
+DROP POLICY IF EXISTS "Feed de combate visible públicamente" ON public.community_boss_attacks;
+CREATE POLICY "Feed de combate visible públicamente"
+    ON public.community_boss_attacks FOR SELECT
+    USING (true);
+
+DROP POLICY IF EXISTS "Usuarios autenticados registran eventos de combate" ON public.community_boss_attacks;
+CREATE POLICY "Usuarios autenticados registran eventos de combate"
+    ON public.community_boss_attacks FOR INSERT
+    WITH CHECK (auth.uid() IS NOT NULL OR user_id IS NULL);
+
+
+-- ------------------------------------------------------------------------------
+-- 7. SUSCRIPCIÓN EN TIEMPO REAL (WEBSOCKETS REALTIME)
+-- ------------------------------------------------------------------------------
+
+-- [TIPO DE OBJETO: PUBLICACIÓN REALTIME (SUPABASE REALTIME PUBLICATION)]
+-- ¿Qué es? Canal de WebSockets para combate multijugador masivo.
+-- ¿Para qué sirve? Transmite cada milisegundo los golpes asestados, curas y estado de victoria a todos los navegadores conectados.
+ALTER PUBLICATION supabase_realtime ADD TABLE public.community_bosses;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.community_boss_attacks;
+
 
 

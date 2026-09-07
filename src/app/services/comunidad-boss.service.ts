@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { MembershipService } from './membership.service';
+import { SupabaseService } from './supabase.service';
 
 export interface ComunidadBoss {
   name: string;
@@ -14,6 +15,7 @@ export interface ComunidadBoss {
 })
 export class ComunidadBossService {
   private membership = inject(MembershipService);
+  private supabaseService = inject(SupabaseService);
 
   // Boss configurations depending on the active theme
   private bossCatalog: Record<string, Omit<ComunidadBoss, 'currentHp' | 'status'>> = {
@@ -189,6 +191,15 @@ export class ComunidadBossService {
     // Increment user damage dealt
     this.userDamageDealt.update(d => d + finalAmount);
 
+    if (this.supabaseService.isConfigured()) {
+      this.supabaseService.dealBossDamage(
+        this.activeBoss().type,
+        finalAmount,
+        isCritical,
+        this.membership.userName() || 'Guerrero'
+      ).catch(err => console.warn('[Supabase Boss Damage Error]', err));
+    }
+
     this.activeBoss.update(boss => {
       if (boss.status === 'defeated') return boss;
       
@@ -214,6 +225,13 @@ export class ComunidadBossService {
 
   // Heal boss due to user distraction/abandonment
   healBoss(playerName: string) {
+    if (this.supabaseService.isConfigured()) {
+      this.supabaseService.healBossFromDistraction(
+        this.activeBoss().type,
+        playerName
+      ).catch(err => console.warn('[Supabase Boss Heal Error]', err));
+    }
+
     this.activeBoss.update(boss => {
       if (boss.status === 'defeated') return boss;
 
