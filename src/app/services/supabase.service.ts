@@ -2,6 +2,43 @@ import { Injectable, signal } from '@angular/core';
 import { createClient, SupabaseClient, User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 
+export interface MultilingualText {
+  es: string;
+  en: string;
+  [lang: string]: string;
+}
+
+export interface CatalogItem {
+  id: string;
+  category: 'avatar' | 'weapon' | 'theme' | 'timer';
+  tier: 'Común' | 'Raro' | 'Épico' | 'Legendario';
+  stars: number;
+  emoji: string;
+  color: string;
+  cost_coins: number;
+  is_initial: boolean;
+  has_evolution: boolean;
+  required_quality_id?: string | null;
+  coins_per_pomodoro: number;
+  pause_penalty_coins: number;
+  boss_damage_points: number;
+  boss_heal_points: number;
+  name: MultilingualText;
+  description?: MultilingualText;
+  species?: MultilingualText;
+  role?: MultilingualText;
+  archetype?: MultilingualText;
+  weapon_name?: MultilingualText;
+  focus_application?: MultilingualText;
+  tactical_quote?: MultilingualText;
+  passive_name?: MultilingualText;
+  passive_advantage?: MultilingualText;
+  quality_name?: MultilingualText;
+  quality_req?: MultilingualText;
+  is_active: boolean;
+  created_at?: string;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -9,6 +46,7 @@ export interface UserProfile {
   profession?: string;
   country?: string;
   country_code?: string;
+  language?: 'es' | 'en';
   active_days?: number[];
   selected_avatar?: string;
   selected_theme?: 'samurai' | 'cyberpunk' | 'aurora' | 'zen';
@@ -269,6 +307,32 @@ export class SupabaseService {
     }
 
     return { error: null };
+  }
+
+  // ==========================================
+  // CATÁLOGO MAESTRO DE ARTÍCULOS
+  // ==========================================
+
+  async getCatalogItems(): Promise<{ items: CatalogItem[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { items: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('catalog_items')
+        .select('*')
+        .eq('is_active', true)
+        .order('cost_coins', { ascending: true });
+
+      if (error) {
+        return { items: [], error: error.message };
+      }
+
+      return { items: (data || []) as CatalogItem[], error: null };
+    } catch (e: any) {
+      return { items: [], error: e.message || 'Error al obtener catálogo' };
+    }
   }
 
   // ==========================================

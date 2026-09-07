@@ -1140,7 +1140,7 @@ export class IdentitySettings implements OnInit {
   getUnlockedAvatars(): AvatarItem[] {
     const unlockedIds = this.membership.unlockedAvatars();
     return this.membership.avatarsCatalog().filter(avatar => 
-      avatar.isInitial || unlockedIds.includes(avatar.id)
+      unlockedIds.includes(avatar.id)
     );
   }
 

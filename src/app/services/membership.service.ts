@@ -1,6 +1,6 @@
-import { Injectable, signal, effect, inject } from '@angular/core';
+import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { SupabaseService } from './supabase.service';
+import { SupabaseService, CatalogItem, MultilingualText } from './supabase.service';
 
 export interface AvatarItem {
   id: string;
@@ -221,38 +221,39 @@ export class MembershipService {
   // Control global para abrir el modal de configuración de identidad
   showSettingsModal = signal<boolean>(false);
 
-  // Baúl de ideas global compartido
-  capturedIdeas = signal<string[]>(
-    getMigratedValueJSON('captured-ideas', [] as string[])
+  // Idioma de la interfaz ('es' por defecto o 'en')
+  userLanguage = signal<'es' | 'en'>(
+    (localStorage.getItem('procrastina-language') as any) || 'es'
   );
 
-  // Catálogo completo de avatares disponibles (Solo los iniciales comunes vienen desbloqueados gratis)
-  avatarsCatalog = signal<AvatarItem[]>([
-    { id: 'gato', name: 'Gato Lancero', icon: 'fa-cat', color: '#10b981', isUnlocked: true, isInitial: true },
-    { id: 'perro', name: 'Perro Lancero', icon: 'fa-dog', color: '#3a86f0', isUnlocked: true, isInitial: true },
-    { id: 'conejo', name: 'Conejo Lancero', icon: 'fa-rabbit', color: '#9ca3af', isUnlocked: true, isInitial: true },
-    { id: 'loro', name: 'Loro Lancero', icon: 'fa-dove', color: '#fbbf24', isUnlocked: true, isInitial: true },
-    { id: 'hamster', name: 'Hámster Lancero', icon: 'fa-paw', color: '#f97316', isUnlocked: true, isInitial: true },
-    { id: 'raton', name: 'Ratón Lancero', icon: 'fa-paw', color: '#ec4899', isUnlocked: true, isInitial: true },
-    { id: 'tortuga', name: 'Tortuga', icon: 'fa-turtle', color: '#22c55e', isUnlocked: false },
-    { id: 'hormiga', name: 'Hormiga', icon: 'fa-bug', color: '#78350f', isUnlocked: false },
-    { id: 'buho', name: 'Búho', icon: 'fa-owl', color: '#6366f1', isUnlocked: false },
-    { id: 'rana', name: 'Rana', icon: 'fa-frog', color: '#22c55e', isUnlocked: false },
-    { id: 'aguila', name: 'Águila', icon: 'fa-dove', color: '#3b82f6', isUnlocked: false },
-    { id: 'abeja', name: 'Abeja', icon: 'fa-bee', color: '#eab308', isUnlocked: false },
-    { id: 'castor', name: 'Castor', icon: 'fa-paw', color: '#b45309', isUnlocked: false },
-    { id: 'zorro', name: 'Zorro', icon: 'fa-paw', color: '#f97316', isUnlocked: false },
-    { id: 'lince', name: 'Lince', icon: 'fa-paw', color: '#a855f7', isUnlocked: false },
-    { id: 'panda', name: 'Panda', icon: 'fa-paw', color: '#6b7280', isUnlocked: false },
-    { id: 'oso', name: 'Oso', icon: 'fa-paw', color: '#78350f', isUnlocked: false },
-    { id: 'elefante', name: 'Elefante', icon: 'fa-paw', color: '#6b7280', isUnlocked: false },
-    { id: 'leon', name: 'León', icon: 'fa-paw', color: '#fbbf24', isUnlocked: false },
-    { id: 'tigre', name: 'Tigre', icon: 'fa-paw', color: '#f97316', isUnlocked: false },
-    { id: 'lobo', name: 'Lobo', icon: 'fa-paw', color: '#ef4444', isUnlocked: false },
-    { id: 'dragon', name: 'Dragón del Ego', icon: 'fa-dragon', color: '#d946ef', isUnlocked: false },
-    { id: 'fenix', name: 'Fénix', icon: 'fa-fire', color: '#f97316', isUnlocked: false },
-    { id: 'grifo', name: 'Grifo', icon: 'fa-crow', color: '#eab308', isUnlocked: false }
-  ]);
+  // Ideas capturadas durante sesiones de enfoque
+  capturedIdeas = signal<string[]>(
+    getMigratedValueJSON('captured-ideas', [])
+  );
+
+  // Catálogo dinámico cargado desde Supabase
+  catalogItems = signal<CatalogItem[]>(
+    getMigratedValueJSON<CatalogItem[]>('catalog-cache', [])
+  );
+
+  // Catálogo completo de avatares disponibles (generado dinámicamente desde Supabase)
+  avatarsCatalog = computed<AvatarItem[]>(() => {
+    const items = this.catalogItems().filter(i => i.category === 'avatar');
+    const unlocked = this.unlockedAvatars();
+    const lang = this.userLanguage();
+
+    if (items.length > 0) {
+      return items.map(item => ({
+        id: item.id,
+        name: item.name?.[lang] || item.name?.['es'] || item.id,
+        icon: this.getAvatarIconById(item.id),
+        color: item.color || '#10b981',
+        isUnlocked: unlocked.includes(item.id),
+        isInitial: item.is_initial
+      }));
+    }
+    return [];
+  });
 
   // Catálogo completo de Cualidades (TORTUGA, HORMIGA, BÚHO, RANA, ÁGUILA, ABEJA, CASTOR)
   qualitiesCatalog = signal<QualityItem[]>([
@@ -299,6 +300,9 @@ export class MembershipService {
       } catch (e) {}
     }
 
+    // Cargar catálogo de artículos desde Supabase
+    this.loadCatalogFromSupabase();
+
     // Sincronizar perfil e inventario automáticamente cuando Supabase tenga sesión activa
     effect(() => {
       const user = this.supabaseService.currentUser();
@@ -316,6 +320,7 @@ export class MembershipService {
             this.applySupabaseUnlockedItems(items);
           }
         });
+        this.loadCatalogFromSupabase();
       }
     });
 
@@ -480,7 +485,7 @@ export class MembershipService {
 
   removeIdea(index: number) {
     const current = this.capturedIdeas();
-    this.capturedIdeas.set(current.filter((_, i) => i !== index));
+    this.capturedIdeas.set(current.filter((_: string, i: number) => i !== index));
   }
 
   clearAllIdeas() {
@@ -489,11 +494,7 @@ export class MembershipService {
 
   // Obtener avatares dinámicamente con su estado de bloqueo actualizado
   getAvatars(): AvatarItem[] {
-    const unlocked = this.unlockedAvatars();
-    return this.avatarsCatalog().map(avatar => {
-      const isUnlocked = avatar.isInitial || unlocked.includes(avatar.id);
-      return { ...avatar, isUnlocked };
-    });
+    return this.avatarsCatalog();
   }
 
   // Persistencia en Supabase (profiles table)
@@ -946,6 +947,10 @@ export class MembershipService {
     this.userCountry.set(p.country ? cleanQuotedString(p.country) : '');
     this.userCountryCode.set(p.country_code ? p.country_code : '');
     if (p.active_days) this.userActiveDays.set(p.active_days);
+    if (p.language) {
+      this.userLanguage.set(p.language);
+      localStorage.setItem('procrastina-language', p.language);
+    }
     if (p.is_premium !== undefined) this.isPremium.set(p.is_premium);
     if (p.pro_coins !== undefined) this.proCoins.set(p.pro_coins);
     if (p.focus_points !== undefined) this.focusPoints.set(p.focus_points);
@@ -957,40 +962,67 @@ export class MembershipService {
     if (p.onboarding_completed !== undefined) this.onboardingCompleted.set(p.onboarding_completed);
   }
 
+  // Cargar catálogo de artículos desde Supabase
+  async loadCatalogFromSupabase() {
+    if (this.supabaseService.isConfigured()) {
+      const { items, error } = await this.supabaseService.getCatalogItems();
+      if (!error && items && items.length > 0) {
+        this.catalogItems.set(items);
+        localStorage.setItem('procrastina-catalog-cache', JSON.stringify(items));
+      } else {
+        const cached = localStorage.getItem('procrastina-catalog-cache');
+        if (cached) {
+          try {
+            this.catalogItems.set(JSON.parse(cached));
+          } catch (e) {}
+        }
+      }
+    }
+  }
+
+  // Obtener texto localizado según idioma del usuario ('es' o 'en')
+  getLocalizedText(field?: MultilingualText | null, fallback: string = ''): string {
+    if (!field) return fallback;
+    const lang = this.userLanguage();
+    return field[lang] || field['es'] || field['en'] || fallback;
+  }
+
   // Aplicar items desbloqueados desde Supabase (user_unlocked_items)
   applySupabaseUnlockedItems(itemIds: string[]) {
     const allKnownAvatars = ALL_AVATARS_LIST;
     const knownThemes = ['samurai', 'cyberpunk', 'aurora', 'zen'];
     const knownTimers = ['digital', 'ring', 'line'];
 
-    const avatars = Array.from(new Set([
-      ...INITIAL_AVATARS_LIST,
-      ...(itemIds || []).filter(id => allKnownAvatars.includes(id))
-    ]));
+    const avatars = Array.from(new Set(
+      (itemIds || []).filter(id => allKnownAvatars.includes(id))
+    ));
 
-    const themes = Array.from(new Set([
-      'samurai',
-      ...(itemIds || []).filter(id => knownThemes.includes(id))
-    ]));
+    const themes = Array.from(new Set(
+      (itemIds || []).filter(id => knownThemes.includes(id))
+    ));
 
-    const timers = Array.from(new Set([
-      'digital', 'ring', 'line',
-      ...(itemIds || []).filter(id => knownTimers.includes(id))
-    ]));
+    const timers = Array.from(new Set(
+      (itemIds || []).filter(id => knownTimers.includes(id))
+    ));
 
-    this.unlockedAvatars.set(avatars);
-    this.unlockedThemes.set(themes);
-    this.unlockedTimers.set(timers);
+    // Si Supabase no tiene nada, mantener al menos el gato básico como fallback
+    const finalAvatars = avatars.length > 0 ? avatars : ['gato'];
+    const finalThemes = themes.length > 0 ? themes : ['samurai'];
+    const finalTimers = timers.length > 0 ? timers : ['digital'];
 
-    if (!avatars.includes(this.selectedAvatar())) {
-      this.selectedAvatar.set('gato');
+    this.unlockedAvatars.set(finalAvatars);
+    this.unlockedThemes.set(finalThemes);
+    this.unlockedTimers.set(finalTimers);
+
+    if (!finalAvatars.includes(this.selectedAvatar())) {
+      this.selectedAvatar.set(finalAvatars[0] || 'gato');
     }
 
     const email = this.getCurrentUserEmail();
     if (email) {
-      localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(avatars));
-      localStorage.setItem(`user:${email}:unlocked-themes`, JSON.stringify(themes));
-      localStorage.setItem(`user:${email}:unlocked-timers`, JSON.stringify(timers));
+      localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(finalAvatars));
+      localStorage.setItem(`user:${email}:unlocked-themes`, JSON.stringify(finalThemes));
+      localStorage.setItem(`user:${email}:unlocked-timers`, JSON.stringify(finalTimers));
     }
   }
 
@@ -1009,12 +1041,10 @@ export class MembershipService {
     if (storedAvatars) {
       try {
         const parsed = JSON.parse(storedAvatars);
-        // Si tiene todos los avatares pero nunca ha tenido puntos, monedas ni pomodoros, fue una migración errónea antigua: sanear a los 6 iniciales
-        if (Array.isArray(parsed) && parsed.length >= ALL_AVATARS_LIST.length && focusPointsVal === 0 && proCoinsVal === 0 && focusTomatoesVal === 0) {
-          mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
-          localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(mergedUnlockedAvatars));
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          mergedUnlockedAvatars = Array.from(new Set(parsed));
         } else {
-          mergedUnlockedAvatars = Array.from(new Set([...parsed, ...INITIAL_AVATARS_LIST]));
+          mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
         }
       } catch {
         mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
@@ -1107,29 +1137,27 @@ export class MembershipService {
 
   // Auxiliares globales para avatars
   getAvatarNameById(id: string): string {
-    const names: { [key: string]: string } = {
-      gato: 'Kuro', perro: 'Borek', conejo: 'Zephyr',
-      loro: 'Ario', zorro: 'Renard', lince: 'Silas',
-      lobo: 'Fenrir', tortuga: 'Genbu', hormiga: 'Vargas', abeja: 'Vespia',
-      castor: 'Barris', aguila: 'Valkor', buho: 'Noctis', panda: 'Tao',
-      oso: 'Bjorn', elefante: 'Titanis',
-      leon: 'Leónidas', tigre: 'Rakan', dragon: 'Bahamut', fenix: 'Ignis', grifo: 'Aethel',
-      hamster: 'Pip', raton: 'Sombra', rana: 'Kero'
-    };
-    return names[id] || 'Kuro';
+    const item = this.catalogItems().find(i => i.id === id);
+    if (item) {
+      const lang = this.userLanguage();
+      return item.name?.[lang] || item.name?.['es'] || id;
+    }
+    return id ? id.charAt(0).toUpperCase() + id.slice(1) : 'Guardián';
   }
 
   getAvatarColorById(id: string): string {
-    const colors: { [key: string]: string } = {
-      gato: '#10b981', perro: '#3a86f0', conejo: '#9ca3af',
-      loro: '#fbbf24', zorro: '#f97316', lince: '#a855f7',
-      lobo: '#ef4444', tortuga: '#22c55e', hormiga: '#78350f', abeja: '#eab308',
-      castor: '#b45309', aguila: '#3b82f6', buho: '#6366f1', panda: '#6b7280',
-      oso: '#78350f', elefante: '#6b7280',
-      leon: '#fbbf24', tigre: '#f97316', dragon: '#d946ef', fenix: '#ef4444', grifo: '#eab308',
-      hamster: '#f97316', raton: '#ec4899', rana: '#22c55e'
+    const item = this.catalogItems().find(i => i.id === id);
+    return item?.color || '#10b981';
+  }
+
+  getAvatarIconById(id: string): string {
+    const icons: { [key: string]: string } = {
+      gato: 'fa-cat', perro: 'fa-dog', conejo: 'fa-rabbit', loro: 'fa-dove',
+      tortuga: 'fa-turtle', hormiga: 'fa-bug', buho: 'fa-owl', rana: 'fa-frog',
+      aguila: 'fa-dove', abeja: 'fa-bee', castor: 'fa-paw', dragon: 'fa-dragon',
+      fenix: 'fa-fire', grifo: 'fa-crow'
     };
-    return colors[id] || '#10b981';
+    return icons[id] || 'fa-paw';
   }
 
   getSelectedAvatarIcon(): string {

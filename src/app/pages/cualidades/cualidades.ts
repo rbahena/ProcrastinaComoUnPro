@@ -1,10 +1,10 @@
 import { Component, OnInit, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MembershipService, AvatarItem, QualityItem } from '../../services/membership.service';
+import { MembershipService, AvatarItem, QualityItem, ALL_AVATARS_LIST } from '../../services/membership.service';
 import { Navbar } from '../../components/navbar/navbar';
 
-export type GuardianArchetype = 'Inicial' | 'Cualidad' | 'Cazador' | 'Alto Riesgo';
+export type GuardianArchetype = 'Inicial' | 'Cualidad' | 'Cazador' | 'Alto Riesgo' | string;
 
 export interface ComunidadAvatar {
   id: string;
@@ -2150,654 +2150,61 @@ export class Cualidades implements OnInit {
   allAvatars = computed(() => {
     const unlockedList = this.membership.unlockedAvatars();
     const qualities = this.membership.qualitiesCatalog();
+    const dynamicCatalog = this.membership.catalogItems();
+    const lang = this.membership.userLanguage();
 
-    const list: ComunidadAvatar[] = [
-      // 1. INICIALES
-      { 
-        id: 'gato', 
-        name: 'Kuro', 
-        species: 'Gato Lancero (Felino Sigiloso)',
-        type: 'inicial', 
-        tier: 'Común',
-        archetype: 'Inicial',
-        archetypeBadge: 'EQUILIBRADO',
-        stars: 1,
-        emoji: '🐱', 
-        color: '#10b981', 
-        role: 'Centinela del Silencio',
-        weaponName: 'Lanza de Bambú',
-        focusApplication: 'Técnica de los 2 min: empieza sin pensar en la meta final.',
-        tacticalQuote: 'Un zarpazo certero a la vez disuelve cualquier muralla.',
-        coinsPerPomodoro: 5,
-        pausePenaltyCoins: 2,
-        bossDamagePoints: 10,
-        bossHealPoints: 5,
-        passiveName: 'Paso Ligero',
-        passiveAdvantage: 'Ritmo estable con penalización mínima ante distracciones.',
-        cost: 0, 
-        qualityId: null,
-        hasEvolution: false
-      },
-      { 
-        id: 'perro', 
-        name: 'Borek', 
-        species: 'Perro Pastor (Canino Leal)',
-        type: 'inicial', 
-        tier: 'Común',
-        archetype: 'Inicial',
-        archetypeBadge: 'RESISTENCIA',
-        stars: 1,
-        emoji: '🐶', 
-        color: '#3a86f0', 
-        role: 'Guardián Leal',
-        weaponName: 'Lanza & Escudo Canino',
-        focusApplication: 'Monotarea radical: aleja el móvil antes de encender el temporizador.',
-        tacticalQuote: 'La fidelidad a tu propósito vence al impulso pasajero.',
-        coinsPerPomodoro: 6,
-        pausePenaltyCoins: 2,
-        bossDamagePoints: 12,
-        bossHealPoints: 5,
-        passiveName: 'Guardia Firme',
-        passiveAdvantage: 'Generación consistente de monedas en sesiones consecutivas.',
-        cost: 0, 
-        qualityId: null,
-        hasEvolution: false
-      },
-      { 
-        id: 'conejo', 
-        name: 'Zephyr', 
-        species: 'Conejo Explorador (Liebre Veloz)',
-        type: 'inicial', 
-        tier: 'Común',
-        archetype: 'Inicial',
-        archetypeBadge: 'VELOCIDAD',
-        stars: 1,
-        emoji: '🐰', 
-        color: '#9ca3af', 
-        role: 'Explorador del Viento',
-        weaponName: 'Dagas de Impulso',
-        focusApplication: 'Sprints rápidos de 15 minutos para romper bloqueos creativos.',
-        tacticalQuote: 'La agilidad supera al titubeo.',
-        coinsPerPomodoro: 5,
-        pausePenaltyCoins: 3,
-        bossDamagePoints: 11,
-        bossHealPoints: 6,
-        passiveName: 'Salto Rápido',
-        passiveAdvantage: 'Entrada en flujo inmediato con bajo tiempo de arranque.',
-        cost: 0, 
-        qualityId: null,
-        hasEvolution: false
-      },
-      { 
-        id: 'loro', 
-        name: 'Ario', 
-        species: 'Loro Centinela (Ave Vigía)',
-        type: 'inicial', 
-        tier: 'Común',
-        archetype: 'Inicial',
-        archetypeBadge: 'ALERTA',
-        stars: 1,
-        emoji: '🦜', 
-        color: '#fbbf24', 
-        role: 'Centinela Alado',
-        weaponName: 'Báculo Feynman',
-        focusApplication: 'Efecto Feynman: explica en voz alta tu meta antes de comenzar.',
-        tacticalQuote: 'La claridad vocal ahuyenta la niebla mental.',
-        coinsPerPomodoro: 6,
-        pausePenaltyCoins: 2,
-        bossDamagePoints: 12,
-        bossHealPoints: 5,
-        passiveName: 'Voz Guía',
-        passiveAdvantage: 'Mayor retención conceptual y claridad de objetivos.',
-        cost: 0, 
-        qualityId: null,
-        hasEvolution: false
-      },
-      { 
-        id: 'hamster', 
-        name: 'Pip', 
-        species: 'Hámster Veloz (Roedor Dinámico)',
-        type: 'inicial', 
-        tier: 'Común',
-        archetype: 'Inicial',
-        archetypeBadge: 'DINAMISMO',
-        stars: 1,
-        emoji: '🐹', 
-        color: '#f97316', 
-        role: 'Impulsor de Momentum',
-        weaponName: 'Esferas de Momentum',
-        focusApplication: 'Micrometas de 10 minutos para mantener un impulso continuo.',
-        tacticalQuote: 'El movimiento continuo acumula victorias colosales.',
-        coinsPerPomodoro: 5,
-        pausePenaltyCoins: 2,
-        bossDamagePoints: 10,
-        bossHealPoints: 4,
-        passiveName: 'Rueda Constante',
-        passiveAdvantage: 'Bajo costo de fallo y gran facilidad de repetición.',
-        cost: 0, 
-        qualityId: null,
-        hasEvolution: false
-      },
-      { 
-        id: 'raton', 
-        name: 'Sombra', 
-        species: 'Ratón Sigiloso (Roedor Táctico)',
-        type: 'inicial', 
-        tier: 'Común',
-        archetype: 'Inicial',
-        archetypeBadge: 'SIGILO',
-        stars: 1,
-        emoji: '🐭', 
-        color: '#ec4899', 
-        role: 'Infiltrador Nocturno',
-        weaponName: 'Daga Sombría',
-        focusApplication: 'Cero ruido: apaga toda notificación antes de arrancar.',
-        tacticalQuote: 'En la quietud absoluta el trabajo avanza sin resistencia.',
-        coinsPerPomodoro: 6,
-        pausePenaltyCoins: 2,
-        bossDamagePoints: 11,
-        bossHealPoints: 5,
-        passiveName: 'Infiltración',
-        passiveAdvantage: 'Escudo protector ante distracciones del entorno.',
-        cost: 0, 
-        qualityId: null,
-        hasEvolution: false
-      },
+    let dynamicList: ComunidadAvatar[] = [];
 
-      // 2. RETOS DE CUALIDADES
-      { 
-        id: 'tortuga', 
-        name: 'Genbu', 
-        species: 'Tortuga Sabia (Reptil Ancestral)',
-        type: 'cualidad', 
-        tier: 'Raro',
-        archetype: 'Cualidad',
-        archetypeBadge: 'CONSTANCIA',
-        stars: 2,
-        emoji: '🐢', 
-        color: '#22c55e', 
-        role: 'Sabio Paciente',
-        weaponName: 'Caparazón Rúnico',
-        focusApplication: 'Avance milimétrico sostenido: no busques velocidad, busca no parar.',
-        tacticalQuote: 'Lento pero implacable, el caparazón resiste cualquier tormenta.',
-        coinsPerPomodoro: 12,
-        pausePenaltyCoins: 4,
-        bossDamagePoints: 24,
-        bossHealPoints: 8,
-        passiveName: 'Caparazón Imperturbable',
-        passiveAdvantage: '+100% de daño sostenido al jefe en pomodoros consecutivos.',
-        cost: 50, 
-        qualityId: 'constancia', 
-        unlockTotal: 7,
-        hasEvolution: true
-      },
-      { 
-        id: 'hormiga', 
-        name: 'Vargas', 
-        species: 'Hormiga Guerrera (Himenóptero)',
-        type: 'cualidad', 
-        tier: 'Raro',
-        archetype: 'Cualidad',
-        archetypeBadge: 'DISCIPLINA',
-        stars: 2,
-        emoji: '🐜', 
-        color: '#78350f', 
-        role: 'Esfuerzo Diario',
-        weaponName: 'Mandíbula Titánica',
-        focusApplication: 'Carga una sola roca a la vez: mira solo tu bloque actual.',
-        tacticalQuote: 'La fuerza radica en la repetición inquebrantable.',
-        coinsPerPomodoro: 14,
-        pausePenaltyCoins: 5,
-        bossDamagePoints: 28,
-        bossHealPoints: 10,
-        passiveName: 'Carga Titánica',
-        passiveAdvantage: 'Duplica el impacto en la salud del Jefe comunitario.',
-        cost: 60, 
-        qualityId: 'disciplina', 
-        unlockTotal: 15,
-        hasEvolution: false
-      },
-      { 
-        id: 'buho', 
-        name: 'Noctis', 
-        species: 'Búho Erudito (Rapaz Nocturna)',
-        type: 'cualidad', 
-        tier: 'Raro',
-        archetype: 'Cualidad',
-        archetypeBadge: 'SABIDURÍA (80/20)',
-        stars: 2,
-        emoji: '🦉', 
-        color: '#6366f1', 
-        role: 'Estratega Sabio',
-        weaponName: 'Orbe Ocular 80/20',
-        focusApplication: 'Enfoca el 20% de tareas que producirá el 80% del impacto.',
-        tacticalQuote: 'La mirada aguda ahorra horas de vuelo inútil.',
-        coinsPerPomodoro: 16,
-        pausePenaltyCoins: 6,
-        bossDamagePoints: 32,
-        bossHealPoints: 12,
-        passiveName: 'Visión Nocturna 80/20',
-        passiveAdvantage: '+32 Puntos de daño por sesión estratégica completada.',
-        cost: 120, 
-        qualityId: 'sabiduria', 
-        unlockTotal: 5,
-        hasEvolution: false
-      },
-      { 
-        id: 'rana', 
-        name: 'Kero', 
-        species: 'Rana Cazadora (Anfibio Táctico)',
-        type: 'cualidad', 
-        tier: 'Raro',
-        archetype: 'Cualidad',
-        archetypeBadge: 'SUPERACIÓN (SAPO)',
-        stars: 2,
-        emoji: '🐸', 
-        color: '#10b981', 
-        role: 'Saltarina Cazadora',
-        weaponName: 'Arpón Traga-Sapos',
-        focusApplication: 'Trágate ese sapo: ejecuta tu tarea más difícil a primera hora.',
-        tacticalQuote: 'Vence lo peor primero y el resto del día será un paseo.',
-        coinsPerPomodoro: 18,
-        pausePenaltyCoins: 7,
-        bossDamagePoints: 36,
-        bossHealPoints: 14,
-        passiveName: 'Salto al Abismo',
-        passiveAdvantage: 'Recompensa premium al vencer tareas procrastinadas.',
-        cost: 50, 
-        qualityId: 'superacion', 
-        unlockTotal: 5,
-        hasEvolution: false
-      },
-      { 
-        id: 'aguila', 
-        name: 'Valkor', 
-        species: 'Águila Imperial (Rapaz Soberana)',
-        type: 'cualidad', 
-        tier: 'Raro',
-        archetype: 'Cualidad',
-        archetypeBadge: 'VISIÓN',
-        stars: 3,
-        emoji: '🦅', 
-        color: '#3b82f6', 
-        role: 'Ojo de Halcón',
-        weaponName: 'Arco Telemetría',
-        focusApplication: 'Ojos fijos en la meta: no desvíes la vista del objetivo final.',
-        tacticalQuote: 'Desde las alturas ningún laberinto tiene secretos.',
-        coinsPerPomodoro: 20,
-        pausePenaltyCoins: 8,
-        bossDamagePoints: 40,
-        bossHealPoints: 16,
-        passiveName: 'Foco Telemetría',
-        passiveAdvantage: 'Máxima generación de daño y monedas en su categoría.',
-        cost: 200, 
-        qualityId: 'vision', 
-        unlockTotal: 5,
-        hasEvolution: false
-      },
-      { 
-        id: 'abeja', 
-        name: 'Vespia', 
-        species: 'Abeja Obrera (Antófilo Incansable)',
-        type: 'cualidad', 
-        tier: 'Raro',
-        archetype: 'Cualidad',
-        archetypeBadge: 'COLABORACIÓN',
-        stars: 2,
-        emoji: '🐝', 
-        color: '#eab308', 
-        role: 'Obrera de la Colmena',
-        weaponName: 'Aguijón de Enjambre',
-        focusApplication: 'Sincronízate con la comunidad para potenciar la disciplina.',
-        tacticalQuote: 'La colmena edifica imperios flor a flor.',
-        coinsPerPomodoro: 15,
-        pausePenaltyCoins: 5,
-        bossDamagePoints: 30,
-        bossHealPoints: 10,
-        passiveName: 'Zumbido de Enjambre',
-        passiveAdvantage: 'Bonificación multiplicada en salas comunitarias.',
-        cost: 70, 
-        qualityId: 'colaboracion', 
-        unlockTotal: 5,
-        hasEvolution: false
-      },
-      { 
-        id: 'castor', 
-        name: 'Barris', 
-        species: 'Castor Ingeniero (Roedor Constructor)',
-        type: 'cualidad', 
-        tier: 'Raro',
-        archetype: 'Cualidad',
-        archetypeBadge: 'CONSTRUCCIÓN',
-        stars: 2,
-        emoji: '🦫', 
-        color: '#b45309', 
-        role: 'Ingeniero Feroz',
-        weaponName: 'Hacha de Ingeniero',
-        focusApplication: 'No cierres el día sin haber completado un entregable tangible.',
-        tacticalQuote: 'Tronco a tronco se desvía el cauce del río.',
-        coinsPerPomodoro: 16,
-        pausePenaltyCoins: 6,
-        bossDamagePoints: 32,
-        bossHealPoints: 12,
-        passiveName: 'Dique Inexpugnable',
-        passiveAdvantage: 'Alto rendimiento en bloques de 3 pomodoros seguidos.',
-        cost: 80, 
-        qualityId: 'construccion', 
-        unlockTotal: 3,
-        hasEvolution: false
-      },
+    if (dynamicCatalog && dynamicCatalog.length > 0) {
+      dynamicList = dynamicCatalog
+        .filter(item => item.category === 'avatar')
+        .map(item => {
+          const type: 'inicial' | 'cualidad' | 'especial' | 'legendario' = 
+            item.is_initial ? 'inicial' :
+            (item.tier === 'Legendario' ? 'legendario' :
+            (item.required_quality_id ? 'cualidad' : 'especial'));
 
-      // 3. CAZADORES
-      { 
-        id: 'zorro', 
-        name: 'Renard', 
-        species: 'Zorro Astuto (Cánido Táctico)',
-        type: 'especial', 
-        tier: 'Épico',
-        archetype: 'Cazador',
-        archetypeBadge: 'CAZADOR ÁGIL',
-        stars: 3,
-        emoji: '🦊', 
-        color: '#f97316', 
-        role: 'Espía de Sombras',
-        weaponName: 'Kopis Fantasma',
-        focusApplication: 'Cambia de entorno si notas que la desidia se arraigó en tu mesa.',
-        tacticalQuote: 'La astucia rodea la trampa antes de que se active.',
-        coinsPerPomodoro: 22,
-        pausePenaltyCoins: 9,
-        bossDamagePoints: 44,
-        bossHealPoints: 18,
-        passiveName: 'Paso Fantasma',
-        passiveAdvantage: '+22 Coins directas con alto daño de asedio al jefe.',
-        cost: 100, 
-        qualityId: null, 
-        qualityName: 'Astucia', 
-        qualityReq: 'Canjéalo por 100 Pro Coins 🪙 aplicando inteligencia y estrategia.',
-        hasEvolution: false
-      },
-      { 
-        id: 'lince', 
-        name: 'Silas', 
-        species: 'Lince Cazador (Felino Boreal)',
-        type: 'especial', 
-        tier: 'Épico',
-        archetype: 'Cazador',
-        archetypeBadge: 'ALTA PRECISIÓN',
-        stars: 3,
-        emoji: '🐱', 
-        color: '#a855f7', 
-        role: 'Alta Precisión',
-        weaponName: 'Garras de Cuarzo',
-        focusApplication: 'Elimina cualquier pestaña secundaria: tolerancia cero al error.',
-        tacticalQuote: 'La mirada congelada antes del zarpazo infalible.',
-        coinsPerPomodoro: 26,
-        pausePenaltyCoins: 11,
-        bossDamagePoints: 52,
-        bossHealPoints: 22,
-        passiveName: 'Enfoque Puntería',
-        passiveAdvantage: 'Altísimo multiplicador de daño (+52 Pts al Jefe).',
-        cost: 180, 
-        qualityId: null, 
-        qualityName: 'Precisión', 
-        qualityReq: 'Canjéalo por 180 Pro Coins 🪙 entrenando tu puntería mental.',
-        hasEvolution: false
-      },
-      { 
-        id: 'panda', 
-        name: 'Tao', 
-        species: 'Panda Maestro (Úrsido Zen)',
-        type: 'especial', 
-        tier: 'Épico',
-        archetype: 'Cazador',
-        archetypeBadge: 'SERENIDAD ZEN',
-        stars: 3,
-        emoji: '🐼', 
-        color: '#6b7280', 
-        role: 'Maestro de la Calma',
-        weaponName: 'Vara de Bambú Zen',
-        focusApplication: 'Inhala 4s y exhala 6s antes de iniciar para calmar el cortisol.',
-        tacticalQuote: 'La mente en paz es un escudo impermeable.',
-        coinsPerPomodoro: 24,
-        pausePenaltyCoins: 8,
-        bossDamagePoints: 48,
-        bossHealPoints: 16,
-        passiveName: 'Paz de Bambú',
-        passiveAdvantage: 'Protección equilibrada con gran rendimiento de monedas.',
-        cost: 150, 
-        qualityId: null, 
-        qualityName: 'Serenidad', 
-        qualityReq: 'Canjéalo por 150 Pro Coins 🪙 manteniendo el enfoque y la calma.',
-        hasEvolution: false
-      },
-      { 
-        id: 'oso', 
-        name: 'Bjorn', 
-        species: 'Oso Implacable (Úrsido Titánico)',
-        type: 'especial', 
-        tier: 'Épico',
-        archetype: 'Cazador',
-        archetypeBadge: 'FUERZA PURA',
-        stars: 3,
-        emoji: '🐻', 
-        color: '#78350f', 
-        role: 'Fuerza Inquebrantable',
-        weaponName: 'Maza de Granito',
-        focusApplication: 'No te levantes de la silla hasta que el cronómetro llegue a cero.',
-        tacticalQuote: 'La montaña no se inmuta ante el aullido del viento.',
-        coinsPerPomodoro: 28,
-        pausePenaltyCoins: 12,
-        bossDamagePoints: 56,
-        bossHealPoints: 24,
-        passiveName: 'Zarpazo Telúrico',
-        passiveAdvantage: 'Golpes masivos directos a la barra de vida del Jefe.',
-        cost: 200, 
-        qualityId: null, 
-        qualityName: 'Resistencia', 
-        qualityReq: 'Canjéalo por 200 Pro Coins 🪙 resistiendo a los distractores.',
-        hasEvolution: false
-      },
-      { 
-        id: 'elefante', 
-        name: 'Titanis', 
-        species: 'Elefante Titán (Proboscídeo Ancestral)',
-        type: 'especial', 
-        tier: 'Épico',
-        archetype: 'Cazador',
-        archetypeBadge: 'MEMORIA',
-        stars: 3,
-        emoji: '🐘', 
-        color: '#6b7280', 
-        role: 'Memoria Ancestral',
-        weaponName: 'Colmillos Rúnicos',
-        focusApplication: 'Registra tus aprendizajes en tu bitácora tras cada bloque.',
-        tacticalQuote: 'Los pasos firmes del gigante dejan huellas imborrables.',
-        coinsPerPomodoro: 30,
-        pausePenaltyCoins: 14,
-        bossDamagePoints: 60,
-        bossHealPoints: 26,
-        passiveName: 'Memoria de Roca',
-        passiveAdvantage: 'Recompensa de élite con +30 monedas por sesión completada.',
-        cost: 220, 
-        qualityId: null, 
-        qualityName: 'Estabilidad', 
-        qualityReq: 'Canjéalo por 220 Pro Coins 🪙 sosteniendo tu esfuerzo continuo.',
-        hasEvolution: false
-      },
-      { 
-        id: 'leon', 
-        name: 'Leónidas', 
-        species: 'León Monarca (Felino Real)',
-        type: 'especial', 
-        tier: 'Épico',
-        archetype: 'Cazador',
-        archetypeBadge: 'LIDERAZGO',
-        stars: 3,
-        emoji: '🦁', 
-        color: '#fbbf24', 
-        role: 'Rey de la Comunidad',
-        weaponName: 'Cetro Imperial',
-        focusApplication: 'Responsabilidad total: nadie vendrá a hacer el trabajo por ti.',
-        tacticalQuote: 'El rugido del rey ordena el caos del reino.',
-        coinsPerPomodoro: 32,
-        pausePenaltyCoins: 15,
-        bossDamagePoints: 64,
-        bossHealPoints: 28,
-        passiveName: 'Rugido Imperial',
-        passiveAdvantage: 'Multiplicador de ataque de asedio masivo contra el Jefe.',
-        cost: 250, 
-        qualityId: null, 
-        qualityName: 'Liderazgo', 
-        qualityReq: 'Canjéalo por 250 Pro Coins 🪙 venciendo la desidia con liderazgo.',
-        hasEvolution: false
-      },
-      { 
-        id: 'tigre', 
-        name: 'Rakan', 
-        species: 'Tigre Feroz (Felino Rayado)',
-        type: 'especial', 
-        tier: 'Épico',
-        archetype: 'Cazador',
-        archetypeBadge: 'DETERMINACIÓN',
-        stars: 3,
-        emoji: '🐅', 
-        color: '#f97316', 
-        role: 'Fuerza de Voluntad',
-        weaponName: 'Cuchillas Dentadas',
-        focusApplication: 'Visualiza la meta antes de que el cansancio te convenza de parar.',
-        tacticalQuote: 'El cazador no pestañea cuando la presa está a tiro.',
-        coinsPerPomodoro: 35,
-        pausePenaltyCoins: 16,
-        bossDamagePoints: 70,
-        bossHealPoints: 30,
-        passiveName: 'Furia Determinada',
-        passiveAdvantage: '+70 Puntos de daño directo por cada pomodoro finalizado.',
-        cost: 300, 
-        qualityId: null, 
-        qualityName: 'Determinación', 
-        qualityReq: 'Canjéalo por 300 Pro Coins 🪙 mostrando coraje en cada meta.',
-        hasEvolution: false
-      },
-      { 
-        id: 'lobo', 
-        name: 'Fenrir', 
-        species: 'Lobo Alfa (Cánido Salvaje)',
-        type: 'especial', 
-        tier: 'Épico',
-        archetype: 'Cazador',
-        archetypeBadge: 'PERSEVERANCIA',
-        stars: 3,
-        emoji: '🐺', 
-        color: '#ef4444', 
-        role: 'Guía de Manada',
-        weaponName: 'Garras Tácticas',
-        focusApplication: 'Cumple el pacto contigo: si dijiste que estudiarías, hazlo.',
-        tacticalQuote: 'La manada avanza unida bajo el aullido del líder.',
-        coinsPerPomodoro: 38,
-        pausePenaltyCoins: 18,
-        bossDamagePoints: 76,
-        bossHealPoints: 32,
-        passiveName: 'Aullido Alfa',
-        passiveAdvantage: 'La cúspide de los cazadores: +38 Coins y +76 daño.',
-        cost: 350, 
-        qualityId: null, 
-        qualityName: 'Perseverancia', 
-        qualityReq: 'Canjéalo por 350 Pro Coins 🪙 demostrando lealtad y consistencia.',
-        hasEvolution: false
-      },
+          const archetypeText = item.archetype?.[lang] || item.archetype?.['es'] || item.tier;
+          const archetypeBadge = (archetypeText || '').toUpperCase();
 
-      // 4. LEGENDARIOS
-      { 
-        id: 'dragon', 
-        name: 'Bahamut', 
-        species: 'Dragón del Ego (Sierpe Cósmica)',
-        type: 'legendario', 
-        tier: 'Legendario',
-        archetype: 'Alto Riesgo',
-        archetypeBadge: 'ALTO RIESGO / PODER',
-        stars: 5,
-        emoji: '🐉', 
-        color: '#10b981', 
-        role: 'Señor del Ego',
-        weaponName: 'Katana de Plasma',
-        focusApplication: 'Domina tu ego: el rival real no es la tarea, es tu resistencia.',
-        tacticalQuote: 'Quien doblega su propio ego gobierna su destino.',
-        coinsPerPomodoro: 60,
-        pausePenaltyCoins: 35,
-        bossDamagePoints: 130,
-        bossHealPoints: 60,
-        passiveName: 'Llama del Vórtice',
-        passiveAdvantage: '+60 Coins y +130 Daño fulminante al Jefe.',
-        cost: 600, 
-        qualityId: null, 
-        qualityName: 'Maestría', 
-        qualityReq: 'Empuña la Katana de Plasma y el Orbe Cósmico por 600 Pro Coins 🪙.',
-        hasEvolution: false
-      },
-      { 
-        id: 'fenix', 
-        name: 'Ignis', 
-        species: 'Fénix Inmortal (Ave de Fuego)',
-        type: 'legendario', 
-        tier: 'Legendario',
-        archetype: 'Alto Riesgo',
-        archetypeBadge: 'RENACIMIENTO',
-        stars: 5,
-        emoji: '🔥', 
-        color: '#f97316', 
-        role: 'Inmortal de Fuego',
-        weaponName: 'Lanza Solar',
-        focusApplication: 'Renace sin culpa ni remordimientos de cualquier mal día.',
-        tacticalQuote: 'De las cenizas del tropiezo brota la llama de la victoria.',
-        coinsPerPomodoro: 55,
-        pausePenaltyCoins: 30,
-        bossDamagePoints: 120,
-        bossHealPoints: 50,
-        passiveName: 'Corona Solar',
-        passiveAdvantage: 'Generación estelar de +55 Coins y +120 Daño Solar.',
-        cost: 500, 
-        qualityId: null, 
-        qualityName: 'Resiliencia', 
-        qualityReq: 'Blande la Lanza Solar y la Corona de Fuego por 500 Pro Coins 🪙.',
-        hasEvolution: false
-      },
-      { 
-        id: 'grifo', 
-        name: 'Aethel', 
-        species: 'Grifo Celestial (Híbrido de Luz)',
-        type: 'legendario', 
-        tier: 'Legendario',
-        archetype: 'Alto Riesgo',
-        archetypeBadge: 'HONOR SAGRADO',
-        stars: 5,
-        emoji: '🦅', 
-        color: '#eab308', 
-        role: 'Guardián Celestial',
-        weaponName: 'Alabarda Sagrada',
-        focusApplication: 'Honor impecable: cero ventanas trampa durante el hiperfoco.',
-        tacticalQuote: 'La alabarda sagrada solo corta cuando el alma es pura.',
-        coinsPerPomodoro: 58,
-        pausePenaltyCoins: 32,
-        bossDamagePoints: 125,
-        bossHealPoints: 55,
-        passiveName: 'Rueda Astral',
-        passiveAdvantage: '+58 Coins y +125 Daño Astral directo al Jefe.',
-        cost: 550, 
-        qualityId: null, 
-        qualityName: 'Honor', 
-        qualityReq: 'Desata la Alabarda Celestial y la Rueda Astral por 550 Pro Coins 🪙.',
-        hasEvolution: false
-      }
-    ];
+          return {
+            id: item.id,
+            name: item.name?.[lang] || item.name?.['es'] || item.id,
+            species: item.species?.[lang] || item.species?.['es'] || '',
+            type,
+            tier: item.tier,
+            archetype: archetypeText,
+            archetypeBadge: archetypeBadge,
+            stars: item.stars,
+            emoji: item.emoji,
+            color: item.color,
+            role: item.role?.[lang] || item.role?.['es'] || '',
+            weaponName: item.weapon_name?.[lang] || item.weapon_name?.['es'] || '',
+            focusApplication: item.focus_application?.[lang] || item.focus_application?.['es'] || '',
+            tacticalQuote: item.tactical_quote?.[lang] || item.tactical_quote?.['es'] || '',
+            coinsPerPomodoro: item.coins_per_pomodoro,
+            pausePenaltyCoins: item.pause_penalty_coins,
+            bossDamagePoints: item.boss_damage_points,
+            bossHealPoints: item.boss_heal_points,
+            passiveName: item.passive_name?.[lang] || item.passive_name?.['es'] || '',
+            passiveAdvantage: item.passive_advantage?.[lang] || item.passive_advantage?.['es'] || '',
+            cost: item.cost_coins,
+            qualityId: item.required_quality_id || null,
+            qualityName: item.quality_name?.[lang] || item.quality_name?.['es'] || undefined,
+            qualityReq: item.quality_req?.[lang] || item.quality_req?.['es'] || undefined,
+            unlockTotal: item.required_quality_id === 'constancia' ? (item.id === 'tortuga_phase3' ? 75 : (item.id === 'tortuga_evolved' ? 30 : 7)) :
+                         (item.required_quality_id === 'disciplina' ? 15 : 5),
+            hasEvolution: item.has_evolution
+          };
+        });
+    }
 
-    return list.map(item => {
+    const mapped = dynamicList.map(item => {
       let isUnlocked = false;
       const quality = item.qualityId ? qualities.find(q => q.id === item.qualityId) : null;
       let displayReq = item.qualityReq || '';
 
-      if (item.type === 'inicial' && item.cost === 0) {
-        isUnlocked = true;
-      } else if (unlockedList.includes(item.id)) {
+      if (unlockedList.includes(item.id)) {
         isUnlocked = true;
       } else if (item.qualityId && quality) {
         const total = item.unlockTotal || quality.unlockTotal || 0;
@@ -2811,16 +2218,7 @@ export class Cualidades implements OnInit {
           isUnlocked = true;
         }
 
-        let taskName = '';
-        if (item.qualityId === 'vision') taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Normal`;
-        else if (item.qualityId === 'disciplina') taskName = `pomodoro${total > 1 ? 's' : ''} en total`;
-        else if (item.qualityId === 'constancia') taskName = `día${total > 1 ? 's' : ''} de racha consecutiva`;
-        else if (item.qualityId === 'colaboracion') taskName = `pomodoro${total > 1 ? 's' : ''} en modo comunitario`;
-        else if (item.qualityId === 'construccion') taskName = `meta${total > 1 ? 's' : ''} completada con 3 pomodoros consecutivos el mismo día`;
-        else if (item.qualityId === 'sabiduria') taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Pareto (80/20)`;
-        else if (item.qualityId === 'superacion') taskName = `pomodoro${total > 1 ? 's' : ''} con metodología Sapo/Rana completado`;
-
-        displayReq = `Demuestra la cualidad de ${quality.name}: completa ${total} ${taskName} (Progreso: ${progress}/${total}).`;
+        displayReq = item.qualityReq || `Demuestra la cualidad de ${quality.name}: ${quality.unlockRequirement} (Progreso: ${progress}/${total}).`;
       }
 
       return {
@@ -2831,12 +2229,39 @@ export class Cualidades implements OnInit {
         displayReq
       };
     });
+
+    const typeWeight: Record<string, number> = {
+      'inicial': 1,
+      'cualidad': 2,
+      'especial': 3,
+      'legendario': 4
+    };
+
+    return mapped.sort((a, b) => {
+      // 1. Disponibles / Desbloqueados primero (isUnlocked true antes de false)
+      if (a.isUnlocked !== b.isUnlocked) {
+        return a.isUnlocked ? -1 : 1;
+      }
+      // 2. Clasificación agrupada por Tipo (Iniciales -> Retos -> Cazadores -> Legendarios)
+      const weightA = typeWeight[a.type] || 99;
+      const weightB = typeWeight[b.type] || 99;
+      if (weightA !== weightB) {
+        return weightA - weightB;
+      }
+      // 3. Orden canónico dentro del grupo
+      const indexA = ALL_AVATARS_LIST.indexOf(a.id);
+      const indexB = ALL_AVATARS_LIST.indexOf(b.id);
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      return (a.cost || 0) - (b.cost || 0);
+    });
   });
 
   activeAvatar = computed(() => {
     const currentId = this.membership.selectedAvatar();
     const found = this.allAvatars().find(a => a.id === currentId);
-    return found || this.allAvatars()[0];
+    return found || this.allAvatars()[0] || ({} as ComunidadAvatar);
   });
 
   visibleAvatars = computed(() => {
