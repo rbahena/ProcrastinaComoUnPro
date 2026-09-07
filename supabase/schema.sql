@@ -1995,7 +1995,7 @@ CREATE TABLE IF NOT EXISTS public.community_bosses (
     -- status: Estado actual ('active' o 'defeated').
     status boss_status_enum NOT NULL DEFAULT 'active',
     -- community_shield: Puntos del escudo defensivo compartido (0 a 1000).
-    community_shield INTEGER NOT NULL DEFAULT 850 CHECK (community_shield >= 0 AND community_shield <= 1000),
+    community_shield INTEGER NOT NULL DEFAULT 1000 CHECK (community_shield >= 0 AND community_shield <= 1000),
     -- max_community_shield: Capacidad máxima del escudo colectivo.
     max_community_shield INTEGER NOT NULL DEFAULT 1000,
     -- defeat_reward_coins: Monedas otorgadas a los guerreros al vencerlo.
@@ -2055,14 +2055,14 @@ CREATE INDEX IF NOT EXISTS idx_community_boss_attacks_boss_date ON public.commun
 -- ------------------------------------------------------------------------------
 
 -- [TIPO DE OBJETO: SENTENCIA DML DE INSERCIÓN CON UPSERT (INSERT ... ON CONFLICT)]
--- ¿Qué es? Carga únicamente a La Sirena como oponente activo inicial del dojo.
+-- ¿Qué es? Carga únicamente a La Sirena como oponente activo inicial del dojo con 100% de vida (9000/9000 HP).
 -- ¿Nota de Extensibilidad? La tabla queda lista para recibir cualquier nuevo jefe que definas en el futuro.
 INSERT INTO public.community_bosses (
     id, boss_type, max_hp, current_hp, status, community_shield, max_community_shield,
     defeat_reward_coins, is_current_active, name, description
 ) VALUES
 (
-    'siren', 'siren', 9000, 6750, 'active', 850, 1000, 150, TRUE,
+    'siren', 'siren', 9000, 9000, 'active', 1000, 1000, 150, TRUE,
     '{"es": "La Sirena de las Distracciones", "en": "The Siren of Distractions"}',
     '{"es": "Canta con notificaciones y pestañas infinitas para romper tu concentración.", "en": "Sings with infinite notifications and tabs to break your focus."}'
 )
@@ -2070,6 +2070,8 @@ ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     description = EXCLUDED.description,
     max_hp = EXCLUDED.max_hp,
+    current_hp = EXCLUDED.current_hp,
+    community_shield = EXCLUDED.community_shield,
     defeat_reward_coins = EXCLUDED.defeat_reward_coins;
 
 -- ==============================================================================

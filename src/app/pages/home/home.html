@@ -44,9 +44,9 @@
       <!-- CONTENIDO CENTRAL -->
       <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: center; margin: 12px 0;">
         <div class="card-large-value">
-          {{ liveFocusedUsersCount() }} personas
+          {{ liveFocusedUsersCount() }} {{ liveFocusedUsersCount() === 1 ? 'persona' : 'personas' }}
         </div>
-        <div class="card-sub-desc">están trabajando.</div>
+        <div class="card-sub-desc">{{ liveFocusedUsersCount() === 1 ? 'está trabajando.' : (liveFocusedUsersCount() === 0 ? 'conectadas ahora.' : 'están trabajando.') }}</div>
       </div>
       
       <!-- FOOTER: Avatares en Vivo -->
@@ -207,11 +207,6 @@
             <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
             <div style="display: flex; align-items: center; gap: 4px;">
               <span class="card-large-value" style="font-size: 22px !important; margin-top: 0;">#{{ rankingPosition() }}</span>
-              <span *ngIf="liveRankShift() !== 0" 
-                    [style.color]="liveRankShift() < 0 ? 'var(--green)' : '#ef4444'" 
-                    style="font-size: 9px; font-weight: 950; display: inline-flex; align-items: center; gap: 1px;">
-                <i class="fa-solid" [class]="liveRankShift() < 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
-              </span>
             </div>
           </div>
 
@@ -296,8 +291,11 @@
 
           <!-- Preview de Compañeros (Avatar Stack y Texto descriptivo) -->
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 6px;">
-            <span style="font-size: 11px; color: var(--muted); font-weight: 500;">
-              Enfócate con <strong style="color: var(--text);">{{ featuredCompanionName() }}</strong> y <strong style="color: var(--accent);">+{{ Math.max(1, liveFocusedUsersCount() - 1) }}</strong> compañeros en vivo
+            <span style="font-size: 11px; color: var(--muted); font-weight: 500;" *ngIf="liveFocusedUsersCount() > 1">
+              Enfócate con <strong style="color: var(--text);">{{ featuredCompanionName() }}</strong> y <strong style="color: var(--accent);">+{{ liveFocusedUsersCount() - 1 }}</strong> compañeros en vivo
+            </span>
+            <span style="font-size: 11px; color: var(--muted); font-weight: 500;" *ngIf="liveFocusedUsersCount() <= 1">
+              Sesión activa para ti. ¡Sé el primero en liderar la jornada hoy!
             </span>
             
             <!-- Stack de Avatares -->
@@ -308,8 +306,9 @@
                    [style.left.px]="idx * 14"
                    [style.z-index]="3 - idx"
                    style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; background-size: cover; background-position: center;"></div>
-              <div style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 28px; z-index: 1; background: var(--accent); color: #000; font-size: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center;">
-                +{{ Math.max(1, liveFocusedUsersCount() - 2) }}
+              <div *ngIf="liveFocusedUsersCount() > 2"
+                   style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 28px; z-index: 1; background: var(--accent); color: #000; font-size: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center;">
+                +{{ liveFocusedUsersCount() - 2 }}
               </div>
             </div>
           </div>
@@ -358,7 +357,7 @@
           
           <!-- 2º Puesto (Izquierda) -->
           <div class="podio-column second-place custom-tooltip-host" 
-               [attr.data-tooltip]="rankingData()[0].name + ' consiguió ' + rankingData()[0].value + ' en el dojo'">
+               [attr.data-tooltip]="rankingData()[0].name === 'En disputa' ? 'Puesto en disputa disponible' : (rankingData()[0].name + ' consiguió ' + rankingData()[0].value)">
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
               <div class="podio-avatar avatar-sprite"
@@ -376,7 +375,7 @@
           <!-- 1º Puesto (Centro) -->
           <div class="podio-column first-place custom-tooltip-host" 
                style="transform: scale(1.05);"
-               [attr.data-tooltip]="rankingData()[1].name + ' lidera con ' + rankingData()[1].value + ' en el dojo'">
+               [attr.data-tooltip]="rankingData()[1].name === 'En disputa' ? 'Puesto en disputa disponible' : (rankingData()[1].name + ' lidera con ' + rankingData()[1].value)">
             <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 14px; margin-bottom: 4px; filter: drop-shadow(0 0 4px rgba(255,215,0,0.5));"></i>
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
@@ -394,7 +393,7 @@
 
           <!-- 3º Puesto (Derecha) -->
           <div class="podio-column third-place custom-tooltip-host" 
-               [attr.data-tooltip]="rankingData()[2].name + ' consiguió ' + rankingData()[2].value + ' en el dojo'">
+               [attr.data-tooltip]="rankingData()[2].name === 'En disputa' ? 'Puesto en disputa disponible' : (rankingData()[2].name + ' consiguió ' + rankingData()[2].value)">
             <!-- Avatar -->
             <div class="podio-avatar-wrapper">
               <div class="podio-avatar avatar-sprite"

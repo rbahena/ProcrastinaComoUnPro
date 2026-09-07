@@ -53,41 +53,23 @@ export class Home implements OnInit, OnDestroy {
   sidebarCollapsed!: any;
 
   // Métricas reales de la Comunidad
-  liveFocusedUsersCount = signal<number>(0);
+  liveFocusedUsersCount = signal<number>(1);
   liveCompletedObjectivesToday = signal<number>(0);
   liveUserRank = signal<number>(1);
-  totalCommunityUsers = signal<number>(74);
+  totalCommunityUsers = signal<number>(1);
 
-  // Fluctuación en vivo de ranking
-  private rankTimer: any = null;
+  // Realtime
   private realtimeChannel: any = null;
-  liveRankShift = signal(0);
   lastUpdated = signal('');
 
-  // Compañeros en vivo para avatar stack
-  liveCommunityUsers = signal<CommunityCompanionItem[]>([
-    { id: '1', name: 'Lobo Samurai', avatar: 'lobo', color: '#3a86f0', wins: 3 },
-    { id: '2', name: 'Zorro Ninja', avatar: 'zorro', color: '#ff007f', wins: 4 },
-    { id: '3', name: 'León Shogun', avatar: 'leon', color: '#e67e22', wins: 2 },
-    { id: '4', name: 'Búho Estratega', avatar: 'buho', color: '#9b59b6', wins: 1 },
-    { id: '5', name: 'Panda Ninja', avatar: 'panda', color: '#2ecc71', wins: 0 }
-  ]);
+  // Compañeros en vivo para avatar stack (inicia vacío y se llena con datos reales)
+  liveCommunityUsers = signal<CommunityCompanionItem[]>([]);
 
-  // Podio Semanal (Top 3 en orden [2º, 1º, 3º] para la UI)
-  topPodiumUsers = signal<PodiumDisplayItem[]>([
-    { position: 2, name: 'Lobo Samurai', avatar: 'lobo', color: '#3a86f0', value: '3,800 puntos', place: '2º', wins: 3 },
-    { position: 1, name: 'Dragón del Ego', avatar: 'dragon', color: '#d946ef', value: '4,500 puntos', place: '1º', wins: 5 },
-    { position: 3, name: 'Búho Sabio', avatar: 'buho', color: '#10b981', value: '3,100 puntos', place: '3º', wins: 1 }
-  ]);
+  // Podio Semanal (Top 3 real en orden [2º, 1º, 3º] para la UI)
+  topPodiumUsers = signal<PodiumDisplayItem[]>([]);
 
-  // Récords Históricos (Top 5 por Pomodoros)
-  topHistoricalRecords = signal<HistoricalRecordItem[]>([
-    { rank: 1, name: 'Dragón Imperial', avatar: 'dragon', color: '#a855f7', tomatoes: 142, wins: 5 },
-    { rank: 2, name: 'Lobo Samurai', avatar: 'lobo', color: '#3a86f0', tomatoes: 128, wins: 3 },
-    { rank: 3, name: 'Búho Sabio', avatar: 'buho', color: '#10b981', tomatoes: 105, wins: 1 },
-    { rank: 4, name: 'Zorro Ninja', avatar: 'zorro', color: '#ec4899', tomatoes: 94, wins: 4 },
-    { rank: 5, name: 'Panda Zen', avatar: 'panda', color: '#2ecc71', tomatoes: 81, wins: 2 }
-  ]);
+  // Récords Históricos (Top 5 real por Pomodoros)
+  topHistoricalRecords = signal<HistoricalRecordItem[]>([]);
 
   rankingData = computed(() => {
     return this.topPodiumUsers();
@@ -95,16 +77,17 @@ export class Home implements OnInit, OnDestroy {
 
   featuredCompanionName = computed(() => {
     const list = this.liveCommunityUsers();
-    return list.length > 0 ? list[0].name : 'un compañero';
+    return list.length > 0 ? list[0].name : this.userName();
   });
 
   rankingPosition = computed(() => {
-    return Math.max(1, this.liveUserRank() + this.liveRankShift());
+    return Math.max(1, this.liveUserRank());
   });
 
   percentageBeaten = computed(() => {
     const total = Math.max(1, this.totalCommunityUsers());
     const pos = this.rankingPosition();
+    if (total <= 1) return 100;
     return Math.min(99, Math.max(1, Math.round(((total - pos) / total) * 100)));
   });
 
@@ -202,34 +185,22 @@ export class Home implements OnInit, OnDestroy {
     // 1. Cargar datos del dashboard desde Supabase
     this.loadDashboardFromSupabase();
 
-    // 2. Suscribirse a cambios en tiempo real en la tabla profiles
+    // 2. Suscribirse a cambios en tiempo real en la tabla profiles y focus_sessions
     if (this.supabaseService.isConfigured()) {
       this.realtimeChannel = this.supabaseService.client
         .channel('public:profiles_home_dashboard')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
           this.loadDashboardFromSupabase();
         })
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'focus_sessions' }, () => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'focus_sessions' }, () => {
           this.loadDashboardFromSupabase();
         })
         .subscribe();
     }
-
-    // 3. Fluctuación sutil en vivo cada 15 segundos
-    this.rankTimer = setInterval(() => {
-      const randomShift = Math.floor(Math.random() * 3) - 1; // -1, 0, o 1
-      this.liveRankShift.update(current => {
-        return Math.max(-2, Math.min(2, current + randomShift));
-      });
-      this.updateLastUpdatedTime();
-    }, 15000);
   }
 
   ngOnDestroy() {
     this.stopTimerLoop();
-    if (this.rankTimer) {
-      clearInterval(this.rankTimer);
-    }
     if (this.realtimeChannel && this.supabaseService.isConfigured()) {
       this.supabaseService.client.removeChannel(this.realtimeChannel);
     }
@@ -237,46 +208,47 @@ export class Home implements OnInit, OnDestroy {
 
   async loadDashboardFromSupabase() {
     if (!this.supabaseService.isConfigured()) {
-      // Si Supabase no está configurado, arrancar animación con valores por defecto
-      this.animateCounter(this.liveFocusedUsersCount, 74);
-      this.animateCounter(this.liveCompletedObjectivesToday, 342);
+      const selfTomatoes = this.membership.focusTomatoes();
+      this.liveFocusedUsersCount.set(1);
+      this.liveCompletedObjectivesToday.set(0);
+      this.totalCommunityUsers.set(1);
+      this.processPodiumData([]);
+      this.processHistoricalRecords([]);
+      this.processRecentAvatars([]);
       return;
     }
 
     try {
       const { data, error } = await this.supabaseService.getCommunityHomeDashboard();
       if (error || !data) {
-        this.animateCounter(this.liveFocusedUsersCount, 74);
-        this.animateCounter(this.liveCompletedObjectivesToday, 342);
+        this.liveFocusedUsersCount.set(1);
+        this.liveCompletedObjectivesToday.set(0);
+        this.totalCommunityUsers.set(1);
+        this.processPodiumData([]);
+        this.processHistoricalRecords([]);
+        this.processRecentAvatars([]);
         return;
       }
 
-      // 1. Conteo de usuarios y sesiones completadas hoy
-      const realUsersCount = Math.max(data.total_users, 1);
-      const displayActiveUsers = Math.max(realUsersCount, Math.min(74, 45 + realUsersCount * 2));
-      const displayObjectives = Math.max(data.completed_today, Math.min(342, 110 + data.completed_today * 6));
+      // 1. Conteo REAL de usuarios y sesiones completadas hoy
+      const realUsersCount = Math.max(data.total_users || 0, 1);
+      const realObjectivesToday = data.completed_today || 0;
 
-      this.totalCommunityUsers.set(displayActiveUsers);
-      this.animateCounter(this.liveFocusedUsersCount, displayActiveUsers);
-      this.animateCounter(this.liveCompletedObjectivesToday, displayObjectives);
+      this.totalCommunityUsers.set(realUsersCount);
+      this.animateCounter(this.liveFocusedUsersCount, realUsersCount);
+      this.animateCounter(this.liveCompletedObjectivesToday, realObjectivesToday);
 
       // 2. Ranking real del usuario
       this.liveUserRank.set(data.user_rank || 1);
 
-      // 3. Podio Semanal (Top 3 de base de datos)
-      if (data.podium && data.podium.length > 0) {
-        this.processPodiumData(data.podium);
-      }
+      // 3. Podio Semanal (Top 3 real de base de datos)
+      this.processPodiumData(data.podium || []);
 
-      // 4. Récords Históricos (Top 5 de base de datos)
-      if (data.top_records && data.top_records.length > 0) {
-        this.processHistoricalRecords(data.top_records);
-      }
+      // 4. Récords Históricos (Top 5 real de base de datos)
+      this.processHistoricalRecords(data.top_records || []);
 
       // 5. Avatares recientes de la comunidad
-      if (data.recent_avatars && data.recent_avatars.length > 0) {
-        this.processRecentAvatars(data.recent_avatars);
-      }
+      this.processRecentAvatars(data.recent_avatars || []);
 
       this.updateLastUpdatedTime();
     } catch (e) {
@@ -285,118 +257,127 @@ export class Home implements OnInit, OnDestroy {
   }
 
   private processPodiumData(podiumUsers: CommunityLeaderboardUser[]) {
-    const defaults = [
-      { name: 'Dragón del Ego', avatar: 'dragon', points: 4500, wins: 5 },
-      { name: 'Lobo Samurai', avatar: 'lobo', points: 3800, wins: 3 },
-      { name: 'Búho Sabio', avatar: 'buho', points: 3100, wins: 1 }
-    ];
+    const myName = this.userName();
+    const myAvatar = this.selectedAvatar();
+    const myPoints = this.membership.focusPoints();
+    const myWins = this.membership.podiumWins();
 
-    const top3: Array<{ name: string; avatar: string; points: number; wins: number }> = [];
+    // Construir los 3 lugares del podio con datos reales
+    const firstUser = podiumUsers[0];
+    const secondUser = podiumUsers[1];
+    const thirdUser = podiumUsers[2];
 
-    for (let i = 0; i < 3; i++) {
-      if (podiumUsers[i]) {
-        top3.push({
-          name: podiumUsers[i].username || 'Guerrero',
-          avatar: podiumUsers[i].selected_avatar || 'gato',
-          points: podiumUsers[i].focus_points || 0,
-          wins: podiumUsers[i].podium_wins || 0
-        });
-      } else {
-        top3.push(defaults[i]);
-      }
-    }
+    const first: PodiumDisplayItem = firstUser ? {
+      position: 1,
+      name: firstUser.username || 'Guerrero',
+      avatar: firstUser.selected_avatar || 'gato',
+      color: this.membership.getAvatarColorById(firstUser.selected_avatar || 'gato'),
+      value: (firstUser.focus_points || 0) > 0 ? `${(firstUser.focus_points || 0).toLocaleString()} puntos` : `${firstUser.focus_points || 0} puntos`,
+      place: '1º',
+      wins: firstUser.podium_wins || 0
+    } : {
+      position: 1,
+      name: myName,
+      avatar: myAvatar,
+      color: this.getSelectedAvatarColor(),
+      value: myPoints > 0 ? `${myPoints.toLocaleString()} puntos` : '0 puntos',
+      place: '1º',
+      wins: myWins
+    };
 
-    // Ordenar de mayor a menor por puntos
-    top3.sort((a, b) => b.points - a.points);
+    const second: PodiumDisplayItem = secondUser ? {
+      position: 2,
+      name: secondUser.username || 'Guerrero',
+      avatar: secondUser.selected_avatar || 'gato',
+      color: this.membership.getAvatarColorById(secondUser.selected_avatar || 'gato'),
+      value: (secondUser.focus_points || 0) > 0 ? `${(secondUser.focus_points || 0).toLocaleString()} puntos` : '0 puntos',
+      place: '2º',
+      wins: secondUser.podium_wins || 0
+    } : {
+      position: 2,
+      name: 'En disputa',
+      avatar: 'lobo',
+      color: '#3a86f0',
+      value: 'Disponible',
+      place: '2º',
+      wins: 0
+    };
 
-    const first = top3[0];
-    const second = top3[1];
-    const third = top3[2];
+    const third: PodiumDisplayItem = thirdUser ? {
+      position: 3,
+      name: thirdUser.username || 'Guerrero',
+      avatar: thirdUser.selected_avatar || 'gato',
+      color: this.membership.getAvatarColorById(thirdUser.selected_avatar || 'gato'),
+      value: (thirdUser.focus_points || 0) > 0 ? `${(thirdUser.focus_points || 0).toLocaleString()} puntos` : '0 puntos',
+      place: '3º',
+      wins: thirdUser.podium_wins || 0
+    } : {
+      position: 3,
+      name: 'En disputa',
+      avatar: 'buho',
+      color: '#10b981',
+      value: 'Disponible',
+      place: '3º',
+      wins: 0
+    };
 
     // Formato requerido para la UI: [2º (izquierda), 1º (centro), 3º (derecha)]
-    this.topPodiumUsers.set([
-      {
-        position: 2,
-        name: second.name,
-        avatar: second.avatar,
-        color: this.membership.getAvatarColorById(second.avatar),
-        value: `${second.points.toLocaleString()} puntos`,
-        place: '2º',
-        wins: second.wins || 2
-      },
-      {
-        position: 1,
-        name: first.name,
-        avatar: first.avatar,
-        color: this.membership.getAvatarColorById(first.avatar),
-        value: `${first.points.toLocaleString()} puntos`,
-        place: '1º',
-        wins: first.wins || 5
-      },
-      {
-        position: 3,
-        name: third.name,
-        avatar: third.avatar,
-        color: this.membership.getAvatarColorById(third.avatar),
-        value: `${third.points.toLocaleString()} puntos`,
-        place: '3º',
-        wins: third.wins || 1
-      }
-    ]);
+    this.topPodiumUsers.set([second, first, third]);
   }
 
   private processHistoricalRecords(records: CommunityLeaderboardUser[]) {
-    const defaultMasters = [
-      { name: 'Dragón Imperial', avatar: 'dragon', tomatoes: 142, wins: 5 },
-      { name: 'Lobo Samurai', avatar: 'lobo', tomatoes: 128, wins: 3 },
-      { name: 'Búho Sabio', avatar: 'buho', tomatoes: 105, wins: 1 },
-      { name: 'Zorro Ninja', avatar: 'zorro', tomatoes: 94, wins: 4 },
-      { name: 'Panda Zen', avatar: 'panda', tomatoes: 81, wins: 2 }
-    ];
+    const list: HistoricalRecordItem[] = [];
 
-    const mergedList: HistoricalRecordItem[] = [];
-
-    for (let i = 0; i < 5; i++) {
-      if (records[i] && (records[i].focus_tomatoes || 0) > 0) {
-        mergedList.push({
-          rank: i + 1,
-          name: records[i].username || 'Guerrero',
-          avatar: records[i].selected_avatar || 'gato',
-          color: this.membership.getAvatarColorById(records[i].selected_avatar || 'gato'),
-          tomatoes: records[i].focus_tomatoes || 0,
-          wins: records[i].podium_wins || 0
+    if (records && records.length > 0) {
+      records.forEach((r, idx) => {
+        list.push({
+          rank: idx + 1,
+          name: r.username || 'Guerrero',
+          avatar: r.selected_avatar || 'gato',
+          color: this.membership.getAvatarColorById(r.selected_avatar || 'gato'),
+          tomatoes: r.focus_tomatoes || 0,
+          wins: r.podium_wins || 0
         });
-      } else {
-        const d = defaultMasters[i];
-        mergedList.push({
-          rank: i + 1,
-          name: d.name,
-          avatar: d.avatar,
-          color: this.membership.getAvatarColorById(d.avatar),
-          tomatoes: d.tomatoes,
-          wins: d.wins
-        });
-      }
+      });
+    } else {
+      // Si no hay otros usuarios, registrar al usuario actual con sus pomodoros reales
+      list.push({
+        rank: 1,
+        name: this.userName(),
+        avatar: this.selectedAvatar(),
+        color: this.getSelectedAvatarColor(),
+        tomatoes: this.membership.focusTomatoes(),
+        wins: this.membership.podiumWins()
+      });
     }
 
-    mergedList.sort((a, b) => b.tomatoes - a.tomatoes);
-    mergedList.forEach((r, idx) => r.rank = idx + 1);
-
-    this.topHistoricalRecords.set(mergedList);
+    this.topHistoricalRecords.set(list.slice(0, 5));
   }
 
   private processRecentAvatars(recent: CommunityLeaderboardUser[]) {
-    const list: CommunityCompanionItem[] = recent.map(u => ({
-      id: u.id,
-      name: u.username || 'Guerrero',
-      avatar: u.selected_avatar || 'gato',
-      color: this.membership.getAvatarColorById(u.selected_avatar || 'gato'),
-      wins: u.podium_wins || 0
-    }));
+    const list: CommunityCompanionItem[] = [];
 
-    if (list.length > 0) {
-      this.liveCommunityUsers.set(list);
+    if (recent && recent.length > 0) {
+      recent.forEach(u => {
+        list.push({
+          id: u.id,
+          name: u.username || 'Guerrero',
+          avatar: u.selected_avatar || 'gato',
+          color: this.membership.getAvatarColorById(u.selected_avatar || 'gato'),
+          wins: u.podium_wins || 0
+        });
+      });
+    } else {
+      list.push({
+        id: 'self',
+        name: this.userName(),
+        avatar: this.selectedAvatar(),
+        color: this.getSelectedAvatarColor(),
+        wins: this.membership.podiumWins()
+      });
     }
+
+    this.liveCommunityUsers.set(list);
   }
 
   private animateCounter(targetSignal: WritableSignal<number>, targetValue: number, duration: number = 1200) {

@@ -60,12 +60,12 @@ export class ComunidadBossService {
   activeBoss = signal<ComunidadBoss>({
     name: 'La Sirena de las Distracciones',
     maxHp: 9000,
-    currentHp: 6750,
+    currentHp: 9000,
     type: 'siren',
     status: 'active'
   });
 
-  comunidadShield = signal<number>(850);
+  comunidadShield = signal<number>(1000);
   maxComunidadShield = 1000;
 
   // Active weapon state
@@ -88,7 +88,7 @@ export class ComunidadBossService {
   ]);
 
   // Accrued boss damage dealt by the user
-  userDamageDealt = signal<number>(1450);
+  userDamageDealt = signal<number>(0);
 
   // Tracks if the boss card is currently being hit to trigger UI flashing
   isUnderAttack = signal<boolean>(false);
@@ -111,10 +111,24 @@ export class ComunidadBossService {
       try {
         const parsed = JSON.parse(saved);
         if (parsed.boss && parsed.boss.type === 'siren') {
-          this.activeBoss.set(parsed.boss);
-          this.comunidadShield.set(parsed.shield || 850);
-          if (parsed.logs) this.bossLogs.set(parsed.logs);
-          if (parsed.userDamageDealt !== undefined) this.userDamageDealt.set(parsed.userDamageDealt);
+          // Limpiar valores mock/demo guardados previamente en caché
+          if (parsed.userDamageDealt === 1450 || parsed.boss.currentHp === 6750 || parsed.shield === 850) {
+            this.activeBoss.set({
+              name: 'La Sirena de las Distracciones',
+              maxHp: 9000,
+              currentHp: 9000,
+              type: 'siren',
+              status: 'active'
+            });
+            this.comunidadShield.set(1000);
+            this.userDamageDealt.set(0);
+            this.saveState();
+          } else {
+            this.activeBoss.set(parsed.boss);
+            this.comunidadShield.set(parsed.shield || 1000);
+            if (parsed.logs) this.bossLogs.set(parsed.logs);
+            if (parsed.userDamageDealt !== undefined) this.userDamageDealt.set(parsed.userDamageDealt);
+          }
         } else {
           this.saveState();
         }
@@ -128,6 +142,57 @@ export class ComunidadBossService {
     // Load active weapon
     const activeWeapon = localStorage.getItem('active-weapon-id') || 'katana_wood';
     this.activeWeaponId.set(activeWeapon);
+
+    // Cargar y sincronizar con Supabase
+    this.loadBossFromSupabase();
+    this.setupRealtime();
+  }
+
+  async loadBossFromSupabase() {
+    if (!this.supabaseService.isConfigured()) return;
+
+    try {
+      const { boss, error } = await this.supabaseService.getActiveBoss();
+      if (!error && boss) {
+        const bossName = typeof boss.name === 'object' ? (boss.name.es || 'La Sirena') : boss.name;
+        this.activeBoss.set({
+          name: bossName,
+          maxHp: boss.max_hp,
+          currentHp: boss.current_hp,
+          type: (boss.boss_type || 'siren') as any,
+          status: boss.status
+        });
+        this.comunidadShield.set(boss.community_shield ?? 1000);
+        this.saveState();
+      }
+    } catch (e) {
+      console.warn('[ComunidadBossService load error]', e);
+    }
+  }
+
+  private setupRealtime() {
+    if (!this.supabaseService.isConfigured()) return;
+
+    this.supabaseService.client
+      .channel('public:community_bosses_live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'community_bosses' }, (payload: any) => {
+        if (payload.new) {
+          const row = payload.new;
+          const bossName = typeof row.name === 'object' ? (row.name.es || 'La Sirena') : row.name;
+          this.activeBoss.set({
+            name: bossName,
+            maxHp: row.max_hp,
+            currentHp: row.current_hp,
+            type: (row.boss_type || 'siren') as any,
+            status: row.status
+          });
+          if (row.community_shield !== undefined) {
+            this.comunidadShield.set(row.community_shield);
+          }
+          this.saveState();
+        }
+      })
+      .subscribe();
   }
 
   private saveState() {
@@ -161,7 +226,7 @@ export class ComunidadBossService {
     this.activeBoss.update(boss => {
       // If the current boss has already been defeated or type is different, spawn new/matching boss
       if (boss.type !== config.type || boss.status === 'defeated') {
-        const newHp = Math.round(config.maxHp * 0.75); // Start at 75% for demo
+        const newHp = config.maxHp;
         this.addLog(`👾 Ha aparecido un nuevo oponente: ${config.name}.`);
         return {
           name: config.name,
