@@ -47,3 +47,10 @@ Thumbs.db
 features-log.md
 plan_*.md
 plan_sistema_guardianes_gamificacion.md
+
+# Environments and API Keys (Supabase Secrets)
+src/environments/environment.ts
+src/environments/environment.development.ts
+src/environments/environment.*.ts
+!src/environments/environment.example.ts
+

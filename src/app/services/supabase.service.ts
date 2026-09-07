@@ -48,11 +48,17 @@ export class SupabaseService {
 
     // Escuchar cambios de sesión de Supabase
     if (this.isConfigured()) {
-      this.supabase.auth.getSession().then(({ data: { session } }) => {
-        this.currentSession.set(session);
-        this.currentUser.set(session?.user || null);
-        this.isLoadingAuth.set(false);
-      });
+      this.supabase.auth.getSession()
+        .then(({ data }) => {
+          this.currentSession.set(data?.session || null);
+          this.currentUser.set(data?.session?.user || null);
+          this.isLoadingAuth.set(false);
+        })
+        .catch(() => {
+          this.currentSession.set(null);
+          this.currentUser.set(null);
+          this.isLoadingAuth.set(false);
+        });
 
       this.supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
         this.currentSession.set(session);
