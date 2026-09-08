@@ -4161,40 +4161,38 @@
 
         <!-- Opciones de Batería -->
         <div class="energy-options-list">
-          <!-- Opción 1: Baja (10 min) -->
+          <!-- Opción 1: Baja (10 min) - La Llama / Fogata -->
           <button (click)="setEnergyLevel('low'); showEnergyModal.set(false)"
                   type="button"
                   class="energy-option-btn"
                   [style.background]="energyLevel() === 'low' ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255, 255, 255, 0.03)'"
                   [style.borderColor]="energyLevel() === 'low' ? '#ef4444' : 'rgba(255, 255, 255, 0.1)'">
             
-            <!-- Ilustración Animada de Fondo: Reactor / Tracción -->
-            <div class="energy-card-backdrop energy-art-thruster">
+            <!-- Ilustración Animada de Fondo: La Llama / Fogata y Brasas -->
+            <div class="energy-card-backdrop energy-art-fire">
               <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="energy-svg-art">
                 <defs>
-                  <radialGradient id="thrusterGlow10m" cx="70%" cy="50%" r="60%">
-                    <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.5"/>
+                  <radialGradient id="fireGlow10m" cx="70%" cy="60%" r="60%">
+                    <stop offset="0%" stop-color="#ff7a00" stop-opacity="0.45"/>
                     <stop offset="60%" stop-color="#ef4444" stop-opacity="0.15"/>
                     <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
                   </radialGradient>
-                  <linearGradient id="rocketBodyGrad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="#fda4af"/>
-                    <stop offset="100%" stop-color="#e11d48"/>
+                  <linearGradient id="flameGrad10m" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stop-color="#ef4444"/>
+                    <stop offset="50%" stop-color="#f97316"/>
+                    <stop offset="100%" stop-color="#fef08a"/>
                   </linearGradient>
                 </defs>
-                <circle cx="115" cy="60" r="50" fill="url(#thrusterGlow10m)" class="anim-glow-pulse" />
-                <circle cx="115" cy="60" r="22" stroke="#f43f5e" stroke-width="1.5" opacity="0.4" class="anim-shockwave s1" />
-                <circle cx="115" cy="60" r="34" stroke="#f43f5e" stroke-width="1.2" opacity="0.25" class="anim-shockwave s2" />
-                <circle cx="115" cy="60" r="46" stroke="#f43f5e" stroke-width="1" opacity="0.15" class="anim-shockwave s3" />
-                <g class="anim-turbine-core" transform="translate(115, 60)">
-                  <polygon points="0,-24 16,14 0,8 -16,14" fill="url(#rocketBodyGrad)" opacity="0.9"/>
-                  <circle cx="0" cy="4" r="5" fill="#ffe4e6"/>
-                  <circle cx="0" cy="4" r="2.5" fill="#f43f5e"/>
-                  <path d="M-6 10 Q0 26 6 10 Z" fill="#fb7185" class="anim-exhaust"/>
-                </g>
-                <line x1="85" y1="36" x2="65" y2="36" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" class="anim-streak st1" />
-                <line x1="80" y1="60" x2="52" y2="60" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round" class="anim-streak st2" />
-                <line x1="88" y1="84" x2="70" y2="84" stroke="#f43f5e" stroke-width="1.8" stroke-linecap="round" class="anim-streak st3" />
+                <circle cx="115" cy="65" r="50" fill="url(#fireGlow10m)" class="anim-glow-pulse" />
+                <path d="M92 92 L138 68" stroke="#78350f" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
+                <path d="M92 68 L138 92" stroke="#451a03" stroke-width="4.5" stroke-linecap="round" opacity="0.7"/>
+                <path class="anim-flame-outer" d="M115 28 C125 45 138 55 135 76 C132 92 118 96 115 96 C106 96 95 90 95 76 C95 56 108 45 115 28 Z" fill="url(#flameGrad10m)" opacity="0.85"/>
+                <path class="anim-flame-inner" d="M115 46 C121 57 127 65 125 78 C123 88 116 90 115 90 C110 90 104 86 104 78 C104 65 111 57 115 46 Z" fill="#fef08a" opacity="0.95"/>
+                <circle cx="118" cy="40" r="2.2" fill="#fde047" class="anim-ember e1" />
+                <circle cx="106" cy="34" r="1.6" fill="#fb923c" class="anim-ember e2" />
+                <circle cx="126" cy="24" r="1.8" fill="#fef08a" class="anim-ember e3" />
+                <circle cx="112" cy="18" r="1.4" fill="#f97316" class="anim-ember e4" />
+                <circle cx="132" cy="48" r="1.2" fill="#fef08a" class="anim-ember e5" />
               </svg>
             </div>
 
@@ -4334,43 +4332,21 @@
           </button>
         </div>
 
-        <!-- Reto de 5 min micro-bloque -->
+        <!-- Reto de 5 min micro-bloque: El Chasquido Mental & Despertar SSJ2 (Romper la inercia) -->
         <button (click)="startFreeExit5MinChallenge(); showEnergyModal.set(false)"
                 type="button"
                 class="energy-challenge-btn"
-                title="Micro-bloque de 5 minutos para vencer la inercia">
+                title="Micro-bloque de 5 minutos para romper la inercia mental">
           
-          <!-- Ilustración Animada de Fondo: La Chispa y Fogata -->
-          <div class="energy-card-backdrop energy-art-fire">
-            <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="energy-svg-art">
-              <defs>
-                <radialGradient id="fireGlow5m" cx="70%" cy="60%" r="60%">
-                  <stop offset="0%" stop-color="#ff7a00" stop-opacity="0.45"/>
-                  <stop offset="60%" stop-color="#ef4444" stop-opacity="0.15"/>
-                  <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
-                </radialGradient>
-                <linearGradient id="flameGrad5m" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="0%" stop-color="#ef4444"/>
-                  <stop offset="50%" stop-color="#f97316"/>
-                  <stop offset="100%" stop-color="#fef08a"/>
-                </linearGradient>
-              </defs>
-              <circle cx="115" cy="65" r="50" fill="url(#fireGlow5m)" class="anim-glow-pulse" />
-              <path d="M92 92 L138 68" stroke="#78350f" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
-              <path d="M92 68 L138 92" stroke="#451a03" stroke-width="4.5" stroke-linecap="round" opacity="0.7"/>
-              <path class="anim-flame-outer" d="M115 28 C125 45 138 55 135 76 C132 92 118 96 115 96 C106 96 95 90 95 76 C95 56 108 45 115 28 Z" fill="url(#flameGrad5m)" opacity="0.85"/>
-              <path class="anim-flame-inner" d="M115 46 C121 57 127 65 125 78 C123 88 116 90 115 90 C110 90 104 86 104 78 C104 65 111 57 115 46 Z" fill="#fef08a" opacity="0.95"/>
-              <circle cx="118" cy="40" r="2.2" fill="#fde047" class="anim-ember e1" />
-              <circle cx="106" cy="34" r="1.6" fill="#fb923c" class="anim-ember e2" />
-              <circle cx="126" cy="24" r="1.8" fill="#fef08a" class="anim-ember e3" />
-              <circle cx="112" cy="18" r="1.4" fill="#f97316" class="anim-ember e4" />
-              <circle cx="132" cy="48" r="1.2" fill="#fef08a" class="anim-ember e5" />
-            </svg>
+          <!-- Ilustración Animada de Fondo: GIF Anime Gohan SSJ2 Snap con Fundido Cinematográfico -->
+          <div class="energy-card-backdrop energy-art-gif-container">
+            <img src="assets/images/gohan_snap.gif" alt="Gohan SSJ2 Snap" class="energy-gohan-gif" />
+            <div class="energy-gif-electric-overlay"></div>
           </div>
 
           <div class="energy-challenge-content">
             <div style="display: flex; align-items: flex-start; gap: 10px;">
-              <span style="font-size: 1.25em; line-height: 1.2;">🔥</span>
+              <span style="font-size: 1.25em; line-height: 1.2;">⚡</span>
               <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
                 <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
                   ¿Te cuesta arrancar? <strong>Micro-arranque · 5 min</strong>
