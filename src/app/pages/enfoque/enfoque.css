@@ -3926,7 +3926,7 @@
 
 .energy-challenge-btn {
   background: rgba(255, 255, 255, 0.03);
-  border: 1.5px dashed rgba(255, 255, 255, 0.25);
+  border: 1.5px dashed rgba(255, 255, 255, 0.22);
   border-radius: 12px;
   padding: clamp(10px, 2.2vw, 14px) clamp(12px, 2.8vw, 16px);
   color: #e2e8f0;
@@ -3937,16 +3937,15 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
   font-family: inherit;
   text-align: center;
 }
 
 .energy-challenge-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(99, 102, 241, 0.08);
-  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
 }
 
 .energy-modal-footer {
@@ -4476,28 +4475,26 @@
   pointer-events: none;
   z-index: 1;
   overflow: hidden;
-  opacity: 0.5;
-  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.85) 50%, black 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.85) 50%, black 100%);
+  opacity: 0.24; /* Discreto y elegante */
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 25%, rgba(0,0,0,0.75) 65%, black 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 25%, rgba(0,0,0,0.75) 65%, black 100%);
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
 
-.energy-challenge-btn:hover .energy-art-gif-container,
-.energy-option-btn:hover .energy-art-gif-container {
-  opacity: 0.88;
-  transform: scale(1.04);
+.energy-challenge-btn:hover .energy-art-gif-container {
+  opacity: 0.48;
+  transform: scale(1.02);
 }
 
-.energy-gohan-gif,
-.energy-goku-gif {
+.energy-gohan-gif {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center right;
-  filter: contrast(1.15) brightness(1.05) saturate(1.1);
+  filter: contrast(1.08) brightness(0.95) saturate(1.05);
   border-radius: 0 12px 12px 0;
 }
 
@@ -4505,15 +4502,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 70% 50%, rgba(56, 189, 248, 0.2), transparent 75%);
-  mix-blend-mode: screen;
-}
-
-.energy-gif-ssj3-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 70% 50%, rgba(245, 158, 11, 0.25), transparent 75%);
+  background: radial-gradient(circle at 75% 50%, rgba(255, 255, 255, 0.08), transparent 70%);
   mix-blend-mode: screen;
 }
 
