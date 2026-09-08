@@ -4167,21 +4167,54 @@
                   class="energy-option-btn"
                   [style.background]="energyLevel() === 'low' ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255, 255, 255, 0.03)'"
                   [style.borderColor]="energyLevel() === 'low' ? '#ef4444' : 'rgba(255, 255, 255, 0.1)'">
-            <div style="display: flex; align-items: flex-start; gap: 12px;">
-              <span class="energy-option-dot" style="background: #ef4444; box-shadow: 0 0 8px #ef4444; margin-top: 5px;"></span>
-              <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
-                <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
-                  ¿Poca motivación? <strong>Arranque suave · 10 min</strong>
-                </span>
-                <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
-                  Construye tracción y vence la fricción inicial.
-                </span>
-                <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
-                  🪙 +2 monedas · Este tiempo no cuenta como Pomodoro
-                </span>
-              </div>
+            
+            <!-- Ilustración Animada de Fondo: Reactor / Tracción -->
+            <div class="energy-card-backdrop energy-art-thruster">
+              <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="energy-svg-art">
+                <defs>
+                  <radialGradient id="thrusterGlow10m" cx="70%" cy="50%" r="60%">
+                    <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.5"/>
+                    <stop offset="60%" stop-color="#ef4444" stop-opacity="0.15"/>
+                    <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="rocketBodyGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#fda4af"/>
+                    <stop offset="100%" stop-color="#e11d48"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="115" cy="60" r="50" fill="url(#thrusterGlow10m)" class="anim-glow-pulse" />
+                <circle cx="115" cy="60" r="22" stroke="#f43f5e" stroke-width="1.5" opacity="0.4" class="anim-shockwave s1" />
+                <circle cx="115" cy="60" r="34" stroke="#f43f5e" stroke-width="1.2" opacity="0.25" class="anim-shockwave s2" />
+                <circle cx="115" cy="60" r="46" stroke="#f43f5e" stroke-width="1" opacity="0.15" class="anim-shockwave s3" />
+                <g class="anim-turbine-core" transform="translate(115, 60)">
+                  <polygon points="0,-24 16,14 0,8 -16,14" fill="url(#rocketBodyGrad)" opacity="0.9"/>
+                  <circle cx="0" cy="4" r="5" fill="#ffe4e6"/>
+                  <circle cx="0" cy="4" r="2.5" fill="#f43f5e"/>
+                  <path d="M-6 10 Q0 26 6 10 Z" fill="#fb7185" class="anim-exhaust"/>
+                </g>
+                <line x1="85" y1="36" x2="65" y2="36" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" class="anim-streak st1" />
+                <line x1="80" y1="60" x2="52" y2="60" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round" class="anim-streak st2" />
+                <line x1="88" y1="84" x2="70" y2="84" stroke="#f43f5e" stroke-width="1.8" stroke-linecap="round" class="anim-streak st3" />
+              </svg>
             </div>
-            <i *ngIf="energyLevel() === 'low'" class="fa-solid fa-circle-check" style="color: #ef4444; font-size: clamp(14px, 3vw, 17px); flex-shrink: 0; align-self: center;"></i>
+
+            <div class="energy-option-content">
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <span class="energy-option-dot" style="background: #ef4444; box-shadow: 0 0 8px #ef4444; margin-top: 5px;"></span>
+                <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
+                  <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
+                    ¿Poca motivación? <strong>Arranque suave · 10 min</strong>
+                  </span>
+                  <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
+                    Construye tracción y vence la fricción inicial.
+                  </span>
+                  <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
+                    🪙 +2 monedas · Este tiempo no cuenta como Pomodoro
+                  </span>
+                </div>
+              </div>
+              <i *ngIf="energyLevel() === 'low'" class="fa-solid fa-circle-check" style="color: #ef4444; font-size: clamp(14px, 3vw, 17px); flex-shrink: 0; align-self: center;"></i>
+            </div>
           </button>
 
           <!-- Opción 2: Media (25 min) -->
@@ -4190,21 +4223,56 @@
                   class="energy-option-btn"
                   [style.background]="energyLevel() === 'medium' ? 'rgba(245, 158, 11, 0.18)' : 'rgba(255, 255, 255, 0.03)'"
                   [style.borderColor]="energyLevel() === 'medium' ? '#f59e0b' : 'rgba(255, 255, 255, 0.1)'">
-            <div style="display: flex; align-items: flex-start; gap: 12px;">
-              <span class="energy-option-dot" style="background: #f59e0b; box-shadow: 0 0 8px #f59e0b; margin-top: 5px;"></span>
-              <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
-                <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
-                  Ritmo clásico · 25 min
-                </span>
-                <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
-                  El bloque estándar de enfoque y balance.
-                </span>
-                <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
-                  🪙 Recompensas según tu avatar
-                </span>
-              </div>
+            
+            <!-- Ilustración Animada de Fondo: Reloj Rúnico / Zen Balance -->
+            <div class="energy-card-backdrop energy-art-balance">
+              <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="energy-svg-art">
+                <defs>
+                  <radialGradient id="balanceGlow25m" cx="70%" cy="50%" r="60%">
+                    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/>
+                    <stop offset="60%" stop-color="#d97706" stop-opacity="0.15"/>
+                    <stop offset="100%" stop-color="#b45309" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="goldGrad25m" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#fef08a"/>
+                    <stop offset="100%" stop-color="#f59e0b"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="115" cy="60" r="50" fill="url(#balanceGlow25m)" class="anim-glow-pulse" />
+                <circle cx="115" cy="60" r="36" stroke="url(#goldGrad25m)" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.65" class="anim-rune-spin" />
+                <circle cx="115" cy="60" r="28" stroke="#fef08a" stroke-width="1" stroke-opacity="0.4" />
+                <g transform="translate(115, 60)" class="anim-hourglass-float">
+                  <path d="M-14 -20 L14 -20 L9 -6 Q0 0 -9 -6 Z" fill="none" stroke="url(#goldGrad25m)" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M-9 6 Q0 0 9 6 L14 20 L-14 20 Z" fill="none" stroke="url(#goldGrad25m)" stroke-width="2" stroke-linejoin="round"/>
+                  <line x1="-16" y1="-21" x2="16" y2="-21" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="-16" y1="21" x2="16" y2="21" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M-8 -15 L8 -15 L0 -2 Z" fill="#fde047" opacity="0.75"/>
+                  <line x1="0" y1="-2" x2="0" y2="12" stroke="#fef08a" stroke-width="1.8" stroke-dasharray="2 2" class="anim-sand-stream"/>
+                  <path d="M-10 19 Q0 12 10 19 Z" fill="#fde047" opacity="0.9"/>
+                </g>
+                <circle cx="86" cy="42" r="1.5" fill="#fef08a" class="anim-sparkle sp1" />
+                <circle cx="144" cy="38" r="1.8" fill="#fef08a" class="anim-sparkle sp2" />
+                <circle cx="138" cy="84" r="1.4" fill="#fef08a" class="anim-sparkle sp3" />
+              </svg>
             </div>
-            <i *ngIf="energyLevel() === 'medium'" class="fa-solid fa-circle-check" style="color: #f59e0b; font-size: clamp(14px, 3vw, 17px); flex-shrink: 0; align-self: center;"></i>
+
+            <div class="energy-option-content">
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <span class="energy-option-dot" style="background: #f59e0b; box-shadow: 0 0 8px #f59e0b; margin-top: 5px;"></span>
+                <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
+                  <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
+                    Ritmo clásico · 25 min
+                  </span>
+                  <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
+                    El bloque estándar de enfoque y balance.
+                  </span>
+                  <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
+                    🪙 Recompensas según tu avatar
+                  </span>
+                </div>
+              </div>
+              <i *ngIf="energyLevel() === 'medium'" class="fa-solid fa-circle-check" style="color: #f59e0b; font-size: clamp(14px, 3vw, 17px); flex-shrink: 0; align-self: center;"></i>
+            </div>
           </button>
 
           <!-- Opción 3: Alta (45 min) -->
@@ -4213,21 +4281,56 @@
                   class="energy-option-btn"
                   [style.background]="energyLevel() === 'high' ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255, 255, 255, 0.03)'"
                   [style.borderColor]="energyLevel() === 'high' ? '#10b981' : 'rgba(255, 255, 255, 0.1)'">
-            <div style="display: flex; align-items: flex-start; gap: 12px;">
-              <span class="energy-option-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981; margin-top: 5px;"></span>
-              <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
-                <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
-                  ¿Alta energía? <strong>Modo Flow · 45 min</strong>
-                </span>
-                <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
-                  Inmersión total sin interrupciones.
-                </span>
-                <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
-                  🪙 Recompensas según tu avatar
-                </span>
-              </div>
+            
+            <!-- Ilustración Animada de Fondo: Portal Cósmico / Modo Flow -->
+            <div class="energy-card-backdrop energy-art-flow">
+              <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="energy-svg-art">
+                <defs>
+                  <radialGradient id="flowGlow45m" cx="70%" cy="50%" r="65%">
+                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.55"/>
+                    <stop offset="40%" stop-color="#06b6d4" stop-opacity="0.3"/>
+                    <stop offset="80%" stop-color="#6366f1" stop-opacity="0.1"/>
+                    <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="cosmicGrad45m" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#6ee7b7"/>
+                    <stop offset="50%" stop-color="#2dd4bf"/>
+                    <stop offset="100%" stop-color="#818cf8"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="115" cy="60" r="52" fill="url(#flowGlow45m)" class="anim-glow-pulse" />
+                <g class="anim-galaxy-vortex" transform="translate(115, 60)">
+                  <ellipse cx="0" cy="0" rx="38" ry="16" transform="rotate(-25)" stroke="url(#cosmicGrad45m)" stroke-width="1.5" stroke-dasharray="8 5" opacity="0.7"/>
+                  <ellipse cx="0" cy="0" rx="28" ry="11" transform="rotate(40)" stroke="#a7f3d0" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.6"/>
+                  <ellipse cx="0" cy="0" rx="18" ry="8" transform="rotate(105)" stroke="#67e8f9" stroke-width="1" opacity="0.5"/>
+                  <circle cx="0" cy="0" r="7" fill="#ecfdf5" class="anim-portal-core" />
+                  <circle cx="0" cy="0" r="3.5" fill="#10b981" />
+                </g>
+                <polygon points="115,16 117,21 122,23 117,25 115,30 113,25 108,23 113,21" fill="#ecfdf5" class="anim-twinkle-star t1" />
+                <polygon points="82,48 83,51 86,52 83,53 82,56 81,53 78,52 81,51" fill="#6ee7b7" class="anim-twinkle-star t2" />
+                <polygon points="146,72 147,75 150,76 147,77 146,80 145,77 142,76 145,75" fill="#a7f3d0" class="anim-twinkle-star t3" />
+                <circle cx="92" cy="78" r="1.5" fill="#ecfdf5" class="anim-twinkle-star t4" />
+                <circle cx="138" cy="32" r="1.3" fill="#67e8f9" class="anim-twinkle-star t5" />
+              </svg>
             </div>
-            <i *ngIf="energyLevel() === 'high'" class="fa-solid fa-circle-check" style="color: #10b981; font-size: clamp(14px, 3vw, 17px); flex-shrink: 0; align-self: center;"></i>
+
+            <div class="energy-option-content">
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <span class="energy-option-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981; margin-top: 5px;"></span>
+                <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
+                  <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
+                    ¿Alta energía? <strong>Modo Flow · 45 min</strong>
+                  </span>
+                  <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
+                    Inmersión total sin interrupciones.
+                  </span>
+                  <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
+                    🪙 Recompensas según tu avatar
+                  </span>
+                </div>
+              </div>
+              <i *ngIf="energyLevel() === 'high'" class="fa-solid fa-circle-check" style="color: #10b981; font-size: clamp(14px, 3vw, 17px); flex-shrink: 0; align-self: center;"></i>
+            </div>
           </button>
         </div>
 
@@ -4236,7 +4339,36 @@
                 type="button"
                 class="energy-challenge-btn"
                 title="Micro-bloque de 5 minutos para vencer la inercia">
-          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 12px;">
+          
+          <!-- Ilustración Animada de Fondo: La Chispa y Fogata -->
+          <div class="energy-card-backdrop energy-art-fire">
+            <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="energy-svg-art">
+              <defs>
+                <radialGradient id="fireGlow5m" cx="70%" cy="60%" r="60%">
+                  <stop offset="0%" stop-color="#ff7a00" stop-opacity="0.45"/>
+                  <stop offset="60%" stop-color="#ef4444" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="flameGrad5m" x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0%" stop-color="#ef4444"/>
+                  <stop offset="50%" stop-color="#f97316"/>
+                  <stop offset="100%" stop-color="#fef08a"/>
+                </linearGradient>
+              </defs>
+              <circle cx="115" cy="65" r="50" fill="url(#fireGlow5m)" class="anim-glow-pulse" />
+              <path d="M92 92 L138 68" stroke="#78350f" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
+              <path d="M92 68 L138 92" stroke="#451a03" stroke-width="4.5" stroke-linecap="round" opacity="0.7"/>
+              <path class="anim-flame-outer" d="M115 28 C125 45 138 55 135 76 C132 92 118 96 115 96 C106 96 95 90 95 76 C95 56 108 45 115 28 Z" fill="url(#flameGrad5m)" opacity="0.85"/>
+              <path class="anim-flame-inner" d="M115 46 C121 57 127 65 125 78 C123 88 116 90 115 90 C110 90 104 86 104 78 C104 65 111 57 115 46 Z" fill="#fef08a" opacity="0.95"/>
+              <circle cx="118" cy="40" r="2.2" fill="#fde047" class="anim-ember e1" />
+              <circle cx="106" cy="34" r="1.6" fill="#fb923c" class="anim-ember e2" />
+              <circle cx="126" cy="24" r="1.8" fill="#fef08a" class="anim-ember e3" />
+              <circle cx="112" cy="18" r="1.4" fill="#f97316" class="anim-ember e4" />
+              <circle cx="132" cy="48" r="1.2" fill="#fef08a" class="anim-ember e5" />
+            </svg>
+          </div>
+
+          <div class="energy-challenge-content">
             <div style="display: flex; align-items: flex-start; gap: 10px;">
               <span style="font-size: 1.25em; line-height: 1.2;">🔥</span>
               <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
