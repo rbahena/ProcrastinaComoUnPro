@@ -3,14 +3,61 @@
 
     <app-navbar></app-navbar>
 
-    <!-- Fondo de Pantalla Zen Dinámico (Imágenes) - Se oculta completamente durante la cuenta regresiva -->
+    <!-- Fondo de Pantalla Zen Dinámico (Imágenes / Videos Lofi HD en Bucle Invisible) - Se oculta completamente durante la cuenta regresiva -->
     <div *ngIf="useFairyBackground() && arenaState() !== 'countdown' && timerStyle() !== 'airplane' && timerStyle() !== 'lighthouse' && timerStyle() !== 'titanic'"
          class="zen-bg-container"
          [class.bg-forest-campfire]="activeBackground() === 'forest_campfire'"
          [class.bg-space-cosmos]="activeBackground() === 'lofi_space_cosmos'"
          [class.bg-titanic-midnight]="activeBackground() === 'lofi_titanic_ocean'"
          [class.bg-lighthouse-night]="activeBackground() === 'lofi_lighthouse_ocean'"
-         [style.backgroundImage]="activeBackground() === 'lofi_space_cosmos' ? 'linear-gradient(rgba(5, 5, 10, 0.12), rgba(5, 5, 10, 0.28)), url(\'' + backgroundUrl() + '\')' : 'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\')'">
+         [style.backgroundImage]="isVideoBackground() ? 'none' : (activeBackground() === 'lofi_space_cosmos' ? 'linear-gradient(rgba(5, 5, 10, 0.12), rgba(5, 5, 10, 0.28)), url(\'' + backgroundUrl() + '\')' : 'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\')')">
+      
+      <!-- Capa de Fondo de Respaldo -->
+      <div *ngIf="isVideoBackground()" class="zen-bg-ambient-backdrop" [style.backgroundImage]="'url(' + backgroundUrl() + ')'"></div>
+
+      <!-- Reproductor Dual A/B para Bucle Continuo 100% Invisible Sin Cortes Ni Pausas -->
+      <ng-container *ngIf="isVideoBackground()">
+        <video #bgVideoA
+               [src]="backgroundVideoUrl()"
+               autoplay
+               loop
+               muted
+               [muted]="true"
+               [volume]="0"
+               playsinline
+               webkit-playsinline
+               preload="auto"
+               disablePictureInPicture
+               class="zen-bg-video zen-bg-video-primary"
+               [class.active-video-layer]="activeVideoLayer() === 'A'"
+               (timeupdate)="onVideoTimeUpdate($event, 'A')"
+               (ended)="onVideoEnded($event, 'A')"
+               (canplay)="onVideoLoaded($event)"
+               (loadeddata)="onVideoLoaded($event)"
+               (volumechange)="$any($event.target).muted = true; $any($event.target).volume = 0">
+        </video>
+
+        <video #bgVideoB
+               [src]="backgroundVideoUrl()"
+               muted
+               [muted]="true"
+               [volume]="0"
+               playsinline
+               webkit-playsinline
+               preload="auto"
+               disablePictureInPicture
+               class="zen-bg-video zen-bg-video-secondary"
+               [class.active-video-layer]="activeVideoLayer() === 'B'"
+               (timeupdate)="onVideoTimeUpdate($event, 'B')"
+               (ended)="onVideoEnded($event, 'B')"
+               (canplay)="onVideoLoaded($event)"
+               (loadeddata)="onVideoLoaded($event)"
+               (volumechange)="$any($event.target).muted = true; $any($event.target).volume = 0">
+        </video>
+      </ng-container>
+
+      <!-- Capa de oscurecimiento suave para legibilidad óptima de los números del cronómetro -->
+      <div *ngIf="isVideoBackground()" class="zen-bg-video-overlay"></div>
     </div>
 
     <!-- Fondo Unificado del Color del Tema para Cuenta Regresiva (Color del Tema, Sin Imagen) -->
@@ -5316,6 +5363,13 @@
                        [style.opacity]="bg === 'off' ? '0.3' : '1'">
                   </div>
 
+                  <!-- Badge Animado/Video para fondos en video HD -->
+                  <div *ngIf="bg === 'lofi_cat_window' || bg === 'lofi_cat_rain' || bg === 'lofi_cat_sun' || bg === 'lofi_girl_sunset' || bg === 'lofi_car_ride' || bg === 'lofi_boy_study'"
+                       style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.25); padding: 1px 4px; border-radius: 4px; display: flex; align-items: center; gap: 3px; z-index: 3;">
+                    <i class="fa-solid fa-video" style="color: #38bdf8; font-size: 7.5px;"></i>
+                    <span style="font-size: 7.5px; font-weight: 800; color: #fff; letter-spacing: 0.5px;">VIDEO</span>
+                  </div>
+
                   <div *ngIf="activeBackground() === bg"
                        style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
@@ -5330,13 +5384,13 @@
                 <span class="thumb-label" 
                       style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
                       [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
-                  {{ bg === 'off' ? 'Apagado' : (bg === 'fairy' ? 'Fairy' : (bg === 'lofi_study_desktop' ? 'Estudio' : (bg === 'lofi_moons' ? 'Luna' : (bg === 'lofi_study_rain' ? 'Lluvia' : (bg === 'forest_campfire' ? 'Bosque' : (bg === 'lofi_space_nebula' ? 'Nebulosa' : (bg === 'lofi_space_moon' ? 'Luz Lunar' : (bg === 'lofi_lighthouse_ocean' ? 'Océano Estelar' : (bg === 'lofi_titanic_ocean' ? 'Mar' : 'Espacio'))))))))) }}
+                  {{ getBackgroundLabel(bg) }}
                 </span>
               </div>
             </div>
             
             <span style="font-size: var(--modal-subtext-size); color: var(--muted); line-height: 1.3; margin-top: 2px;">
-              {{ activeBackground() === 'off' ? 'Fondo por defecto del tema activo' : 'Fondo lofi "' + (activeBackground() === 'fairy' ? 'Fairy' : (activeBackground() === 'lofi_study_desktop' ? 'Estudio' : (activeBackground() === 'lofi_moons' ? 'Luna' : (activeBackground() === 'lofi_study_rain' ? 'Lluvia' : (activeBackground() === 'forest_campfire' ? 'Fogata Bosque' : (activeBackground() === 'lofi_space_nebula' ? 'Nebulosa Cósmica' : (activeBackground() === 'lofi_space_moon' ? 'Polvo Lunar y Vía Láctea' : (activeBackground() === 'lofi_lighthouse_ocean' ? 'Océano Cósmico y Cielo Estelar' : (activeBackground() === 'lofi_titanic_ocean' ? 'Mar y Cielo Nocturno' : 'Espacio Cósmico con Saturno y Luceros'))))))))) + '" activo con aura cósmica' }}
+              {{ getBackgroundActiveDescription() }}
             </span>
           </div>
 

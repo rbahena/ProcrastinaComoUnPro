@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit, OnDestroy, WritableSignal, inject, HostListener } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, WritableSignal, inject, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +22,25 @@ export interface MotivationItem {
 }
 
 export type BackgroundSoundType = string;
+
+export type FocusBackgroundType = 
+  | 'off' 
+  | 'lofi_cat_window'
+  | 'lofi_cat_rain'
+  | 'lofi_cat_sun'
+  | 'lofi_girl_sunset'
+  | 'lofi_car_ride'
+  | 'lofi_boy_study'
+  | 'fairy' 
+  | 'lofi_study_desktop' 
+  | 'lofi_moons' 
+  | 'lofi_study_rain' 
+  | 'forest_campfire' 
+  | 'lofi_space_cosmos' 
+  | 'lofi_space_nebula' 
+  | 'lofi_space_moon' 
+  | 'lofi_titanic_ocean' 
+  | 'lofi_lighthouse_ocean';
 
 @Component({
   selector: 'app-enfoque',
@@ -406,14 +425,43 @@ export class Enfoque implements OnInit, OnDestroy {
   soundEnabled = signal(true);  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
-  activeBackground = signal<'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean'>(
-    (localStorage.getItem('focus-active-bg') as any) || 'lofi_space_cosmos'
+  activeBackground = signal<FocusBackgroundType>(
+    (localStorage.getItem('focus-active-bg') as FocusBackgroundType) || 'lofi_cat_window'
   );
-  backgroundOptions: ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[] = [
-    'off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
+
+  activeVideoLayer = signal<'A' | 'B'>('A');
+  private isCrossfading = false;
+  @ViewChild('bgVideoA') bgVideoARef?: ElementRef<HTMLVideoElement>;
+  @ViewChild('bgVideoB') bgVideoBRef?: ElementRef<HTMLVideoElement>;
+
+  backgroundOptions: FocusBackgroundType[] = [
+    'off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_girl_sunset', 'lofi_car_ride', 'lofi_boy_study', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
   ];
+
+  isVideoBackground = computed(() => {
+    const bg = this.activeBackground();
+    return bg === 'lofi_cat_window' || bg === 'lofi_cat_rain' || bg === 'lofi_cat_sun' || bg === 'lofi_girl_sunset' || bg === 'lofi_car_ride' || bg === 'lofi_boy_study';
+  });
+
+  backgroundVideoUrl = computed(() => {
+    const bg = this.activeBackground();
+    if (bg === 'lofi_cat_window') return 'assets/videos/gatito-ventana.mp4';
+    if (bg === 'lofi_cat_rain') return 'assets/videos/gatito-lluvia.mp4';
+    if (bg === 'lofi_cat_sun') return 'assets/videos/gatito-sol.mp4';
+    if (bg === 'lofi_girl_sunset') return 'assets/videos/girl-alone.mp4';
+    if (bg === 'lofi_car_ride') return 'assets/videos/auto.mp4';
+    if (bg === 'lofi_boy_study') return 'assets/videos/boy-sudy.mp4';
+    return '';
+  });
+
   backgroundUrl = computed(() => {
     const bg = this.activeBackground();
+    if (bg === 'lofi_cat_window') return 'assets/images/lofi_cat_window_thumb.jpg';
+    if (bg === 'lofi_cat_rain') return 'assets/images/lofi_cat_rain_thumb.jpg';
+    if (bg === 'lofi_cat_sun') return 'assets/images/lofi_cat_sun_thumb.jpg';
+    if (bg === 'lofi_girl_sunset') return 'assets/images/lofi_girl_sunset_thumb.jpg';
+    if (bg === 'lofi_car_ride') return 'assets/images/lofi_car_ride_thumb.jpg';
+    if (bg === 'lofi_boy_study') return 'assets/images/lofi_boy_study_thumb.jpg';
     if (bg === 'fairy') return 'assets/images/fairy_world.webp';
     if (bg === 'lofi_study_desktop') return 'assets/images/lofi_study_desktop.webp';
     if (bg === 'lofi_moons') return 'assets/images/lofi_moons.webp';
@@ -436,16 +484,16 @@ export class Enfoque implements OnInit, OnDestroy {
   // Lista de fondos disponibles según el estilo de reloj seleccionado
   availableBackgroundOptions = computed(() => {
     if (this.isOrbitalTimer()) {
-      return ['lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[];
+      return ['lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
     }
     if (this.timerStyle() === 'lighthouse') {
-      return ['lofi_lighthouse_ocean'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[];
+      return ['lofi_lighthouse_ocean'] as FocusBackgroundType[];
     }
     if (this.timerStyle() === 'titanic') {
-      return ['lofi_titanic_ocean'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[];
+      return ['lofi_titanic_ocean'] as FocusBackgroundType[];
     }
-    // Para todos los demás relojes normales, NO incluir fondos marítimos exclusivos
-    return ['off', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as ('off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean')[];
+    // Para todos los demás relojes normales, incluir los 6 videos Lofi HD y fondos estándar
+    return ['off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_girl_sunset', 'lofi_car_ride', 'lofi_boy_study', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
   });
 
   // Información de color y fondo de la cuenta regresiva según el tema visual activo (samurai, cyberpunk, aurora, zen)
@@ -3372,7 +3420,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Setter de fondo de pantalla Zen con restricciones temáticas
-  setBackground(bg: 'off' | 'fairy' | 'lofi_study_desktop' | 'lofi_moons' | 'lofi_study_rain' | 'forest_campfire' | 'lofi_space_cosmos' | 'lofi_space_nebula' | 'lofi_space_moon' | 'lofi_titanic_ocean' | 'lofi_lighthouse_ocean') {
+  setBackground(bg: FocusBackgroundType) {
     // El fondo Océano Estelar es exclusivo del Faro
     if (bg === 'lofi_lighthouse_ocean' && this.timerStyle() !== 'lighthouse') {
       return;
@@ -3395,6 +3443,19 @@ export class Enfoque implements OnInit, OnDestroy {
     }
     this.activeBackground.set(bg);
     localStorage.setItem('focus-active-bg', bg);
+    this.activeVideoLayer.set('A');
+    this.isCrossfading = false;
+
+    if (this.isVideoBackground()) {
+      setTimeout(() => {
+        if (this.bgVideoARef?.nativeElement) {
+          this.bgVideoARef.nativeElement.currentTime = 0;
+          this.bgVideoARef.nativeElement.muted = true;
+          this.bgVideoARef.nativeElement.volume = 0;
+          this.bgVideoARef.nativeElement.play().catch(() => {});
+        }
+      }, 50);
+    }
 
     if (bg === 'forest_campfire') {
       this.showCampfireDragTooltip.set(true);
@@ -3406,8 +3467,68 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   }
 
+  // Garantiza 0 volumen y silencio absoluto en la carga del video
+  onVideoLoaded(event: Event) {
+    const video = event.target as HTMLVideoElement;
+    if (video) {
+      video.muted = true;
+      video.volume = 0;
+      video.play().catch(() => {});
+    }
+  }
+
+  // Motor de Bucle Continuo Imperceptible: Crossfade dinámico de capas A/B
+  onVideoTimeUpdate(event: Event, layer: 'A' | 'B') {
+    if (this.activeVideoLayer() !== layer || this.isCrossfading) {
+      return;
+    }
+    const currentVideo = event.target as HTMLVideoElement;
+    if (!currentVideo || !currentVideo.duration) return;
+
+    currentVideo.muted = true;
+    currentVideo.volume = 0;
+
+    const remainingTime = currentVideo.duration - currentVideo.currentTime;
+    // Disparar la transición suave 0.45s antes del final del clip para eliminar saltos
+    if (remainingTime <= 0.45 && remainingTime > 0.05) {
+      this.isCrossfading = true;
+      const nextLayer = layer === 'A' ? 'B' : 'A';
+      const nextVideo = nextLayer === 'A' ? this.bgVideoARef?.nativeElement : this.bgVideoBRef?.nativeElement;
+      
+      if (nextVideo) {
+        nextVideo.currentTime = 0;
+        nextVideo.muted = true;
+        nextVideo.volume = 0;
+        nextVideo.play().catch(() => {});
+        this.activeVideoLayer.set(nextLayer);
+
+        setTimeout(() => {
+          this.isCrossfading = false;
+        }, 500);
+      } else {
+        this.isCrossfading = false;
+      }
+    }
+  }
+
+  onVideoEnded(event: Event, layer: 'A' | 'B') {
+    const video = event.target as HTMLVideoElement;
+    if (video) {
+      video.currentTime = 0;
+      video.muted = true;
+      video.volume = 0;
+      video.play().catch(() => {});
+    }
+  }
+
   // Obtener URL de miniatura del fondo de pantalla Zen
   getBackgroundThumbnailUrl(bg: string): string {
+    if (bg === 'lofi_cat_window') return 'assets/images/lofi_cat_window_thumb.jpg';
+    if (bg === 'lofi_cat_rain') return 'assets/images/lofi_cat_rain_thumb.jpg';
+    if (bg === 'lofi_cat_sun') return 'assets/images/lofi_cat_sun_thumb.jpg';
+    if (bg === 'lofi_girl_sunset') return 'assets/images/lofi_girl_sunset_thumb.jpg';
+    if (bg === 'lofi_car_ride') return 'assets/images/lofi_car_ride_thumb.jpg';
+    if (bg === 'lofi_boy_study') return 'assets/images/lofi_boy_study_thumb.jpg';
     if (bg === 'fairy') return 'assets/images/fairy_world.webp';
     if (bg === 'lofi_study_desktop') return 'assets/images/lofi_study_desktop.webp';
     if (bg === 'lofi_moons') return 'assets/images/lofi_moons.webp';
@@ -3419,6 +3540,55 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_titanic_ocean') return 'assets/images/lofi_titanic_ocean.jpg';
     if (bg === 'lofi_lighthouse_ocean') return 'assets/images/lofi_lighthouse_ocean.jpg';
     return '';
+  }
+
+  // Nombre legible del fondo en selector
+  getBackgroundLabel(bg: string): string {
+    switch (bg) {
+      case 'off': return 'Apagado';
+      case 'lofi_cat_window': return 'Gato Ventana';
+      case 'lofi_cat_rain': return 'Gatito Lluvia';
+      case 'lofi_cat_sun': return 'Gatito Sol';
+      case 'lofi_girl_sunset': return 'Chica Atardecer';
+      case 'lofi_car_ride': return 'Viaje en Auto';
+      case 'lofi_boy_study': return 'Chico Estudio';
+      case 'fairy': return 'Fairy';
+      case 'lofi_study_desktop': return 'Estudio';
+      case 'lofi_moons': return 'Luna';
+      case 'lofi_study_rain': return 'Lluvia';
+      case 'forest_campfire': return 'Bosque';
+      case 'lofi_space_cosmos': return 'Espacio';
+      case 'lofi_space_nebula': return 'Nebulosa';
+      case 'lofi_space_moon': return 'Luz Lunar';
+      case 'lofi_titanic_ocean': return 'Mar';
+      case 'lofi_lighthouse_ocean': return 'Océano Estelar';
+      default: return bg;
+    }
+  }
+
+  // Descripción textual del fondo activo
+  getBackgroundActiveDescription(): string {
+    const bg = this.activeBackground();
+    if (bg === 'off') return 'Fondo por defecto del tema activo';
+    switch (bg) {
+      case 'lofi_cat_window': return 'Fondo interactivo en video HD "Gato Ventana Lofi" con bucle continuo imperceptible';
+      case 'lofi_cat_rain': return 'Fondo interactivo en video HD "Gatito Lluvia Lofi" con bucle continuo imperceptible';
+      case 'lofi_cat_sun': return 'Fondo interactivo en video HD "Gatito Sol Lofi" con bucle continuo imperceptible';
+      case 'lofi_girl_sunset': return 'Fondo interactivo en video HD "Chica Atardecer Lofi" con bucle continuo imperceptible';
+      case 'lofi_car_ride': return 'Fondo interactivo en video HD "Viaje en Auto Lofi" con bucle continuo imperceptible';
+      case 'lofi_boy_study': return 'Fondo interactivo en video HD "Chico Estudio Lofi" con bucle continuo imperceptible';
+      case 'fairy': return 'Fondo lofi "Fairy" activo';
+      case 'lofi_study_desktop': return 'Fondo lofi "Estudio" activo';
+      case 'lofi_moons': return 'Fondo lofi "Luna" activo';
+      case 'lofi_study_rain': return 'Fondo lofi "Lluvia" activo';
+      case 'forest_campfire': return 'Fondo lofi "Fogata Bosque" activo';
+      case 'lofi_space_cosmos': return 'Fondo lofi "Espacio Cósmico con Saturno y Luceros" activo con aura cósmica';
+      case 'lofi_space_nebula': return 'Fondo lofi "Nebulosa Cósmica" activo con aura cósmica';
+      case 'lofi_space_moon': return 'Fondo lofi "Polvo Lunar y Vía Láctea" activo con aura cósmica';
+      case 'lofi_titanic_ocean': return 'Fondo lofi "Mar y Cielo Nocturno" activo con aura cósmica';
+      case 'lofi_lighthouse_ocean': return 'Fondo lofi "Océano Cósmico y Cielo Estelar" activo con aura cósmica';
+      default: return `Fondo "${bg}" activo`;
+    }
   }
 
   // Información de nivel de complejidad y monetización del estilo de cronómetro
@@ -3549,8 +3719,8 @@ export class Enfoque implements OnInit, OnDestroy {
         } else if (style === 'fire') {
           this.setBackground('forest_campfire');
         } else {
-          this.activeBackground.set('lofi_study_desktop');
-          localStorage.setItem('focus-active-bg', 'lofi_study_desktop');
+          this.activeBackground.set('lofi_cat_window');
+          localStorage.setItem('focus-active-bg', 'lofi_cat_window');
         }
       } else {
         if (style === 'solar') {
