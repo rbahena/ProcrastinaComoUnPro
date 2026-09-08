@@ -114,13 +114,22 @@
   </div>
 </div>
 
-<!-- TOAST FLOTANTE DE BLOQUEO DE NAVEGACIÓN -->
+<!-- TOAST FLOTANTE DE BLOQUEO DE NAVEGACIÓN (PARTE INFERIOR) -->
 <div *ngIf="showLockedToast()" 
      class="nav-locked-toast-banner" 
-     (click)="showLockedToast.set(false)">
-  <div class="nav-locked-toast-content">
+     (click)="showLockedToast.set(false)"
+     role="alert">
+  <div class="nav-locked-toast-icon-badge">
     <i class="fa-solid fa-shield-halved"></i>
-    <span>{{ lockedToastMessage() }}</span>
   </div>
-  <button class="nav-locked-toast-close" (click)="showLockedToast.set(false); $event.stopPropagation();">&times;</button>
+  <div class="nav-locked-toast-content">
+    <div class="nav-locked-toast-header">
+      <span class="nav-locked-toast-badge">MODO ENFOQUE ACTIVO</span>
+      <span class="nav-locked-toast-title">Navegación restringida</span>
+    </div>
+    <span class="nav-locked-toast-text">{{ lockedToastMessage() }}</span>
+  </div>
+  <button class="nav-locked-toast-close" (click)="showLockedToast.set(false); $event.stopPropagation();" aria-label="Cerrar aviso" title="Cerrar aviso">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
 </div>

@@ -551,66 +551,282 @@ body.window-scrolled .sidebar {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
-/* Toast flotante de bloqueo de navegación */
+/* Toast flotante de bloqueo de navegación (Parte Inferior) */
 .nav-locked-toast-banner {
   position: fixed;
-  top: 74px;
+  bottom: 28px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(20, 10, 14, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(239, 68, 68, 0.5);
+  background: linear-gradient(135deg, rgba(24, 12, 18, 0.96) 0%, rgba(14, 8, 12, 0.98) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(239, 68, 68, 0.55);
   color: #fee2e2;
-  padding: 10px 20px;
-  border-radius: 12px;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(239, 68, 68, 0.2);
+  padding: 12px 18px;
+  border-radius: 16px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75), 0 0 25px rgba(239, 68, 68, 0.25);
   display: flex;
   align-items: center;
-  gap: 16px;
-  z-index: 2000;
+  gap: 14px;
+  z-index: 99999;
   cursor: pointer;
-  animation: slideDownToast 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  max-width: 520px;
+  width: calc(100% - 32px);
+  box-sizing: border-box;
+  animation: slideUpToast 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes slideDownToast {
+@keyframes slideUpToast {
   from {
     opacity: 0;
-    transform: translate(-50%, -15px);
+    transform: translate(-50%, 25px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, 0) scale(1);
   }
+}
+
+.nav-locked-toast-icon-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+  font-size: 16px;
+  flex-shrink: 0;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.3);
 }
 
 .nav-locked-toast-content {
   display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  text-align: left;
+}
+
+.nav-locked-toast-header {
+  display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  font-weight: 600;
+  gap: 8px;
+}
+
+.nav-locked-toast-badge {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.nav-locked-toast-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #ffffff;
   letter-spacing: 0.2px;
 }
 
-.nav-locked-toast-content i {
-  color: #ef4444;
-  font-size: 16px;
+.nav-locked-toast-text {
+  font-size: 11.5px;
+  color: rgba(254, 226, 226, 0.85);
+  line-height: 1.35;
+  font-weight: 500;
 }
 
 .nav-locked-toast-close {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 18px;
-  line-height: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  padding: 0 4px;
-  transition: color 0.2s;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .nav-locked-toast-close:hover {
+  background: rgba(239, 68, 68, 0.25);
   color: #ffffff;
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: scale(1.05);
+}
+
+/* Toast Flotante Inferior Premium para Enfoque */
+.enfoque-bottom-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  background: linear-gradient(135deg, rgba(20, 20, 28, 0.96) 0%, rgba(12, 12, 18, 0.98) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 12px 18px;
+  max-width: 500px;
+  width: calc(100% - 32px);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  animation: slideUpToast 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.enfoque-bottom-toast.toast-danger {
+  border-color: rgba(239, 68, 68, 0.55);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(239, 68, 68, 0.25);
+}
+.enfoque-bottom-toast.toast-danger .enfoque-toast-icon-badge {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #ef4444;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.3);
+}
+.enfoque-bottom-toast.toast-danger .enfoque-toast-tag {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.enfoque-bottom-toast.toast-warning {
+  border-color: rgba(245, 158, 11, 0.55);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(245, 158, 11, 0.25);
+}
+.enfoque-bottom-toast.toast-warning .enfoque-toast-icon-badge {
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #f59e0b;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.3);
+}
+.enfoque-bottom-toast.toast-warning .enfoque-toast-tag {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fde68a;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.enfoque-bottom-toast.toast-success {
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(16, 185, 129, 0.25);
+}
+.enfoque-bottom-toast.toast-success .enfoque-toast-icon-badge {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #10b981;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.3);
+}
+.enfoque-bottom-toast.toast-success .enfoque-toast-tag {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.enfoque-bottom-toast.toast-info {
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(59, 130, 246, 0.25);
+}
+.enfoque-bottom-toast.toast-info .enfoque-toast-icon-badge {
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  color: #3b82f6;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.3);
+}
+.enfoque-bottom-toast.toast-info .enfoque-toast-tag {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.enfoque-bottom-toast.toast-like {
+  border-color: rgba(236, 72, 153, 0.55);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(236, 72, 153, 0.25);
+}
+.enfoque-bottom-toast.toast-like .enfoque-toast-icon-badge {
+  background: rgba(236, 72, 153, 0.18);
+  border: 1px solid rgba(236, 72, 153, 0.45);
+  color: #ec4899;
+  box-shadow: 0 0 14px rgba(236, 72, 153, 0.3);
+}
+.enfoque-bottom-toast.toast-like .enfoque-toast-tag {
+  background: rgba(236, 72, 153, 0.2);
+  color: #fbcfe8;
+  border: 1px solid rgba(236, 72, 153, 0.35);
+}
+
+.enfoque-toast-icon-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.enfoque-toast-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  overflow: hidden;
+}
+
+.enfoque-toast-tag {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.enfoque-toast-text {
+  font-size: 12px;
+  color: #f3f4f6;
+  margin: 0;
+  line-height: 1.35;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.enfoque-toast-close {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.enfoque-toast-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  transform: scale(1.05);
 }
 
 .sidebar-footer {

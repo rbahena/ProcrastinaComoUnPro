@@ -405,6 +405,7 @@ export class Home implements OnInit, OnDestroy {
     if (this.timerRunning()) {
       this.stopTimerLoop();
     } else {
+      this.requestNotificationPermission();
       this.startTimerLoop();
     }
   }
@@ -427,6 +428,32 @@ export class Home implements OnInit, OnDestroy {
     }
   }
 
+  requestNotificationPermission() {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+  }
+
+  sendDesktopNotification(title: string, body: string) {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    const iconUrl = window.location.origin ? `${window.location.origin}/cofu_logo.jpg` : 'cofu_logo.jpg';
+    const show = () => {
+      try {
+        const notif = new Notification(title, { body, icon: iconUrl, badge: iconUrl, requireInteraction: true });
+        notif.onclick = () => { window.focus(); notif.close(); };
+      } catch(e) {}
+    };
+    if (Notification.permission === 'granted') {
+      show();
+    } else if (Notification.permission === 'default') {
+      Notification.requestPermission().then(p => {
+        if (p === 'granted') show();
+      });
+    }
+  }
+
   private startTimerLoop() {
     this.timerRunning.set(true);
     this.pomodoroTimer = setInterval(() => {
@@ -436,6 +463,7 @@ export class Home implements OnInit, OnDestroy {
         this.stopTimerLoop();
         if (!this.isBreak()) {
           this.selectMode('break');
+          this.sendDesktopNotification('🍅 ¡Pomodoro Completado!', '¡Excelente trabajo! Has completado tu tiempo de enfoque. Tómate un descanso.');
           try {
             const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
             const osc = audioCtx.createOscillator();
@@ -449,6 +477,18 @@ export class Home implements OnInit, OnDestroy {
           } catch(e){}
         } else {
           this.selectMode('focus');
+          this.sendDesktopNotification('⚡ ¡Descanso Finalizado!', 'Tu energía está recargada. Es hora de volver al enfoque.');
+          try {
+            const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+          } catch(e){}
         }
       }
     }, 1000);

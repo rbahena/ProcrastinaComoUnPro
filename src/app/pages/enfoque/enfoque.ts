@@ -6,6 +6,7 @@ import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { SupabaseService, FocusSessionData } from '../../services/supabase.service';
 import { Navbar } from '../../components/navbar/navbar';
+import { BACKGROUND_SOUNDS, END_SESSION_SOUNDS, BackgroundSoundOption, EndSessionSoundOption } from './sounds.data';
 
 export interface MotivationItem {
   id: string;
@@ -19,6 +20,8 @@ export interface MotivationItem {
   isUser?: boolean;
   likedByMe?: boolean;
 }
+
+export type BackgroundSoundType = string;
 
 @Component({
   selector: 'app-enfoque',
@@ -81,11 +84,167 @@ export class Enfoque implements OnInit, OnDestroy {
   partnerNotificationMessage = signal<string>('');
   partnerNotificationType = signal<'info' | 'warning' | 'success' | 'danger'>('info');
 
-  // Escudo acústico / Ruido de fondo en vivo
-  backgroundSound = signal<'off' | 'cafe' | 'lluvia' | 'reloj_pared' | 'reloj_pulsera' | 'fogata' | 'bosque' | 'olas'>('off');
-  backgroundVolume = signal(0.4);
+  // Escudo acústico / Ruido de fondo en vivo (Concentración)
+  backgroundSound = signal<string>(
+    localStorage.getItem('focus-bg-sound') || 'off'
+  );
 
-  // Web Audio Context refs
+  // Sonido de fondo para el Descanso
+  breakBackgroundSound = signal<string>(
+    localStorage.getItem('focus-break-bg-sound') || 'off'
+  );
+
+  backgroundVolume = signal<number>(
+    parseFloat(localStorage.getItem('focus-bg-volume') || '1.0')
+  );
+  isPlayingPreview = signal<boolean>(false);
+  private previewSoundTimeout: any = null;
+
+  // Catálogos de sonido
+  backgroundSoundsList: BackgroundSoundOption[] = BACKGROUND_SOUNDS;
+  endSessionSoundsList: EndSessionSoundOption[] = END_SESSION_SOUNDS;
+  
+  // Agrupaciones ordenadas para el selector desplegable
+  soundGroups = [
+    {
+      name: 'Naturaleza & Clima',
+      icon: 'fa-tree',
+      sounds: BACKGROUND_SOUNDS.filter(s => s.category === 'natural')
+    },
+    {
+      name: 'Cafeterías & Espacios Urbanos',
+      icon: 'fa-mug-hot',
+      sounds: BACKGROUND_SOUNDS.filter(s => s.category === 'urbano')
+    },
+    {
+      name: 'Relojes & Tic-Tac Rítmico',
+      icon: 'fa-clock',
+      sounds: BACKGROUND_SOUNDS.filter(s => s.category === 'reloj')
+    },
+    {
+      name: 'Sintéticos Zen & ASMR',
+      icon: 'fa-sparkles',
+      sounds: BACKGROUND_SOUNDS.filter(s => s.category === 'sintetico' && s.id !== 'off')
+    }
+  ];
+
+  soundSectionView = signal<'background' | 'alarm'>('background');
+  soundSearchQuery = signal<string>('');
+  breakSoundSearchQuery = signal<string>('');
+  longBreakSoundSearchQuery = signal<string>('');
+  alarmSearchQuery = signal<string>('');
+  backgroundCategoryFilter = signal<'all' | 'natural' | 'urbano' | 'reloj' | 'sintetico'>('all');
+  breakBackgroundCategoryFilter = signal<'all' | 'natural' | 'urbano' | 'reloj' | 'sintetico'>('all');
+  longBreakBackgroundCategoryFilter = signal<'all' | 'natural' | 'urbano' | 'reloj' | 'sintetico'>('all');
+
+  filteredBackgroundSounds = computed(() => {
+    const cat = this.backgroundCategoryFilter();
+    const query = this.soundSearchQuery().toLowerCase().trim();
+    let list = this.backgroundSoundsList;
+    if (cat !== 'all') {
+      list = list.filter(s => s.category === cat || s.id === 'off');
+    }
+    if (query) {
+      list = list.filter(s => s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query));
+    }
+    return list;
+  });
+
+  filteredBreakBackgroundSounds = computed(() => {
+    const cat = this.breakBackgroundCategoryFilter();
+    const query = this.breakSoundSearchQuery().toLowerCase().trim();
+    let list = this.backgroundSoundsList;
+    if (cat !== 'all') {
+      list = list.filter(s => s.category === cat || s.id === 'off');
+    }
+    if (query) {
+      list = list.filter(s => s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query));
+    }
+    return list;
+  });
+
+  filteredLongBreakBackgroundSounds = computed(() => {
+    const cat = this.longBreakBackgroundCategoryFilter();
+    const query = this.longBreakSoundSearchQuery().toLowerCase().trim();
+    let list = this.backgroundSoundsList;
+    if (cat !== 'all') {
+      list = list.filter(s => s.category === cat || s.id === 'off');
+    }
+    if (query) {
+      list = list.filter(s => s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query));
+    }
+    return list;
+  });
+
+  filteredEndSessionSounds = computed(() => {
+    const query = this.alarmSearchQuery().toLowerCase().trim();
+    if (!query) return this.endSessionSoundsList;
+    return this.endSessionSoundsList.filter(s => s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query));
+  });
+
+  getSoundCategoryCount(cat: 'all' | 'natural' | 'urbano' | 'reloj' | 'sintetico'): number {
+    if (cat === 'all') return this.backgroundSoundsList.length;
+    return this.backgroundSoundsList.filter(s => s.category === cat).length;
+  }
+
+  // Alerta de Fin de Sesión Pomodoro
+  endSessionSound = signal<string>(
+    localStorage.getItem('focus-end-sound') || 'tone'
+  );
+
+  // Alerta de Fin de Descanso
+  breakSoundEnabled = signal<boolean>(
+    localStorage.getItem('focus-break-sound-enabled') !== 'false'
+  );
+  breakEndSound = signal<string>(
+    localStorage.getItem('focus-break-sound') || 'electronic_chime'
+  );
+
+  // Sonido de fondo para Descanso Largo
+  longBreakBackgroundSound = signal<string>(
+    localStorage.getItem('focus-long-break-bg-sound') || 'off'
+  );
+  longBreakEndSound = signal<string>(
+    localStorage.getItem('focus-long-break-sound') || 'electronic_chime'
+  );
+
+  // Custom Select Dropdown UI States
+  isBgDropdownOpen = signal<boolean>(false);
+  isBreakBgDropdownOpen = signal<boolean>(false);
+  isLongBreakBgDropdownOpen = signal<boolean>(false);
+  isFocusAlarmDropdownOpen = signal<boolean>(false);
+  isBreakAlarmDropdownOpen = signal<boolean>(false);
+  isLongBreakAlarmDropdownOpen = signal<boolean>(false);
+  previewingSoundId = signal<string | null>(null);
+
+  selectedBgSoundObj = computed(() => {
+    return this.backgroundSoundsList.find(s => s.id === this.backgroundSound()) || this.backgroundSoundsList[0];
+  });
+
+  selectedBreakBgSoundObj = computed(() => {
+    return this.backgroundSoundsList.find(s => s.id === this.breakBackgroundSound()) || this.backgroundSoundsList[0];
+  });
+
+  selectedLongBreakBgSoundObj = computed(() => {
+    return this.backgroundSoundsList.find(s => s.id === this.longBreakBackgroundSound()) || this.backgroundSoundsList[0];
+  });
+
+  selectedFocusAlarmObj = computed(() => {
+    return this.endSessionSoundsList.find(s => s.id === this.endSessionSound()) || this.endSessionSoundsList[0];
+  });
+
+  selectedBreakAlarmObj = computed(() => {
+    return this.endSessionSoundsList.find(s => s.id === this.breakEndSound()) || this.endSessionSoundsList[0];
+  });
+
+  selectedLongBreakAlarmObj = computed(() => {
+    return this.endSessionSoundsList.find(s => s.id === this.longBreakEndSound()) || this.endSessionSoundsList[0];
+  });
+
+  // Audio refs
+  private currentBackgroundAudio: HTMLAudioElement | null = null;
+  private tickingInterval: any = null;
+  private currentEndAudio: HTMLAudioElement | null = null;
   private backgroundAudioCtx: AudioContext | null = null;
   private backgroundSource: AudioBufferSourceNode | null = null;
   private backgroundGain: GainNode | null = null;
@@ -125,6 +284,11 @@ export class Enfoque implements OnInit, OnDestroy {
       this.focusDuration.set(duration);
       this.totalSessionTime.set(duration * 60);
       this.timeLeft.set(duration * 60);
+    }
+    if (this.motivationNotificationEnabled() && this.notificationsEnabled()) {
+      const label = level === 'low' ? 'Baja Motivación (10 min)' : level === 'medium' ? 'Media / Estándar (25 min)' : 'Alta Motivación (45 min)';
+      const msg = level === 'low' ? 'Modo de baja fricción activado. ¡Arrancamos paso a paso!' : level === 'medium' ? 'Ritmo clásico Pomodoro establecido. ¡A darlo todo!' : '¡Modo de alto rendimiento activado! Concentración total.';
+      this.sendDesktopNotification(`🔋 Batería de Motivación: ${label}`, msg);
     }
   }
 
@@ -171,11 +335,12 @@ export class Enfoque implements OnInit, OnDestroy {
     return `${m} min`;
   });
 
-  // Configuración del Pomodoro (Tiempos científicos fijos según el filtro Pareto)
-  focusDuration = signal(25); // Predeterminado a 25 min (Estándar Pomodoro)
-  breakDuration = signal(5);   // Predeterminado a 5 min (Descanso)
-  longBreakInterval = signal(4); // 4 pomodoros antes de un descanso largo
-  longBreakDuration = signal(15); // Duración de descanso largo (15 min)
+  // Configuración del Pomodoro
+  focusDuration = signal(parseInt(localStorage.getItem('focus-duration') || '25', 10));
+  breakDuration = signal(parseInt(localStorage.getItem('break-duration') || '5', 10));
+  shortBreakDuration = this.breakDuration; // Alias para compatibilidad de plantillas
+  longBreakInterval = signal(parseInt(localStorage.getItem('long-break-interval') || '4', 10));
+  longBreakDuration = signal(parseInt(localStorage.getItem('long-break-duration') || '15', 10));
   dailyAttempts = signal<{ status: 'completed' | 'abandoned' | 'interrupted', time: string }[]>(
     (() => {
       const saved = localStorage.getItem('daily-attempts');
@@ -698,7 +863,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   showSettingsPanel = signal(false);
   showSetupSettings = signal(false);
-  settingsActiveTab = signal<'time' | 'themes' | 'timerStyle'>('time');
+  settingsActiveTab = signal<'time' | 'notifications' | 'themes' | 'timerStyle'>('time');
   showThemesPanel = signal(false);
   showStrategyCard = signal(false);
   showBossCard = signal(false);
@@ -1323,51 +1488,282 @@ export class Enfoque implements OnInit, OnDestroy {
   // ==========================================
   private titleFlashingInterval: any = null;
   private originalDocumentTitle = 'COFU - Procrastina Como un Pro';
+  notificationPermission = signal<string>('default');
+  notificationsEnabled = signal<boolean>(
+    localStorage.getItem('desktop-notifications-enabled') !== 'false'
+  );
+  tabNotificationsEnabled = signal<boolean>(
+    localStorage.getItem('tab-notifications-enabled') !== 'false'
+  );
+  focusNotificationEnabled = signal<boolean>(
+    localStorage.getItem('focus-notification-enabled') !== 'false'
+  );
+  breakNotificationEnabled = signal<boolean>(
+    localStorage.getItem('break-notification-enabled') !== 'false'
+  );
+  longBreakNotificationEnabled = signal<boolean>(
+    localStorage.getItem('long-break-notification-enabled') !== 'false'
+  );
+  motivationNotificationEnabled = signal<boolean>(
+    localStorage.getItem('motivation-notification-enabled') !== 'false'
+  );
 
-  requestNotificationPermission() {
+  toggleDesktopNotifications(enabled: boolean) {
+    this.notificationsEnabled.set(enabled);
+    localStorage.setItem('desktop-notifications-enabled', String(enabled));
+    if (enabled) {
+      this.requestNotificationPermission(true);
+    } else {
+      this.showToastFeedback('🔕 Notificaciones de escritorio desactivadas.', 'info');
+    }
+  }
+
+  toggleTabNotifications(enabled: boolean) {
+    this.tabNotificationsEnabled.set(enabled);
+    localStorage.setItem('tab-notifications-enabled', String(enabled));
+  }
+
+  toggleFocusNotification(enabled: boolean) {
+    this.focusNotificationEnabled.set(enabled);
+    localStorage.setItem('focus-notification-enabled', String(enabled));
+  }
+
+  toggleBreakNotification(enabled: boolean) {
+    this.breakNotificationEnabled.set(enabled);
+    localStorage.setItem('break-notification-enabled', String(enabled));
+  }
+
+  toggleLongBreakNotification(enabled: boolean) {
+    this.longBreakNotificationEnabled.set(enabled);
+    localStorage.setItem('long-break-notification-enabled', String(enabled));
+  }
+
+  toggleMotivationNotification(enabled: boolean) {
+    this.motivationNotificationEnabled.set(enabled);
+    localStorage.setItem('motivation-notification-enabled', String(enabled));
+  }
+
+  testFocusNotification() {
+    this.sendDesktopNotification(
+      '🍅 ¡Pomodoro Completado! (Prueba)',
+      '¡Excelente trabajo! Has completado tu bloque de concentración.'
+    );
+    this.showToastFeedback('🔔 Notificación de prueba de enfoque enviada.', 'success');
+  }
+
+  testBreakNotification() {
+    this.sendDesktopNotification(
+      '☕ ¡Descanso Breve Finalizado! (Prueba)',
+      'Tu energía está recargada. Es hora de volver al bloque de concentración.'
+    );
+    this.showToastFeedback('🔔 Notificación de prueba de descanso breve enviada.', 'success');
+  }
+
+  testLongBreakNotification() {
+    this.sendDesktopNotification(
+      '🌴 ¡Descanso Largo Finalizado! (Prueba)',
+      'Tu pausa extendida ha concluido. ¡Energía al 100% para continuar!'
+    );
+    this.showToastFeedback('🔔 Notificación de prueba de descanso largo enviada.', 'success');
+  }
+
+  testMotivationNotification() {
+    const list = this.motivationsList();
+    const mot = list.length > 0 ? list[Math.floor(Math.random() * list.length)] : null;
+    const text = mot ? `"${mot.text}" — ${mot.userName || 'Comunidad'}` : '¡Tu disciplina de hoy es tu éxito de mañana!';
+    this.sendDesktopNotification(
+      '🔋 Batería de Motivación (Prueba)',
+      text
+    );
+    this.showToastFeedback('⚡ Notificación de prueba de motivación enviada.', 'success');
+  }
+
+  requestNotificationPermission(showTestNotif: boolean = false) {
     if (typeof window !== 'undefined' && 'Notification' in window) {
-      if (Notification.permission === 'default') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            this.showToastFeedback('🔔 Notificaciones de escritorio activadas.', 'success');
+      try {
+        const current = Notification.permission;
+        this.notificationPermission.set(current);
+
+        if (current === 'default') {
+          const handleResult = (perm: NotificationPermission) => {
+            this.notificationPermission.set(perm);
+            if (perm === 'granted') {
+              this.showToastFeedback('🔔 ¡Notificaciones de escritorio activadas!', 'success');
+              if (showTestNotif) {
+                this.sendDesktopNotification(
+                  '🔔 Notificaciones Activadas - COFU',
+                  '¡Excelente! Recibirás avisos en tu pantalla cuando termine cada Pomodoro y descanso.'
+                );
+              }
+            } else if (perm === 'denied') {
+              this.showToastFeedback('⚠️ Notificaciones bloqueadas en el navegador.', 'info');
+            }
+          };
+
+          try {
+            const promise = Notification.requestPermission(handleResult);
+            if (promise && typeof promise.then === 'function') {
+              promise.then(handleResult).catch(err => {
+                console.warn('Error en promise de requestPermission:', err);
+              });
+            }
+          } catch(e) {
+            console.warn('Error llamando requestPermission:', e);
           }
-        });
+        } else if (current === 'granted') {
+          this.notificationPermission.set('granted');
+          if (showTestNotif) {
+            this.sendDesktopNotification(
+              '🔔 Prueba de Notificación COFU',
+              '¡Las notificaciones de escritorio funcionan correctamente!'
+            );
+            this.showToastFeedback('🔔 Notificación de prueba enviada al escritorio.', 'success');
+          }
+        } else if (current === 'denied') {
+          this.notificationPermission.set('denied');
+          if (showTestNotif) {
+            this.showToastFeedback(
+              '⚠️ Las notificaciones están bloqueadas. Haz clic en el icono 🔒 en la barra de tu navegador para permitirlas.',
+              'info'
+            );
+          }
+        }
+      } catch(e) {
+        console.warn('Error en requestNotificationPermission:', e);
+      }
+    } else {
+      this.notificationPermission.set('unsupported');
+    }
+  }
+
+  sendDesktopNotification(title: string, body: string, icon?: string) {
+    if (!this.notificationsEnabled()) {
+      return;
+    }
+
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      console.warn('Notification API no soportada en este entorno o contexto no seguro.');
+      return;
+    }
+
+    if (Notification.permission !== 'granted') {
+      console.warn('No se puede enviar notificación porque el permiso actual es:', Notification.permission);
+      this.notificationPermission.set(Notification.permission);
+      return;
+    }
+
+    const iconUrl = icon || (window.location.origin ? `${window.location.origin}/cofu_logo.jpg` : 'cofu_logo.jpg');
+
+    try {
+      const notif = new Notification(title, {
+        body,
+        icon: iconUrl,
+        badge: iconUrl,
+        requireInteraction: true,
+        silent: false
+      });
+
+      notif.onclick = () => {
+        try {
+          window.focus();
+        } catch (e) {}
+        notif.close();
+      };
+    } catch (e) {
+      console.warn('Error al instanciar Notification con opciones avanzadas, intentando formato estándar:', e);
+      try {
+        const simpleNotif = new Notification(title, { body });
+        simpleNotif.onclick = () => {
+          try { window.focus(); } catch(err) {}
+          simpleNotif.close();
+        };
+      } catch (err) {
+        console.error('Fallo total al crear Notification:', err);
       }
     }
   }
 
-  sendDesktopNotification(title: string, body: string, icon: string = '/assets/images/cofu_logo.jpg') {
-    if (typeof window === 'undefined' || !('Notification' in window)) return;
+  handleTimerCompleted() {
+    this.clearPersistedSession();
+    this.stopTimerLoop();
+    this.stopEmergencyTimer();
+    this.membership.isFocusActive.set(false);
 
-    if (Notification.permission === 'granted') {
-      try {
-        const notif = new Notification(title, {
-          body,
-          icon,
-          badge: icon,
-          requireInteraction: true,
-          silent: false
-        });
+    if (!this.isBreak()) {
+      // 🍅 Fin del Pomodoro (Sesión de concentración completada)
+      this.sessionEndingStatus.set('completed');
+      this.objectiveCompleted.set('yes');
+      this.arenaState.set('summary');
+      this.playFocusAlarm(); // Alarma sonora de Pomodoro
+      this.triggerCelebration();
 
-        notif.onclick = () => {
-          window.focus();
-          notif.close();
-        };
-      } catch (e) {
-        console.warn('Error al enviar notificación:', e);
+      if (this.focusNotificationEnabled()) {
+        this.sendDesktopNotification(
+          '🍅 ¡Pomodoro Completado!',
+          '¡Excelente trabajo! Has completado tu bloque de concentración.'
+        );
       }
+      this.startTitleFlashing(
+        'COFU - 00:00 ¡Completado! 🍅',
+        'COFU - Concentración 🎯'
+      );
+
+      if (this.motivationNotificationEnabled()) {
+        const list = this.motivationsList();
+        if (list.length > 0) {
+          const mot = list[Math.floor(Math.random() * list.length)];
+          setTimeout(() => {
+            this.sendDesktopNotification(
+              '⚡ Impulso de Motivación COFU',
+              `"${mot.text}" — ${mot.userName || 'Comunidad'}`
+            );
+          }, 1500);
+        }
+      }
+    } else {
+      // ⚡ Fin del Descanso (breve o largo)
+      const isLong = this.completedPomodoros() > 0 && (this.completedPomodoros() % this.longBreakInterval() === 0);
+      this.isBreak.set(false);
+      this.totalSessionTime.set(this.focusDuration() * 60);
+      this.timeLeft.set(this.focusDuration() * 60);
+      this.arenaState.set('setup');
+
+      if (isLong) {
+        this.playLongBreakAlarm();
+        if (this.longBreakNotificationEnabled()) {
+          this.sendDesktopNotification(
+            '🌴 ¡Descanso Largo Finalizado!',
+            'Tu pausa extendida ha concluido. ¡Energía al 100% para continuar!'
+          );
+        }
+      } else {
+        this.playBreakAlarm();
+        if (this.breakNotificationEnabled()) {
+          this.sendDesktopNotification(
+            '☕ ¡Descanso Breve Finalizado!',
+            'Tu energía está recargada. Es hora de volver al enfoque.'
+          );
+        }
+      }
+
+      this.startTitleFlashing(
+        'COFU - 00:00 ¡Descanso listo! ⚡',
+        'COFU - Concentración 🎯'
+      );
     }
   }
 
   startTitleFlashing(text1: string, text2: string) {
+    if (!this.tabNotificationsEnabled()) return;
     this.stopTitleFlashing();
     let toggle = false;
     document.title = text1;
 
+    // Alternancia suave y discreta del título cada 1.5s
     this.titleFlashingInterval = setInterval(() => {
       toggle = !toggle;
       document.title = toggle ? text1 : text2;
-    }, 850);
+    }, 1500);
   }
 
   stopTitleFlashing() {
@@ -1376,6 +1772,20 @@ export class Enfoque implements OnInit, OnDestroy {
       this.titleFlashingInterval = null;
     }
     document.title = this.originalDocumentTitle;
+  }
+
+  @HostListener('window:focus')
+  onWindowFocusAlert() {
+    if (this.titleFlashingInterval) {
+      this.stopTitleFlashing();
+    }
+  }
+
+  @HostListener('document:visibilitychange')
+  onVisibilityChangeAlert() {
+    if (typeof document !== 'undefined' && !document.hidden && this.titleFlashingInterval) {
+      this.stopTitleFlashing();
+    }
   }
 
   updateLiveTabTitle() {
@@ -1449,6 +1859,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Iniciar Flujo: Lanza el Ritual 3-2-1
   startFocusFlow(bypassModal = false) {
+    this.requestNotificationPermission();
     this.stopTitleFlashing();
     this.showSupportMessageModal.set(false);
     this.manuallyAbandoned.set(false);
@@ -1544,7 +1955,6 @@ export class Enfoque implements OnInit, OnDestroy {
           this.stopEmergencyTimer();
           this.stopTimerLoop();
           this.stopBackgroundSound();
-          this.backgroundSound.set('off');
           this.membership.isFocusActive.set(false);
           
           this.sessionEndingStatus.set('interrupted');
@@ -1586,7 +1996,9 @@ export class Enfoque implements OnInit, OnDestroy {
 
           // Mostrar modal informativo de cancelación
           this.showInterruptedModal.set(true);
-          this.playTone(150, 'sawtooth', 0.15, 0.5);
+          this.playAbandonmentSadSound();
+          const healHpInterrupted = this.bossHealAmount();
+          this.showToast(`⚠️ Sesión cancelada por inactividad (-50 ProCoins). El Jefe recuperó +${healHpInterrupted} HP.`, 'danger');
 
           // Notificación de escritorio y alerta de pestaña
           this.sendDesktopNotification(
@@ -1623,7 +2035,6 @@ export class Enfoque implements OnInit, OnDestroy {
     this.stopTimerLoop();
     this.stopEmergencyTimer();
     this.stopBackgroundSound();
-    this.backgroundSound.set('off');
     this.sessionEndingStatus.set('abandoned');
     this.manuallyAbandoned.set(true);
     this.objectiveCompleted.set('no');
@@ -1642,9 +2053,10 @@ export class Enfoque implements OnInit, OnDestroy {
     }
 
     // Cura al jefe por abandono en comunidad
+    this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
+    const healHp = this.bossHealAmount();
     if (this.coworkingMode() === 'comunitario') {
-      this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
-      this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} ha abandonado la sesión de enfoque. ¡El Oni se fortalece!`, 'reaction');
+      this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} ha abandonado la sesión de enfoque. ¡El Oni recuperó +${healHp} HP!`, 'reaction');
     }
 
     // Reiniciar pomodoro directamente al estado setup
@@ -1653,45 +2065,18 @@ export class Enfoque implements OnInit, OnDestroy {
     this.timeLeft.set(this.focusDuration() * 60);
     this.arenaState.set('setup');
     this.objectiveCompleted.set(null);
+
+    // Reproducir sonido triste / deprimente al abandonar la sesión
+    this.playAbandonmentSadSound();
+
+    // Notificación toast en la parte inferior informando de cuánto ayudó al jefe
+    this.showToast(`💔 Has abandonado la sesión (-50 ProCoins). El Jefe de la Comunidad recuperó +${healHp} HP.`, 'danger');
     this.router.navigate(['/enfoque']);
   }
 
   simulateCompletion() {
     this.timeLeft.set(0);
-    this.stopTimerLoop();
-    this.stopEmergencyTimer();
-    this.membership.isFocusActive.set(false);
-    
-    if (!this.isBreak()) {
-      this.sessionEndingStatus.set('completed');
-      this.objectiveCompleted.set('yes');
-      this.arenaState.set('summary');
-      this.playAlarmTone();
-      this.triggerCelebration();
-
-      this.sendDesktopNotification(
-        '🍅 ¡Pomodoro Completado!',
-        '¡Excelente trabajo! Has completado tu bloque de concentración. Haz clic aquí para reclamar tus monedas y registrar tu progreso.'
-      );
-      this.startTitleFlashing(
-        '🔔 COFU - 00:00 ¡COMPLETADO! 🍅',
-        '✨ ¡CLIC AQUÍ PARA RECLAMAR MONEDAS! 🏆'
-      );
-    } else {
-      this.isBreak.set(false);
-      this.totalSessionTime.set(this.focusDuration() * 60);
-      this.timeLeft.set(this.focusDuration() * 60);
-      this.arenaState.set('setup');
-
-      this.sendDesktopNotification(
-        '⚡ ¡Descanso Finalizado!',
-        'Tu energía está recargada. Haz clic aquí para iniciar tu sesión de enfoque.'
-      );
-      this.startTitleFlashing(
-        '🔔 COFU - 00:00 ¡DESCANSO TERMINADO! ⚡',
-        '🚀 ¡CLIC AQUÍ PARA CONCENTRARTE! 🎯'
-      );
-    }
+    this.handleTimerCompleted();
   }
 
   triggerCelebration() {
@@ -1734,9 +2119,9 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   async finishSessionAndStart(nextState: 'short' | 'long' | 'exit') {
+    this.requestNotificationPermission();
     this.stopTitleFlashing();
     this.stopBackgroundSound();
-    this.backgroundSound.set('off');
     this.membership.isFocusActive.set(false);
 
     const currentStatus = this.sessionEndingStatus();
@@ -1932,7 +2317,6 @@ export class Enfoque implements OnInit, OnDestroy {
     this.stopTimerLoop();
     this.stopEmergencyTimer();
     this.stopBackgroundSound();
-    this.backgroundSound.set('off');
     this.objectiveCompleted.set(null);
     this.isBreak.set(false);
     this.totalSessionTime.set(this.focusDuration() * 60);
@@ -2173,57 +2557,255 @@ export class Enfoque implements OnInit, OnDestroy {
     return buffer;
   }
 
-  updateBackgroundSound(sound: 'off' | 'cafe' | 'lluvia' | 'reloj_pared' | 'reloj_pulsera' | 'fogata' | 'bosque' | 'olas') {
+  private createDigitalClockBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 1; // 1 segundo (1 pulso sutil por segundo)
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    const duration = Math.round(ctx.sampleRate * 0.012); // 12ms ultra suave
+    for (let i = 0; i < duration; i++) {
+      const t = i / ctx.sampleRate;
+      const tone1 = Math.sin(2 * Math.PI * 1050 * t);
+      const tone2 = Math.sin(2 * Math.PI * 1400 * t) * 0.35;
+      const env = Math.exp(-380 * t);
+      data[i] = (tone1 + tone2) * env * 0.22;
+    }
+    return buffer;
+  }
+
+  private createPinkNoiseBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 2;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let b0 = 0.0, b1 = 0.0, b2 = 0.0, b3 = 0.0, b4 = 0.0, b5 = 0.0, b6 = 0.0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      const pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+      b6 = white * 0.115926;
+      data[i] = pink * 0.16;
+    }
+    return buffer;
+  }
+
+  private createWindBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 4; // 4 segundos
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let lastOut = 0.0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      data[i] = (lastOut + (0.008 * white)) / 1.008;
+      lastOut = data[i];
+      const mod = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin((2 * Math.PI * 0.25 * i) / ctx.sampleRate));
+      data[i] *= mod * 1.8;
+    }
+    return buffer;
+  }
+
+  private createKeyboardBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = ctx.sampleRate * 4; // 4 segundos
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    const keyTimes = [0.15, 0.38, 0.62, 0.85, 1.25, 1.45, 1.70, 2.05, 2.30, 2.55, 2.90, 3.20, 3.50, 3.75];
+    
+    for (const sec of keyTimes) {
+      const startIdx = Math.round(sec * ctx.sampleRate);
+      const clickDuration = Math.round(ctx.sampleRate * 0.018); // 18ms
+      const basePitch = 420 + Math.random() * 180;
+      
+      for (let j = 0; j < clickDuration; j++) {
+        if (startIdx + j >= bufferSize) break;
+        const t = j / ctx.sampleRate;
+        const click = Math.sin(2 * Math.PI * basePitch * t) * Math.exp(-220 * t);
+        const texture = (Math.random() * 2 - 1) * Math.exp(-400 * t) * 0.15;
+        data[startIdx + j] += (click + texture) * 0.22;
+      }
+    }
+    return buffer;
+  }
+
+  getBackgroundSoundLabel(sound: string): string {
+    const found = this.backgroundSoundsList.find(s => s.id === sound);
+    return found ? found.name : 'Silencio';
+  }
+
+  getEndSessionSoundLabel(sound: string): string {
+    const found = this.endSessionSoundsList.find(s => s.id === sound);
+    return found ? found.name : 'Tone';
+  }
+
+  updateBackgroundSound(sound: string) {
     this.backgroundSound.set(sound);
+    localStorage.setItem('focus-bg-sound', sound);
+    
+    // Limpiar timeout de prueba previa si existía
+    if (this.previewSoundTimeout) {
+      clearTimeout(this.previewSoundTimeout);
+      this.previewSoundTimeout = null;
+    }
+    this.isPlayingPreview.set(false);
     this.stopBackgroundSound();
 
     if (sound === 'off') return;
 
+    // Si el pomodoro está actualmente activo y corriendo, reproducir continuo
+    if (this.timerRunning() && this.arenaState() === 'active' && !this.isBreak() && !this.emergencyPauseActive()) {
+      this.startBackgroundAudio(sound);
+      return;
+    }
+
+    // Si está en setup o pausa, reproducir vista previa de prueba por 4 segundos
+    this.isPlayingPreview.set(true);
+    this.startBackgroundAudio(sound);
+
+    this.previewSoundTimeout = setTimeout(() => {
+      this.stopBackgroundSound();
+      this.isPlayingPreview.set(false);
+      this.previewSoundTimeout = null;
+    }, 4000);
+  }
+
+  updateBreakBackgroundSound(sound: string) {
+    this.breakBackgroundSound.set(sound);
+    localStorage.setItem('focus-break-bg-sound', sound);
+    
+    // Limpiar timeout de prueba previa si existía
+    if (this.previewSoundTimeout) {
+      clearTimeout(this.previewSoundTimeout);
+      this.previewSoundTimeout = null;
+    }
+    this.isPlayingPreview.set(false);
+    this.stopBackgroundSound();
+
+    if (sound === 'off') return;
+
+    // Si el descanso está actualmente activo y corriendo, reproducir continuo
+    if (this.timerRunning() && this.arenaState() === 'active' && this.isBreak() && !this.emergencyPauseActive()) {
+      this.startBackgroundAudio(sound);
+      return;
+    }
+
+    // Si no está corriendo en descanso, reproducir vista previa de prueba por 4 segundos
+    this.isPlayingPreview.set(true);
+    this.startBackgroundAudio(sound);
+
+    this.previewSoundTimeout = setTimeout(() => {
+      this.stopBackgroundSound();
+      this.isPlayingPreview.set(false);
+      this.previewSoundTimeout = null;
+    }, 4000);
+  }
+
+  updateLongBreakBackgroundSound(sound: string) {
+    this.longBreakBackgroundSound.set(sound);
+    localStorage.setItem('focus-long-break-bg-sound', sound);
+    
+    // Limpiar timeout de prueba previa si existía
+    if (this.previewSoundTimeout) {
+      clearTimeout(this.previewSoundTimeout);
+      this.previewSoundTimeout = null;
+    }
+    this.isPlayingPreview.set(false);
+    this.stopBackgroundSound();
+
+    if (sound === 'off') return;
+
+    const isLongBreak = this.isBreak() && this.completedPomodoros() > 0 && (this.completedPomodoros() % this.longBreakInterval() === 0);
+    if (this.timerRunning() && this.arenaState() === 'active' && isLongBreak && !this.emergencyPauseActive()) {
+      this.startBackgroundAudio(sound);
+      return;
+    }
+
+    this.isPlayingPreview.set(true);
+    this.startBackgroundAudio(sound);
+
+    this.previewSoundTimeout = setTimeout(() => {
+      this.stopBackgroundSound();
+      this.isPlayingPreview.set(false);
+      this.previewSoundTimeout = null;
+    }, 4000);
+  }
+
+  private startBackgroundAudio(sound: string) {
+    if (sound === 'off') return;
+    this.stopBackgroundSound();
+
+    const soundOption = this.backgroundSoundsList.find(s => s.id === sound);
+    if (!soundOption) return;
+
     try {
-      if (!this.backgroundAudioCtx) {
-        this.backgroundAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      if (soundOption.type === 'file' && soundOption.file) {
+        const audio = new Audio('assets/sounds/' + soundOption.file);
+        audio.loop = true;
+        audio.volume = this.backgroundVolume();
+        audio.play().catch(e => console.warn('Audio play background error:', e));
+        this.currentBackgroundAudio = audio;
+      } else if (soundOption.type === 'ticking' && soundOption.files && soundOption.files.length > 0) {
+        let tickIdx = 0;
+        const playTick = () => {
+          const file = soundOption.files![tickIdx % soundOption.files!.length];
+          tickIdx++;
+          const a = new Audio('assets/sounds/' + file);
+          a.volume = this.backgroundVolume();
+          a.play().catch(() => {});
+        };
+        playTick();
+        this.tickingInterval = setInterval(playTick, 1000);
+      } else if (soundOption.type === 'synth') {
+        if (!this.backgroundAudioCtx) {
+          this.backgroundAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        }
+        if (this.backgroundAudioCtx.state === 'suspended') {
+          this.backgroundAudioCtx.resume();
+        }
+
+        let buffer: AudioBuffer;
+        if (sound === 'cafe') {
+          buffer = this.createBrownNoiseBuffer(this.backgroundAudioCtx);
+        } else if (sound === 'lluvia') {
+          buffer = this.createRainNoiseBuffer(this.backgroundAudioCtx);
+        } else if (sound === 'reloj_digital') {
+          buffer = this.createDigitalClockBuffer(this.backgroundAudioCtx);
+        } else if (sound === 'fogata') {
+          buffer = this.createCampfireBuffer(this.backgroundAudioCtx);
+        } else if (sound === 'bosque') {
+          buffer = this.createForestBuffer(this.backgroundAudioCtx);
+        } else if (sound === 'viento') {
+          buffer = this.createWindBuffer(this.backgroundAudioCtx);
+        } else if (sound === 'teclado') {
+          buffer = this.createKeyboardBuffer(this.backgroundAudioCtx);
+        } else if (sound === 'ruido_rosa') {
+          buffer = this.createPinkNoiseBuffer(this.backgroundAudioCtx);
+        } else {
+          buffer = this.createOceanWavesBuffer(this.backgroundAudioCtx);
+        }
+
+        this.backgroundSource = this.backgroundAudioCtx.createBufferSource();
+        this.backgroundSource.buffer = buffer;
+        this.backgroundSource.loop = true;
+
+        this.backgroundGain = this.backgroundAudioCtx.createGain();
+        this.backgroundGain.gain.value = this.backgroundVolume();
+
+        if (sound === 'lluvia' || sound === 'viento') {
+          const filter = this.backgroundAudioCtx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.value = sound === 'viento' ? 600 : 1400;
+          this.backgroundSource.connect(filter);
+          filter.connect(this.backgroundGain);
+        } else {
+          this.backgroundSource.connect(this.backgroundGain);
+        }
+
+        this.backgroundGain.connect(this.backgroundAudioCtx.destination);
+        this.backgroundSource.start(0);
       }
-
-      if (this.backgroundAudioCtx.state === 'suspended') {
-        this.backgroundAudioCtx.resume();
-      }
-
-      let buffer: AudioBuffer;
-      if (sound === 'cafe') {
-        buffer = this.createBrownNoiseBuffer(this.backgroundAudioCtx);
-      } else if (sound === 'lluvia') {
-        buffer = this.createRainNoiseBuffer(this.backgroundAudioCtx);
-      } else if (sound === 'reloj_pared') {
-        buffer = this.createWallClockBuffer(this.backgroundAudioCtx);
-      } else if (sound === 'reloj_pulsera') {
-        buffer = this.createWristwatchBuffer(this.backgroundAudioCtx);
-      } else if (sound === 'fogata') {
-        buffer = this.createCampfireBuffer(this.backgroundAudioCtx);
-      } else if (sound === 'bosque') {
-        buffer = this.createForestBuffer(this.backgroundAudioCtx);
-      } else {
-        buffer = this.createOceanWavesBuffer(this.backgroundAudioCtx);
-      }
-
-      this.backgroundSource = this.backgroundAudioCtx.createBufferSource();
-      this.backgroundSource.buffer = buffer;
-      this.backgroundSource.loop = true;
-
-      this.backgroundGain = this.backgroundAudioCtx.createGain();
-      this.backgroundGain.gain.value = this.backgroundVolume();
-
-      if (sound === 'lluvia') {
-        const filter = this.backgroundAudioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 1400; // filtro para lluvia suave
-        this.backgroundSource.connect(filter);
-        filter.connect(this.backgroundGain);
-      } else {
-        this.backgroundSource.connect(this.backgroundGain);
-      }
-
-      this.backgroundGain.connect(this.backgroundAudioCtx.destination);
-      this.backgroundSource.start(0);
     } catch (e) {
       console.error('Error al iniciar audio de fondo:', e);
     }
@@ -2231,12 +2813,27 @@ export class Enfoque implements OnInit, OnDestroy {
 
   updateBackgroundVolume(vol: number) {
     this.backgroundVolume.set(vol);
+    localStorage.setItem('focus-bg-volume', vol.toString());
+    if (this.currentBackgroundAudio) {
+      this.currentBackgroundAudio.volume = vol;
+    }
     if (this.backgroundGain) {
       this.backgroundGain.gain.setValueAtTime(vol, this.backgroundAudioCtx ? this.backgroundAudioCtx.currentTime : 0);
     }
   }
 
   stopBackgroundSound() {
+    if (this.currentBackgroundAudio) {
+      try {
+        this.currentBackgroundAudio.pause();
+        this.currentBackgroundAudio.currentTime = 0;
+      } catch (e) {}
+      this.currentBackgroundAudio = null;
+    }
+    if (this.tickingInterval) {
+      clearInterval(this.tickingInterval);
+      this.tickingInterval = null;
+    }
     if (this.backgroundSource) {
       try {
         this.backgroundSource.stop();
@@ -2247,6 +2844,309 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.backgroundGain) {
       this.backgroundGain.disconnect();
       this.backgroundGain = null;
+    }
+  }
+
+  togglePreviewBackgroundSound() {
+    if (this.isPlayingPreview()) {
+      this.stopBackgroundSound();
+      this.isPlayingPreview.set(false);
+      if (this.previewSoundTimeout) {
+        clearTimeout(this.previewSoundTimeout);
+        this.previewSoundTimeout = null;
+      }
+      return;
+    }
+
+    if (this.backgroundSound() === 'off') {
+      this.updateBackgroundSound('lluvia');
+      return;
+    }
+
+    this.isPlayingPreview.set(true);
+    this.startBackgroundAudio(this.backgroundSound());
+
+    if (this.previewSoundTimeout) {
+      clearTimeout(this.previewSoundTimeout);
+    }
+    this.previewSoundTimeout = setTimeout(() => {
+      if (this.isPlayingPreview() && (!this.timerRunning() || this.arenaState() !== 'active')) {
+        this.stopBackgroundSound();
+        this.isPlayingPreview.set(false);
+      }
+      this.previewSoundTimeout = null;
+    }, 8000);
+  }
+
+  togglePreviewBreakBackgroundSound() {
+    if (this.isPlayingPreview()) {
+      this.stopBackgroundSound();
+      this.isPlayingPreview.set(false);
+      if (this.previewSoundTimeout) {
+        clearTimeout(this.previewSoundTimeout);
+        this.previewSoundTimeout = null;
+      }
+      return;
+    }
+
+    if (this.breakBackgroundSound() === 'off') {
+      this.updateBreakBackgroundSound('olas');
+      return;
+    }
+
+    this.isPlayingPreview.set(true);
+    this.startBackgroundAudio(this.breakBackgroundSound());
+
+    if (this.previewSoundTimeout) {
+      clearTimeout(this.previewSoundTimeout);
+    }
+    this.previewSoundTimeout = setTimeout(() => {
+      if (this.isPlayingPreview() && (!this.timerRunning() || this.arenaState() !== 'active')) {
+        this.stopBackgroundSound();
+        this.isPlayingPreview.set(false);
+      }
+      this.previewSoundTimeout = null;
+    }, 8000);
+  }
+
+  togglePreviewLongBreakBackgroundSound() {
+    if (this.isPlayingPreview()) {
+      this.stopBackgroundSound();
+      this.isPlayingPreview.set(false);
+      if (this.previewSoundTimeout) {
+        clearTimeout(this.previewSoundTimeout);
+        this.previewSoundTimeout = null;
+      }
+      return;
+    }
+
+    if (this.longBreakBackgroundSound() === 'off') {
+      this.updateLongBreakBackgroundSound('bosque');
+      return;
+    }
+
+    this.isPlayingPreview.set(true);
+    this.startBackgroundAudio(this.longBreakBackgroundSound());
+
+    if (this.previewSoundTimeout) {
+      clearTimeout(this.previewSoundTimeout);
+    }
+    this.previewSoundTimeout = setTimeout(() => {
+      if (this.isPlayingPreview() && (!this.timerRunning() || this.arenaState() !== 'active')) {
+        this.stopBackgroundSound();
+        this.isPlayingPreview.set(false);
+      }
+      this.previewSoundTimeout = null;
+    }, 8000);
+  }
+
+  toggleFocusSound(enabled: boolean) {
+    this.soundEnabled.set(enabled);
+    localStorage.setItem('focus-sound-enabled', String(enabled));
+  }
+
+  toggleBreakSound(enabled: boolean) {
+    this.breakSoundEnabled.set(enabled);
+    localStorage.setItem('focus-break-sound-enabled', String(enabled));
+  }
+
+  setEndSessionSound(soundId: string) {
+    this.endSessionSound.set(soundId);
+    localStorage.setItem('focus-end-sound', soundId);
+    this.previewAlarmSound(soundId);
+  }
+
+  setBreakEndSound(soundId: string) {
+    this.breakEndSound.set(soundId);
+    localStorage.setItem('focus-break-sound', soundId);
+    this.previewAlarmSound(soundId);
+  }
+
+  setLongBreakEndSound(soundId: string) {
+    this.longBreakEndSound.set(soundId);
+    localStorage.setItem('focus-long-break-sound', soundId);
+    this.previewAlarmSound(soundId);
+  }
+
+  previewAlarmSound(soundId: string) {
+    const sound = this.endSessionSoundsList.find(s => s.id === soundId);
+    if (!sound) return;
+    try {
+      if (this.currentEndAudio) {
+        this.currentEndAudio.pause();
+        this.currentEndAudio = null;
+      }
+      const audio = new Audio('assets/sounds/' + sound.file);
+      audio.volume = 1.0;
+      audio.play().catch(e => console.warn('Preview alarm error:', e));
+      this.currentEndAudio = audio;
+    } catch (e) {}
+  }
+
+  playFocusAlarm() {
+    if (!this.soundEnabled()) return;
+    this.previewAlarmSound(this.endSessionSound());
+  }
+
+  playBreakAlarm() {
+    if (!this.breakSoundEnabled()) return;
+    this.previewAlarmSound(this.breakEndSound());
+  }
+
+  playLongBreakAlarm() {
+    if (!this.breakSoundEnabled()) return;
+    this.previewAlarmSound(this.longBreakEndSound());
+  }
+
+  // ==================== INTERACCIONES DEL CUSTOM SELECT MODERNO ====================
+  toggleBgDropdown(event?: Event) {
+    if (event) event.stopPropagation();
+    const curr = this.isBgDropdownOpen();
+    this.closeAllSoundDropdowns();
+    this.isBgDropdownOpen.set(!curr);
+  }
+
+  toggleBreakBgDropdown(event?: Event) {
+    if (event) event.stopPropagation();
+    const curr = this.isBreakBgDropdownOpen();
+    this.closeAllSoundDropdowns();
+    this.isBreakBgDropdownOpen.set(!curr);
+  }
+
+  toggleLongBreakBgDropdown(event?: Event) {
+    if (event) event.stopPropagation();
+    const curr = this.isLongBreakBgDropdownOpen();
+    this.closeAllSoundDropdowns();
+    this.isLongBreakBgDropdownOpen.set(!curr);
+  }
+
+  toggleFocusAlarmDropdown(event?: Event) {
+    if (event) event.stopPropagation();
+    const curr = this.isFocusAlarmDropdownOpen();
+    this.closeAllSoundDropdowns();
+    this.isFocusAlarmDropdownOpen.set(!curr);
+  }
+
+  toggleBreakAlarmDropdown(event?: Event) {
+    if (event) event.stopPropagation();
+    const curr = this.isBreakAlarmDropdownOpen();
+    this.closeAllSoundDropdowns();
+    this.isBreakAlarmDropdownOpen.set(!curr);
+  }
+
+  toggleLongBreakAlarmDropdown(event?: Event) {
+    if (event) event.stopPropagation();
+    const curr = this.isLongBreakAlarmDropdownOpen();
+    this.closeAllSoundDropdowns();
+    this.isLongBreakAlarmDropdownOpen.set(!curr);
+  }
+
+  closeAllSoundDropdowns() {
+    this.isBgDropdownOpen.set(false);
+    this.isBreakBgDropdownOpen.set(false);
+    this.isLongBreakBgDropdownOpen.set(false);
+    this.isFocusAlarmDropdownOpen.set(false);
+    this.isBreakAlarmDropdownOpen.set(false);
+    this.isLongBreakAlarmDropdownOpen.set(false);
+  }
+
+  selectBgSound(soundId: string, event?: Event) {
+    if (event) event.stopPropagation();
+    this.updateBackgroundSound(soundId);
+    this.isBgDropdownOpen.set(false);
+    this.previewingSoundId.set(null);
+  }
+
+  selectBreakBgSound(soundId: string, event?: Event) {
+    if (event) event.stopPropagation();
+    this.updateBreakBackgroundSound(soundId);
+    this.isBreakBgDropdownOpen.set(false);
+    this.previewingSoundId.set(null);
+  }
+
+  selectLongBreakBgSound(soundId: string, event?: Event) {
+    if (event) event.stopPropagation();
+    this.updateLongBreakBackgroundSound(soundId);
+    this.isLongBreakBgDropdownOpen.set(false);
+    this.previewingSoundId.set(null);
+  }
+
+  selectFocusAlarm(soundId: string, event?: Event) {
+    if (event) event.stopPropagation();
+    this.setEndSessionSound(soundId);
+    this.isFocusAlarmDropdownOpen.set(false);
+  }
+
+  selectBreakAlarm(soundId: string, event?: Event) {
+    if (event) event.stopPropagation();
+    this.setBreakEndSound(soundId);
+    this.isBreakAlarmDropdownOpen.set(false);
+  }
+
+  selectLongBreakAlarm(soundId: string, event?: Event) {
+    if (event) event.stopPropagation();
+    this.setLongBreakEndSound(soundId);
+    this.isLongBreakAlarmDropdownOpen.set(false);
+  }
+
+  previewSpecificBgSound(soundId: string, event?: Event) {
+    if (event) event.stopPropagation();
+    
+    if (this.previewingSoundId() === soundId && this.isPlayingPreview()) {
+      this.stopBackgroundSound();
+      this.isPlayingPreview.set(false);
+      this.previewingSoundId.set(null);
+      if (this.previewSoundTimeout) {
+        clearTimeout(this.previewSoundTimeout);
+        this.previewSoundTimeout = null;
+      }
+      return;
+    }
+
+    if (soundId === 'off') {
+      this.stopBackgroundSound();
+      this.isPlayingPreview.set(false);
+      this.previewingSoundId.set(null);
+      return;
+    }
+
+    this.isPlayingPreview.set(true);
+    this.previewingSoundId.set(soundId);
+    this.startBackgroundAudio(soundId);
+
+    if (this.previewSoundTimeout) {
+      clearTimeout(this.previewSoundTimeout);
+    }
+    this.previewSoundTimeout = setTimeout(() => {
+      if (this.previewingSoundId() === soundId) {
+        this.stopBackgroundSound();
+        this.isPlayingPreview.set(false);
+        this.previewingSoundId.set(null);
+      }
+      this.previewSoundTimeout = null;
+    }, 6000);
+  }
+
+  getCategoryInfo(cat: 'natural' | 'urbano' | 'reloj' | 'sintetico' | string) {
+    switch (cat) {
+      case 'natural':
+        return { name: 'Naturaleza HQ', icon: 'fa-tree', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)' };
+      case 'urbano':
+        return { name: 'Ciudad & Cafés', icon: 'fa-mug-hot', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' };
+      case 'reloj':
+        return { name: 'Tic-Tac Rítmico', icon: 'fa-clock', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' };
+      case 'sintetico':
+        return { name: 'Zen & ASMR', icon: 'fa-sparkles', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.15)', border: 'rgba(168, 85, 247, 0.3)' };
+      default:
+        return { name: 'Frecuencia', icon: 'fa-headphones', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)', border: 'rgba(148, 163, 184, 0.3)' };
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-sound-select-box')) {
+      this.closeAllSoundDropdowns();
     }
   }
 
@@ -2268,6 +3168,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.stopTimerLoop();
     this.stopEmergencyTimer();
     this.stopBackgroundSound();
+    if (this.previewSoundTimeout) clearTimeout(this.previewSoundTimeout);
     if (this.countdownTimer) clearInterval(this.countdownTimer);
     if (this.communityInterval) clearInterval(this.communityInterval);
     if (this.bodyDoublingInterval) clearInterval(this.bodyDoublingInterval);
@@ -2347,6 +3248,11 @@ export class Enfoque implements OnInit, OnDestroy {
 
   applyTimeSettings() {
     this.stopTimerLoop();
+    localStorage.setItem('focus-duration', String(this.focusDuration()));
+    localStorage.setItem('break-duration', String(this.breakDuration()));
+    localStorage.setItem('long-break-interval', String(this.longBreakInterval()));
+    localStorage.setItem('long-break-duration', String(this.longBreakDuration()));
+
     if (!this.isBreak()) {
       this.totalSessionTime.set(this.focusDuration() * 60);
       this.timeLeft.set(this.focusDuration() * 60);
@@ -2356,6 +3262,30 @@ export class Enfoque implements OnInit, OnDestroy {
       this.totalSessionTime.set(duration * 60);
       this.timeLeft.set(duration * 60);
     }
+  }
+
+  updateFocusDuration(val: number | string) {
+    const num = Math.min(180, Math.max(1, parseInt(String(val), 10) || 25));
+    this.focusDuration.set(num);
+    this.applyTimeSettings();
+  }
+
+  updateBreakDuration(val: number | string) {
+    const num = Math.min(60, Math.max(1, parseInt(String(val), 10) || 5));
+    this.breakDuration.set(num);
+    this.applyTimeSettings();
+  }
+
+  updateLongBreakDuration(val: number | string) {
+    const num = Math.min(120, Math.max(1, parseInt(String(val), 10) || 15));
+    this.longBreakDuration.set(num);
+    this.applyTimeSettings();
+  }
+
+  updateLongBreakInterval(val: number | string) {
+    const num = Math.min(24, Math.max(1, parseInt(String(val), 10) || 4));
+    this.longBreakInterval.set(num);
+    this.applyTimeSettings();
   }
 
   // Setter auxiliar de tipo de sonido
@@ -2651,41 +3581,7 @@ export class Enfoque implements OnInit, OnDestroy {
       }
     } else {
       // El tiempo expiró mientras la pestaña estuvo cerrada o en segundo plano
-      this.clearPersistedSession();
-      this.timeLeft.set(0);
-      this.stopTimerLoop();
-      this.membership.isFocusActive.set(false);
-
-      if (!isBreak) {
-        this.sessionEndingStatus.set('completed');
-        this.objectiveCompleted.set('yes');
-        this.arenaState.set('summary');
-        this.playAlarmTone();
-        this.triggerCelebration();
-
-        this.sendDesktopNotification(
-          '🍅 ¡Pomodoro Completado!',
-          '¡Excelente trabajo! Has completado tu bloque de concentración. Haz clic aquí para reclamar tus monedas y registrar tu progreso.'
-        );
-        this.startTitleFlashing(
-          '🔔 COFU - 00:00 ¡COMPLETADO! 🍅',
-          '✨ ¡CLIC AQUÍ PARA RECLAMAR MONEDAS! 🏆'
-        );
-      } else {
-        this.isBreak.set(false);
-        this.totalSessionTime.set(this.focusDuration() * 60);
-        this.timeLeft.set(this.focusDuration() * 60);
-        this.arenaState.set('setup');
-
-        this.sendDesktopNotification(
-          '⚡ ¡Descanso Finalizado!',
-          'Tu energía está recargada. Haz clic aquí para iniciar tu sesión de enfoque.'
-        );
-        this.startTitleFlashing(
-          '🔔 COFU - 00:00 ¡DESCANSO TERMINADO! ⚡',
-          '🚀 ¡CLIC AQUÍ PARA CONCENTRARTE! 🎯'
-        );
-      }
+      this.handleTimerCompleted();
     }
   }
 
@@ -2701,8 +3597,18 @@ export class Enfoque implements OnInit, OnDestroy {
       this.persistSessionState();
     }
 
-    if (this.backgroundSound() !== 'off') {
-      this.updateBackgroundSound(this.backgroundSound());
+    if (!this.isBreak()) {
+      if (this.backgroundSound() !== 'off' && !this.emergencyPauseActive()) {
+        this.startBackgroundAudio(this.backgroundSound());
+      }
+    } else {
+      const isLong = this.completedPomodoros() > 0 && (this.completedPomodoros() % this.longBreakInterval() === 0);
+      const soundToPlay = isLong && this.longBreakBackgroundSound() !== 'off' 
+        ? this.longBreakBackgroundSound() 
+        : this.breakBackgroundSound();
+      if (soundToPlay !== 'off' && !this.emergencyPauseActive()) {
+        this.startBackgroundAudio(soundToPlay);
+      }
     }
 
     if (this.pomodoroTimer) {
@@ -2739,49 +3645,17 @@ export class Enfoque implements OnInit, OnDestroy {
         }
 
         if (remaining <= 0) {
-          // Al terminar con éxito
-          this.clearPersistedSession();
-          this.stopTimerLoop();
-          this.membership.isFocusActive.set(false);
-          if (!this.isBreak()) {
-            // Cambiar a descanso y lanzar cuestionario como completado
-            this.sessionEndingStatus.set('completed');
-            this.objectiveCompleted.set('yes');
-            this.arenaState.set('summary');
-            this.playAlarmTone();
-            this.triggerCelebration();
-
-            this.sendDesktopNotification(
-              '🍅 ¡Pomodoro Completado!',
-              '¡Excelente trabajo! Has completado tu bloque de concentración. Haz clic aquí para reclamar tus monedas y registrar tu progreso.'
-            );
-            this.startTitleFlashing(
-              '🔔 COFU - 00:00 ¡COMPLETADO! 🍅',
-              '✨ ¡CLIC AQUÍ PARA RECLAMAR MONEDAS! 🏆'
-            );
-          } else {
-            // Fin del descanso, vuelve a enfoque setup
-            this.isBreak.set(false);
-            this.totalSessionTime.set(this.focusDuration() * 60);
-            this.timeLeft.set(this.focusDuration() * 60);
-            this.arenaState.set('setup');
-
-            this.sendDesktopNotification(
-              '⚡ ¡Descanso Finalizado!',
-              'Tu energía está recargada. Haz clic aquí para iniciar tu sesión de enfoque.'
-            );
-            this.startTitleFlashing(
-              '🔔 COFU - 00:00 ¡DESCANSO TERMINADO! ⚡',
-              '🚀 ¡CLIC AQUÍ PARA CONCENTRARTE! 🎯'
-            );
-          }
+          this.handleTimerCompleted();
         }
       } else {
         if (this.timeLeft() > 0) {
           this.timeLeft.update(t => t - 1);
           this.updateLiveTabTitle();
+          if (this.timeLeft() <= 0) {
+            this.handleTimerCompleted();
+          }
         } else {
-          this.stopTimerLoop();
+          this.handleTimerCompleted();
         }
       }
     }, 1000);
@@ -2820,9 +3694,89 @@ export class Enfoque implements OnInit, OnDestroy {
     } catch(e){}
   }
 
-  // Campana sonora configurable con ricas frecuencias y acordes
+  // Sonido triste / deprimente y melancólico al abandonar la sesión
+  playAbandonmentSadSound() {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const now = audioCtx.currentTime;
+
+      // Secuencia triste descendente menor (Wah-wah-wah-waaaah / Melancolía)
+      const notes = [
+        { freq: 392.00, start: 0.0, dur: 0.35, vol: 0.28 },  // G4
+        { freq: 369.99, start: 0.35, dur: 0.35, vol: 0.28 }, // F#4
+        { freq: 349.23, start: 0.70, dur: 0.40, vol: 0.30 }, // F4
+        { freq: 311.13, start: 1.10, dur: 1.50, vol: 0.38, slideTo: 185.00 } // Eb4 -> Gb3 (deslizamiento triste prolongado)
+      ];
+
+      notes.forEach((n) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        // Onda triangular con filtro para textura melancólica sombría
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(n.freq, now + n.start);
+
+        if (n.slideTo) {
+          osc.frequency.exponentialRampToValueAtTime(n.slideTo, now + n.start + n.dur);
+        }
+
+        // Envolvente de volumen
+        gain.gain.setValueAtTime(0.001, now + n.start);
+        gain.gain.linearRampToValueAtTime(n.vol, now + n.start + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + n.start + n.dur);
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(900, now + n.start);
+        if (n.slideTo) {
+          filter.frequency.linearRampToValueAtTime(320, now + n.start + n.dur);
+        }
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now + n.start);
+        osc.stop(now + n.start + n.dur);
+      });
+
+      // Sub-bajo de energía decayendo (Gota de desánimo)
+      const subOsc = audioCtx.createOscillator();
+      const subGain = audioCtx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(120, now + 1.1);
+      subOsc.frequency.exponentialRampToValueAtTime(42, now + 2.5);
+      subGain.gain.setValueAtTime(0.001, now + 1.1);
+      subGain.gain.linearRampToValueAtTime(0.35, now + 1.2);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 2.6);
+
+      subOsc.connect(subGain);
+      subGain.connect(audioCtx.destination);
+      subOsc.start(now + 1.1);
+      subOsc.stop(now + 2.6);
+
+    } catch (e) {
+      console.warn('Error al reproducir sonido de abandono:', e);
+    }
+  }
+
+  // Campana / Alerta sonora de fin de sesión configurable
   playAlarmTone() {
     if (!this.soundEnabled()) return;
+
+    const soundId = this.endSessionSound();
+    const sound = this.endSessionSoundsList.find(s => s.id === soundId) || this.endSessionSoundsList[0];
+    if (sound && sound.file) {
+      try {
+        const audio = new Audio('assets/sounds/' + sound.file);
+        audio.volume = 0.85;
+        audio.play().catch(err => console.warn('Alarm audio file play error, fallback to synth:', err));
+        return;
+      } catch (e) {}
+    }
 
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
