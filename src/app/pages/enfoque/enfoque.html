@@ -4013,7 +4013,7 @@
                              onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
                              onmouseout="this.style.transform='scale(1)'">
                        <i class="fa-solid fa-circle-check"></i>
-                       <span>Completado</span>
+                       <span>He terminado</span>
                      </button>
 
                      <!-- Opción 2: Avancé bastante -->
@@ -4029,7 +4029,7 @@
                              onmouseover="if(this.getAttribute('disabled') === null) this.style.transform='scale(1.03)'"
                              onmouseout="this.style.transform='scale(1)'">
                        <i class="fa-solid fa-hourglass-half"></i>
-                       <span>Avanzado</span>
+                       <span>Avancé</span>
                      </button>
 
                      <!-- Opción 3: No lo logré -->
@@ -4413,55 +4413,30 @@
   </div>
 </div>
 
-<!-- TOAST DE NOTIFICACIONES DE CO-WORKING, PENALIZACIONES Y EVENTOS (PARTE INFERIOR) -->
+<!-- TOAST DE NOTIFICACIONES DE CO-WORKING (SIMULADOR EN VIVO) -->
 <div *ngIf="showPartnerNotification()" 
-     class="enfoque-bottom-toast"
-     [ngClass]="'toast-' + partnerNotificationType()"
-     role="alert">
+     style="position: fixed; top: 20px; right: 20px; z-index: 12000; background: rgba(18, 18, 24, 0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 8px; padding: 10px 14px; max-width: 320px; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255, 255, 255, 0.05); border-left: 3px solid var(--accent); animation: slideInRight 0.25s ease-out;"
+     [style.borderLeftColor]="partnerNotificationType() === 'success' ? 'var(--green)' : (partnerNotificationType() === 'warning' ? 'var(--yellow)' : (partnerNotificationType() === 'danger' ? 'var(--red)' : 'var(--accent)'))">
   
   <!-- Icono según el tipo -->
-  <div class="enfoque-toast-icon-badge">
+  <div style="font-size: 13px; display: flex; align-items: center;">
     <i class="fa-solid" 
-       [class]="partnerNotificationType() === 'success' ? 'fa-circle-check' : (partnerNotificationType() === 'warning' ? 'fa-triangle-exclamation' : (partnerNotificationType() === 'danger' ? 'fa-triangle-exclamation' : 'fa-bell'))"></i>
+       [class]="partnerNotificationType() === 'success' ? 'fa-circle-check' : (partnerNotificationType() === 'warning' ? 'fa-circle-exclamation' : (partnerNotificationType() === 'danger' ? 'fa-circle-xmark' : 'fa-bell'))"
+       [style.color]="partnerNotificationType() === 'success' ? 'var(--green)' : (partnerNotificationType() === 'warning' ? 'var(--yellow)' : (partnerNotificationType() === 'danger' ? 'var(--red)' : 'var(--accent)'))"></i>
   </div>
 
   <!-- Contenido -->
-  <div class="enfoque-toast-body">
-    <span class="enfoque-toast-tag">
-      {{ partnerNotificationType() === 'danger' ? 'PENALIZACIÓN / INTERRUPCIÓN' : (partnerNotificationType() === 'warning' ? 'ADVERTENCIA' : (partnerNotificationType() === 'success' ? 'LOGRO DE ENFOQUE' : 'NOTIFICACIÓN')) }}
-    </span>
-    <p class="enfoque-toast-text">
+  <div style="flex: 1; display: flex; flex-direction: column; text-align: left; overflow: hidden;">
+    <p style="font-size: 11px; color: var(--text); margin: 0; line-height: 1.35; font-weight: 500; word-break: break-word;">
       {{ partnerNotificationMessage() }}
     </p>
   </div>
 
   <!-- Botón cerrar -->
-  <button class="enfoque-toast-close" (click)="showPartnerNotification.set(false)" aria-label="Cerrar notificación">
-    <i class="fa-solid fa-xmark"></i>
-  </button>
-</div>
-
-<!-- TOAST FEEDBACK DE ACCIONES DE MOTIVACIÓN Y AJUSTES (PARTE INFERIOR) -->
-<div *ngIf="motivationToast().show" 
-     class="enfoque-bottom-toast"
-     [ngClass]="'toast-' + motivationToast().type"
-     role="alert">
-  
-  <div class="enfoque-toast-icon-badge">
-    <i class="fa-solid" 
-       [class]="motivationToast().type === 'like' ? 'fa-heart' : (motivationToast().type === 'info' ? 'fa-circle-info' : 'fa-circle-check')"></i>
-  </div>
-
-  <div class="enfoque-toast-body">
-    <span class="enfoque-toast-tag">
-      {{ motivationToast().type === 'like' ? 'MOTIVACIÓN' : (motivationToast().type === 'info' ? 'INFORMACIÓN' : 'CONFIRMACIÓN') }}
-    </span>
-    <p class="enfoque-toast-text">
-      {{ motivationToast().message }}
-    </p>
-  </div>
-
-  <button class="enfoque-toast-close" (click)="motivationToast.set({ show: false, message: '', type: 'success' })" aria-label="Cerrar notificación">
+  <button (click)="showPartnerNotification.set(false)" 
+          style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 11px; padding: 0 2px; display: flex; align-items: center; justify-content: center; opacity: 0.7; transition: opacity 0.2s;"
+          onmouseover="this.style.opacity='1'"
+          onmouseout="this.style.opacity='0.7'">
     <i class="fa-solid fa-xmark"></i>
   </button>
 </div>
@@ -4568,7 +4543,7 @@
 
       <!-- Opciones del Menú (Vertical) -->
       <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-        <!-- Botón Pestaña 1: Ajustes de Tiempo -->
+        <!-- Botón Pestaña 1: Tiempos y Ciclos -->
         <button (click)="settingsActiveTab.set('time')"
                 [style.background]="settingsActiveTab() === 'time' ? 'rgba(255,255,255,0.05)' : 'transparent'"
                 [style.borderColor]="settingsActiveTab() === 'time' ? 'var(--accent)' : 'transparent'"
@@ -4631,134 +4606,99 @@
 
       <!-- Título de la Pestaña Activa -->
       <h2 style="font-size: var(--modal-title-size); font-weight: 900; color: #fff; margin: 0 0 20px 0; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; letter-spacing: 0.5px;">
-        {{ settingsActiveTab() === 'time' ? 'Configuración de Tiempo y Ciclos' : settingsActiveTab() === 'notifications' ? 'Centro de Notificaciones y Alertas' : settingsActiveTab() === 'themes' ? 'Personalización y Fondos de Espacio' : 'Estilo y Visualización del Reloj' }}
+        {{ settingsActiveTab() === 'time' ? 'Configuración de Tiempo y Sonidos' : settingsActiveTab() === 'notifications' ? 'Centro de Notificaciones y Alertas' : settingsActiveTab() === 'themes' ? 'Personalización y Fondos de Espacio' : 'Estilo y Visualización del Reloj' }}
       </h2>
 
       <!-- Contenido Scrollable -->
       <div class="custom-scrollbar" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-right: 6px;">
         
-        <!-- CONTENIDO TABS: TIME (CONFIGURACIÓN INTEGRADA DE TIEMPOS, CICLOS Y SONIDOS) -->
-        <div *ngIf="settingsActiveTab() === 'time'" style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- CONTENIDO TABS: TIME (TIEMPOS, SONIDOS Y ALARMAS POR RUBRO) -->
+        <div *ngIf="settingsActiveTab() === 'time'" style="display: flex; flex-direction: column; gap: 18px;">
           
           <!-- ================= SECCIÓN 1: CONCENTRACIÓN ================= -->
-          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
-            
-            <!-- Título con línea inferior -->
-            <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
-              <h3 style="font-size: 16px; font-weight: 800; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-bullseye" style="color: var(--accent); font-size: 15px;"></i>
-                Concentración
-              </h3>
-            </div>
-
-            <!-- Fila Duración -->
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 13.5px; color: var(--text); font-weight: 600;">Duración:</span>
-              <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 2px 6px; gap: 4px;">
-                <button type="button" (click)="updateFocusDuration(focusDuration() - 5)" style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; font-weight: 900; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">-</button>
-                <input type="number" [ngModel]="focusDuration()" (ngModelChange)="updateFocusDuration($event)" min="1" max="180" style="width: 52px; background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 800; text-align: center; font-family: monospace; outline: none;">
-                <button type="button" (click)="updateFocusDuration(focusDuration() + 5)" style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; font-weight: 900; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">+</button>
-              </div>
-              <span style="font-size: 13.5px; color: var(--muted); font-weight: 600;">minutos</span>
-            </div>
-
-            <!-- Sonido del temporizador (Fondo continuo) -->
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-              <span style="font-size: 13px; font-weight: 700; color: var(--text);">
-                Sonido del temporizador:
-              </span>
-              
-              <!-- Custom Select Dropdown -->
-              <div class="custom-sound-select-box" style="position: relative; width: 100%;">
-                <div (click)="toggleBgDropdown($event)"
-                     style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(0,0,0,0.45); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; transition: all 0.2s;"
-                     [style.borderColor]="isBgDropdownOpen() ? 'var(--accent)' : 'var(--border)'">
-                  <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
-                    <div style="width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
-                         [style.background]="getCategoryInfo(selectedBgSoundObj().category).bg"
-                         [style.color]="getCategoryInfo(selectedBgSoundObj().category).color">
-                      <i class="fa-solid" [ngClass]="selectedBgSoundObj().icon || 'fa-volume-high'" style="font-size: 12px;"></i>
-                    </div>
-                    <span style="font-size: 13px; font-weight: 800; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      {{ selectedBgSoundObj().name }}
-                    </span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    <button *ngIf="backgroundSound() !== 'off'" type="button" (click)="togglePreviewBackgroundSound(); $event.stopPropagation();"
-                            style="display: flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; border: 1px solid var(--accent); background: rgba(245,158,11,0.15); color: var(--accent); cursor: pointer;">
-                      <i class="fa-solid" [ngClass]="isPlayingPreview() ? 'fa-square' : 'fa-play'"></i>
-                      {{ isPlayingPreview() ? 'Detener' : 'Probar' }}
-                    </button>
-                    <i class="fa-solid fa-chevron-down" style="font-size: 11px; color: var(--muted); transition: transform 0.2s;" [style.transform]="isBgDropdownOpen() ? 'rotate(180deg)' : 'rotate(0)'"></i>
-                  </div>
+          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+            <!-- Header de Sección -->
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 14px;">
+                  <i class="fa-solid fa-brain"></i>
                 </div>
+                <span style="font-size: 13.5px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Concentración
+                </span>
+              </div>
+              <span style="font-size: 11px; font-weight: 700; color: var(--accent); background: rgba(99,102,241,0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(99,102,241,0.25);">
+                Modo Enfoque Activo
+              </span>
+            </div>
 
-                <!-- Popover Menu Concentración -->
-                <div *ngIf="isBgDropdownOpen()" (click)="$event.stopPropagation()"
-                     style="position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid var(--accent); border-radius: 14px; padding: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(20px);">
-                  <div style="position: relative; width: 100%;">
-                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--muted);"></i>
-                    <input type="text" [ngModel]="soundSearchQuery()" (ngModelChange)="soundSearchQuery.set($event)" placeholder="Buscar sonido (ej. lluvia, cafe, reloj, waves)..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 8px; padding: 7px 28px; font-size: 11.5px; color: #fff; outline: none; font-family: inherit;">
-                    <button *ngIf="soundSearchQuery()" (click)="soundSearchQuery.set('')" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 11px;"><i class="fa-solid fa-xmark"></i></button>
+            <!-- Fila de Configuración -->
+            <div style="display: grid; grid-template-columns: 140px 1fr 1fr; gap: 14px; align-items: start;">
+              <!-- 1. Duración -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Duración</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 3px 6px;">
+                  <button type="button" 
+                          (click)="focusDuration.set(focusDuration() > 5 ? focusDuration() - 5 : 5); applyTimeSettings()"
+                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">-</button>
+                  <span style="font-size: 13px; font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ focusDuration() }} min</span>
+                  <button type="button" 
+                          (click)="focusDuration.set(focusDuration() < 120 ? focusDuration() + 5 : 120); applyTimeSettings()"
+                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">+</button>
+                </div>
+              </div>
+
+              <!-- 2. Sonido de Fondo (Selector Desplegable) -->
+              <div style="display: flex; flex-direction: column; gap: 6px; position: relative;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Sonido de Fondo</span>
+                <div (click)="toggleBgSoundDropdown($event)" 
+                     style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; cursor: pointer; transition: all 0.2s;"
+                     [style.borderColor]="isBgSoundDropdownOpen() ? 'var(--accent)' : 'var(--border)'">
+                  <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
+                    <i class="fa-solid" [ngClass]="selectedBgSoundObj().icon || 'fa-volume-high'" style="font-size: 12px;" [style.color]="getCategoryInfo(selectedBgSoundObj().category).color"></i>
+                    <span style="font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ selectedBgSoundObj().name }}</span>
                   </div>
-                  <div style="display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px;">
-                    <button type="button" (click)="backgroundCategoryFilter.set('all')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="backgroundCategoryFilter() === 'all' ? 'var(--accent)' : 'transparent'" [style.color]="backgroundCategoryFilter() === 'all' ? '#000' : 'var(--muted)'">Todos</button>
-                    <button type="button" (click)="backgroundCategoryFilter.set('natural')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="backgroundCategoryFilter() === 'natural' ? '#10b981' : 'transparent'" [style.color]="backgroundCategoryFilter() === 'natural' ? '#000' : 'var(--muted)'">🌿 Naturaleza</button>
-                    <button type="button" (click)="backgroundCategoryFilter.set('urbano')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="backgroundCategoryFilter() === 'urbano' ? '#f59e0b' : 'transparent'" [style.color]="backgroundCategoryFilter() === 'urbano' ? '#000' : 'var(--muted)'">☕ Cafés</button>
-                    <button type="button" (click)="backgroundCategoryFilter.set('reloj')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="backgroundCategoryFilter() === 'reloj' ? '#3b82f6' : 'transparent'" [style.color]="backgroundCategoryFilter() === 'reloj' ? '#000' : 'var(--muted)'">⏱️ Tic-Tac</button>
-                    <button type="button" (click)="backgroundCategoryFilter.set('sintetico')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="backgroundCategoryFilter() === 'sintetico' ? '#a855f7' : 'transparent'" [style.color]="backgroundCategoryFilter() === 'sintetico' ? '#000' : 'var(--muted)'">✨ Zen</button>
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto;">
-                    <div *ngFor="let s of filteredBackgroundSounds()" (click)="selectBgSound(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 10px; border-radius: 8px; cursor: pointer;" [style.background]="backgroundSound() === s.id ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.02)'" [style.border]="backgroundSound() === s.id ? '1px solid var(--accent)' : '1px solid transparent'">
+                  <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--muted); transition: transform 0.2s;" [style.transform]="isBgSoundDropdownOpen() ? 'rotate(180deg)' : 'rotate(0deg)'"></i>
+                </div>
+                <!-- Menú Dropdown -->
+                <div *ngIf="isBgSoundDropdownOpen()" (click)="$event.stopPropagation()" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid var(--accent); border-radius: 12px; padding: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 6px;">
+                  <input type="text" [ngModel]="soundSearchQuery()" (ngModelChange)="soundSearchQuery.set($event)" placeholder="Buscar sonido..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 11px; color: #fff; outline: none; font-family: inherit;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; max-height: 180px; overflow-y: auto;">
+                    <div *ngFor="let s of filteredBackgroundSounds()" (click)="selectBgSound(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;" [style.background]="backgroundSound() === s.id ? 'rgba(99,102,241,0.15)' : 'transparent'">
                       <div style="display: flex; align-items: center; gap: 8px;">
                         <i class="fa-solid" [ngClass]="s.icon || 'fa-volume-high'" style="font-size: 11px;" [style.color]="getCategoryInfo(s.category).color"></i>
-                        <span style="font-size: 12px; font-weight: 700; color: #fff;">{{ s.name }}</span>
+                        <span style="font-size: 11.5px; font-weight: 700; color: #fff;">{{ s.name }}</span>
                       </div>
-                      <div style="display: flex; align-items: center; gap: 6px;">
-                        <button *ngIf="s.id !== 'off'" type="button" (click)="previewSpecificBgSound(s.id, $event)" style="width: 24px; height: 24px; border-radius: 4px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                          <i class="fa-solid" [ngClass]="previewingSoundId() === s.id ? 'fa-square' : 'fa-play'" style="font-size: 9px;"></i>
-                        </button>
-                        <i *ngIf="backgroundSound() === s.id" class="fa-solid fa-check" style="color: var(--accent); font-size: 11px;"></i>
-                      </div>
+                      <i *ngIf="backgroundSound() === s.id" class="fa-solid fa-check" style="color: var(--accent); font-size: 10px;"></i>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Una vez concluido -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <span style="font-size: 13px; font-weight: 700; color: var(--text);">
-                Una vez concluido:
-              </span>
-              
-              <div style="background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                <span style="font-size: 12.5px; color: var(--text); font-weight: 600;">
-                  Reproducir sonido:
-                </span>
-                <div class="custom-sound-select-box" style="position: relative; min-width: 200px; flex: 1; max-width: 280px;">
-                  <div (click)="toggleFocusAlarmDropdown($event)" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.45); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; cursor: pointer;" [style.borderColor]="isFocusAlarmDropdownOpen() ? 'var(--accent)' : 'var(--border)'">
-                    <div style="display: flex; align-items: center; gap: 7px; overflow: hidden;">
-                      <i class="fa-solid fa-bell" style="color: #f87171; font-size: 11px;"></i>
-                      <span style="font-size: 12px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        {{ selectedFocusAlarmObj().name }}
-                      </span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                      <button type="button" (click)="previewAlarmSound(endSessionSound()); $event.stopPropagation();" style="display: flex; align-items: center; gap: 4px; padding: 3px 7px; border-radius: 5px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); cursor: pointer;">
-                        <i class="fa-solid fa-volume-high" style="color: var(--accent);"></i>
-                        Probar
-                      </button>
-                      <i class="fa-solid fa-chevron-down" style="font-size: 9.5px; color: var(--muted); transition: transform 0.2s;" [style.transform]="isFocusAlarmDropdownOpen() ? 'rotate(180deg)' : 'rotate(0)'"></i>
-                    </div>
+              <!-- 3. Alarma Fin de Concentración -->
+              <div style="display: flex; flex-direction: column; gap: 6px; position: relative;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Alarma Fin de Enfoque</span>
+                <div style="display: flex; gap: 6px;">
+                  <div (click)="toggleAlarmDropdown($event)" 
+                       style="flex: 1; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 10px; cursor: pointer; transition: all 0.2s;"
+                       [style.borderColor]="isAlarmDropdownOpen() ? 'var(--accent)' : 'var(--border)'">
+                    <span style="font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ selectedAlarmSoundObj().name }}</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--muted);" [style.transform]="isAlarmDropdownOpen() ? 'rotate(180deg)' : 'rotate(0deg)'"></i>
                   </div>
-                  <div *ngIf="isFocusAlarmDropdownOpen()" (click)="$event.stopPropagation()" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid var(--accent); border-radius: 12px; padding: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 6px;">
-                    <input type="text" [ngModel]="alarmSearchQuery()" (ngModelChange)="alarmSearchQuery.set($event)" placeholder="Buscar alarma..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 11px; color: #fff; outline: none; font-family: inherit;">
-                    <div style="display: flex; flex-direction: column; gap: 2px; max-height: 150px; overflow-y: auto;">
-                      <div *ngFor="let s of filteredEndSessionSounds()" (click)="selectFocusAlarm(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;" [style.background]="endSessionSound() === s.id ? 'rgba(245,158,11,0.15)' : 'transparent'">
-                        <span style="font-size: 11.5px; font-weight: 700; color: #fff;">{{ s.name }}</span>
-                        <i *ngIf="endSessionSound() === s.id" class="fa-solid fa-check" style="color: var(--accent); font-size: 10px;"></i>
-                      </div>
+                  <button type="button" (click)="previewAlarmSound(endSessionSound())" title="Probar sonido de alarma" style="width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <i class="fa-solid fa-volume-high" style="color: var(--accent);"></i>
+                  </button>
+                </div>
+                <div *ngIf="isAlarmDropdownOpen()" (click)="$event.stopPropagation()" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid var(--accent); border-radius: 12px; padding: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 6px;">
+                  <input type="text" [ngModel]="alarmSearchQuery()" (ngModelChange)="alarmSearchQuery.set($event)" placeholder="Buscar alarma..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 11px; color: #fff; outline: none; font-family: inherit;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; max-height: 150px; overflow-y: auto;">
+                    <div *ngFor="let s of filteredEndSessionSounds()" (click)="selectAlarmSound(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;" [style.background]="endSessionSound() === s.id ? 'rgba(99,102,241,0.15)' : 'transparent'">
+                      <span style="font-size: 11.5px; font-weight: 700; color: #fff;">{{ s.name }}</span>
+                      <i *ngIf="endSessionSound() === s.id" class="fa-solid fa-check" style="color: var(--accent); font-size: 10px;"></i>
                     </div>
                   </div>
                 </div>
@@ -4768,123 +4708,86 @@
 
 
           <!-- ================= SECCIÓN 2: DESCANSO BREVE ================= -->
-          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
-            
-            <!-- Título con línea inferior -->
-            <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
-              <h3 style="font-size: 16px; font-weight: 800; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-mug-hot" style="color: #06b6d4; font-size: 15px;"></i>
-                Descanso breve
-              </h3>
-            </div>
-
-            <!-- Fila Duración -->
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 13.5px; color: var(--text); font-weight: 600;">Duración:</span>
-              <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 2px 6px; gap: 4px;">
-                <button type="button" (click)="updateBreakDuration(breakDuration() - 1)" style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; font-weight: 900; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">-</button>
-                <input type="number" [ngModel]="breakDuration()" (ngModelChange)="updateBreakDuration($event)" min="1" max="60" style="width: 52px; background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 800; text-align: center; font-family: monospace; outline: none;">
-                <button type="button" (click)="updateBreakDuration(breakDuration() + 1)" style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; font-weight: 900; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">+</button>
-              </div>
-              <span style="font-size: 13.5px; color: var(--muted); font-weight: 600;">minutos</span>
-            </div>
-
-            <!-- Sonido del temporizador (Fondo continuo descanso) -->
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-              <span style="font-size: 13px; font-weight: 700; color: var(--text);">
-                Sonido del temporizador:
-              </span>
-              
-              <div class="custom-sound-select-box" style="position: relative; width: 100%;">
-                <div (click)="toggleBreakBgDropdown($event)"
-                     style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(0,0,0,0.45); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; transition: all 0.2s;"
-                     [style.borderColor]="isBreakBgDropdownOpen() ? '#06b6d4' : 'var(--border)'">
-                  <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
-                    <div style="width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
-                         [style.background]="getCategoryInfo(selectedBreakBgSoundObj().category).bg"
-                         [style.color]="getCategoryInfo(selectedBreakBgSoundObj().category).color">
-                      <i class="fa-solid" [ngClass]="selectedBreakBgSoundObj().icon || 'fa-volume-high'" style="font-size: 12px;"></i>
-                    </div>
-                    <span style="font-size: 13px; font-weight: 800; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      {{ selectedBreakBgSoundObj().name }}
-                    </span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    <button *ngIf="breakBackgroundSound() !== 'off'" type="button" (click)="togglePreviewBreakBackgroundSound(); $event.stopPropagation();"
-                            style="display: flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; border: 1px solid #06b6d4; background: rgba(6,182,212,0.15); color: #22d3ee; cursor: pointer;">
-                      <i class="fa-solid" [ngClass]="isPlayingPreview() ? 'fa-square' : 'fa-play'"></i>
-                      {{ isPlayingPreview() ? 'Detener' : 'Probar' }}
-                    </button>
-                    <i class="fa-solid fa-chevron-down" style="font-size: 11px; color: var(--muted); transition: transform 0.2s;" [style.transform]="isBreakBgDropdownOpen() ? 'rotate(180deg)' : 'rotate(0)'"></i>
-                  </div>
+          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 14px;">
+                  <i class="fa-solid fa-mug-hot"></i>
                 </div>
+                <span style="font-size: 13.5px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Descanso Breve
+                </span>
+              </div>
+              <span style="font-size: 11px; font-weight: 700; color: #34d399; background: rgba(16,185,129,0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(16,185,129,0.25);">
+                Pausa Rápida
+              </span>
+            </div>
 
-                <!-- Popover Menu Descanso -->
-                <div *ngIf="isBreakBgDropdownOpen()" (click)="$event.stopPropagation()"
-                     style="position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid #06b6d4; border-radius: 14px; padding: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(20px);">
-                  <div style="position: relative; width: 100%;">
-                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--muted);"></i>
-                    <input type="text" [ngModel]="breakSoundSearchQuery()" (ngModelChange)="breakSoundSearchQuery.set($event)" placeholder="Buscar sonido para descanso..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 8px; padding: 7px 28px; font-size: 11.5px; color: #fff; outline: none; font-family: inherit;">
-                    <button *ngIf="breakSoundSearchQuery()" (click)="breakSoundSearchQuery.set('')" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 11px;"><i class="fa-solid fa-xmark"></i></button>
+            <div style="display: grid; grid-template-columns: 140px 1fr 1fr; gap: 14px; align-items: start;">
+              <!-- 1. Duración -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Duración</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 3px 6px;">
+                  <button type="button" 
+                          (click)="breakDuration.set(breakDuration() > 1 ? breakDuration() - 1 : 1); applyTimeSettings()"
+                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">-</button>
+                  <span style="font-size: 13px; font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ breakDuration() }} min</span>
+                  <button type="button" 
+                          (click)="breakDuration.set(breakDuration() < 60 ? breakDuration() + 1 : 60); applyTimeSettings()"
+                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">+</button>
+                </div>
+              </div>
+
+              <!-- 2. Sonido de Fondo en Descanso -->
+              <div style="display: flex; flex-direction: column; gap: 6px; position: relative;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Sonido de Fondo</span>
+                <div (click)="toggleBreakBgSoundDropdown($event)" 
+                     style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; cursor: pointer; transition: all 0.2s;"
+                     [style.borderColor]="isBreakBgSoundDropdownOpen() ? '#10b981' : 'var(--border)'">
+                  <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
+                    <i class="fa-solid" [ngClass]="selectedBreakBgSoundObj().icon || 'fa-volume-high'" style="font-size: 12px;" [style.color]="getCategoryInfo(selectedBreakBgSoundObj().category).color"></i>
+                    <span style="font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ selectedBreakBgSoundObj().name }}</span>
                   </div>
-                  <div style="display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px;">
-                    <button type="button" (click)="breakBackgroundCategoryFilter.set('all')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="breakBackgroundCategoryFilter() === 'all' ? '#06b6d4' : 'transparent'" [style.color]="breakBackgroundCategoryFilter() === 'all' ? '#000' : 'var(--muted)'">Todos</button>
-                    <button type="button" (click)="breakBackgroundCategoryFilter.set('natural')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="breakBackgroundCategoryFilter() === 'natural' ? '#10b981' : 'transparent'" [style.color]="breakBackgroundCategoryFilter() === 'natural' ? '#000' : 'var(--muted)'">🌿 Naturaleza</button>
-                    <button type="button" (click)="breakBackgroundCategoryFilter.set('urbano')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="breakBackgroundCategoryFilter() === 'urbano' ? '#f59e0b' : 'transparent'" [style.color]="breakBackgroundCategoryFilter() === 'urbano' ? '#000' : 'var(--muted)'">☕ Cafés</button>
-                    <button type="button" (click)="breakBackgroundCategoryFilter.set('reloj')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="breakBackgroundCategoryFilter() === 'reloj' ? '#3b82f6' : 'transparent'" [style.color]="breakBackgroundCategoryFilter() === 'reloj' ? '#000' : 'var(--muted)'">⏱️ Tic-Tac</button>
-                    <button type="button" (click)="breakBackgroundCategoryFilter.set('sintetico')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="breakBackgroundCategoryFilter() === 'sintetico' ? '#a855f7' : 'transparent'" [style.color]="breakBackgroundCategoryFilter() === 'sintetico' ? '#000' : 'var(--muted)'">✨ Zen</button>
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto;">
-                    <div *ngFor="let s of filteredBreakBackgroundSounds()" (click)="selectBreakBgSound(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 10px; border-radius: 8px; cursor: pointer;" [style.background]="breakBackgroundSound() === s.id ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.02)'" [style.border]="breakBackgroundSound() === s.id ? '1px solid #06b6d4' : '1px solid transparent'">
+                  <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--muted);" [style.transform]="isBreakBgSoundDropdownOpen() ? 'rotate(180deg)' : 'rotate(0deg)'"></i>
+                </div>
+                <div *ngIf="isBreakBgSoundDropdownOpen()" (click)="$event.stopPropagation()" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid #10b981; border-radius: 12px; padding: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 6px;">
+                  <input type="text" [ngModel]="soundSearchQuery()" (ngModelChange)="soundSearchQuery.set($event)" placeholder="Buscar sonido..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 11px; color: #fff; outline: none; font-family: inherit;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; max-height: 180px; overflow-y: auto;">
+                    <div *ngFor="let s of filteredBackgroundSounds()" (click)="selectBreakBgSound(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;" [style.background]="breakBackgroundSound() === s.id ? 'rgba(16,185,129,0.15)' : 'transparent'">
                       <div style="display: flex; align-items: center; gap: 8px;">
                         <i class="fa-solid" [ngClass]="s.icon || 'fa-volume-high'" style="font-size: 11px;" [style.color]="getCategoryInfo(s.category).color"></i>
-                        <span style="font-size: 12px; font-weight: 700; color: #fff;">{{ s.name }}</span>
+                        <span style="font-size: 11.5px; font-weight: 700; color: #fff;">{{ s.name }}</span>
                       </div>
-                      <div style="display: flex; align-items: center; gap: 6px;">
-                        <button *ngIf="s.id !== 'off'" type="button" (click)="previewSpecificBgSound(s.id, $event)" style="width: 24px; height: 24px; border-radius: 4px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                          <i class="fa-solid" [ngClass]="previewingSoundId() === s.id ? 'fa-square' : 'fa-play'" style="font-size: 9px;"></i>
-                        </button>
-                        <i *ngIf="breakBackgroundSound() === s.id" class="fa-solid fa-check" style="color: #06b6d4; font-size: 11px;"></i>
-                      </div>
+                      <i *ngIf="breakBackgroundSound() === s.id" class="fa-solid fa-check" style="color: #10b981; font-size: 10px;"></i>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Una vez concluido -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <span style="font-size: 13px; font-weight: 700; color: var(--text);">
-                Una vez concluido:
-              </span>
-              
-              <div style="background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                <span style="font-size: 12.5px; color: var(--text); font-weight: 600;">
-                  Reproducir sonido:
-                </span>
-                <div class="custom-sound-select-box" style="position: relative; min-width: 200px; flex: 1; max-width: 280px;">
-                  <div (click)="toggleBreakAlarmDropdown($event)" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.45); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; cursor: pointer;" [style.borderColor]="isBreakAlarmDropdownOpen() ? '#60a5fa' : 'var(--border)'">
-                    <div style="display: flex; align-items: center; gap: 7px; overflow: hidden;">
-                      <i class="fa-solid fa-mug-saucer" style="color: #60a5fa; font-size: 11px;"></i>
-                      <span style="font-size: 12px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        {{ selectedBreakAlarmObj().name }}
-                      </span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                      <button type="button" (click)="previewAlarmSound(breakEndSound()); $event.stopPropagation();" style="display: flex; align-items: center; gap: 4px; padding: 3px 7px; border-radius: 5px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); cursor: pointer;">
-                        <i class="fa-solid fa-volume-high" style="color: var(--accent);"></i>
-                        Probar
-                      </button>
-                      <i class="fa-solid fa-chevron-down" style="font-size: 9.5px; color: var(--muted); transition: transform 0.2s;" [style.transform]="isBreakAlarmDropdownOpen() ? 'rotate(180deg)' : 'rotate(0)'"></i>
-                    </div>
+              <!-- 3. Alarma Fin de Descanso Breve -->
+              <div style="display: flex; flex-direction: column; gap: 6px; position: relative;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Alarma Fin de Descanso</span>
+                <div style="display: flex; gap: 6px;">
+                  <div (click)="toggleBreakAlarmDropdown($event)" 
+                       style="flex: 1; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 10px; cursor: pointer; transition: all 0.2s;"
+                       [style.borderColor]="isBreakAlarmDropdownOpen() ? '#10b981' : 'var(--border)'">
+                    <span style="font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ selectedBreakAlarmObj().name }}</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--muted);" [style.transform]="isBreakAlarmDropdownOpen() ? 'rotate(180deg)' : 'rotate(0deg)'"></i>
                   </div>
-                  <div *ngIf="isBreakAlarmDropdownOpen()" (click)="$event.stopPropagation()" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid #60a5fa; border-radius: 12px; padding: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 6px;">
-                    <input type="text" [ngModel]="alarmSearchQuery()" (ngModelChange)="alarmSearchQuery.set($event)" placeholder="Buscar alarma..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 11px; color: #fff; outline: none; font-family: inherit;">
-                    <div style="display: flex; flex-direction: column; gap: 2px; max-height: 150px; overflow-y: auto;">
-                      <div *ngFor="let s of filteredEndSessionSounds()" (click)="selectBreakAlarm(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;" [style.background]="breakEndSound() === s.id ? 'rgba(245,158,11,0.15)' : 'transparent'">
-                        <span style="font-size: 11.5px; font-weight: 700; color: #fff;">{{ s.name }}</span>
-                        <i *ngIf="breakEndSound() === s.id" class="fa-solid fa-check" style="color: var(--accent); font-size: 10px;"></i>
-                      </div>
+                  <button type="button" (click)="previewAlarmSound(breakEndSound())" title="Probar sonido de alarma" style="width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <i class="fa-solid fa-volume-high" style="color: #10b981;"></i>
+                  </button>
+                </div>
+                <div *ngIf="isBreakAlarmDropdownOpen()" (click)="$event.stopPropagation()" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid #10b981; border-radius: 12px; padding: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 6px;">
+                  <input type="text" [ngModel]="alarmSearchQuery()" (ngModelChange)="alarmSearchQuery.set($event)" placeholder="Buscar alarma..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 11px; color: #fff; outline: none; font-family: inherit;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; max-height: 150px; overflow-y: auto;">
+                    <div *ngFor="let s of filteredEndSessionSounds()" (click)="selectBreakAlarm(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;" [style.background]="breakEndSound() === s.id ? 'rgba(16,185,129,0.15)' : 'transparent'">
+                      <span style="font-size: 11.5px; font-weight: 700; color: #fff;">{{ s.name }}</span>
+                      <i *ngIf="breakEndSound() === s.id" class="fa-solid fa-check" style="color: #10b981; font-size: 10px;"></i>
                     </div>
                   </div>
                 </div>
@@ -4894,134 +4797,104 @@
 
 
           <!-- ================= SECCIÓN 3: DESCANSO LARGO ================= -->
-          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
-            
-            <!-- Título con línea inferior -->
-            <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
-              <h3 style="font-size: 16px; font-weight: 800; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-couch" style="color: #a855f7; font-size: 15px;"></i>
-                Descanso largo
-              </h3>
-            </div>
-
-            <!-- Fila Cada cuántos ciclos -->
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 13.5px; color: var(--text); font-weight: 600;">Cada cuántos ciclos:</span>
-              <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 2px 6px; gap: 4px;">
-                <button type="button" (click)="updateLongBreakInterval(longBreakInterval() - 1)" style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; font-weight: 900; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">-</button>
-                <input type="number" [ngModel]="longBreakInterval()" (ngModelChange)="updateLongBreakInterval($event)" min="1" max="24" style="width: 52px; background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 800; text-align: center; font-family: monospace; outline: none;">
-                <button type="button" (click)="updateLongBreakInterval(longBreakInterval() + 1)" style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; font-weight: 900; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">+</button>
-              </div>
-              <span style="font-size: 13.5px; color: var(--muted); font-weight: 600;">ciclos</span>
-            </div>
-
-            <!-- Fila Duración -->
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 13.5px; color: var(--text); font-weight: 600;">Duración:</span>
-              <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 2px 6px; gap: 4px;">
-                <button type="button" (click)="updateLongBreakDuration(longBreakDuration() - 5)" style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; font-weight: 900; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">-</button>
-                <input type="number" [ngModel]="longBreakDuration()" (ngModelChange)="updateLongBreakDuration($event)" min="1" max="120" style="width: 52px; background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 800; text-align: center; font-family: monospace; outline: none;">
-                <button type="button" (click)="updateLongBreakDuration(longBreakDuration() + 5)" style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; font-weight: 900; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">+</button>
-              </div>
-              <span style="font-size: 13.5px; color: var(--muted); font-weight: 600;">minutos</span>
-            </div>
-
-            <!-- Sonido del temporizador (Fondo continuo descanso largo) -->
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-              <span style="font-size: 13px; font-weight: 700; color: var(--text);">
-                Sonido del temporizador:
-              </span>
-              
-              <div class="custom-sound-select-box" style="position: relative; width: 100%;">
-                <div (click)="toggleLongBreakBgDropdown($event)"
-                     style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(0,0,0,0.45); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; transition: all 0.2s;"
-                     [style.borderColor]="isLongBreakBgDropdownOpen() ? '#a855f7' : 'var(--border)'">
-                  <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
-                    <div style="width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
-                         [style.background]="getCategoryInfo(selectedLongBreakBgSoundObj().category).bg"
-                         [style.color]="getCategoryInfo(selectedLongBreakBgSoundObj().category).color">
-                      <i class="fa-solid" [ngClass]="selectedLongBreakBgSoundObj().icon || 'fa-volume-high'" style="font-size: 12px;"></i>
-                    </div>
-                    <span style="font-size: 13px; font-weight: 800; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      {{ selectedLongBreakBgSoundObj().name }}
-                    </span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    <button *ngIf="longBreakBackgroundSound() !== 'off'" type="button" (click)="togglePreviewLongBreakBackgroundSound(); $event.stopPropagation();"
-                            style="display: flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; border: 1px solid #a855f7; background: rgba(168,85,247,0.15); color: #c084fc; cursor: pointer;">
-                      <i class="fa-solid" [ngClass]="isPlayingPreview() ? 'fa-square' : 'fa-play'"></i>
-                      {{ isPlayingPreview() ? 'Detener' : 'Probar' }}
-                    </button>
-                    <i class="fa-solid fa-chevron-down" style="font-size: 11px; color: var(--muted); transition: transform 0.2s;" [style.transform]="isLongBreakBgDropdownOpen() ? 'rotate(180deg)' : 'rotate(0)'"></i>
-                  </div>
+          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); display: flex; align-items: center; justify-content: center; color: #a855f7; font-size: 14px;">
+                  <i class="fa-solid fa-couch"></i>
                 </div>
+                <span style="font-size: 13.5px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Descanso Largo
+                </span>
+              </div>
+              <span style="font-size: 11px; font-weight: 700; color: #c084fc; background: rgba(168,85,247,0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(168,85,247,0.25);">
+                Recuperación Profunda
+              </span>
+            </div>
 
-                <!-- Popover Menu Descanso Largo -->
-                <div *ngIf="isLongBreakBgDropdownOpen()" (click)="$event.stopPropagation()"
-                     style="position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid #a855f7; border-radius: 14px; padding: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(20px);">
-                  <div style="position: relative; width: 100%;">
-                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--muted);"></i>
-                    <input type="text" [ngModel]="longBreakSoundSearchQuery()" (ngModelChange)="longBreakSoundSearchQuery.set($event)" placeholder="Buscar sonido para descanso largo..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 8px; padding: 7px 28px; font-size: 11.5px; color: #fff; outline: none; font-family: inherit;">
-                    <button *ngIf="longBreakSoundSearchQuery()" (click)="longBreakSoundSearchQuery.set('')" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 11px;"><i class="fa-solid fa-xmark"></i></button>
+            <div style="display: grid; grid-template-columns: 130px 130px 1fr 1fr; gap: 12px; align-items: start;">
+              <!-- 1. Duración -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Duración</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 3px 6px;">
+                  <button type="button" 
+                          (click)="longBreakDuration.set(longBreakDuration() > 5 ? longBreakDuration() - 5 : 5); applyTimeSettings()"
+                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">-</button>
+                  <span style="font-size: 12px; font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ longBreakDuration() }} min</span>
+                  <button type="button" 
+                          (click)="longBreakDuration.set(longBreakDuration() < 120 ? longBreakDuration() + 5 : 120); applyTimeSettings()"
+                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">+</button>
+                </div>
+              </div>
+
+              <!-- 2. Cada cuántos ciclos -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Ciclos</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 3px 6px;">
+                  <button type="button" 
+                          (click)="longBreakInterval.set(longBreakInterval() > 1 ? longBreakInterval() - 1 : 1)"
+                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">-</button>
+                  <span style="font-size: 12px; font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ longBreakInterval() }} ciclos</span>
+                  <button type="button" 
+                          (click)="longBreakInterval.set(longBreakInterval() < 12 ? longBreakInterval() + 1 : 12)"
+                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">+</button>
+                </div>
+              </div>
+
+              <!-- 3. Sonido de Fondo en Descanso Largo -->
+              <div style="display: flex; flex-direction: column; gap: 6px; position: relative;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Sonido de Fondo</span>
+                <div (click)="toggleLongBreakBgSoundDropdown($event)" 
+                     style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; cursor: pointer; transition: all 0.2s;"
+                     [style.borderColor]="isLongBreakBgSoundDropdownOpen() ? '#a855f7' : 'var(--border)'">
+                  <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
+                    <i class="fa-solid" [ngClass]="selectedLongBreakBgSoundObj().icon || 'fa-volume-high'" style="font-size: 12px;" [style.color]="getCategoryInfo(selectedLongBreakBgSoundObj().category).color"></i>
+                    <span style="font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ selectedLongBreakBgSoundObj().name }}</span>
                   </div>
-                  <div style="display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px;">
-                    <button type="button" (click)="longBreakBackgroundCategoryFilter.set('all')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="longBreakBackgroundCategoryFilter() === 'all' ? '#a855f7' : 'transparent'" [style.color]="longBreakBackgroundCategoryFilter() === 'all' ? '#000' : 'var(--muted)'">Todos</button>
-                    <button type="button" (click)="longBreakBackgroundCategoryFilter.set('natural')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="longBreakBackgroundCategoryFilter() === 'natural' ? '#10b981' : 'transparent'" [style.color]="longBreakBackgroundCategoryFilter() === 'natural' ? '#000' : 'var(--muted)'">🌿 Naturaleza</button>
-                    <button type="button" (click)="longBreakBackgroundCategoryFilter.set('urbano')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="longBreakBackgroundCategoryFilter() === 'urbano' ? '#f59e0b' : 'transparent'" [style.color]="longBreakBackgroundCategoryFilter() === 'urbano' ? '#000' : 'var(--muted)'">☕ Cafés</button>
-                    <button type="button" (click)="longBreakBackgroundCategoryFilter.set('reloj')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="longBreakBackgroundCategoryFilter() === 'reloj' ? '#3b82f6' : 'transparent'" [style.color]="longBreakBackgroundCategoryFilter() === 'reloj' ? '#000' : 'var(--muted)'">⏱️ Tic-Tac</button>
-                    <button type="button" (click)="longBreakBackgroundCategoryFilter.set('sintetico')" style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); cursor: pointer; white-space: nowrap;" [style.background]="longBreakBackgroundCategoryFilter() === 'sintetico' ? '#a855f7' : 'transparent'" [style.color]="longBreakBackgroundCategoryFilter() === 'sintetico' ? '#000' : 'var(--muted)'">✨ Zen</button>
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto;">
-                    <div *ngFor="let s of filteredLongBreakBackgroundSounds()" (click)="selectLongBreakBgSound(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 10px; border-radius: 8px; cursor: pointer;" [style.background]="longBreakBackgroundSound() === s.id ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.02)'" [style.border]="longBreakBackgroundSound() === s.id ? '1px solid #a855f7' : '1px solid transparent'">
+                  <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--muted);" [style.transform]="isLongBreakBgSoundDropdownOpen() ? 'rotate(180deg)' : 'rotate(0deg)'"></i>
+                </div>
+                <div *ngIf="isLongBreakBgSoundDropdownOpen()" (click)="$event.stopPropagation()" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid #a855f7; border-radius: 12px; padding: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 6px;">
+                  <input type="text" [ngModel]="soundSearchQuery()" (ngModelChange)="soundSearchQuery.set($event)" placeholder="Buscar sonido..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 11px; color: #fff; outline: none; font-family: inherit;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; max-height: 180px; overflow-y: auto;">
+                    <div *ngFor="let s of filteredBackgroundSounds()" (click)="selectLongBreakBgSound(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;" [style.background]="longBreakBackgroundSound() === s.id ? 'rgba(168,85,247,0.15)' : 'transparent'">
                       <div style="display: flex; align-items: center; gap: 8px;">
                         <i class="fa-solid" [ngClass]="s.icon || 'fa-volume-high'" style="font-size: 11px;" [style.color]="getCategoryInfo(s.category).color"></i>
-                        <span style="font-size: 12px; font-weight: 700; color: #fff;">{{ s.name }}</span>
+                        <span style="font-size: 11.5px; font-weight: 700; color: #fff;">{{ s.name }}</span>
                       </div>
-                      <div style="display: flex; align-items: center; gap: 6px;">
-                        <button *ngIf="s.id !== 'off'" type="button" (click)="previewSpecificBgSound(s.id, $event)" style="width: 24px; height: 24px; border-radius: 4px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                          <i class="fa-solid" [ngClass]="previewingSoundId() === s.id ? 'fa-square' : 'fa-play'" style="font-size: 9px;"></i>
-                        </button>
-                        <i *ngIf="longBreakBackgroundSound() === s.id" class="fa-solid fa-check" style="color: #a855f7; font-size: 11px;"></i>
-                      </div>
+                      <i *ngIf="longBreakBackgroundSound() === s.id" class="fa-solid fa-check" style="color: #a855f7; font-size: 10px;"></i>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Una vez concluido -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <span style="font-size: 13px; font-weight: 700; color: var(--text);">
-                Una vez concluido:
-              </span>
-              
-              <div style="background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                <span style="font-size: 12.5px; color: var(--text); font-weight: 600;">
-                  Reproducir sonido:
-                </span>
-                <div class="custom-sound-select-box" style="position: relative; min-width: 200px; flex: 1; max-width: 280px;">
-                  <div (click)="toggleLongBreakAlarmDropdown($event)" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.45); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; cursor: pointer;" [style.borderColor]="isLongBreakAlarmDropdownOpen() ? '#a855f7' : 'var(--border)'">
-                    <div style="display: flex; align-items: center; gap: 7px; overflow: hidden;">
-                      <i class="fa-solid fa-bell" style="color: #a855f7; font-size: 11px;"></i>
-                      <span style="font-size: 12px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        {{ selectedLongBreakAlarmObj().name }}
-                      </span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                      <button type="button" (click)="previewAlarmSound(longBreakEndSound()); $event.stopPropagation();" style="display: flex; align-items: center; gap: 4px; padding: 3px 7px; border-radius: 5px; font-size: 10px; font-weight: 800; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); cursor: pointer;">
-                        <i class="fa-solid fa-volume-high" style="color: var(--accent);"></i>
-                        Probar
-                      </button>
-                      <i class="fa-solid fa-chevron-down" style="font-size: 9.5px; color: var(--muted); transition: transform 0.2s;" [style.transform]="isLongBreakAlarmDropdownOpen() ? 'rotate(180deg)' : 'rotate(0)'"></i>
-                    </div>
+              <!-- 4. Alarma Fin de Descanso Largo -->
+              <div style="display: flex; flex-direction: column; gap: 6px; position: relative;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Alarma Fin de Descanso</span>
+                <div style="display: flex; gap: 6px;">
+                  <div (click)="toggleLongBreakAlarmDropdown($event)" 
+                       style="flex: 1; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 10px; cursor: pointer; transition: all 0.2s;"
+                       [style.borderColor]="isLongBreakAlarmDropdownOpen() ? '#a855f7' : 'var(--border)'">
+                    <span style="font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ selectedLongBreakAlarmObj().name }}</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--muted);" [style.transform]="isLongBreakAlarmDropdownOpen() ? 'rotate(180deg)' : 'rotate(0deg)'"></i>
                   </div>
-                  <div *ngIf="isLongBreakAlarmDropdownOpen()" (click)="$event.stopPropagation()" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid #a855f7; border-radius: 12px; padding: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 6px;">
-                    <input type="text" [ngModel]="alarmSearchQuery()" (ngModelChange)="alarmSearchQuery.set($event)" placeholder="Buscar alarma..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 11px; color: #fff; outline: none; font-family: inherit;">
-                    <div style="display: flex; flex-direction: column; gap: 2px; max-height: 150px; overflow-y: auto;">
-                      <div *ngFor="let s of filteredEndSessionSounds()" (click)="selectLongBreakAlarm(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;" [style.background]="longBreakEndSound() === s.id ? 'rgba(245,158,11,0.15)' : 'transparent'">
-                        <span style="font-size: 11.5px; font-weight: 700; color: #fff;">{{ s.name }}</span>
-                        <i *ngIf="longBreakEndSound() === s.id" class="fa-solid fa-check" style="color: var(--accent); font-size: 10px;"></i>
-                      </div>
+                  <button type="button" (click)="previewAlarmSound(longBreakEndSound())" title="Probar sonido de alarma" style="width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <i class="fa-solid fa-volume-high" style="color: #a855f7;"></i>
+                  </button>
+                </div>
+                <div *ngIf="isLongBreakAlarmDropdownOpen()" (click)="$event.stopPropagation()" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000; background: #121218; border: 1.5px solid #a855f7; border-radius: 12px; padding: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.85); display: flex; flex-direction: column; gap: 6px;">
+                  <input type="text" [ngModel]="alarmSearchQuery()" (ngModelChange)="alarmSearchQuery.set($event)" placeholder="Buscar alarma..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 11px; color: #fff; outline: none; font-family: inherit;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; max-height: 150px; overflow-y: auto;">
+                    <div *ngFor="let s of filteredEndSessionSounds()" (click)="selectLongBreakAlarm(s.id, $event)" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;" [style.background]="longBreakEndSound() === s.id ? 'rgba(245,158,11,0.15)' : 'transparent'">
+                      <span style="font-size: 11.5px; font-weight: 700; color: #fff;">{{ s.name }}</span>
+                      <i *ngIf="longBreakEndSound() === s.id" class="fa-solid fa-check" style="color: var(--accent); font-size: 10px;"></i>
                     </div>
                   </div>
                 </div>
@@ -5097,224 +4970,174 @@
                       <i class="fa-solid fa-circle-check"></i> Permitidas
                     </span>
                     <span *ngIf="notificationPermission() === 'denied'" style="font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: rgba(239,68,68,0.18); color: #f87171; border: 1px solid rgba(239,68,68,0.35);">
-                      <i class="fa-solid fa-circle-xmark"></i> Bloqueadas en navegador
-                    </span>
-                    <span *ngIf="notificationsEnabled() && notificationPermission() === 'default'" style="font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.35);">
-                      <i class="fa-solid fa-circle-exclamation"></i> Requiere permiso
+                      <i class="fa-solid fa-triangle-exclamation"></i> Bloqueadas en navegador
                     </span>
                   </div>
-                  <span style="font-size: 11.5px; color: var(--muted);">
-                    Interruptor global para recibir avisos flotantes en pantalla incluso si estás en otra ventana o app.
+                  <span style="font-size: 11.5px; color: var(--muted); opacity: 0.9;">
+                    Recibe avisos flotantes en tu sistema cuando el temporizador finalice, incluso si estás en otra ventana.
                   </span>
                 </div>
               </div>
 
-              <!-- Controles: Probar + Toggle Maestro -->
+              <!-- Switch Master Toggle -->
               <div style="display: flex; align-items: center; gap: 10px;">
-                <button *ngIf="notificationsEnabled()" type="button" (click)="requestNotificationPermission(true)"
-                        style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); cursor: pointer; transition: all 0.2s; font-family: inherit;"
-                        onmouseover="this.style.background='rgba(255,255,255,0.1)';"
-                        onmouseout="this.style.background='rgba(255,255,255,0.05)';">
-                  <i class="fa-solid fa-paper-plane" style="color: var(--accent);"></i>
-                  Probar
+                <button *ngIf="notificationPermission() !== 'granted'" 
+                        (click)="requestNotificationPermission(true)" 
+                        type="button"
+                        style="border: 1.5px solid var(--accent); background: rgba(245, 158, 11, 0.12); color: var(--accent); padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.background='rgba(245, 158, 11, 0.25)'"
+                        onmouseout="this.style.background='rgba(245, 158, 11, 0.12)'">
+                  Solicitar Permiso
                 </button>
-                <button type="button" (click)="toggleDesktopNotifications(!notificationsEnabled())"
-                        style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; font-family: inherit; cursor: pointer; transition: all 0.2s;"
-                        [style.background]="notificationsEnabled() ? 'var(--accent)' : 'rgba(255,255,255,0.06)'"
-                        [style.border]="notificationsEnabled() ? '1px solid var(--accent)' : '1px solid var(--border)'"
-                        [style.color]="notificationsEnabled() ? '#000' : 'var(--muted)'">
-                  <i class="fa-solid" [class.fa-toggle-on]="notificationsEnabled()" [class.fa-toggle-off]="!notificationsEnabled()" style="font-size: 16px;"></i>
-                  {{ notificationsEnabled() ? 'ACTIVADAS' : 'DESACTIVADAS' }}
-                </button>
-              </div>
-            </div>
 
-            <!-- Aviso si el navegador bloqueó permisos -->
-            <div *ngIf="notificationPermission() === 'denied'" 
-                 style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 10px;">
-              <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444; font-size: 14px;"></i>
-              <span style="font-size: 11.5px; color: #fca5a5;">
-                Las notificaciones están bloqueadas en tu navegador. Haz clic en el candado 🔒 junto a la URL para permitir notificaciones en este sitio.
-              </span>
-            </div>
-
-          </div>
-
-
-          <!-- ================= CARD 1: NOTIFICACIÓN DE FIN DE CONCENTRACIÓN ================= -->
-          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.4); display: flex; align-items: center; justify-content: center; color: #f87171;">
-                  <i class="fa-solid fa-bullseye" style="font-size: 15px;"></i>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <span style="font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.4px;">
-                    Fin de Concentración (Pomodoro)
-                  </span>
-                  <span style="font-size: 11px; color: var(--muted);">
-                    Aviso emergente cuando tu bloque de trabajo concluye (00:00).
-                  </span>
-                </div>
-              </div>
-
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <button *ngIf="notificationsEnabled() && focusNotificationEnabled()" type="button" (click)="testFocusNotification()"
-                        style="display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 800; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer; transition: all 0.2s; font-family: inherit;">
-                  <i class="fa-solid fa-play" style="color: #f87171; font-size: 9px;"></i>
-                  Probar
-                </button>
-                <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; margin: 0;"
-                       [style.opacity]="!notificationsEnabled() ? '0.4' : '1'">
-                  <input type="checkbox" [disabled]="!notificationsEnabled()" [ngModel]="focusNotificationEnabled()" (ngModelChange)="toggleFocusNotification($event)" style="opacity: 0; width: 0; height: 0;">
+                <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; margin: 0;">
+                  <input type="checkbox" [ngModel]="notificationsEnabled()" (ngModelChange)="toggleMasterNotifications()" style="opacity: 0; width: 0; height: 0;">
                   <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .3s; border-radius: 24px; border: 1px solid var(--border);"
-                        [style.background]="focusNotificationEnabled() && notificationsEnabled() ? '#ef4444' : 'rgba(255,255,255,0.1)'">
+                        [style.background]="notificationsEnabled() ? 'var(--accent)' : 'rgba(255,255,255,0.1)'">
                     <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 2px; background: #fff; transition: .3s; border-radius: 50%;"
-                          [style.transform]="focusNotificationEnabled() && notificationsEnabled() ? 'translateX(19px)' : 'translateX(0px)'"></span>
+                          [style.transform]="notificationsEnabled() ? 'translateX(19px)' : 'translateX(0px)'"></span>
                   </span>
                 </label>
               </div>
             </div>
+
           </div>
 
+          <!-- ================= CARD: EVENTOS Y ALERTAS ESPECÍFICAS ================= -->
+          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);"
+               [style.opacity]="notificationsEnabled() ? '1' : '0.45'"
+               [style.pointerEvents]="notificationsEnabled() ? 'auto' : 'none'">
+            
+            <span style="font-size: 12px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px;">
+              Notificar cuando ocurra:
+            </span>
 
-          <!-- ================= CARD 2: NOTIFICACIÓN DE FIN DE DESCANSO BREVE ================= -->
-          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(6,182,212,0.12); border: 1px solid #06b6d4; display: flex; align-items: center; justify-content: center; color: #22d3ee;">
-                  <i class="fa-solid fa-mug-saucer" style="font-size: 15px;"></i>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              
+              <!-- 1. Fin de Pomodoro -->
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <i class="fa-solid fa-brain" style="font-size: 14px; color: var(--accent);"></i>
+                  <div style="display: flex; flex-direction: column; gap: 1px;">
+                    <span style="font-size: 12px; font-weight: 800; color: #fff;">Pomodoro Terminado</span>
+                    <span style="font-size: 10.5px; color: var(--muted);">Avisar al completar la sesión de concentración</span>
+                  </div>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <span style="font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.4px;">
-                    Fin de Descanso Breve
-                  </span>
-                  <span style="font-size: 11px; color: var(--muted);">
-                    Aviso emergente cuando finaliza tu pausa corta para volver al enfoque.
-                  </span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <button type="button" (click)="testNotification('pomodoroEnd')" title="Probar notificación" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
+                    <i class="fa-solid fa-bell"></i>
+                  </button>
+                  <label style="position: relative; display: inline-block; width: 38px; height: 20px; cursor: pointer; margin: 0;">
+                    <input type="checkbox" [ngModel]="notifyOnPomodoroEnd()" (ngModelChange)="toggleNotification('pomodoroEnd')" style="opacity: 0; width: 0; height: 0;">
+                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .3s; border-radius: 20px;"
+                          [style.background]="notifyOnPomodoroEnd() ? 'var(--accent)' : 'rgba(255,255,255,0.1)'">
+                      <span style="position: absolute; content: ''; height: 14px; width: 14px; left: 3px; bottom: 3px; background: #fff; transition: .3s; border-radius: 50%;"
+                            [style.transform]="notifyOnPomodoroEnd() ? 'translateX(18px)' : 'translateX(0px)'"></span>
+                    </span>
+                  </label>
                 </div>
               </div>
 
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <button *ngIf="notificationsEnabled() && breakNotificationEnabled()" type="button" (click)="testBreakNotification()"
-                        style="display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 800; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer; transition: all 0.2s; font-family: inherit;">
-                  <i class="fa-solid fa-play" style="color: #22d3ee; font-size: 9px;"></i>
-                  Probar
-                </button>
-                <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; margin: 0;"
-                       [style.opacity]="!notificationsEnabled() ? '0.4' : '1'">
-                  <input type="checkbox" [disabled]="!notificationsEnabled()" [ngModel]="breakNotificationEnabled()" (ngModelChange)="toggleBreakNotification($event)" style="opacity: 0; width: 0; height: 0;">
-                  <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .3s; border-radius: 24px; border: 1px solid var(--border);"
-                        [style.background]="breakNotificationEnabled() && notificationsEnabled() ? '#06b6d4' : 'rgba(255,255,255,0.1)'">
-                    <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 2px; background: #fff; transition: .3s; border-radius: 50%;"
-                          [style.transform]="breakNotificationEnabled() && notificationsEnabled() ? 'translateX(19px)' : 'translateX(0px)'"></span>
-                  </span>
-                </label>
+              <!-- 2. Fin de Descanso Breve -->
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <i class="fa-solid fa-mug-hot" style="font-size: 14px; color: #10b981;"></i>
+                  <div style="display: flex; flex-direction: column; gap: 1px;">
+                    <span style="font-size: 12px; font-weight: 800; color: #fff;">Descanso Breve Terminado</span>
+                    <span style="font-size: 10.5px; color: var(--muted);">Avisar que es momento de volver a enfocarte</span>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <button type="button" (click)="testNotification('shortBreakEnd')" title="Probar notificación" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
+                    <i class="fa-solid fa-bell"></i>
+                  </button>
+                  <label style="position: relative; display: inline-block; width: 38px; height: 20px; cursor: pointer; margin: 0;">
+                    <input type="checkbox" [ngModel]="notifyOnShortBreakEnd()" (ngModelChange)="toggleNotification('shortBreakEnd')" style="opacity: 0; width: 0; height: 0;">
+                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .3s; border-radius: 20px;"
+                          [style.background]="notifyOnShortBreakEnd() ? '#10b981' : 'rgba(255,255,255,0.1)'">
+                      <span style="position: absolute; content: ''; height: 14px; width: 14px; left: 3px; bottom: 3px; background: #fff; transition: .3s; border-radius: 50%;"
+                            [style.transform]="notifyOnShortBreakEnd() ? 'translateX(18px)' : 'translateX(0px)'"></span>
+                    </span>
+                  </label>
+                </div>
               </div>
+
+              <!-- 3. Fin de Descanso Largo -->
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <i class="fa-solid fa-couch" style="font-size: 14px; color: #a855f7;"></i>
+                  <div style="display: flex; flex-direction: column; gap: 1px;">
+                    <span style="font-size: 12px; font-weight: 800; color: #fff;">Descanso Largo Terminado</span>
+                    <span style="font-size: 10.5px; color: var(--muted);">Avisar que finalizó tu pausa extendida</span>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <button type="button" (click)="testNotification('longBreakEnd')" title="Probar notificación" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
+                    <i class="fa-solid fa-bell"></i>
+                  </button>
+                  <label style="position: relative; display: inline-block; width: 38px; height: 20px; cursor: pointer; margin: 0;">
+                    <input type="checkbox" [ngModel]="notifyOnLongBreakEnd()" (ngModelChange)="toggleNotification('longBreakEnd')" style="opacity: 0; width: 0; height: 0;">
+                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .3s; border-radius: 20px;"
+                          [style.background]="notifyOnLongBreakEnd() ? '#a855f7' : 'rgba(255,255,255,0.1)'">
+                      <span style="position: absolute; content: ''; height: 14px; width: 14px; left: 3px; bottom: 3px; background: #fff; transition: .3s; border-radius: 50%;"
+                            [style.transform]="notifyOnLongBreakEnd() ? 'translateX(18px)' : 'translateX(0px)'"></span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 4. Impulsos de Batería de Motivación -->
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <i class="fa-solid fa-battery-half" style="font-size: 14px; color: var(--yellow);"></i>
+                  <div style="display: flex; flex-direction: column; gap: 1px;">
+                    <span style="font-size: 12px; font-weight: 800; color: #fff;">Impulsos y Ajuste de Batería</span>
+                    <span style="font-size: 10.5px; color: var(--muted);">Avisos para calibrar tu ritmo según tu energía</span>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <button type="button" (click)="testNotification('motivationReminder')" title="Probar notificación" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
+                    <i class="fa-solid fa-bell"></i>
+                  </button>
+                  <label style="position: relative; display: inline-block; width: 38px; height: 20px; cursor: pointer; margin: 0;">
+                    <input type="checkbox" [ngModel]="notifyOnMotivationReminder()" (ngModelChange)="toggleNotification('motivationReminder')" style="opacity: 0; width: 0; height: 0;">
+                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .3s; border-radius: 20px;"
+                          [style.background]="notifyOnMotivationReminder() ? 'var(--yellow)' : 'rgba(255,255,255,0.1)'">
+                      <span style="position: absolute; content: ''; height: 14px; width: 14px; left: 3px; bottom: 3px; background: #fff; transition: .3s; border-radius: 50%;"
+                            [style.transform]="notifyOnMotivationReminder() ? 'translateX(18px)' : 'translateX(0px)'"></span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
             </div>
+
           </div>
 
-
-          <!-- ================= CARD 3: NOTIFICACIÓN DE FIN DE DESCANSO LARGO ================= -->
-          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(59,130,246,0.12); border: 1px solid #3b82f6; display: flex; align-items: center; justify-content: center; color: #60a5fa;">
-                  <i class="fa-solid fa-umbrella-beach" style="font-size: 15px;"></i>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <span style="font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.4px;">
-                    Fin de Descanso Largo
-                  </span>
-                  <span style="font-size: 11px; color: var(--muted);">
-                    Aviso emergente cuando concluye tu receso prolongado de ciclos.
-                  </span>
-                </div>
+          <!-- ================= CARD: ALERTA VISUAL (PARPADEO DE PESTAÑA) ================= -->
+          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                <i class="fa-solid fa-window-maximize" style="font-size: 15px;"></i>
               </div>
-
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <button *ngIf="notificationsEnabled() && longBreakNotificationEnabled()" type="button" (click)="testLongBreakNotification()"
-                        style="display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 800; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer; transition: all 0.2s; font-family: inherit;">
-                  <i class="fa-solid fa-play" style="color: #60a5fa; font-size: 9px;"></i>
-                  Probar
-                </button>
-                <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; margin: 0;"
-                       [style.opacity]="!notificationsEnabled() ? '0.4' : '1'">
-                  <input type="checkbox" [disabled]="!notificationsEnabled()" [ngModel]="longBreakNotificationEnabled()" (ngModelChange)="toggleLongBreakNotification($event)" style="opacity: 0; width: 0; height: 0;">
-                  <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .3s; border-radius: 24px; border: 1px solid var(--border);"
-                        [style.background]="longBreakNotificationEnabled() && notificationsEnabled() ? '#3b82f6' : 'rgba(255,255,255,0.1)'">
-                    <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 2px; background: #fff; transition: .3s; border-radius: 50%;"
-                          [style.transform]="longBreakNotificationEnabled() && notificationsEnabled() ? 'translateX(19px)' : 'translateX(0px)'"></span>
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-
-          <!-- ================= CARD 4: NOTIFICACIÓN DE BATERÍA DE MOTIVACIÓN ================= -->
-          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(245,158,11,0.12); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; color: var(--accent);">
-                  <i class="fa-solid fa-battery-half" style="font-size: 15px;"></i>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <span style="font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.4px;">
-                    Batería de Motivación & Impulsos
-                  </span>
-                  <span style="font-size: 11px; color: var(--muted);">
-                    Recibe confirmaciones al calibrar tu energía y frases de impulso al completar sesiones.
-                  </span>
-                </div>
-              </div>
-
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <button *ngIf="notificationsEnabled() && motivationNotificationEnabled()" type="button" (click)="testMotivationNotification()"
-                        style="display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 800; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer; transition: all 0.2s; font-family: inherit;">
-                  <i class="fa-solid fa-bolt" style="color: var(--accent); font-size: 9px;"></i>
-                  Probar
-                </button>
-                <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; margin: 0;"
-                       [style.opacity]="!notificationsEnabled() ? '0.4' : '1'">
-                  <input type="checkbox" [disabled]="!notificationsEnabled()" [ngModel]="motivationNotificationEnabled()" (ngModelChange)="toggleMotivationNotification($event)" style="opacity: 0; width: 0; height: 0;">
-                  <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .3s; border-radius: 24px; border: 1px solid var(--border);"
-                        [style.background]="motivationNotificationEnabled() && notificationsEnabled() ? 'var(--accent)' : 'rgba(255,255,255,0.1)'">
-                    <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 2px; background: #fff; transition: .3s; border-radius: 50%;"
-                          [style.transform]="motivationNotificationEnabled() && notificationsEnabled() ? 'translateX(19px)' : 'translateX(0px)'"></span>
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-
-          <!-- ================= CARD 5: PARPADEO EN PESTAÑA DEL NAVEGADOR ================= -->
-          <div style="background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(168,85,247,0.12); border: 1px solid #a855f7; display: flex; align-items: center; justify-content: center; color: #c084fc;">
-                  <i class="fa-solid fa-window-maximize" style="font-size: 15px;"></i>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <span style="font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.4px;">
-                    Alerta en la Pestaña del Navegador
-                  </span>
-                  <span style="font-size: 11px; color: var(--muted);">
-                    Alterna el título de la pestaña (ej. "00:00 ¡Completado! 🍅") para avisarte visualmente si estás navegando en otra ventana.
-                  </span>
-                </div>
-              </div>
-
-              <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; margin: 0;">
-                <input type="checkbox" [ngModel]="tabNotificationsEnabled()" (ngModelChange)="toggleTabNotifications($event)" style="opacity: 0; width: 0; height: 0;">
-                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .3s; border-radius: 24px; border: 1px solid var(--border);"
-                      [style.background]="tabNotificationsEnabled() ? '#a855f7' : 'rgba(255,255,255,0.1)'">
-                  <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 2px; background: #fff; transition: .3s; border-radius: 50%;"
-                        [style.transform]="tabNotificationsEnabled() ? 'translateX(19px)' : 'translateX(0px)'"></span>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 12.5px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.4px;">
+                  Parpadeo en Pestaña del Navegador
                 </span>
-              </label>
+                <span style="font-size: 11px; color: var(--muted); opacity: 0.85;">
+                  Cambia el título de la pestaña con alertas visuales (ej. 🔔 ¡POMODORO COMPLETADO!) si estás en otra web.
+                </span>
+              </div>
             </div>
+
+            <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; margin: 0; flex-shrink: 0;">
+              <input type="checkbox" [ngModel]="tabFlashingEnabled()" (ngModelChange)="toggleTabFlashing()" style="opacity: 0; width: 0; height: 0;">
+              <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .3s; border-radius: 24px; border: 1px solid var(--border);"
+                    [style.background]="tabFlashingEnabled() ? 'var(--accent)' : 'rgba(255,255,255,0.1)'">
+                <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 2px; background: #fff; transition: .3s; border-radius: 50%;"
+                      [style.transform]="tabFlashingEnabled() ? 'translateX(19px)' : 'translateX(0px)'"></span>
+              </span>
+            </label>
           </div>
 
         </div>

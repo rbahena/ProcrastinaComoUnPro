@@ -217,6 +217,12 @@ export class Enfoque implements OnInit, OnDestroy {
   isLongBreakAlarmDropdownOpen = signal<boolean>(false);
   previewingSoundId = signal<string | null>(null);
 
+  // Dropdown aliases for template compatibility
+  isBgSoundDropdownOpen = this.isBgDropdownOpen;
+  isBreakBgSoundDropdownOpen = this.isBreakBgDropdownOpen;
+  isLongBreakBgSoundDropdownOpen = this.isLongBreakBgDropdownOpen;
+  isAlarmDropdownOpen = this.isFocusAlarmDropdownOpen;
+
   selectedBgSoundObj = computed(() => {
     return this.backgroundSoundsList.find(s => s.id === this.backgroundSound()) || this.backgroundSoundsList[0];
   });
@@ -232,6 +238,7 @@ export class Enfoque implements OnInit, OnDestroy {
   selectedFocusAlarmObj = computed(() => {
     return this.endSessionSoundsList.find(s => s.id === this.endSessionSound()) || this.endSessionSoundsList[0];
   });
+  selectedAlarmSoundObj = this.selectedFocusAlarmObj;
 
   selectedBreakAlarmObj = computed(() => {
     return this.endSessionSoundsList.find(s => s.id === this.breakEndSound()) || this.endSessionSoundsList[0];
@@ -1507,6 +1514,55 @@ export class Enfoque implements OnInit, OnDestroy {
   motivationNotificationEnabled = signal<boolean>(
     localStorage.getItem('motivation-notification-enabled') !== 'false'
   );
+
+  // Aliases and helpers for notifications settings UI
+  notifyOnPomodoroEnd = this.focusNotificationEnabled;
+  notifyOnShortBreakEnd = this.breakNotificationEnabled;
+  notifyOnLongBreakEnd = this.longBreakNotificationEnabled;
+  notifyOnMotivationReminder = this.motivationNotificationEnabled;
+  tabFlashingEnabled = this.tabNotificationsEnabled;
+
+  toggleMasterNotifications() {
+    this.toggleDesktopNotifications(!this.notificationsEnabled());
+  }
+
+  toggleTabFlashing() {
+    this.toggleTabNotifications(!this.tabNotificationsEnabled());
+  }
+
+  toggleNotification(type: 'pomodoroEnd' | 'shortBreakEnd' | 'longBreakEnd' | 'motivationReminder' | string) {
+    switch (type) {
+      case 'pomodoroEnd':
+        this.toggleFocusNotification(!this.focusNotificationEnabled());
+        break;
+      case 'shortBreakEnd':
+        this.toggleBreakNotification(!this.breakNotificationEnabled());
+        break;
+      case 'longBreakEnd':
+        this.toggleLongBreakNotification(!this.longBreakNotificationEnabled());
+        break;
+      case 'motivationReminder':
+        this.toggleMotivationNotification(!this.motivationNotificationEnabled());
+        break;
+    }
+  }
+
+  testNotification(type: 'pomodoroEnd' | 'shortBreakEnd' | 'longBreakEnd' | 'motivationReminder' | string) {
+    switch (type) {
+      case 'pomodoroEnd':
+        this.testFocusNotification();
+        break;
+      case 'shortBreakEnd':
+        this.testBreakNotification();
+        break;
+      case 'longBreakEnd':
+        this.testLongBreakNotification();
+        break;
+      case 'motivationReminder':
+        this.testMotivationNotification();
+        break;
+    }
+  }
 
   toggleDesktopNotifications(enabled: boolean) {
     this.notificationsEnabled.set(enabled);
@@ -3041,6 +3097,23 @@ export class Enfoque implements OnInit, OnDestroy {
     this.isLongBreakAlarmDropdownOpen.set(!curr);
   }
 
+  // Aliases for dropdown toggle methods
+  toggleBgSoundDropdown(event?: Event) {
+    this.toggleBgDropdown(event);
+  }
+
+  toggleBreakBgSoundDropdown(event?: Event) {
+    this.toggleBreakBgDropdown(event);
+  }
+
+  toggleLongBreakBgSoundDropdown(event?: Event) {
+    this.toggleLongBreakBgDropdown(event);
+  }
+
+  toggleAlarmDropdown(event?: Event) {
+    this.toggleFocusAlarmDropdown(event);
+  }
+
   closeAllSoundDropdowns() {
     this.isBgDropdownOpen.set(false);
     this.isBreakBgDropdownOpen.set(false);
@@ -3075,6 +3148,10 @@ export class Enfoque implements OnInit, OnDestroy {
     if (event) event.stopPropagation();
     this.setEndSessionSound(soundId);
     this.isFocusAlarmDropdownOpen.set(false);
+  }
+
+  selectAlarmSound(soundId: string, event?: Event) {
+    this.selectFocusAlarm(soundId, event);
   }
 
   selectBreakAlarm(soundId: string, event?: Event) {
