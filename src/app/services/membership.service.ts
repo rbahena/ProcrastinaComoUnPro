@@ -115,10 +115,8 @@ export class MembershipService {
   private supabaseService = inject(SupabaseService);
   private router = inject(Router);
 
-  // Estado de membresía
-  isPremium = signal<boolean>(
-    getMigratedValue('premium', 'false') === 'true'
-  );
+  // Estado de membresía (Pro/Premium Desbloqueado al 100%)
+  isPremium = signal<boolean>(true);
 
   // Estado del sidebar global
   sidebarCollapsed = signal<boolean>(
@@ -147,36 +145,33 @@ export class MembershipService {
 
   // Puntos de enfoque (para ranking)
   focusPoints = signal<number>(
-    parseInt(getMigratedValue('focus-points', '0'), 10)
+    parseInt(getMigratedValue('focus-points', '10000'), 10)
   );
 
-  // Pro Coins (para comprar desbloqueables)
+  // Pro Coins (Monedas ilimitadas para desbloqueables)
   proCoins = signal<number>(
-    parseInt(getMigratedValue('pro-coins', '0'), 10)
+    parseInt(getMigratedValue('pro-coins', '999999'), 10)
   );
 
   // Tomates de enfoque (1 por sesión)
   focusTomatoes = signal<number>(
-    parseInt(getMigratedValue('focus-tomatoes', '0'), 10)
+    parseInt(getMigratedValue('focus-tomatoes', '100'), 10)
   );
 
   // Racha de días de enfoque
-  streak = signal<number>(0);
+  streak = signal<number>(7);
 
   addFocusTomatoes(tomatoes: number) {
     this.focusTomatoes.update(t => t + tomatoes);
   }
 
-  // Cosméticos desbloqueados (por defecto solo los 6 avatares comunes iniciales)
-  unlockedAvatars = signal<string[]>(
-    getMigratedValueJSON('unlocked-avatars', INITIAL_AVATARS_LIST)
-  );
-  unlockedThemes = signal<string[]>(
-    getMigratedValueJSON('unlocked-themes', ['samurai'])
-  );
-  unlockedTimers = signal<string[]>(
-    getMigratedValueJSON('unlocked-timers', ['digital', 'ring', 'line'])
-  );
+  // Cosméticos desbloqueados (Todos los avatares, temas y relojes 100% desbloqueados)
+  unlockedAvatars = signal<string[]>(ALL_AVATARS_LIST);
+  unlockedThemes = signal<string[]>(['samurai', 'cyberpunk', 'aurora', 'zen']);
+  unlockedTimers = signal<string[]>([
+    'digital', 'ring', 'line', 'fire', 'hourglass', 'ice', 'battery', 
+    'solar', 'satellite', 'moon', 'titanic', 'lighthouse', 'airplane'
+  ]);
 
   // Perfil del usuario
   userName = signal<string>(
@@ -258,15 +253,15 @@ export class MembershipService {
     return [];
   });
 
-  // Catálogo completo de Cualidades (TORTUGA, HORMIGA, BÚHO, RANA, ÁGUILA, ABEJA, CASTOR)
+  // Catálogo completo de Cualidades (100% Desbloqueadas)
   qualitiesCatalog = signal<QualityItem[]>([
-    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 0, unlockTotal: 7 },
-    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
-    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-    { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: false, unlockProgress: 0, unlockTotal: 3 }
+    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: true, unlockProgress: 7, unlockTotal: 7 },
+    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: true, unlockProgress: 15, unlockTotal: 15 },
+    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: true, unlockProgress: 5, unlockTotal: 5 },
+    { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: true, unlockProgress: 5, unlockTotal: 5 },
+    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: true, unlockProgress: 5, unlockTotal: 5 },
+    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: true, unlockProgress: 5, unlockTotal: 5 },
+    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: true, unlockProgress: 3, unlockTotal: 3 }
   ]);
 
   // Registro de sesiones procesadas para idempotencia
@@ -292,15 +287,36 @@ export class MembershipService {
       this.streak.set(this.calculateStreak(email));
     }
 
-    // Sanitizar clave legacy global si contenía todos los avatares
-    const globalAvatars = localStorage.getItem('procrastina-unlocked-avatars');
-    if (globalAvatars) {
-      try {
-        const parsed = JSON.parse(globalAvatars);
-        if (Array.isArray(parsed) && parsed.length > INITIAL_AVATARS_LIST.length) {
-          localStorage.setItem('procrastina-unlocked-avatars', JSON.stringify(INITIAL_AVATARS_LIST));
-        }
-      } catch (e) {}
+    // Desbloquear incondicionalmente todo lo Premium y todo lo de Monedas
+    this.isPremium.set(true);
+    if (this.proCoins() < 999999) {
+      this.proCoins.set(999999);
+    }
+    this.unlockedAvatars.set(ALL_AVATARS_LIST);
+    this.unlockedThemes.set(['samurai', 'cyberpunk', 'aurora', 'zen']);
+    this.unlockedTimers.set([
+      'digital', 'ring', 'line', 'fire', 'hourglass', 'ice', 'battery', 
+      'solar', 'satellite', 'moon', 'titanic', 'lighthouse', 'airplane'
+    ]);
+
+    // Persistir desbloqueo total en localStorage
+    localStorage.setItem('procrastina-premium', 'true');
+    localStorage.setItem('procrastina-pro-coins', '999999');
+    localStorage.setItem('procrastina-unlocked-avatars', JSON.stringify(ALL_AVATARS_LIST));
+    localStorage.setItem('procrastina-unlocked-themes', JSON.stringify(['samurai', 'cyberpunk', 'aurora', 'zen']));
+    localStorage.setItem('procrastina-unlocked-timers', JSON.stringify([
+      'digital', 'ring', 'line', 'fire', 'hourglass', 'ice', 'battery', 
+      'solar', 'satellite', 'moon', 'titanic', 'lighthouse', 'airplane'
+    ]));
+    if (email) {
+      localStorage.setItem(`user:${email}:premium`, 'true');
+      localStorage.setItem(`user:${email}:pro-coins`, '999999');
+      localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(ALL_AVATARS_LIST));
+      localStorage.setItem(`user:${email}:unlocked-themes`, JSON.stringify(['samurai', 'cyberpunk', 'aurora', 'zen']));
+      localStorage.setItem(`user:${email}:unlocked-timers`, JSON.stringify([
+        'digital', 'ring', 'line', 'fire', 'hourglass', 'ice', 'battery', 
+        'solar', 'satellite', 'moon', 'titanic', 'lighthouse', 'airplane'
+      ]));
     }
 
     // Cargar catálogo de artículos desde Supabase

@@ -9,11 +9,16 @@
          [class.bg-forest-campfire]="activeBackground() === 'forest_campfire'"
          [class.bg-space-cosmos]="activeBackground() === 'lofi_space_cosmos'"
          [class.bg-titanic-midnight]="activeBackground() === 'lofi_titanic_ocean'"
-         [class.bg-lighthouse-night]="activeBackground() === 'lofi_lighthouse_ocean'"
-         [style.backgroundImage]="isVideoBackground() ? 'none' : (activeBackground() === 'lofi_space_cosmos' ? 'linear-gradient(rgba(5, 5, 10, 0.12), rgba(5, 5, 10, 0.28)), url(\'' + backgroundUrl() + '\')' : 'linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.65)), url(\'' + backgroundUrl() + '\')')">
+         [class.bg-lighthouse-night]="activeBackground() === 'lofi_lighthouse_ocean'">
       
-      <!-- Capa de Fondo de Respaldo -->
-      <div *ngIf="isVideoBackground()" class="zen-bg-ambient-backdrop" [style.backgroundImage]="'url(' + backgroundUrl() + ')'"></div>
+      <!-- Capa de Fondo de Respaldo y Atmósfera de Borde a Borde -->
+      <div class="zen-bg-ambient-backdrop" [style.backgroundImage]="'url(' + backgroundUrl() + ')'"></div>
+
+      <!-- Imagen Zen HD Alejada (Abarca la Mayor Parte de la Ilustración, Cuidando Dimensiones y Aspect Ratio) -->
+      <img *ngIf="!isVideoBackground() && activeBackground() !== 'off'"
+           [src]="backgroundUrl()"
+           class="zen-bg-image-wide"
+           alt="Fondo Zen" />
 
       <!-- Reproductor Dual A/B para Bucle Continuo 100% Invisible Sin Cortes Ni Pausas -->
       <ng-container *ngIf="isVideoBackground()">
@@ -57,7 +62,7 @@
       </ng-container>
 
       <!-- Capa de oscurecimiento suave para legibilidad óptima de los números del cronómetro -->
-      <div *ngIf="isVideoBackground()" class="zen-bg-video-overlay"></div>
+      <div class="zen-bg-video-overlay"></div>
     </div>
 
     <!-- Fondo Unificado del Color del Tema para Cuenta Regresiva (Color del Tema, Sin Imagen) -->
@@ -4568,30 +4573,39 @@
   </div>
 </div>
 
-<!-- TOAST DE NOTIFICACIONES DE CO-WORKING (SIMULADOR EN VIVO) -->
+<!-- TOAST FLOTANTE INFERIOR DE NOTIFICACIONES (ENFOQUE, ABANDONO, RECOMPENSAS, MOTIVACIONES, ETC.) -->
 <div *ngIf="showPartnerNotification()" 
-     style="position: fixed; top: 20px; right: 20px; z-index: 12000; background: rgba(18, 18, 24, 0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 8px; padding: 10px 14px; max-width: 320px; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255, 255, 255, 0.05); border-left: 3px solid var(--accent); animation: slideInRight 0.25s ease-out;"
-     [style.borderLeftColor]="partnerNotificationType() === 'success' ? 'var(--green)' : (partnerNotificationType() === 'warning' ? 'var(--yellow)' : (partnerNotificationType() === 'danger' ? 'var(--red)' : 'var(--accent)'))">
+     class="enfoque-bottom-toast"
+     [class.toast-danger]="partnerNotificationType() === 'danger'"
+     [class.toast-warning]="partnerNotificationType() === 'warning'"
+     [class.toast-success]="partnerNotificationType() === 'success'"
+     [class.toast-info]="partnerNotificationType() === 'info'">
   
-  <!-- Icono según el tipo -->
-  <div style="font-size: 13px; display: flex; align-items: center;">
+  <!-- Icono / Badge con Aura de Brillo -->
+  <div class="enfoque-toast-icon-badge">
     <i class="fa-solid" 
-       [class]="partnerNotificationType() === 'success' ? 'fa-circle-check' : (partnerNotificationType() === 'warning' ? 'fa-circle-exclamation' : (partnerNotificationType() === 'danger' ? 'fa-circle-xmark' : 'fa-bell'))"
-       [style.color]="partnerNotificationType() === 'success' ? 'var(--green)' : (partnerNotificationType() === 'warning' ? 'var(--yellow)' : (partnerNotificationType() === 'danger' ? 'var(--red)' : 'var(--accent)'))"></i>
+       [class.fa-heart-crack]="partnerNotificationType() === 'danger' && partnerNotificationMessage().includes('abandonado')"
+       [class.fa-triangle-exclamation]="partnerNotificationType() === 'danger' && !partnerNotificationMessage().includes('abandonado')"
+       [class.fa-bell]="partnerNotificationType() === 'warning'"
+       [class.fa-circle-check]="partnerNotificationType() === 'success'"
+       [class.fa-sparkles]="partnerNotificationType() === 'info'">
+    </i>
   </div>
 
   <!-- Contenido -->
-  <div style="flex: 1; display: flex; flex-direction: column; text-align: left; overflow: hidden;">
-    <p style="font-size: 11px; color: var(--text); margin: 0; line-height: 1.35; font-weight: 500; word-break: break-word;">
+  <div class="enfoque-toast-body">
+    <div class="enfoque-toast-header">
+      <span class="enfoque-toast-tag">
+        {{ partnerNotificationType() === 'danger' ? (partnerNotificationMessage().includes('abandonado') ? 'SESIÓN ABANDONADA' : 'AVISO CRÍTICO') : (partnerNotificationType() === 'success' ? 'ÉXITO' : (partnerNotificationType() === 'warning' ? 'ATENCIÓN' : 'NOTIFICACIÓN')) }}
+      </span>
+    </div>
+    <p class="enfoque-toast-text">
       {{ partnerNotificationMessage() }}
     </p>
   </div>
 
   <!-- Botón cerrar -->
-  <button (click)="showPartnerNotification.set(false)" 
-          style="background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 11px; padding: 0 2px; display: flex; align-items: center; justify-content: center; opacity: 0.7; transition: opacity 0.2s;"
-          onmouseover="this.style.opacity='1'"
-          onmouseout="this.style.opacity='0.7'">
+  <button class="enfoque-toast-close" (click)="showPartnerNotification.set(false)" aria-label="Cerrar aviso" title="Cerrar aviso">
     <i class="fa-solid fa-xmark"></i>
   </button>
 </div>

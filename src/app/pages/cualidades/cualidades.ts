@@ -2054,21 +2054,27 @@ interface CountryOption {
 
     .toast-popup-alert {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: #121622;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-left: 3px solid #10b981;
-      padding: 10px 16px;
-      border-radius: 8px;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, rgba(18, 20, 30, 0.96) 0%, rgba(10, 12, 18, 0.98) 100%);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1.5px solid rgba(16, 185, 129, 0.65);
+      padding: 12px 20px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       color: #fff;
-      font-size: 11.5px;
+      font-size: 12.5px;
       font-weight: 700;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-      z-index: 2000;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 25px rgba(16, 185, 129, 0.25);
+      z-index: 999999;
+      animation: toastSlideUpBounce 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      max-width: 500px;
+      width: calc(100% - 32px);
+      box-sizing: border-box;
     }
 
     .text-green { color: #10b981; }

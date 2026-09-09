@@ -31,6 +31,10 @@ export type FocusBackgroundType =
   | 'lofi_girl_sunset'
   | 'lofi_car_ride'
   | 'lofi_boy_study'
+  | 'theme_animation_studio'
+  | 'theme_autumn'
+  | 'theme_sunset'
+  | 'theme_aninditaerina_lofi'
   | 'fairy' 
   | 'lofi_study_desktop' 
   | 'lofi_moons' 
@@ -75,6 +79,13 @@ export class Enfoque implements OnInit, OnDestroy {
 
     // Initialize Comunidad Boss theme to Siren of Distractions
     this.bossService.updateBossTheme('siren');
+
+    // Garantizar que todo usuario que entre vea por defecto el "Gatito con la luna de noche" (lofi_cat_window)
+    const savedBg = localStorage.getItem('focus-active-bg') as FocusBackgroundType;
+    if (!savedBg || savedBg === 'lofi_space_cosmos' || !this.backgroundOptions.includes(savedBg)) {
+      this.activeBackground.set('lofi_cat_window');
+      localStorage.setItem('focus-active-bg', 'lofi_cat_window');
+    }
   }
 
   // Acompañante de sesión compartida
@@ -435,7 +446,7 @@ export class Enfoque implements OnInit, OnDestroy {
   @ViewChild('bgVideoB') bgVideoBRef?: ElementRef<HTMLVideoElement>;
 
   backgroundOptions: FocusBackgroundType[] = [
-    'off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_girl_sunset', 'lofi_car_ride', 'lofi_boy_study', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
+    'off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_girl_sunset', 'lofi_car_ride', 'lofi_boy_study', 'theme_animation_studio', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
   ];
 
   isVideoBackground = computed(() => {
@@ -456,22 +467,26 @@ export class Enfoque implements OnInit, OnDestroy {
 
   backgroundUrl = computed(() => {
     const bg = this.activeBackground();
-    if (bg === 'lofi_cat_window') return 'assets/images/lofi_cat_window_thumb.jpg';
-    if (bg === 'lofi_cat_rain') return 'assets/images/lofi_cat_rain_thumb.jpg';
-    if (bg === 'lofi_cat_sun') return 'assets/images/lofi_cat_sun_thumb.jpg';
-    if (bg === 'lofi_girl_sunset') return 'assets/images/lofi_girl_sunset_thumb.jpg';
-    if (bg === 'lofi_car_ride') return 'assets/images/lofi_car_ride_thumb.jpg';
-    if (bg === 'lofi_boy_study') return 'assets/images/lofi_boy_study_thumb.jpg';
-    if (bg === 'fairy') return 'assets/images/fairy_world.webp';
-    if (bg === 'lofi_study_desktop') return 'assets/images/lofi_study_desktop.webp';
-    if (bg === 'lofi_moons') return 'assets/images/lofi_moons.webp';
-    if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain_custom.jpg';
-    if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
-    if (bg === 'lofi_space_cosmos') return 'assets/images/lofi_space_cosmos.jpg';
-    if (bg === 'lofi_space_nebula') return 'assets/images/lofi_space_nebula.jpg';
-    if (bg === 'lofi_space_moon') return 'assets/images/lofi_space_moon.jpg';
-    if (bg === 'lofi_titanic_ocean') return 'assets/images/lofi_titanic_ocean.jpg';
-    if (bg === 'lofi_lighthouse_ocean') return 'assets/images/lofi_lighthouse_ocean.jpg';
+    if (bg === 'lofi_cat_window') return 'assets/themes/lofi_cat_window_thumb.webp';
+    if (bg === 'lofi_cat_rain') return 'assets/themes/lofi_cat_rain_thumb.webp';
+    if (bg === 'lofi_cat_sun') return 'assets/themes/lofi_cat_sun_thumb.webp';
+    if (bg === 'lofi_girl_sunset') return 'assets/themes/lofi_girl_sunset_thumb.webp';
+    if (bg === 'lofi_car_ride') return 'assets/themes/lofi_car_ride_thumb.webp';
+    if (bg === 'lofi_boy_study') return 'assets/themes/lofi_boy_study_thumb.webp';
+    if (bg === 'theme_animation_studio') return 'assets/themes/animation_studio.webp';
+    if (bg === 'theme_autumn') return 'assets/themes/autumn.webp';
+    if (bg === 'theme_sunset') return 'assets/themes/sunset.webp';
+    if (bg === 'theme_aninditaerina_lofi') return 'assets/themes/aninditaerina-lofi.webp';
+    if (bg === 'fairy') return 'assets/themes/fairy_world.webp';
+    if (bg === 'lofi_study_desktop') return 'assets/themes/lofi_study_desktop.webp';
+    if (bg === 'lofi_moons') return 'assets/themes/lofi_moons.webp';
+    if (bg === 'lofi_study_rain') return 'assets/themes/lofi_study_rain_custom.webp';
+    if (bg === 'forest_campfire') return 'assets/themes/forest_campfire_lofi.webp';
+    if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos.webp';
+    if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula.webp';
+    if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon.webp';
+    if (bg === 'lofi_titanic_ocean') return 'assets/themes/lofi_titanic_ocean.webp';
+    if (bg === 'lofi_lighthouse_ocean') return 'assets/themes/lofi_lighthouse_ocean.webp';
     return '';
   });
   useFairyBackground = computed(() => this.activeBackground() !== 'off');
@@ -492,8 +507,8 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.timerStyle() === 'titanic') {
       return ['lofi_titanic_ocean'] as FocusBackgroundType[];
     }
-    // Para todos los demás relojes normales, incluir los 6 videos Lofi HD y fondos estándar
-    return ['off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_girl_sunset', 'lofi_car_ride', 'lofi_boy_study', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
+    // Para todos los demás relojes normales, incluir los 6 videos Lofi HD, los 4 nuevos temas de ilustración y fondos estándar
+    return ['off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_girl_sunset', 'lofi_car_ride', 'lofi_boy_study', 'theme_animation_studio', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
   });
 
   // Información de color y fondo de la cuenta regresiva según el tema visual activo (samurai, cyberpunk, aurora, zen)
@@ -1203,11 +1218,8 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   showToastFeedback(message: string, type: 'success' | 'info' | 'like' = 'success') {
-    if (this.toastTimeout) clearTimeout(this.toastTimeout);
-    this.motivationToast.set({ show: true, message, type });
-    this.toastTimeout = setTimeout(() => {
-      this.motivationToast.set({ show: false, message: '', type: 'success' });
-    }, 3500);
+    const toastType: 'info' | 'warning' | 'success' | 'danger' = type === 'like' ? 'info' : type;
+    this.showToast(message, toastType);
   }
 
   getCategoryLabel(category: string): string {
@@ -3523,22 +3535,26 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Obtener URL de miniatura del fondo de pantalla Zen
   getBackgroundThumbnailUrl(bg: string): string {
-    if (bg === 'lofi_cat_window') return 'assets/images/lofi_cat_window_thumb.jpg';
-    if (bg === 'lofi_cat_rain') return 'assets/images/lofi_cat_rain_thumb.jpg';
-    if (bg === 'lofi_cat_sun') return 'assets/images/lofi_cat_sun_thumb.jpg';
-    if (bg === 'lofi_girl_sunset') return 'assets/images/lofi_girl_sunset_thumb.jpg';
-    if (bg === 'lofi_car_ride') return 'assets/images/lofi_car_ride_thumb.jpg';
-    if (bg === 'lofi_boy_study') return 'assets/images/lofi_boy_study_thumb.jpg';
-    if (bg === 'fairy') return 'assets/images/fairy_world.webp';
-    if (bg === 'lofi_study_desktop') return 'assets/images/lofi_study_desktop.webp';
-    if (bg === 'lofi_moons') return 'assets/images/lofi_moons.webp';
-    if (bg === 'lofi_study_rain') return 'assets/images/lofi_study_rain_custom.jpg';
-    if (bg === 'forest_campfire') return 'assets/images/forest_campfire_lofi.jpg';
-    if (bg === 'lofi_space_cosmos') return 'assets/images/lofi_space_cosmos.jpg';
-    if (bg === 'lofi_space_nebula') return 'assets/images/lofi_space_nebula.jpg';
-    if (bg === 'lofi_space_moon') return 'assets/images/lofi_space_moon.jpg';
-    if (bg === 'lofi_titanic_ocean') return 'assets/images/lofi_titanic_ocean.jpg';
-    if (bg === 'lofi_lighthouse_ocean') return 'assets/images/lofi_lighthouse_ocean.jpg';
+    if (bg === 'lofi_cat_window') return 'assets/themes/lofi_cat_window_thumb.webp';
+    if (bg === 'lofi_cat_rain') return 'assets/themes/lofi_cat_rain_thumb.webp';
+    if (bg === 'lofi_cat_sun') return 'assets/themes/lofi_cat_sun_thumb.webp';
+    if (bg === 'lofi_girl_sunset') return 'assets/themes/lofi_girl_sunset_thumb.webp';
+    if (bg === 'lofi_car_ride') return 'assets/themes/lofi_car_ride_thumb.webp';
+    if (bg === 'lofi_boy_study') return 'assets/themes/lofi_boy_study_thumb.webp';
+    if (bg === 'theme_animation_studio') return 'assets/themes/animation_studio_thumb.webp';
+    if (bg === 'theme_autumn') return 'assets/themes/autumn_thumb.webp';
+    if (bg === 'theme_sunset') return 'assets/themes/sunset_thumb.webp';
+    if (bg === 'theme_aninditaerina_lofi') return 'assets/themes/aninditaerina-lofi_thumb.webp';
+    if (bg === 'fairy') return 'assets/themes/fairy_world.webp';
+    if (bg === 'lofi_study_desktop') return 'assets/themes/lofi_study_desktop.webp';
+    if (bg === 'lofi_moons') return 'assets/themes/lofi_moons.webp';
+    if (bg === 'lofi_study_rain') return 'assets/themes/lofi_study_rain_custom.webp';
+    if (bg === 'forest_campfire') return 'assets/themes/forest_campfire_lofi.webp';
+    if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos.webp';
+    if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula.webp';
+    if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon.webp';
+    if (bg === 'lofi_titanic_ocean') return 'assets/themes/lofi_titanic_ocean.webp';
+    if (bg === 'lofi_lighthouse_ocean') return 'assets/themes/lofi_lighthouse_ocean.webp';
     return '';
   }
 
@@ -3552,6 +3568,10 @@ export class Enfoque implements OnInit, OnDestroy {
       case 'lofi_girl_sunset': return 'Chica Atardecer';
       case 'lofi_car_ride': return 'Viaje en Auto';
       case 'lofi_boy_study': return 'Chico Estudio';
+      case 'theme_animation_studio': return 'Estudio Anime';
+      case 'theme_autumn': return 'Otoño Lofi';
+      case 'theme_sunset': return 'Atardecer Dorado';
+      case 'theme_aninditaerina_lofi': return 'Anindita Erina';
       case 'fairy': return 'Fairy';
       case 'lofi_study_desktop': return 'Estudio';
       case 'lofi_moons': return 'Luna';
@@ -3577,6 +3597,10 @@ export class Enfoque implements OnInit, OnDestroy {
       case 'lofi_girl_sunset': return 'Fondo interactivo en video HD "Chica Atardecer Lofi" con bucle continuo imperceptible';
       case 'lofi_car_ride': return 'Fondo interactivo en video HD "Viaje en Auto Lofi" con bucle continuo imperceptible';
       case 'lofi_boy_study': return 'Fondo interactivo en video HD "Chico Estudio Lofi" con bucle continuo imperceptible';
+      case 'theme_animation_studio': return 'Fondo artístico Ultra HD "Estudio de Animación Lofi"';
+      case 'theme_autumn': return 'Fondo artístico Ultra HD "Bosque y Calle de Otoño Lofi"';
+      case 'theme_sunset': return 'Fondo artístico Ultra HD "Atardecer Dorado en la Ciudad Lofi"';
+      case 'theme_aninditaerina_lofi': return 'Fondo artístico Ultra HD "Anindita Erina Lofi"';
       case 'fairy': return 'Fondo lofi "Fairy" activo';
       case 'lofi_study_desktop': return 'Fondo lofi "Estudio" activo';
       case 'lofi_moons': return 'Fondo lofi "Luna" activo';
@@ -3624,6 +3648,9 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Verificación si un estilo está bloqueado por monedas o membresía
   isTimerStyleLocked(style: string): boolean {
+    if (this.membership.isPremium()) {
+      return false;
+    }
     if (style === 'digital' || style === 'ring' || style === 'line') {
       return false;
     }
@@ -4388,20 +4415,17 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   }
 
-  showToast(msg: string, type: 'info' | 'warning' | 'success' | 'danger') {
-    if (this.arenaState() === 'active') {
-      return;
-    }
-
+  showToast(msg: string, type: 'info' | 'warning' | 'success' | 'danger' = 'info') {
     this.partnerNotificationMessage.set(msg);
     this.partnerNotificationType.set(type);
     this.showPartnerNotification.set(true);
     
-    setTimeout(() => {
+    if (this.toastTimeout) clearTimeout(this.toastTimeout);
+    this.toastTimeout = setTimeout(() => {
       if (this.partnerNotificationMessage() === msg) {
         this.showPartnerNotification.set(false);
       }
-    }, 8000);
+    }, 5500);
   }
 
   triggerDemoAttack(event?: Event) {
