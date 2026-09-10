@@ -28,23 +28,33 @@ export type FocusBackgroundType =
   | 'lofi_cat_window'
   | 'lofi_cat_rain'
   | 'lofi_cat_sun'
-  | 'lofi_girl_sunset'
   | 'lofi_car_ride'
-  | 'lofi_boy_study'
-  | 'theme_animation_studio'
   | 'theme_autumn'
   | 'theme_sunset'
   | 'theme_aninditaerina_lofi'
   | 'fairy' 
   | 'lofi_study_desktop' 
   | 'lofi_moons' 
-  | 'lofi_study_rain' 
-  | 'forest_campfire' 
   | 'lofi_space_cosmos' 
   | 'lofi_space_nebula' 
   | 'lofi_space_moon' 
   | 'lofi_titanic_ocean' 
   | 'lofi_lighthouse_ocean';
+
+export type FocusTimerStyle = 
+  | 'digital' 
+  | 'fire' 
+  | 'hourglass' 
+  | 'ice' 
+  | 'battery' 
+  | 'ring' 
+  | 'line' 
+  | 'solar' 
+  | 'satellite' 
+  | 'moon' 
+  | 'titanic' 
+  | 'lighthouse' 
+  | 'airplane';
 
 @Component({
   selector: 'app-enfoque',
@@ -437,7 +447,11 @@ export class Enfoque implements OnInit, OnDestroy {
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
   activeBackground = signal<FocusBackgroundType>(
-    (localStorage.getItem('focus-active-bg') as FocusBackgroundType) || 'lofi_cat_window'
+    (() => {
+      const saved = localStorage.getItem('focus-active-bg');
+      if (saved === 'lofi_girl_sunset' || saved === 'lofi_boy_study' || saved === 'theme_animation_studio' || saved === 'lofi_study_rain' || saved === 'forest_campfire') return 'lofi_cat_window';
+      return (saved as FocusBackgroundType) || 'lofi_cat_window';
+    })()
   );
 
   activeVideoLayer = signal<'A' | 'B'>('A');
@@ -446,12 +460,12 @@ export class Enfoque implements OnInit, OnDestroy {
   @ViewChild('bgVideoB') bgVideoBRef?: ElementRef<HTMLVideoElement>;
 
   backgroundOptions: FocusBackgroundType[] = [
-    'off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_girl_sunset', 'lofi_car_ride', 'lofi_boy_study', 'theme_animation_studio', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
+    'off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
   ];
 
   isVideoBackground = computed(() => {
     const bg = this.activeBackground();
-    return bg === 'lofi_cat_window' || bg === 'lofi_cat_rain' || bg === 'lofi_cat_sun' || bg === 'lofi_girl_sunset' || bg === 'lofi_car_ride' || bg === 'lofi_boy_study';
+    return bg === 'lofi_cat_window' || bg === 'lofi_cat_rain' || bg === 'lofi_cat_sun' || bg === 'lofi_car_ride';
   });
 
   backgroundVideoUrl = computed(() => {
@@ -459,9 +473,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_cat_window') return 'assets/videos/gatito-ventana.mp4';
     if (bg === 'lofi_cat_rain') return 'assets/videos/gatito-lluvia.mp4';
     if (bg === 'lofi_cat_sun') return 'assets/videos/gatito-sol.mp4';
-    if (bg === 'lofi_girl_sunset') return 'assets/videos/girl-alone.mp4';
     if (bg === 'lofi_car_ride') return 'assets/videos/auto.mp4';
-    if (bg === 'lofi_boy_study') return 'assets/videos/boy-sudy.mp4';
     return '';
   });
 
@@ -470,18 +482,13 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_cat_window') return 'assets/themes/lofi_cat_window_thumb.webp';
     if (bg === 'lofi_cat_rain') return 'assets/themes/lofi_cat_rain_thumb.webp';
     if (bg === 'lofi_cat_sun') return 'assets/themes/lofi_cat_sun_thumb.webp';
-    if (bg === 'lofi_girl_sunset') return 'assets/themes/lofi_girl_sunset_thumb.webp';
     if (bg === 'lofi_car_ride') return 'assets/themes/lofi_car_ride_thumb.webp';
-    if (bg === 'lofi_boy_study') return 'assets/themes/lofi_boy_study_thumb.webp';
-    if (bg === 'theme_animation_studio') return 'assets/themes/animation_studio.webp';
     if (bg === 'theme_autumn') return 'assets/themes/autumn.webp';
     if (bg === 'theme_sunset') return 'assets/themes/sunset.webp';
     if (bg === 'theme_aninditaerina_lofi') return 'assets/themes/aninditaerina-lofi.webp';
     if (bg === 'fairy') return 'assets/themes/fairy_world.webp';
     if (bg === 'lofi_study_desktop') return 'assets/themes/lofi_study_desktop.webp';
     if (bg === 'lofi_moons') return 'assets/themes/lofi_moons.webp';
-    if (bg === 'lofi_study_rain') return 'assets/themes/lofi_study_rain_custom.webp';
-    if (bg === 'forest_campfire') return 'assets/themes/forest_campfire_lofi.webp';
     if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos.webp';
     if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula.webp';
     if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon.webp';
@@ -507,8 +514,8 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.timerStyle() === 'titanic') {
       return ['lofi_titanic_ocean'] as FocusBackgroundType[];
     }
-    // Para todos los demás relojes normales, incluir los 6 videos Lofi HD, los 4 nuevos temas de ilustración y fondos estándar
-    return ['off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_girl_sunset', 'lofi_car_ride', 'lofi_boy_study', 'theme_animation_studio', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_study_rain', 'forest_campfire', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
+    // Para todos los demás relojes normales, incluir los videos Lofi HD, los temas de ilustración y fondos estándar
+    return ['off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
   });
 
   // Información de color y fondo de la cuenta regresiva según el tema visual activo (samurai, cyberpunk, aurora, zen)
@@ -1574,6 +1581,9 @@ export class Enfoque implements OnInit, OnDestroy {
   motivationNotificationEnabled = signal<boolean>(
     localStorage.getItem('motivation-notification-enabled') !== 'false'
   );
+  abandonSoundEnabled = signal<boolean>(
+    localStorage.getItem('abandon-sound-enabled') !== 'false'
+  );
 
   // Aliases and helpers for notifications settings UI
   notifyOnPomodoroEnd = this.focusNotificationEnabled;
@@ -1581,6 +1591,17 @@ export class Enfoque implements OnInit, OnDestroy {
   notifyOnLongBreakEnd = this.longBreakNotificationEnabled;
   notifyOnMotivationReminder = this.motivationNotificationEnabled;
   tabFlashingEnabled = this.tabNotificationsEnabled;
+
+  toggleAbandonSound(enabled?: boolean) {
+    const newVal = enabled !== undefined ? enabled : !this.abandonSoundEnabled();
+    this.abandonSoundEnabled.set(newVal);
+    localStorage.setItem('abandon-sound-enabled', String(newVal));
+    if (newVal) {
+      this.showToastFeedback('🔊 Sonido de abandono activado.', 'info');
+    } else {
+      this.showToastFeedback('🔇 Sonido de abandono desactivado.', 'info');
+    }
+  }
 
   toggleMasterNotifications() {
     this.toggleDesktopNotifications(!this.notificationsEnabled());
@@ -1961,8 +1982,8 @@ export class Enfoque implements OnInit, OnDestroy {
     if (savedX) this.campfireX.set(parseFloat(savedX));
     if (savedY) this.campfireY.set(parseFloat(savedY));
 
-    // Mostrar tip de arrastre temporalmente al inicio si está seleccionado el fondo de fogata
-    if (this.activeBackground() === 'forest_campfire') {
+    // Mostrar tip de arrastre temporalmente al inicio si está seleccionado el reloj de fogata
+    if (this.timerStyle() === 'fire') {
       this.showCampfireDragTooltip.set(true);
       setTimeout(() => {
         this.showCampfireDragTooltip.set(false);
@@ -3468,15 +3489,6 @@ export class Enfoque implements OnInit, OnDestroy {
         }
       }, 50);
     }
-
-    if (bg === 'forest_campfire') {
-      this.showCampfireDragTooltip.set(true);
-      setTimeout(() => {
-        this.showCampfireDragTooltip.set(false);
-      }, 8000);
-    } else {
-      this.showCampfireDragTooltip.set(false);
-    }
   }
 
   // Garantiza 0 volumen y silencio absoluto en la carga del video
@@ -3538,18 +3550,13 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'lofi_cat_window') return 'assets/themes/lofi_cat_window_thumb.webp';
     if (bg === 'lofi_cat_rain') return 'assets/themes/lofi_cat_rain_thumb.webp';
     if (bg === 'lofi_cat_sun') return 'assets/themes/lofi_cat_sun_thumb.webp';
-    if (bg === 'lofi_girl_sunset') return 'assets/themes/lofi_girl_sunset_thumb.webp';
     if (bg === 'lofi_car_ride') return 'assets/themes/lofi_car_ride_thumb.webp';
-    if (bg === 'lofi_boy_study') return 'assets/themes/lofi_boy_study_thumb.webp';
-    if (bg === 'theme_animation_studio') return 'assets/themes/animation_studio_thumb.webp';
     if (bg === 'theme_autumn') return 'assets/themes/autumn_thumb.webp';
     if (bg === 'theme_sunset') return 'assets/themes/sunset_thumb.webp';
     if (bg === 'theme_aninditaerina_lofi') return 'assets/themes/aninditaerina-lofi_thumb.webp';
     if (bg === 'fairy') return 'assets/themes/fairy_world.webp';
     if (bg === 'lofi_study_desktop') return 'assets/themes/lofi_study_desktop.webp';
     if (bg === 'lofi_moons') return 'assets/themes/lofi_moons.webp';
-    if (bg === 'lofi_study_rain') return 'assets/themes/lofi_study_rain_custom.webp';
-    if (bg === 'forest_campfire') return 'assets/themes/forest_campfire_lofi.webp';
     if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos.webp';
     if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula.webp';
     if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon.webp';
@@ -3565,18 +3572,13 @@ export class Enfoque implements OnInit, OnDestroy {
       case 'lofi_cat_window': return 'Gato Ventana';
       case 'lofi_cat_rain': return 'Gatito Lluvia';
       case 'lofi_cat_sun': return 'Gatito Sol';
-      case 'lofi_girl_sunset': return 'Chica Atardecer';
       case 'lofi_car_ride': return 'Viaje en Auto';
-      case 'lofi_boy_study': return 'Chico Estudio';
-      case 'theme_animation_studio': return 'Estudio Anime';
       case 'theme_autumn': return 'Otoño Lofi';
       case 'theme_sunset': return 'Atardecer Dorado';
       case 'theme_aninditaerina_lofi': return 'Anindita Erina';
       case 'fairy': return 'Fairy';
       case 'lofi_study_desktop': return 'Estudio';
       case 'lofi_moons': return 'Luna';
-      case 'lofi_study_rain': return 'Lluvia';
-      case 'forest_campfire': return 'Bosque';
       case 'lofi_space_cosmos': return 'Espacio';
       case 'lofi_space_nebula': return 'Nebulosa';
       case 'lofi_space_moon': return 'Luz Lunar';
@@ -3594,18 +3596,13 @@ export class Enfoque implements OnInit, OnDestroy {
       case 'lofi_cat_window': return 'Fondo interactivo en video HD "Gato Ventana Lofi" con bucle continuo imperceptible';
       case 'lofi_cat_rain': return 'Fondo interactivo en video HD "Gatito Lluvia Lofi" con bucle continuo imperceptible';
       case 'lofi_cat_sun': return 'Fondo interactivo en video HD "Gatito Sol Lofi" con bucle continuo imperceptible';
-      case 'lofi_girl_sunset': return 'Fondo interactivo en video HD "Chica Atardecer Lofi" con bucle continuo imperceptible';
       case 'lofi_car_ride': return 'Fondo interactivo en video HD "Viaje en Auto Lofi" con bucle continuo imperceptible';
-      case 'lofi_boy_study': return 'Fondo interactivo en video HD "Chico Estudio Lofi" con bucle continuo imperceptible';
-      case 'theme_animation_studio': return 'Fondo artístico Ultra HD "Estudio de Animación Lofi"';
       case 'theme_autumn': return 'Fondo artístico Ultra HD "Bosque y Calle de Otoño Lofi"';
       case 'theme_sunset': return 'Fondo artístico Ultra HD "Atardecer Dorado en la Ciudad Lofi"';
       case 'theme_aninditaerina_lofi': return 'Fondo artístico Ultra HD "Anindita Erina Lofi"';
       case 'fairy': return 'Fondo lofi "Fairy" activo';
       case 'lofi_study_desktop': return 'Fondo lofi "Estudio" activo';
       case 'lofi_moons': return 'Fondo lofi "Luna" activo';
-      case 'lofi_study_rain': return 'Fondo lofi "Lluvia" activo';
-      case 'forest_campfire': return 'Fondo lofi "Fogata Bosque" activo';
       case 'lofi_space_cosmos': return 'Fondo lofi "Espacio Cósmico con Saturno y Luceros" activo con aura cósmica';
       case 'lofi_space_nebula': return 'Fondo lofi "Nebulosa Cósmica" activo con aura cósmica';
       case 'lofi_space_moon': return 'Fondo lofi "Polvo Lunar y Vía Láctea" activo con aura cósmica';
@@ -3615,52 +3612,13 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   }
 
-  // Información de nivel de complejidad y monetización del estilo de cronómetro
+  // Información de nivel de complejidad y monetización del estilo de cronómetro (Todos 100% libres y desbloqueados)
   getTimerStyleTier(style: string): { label: string; class: string; icon: string; color: string; bg: string; type: 'free' | 'coins' | 'premium' } {
-    switch (style) {
-      // 🪙 MONEDAS (1,000 Monedas Especiales)
-      case 'titanic':
-      case 'moon':
-        return { label: '1,000', class: 'tier-coins-1000', icon: 'fa-coins', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.18)', type: 'coins' };
-
-      // 🪙 MONEDAS (100 Monedas)
-      case 'fire':
-      case 'hourglass':
-      case 'ice':
-      case 'battery':
-        return { label: '100', class: 'tier-coins', icon: 'fa-coins', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)', type: 'coins' };
-
-      // 👑 PREMIUM (Corona)
-      case 'lighthouse':
-      case 'airplane':
-      case 'solar':
-      case 'satellite':
-        return { label: 'PREMIUM', class: 'tier-premium', icon: 'fa-crown', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', type: 'premium' };
-
-      // 🔓 GRATIS (Esenciales y Minimalistas)
-      case 'digital':
-      case 'ring':
-      case 'line':
-      default:
-        return { label: 'GRATIS', class: 'tier-free', icon: 'fa-lock-open', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.12)', type: 'free' };
-    }
+    return { label: 'GRATIS', class: 'tier-free', icon: 'fa-lock-open', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.12)', type: 'free' };
   }
 
-  // Verificación si un estilo está bloqueado por monedas o membresía
+  // Verificación si un estilo está bloqueado por monedas o membresía (Todos desbloqueados)
   isTimerStyleLocked(style: string): boolean {
-    if (this.membership.isPremium()) {
-      return false;
-    }
-    if (style === 'digital' || style === 'ring' || style === 'line') {
-      return false;
-    }
-    const tier = this.getTimerStyleTier(style);
-    if (tier.type === 'coins') {
-      return !this.membership.unlockedTimers().includes(style);
-    }
-    if (tier.type === 'premium') {
-      return !this.membership.isPremium();
-    }
     return false;
   }
 
@@ -3670,15 +3628,8 @@ export class Enfoque implements OnInit, OnDestroy {
   confirmUnlockWithCoins() {
     const item = this.coinTimerToUnlock();
     if (!item) return;
-    if (this.membership.proCoins() >= item.cost) {
-      this.membership.unlockTimerWithCoins(item.id, item.cost);
-      this.setTimerStyle(item.id as any);
-      this.coinTimerToUnlock.set(null);
-      this.partnerNotificationMessage.set(`¡${item.name} desbloqueado exitosamente!`);
-      this.partnerNotificationType.set('success');
-      this.showPartnerNotification.set(true);
-      setTimeout(() => this.showPartnerNotification.set(false), 3500);
-    }
+    this.setTimerStyle(item.id as FocusTimerStyle);
+    this.coinTimerToUnlock.set(null);
   }
 
   closeCoinUnlockModal() {
@@ -3690,37 +3641,8 @@ export class Enfoque implements OnInit, OnDestroy {
     this.router.navigate(['/membresia']);
   }
 
-  // Setter del estilo de cronómetro Zen (con verificación de Monedas o Premium)
-  setTimerStyle(style: 'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic' | 'lighthouse' | 'airplane') {
-    if (this.isTimerStyleLocked(style)) {
-      const tier = this.getTimerStyleTier(style);
-      if (tier.type === 'premium') {
-        this.showPaywallModal.set(true);
-      } else if (tier.type === 'coins') {
-        const names: Record<string, string> = {
-          fire: 'Fogata Sagrada',
-          hourglass: 'Reloj de Arena',
-          ice: 'Cubo de Hielo',
-          battery: 'Batería de Energía',
-          moon: 'Órbita Lunar',
-          titanic: 'Titanic Legendario'
-        };
-        const costs: Record<string, number> = {
-          fire: 100,
-          hourglass: 100,
-          ice: 100,
-          battery: 100,
-          moon: 1000,
-          titanic: 1000
-        };
-        this.coinTimerToUnlock.set({
-          id: style,
-          name: names[style] || 'Estilo de Reloj',
-          cost: costs[style] || 100
-        });
-      }
-      return;
-    }
+  // Setter del estilo de cronómetro Zen (100% libre para todos)
+  setTimerStyle(style: FocusTimerStyle) {
     this.timerStyle.set(style);
     localStorage.setItem('focus-timer-style', style);
 
@@ -3743,8 +3665,6 @@ export class Enfoque implements OnInit, OnDestroy {
         } else if (style === 'moon') {
           this.activeBackground.set('lofi_space_moon');
           localStorage.setItem('focus-active-bg', 'lofi_space_moon');
-        } else if (style === 'fire') {
-          this.setBackground('forest_campfire');
         } else {
           this.activeBackground.set('lofi_cat_window');
           localStorage.setItem('focus-active-bg', 'lofi_cat_window');
@@ -3765,10 +3685,17 @@ export class Enfoque implements OnInit, OnDestroy {
           if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
             this.setBackground('lofi_space_moon');
           }
-        } else if (style === 'fire') {
-          this.setBackground('forest_campfire');
         }
       }
+    }
+
+    if (style === 'fire') {
+      this.showCampfireDragTooltip.set(true);
+      setTimeout(() => {
+        this.showCampfireDragTooltip.set(false);
+      }, 8000);
+    } else {
+      this.showCampfireDragTooltip.set(false);
     }
 
     // Si el nuevo estilo no es arrastrable, centrarlo limpiamente a (0, 0)
@@ -3969,7 +3896,8 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Sonido triste / deprimente y melancólico al abandonar la sesión
-  playAbandonmentSadSound() {
+  playAbandonmentSadSound(forcePlay: boolean = false) {
+    if (!forcePlay && !this.abandonSoundEnabled()) return;
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       if (audioCtx.state === 'suspended') {

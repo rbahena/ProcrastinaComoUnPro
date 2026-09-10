@@ -2573,24 +2573,7 @@
   padding: 0 !important;
 }
 
-/* Specific position adjustments for forest_campfire background (shifts content down on desktop) */
-.zen-bg-container.bg-forest-campfire {
-  background-position: center 42%;
-}
 
-/* Tablets / Medium Screens */
-@media (max-width: 1024px) {
-  .zen-bg-container.bg-forest-campfire {
-    background-position: center 46%;
-  }
-}
-
-/* Mobile Portrait Mode */
-@media (max-width: 768px) {
-  .zen-bg-container.bg-forest-campfire {
-    background-position: center 50%;
-  }
-}
 
 /* Draggable Campfire Cursors & Tooltip Animations */
 .fire-container, .logs-container {
@@ -4608,6 +4591,23 @@
   background: radial-gradient(circle at 80% 50%, rgba(245, 158, 11, 0.16), transparent 70%);
   mix-blend-mode: screen;
 }
+
+/* Sutil Contador Visual HUD para Relojes Temáticos */
+.subtle-timer-pill {
+  pointer-events: none;
+  user-select: none;
+  animation: fadeIn 0.4s ease-out;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.subtle-timer-pill span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+  transition: all 0.3s ease;
+}
+
 
 
 
