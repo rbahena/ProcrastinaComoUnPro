@@ -549,6 +549,141 @@
       </div>
     </div>
 
+    <!-- Fondo Panorámico Responsivo de Borde a Borde para Modo El Faro (Cielo Nocturno, Estrellas, Luna, Amanecer y Océano Profundo) -->
+    <div *ngIf="timerStyle() === 'lighthouse' && arenaState() !== 'countdown'"
+         class="lighthouse-fullscreen-ocean-backdrop">
+      <div class="lighthouse-backdrop-sky">
+        <svg class="lighthouse-fullscreen-sky-svg" viewBox="0 0 1920 650" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;">
+          <defs>
+            <filter id="screenLighthouseFresnelGlow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <radialGradient id="screenLighthouseMoonGrad" cx="40%" cy="40%" r="60%">
+              <stop offset="0%" stop-color="#ffffff" />
+              <stop offset="60%" stop-color="#e2e8f0" />
+              <stop offset="100%" stop-color="#94a3b8" />
+            </radialGradient>
+            <linearGradient id="screenSunriseSkyGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#f97316" stop-opacity="0.85" />
+              <stop offset="35%" stop-color="#fb923c" stop-opacity="0.5" />
+              <stop offset="70%" stop-color="#a855f7" stop-opacity="0.25" />
+              <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+            </linearGradient>
+            <radialGradient id="screenSunGoldenGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffffff" />
+              <stop offset="25%" stop-color="#fef08a" />
+              <stop offset="60%" stop-color="#f59e0b" />
+              <stop offset="100%" stop-color="#d97706" />
+            </radialGradient>
+          </defs>
+
+          <!-- Cielo de Amanecer Dorado -->
+          <rect x="0" y="0" width="1920" height="650" fill="url(#screenSunriseSkyGrad)" [style.opacity]="lighthouseSunriseOpacity()" style="transition: opacity 1.5s ease-out;" />
+
+          <!-- Estrellas y Luna Nocturna -->
+          <g class="lighthouse-night-sky" [style.opacity]="1 - (lighthouseSunriseOpacity() * 0.9)">
+            <!-- Luna Plateada en el cielo alto (Extremo Superior Derecho) -->
+            <circle cx="1550" cy="110" r="22" fill="url(#screenLighthouseMoonGrad)" filter="url(#screenLighthouseFresnelGlow)" />
+            <circle cx="1544" cy="105" r="5" fill="#cbd5e1" opacity="0.6" />
+            <circle cx="1556" cy="115" r="6" fill="#cbd5e1" opacity="0.5" />
+            <circle cx="1552" cy="104" r="3.5" fill="#cbd5e1" opacity="0.6" />
+
+            <!-- Manto de Estrellas Titilantes en el Cielo -->
+            <circle cx="120" cy="80" r="1.5" fill="#ffffff" class="lighthouse-star-1" />
+            <circle cx="240" cy="140" r="1.3" fill="#fef08a" class="lighthouse-star-2" />
+            <circle cx="380" cy="90" r="1.6" fill="#ffffff" class="lighthouse-star-1" />
+            <circle cx="490" cy="160" r="1.8" fill="#fef08a" class="lighthouse-star-2" />
+            <circle cx="620" cy="85" r="1.4" fill="#ffffff" class="lighthouse-star-3" />
+            <circle cx="750" cy="120" r="1.5" fill="#ffffff" class="lighthouse-star-1" />
+            <circle cx="890" cy="70" r="1.3" fill="#fef08a" class="lighthouse-star-2" />
+            <circle cx="1020" cy="150" r="1.7" fill="#ffffff" class="lighthouse-star-3" />
+            <circle cx="1180" cy="95" r="1.5" fill="#ffffff" class="lighthouse-star-1" />
+            <circle cx="1320" cy="130" r="1.3" fill="#ffffff" class="lighthouse-star-2" />
+            <circle cx="1450" cy="65" r="1.6" fill="#fef08a" class="lighthouse-star-1" />
+            <circle cx="1680" cy="140" r="1.4" fill="#ffffff" class="lighthouse-star-3" />
+            <circle cx="1800" cy="85" r="1.5" fill="#ffffff" class="lighthouse-star-1" />
+            <circle cx="310" cy="220" r="1.2" fill="#ffffff" class="lighthouse-star-2" />
+            <circle cx="560" cy="260" r="1.4" fill="#fef08a" class="lighthouse-star-3" />
+            <circle cx="820" cy="230" r="1.5" fill="#ffffff" class="lighthouse-star-1" />
+            <circle cx="1100" cy="250" r="1.3" fill="#ffffff" class="lighthouse-star-2" />
+            <circle cx="1390" cy="220" r="1.6" fill="#fef08a" class="lighthouse-star-1" />
+            <circle cx="1720" cy="240" r="1.4" fill="#ffffff" class="lighthouse-star-3" />
+          </g>
+
+          <!-- Sol Dorado Naciente al Amanecer -->
+          <g [style.opacity]="lighthouseSunriseOpacity()" style="transition: opacity 1.5s ease-out;">
+            <g [style.transform]="lighthouseSunTransform()" transform="translate(1450, 260)" style="transition: transform 1.2s linear;">
+              <circle cx="0" cy="0" r="32" fill="url(#screenSunGoldenGrad)" filter="url(#screenLighthouseFresnelGlow)" />
+              <path d="M 0 -48 L 0 -38 M 34 -34 L 27 -27 M 48 0 L 38 0 M 34 34 L 27 27 M 0 48 L 0 38 M -34 34 L -27 27 M -48 0 L -38 0 M -34 -34 L -27 -27" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="lighthouse-horizon-line-glow"></div>
+
+      <div class="lighthouse-backdrop-ocean">
+        <svg class="lighthouse-fullscreen-ocean-svg" viewBox="0 0 1920 450" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;">
+          <defs>
+            <linearGradient id="screenSunriseSeaGlowGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#fde047" stop-opacity="0.75" />
+              <stop offset="35%" stop-color="#f59e0b" stop-opacity="0.45" />
+              <stop offset="70%" stop-color="#0369a1" stop-opacity="0.2" />
+              <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+            </linearGradient>
+            <filter id="screenWaterGlowDiffusion" x="-60%" y="-100%" width="220%" height="300%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="8.0" />
+            </filter>
+          </defs>
+
+          <!-- Resplandor dorado sobre el mar al amanecer -->
+          <rect x="0" y="0" width="1920" height="450" fill="url(#screenSunriseSeaGlowGrad)" [style.opacity]="lighthouseSunriseOpacity()" style="transition: opacity 1.5s ease-out;" />
+
+          <!-- Bruma Luminosa en el Horizonte -->
+          <ellipse cx="960" cy="2" rx="960" ry="14" fill="rgba(56, 189, 248, 0.08)" filter="url(#screenWaterGlowDiffusion)" />
+
+          <!-- Reflejo Sutil de la Luz de Luna sobre las Ondas del Mar -->
+          <g class="lighthouse-moonlight-shimmer" opacity="0.65" transform="translate(590, 0)">
+            <ellipse cx="960" cy="6" rx="140" ry="2.5" fill="#cbd5e1" opacity="0.5" />
+            <path d="M 860 14 Q 960 10, 1060 14" stroke="#e2e8f0" stroke-width="1.2" fill="none" opacity="0.45" />
+            <ellipse cx="965" cy="24" rx="170" ry="3.0" fill="#94a3b8" opacity="0.35" />
+            <path d="M 820 36 Q 960 32, 1100 36" stroke="#7dd3fc" stroke-width="1.4" fill="none" opacity="0.3" />
+            <ellipse cx="955" cy="50" rx="190" ry="3.5" fill="#38bdf8" opacity="0.2" />
+            <path d="M 800 66 Q 965 60, 1130 66" stroke="#38bdf8" stroke-width="1.6" fill="none" opacity="0.2" />
+            <ellipse cx="960" cy="86" rx="220" ry="4.0" fill="#0284c7" opacity="0.15" />
+          </g>
+
+          <!-- Líneas de Oleaje Marino Panorámicas -->
+          <g class="lighthouse-ocean-waves">
+            <path d="M 0 4 Q 240 -2, 480 4 Q 720 10, 960 4 Q 1200 -2, 1440 4 Q 1680 10, 1920 4" 
+                  fill="none" stroke="#0f2b48" stroke-width="2.2" opacity="0.8" class="lighthouse-wave-anim-1" />
+            <path d="M 0 16 Q 240 10, 480 16 Q 720 22, 960 16 Q 1200 10, 1440 16 Q 1680 22, 1920 16" 
+                  fill="none" stroke="#16385c" stroke-width="1.6" opacity="0.6" class="lighthouse-wave-anim-3" />
+            <path d="M 0 35 Q 240 28, 480 35 Q 720 42, 960 35 Q 1200 28, 1440 35 Q 1680 42, 1920 35" 
+                  fill="none" stroke="#1e3a5f" stroke-width="1.4" opacity="0.55" class="lighthouse-wave-anim-2" />
+            <path d="M 0 68 Q 240 60, 480 68 Q 720 76, 960 68 Q 1200 60, 1440 68 Q 1680 76, 1920 68" 
+                  fill="none" stroke="#152d47" stroke-width="1.2" opacity="0.45" class="lighthouse-wave-anim-4" />
+          </g>
+
+          <!-- Destellos de Plancton Bioluminiscente Panorámicos -->
+          <g class="lighthouse-bioluminescent-plankton">
+            <circle cx="320" cy="35" r="1.4" fill="#38bdf8" class="lighthouse-plankton-sparkle-1" />
+            <circle cx="510" cy="62" r="1.2" fill="#2dd4bf" class="lighthouse-plankton-sparkle-2" />
+            <circle cx="720" cy="30" r="1.5" fill="#7dd3fc" class="lighthouse-plankton-sparkle-3" />
+            <circle cx="940" cy="75" r="1.3" fill="#38bdf8" class="lighthouse-plankton-sparkle-1" />
+            <circle cx="1180" cy="50" r="1.6" fill="#2dd4bf" class="lighthouse-plankton-sparkle-2" />
+            <circle cx="1420" cy="90" r="1.1" fill="#7dd3fc" class="lighthouse-plankton-sparkle-3" />
+            <circle cx="1650" cy="40" r="1.4" fill="#38bdf8" class="lighthouse-plankton-sparkle-1" />
+            <circle cx="1820" cy="65" r="1.2" fill="#2dd4bf" class="lighthouse-plankton-sparkle-2" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
     <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
     <div class="main custom-scrollbar" style="display: flex; flex-direction: column; position: relative; z-index: 1; flex: 1;">
 
@@ -4006,120 +4141,8 @@
                       </linearGradient>
                     </defs>
 
-                    <!-- ==================== CIELO NOCTURNO COMPLETO DE EXTREMO A EXTREMO ==================== -->
-                    <!-- Bloque de Cielo Nocturno Degradado que llena la pantalla por encima de la línea de agua (y=250) -->
-                    <rect x="-1400" y="-800" width="3260" height="1050" fill="url(#lighthouseNightSkyGrad)" />
-
-                    <!-- ==================== ESTRELLAS Y LUNA ==================== -->
-                    <g class="lighthouse-night-sky" [style.opacity]="1 - (lighthouseSunriseOpacity() * 0.9)">
-                      <!-- Luna Plateada en el cielo alto -->
-                      <circle cx="370" cy="90" r="14" fill="url(#lighthouseMoonGrad)" filter="url(#lighthouseFresnelGlow)" />
-                      <circle cx="366" cy="87" r="3" fill="#cbd5e1" opacity="0.6" />
-                      <circle cx="374" cy="93" r="4" fill="#cbd5e1" opacity="0.5" />
-                      <circle cx="371" cy="86" r="2" fill="#cbd5e1" opacity="0.6" />
-
-                      <!-- Estrellas titilantes en el amplio firmamento -->
-                      <circle cx="70" cy="55" r="1.3" fill="#ffffff" class="lighthouse-star-1" />
-                      <circle cx="130" cy="75" r="1.1" fill="#fef08a" class="lighthouse-star-2" />
-                      <circle cx="210" cy="60" r="1.2" fill="#ffffff" class="lighthouse-star-1" />
-                      <circle cx="260" cy="75" r="1.5" fill="#fef08a" class="lighthouse-star-2" />
-                      <circle cx="310" cy="55" r="1.1" fill="#ffffff" class="lighthouse-star-3" />
-                      <circle cx="410" cy="65" r="1.3" fill="#ffffff" class="lighthouse-star-1" />
-                      <circle cx="180" cy="115" r="1.0" fill="#ffffff" class="lighthouse-star-2" />
-                      <circle cx="240" cy="135" r="1.2" fill="#fef08a" class="lighthouse-star-3" />
-                      <circle cx="330" cy="120" r="1.4" fill="#ffffff" class="lighthouse-star-1" />
-                      <circle cx="430" cy="140" r="1.0" fill="#ffffff" class="lighthouse-star-2" />
-                      <circle cx="280" cy="175" r="1.2" fill="#fef08a" class="lighthouse-star-1" />
-                      <circle cx="380" cy="190" r="1.1" fill="#ffffff" class="lighthouse-star-3" />
-                    </g>
-
-                    <!-- ==================== CIELO DE AMANECER DORADO (PROGRESS > 0.65) ==================== -->
-                    <g [style.opacity]="lighthouseSunriseOpacity()" style="transition: opacity 1.5s ease-out;">
-                      <!-- Fondo de resplandor del cielo extendido de lado a lado -->
-                      <rect x="-1400" y="-800" width="3260" height="1050" fill="url(#sunriseSkyGrad)" />
-                      <!-- Sol Dorado Naciente -->
-                      <g [style.transform]="lighthouseSunTransform()" style="transition: transform 1.2s linear;">
-                        <circle cx="0" cy="0" r="26" fill="url(#sunGoldenGrad)" filter="url(#lighthouseFresnelGlow)" />
-                        <!-- Rayos dorados solares -->
-                        <path d="M 0 -38 L 0 -30 M 27 -27 L 21 -21 M 38 0 L 30 0 M 27 27 L 21 21 M 0 38 L 0 30 M -27 27 L -21 21 M -38 0 L -30 0 M -27 -27 L -21 -21" stroke="#fef08a" stroke-width="2" stroke-linecap="round" opacity="0.8" />
-                      </g>
-                    </g>
-
-                    <!-- ==================== SUPERFICIE DEL OCÉANO Y LÍNEA DE HORIZONTE (Y=250) ==================== -->
-                    <!-- Bloque de Agua Submarina Expandido de Lado a Lado de la Pantalla -->
-                    <rect x="-1400" y="250" width="3260" height="1400" fill="url(#lighthouseOceanGrad)" opacity="1.0" />
-
-                    <!-- Resplandor dorado sobre el mar al amanecer de Lado a Lado -->
-                    <rect x="-1400" y="250" width="3260" height="1400" fill="url(#sunriseSeaGlowGrad)" [style.opacity]="lighthouseSunriseOpacity()" />
-
-                    <!-- Bruma Luminosa en la Línea de Separación del Horizonte -->
-                    <ellipse cx="230" cy="250" rx="1400" ry="14" fill="rgba(56, 189, 248, 0.08)" filter="url(#waterGlowDiffusion)" />
-                    <!-- Línea Nítida de Separación del Horizonte Marino -->
-                    <line x1="-1400" y1="250" x2="1860" y2="250" stroke="#0e2a4a" stroke-width="1.2" opacity="0.85" />
-
-                    <!-- ==================== DETALLES SUTILES DEL OCÉANO: REFLEJO LUNAR, PLANCTON Y MAREJADAS ==================== -->
-                    <!-- 1. Reflejo Sutil de la Luz de Luna sobre las Ondas del Mar (Moonlight Caustics & Shimmer) -->
-                    <g class="lighthouse-moonlight-shimmer" opacity="0.65">
-                      <ellipse cx="370" cy="254" rx="35" ry="1.2" fill="#cbd5e1" opacity="0.5" />
-                      <path d="M 345 258 Q 370 256, 395 258" stroke="#e2e8f0" stroke-width="1.0" fill="none" opacity="0.45" />
-                      <ellipse cx="372" cy="263" rx="42" ry="1.5" fill="#94a3b8" opacity="0.35" />
-                      <path d="M 335 269 Q 370 267, 405 269" stroke="#7dd3fc" stroke-width="1.1" fill="none" opacity="0.3" />
-                      <ellipse cx="368" cy="276" rx="48" ry="1.8" fill="#38bdf8" opacity="0.2" />
-                      <path d="M 330 284 Q 372 281, 412 284" stroke="#38bdf8" stroke-width="1.2" fill="none" opacity="0.2" />
-                      <ellipse cx="370" cy="294" rx="55" ry="2.0" fill="#0284c7" opacity="0.15" />
-                    </g>
-
-                    <!-- 2. Líneas de Oleaje Marino Escalonadas en Profundidad -->
-                    <g class="lighthouse-ocean-waves">
-                      <!-- Ola Principal de Fondo (Horizonte Lejano) -->
-                      <path d="M -1400 250 Q -1150 246, -900 250 Q -650 254, -400 250 Q -150 246, 100 250 Q 350 254, 600 250 Q 850 246, 1100 250 Q 1350 254, 1600 250 Q 1750 248, 1860 250" 
-                            fill="none" 
-                            stroke="#0f2b48" 
-                            stroke-width="2.2" 
-                            opacity="0.8"
-                            class="lighthouse-wave-anim-1" />
-                      <!-- Ola Media con Crestas Suaves de Espuma -->
-                      <path d="M -1400 257 Q -1200 254, -950 257 Q -700 260, -450 257 Q -200 254, 50 257 Q 300 260, 550 257 Q 800 254, 1050 257 Q 1300 260, 1550 257 Q 1750 255, 1860 257" 
-                            fill="none" 
-                            stroke="#16385c" 
-                            stroke-width="1.6" 
-                            opacity="0.6"
-                            class="lighthouse-wave-anim-3" />
-                      <!-- Crestas sutiles de espuma a la deriva -->
-                      <path d="M 120 256.5 Q 135 255, 150 256.5 M 280 256 Q 295 254.5, 310 256 M 440 257 Q 455 255.5, 470 257" 
-                            stroke="#94a3b8" 
-                            stroke-width="0.8" 
-                            fill="none" 
-                            opacity="0.4"
-                            class="lighthouse-wave-anim-3" />
-                      <!-- Ola Frontal Rodante -->
-                      <path d="M -1400 266 Q -1150 263, -900 266 Q -650 269, -400 266 Q -150 263, 100 266 Q 350 269, 600 266 Q 850 263, 1100 266 Q 1350 269, 1600 266 Q 1750 264, 1860 266" 
-                            fill="none" 
-                            stroke="#1e3a5f" 
-                            stroke-width="1.4" 
-                            opacity="0.55"
-                            class="lighthouse-wave-anim-2" />
-                      <!-- Corriente de Agua Profunda Inferior -->
-                      <path d="M -1400 282 Q -1180 278, -920 282 Q -660 286, -420 282 Q -160 278, 120 282 Q 380 286, 640 282 Q 900 278, 1160 282 Q 1420 286, 1680 282 Q 1780 280, 1860 282" 
-                            fill="none" 
-                            stroke="#152d47" 
-                            stroke-width="1.2" 
-                            opacity="0.45"
-                            class="lighthouse-wave-anim-4" />
-                    </g>
-
-                    <!-- 3. Destellos Sutiles de Plancton Bioluminiscente (Subtle Oceanic Life) -->
-                    <g class="lighthouse-bioluminescent-plankton">
-                      <circle cx="160" cy="265" r="1.1" fill="#38bdf8" class="lighthouse-plankton-sparkle-1" />
-                      <circle cx="210" cy="278" r="0.9" fill="#2dd4bf" class="lighthouse-plankton-sparkle-2" />
-                      <circle cx="275" cy="262" r="1.2" fill="#7dd3fc" class="lighthouse-plankton-sparkle-3" />
-                      <circle cx="340" cy="285" r="1.0" fill="#38bdf8" class="lighthouse-plankton-sparkle-1" />
-                      <circle cx="410" cy="272" r="1.3" fill="#2dd4bf" class="lighthouse-plankton-sparkle-2" />
-                      <circle cx="190" cy="295" r="0.8" fill="#7dd3fc" class="lighthouse-plankton-sparkle-3" />
-                      <circle cx="295" cy="302" r="1.1" fill="#38bdf8" class="lighthouse-plankton-sparkle-1" />
-                      <circle cx="385" cy="308" r="0.9" fill="#2dd4bf" class="lighthouse-plankton-sparkle-2" />
-                      <circle cx="450" cy="290" r="1.0" fill="#7dd3fc" class="lighthouse-plankton-sparkle-3" />
-                    </g>
+                    <!-- Línea sutil de superficie de agua de proa a popa -->
+                    <line x1="-200" y1="250" x2="460" y2="250" stroke="#0e2a4a" stroke-width="1.0" opacity="0.4" />
 
                     <!-- ==================== BUQUE BALIZADOR (BUOY TENDER) ILUMINADO DE GRAN TAMAÑO ==================== -->
                     <g [style.transform]="lighthouseSailboatTransform()" style="transition: transform 1.5s linear;">
