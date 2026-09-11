@@ -3026,37 +3026,7 @@
   filter: brightness(0.95) contrast(1.05);
 }
 
-/* ===== TITANIC SETUP CRUISE ANIMATION (Travesía oceánica ultra lenta casi imperceptible) ===== */
-.titanic-sailing-cruise {
-  animation: titanicCruiseSailing 180s infinite linear;
-  transform-origin: 0px 0px;
-}
 
-@keyframes titanicCruiseSailing {
-  0% {
-    transform: translate(-260px, 204px) rotate(-0.3deg);
-    opacity: 0;
-  }
-  3% {
-    opacity: 1;
-  }
-  25% {
-    transform: translate(-30px, 203.6px) rotate(0.25deg);
-  }
-  50% {
-    transform: translate(200px, 204px) rotate(-0.25deg);
-  }
-  75% {
-    transform: translate(430px, 203.7px) rotate(0.3deg);
-  }
-  97% {
-    opacity: 1;
-  }
-  100% {
-    transform: translate(660px, 204px) rotate(-0.3deg);
-    opacity: 0;
-  }
-}
 
 /* ===== TITANIC ANIMACIONES Y EFECTOS ===== */
 .titanic-funnel-smoke {
@@ -3330,6 +3300,7 @@
     top: 54% !important;
     height: calc(100% - 54% + 4px) !important;
   }
+  .titanic-horizon-line-glow { top: 54% !important; }
   .titanic-container {
     width: min(440px, 94vw) !important;
     height: auto !important;
@@ -3347,6 +3318,7 @@
     top: 52% !important;
     height: calc(100% - 52% + 4px) !important;
   }
+  .titanic-horizon-line-glow { top: 52% !important; }
   .titanic-container {
     width: min(420px, 96vw) !important;
     margin: 0 auto !important;
@@ -4899,3 +4871,129 @@
 
 
 
+
+
+/* ===== ANIMACIONES DE AGUA ACTIVA SUPERFICIAL Y ESTELA NÁUTICA (TITANIC) ===== */
+.titanic-wave-surface-drift-1 {
+  animation: titanicWaveSurfaceDrift1 7s linear infinite;
+}
+.titanic-wave-surface-drift-2 {
+  animation: titanicWaveSurfaceDrift2 5.5s linear infinite;
+}
+.titanic-water-surface-gleam {
+  animation: titanicWaterSurfaceGleamAnim 5s ease-in-out infinite alternate;
+}
+
+@keyframes titanicWaveSurfaceDrift1 {
+  0% { transform: translateX(0px); }
+  100% { transform: translateX(-120px); }
+}
+@keyframes titanicWaveSurfaceDrift2 {
+  0% { transform: translateX(0px); }
+  100% { transform: translateX(100px); }
+}
+@keyframes titanicWaterSurfaceGleamAnim {
+  0% { opacity: 0.25; transform: scaleX(0.95); }
+  50% { opacity: 0.55; transform: scaleX(1.05); }
+  100% { opacity: 0.35; transform: scaleX(1.0); }
+}
+
+/* Animación de la Estela Náutica y Marca en el Agua del Barco */
+.titanic-wake-core-trail {
+  animation: titanicWakeCorePulse 2.5s ease-in-out infinite alternate;
+}
+.titanic-wake-bubble-1 { animation: titanicWakeBubblePulse 1.8s ease-in-out infinite alternate; }
+.titanic-wake-bubble-2 { animation: titanicWakeBubblePulse 2.2s ease-in-out infinite alternate 0.3s; }
+.titanic-wake-bubble-3 { animation: titanicWakeBubblePulse 2.6s ease-in-out infinite alternate 0.6s; }
+.titanic-wake-bubble-4 { animation: titanicWakeBubblePulse 3.0s ease-in-out infinite alternate 0.9s; }
+.titanic-wake-bubble-5 { animation: titanicWakeBubblePulse 3.4s ease-in-out infinite alternate 1.2s; }
+.titanic-wake-bubble-6 { animation: titanicWakeBubblePulse 3.8s ease-in-out infinite alternate 1.5s; }
+
+@keyframes titanicWakeCorePulse {
+  0% { opacity: 0.15; stroke-width: 0.45; }
+  100% { opacity: 0.28; stroke-width: 0.6; }
+}
+@keyframes titanicWakeBubblePulse {
+  0% { transform: scale(0.98); opacity: 0.12; }
+  100% { transform: scale(1.02); opacity: 0.22; }
+}
+
+/* Destellos de espuma marina flotante */
+.titanic-foam-sparkle-1 { animation: titanicSparkleFade 2.1s ease-in-out infinite alternate; }
+.titanic-foam-sparkle-2 { animation: titanicSparkleFade 2.7s ease-in-out infinite alternate 0.4s; }
+.titanic-foam-sparkle-3 { animation: titanicSparkleFade 1.9s ease-in-out infinite alternate 0.8s; }
+.titanic-foam-sparkle-4 { animation: titanicSparkleFade 2.4s ease-in-out infinite alternate 1.2s; }
+.titanic-foam-sparkle-5 { animation: titanicSparkleFade 3.1s ease-in-out infinite alternate 1.6s; }
+
+@keyframes titanicSparkleFade {
+  0% { opacity: 0.2; transform: translateY(0px) scale(0.7); }
+  50% { opacity: 0.9; transform: translateY(-0.8px) scale(1.2); }
+  100% { opacity: 0.3; transform: translateY(0.5px) scale(0.85); }
+}
+
+
+/* ===== OLAS PANORÁMICAS EN MOVIMIENTO LEVE DEL MAR (TITANIC) ===== */
+.titanic-backdrop-waves-svg {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+.panoramic-wave-layer-1 {
+  animation: panoramicWaveSwell1 9s ease-in-out infinite alternate;
+  transform-origin: 50% 15px;
+}
+
+.panoramic-wave-layer-2 {
+  animation: panoramicWaveSwell2 13s ease-in-out infinite alternate;
+  transform-origin: 50% 80px;
+}
+
+.panoramic-wave-layer-3 {
+  animation: panoramicWaveSwell3 17s ease-in-out infinite alternate;
+  transform-origin: 50% 240px;
+}
+
+@keyframes panoramicWaveSwell1 {
+  0% { transform: translateX(0px) translateY(0px) scaleY(0.92); }
+  50% { transform: translateX(-25px) translateY(-1.5px) scaleY(1.12); }
+  100% { transform: translateX(20px) translateY(1px) scaleY(0.96); }
+}
+
+@keyframes panoramicWaveSwell2 {
+  0% { transform: translateX(0px) translateY(0px) scaleY(1.04); }
+  50% { transform: translateX(35px) translateY(-2px) scaleY(0.92); }
+  100% { transform: translateX(-30px) translateY(1.5px) scaleY(1.08); }
+}
+
+@keyframes panoramicWaveSwell3 {
+  0% { transform: translateX(0px) translateY(0px) scaleY(0.96); }
+  50% { transform: translateX(-40px) translateY(-2.5px) scaleY(1.08); }
+  100% { transform: translateX(45px) translateY(2px) scaleY(0.92); }
+}
+
+
+/* ===== LÍNEA DE HORIZONTE NÁUTICO DISCRETA ENTRE CIELO Y MAR (TITANIC) ===== */
+.titanic-horizon-line-glow {
+  position: absolute !important;
+  top: 57% !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100vw !important;
+  height: 1.5px !important;
+  transform: translateY(-0.75px) !important;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(14, 116, 144, 0.15) 15%, 
+    rgba(56, 189, 248, 0.38) 45%, 
+    rgba(186, 230, 253, 0.48) 50%, 
+    rgba(56, 189, 248, 0.38) 55%, 
+    rgba(14, 116, 144, 0.15) 85%, 
+    transparent 100%) !important;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.20), 0 0 16px rgba(2, 132, 199, 0.12) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}

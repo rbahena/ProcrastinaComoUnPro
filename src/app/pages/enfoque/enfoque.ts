@@ -754,12 +754,36 @@ export class Enfoque implements OnInit, OnDestroy {
     return Math.min(1, Math.max(0, 1 - this.timePercentage()));
   });
 
+  // Transformación del Contenedor Maestro del Titanic:
+  // En 'setup' navega en crucero panorámico continuo.
+  // En 'active': inicia con un recorrido de navegación náutica (x=75px -> x=230px de p=0.00 a 0.12), antes de alcanzar el iceberg a x=230px.
+  titanicMasterTransform = computed(() => {
+    if (this.arenaState() === 'setup') {
+      return 'translate(75px, 204px)';
+    }
+    const p = this.titanicProgress();
+    if (p < 0.12) {
+      // Fase de navegación inicial antes del iceberg: recorre de x=75px a x=230px
+      const t = p / 0.12;
+      const x = 75 + (t * 155);
+      // Leve oleaje de navegación serena
+      const bob = Math.sin(t * Math.PI * 4) * 0.75;
+      const pitch = Math.sin(t * Math.PI * 4) * 0.35;
+      return `translate(${x.toFixed(2)}px, ${(204 + bob).toFixed(2)}px) rotate(${pitch.toFixed(2)}deg)`;
+    }
+    return 'translate(230px, 204px)';
+  });
+
   // Transformación de la Proa (Bow) - Cae en picada hacia el fondo marino
   titanicBowTransform = computed(() => {
     const p = this.titanicProgress();
+    if (p < 0.12) {
+      // Durante el recorrido inicial de navegación hacia el iceberg, la proa permanece intacta en posición neutral
+      return 'translate(0px, 0px) rotate(0deg)';
+    }
     if (p < 0.50) {
-      // Fase 1 (0.0 a 0.50): Inclinación inicial gradual hacia el agua
-      const norm = p / 0.50;
+      // Fase 1 (0.12 a 0.50): Inclinación gradual hacia el agua tras el iceberg
+      const norm = (p - 0.12) / 0.38;
       const angle = norm * 18;
       const dy = norm * 22;
       return `translate(0px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
@@ -773,8 +797,14 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   });
 
-  // La Proa se mantiene 100% sólida e intacta mientras entra y desciende en el mar (el agua la cubre físicamente)
-  titanicBowOpacity = computed(() => 1.0);
+  // La Proa se desvanece gradualmente al descender en las profundidades del mar abisal
+  titanicBowOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.35) return 1.0;
+    // De p=0.35 a p=1.00 se va desvaneciendo suavemente conforme cae en el abismo marino
+    const t = (p - 0.35) / 0.65;
+    return Math.max(0.0, 1.0 - Math.pow(t, 1.15));
+  });
 
   // Chimenea 1 (Delantera): Caída continua y fluida por gravedad, inclinándose la corona negra hacia el mar
   titanicFunnel1Transform = computed(() => {
@@ -789,7 +819,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
     // Inclinación fluida hacia adelante: la parte superior negra cae primero hacia el mar
     const rollProgress = Math.min(1, t / 0.15);
-    const rollEase = rollProgress * rollProgress * (3 - 2 * rollProgress); // Curva suave sin pausas
+    const rollEase = rollProgress * rollProgress * (3 - 2 * rollProgress);
     const angle = 8 + (rollEase * 86); // De 8° a 94°
 
     // Desplazamiento continuo hacia la proa
@@ -802,8 +832,13 @@ export class Enfoque implements OnInit, OnDestroy {
     return `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${angle.toFixed(1)}deg)`;
   });
 
-  // Opacidad de la Chimenea 1: sólida al sumergirse en el agua
-  titanicFunnel1Opacity = computed(() => 1.0);
+  // Opacidad de la Chimenea 1: se desvanece al sumergirse en el fondo marino
+  titanicFunnel1Opacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.42) return 1.0;
+    const t = (p - 0.42) / 0.58;
+    return Math.max(0.0, 1.0 - Math.pow(t, 1.25));
+  });
 
   // Indica si la Chimenea 1 ya empezó a caer o ya cayó
   titanicFunnel1Fallen = computed(() => this.titanicProgress() >= 0.38);
@@ -823,15 +858,17 @@ export class Enfoque implements OnInit, OnDestroy {
   // Contra-rotación para que la bengala de proa ascienda siempre 100% vertical al cielo
   titanicFlare1Transform = computed(() => {
     const p = this.titanicProgress();
-    const bowAngle = p < 0.50 ? (p / 0.50) * 18 : 18 + ((p - 0.50) / 0.50) * 60;
+    if (p < 0.12) return 'rotate(0deg)';
+    const bowAngle = p < 0.50 ? ((p - 0.12) / 0.38) * 18 : 18 + ((p - 0.50) / 0.50) * 60;
     return `rotate(-${bowAngle.toFixed(2)}deg)`;
   });
 
   // Contra-rotación para que la bengala de popa ascienda siempre 100% vertical al cielo
   titanicFlare2Transform = computed(() => {
     const p = this.titanicProgress();
+    if (p < 0.12) return 'rotate(0deg)';
     if (p < 0.50) {
-      const sternAngle = (p / 0.50) * 18;
+      const sternAngle = ((p - 0.12) / 0.38) * 18;
       return `rotate(-${sternAngle.toFixed(2)}deg)`;
     } else if (p < 0.65) {
       const sternAngle = 18 + ((p - 0.50) / 0.15) * 72;
@@ -847,14 +884,11 @@ export class Enfoque implements OnInit, OnDestroy {
   @HostListener('document:visibilitychange')
   onDocumentVisibilityChange() {
     if (document.visibilityState === 'visible') {
-      // Al volver a la pestaña activa, desactivamos temporalmente las transiciones CSS
-      // para que el Titanic salte de inmediato a su posición real sin carreras ni desfases
       this.titanicDisableTransition.set(true);
       setTimeout(() => {
         this.titanicDisableTransition.set(false);
       }, 60);
 
-      // Sincronizar de inmediato el tiempo real transcurrido según el reloj del sistema
       this.checkAndRestoreActiveSession();
       if (this.arenaState() !== 'active') {
         this.stopTitleFlashing();
@@ -874,14 +908,15 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   }
 
-
-
   // Transformación de la Popa (Stern) - Se alza a 90°, flota un instante, y la última punta entra al agua EXACTAMENTE al llegar a 00:00 (p = 1.0)
   titanicSternTransform = computed(() => {
     const p = this.titanicProgress();
+    if (p < 0.12) {
+      return 'translate(0px, 0px) rotate(0deg)';
+    }
     if (p < 0.50) {
-      // Fase 1 (0.0 a 0.50): Inclinación inicial gradual
-      const norm = p / 0.50;
+      // Fase 1 (0.12 a 0.50): Inclinación inicial gradual
+      const norm = (p - 0.12) / 0.38;
       const angle = norm * 18;
       const dy = norm * 22;
       return `translate(0px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
@@ -901,18 +936,21 @@ export class Enfoque implements OnInit, OnDestroy {
       return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(90deg)`;
     } else {
       // Fase 2C (0.74 a 1.00): Descenso vertical constante hacia el mar
-      // A p = 1.00 (00:00 tiempo terminado), la última punta entra exactamente bajo el agua
-      const tSink = (p - 0.74) / 0.26; // 0.0 -> 1.0
-      // Curva suave continua: dy va de 22px a 168px (punta más alta -155px + 168px = +13px, completamente bajo el agua a 6px)
+      const tSink = (p - 0.74) / 0.26;
       const dy = 22 + (tSink * 146);
       const dx = -20 - (tSink * 8);
       return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(90deg)`;
     }
   });
 
-  // La Popa se mantiene 100% sólida e intacta sin desaparecer ni difuminarse en el aire
-  // Se sumerge físicamente bajo el agua del mar
-  titanicSternOpacity = computed(() => 1.0);
+  // La Popa se desvanece gradualmente al hundirse verticalmente bajo el mar abisal
+  titanicSternOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.74) return 1.0;
+    // De p=0.74 a p=1.00 se va desvaneciendo suavemente conforme se sumerge en el mar
+    const t = (p - 0.74) / 0.26;
+    return Math.max(0.0, 1.0 - Math.pow(t, 1.1));
+  });
 
     // Estado de las luces del Titanic: 'on' (encendidas) | 'flicker' (parpadeo eléctrico al partirse) | 'off' (apagón total)
   titanicLightsState = computed<'on' | 'flicker' | 'off'>(() => {
