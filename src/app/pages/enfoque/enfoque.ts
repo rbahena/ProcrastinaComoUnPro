@@ -35,6 +35,10 @@ export type FocusBackgroundType =
   | 'fairy' 
   | 'lofi_study_desktop' 
   | 'lofi_moons' 
+  | 'theme_airplane'
+  | 'theme_tunezoro'
+  | 'theme_tunezoro2'
+  | 'theme_tunezoro_anime'
   | 'lofi_space_cosmos' 
   | 'lofi_space_nebula' 
   | 'lofi_space_moon' 
@@ -461,7 +465,7 @@ export class Enfoque implements OnInit, OnDestroy {
   @ViewChild('bgVideoB') bgVideoBRef?: ElementRef<HTMLVideoElement>;
 
   backgroundOptions: FocusBackgroundType[] = [
-    'off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
+    'off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'theme_airplane', 'theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
   ];
 
   isVideoBackground = computed(() => {
@@ -490,6 +494,10 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'fairy') return 'assets/themes/fairy_world.webp';
     if (bg === 'lofi_study_desktop') return 'assets/themes/lofi_study_desktop.webp';
     if (bg === 'lofi_moons') return 'assets/themes/lofi_moons.webp';
+    if (bg === 'theme_airplane') return 'assets/themes/airplane.png';
+    if (bg === 'theme_tunezoro') return 'assets/themes/tunezoro.png';
+    if (bg === 'theme_tunezoro2') return 'assets/themes/tunezoro2.png';
+    if (bg === 'theme_tunezoro_anime') return 'assets/themes/tunezoro-anime.png';
     if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos.webp';
     if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula.webp';
     if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon.webp';
@@ -516,7 +524,7 @@ export class Enfoque implements OnInit, OnDestroy {
       return ['lofi_titanic_ocean'] as FocusBackgroundType[];
     }
     // Para todos los demás relojes normales, incluir los videos Lofi HD, los temas de ilustración y fondos estándar
-    return ['off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
+    return ['off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'theme_airplane', 'theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
   });
 
   // Información de color y fondo de la cuenta regresiva según el tema visual activo (samurai, cyberpunk, aurora, zen)
@@ -774,21 +782,20 @@ export class Enfoque implements OnInit, OnDestroy {
     return 'translate(230px, 204px)';
   });
 
-  // Transformación de la Proa (Bow) - Cae en picada hacia el fondo marino
+  // Transformación de la Proa (Bow) - Inclinación gradual y ruptura original de abajo hacia arriba
   titanicBowTransform = computed(() => {
     const p = this.titanicProgress();
     if (p < 0.12) {
-      // Durante el recorrido inicial de navegación hacia el iceberg, la proa permanece intacta en posición neutral
       return 'translate(0px, 0px) rotate(0deg)';
     }
     if (p < 0.50) {
-      // Fase 1 (0.12 a 0.50): Inclinación gradual hacia el agua tras el iceberg
+      // Fase 1 (0.12 a 0.50): Inclinación gradual unificada del navío completo (0° -> 18°)
       const norm = (p - 0.12) / 0.38;
       const angle = norm * 18;
       const dy = norm * 22;
       return `translate(0px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
     } else {
-      // Fase 2 (0.50 a 1.00): Fractura y descenso continuo bajo el agua
+      // Fase 2 (0.50 a 1.00): Ruptura de abajo hacia arriba y descenso continuo en el mar
       const norm = (p - 0.50) / 0.50;
       const angle = 18 + (norm * 62); // 18° -> 80°
       const dy = 22 + (norm * 220);  // Desciende bajo el mar
@@ -800,39 +807,30 @@ export class Enfoque implements OnInit, OnDestroy {
   // La Proa se desvanece gradualmente al descender en las profundidades del mar abisal
   titanicBowOpacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.35) return 1.0;
-    // De p=0.35 a p=1.00 se va desvaneciendo suavemente conforme cae en el abismo marino
-    const t = (p - 0.35) / 0.65;
-    return Math.max(0.0, 1.0 - Math.pow(t, 1.15));
+    if (p < 0.50) return 1.0;
+    const t = (p - 0.50) / 0.50;
+    return Math.max(0.0, 1.0 - Math.pow(t, 2.8));
   });
 
   // Chimenea 1 (Delantera): Caída continua y fluida por gravedad, inclinándose la corona negra hacia el mar
   titanicFunnel1Transform = computed(() => {
     const p = this.titanicProgress();
     if (p < 0.38) {
-      // Posición erguida original con inclinación de 8°
       return 'rotate(8deg)';
     }
 
-    // Progreso continuo de caída y hundimiento (0.38 -> 1.0)
     const t = (p - 0.38) / 0.62;
-
-    // Inclinación fluida hacia adelante: la parte superior negra cae primero hacia el mar
     const rollProgress = Math.min(1, t / 0.15);
     const rollEase = rollProgress * rollProgress * (3 - 2 * rollProgress);
-    const angle = 8 + (rollEase * 86); // De 8° a 94°
+    const angle = 8 + (rollEase * 86);
 
-    // Desplazamiento continuo hacia la proa
     const dx = (rollEase * 38) + (t * 18);
-
-    // Descenso continuo ininterrumpido hacia la superficie del agua y el fondo marino
     const sinkEase = Math.pow(t, 1.25);
     const dy = sinkEase * 280;
 
     return `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${angle.toFixed(1)}deg)`;
   });
 
-  // Opacidad de la Chimenea 1: se desvanece al sumergirse en el fondo marino
   titanicFunnel1Opacity = computed(() => {
     const p = this.titanicProgress();
     if (p < 0.42) return 1.0;
@@ -840,22 +838,18 @@ export class Enfoque implements OnInit, OnDestroy {
     return Math.max(0.0, 1.0 - Math.pow(t, 1.25));
   });
 
-  // Indica si la Chimenea 1 ya empezó a caer o ya cayó
   titanicFunnel1Fallen = computed(() => this.titanicProgress() >= 0.38);
 
-  // Rayo ligero eléctrico en el punto exacto de ruptura cuando se desprende la chimenea
   titanicFunnelRuptureLightning = computed(() => {
     const p = this.titanicProgress();
     return p >= 0.38 && p <= 0.415;
   });
 
-  // Rayo azul eléctrico que aparece únicamente en el instante del choque y desaparece en cuanto la chimenea entra al agua
   titanicFunnelWaterImpactLightning = computed(() => {
     const p = this.titanicProgress();
     return p >= 0.426 && p <= 0.438;
   });
 
-  // Contra-rotación para que la bengala de proa ascienda siempre 100% vertical al cielo
   titanicFlare1Transform = computed(() => {
     const p = this.titanicProgress();
     if (p < 0.12) return 'rotate(0deg)';
@@ -863,7 +857,6 @@ export class Enfoque implements OnInit, OnDestroy {
     return `rotate(-${bowAngle.toFixed(2)}deg)`;
   });
 
-  // Contra-rotación para que la bengala de popa ascienda siempre 100% vertical al cielo
   titanicFlare2Transform = computed(() => {
     const p = this.titanicProgress();
     if (p < 0.12) return 'rotate(0deg)';
@@ -878,7 +871,6 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   });
 
-  // Desactiva transiciones CSS al cambiar de pestaña para evitar saltos o aceleraciones acumuladas
   titanicDisableTransition = signal<boolean>(false);
 
   @HostListener('document:visibilitychange')
@@ -908,20 +900,20 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   }
 
-  // Transformación de la Popa (Stern) - Se alza a 90°, flota un instante, y la última punta entra al agua EXACTAMENTE al llegar a 00:00 (p = 1.0)
+  // Transformación de la Popa (Stern) - Ruptura original de abajo hacia arriba, se alza a 90° vertical, flota y se hunde
   titanicSternTransform = computed(() => {
     const p = this.titanicProgress();
     if (p < 0.12) {
       return 'translate(0px, 0px) rotate(0deg)';
     }
     if (p < 0.50) {
-      // Fase 1 (0.12 a 0.50): Inclinación inicial gradual
+      // Fase 1 (0.12 a 0.50): Inclinación gradual unificada con la proa (0° -> 18°)
       const norm = (p - 0.12) / 0.38;
       const angle = norm * 18;
       const dy = norm * 22;
       return `translate(0px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
     } else if (p < 0.65) {
-      // Fase 2A (0.50 a 0.65): La popa se alza de 18° a 90° vertical
+      // Fase 2A (0.50 a 0.65): La popa se alza de 18° a 90° vertical (ruptura de abajo hacia arriba)
       const tRise = (p - 0.50) / 0.15;
       const angle = 18 + (tRise * 72); // 18° -> 90°
       const dy = 22 + Math.sin(tRise * Math.PI) * 3;
@@ -935,39 +927,46 @@ export class Enfoque implements OnInit, OnDestroy {
       const dx = -15 - (tBob * 5);
       return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(90deg)`;
     } else {
-      // Fase 2C (0.74 a 1.00): Descenso vertical constante hacia el mar
+      // Fase 2C (0.74 a 1.00): Descenso vertical constante hacia el mar hasta desaparecer a las 00:00 (p=1.00)
       const tSink = (p - 0.74) / 0.26;
-      const dy = 22 + (tSink * 146);
+      const dy = 22 + (tSink * 165);
       const dx = -20 - (tSink * 8);
       return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(90deg)`;
     }
   });
 
-  // La Popa se desvanece gradualmente al hundirse verticalmente bajo el mar abisal
+  // La Popa se desvanece suavemente conforme cae al fondo del mar
   titanicSternOpacity = computed(() => {
     const p = this.titanicProgress();
     if (p < 0.74) return 1.0;
-    // De p=0.74 a p=1.00 se va desvaneciendo suavemente conforme se sumerge en el mar
     const t = (p - 0.74) / 0.26;
-    return Math.max(0.0, 1.0 - Math.pow(t, 1.1));
+    return Math.max(0.0, 1.0 - Math.pow(t, 2.8));
   });
 
-    // Estado de las luces del Titanic: 'on' (encendidas) | 'flicker' (parpadeo eléctrico al partirse) | 'off' (apagón total)
+  // Estado de las luces del Titanic:
+  // 'on' (encendidas y radiantes sobre y bajo el agua) hasta el inicio de la fractura a p=0.50
+  // 'flicker' (parpadeo eléctrico cuando inicia la ruptura: p=0.50 a 0.535)
+  // 'off' (apagón total a partir de p >= 0.535, mostrando las ventanas apagadas)
   titanicLightsState = computed<'on' | 'flicker' | 'off'>(() => {
     const p = this.titanicProgress();
-    if (p < 0.47) return 'on';
-    if (p < 0.52) return 'flicker'; // Parpadeo eléctrico durante la fractura
-    return 'off';                   // Una vez partido, apagón total absoluto
+    if (p < 0.50) return 'on';
+    if (p < 0.535) return 'flicker';
+    return 'off';
   });
 
-  titanicIsSplit = computed(() => this.titanicProgress() >= 0.5);
+  titanicIsSplit = computed(() => this.titanicProgress() >= 0.50);
 
-  // Rayos y chispas de la fractura: activos solo mientras se parte en superficie y se apagan al sumergirse ambas partes
+  // Las bengalas de socorro se lanzan ÚNICAMENTE cuando ya chocó con el iceberg (p >= 0.12) y dejan de salir en cuanto comienza la ruptura del barco (p < 0.50)
+  titanicShowFlares = computed(() => {
+    const p = this.titanicProgress();
+    return p >= 0.12 && p < 0.50;
+  });
+
+  // Rayos y chispas de la fractura: activos durante la fractura (p=0.50 a 0.65)
   titanicShowBreakSparks = computed(() => {
     const p = this.titanicProgress();
     return p >= 0.50 && p < 0.65;
   });
-
 
   // Opciones de sonido para evitar errores de tipado estricto en plantillas Angular
   soundOptions: ('zen' | 'digital' | 'chime')[] = ['zen', 'chime', 'digital'];
@@ -3596,6 +3595,10 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'fairy') return 'assets/themes/fairy_world.webp';
     if (bg === 'lofi_study_desktop') return 'assets/themes/lofi_study_desktop.webp';
     if (bg === 'lofi_moons') return 'assets/themes/lofi_moons.webp';
+    if (bg === 'theme_airplane') return 'assets/themes/airplane.png';
+    if (bg === 'theme_tunezoro') return 'assets/themes/tunezoro.png';
+    if (bg === 'theme_tunezoro2') return 'assets/themes/tunezoro2.png';
+    if (bg === 'theme_tunezoro_anime') return 'assets/themes/tunezoro-anime.png';
     if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos.webp';
     if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula.webp';
     if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon.webp';
@@ -3618,6 +3621,10 @@ export class Enfoque implements OnInit, OnDestroy {
       case 'fairy': return 'Fairy';
       case 'lofi_study_desktop': return 'Estudio';
       case 'lofi_moons': return 'Luna';
+      case 'theme_airplane': return 'Aeronave';
+      case 'theme_tunezoro': return 'Tunezoro';
+      case 'theme_tunezoro2': return 'Tunezoro II';
+      case 'theme_tunezoro_anime': return 'Zoro Anime';
       case 'lofi_space_cosmos': return 'Espacio';
       case 'lofi_space_nebula': return 'Nebulosa';
       case 'lofi_space_moon': return 'Luz Lunar';
@@ -3642,6 +3649,10 @@ export class Enfoque implements OnInit, OnDestroy {
       case 'fairy': return 'Fondo lofi "Fairy" activo';
       case 'lofi_study_desktop': return 'Fondo lofi "Estudio" activo';
       case 'lofi_moons': return 'Fondo lofi "Luna" activo';
+      case 'theme_airplane': return 'Fondo artístico Ultra HD "Aeronave / Cabina de Vuelo"';
+      case 'theme_tunezoro': return 'Fondo artístico Ultra HD "Tunezoro"';
+      case 'theme_tunezoro2': return 'Fondo artístico Ultra HD "Tunezoro II"';
+      case 'theme_tunezoro_anime': return 'Fondo artístico Ultra HD "Zoro Anime"';
       case 'lofi_space_cosmos': return 'Fondo lofi "Espacio Cósmico con Saturno y Luceros" activo con aura cósmica';
       case 'lofi_space_nebula': return 'Fondo lofi "Nebulosa Cósmica" activo con aura cósmica';
       case 'lofi_space_moon': return 'Fondo lofi "Polvo Lunar y Vía Láctea" activo con aura cósmica';

@@ -3401,20 +3401,21 @@
   100% { opacity: 1; transform: scale(1.3); filter: drop-shadow(0 0 6px #fde047); }
 }
 
-/* ===== COHETES DE LUZ Y BENGALAS DE SOCORRO TITANIC CON ESTALLIDO DE FUEGOS ARTIFICIALES ===== */
+/* ===== COHETES DE LUZ Y BENGALAS DE SOCORRO TITANIC (PEQUEÑAS EXPLOSIONES EN EL CIELO TRAS EL CHOQUE) ===== */
 .titanic-distress-rocket-1 {
-  animation: rocketFlight1 22s ease-out infinite;
+  opacity: 0;
+  animation: rocketFlight1 18s ease-out infinite;
   transform-origin: 0px 0px;
   will-change: transform, opacity;
 }
 
 .titanic-distress-rocket-2 {
-  animation: rocketFlight2 22s ease-out infinite 11s;
+  opacity: 0;
+  animation: rocketFlight2 18s ease-out infinite 9s;
   transform-origin: 0px 0px;
   will-change: transform, opacity;
 }
 
-/* 1. Vuelo completo del contenedor del Cohete 1 */
 @keyframes rocketFlight1 {
   0% {
     opacity: 0;
@@ -3424,37 +3425,28 @@
     opacity: 1;
   }
   4% {
-    transform: translate(-5px, -45px) rotate(-3deg) scale(0.9);
+    transform: translate(-6px, -55px) rotate(-3deg) scale(0.9);
+    opacity: 1;
   }
   7% {
-    transform: translate(-14px, -92px) rotate(-8deg) scale(1.1);
-  }
-  8.5% {
-    /* Llega al punto más alto antes de detonar */
-    transform: translate(-22px, -122px) rotate(-15deg) scale(1.25);
+    transform: translate(-15px, -110px) rotate(-8deg) scale(1.05);
     opacity: 1;
   }
-  9.5% {
-    /* Detonación: se mantiene en el punto alto */
-    transform: translate(-22px, -122px) rotate(-15deg) scale(1.3);
+  8.2% {
+    /* Punto álgido en el firmamento donde ocurre la pequeña explosión */
+    transform: translate(-20px, -145px) rotate(-12deg) scale(1.15);
     opacity: 1;
   }
-  14% {
-    /* La nube de chispas desciende flotando suavemente */
-    transform: translate(-24px, -115px) rotate(-16deg) scale(1.4);
-    opacity: 0.85;
+  10.5% {
+    transform: translate(-22px, -148px) rotate(-13deg) scale(1.2);
+    opacity: 0.8;
   }
-  17.5% {
-    transform: translate(-25px, -108px) rotate(-17deg) scale(1.45);
-    opacity: 0.25;
-  }
-  19%, 100% {
-    transform: translate(-26px, -104px) rotate(-18deg) scale(1.5);
+  12.5%, 100% {
+    transform: translate(-24px, -150px) rotate(-14deg) scale(1.2);
     opacity: 0;
   }
 }
 
-/* 2. Vuelo completo del contenedor del Cohete 2 (Curva opuesta) */
 @keyframes rocketFlight2 {
   0% {
     opacity: 0;
@@ -3464,153 +3456,127 @@
     opacity: 1;
   }
   4% {
-    transform: translate(5px, -45px) rotate(3deg) scale(0.9);
+    transform: translate(6px, -55px) rotate(3deg) scale(0.9);
+    opacity: 1;
   }
   7% {
-    transform: translate(14px, -92px) rotate(8deg) scale(1.1);
-  }
-  8.5% {
-    /* Llega al punto más alto antes de detonar */
-    transform: translate(22px, -122px) rotate(15deg) scale(1.25);
+    transform: translate(15px, -110px) rotate(8deg) scale(1.05);
     opacity: 1;
   }
-  9.5% {
-    /* Detonación: se mantiene en el punto alto */
-    transform: translate(22px, -122px) rotate(15deg) scale(1.3);
+  8.2% {
+    /* Punto álgido en el firmamento donde ocurre la pequeña explosión */
+    transform: translate(20px, -145px) rotate(12deg) scale(1.15);
     opacity: 1;
   }
-  14% {
-    /* La nube de chispas desciende flotando suavemente */
-    transform: translate(24px, -115px) rotate(16deg) scale(1.4);
-    opacity: 0.85;
+  10.5% {
+    transform: translate(22px, -148px) rotate(13deg) scale(1.2);
+    opacity: 0.8;
   }
-  17.5% {
-    transform: translate(25px, -108px) rotate(17deg) scale(1.45);
-    opacity: 0.25;
-  }
-  19%, 100% {
-    transform: translate(26px, -104px) rotate(18deg) scale(1.5);
+  12.5%, 100% {
+    transform: translate(24px, -150px) rotate(14deg) scale(1.2);
     opacity: 0;
   }
 }
 
-/* 3. Estela de propulsión: Visible solo durante el ascenso (0% a 8.5%), se apaga al detonar */
+/* Estelas de Ascenso */
 .flare-ascent-trail-1 {
-  animation: flareTrailFade1 22s ease-out infinite;
+  animation: flareTrailFade1 18s ease-out infinite;
   transform-origin: 0px 0px;
 }
 .flare-ascent-trail-2 {
-  animation: flareTrailFade2 22s ease-out infinite 11s;
+  animation: flareTrailFade2 18s ease-out infinite 9s;
   transform-origin: 0px 0px;
 }
 
 @keyframes flareTrailFade1 {
-  0%, 7.5% {
+  0%, 6.5% {
     opacity: 1;
     transform: scale(1);
   }
-  8.8% {
+  8.0% {
     opacity: 0.3;
     transform: scale(0.85);
   }
-  9.2%, 100% {
+  8.5%, 100% {
     opacity: 0;
-    transform: scale(0.2);
+    transform: scale(0.1);
   }
 }
 
 @keyframes flareTrailFade2 {
-  0%, 7.5% {
+  0%, 6.5% {
     opacity: 1;
     transform: scale(1);
   }
-  8.8% {
+  8.0% {
     opacity: 0.3;
     transform: scale(0.85);
   }
-  9.2%, 100% {
+  8.5%, 100% {
     opacity: 0;
-    transform: scale(0.2);
+    transform: scale(0.1);
   }
 }
 
-/* 4. Estallido de Fuegos Artificiales en el cielo: Se activa al llegar arriba (8.5% a 18%) */
-.flare-firework-burst-1 {
-  animation: fireworkBurstAnim1 22s cubic-bezier(0.15, 0.8, 0.35, 1) infinite;
+/* Pequeñas Explosiones de Luz en el Cielo */
+.flare-mini-burst-1 {
+  opacity: 0;
+  animation: miniBurstAnim1 18s ease-out infinite;
   transform-origin: 0px 0px;
 }
-.flare-firework-burst-2 {
-  animation: fireworkBurstAnim2 22s cubic-bezier(0.15, 0.8, 0.35, 1) infinite 11s;
+.flare-mini-burst-2 {
+  opacity: 0;
+  animation: miniBurstAnim2 18s ease-out infinite 9s;
   transform-origin: 0px 0px;
 }
 
-@keyframes fireworkBurstAnim1 {
-  0%, 8.2% {
+@keyframes miniBurstAnim1 {
+  0%, 7.5% {
     opacity: 0;
     transform: scale(0.01);
   }
-  9.0% {
-    /* Flash inicial de detonación */
+  8.2% {
     opacity: 1;
-    transform: scale(0.4);
-    filter: drop-shadow(0 0 4px #ffffff) drop-shadow(0 0 10px #fde047);
+    transform: scale(0.6);
+    filter: drop-shadow(0 0 3px #ffffff) drop-shadow(0 0 6px #fde047);
+  }
+  9.8% {
+    opacity: 0.9;
+    transform: scale(1.1) translateY(2px);
+    filter: drop-shadow(0 0 4px #f59e0b);
   }
   11.5% {
-    /* Expansión máxima del estallido */
-    opacity: 1;
-    transform: scale(1.3);
-    filter: drop-shadow(0 0 12px #fde047) drop-shadow(0 0 20px #f59e0b);
+    opacity: 0.2;
+    transform: scale(1.3) translateY(5px);
   }
-  14.5% {
-    /* Chispas flotantes y lluvia dorada */
-    opacity: 0.9;
-    transform: scale(1.6) translateY(4px);
-    filter: drop-shadow(0 0 8px #f59e0b);
-  }
-  17.5% {
-    /* Desvanecimiento de las brasas */
-    opacity: 0.35;
-    transform: scale(1.8) translateY(9px);
-    filter: drop-shadow(0 0 4px #d97706);
-  }
-  19%, 100% {
+  12.5%, 100% {
     opacity: 0;
-    transform: scale(1.9) translateY(14px);
+    transform: scale(1.4) translateY(7px);
   }
 }
 
-@keyframes fireworkBurstAnim2 {
-  0%, 8.2% {
+@keyframes miniBurstAnim2 {
+  0%, 7.5% {
     opacity: 0;
     transform: scale(0.01);
   }
-  9.0% {
-    /* Flash inicial de detonación */
+  8.2% {
     opacity: 1;
-    transform: scale(0.4);
-    filter: drop-shadow(0 0 4px #ffffff) drop-shadow(0 0 10px #e0f2fe);
+    transform: scale(0.6);
+    filter: drop-shadow(0 0 3px #ffffff) drop-shadow(0 0 6px #38bdf8);
   }
-  11.5% {
-    /* Expansión máxima del estallido */
-    opacity: 1;
-    transform: scale(1.3);
-    filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 20px #38bdf8);
-  }
-  14.5% {
-    /* Chispas flotantes y lluvia plateada/azul */
+  9.8% {
     opacity: 0.9;
-    transform: scale(1.6) translateY(4px);
-    filter: drop-shadow(0 0 8px #38bdf8);
-  }
-  17.5% {
-    /* Desvanecimiento de las brasas */
-    opacity: 0.35;
-    transform: scale(1.8) translateY(9px);
+    transform: scale(1.1) translateY(2px);
     filter: drop-shadow(0 0 4px #0284c7);
   }
-  19%, 100% {
+  11.5% {
+    opacity: 0.2;
+    transform: scale(1.3) translateY(5px);
+  }
+  12.5%, 100% {
     opacity: 0;
-    transform: scale(1.9) translateY(14px);
+    transform: scale(1.4) translateY(7px);
   }
 }
 
