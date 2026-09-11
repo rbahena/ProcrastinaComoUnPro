@@ -68,7 +68,8 @@ export type FocusTimerStyle =
   styleUrl: './enfoque.css',
   host: {
     '[class.zen-inactive]': 'isInactive()',
-    '[class.timer-titanic-mode]': 'timerStyle() === "titanic"'
+    '[class.timer-titanic-mode]': 'timerStyle() === "titanic"',
+    '[class.timer-lighthouse-mode]': 'timerStyle() === "lighthouse"'
   }
 })
 export class Enfoque implements OnInit, OnDestroy {

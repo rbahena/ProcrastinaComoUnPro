@@ -108,6 +108,16 @@ html {
   width: 100%;
 }
 
+/* Prevenir scroll vertical exclusivamente en los modos Barco (Titanic) y El Faro */
+html:has(app-enfoque.timer-titanic-mode),
+body:has(app-enfoque.timer-titanic-mode),
+html:has(app-enfoque.timer-lighthouse-mode),
+body:has(app-enfoque.timer-lighthouse-mode) {
+  overflow: hidden !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--bg);
