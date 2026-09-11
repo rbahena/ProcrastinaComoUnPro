@@ -75,6 +75,429 @@
       </div>
     </div>
 
+    <!-- Fondo Panorámico Responsivo de Borde a Borde para Modo Titanic (Cielo Ártico y Mar Profundo hasta el Pie de Pantalla) -->
+    <div *ngIf="timerStyle() === 'titanic' && arenaState() !== 'countdown'"
+         class="titanic-fullscreen-ocean-backdrop">
+      <div class="titanic-backdrop-sky">
+        <!-- Luna Ártica Distante en la Cúspide del Cielo (Extremo Superior Derecho) -->
+        <div class="titanic-screen-moon-container">
+          <svg class="titanic-screen-moon-svg" viewBox="0 0 50 50" fill="none">
+            <defs>
+              <filter id="screenMoonSoftGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="5" />
+              </filter>
+              <filter id="screenMoonAuraGlow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" />
+              </filter>
+              <radialGradient id="screenMoonDiskGrad" cx="35%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="45%" stop-color="#f8fafc" />
+                <stop offset="80%" stop-color="#e2e8f0" />
+                <stop offset="100%" stop-color="#94a3b8" />
+              </radialGradient>
+              <radialGradient id="screenMoonCraterGrad" cx="40%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#64748b" stop-opacity="0.30" />
+                <stop offset="65%" stop-color="#475569" stop-opacity="0.16" />
+                <stop offset="100%" stop-color="#334155" stop-opacity="0.03" />
+              </radialGradient>
+            </defs>
+            <!-- Halo Atmosférico Lejano -->
+            <circle cx="25" cy="25" r="20" fill="rgba(186, 230, 253, 0.10)" filter="url(#screenMoonSoftGlow)" />
+            <!-- Halo Intermedio -->
+            <circle cx="25" cy="25" r="13" fill="rgba(224, 242, 254, 0.18)" filter="url(#screenMoonAuraGlow)" />
+            <!-- Corona Sutil -->
+            <circle cx="25" cy="25" r="9" fill="rgba(255, 255, 255, 0.35)" />
+            
+            <!-- Disco Principal Compacto y Lejano -->
+            <circle cx="25" cy="25" r="7.5" fill="url(#screenMoonDiskGrad)" />
+            
+            <!-- Relieve y Cráteres Lunares Tenues -->
+            <ellipse cx="23.2" cy="23.2" rx="2.2" ry="1.6" fill="url(#screenMoonCraterGrad)" />
+            <ellipse cx="26.8" cy="25.8" rx="1.9" ry="1.3" fill="url(#screenMoonCraterGrad)" />
+            <ellipse cx="24.6" cy="27.2" rx="1.5" ry="1.0" fill="url(#screenMoonCraterGrad)" />
+            <circle cx="27.6" cy="23.2" r="0.8" fill="rgba(30, 41, 59, 0.18)" />
+            
+            <!-- Filo Plateado Resplandeciente -->
+            <path d="M 19.5 19.5 A 7.5 7.5 0 0 1 32.5 25 A 7.5 7.5 0 0 0 19.5 19.5 Z" fill="#ffffff" opacity="0.92" />
+          </svg>
+        </div>
+
+        <!-- Manto Panorámico de Puntos Suaves Concentrados en el Alto Firmamento (Despejado junto al Mar) -->
+        <svg class="titanic-fullscreen-stars-svg" viewBox="0 0 1920 600" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;">
+          <defs>
+            <!-- Gradientes de la Aurora Boreal Ártica Panorámica -->
+            <linearGradient id="fullscreenAuroraGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#059669" stop-opacity="0" />
+              <stop offset="25%" stop-color="#10b981" stop-opacity="0.12" />
+              <stop offset="50%" stop-color="#06b6d4" stop-opacity="0.15" />
+              <stop offset="75%" stop-color="#38bdf8" stop-opacity="0.10" />
+              <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
+            </linearGradient>
+            <linearGradient id="fullscreenAuroraGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#06b6d4" stop-opacity="0" />
+              <stop offset="30%" stop-color="#059669" stop-opacity="0.10" />
+              <stop offset="60%" stop-color="#10b981" stop-opacity="0.13" />
+              <stop offset="85%" stop-color="#0ea5e9" stop-opacity="0.08" />
+              <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
+            </linearGradient>
+            <filter id="fullscreenAuroraBlur" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="16" />
+            </filter>
+          </defs>
+
+          <!-- Aurora Boreal Ártica Panorámica Etérea y Muy Tenue -->
+          <g class="titanic-aurora-borealis-group" opacity="0.55">
+            <path d="M 0 120 Q 480 30, 960 110 Q 1440 190, 1920 60 L 1920 280 Q 1440 370, 960 260 Q 480 160, 0 270 Z" 
+                  fill="url(#fullscreenAuroraGrad1)" 
+                  filter="url(#fullscreenAuroraBlur)" 
+                  class="titanic-aurora-curtain-1" />
+            <path d="M 0 160 Q 520 60, 1020 150 Q 1500 230, 1920 110 L 1920 310 Q 1500 400, 1020 300 Q 520 200, 0 310 Z" 
+                  fill="url(#fullscreenAuroraGrad2)" 
+                  filter="url(#fullscreenAuroraBlur)" 
+                  class="titanic-aurora-curtain-2" />
+          </g>
+
+          <!-- Manto de Luceros Concentrados en la Altura del Firmamento -->
+          <circle cx="11" cy="30" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="73" cy="20" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="131" cy="12" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="166" cy="30" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="196" cy="25" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="296" cy="27" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="286" cy="12" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="311" cy="18" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="311" cy="7" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="362" cy="23" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="450" cy="31" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="445" cy="19" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="504" cy="17" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="594" cy="10" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="654" cy="20" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="667" cy="8" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="669" cy="11" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="753" cy="26" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="728" cy="27" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="834" cy="22" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="900" cy="30" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="909" cy="9" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="960" cy="13" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1051" cy="19" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1097" cy="24" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1171" cy="26" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1192" cy="31" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1203" cy="16" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1300" cy="12" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1358" cy="17" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1349" cy="15" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1410" cy="20" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1406" cy="16" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1499" cy="10" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1509" cy="26" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1577" cy="32" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1589" cy="16" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1637" cy="14" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="1739" cy="32" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1696" cy="21" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1769" cy="13" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1770" cy="25" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1834" cy="6" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1897" cy="9" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1904" cy="21" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="14" cy="57" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="82" cy="47" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="144" cy="46" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="181" cy="58" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="286" cy="56" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="289" cy="37" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="353" cy="34" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="353" cy="57" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="369" cy="59" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="438" cy="54" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="495" cy="47" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="594" cy="50" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="552" cy="59" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="607" cy="33" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="646" cy="50" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="684" cy="46" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="758" cy="37" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="807" cy="46" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="857" cy="35" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="924" cy="44" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1001" cy="48" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1046" cy="42" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="1034" cy="55" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1085" cy="56" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1161" cy="42" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1172" cy="46" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1249" cy="36" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1229" cy="40" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1283" cy="42" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1261" cy="43" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1332" cy="57" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1388" cy="59" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="1442" cy="57" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1449" cy="49" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1543" cy="57" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1531" cy="48" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1567" cy="38" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1617" cy="54" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1629" cy="50" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1739" cy="41" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1692" cy="39" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1752" cy="36" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1807" cy="41" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1823" cy="57" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1867" cy="47" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="32" cy="61" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="74" cy="84" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="73" cy="70" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="145" cy="74" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="140" cy="86" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="222" cy="79" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="285" cy="63" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="316" cy="78" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="394" cy="74" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="469" cy="80" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="524" cy="70" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="505" cy="72" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="579" cy="81" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="564" cy="65" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="642" cy="86" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="664" cy="66" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="740" cy="85" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="723" cy="72" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="784" cy="84" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="840" cy="61" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="898" cy="70" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="954" cy="74" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="931" cy="62" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="969" cy="76" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1064" cy="86" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="1098" cy="64" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="1179" cy="62" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1168" cy="83" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1220" cy="72" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1258" cy="60" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1268" cy="86" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1320" cy="85" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1426" cy="62" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1468" cy="72" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1495" cy="61" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1531" cy="64" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1569" cy="86" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1561" cy="64" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="1628" cy="83" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1703" cy="62" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1773" cy="63" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1851" cy="62" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1838" cy="80" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1900" cy="68" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="50" cy="89" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="95" cy="105" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="157" cy="91" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="236" cy="99" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="191" cy="112" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="255" cy="102" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="302" cy="90" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="327" cy="106" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="397" cy="93" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="439" cy="104" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="515" cy="96" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="500" cy="96" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="550" cy="102" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="551" cy="96" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="629" cy="111" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="711" cy="112" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="771" cy="89" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="728" cy="106" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="823" cy="100" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="823" cy="101" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="895" cy="91" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="847" cy="93" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="946" cy="97" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="923" cy="108" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1008" cy="111" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="976" cy="107" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1036" cy="101" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1109" cy="113" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1113" cy="100" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1141" cy="95" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1238" cy="111" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1268" cy="103" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1343" cy="100" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1405" cy="90" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1443" cy="95" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1501" cy="95" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1533" cy="105" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="1589" cy="94" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1675" cy="110" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1729" cy="90" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1723" cy="99" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1790" cy="93" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1769" cy="104" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1851" cy="98" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="1859" cy="91" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1895" cy="93" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="30" cy="125" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="106" cy="139" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="132" cy="123" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="167" cy="114" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="203" cy="137" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="230" cy="114" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="260" cy="122" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="266" cy="131" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="358" cy="118" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="381" cy="140" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="479" cy="126" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="503" cy="127" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="593" cy="127" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="647" cy="131" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="707" cy="114" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="698" cy="124" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="758" cy="114" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="802" cy="133" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="873" cy="131" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="874" cy="126" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="908" cy="123" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="912" cy="137" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="977" cy="129" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="973" cy="138" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1066" cy="128" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1138" cy="118" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1100" cy="126" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1142" cy="115" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1214" cy="116" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1281" cy="116" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1312" cy="137" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1328" cy="136" r="0.4" fill="#7dd3fc" opacity="0.26" />
+          <circle cx="1420" cy="140" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1383" cy="119" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1486" cy="116" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1556" cy="125" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1619" cy="116" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1595" cy="129" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1650" cy="136" r="0.95" fill="#f8fafc" opacity="0.58" />
+          <circle cx="1655" cy="128" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1691" cy="126" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1711" cy="119" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1745" cy="138" r="0.46" fill="#94a3b8" opacity="0.32" />
+          <circle cx="1814" cy="123" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1874" cy="122" r="0.58" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="39" cy="141" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="402" cy="169" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="474" cy="149" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="530" cy="153" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="551" cy="152" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="666" cy="165" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="762" cy="146" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="836" cy="158" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="869" cy="148" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1007" cy="154" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="1055" cy="144" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1168" cy="153" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1247" cy="167" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1306" cy="141" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1348" cy="169" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1462" cy="161" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1690" cy="146" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1746" cy="153" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1839" cy="154" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="58" cy="193" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="95" cy="191" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="158" cy="179" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="233" cy="177" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="245" cy="191" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="326" cy="193" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="371" cy="191" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="504" cy="179" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="540" cy="199" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="635" cy="175" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="718" cy="180" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="721" cy="178" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="892" cy="186" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="942" cy="177" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="966" cy="175" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1045" cy="199" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="1082" cy="193" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1145" cy="194" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1219" cy="196" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1288" cy="177" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1337" cy="183" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1556" cy="178" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1568" cy="171" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1748" cy="193" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1864" cy="173" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="6" cy="221" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="259" cy="219" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="340" cy="208" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="443" cy="211" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="591" cy="216" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="656" cy="213" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="751" cy="202" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="794" cy="214" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="850" cy="225" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="910" cy="200" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="967" cy="215" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="1161" cy="211" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1305" cy="206" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1332" cy="207" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1422" cy="207" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="1496" cy="227" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1539" cy="212" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1653" cy="212" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1702" cy="203" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1759" cy="229" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1888" cy="210" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="108" cy="237" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="122" cy="244" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="235" cy="252" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="330" cy="234" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="408" cy="244" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="456" cy="232" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="528" cy="247" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="687" cy="248" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="758" cy="248" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="783" cy="250" r="0.8" fill="#e2e8f0" opacity="0.48" />
+          <circle cx="885" cy="244" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="951" cy="248" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1005" cy="234" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1071" cy="242" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1136" cy="257" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1150" cy="254" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1247" cy="258" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1322" cy="246" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1383" cy="253" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1455" cy="249" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1616" cy="231" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1636" cy="236" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1745" cy="241" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1824" cy="258" r="0.42" fill="#94a3b8" opacity="0.25" />
+          <circle cx="1871" cy="251" r="0.6" fill="#cbd5e1" opacity="0.36" />
+          <circle cx="1618" cy="277" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="1141" cy="285" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="1828" cy="306" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="230" cy="309" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="1329" cy="314" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="1310" cy="265" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="1412" cy="287" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="316" cy="266" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="435" cy="311" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="475" cy="306" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="794" cy="277" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="1811" cy="313" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="1152" cy="313" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="940" cy="264" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="576" cy="293" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="1040" cy="294" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="1590" cy="294" r="0.40" fill="#94a3b8" opacity="0.20" />
+          <circle cx="1183" cy="292" r="0.40" fill="#94a3b8" opacity="0.20" />
+        </svg>
+      </div>
+      <div class="titanic-backdrop-ocean">
+        <div class="titanic-backdrop-deep-glow"></div>
+      </div>
+    </div>
+
     <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
     <div class="main custom-scrollbar" style="display: flex; flex-direction: column; position: relative; z-index: 1; flex: 1;">
 
@@ -2174,6 +2597,78 @@
                         </feMerge>
                       </filter>
 
+                      <!-- Filtro de Resplandor de Luceros Celestiales -->
+                      <filter id="luceroGlow" x="-60%" y="-60%" width="220%" height="220%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2.8" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <!-- Filtros de la Luna Ártica -->
+                      <filter id="moonAuraGlow" x="-80%" y="-80%" width="260%" height="260%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="5.0" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                      <filter id="moonSoftAtmosphere" x="-100%" y="-100%" width="300%" height="300%">
+                        <feGaussianBlur stdDeviation="10" />
+                      </filter>
+
+                      <!-- Filtro de Difusión Suave de la Aurora Boreal Ártica -->
+                      <filter id="auroraBlur" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur stdDeviation="12" />
+                      </filter>
+
+                      <!-- Gradientes del Disco Lunar Ártico -->
+                      <linearGradient id="titanicMoonDiskGrad" x1="20%" y1="10%" x2="90%" y2="90%">
+                        <stop offset="0%" stop-color="#ffffff" />
+                        <stop offset="35%" stop-color="#f0f9ff" />
+                        <stop offset="70%" stop-color="#bae6fd" />
+                        <stop offset="100%" stop-color="#7dd3fc" />
+                      </linearGradient>
+
+                      <!-- Gradiente Sombra Cráteres Lunares -->
+                      <radialGradient id="titanicMoonCraterGrad" cx="45%" cy="45%" r="50%">
+                        <stop offset="0%" stop-color="#0f172a" stop-opacity="0.28" />
+                        <stop offset="70%" stop-color="#1e293b" stop-opacity="0.14" />
+                        <stop offset="100%" stop-color="#0284c7" stop-opacity="0.0" />
+                      </radialGradient>
+
+                      <!-- Halos y Resplandor de Grandes Luceros Celestiales -->
+                      <radialGradient id="titanicLuceroAura" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+                        <stop offset="25%" stop-color="#e0f2fe" stop-opacity="0.85" />
+                        <stop offset="60%" stop-color="#38bdf8" stop-opacity="0.35" />
+                        <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+                      </radialGradient>
+                      <radialGradient id="titanicLuceroAuraWarm" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+                        <stop offset="25%" stop-color="#fef08a" stop-opacity="0.85" />
+                        <stop offset="60%" stop-color="#38bdf8" stop-opacity="0.30" />
+                        <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+                      </radialGradient>
+
+                      <!-- Gradientes de la Aurora Boreal Ártica Fina -->
+                      <linearGradient id="auroraBorealisGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#059669" stop-opacity="0" />
+                        <stop offset="25%" stop-color="#10b981" stop-opacity="0.25" />
+                        <stop offset="50%" stop-color="#06b6d4" stop-opacity="0.32" />
+                        <stop offset="75%" stop-color="#38bdf8" stop-opacity="0.22" />
+                        <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
+                      </linearGradient>
+
+                      <linearGradient id="auroraBorealisGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#06b6d4" stop-opacity="0" />
+                        <stop offset="30%" stop-color="#059669" stop-opacity="0.20" />
+                        <stop offset="60%" stop-color="#10b981" stop-opacity="0.28" />
+                        <stop offset="85%" stop-color="#0ea5e9" stop-opacity="0.18" />
+                        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
+                      </linearGradient>
+
                       <!-- Gradiente Casco de Acero Negro con Sutil Quilla Roja Asomando -->
                       <linearGradient id="titanicHullGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset="0%" stop-color="#0f172a" />
@@ -2201,17 +2696,41 @@
                         <stop offset="100%" stop-color="#431407" />
                       </linearGradient>
 
-                      <!-- Gradiente Océano Superficie a Abismo -->
-                      <linearGradient id="oceanWaterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <!-- Superficie de agua azul translúcida -->
-                        <stop offset="0%" stop-color="rgba(14, 165, 233, 0.48)" />
-                        <stop offset="5%" stop-color="rgba(3, 105, 161, 0.78)" />
-                        <stop offset="15%" stop-color="rgba(12, 74, 110, 0.92)" />
-                        <stop offset="35%" stop-color="rgba(2, 6, 23, 0.98)" />
-                        <!-- Difuminado suave hacia el fondo inferior de la pantalla -->
-                        <stop offset="70%" stop-color="rgba(2, 6, 23, 0.7)" />
-                        <stop offset="100%" stop-color="rgba(2, 6, 23, 0.0)" />
+                      <!-- Gradiente Cielo Nocturno Cósmico Ártico Profundo -->
+                      <linearGradient id="titanicNightSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#000105" />
+                        <stop offset="30%" stop-color="#010512" />
+                        <stop offset="65%" stop-color="#020a1c" />
+                        <stop offset="85%" stop-color="#031028" />
+                        <stop offset="100%" stop-color="#051838" />
                       </linearGradient>
+
+                      <!-- Gradiente Rayos Submarinos / Cáusticas Nocturnas -->
+                      <linearGradient id="titanicUnderwaterRayGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25" />
+                        <stop offset="30%" stop-color="#0284c7" stop-opacity="0.14" />
+                        <stop offset="70%" stop-color="#0369a1" stop-opacity="0.06" />
+                        <stop offset="100%" stop-color="#075985" stop-opacity="0" />
+                      </linearGradient>
+
+                      <!-- Gradiente de Velo Acuático Local para Sumergir la Quilla Roja y Hélices del Titanic -->
+                      <linearGradient id="titanicLocalWaterVeil" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#083066" stop-opacity="0.65" />
+                        <stop offset="35%" stop-color="#072958" stop-opacity="0.80" />
+                        <stop offset="70%" stop-color="#05224c" stop-opacity="0.90" />
+                        <stop offset="100%" stop-color="#041c40" stop-opacity="0.0" />
+                      </linearGradient>
+
+                      <!-- Máscara de Difuminado Lateral Suave para el Velo Acuático -->
+                      <linearGradient id="veilHorizFade" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0" />
+                        <stop offset="12%" stop-color="#ffffff" stop-opacity="1" />
+                        <stop offset="88%" stop-color="#ffffff" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                      </linearGradient>
+                      <mask id="waterVeilSoftEdgeMask">
+                        <rect x="0" y="210" width="460" height="110" fill="url(#veilHorizFade)" />
+                      </mask>
 
                       <filter id="oceanLineMistyBlur" x="-20%" y="-40%" width="140%" height="200%">
                         <feGaussianBlur stdDeviation="5" />
@@ -2219,21 +2738,21 @@
 
                       <!-- Gradientes de Hielo Azul Oscuro del Iceberg -->
                       <linearGradient id="icebergFacetLight" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.95" />
-                        <stop offset="35%" stop-color="#0284c7" stop-opacity="0.92" />
-                        <stop offset="75%" stop-color="#0369a1" stop-opacity="0.95" />
-                        <stop offset="100%" stop-color="#075985" stop-opacity="0.98" />
+                        <stop offset="0%" stop-color="#2563eb" stop-opacity="0.9" />
+                        <stop offset="35%" stop-color="#1d4ed8" stop-opacity="0.92" />
+                        <stop offset="75%" stop-color="#1e40af" stop-opacity="0.95" />
+                        <stop offset="100%" stop-color="#172554" stop-opacity="0.98" />
                       </linearGradient>
 
                       <linearGradient id="icebergFacetShadow" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#0369a1" stop-opacity="0.9" />
-                        <stop offset="50%" stop-color="#0c4a6e" stop-opacity="0.95" />
-                        <stop offset="100%" stop-color="#082f49" stop-opacity="0.98" />
+                        <stop offset="0%" stop-color="#1e3a8a" stop-opacity="0.9" />
+                        <stop offset="50%" stop-color="#172554" stop-opacity="0.95" />
+                        <stop offset="100%" stop-color="#0a1630" stop-opacity="0.98" />
                       </linearGradient>
 
                       <linearGradient id="icebergUnderwater" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="rgba(3, 105, 161, 0.75)" />
-                        <stop offset="100%" stop-color="rgba(8, 47, 73, 0.0)" />
+                        <stop offset="0%" stop-color="rgba(29, 78, 216, 0.65)" />
+                        <stop offset="100%" stop-color="rgba(3, 14, 28, 0.0)" />
                       </linearGradient>
 
                       <!-- Gradientes de la estela curva de las bengalas -->
@@ -2257,20 +2776,43 @@
                       </clipPath>
                     </defs>
 
-                    <!-- ==================== CONTADOR DIGITAL AMBIENTAL SUTIL ==================== -->
-                    <g class="titanic-time-display" opacity="0.78">
-                      <!-- Contador Digital Sutil con Brillo de Luz de Luna -->
-                      <text x="230" y="42" 
+
+                    <!-- ==================== CRONÓMETRO NÁUTICO DISCRETO Y AMBIENTAL ==================== -->
+                    <g class="titanic-time-display" opacity="0.88">
+                      <!-- Cápsula de Cristal Ártico Glaseado -->
+                      <rect x="162" y="24" width="136" height="30" rx="15" ry="15" 
+                            fill="rgba(2, 6, 23, 0.7)" 
+                            stroke="rgba(56, 189, 248, 0.28)" 
+                            stroke-width="1" />
+                      <!-- Bisel Superior con Brillo Lunar Suave -->
+                      <path d="M 178 25.5 L 282 25.5" stroke="rgba(255, 255, 255, 0.22)" stroke-width="0.75" stroke-linecap="round" />
+
+                      <!-- Luz de Baliza de Navegación Ártica en el Cronómetro -->
+                      <circle cx="178" cy="39" r="2.8" fill="#38bdf8" class="titanic-timer-pulse-dot" />
+                      <circle cx="178" cy="39" r="1.1" fill="#ffffff" opacity="0.9" />
+
+                      <!-- Separadores Sutiles Náuticos -->
+                      <line x1="190" y1="33" x2="190" y2="45" stroke="rgba(125, 211, 252, 0.22)" stroke-width="0.75" stroke-linecap="round" />
+                      <line x1="270" y1="33" x2="270" y2="45" stroke="rgba(125, 211, 252, 0.22)" stroke-width="0.75" stroke-linecap="round" />
+
+                      <!-- Rosa de los Vientos / Estrella Polar Náutica -->
+                      <g transform="translate(282, 39) scale(0.6)" opacity="0.8">
+                        <path d="M 0 -5 L 1.2 -1.2 L 5 0 L 1.2 1.2 L 0 5 L -1.2 1.2 L -5 0 L -1.2 -1.2 Z" fill="#7dd3fc" />
+                      </g>
+
+                      <!-- Dígitos del Cronómetro de Navegación -->
+                      <text x="230" y="44.5" 
                             text-anchor="middle" 
-                            fill="rgba(241, 245, 249, 0.75)" 
-                            font-size="21" 
+                            fill="#f1f5f9" 
+                            font-size="14.5" 
                             font-weight="700" 
                             font-family="'Space Grotesk', monospace" 
-                            letter-spacing="0.5"
-                            style="filter: drop-shadow(0 0 8px rgba(147, 197, 253, 0.35));">
+                            letter-spacing="2px"
+                            style="filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.3));">
                         {{ timeString() }}
                       </text>
                     </g>
+
 
                     <!-- Niebla Marina Flotante en el Horizonte -->
                     <ellipse cx="230" cy="208" rx="220" ry="14" fill="rgba(224, 242, 254, 0.12)" filter="url(#icebergMistFilter)" />
@@ -2728,27 +3270,28 @@
                     </g>
 
 
-                    <!-- ==================== SUPERFICIE DEL OCÉANO ATLÁNTICO Y OLAS (EXPANDIDO DE LADO A LADO) ==================== -->
-                    <!-- Bloque de Agua Submarina Expandido de Lado a Lado de la Pantalla -->
-                    <rect x="-1400" y="210" width="3260" height="1400" fill="url(#oceanWaterGrad)" opacity="0.98" />
+                    <!-- ==================== SUPERFICIE Y SUMERSIÓN DEL CASCO EN EL AGUA ==================== -->
+                    <!-- Velo Acuático Local que Sumerge la Quilla Roja, Timón y Hélices del Titanic -->
+                    <rect x="0" y="210" width="460" height="110" fill="url(#titanicLocalWaterVeil)" mask="url(#waterVeilSoftEdgeMask)" />
 
-                    <!-- Velo de Niebla Difuminada en la Línea de Flotación -->
-                    <ellipse cx="230" cy="210" rx="1400" ry="16" fill="rgba(148, 163, 184, 0.12)" filter="url(#oceanLineMistyBlur)" />
+                    <!-- Reflejos y Ondulaciones Locales en la Superficie del Agua -->
+                    <!-- 1. Reflejos de Luz Lunar en la Superficie del Agua (Moonlight Caustics) -->
+                    <g class="titanic-moonlight-shimmer" opacity="0.55">
+                      <ellipse cx="180" cy="213" rx="45" ry="1.2" fill="#bae6fd" opacity="0.4" />
+                      <path d="M 140 216 Q 180 214, 220 216" stroke="#7dd3fc" stroke-width="0.9" fill="none" opacity="0.45" />
+                      <ellipse cx="280" cy="215" rx="55" ry="1.4" fill="#38bdf8" opacity="0.35" />
+                      <path d="M 230 219 Q 280 217, 330 219" stroke="#0284c7" stroke-width="1.0" fill="none" opacity="0.3" />
+                      <ellipse cx="210" cy="223" rx="65" ry="1.6" fill="#0369a1" opacity="0.25" />
+                      <path d="M 150 228 Q 210 225, 270 228" stroke="#075985" stroke-width="1.1" fill="none" opacity="0.2" />
+                    </g>
 
-                    <!-- Línea de Agua y Olas Rompientes Continuas de Extremo a Extremo -->
-                    <g class="titanic-ocean-wake">
-                      <!-- Olas Frontales con Espuma Marina Azul Brillante de Lado a Lado -->
-                      <path d="M -1400 210 Q -1150 206, -900 210 Q -650 214, -400 210 Q -150 206, 100 210 Q 350 214, 600 210 Q 850 206, 1100 210 Q 1350 214, 1600 210 Q 1750 208, 1860 210" 
-                            fill="none" 
-                            stroke="#38bdf8" 
-                            stroke-width="2.2" 
-                            opacity="0.85" />
-                      <!-- Estela Blanca de Espuma en Torno al Casco de Extremo a Extremo -->
-                      <path d="M -1400 211 Q -1150 208, -900 211 Q -650 212, -400 211 Q -150 208, 100 211 Q 350 212, 600 211 Q 850 208, 1100 211 Q 1350 212, 1600 211 Q 1750 209, 1860 211" 
-                            fill="none" 
-                            stroke="#f0f9ff" 
-                            stroke-width="1.6" 
-                            opacity="0.75" />
+                    <!-- 6. Ondas Concéntricas Dinámicas en torno al Casco del Titanic y el Iceberg -->
+                    <g class="titanic-ripples-group">
+                      <!-- Ondulaciones del Casco -->
+                      <ellipse cx="230" cy="210.5" rx="175" ry="4.5" fill="none" stroke="#38bdf8" stroke-width="0.8" opacity="0.6" class="titanic-hull-ripple-1" />
+                      <ellipse cx="230" cy="211" rx="190" ry="6.0" fill="none" stroke="#0284c7" stroke-width="0.6" opacity="0.5" class="titanic-hull-ripple-2" />
+                      <!-- Ondulaciones del Iceberg -->
+                      <ellipse cx="406" cy="210" rx="42" ry="4.0" fill="none" stroke="#38bdf8" stroke-width="0.8" opacity="0.7" class="titanic-iceberg-ripple" />
                     </g>
 
 
