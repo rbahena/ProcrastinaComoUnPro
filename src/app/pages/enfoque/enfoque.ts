@@ -607,11 +607,11 @@ export class Enfoque implements OnInit, OnDestroy {
   // Desplazamiento continuo del Buque Balizador desde el confín derecho más lejano hasta el faro en el extremo izquierdo durante todo el Pomodoro
   lighthouseSailboatTransform = computed(() => {
     const p = this.lighthouseProgress();
-    const startX = 860; // Extremo derecho del horizonte marítimo (lo más alejado posible del faro)
-    const endX = -60;   // Muelle de atraque en el Faro a la izquierda profunda (llegada a las 00:00)
-    if (this.arenaState() === 'setup') return `translate(${startX}px, 248px) scale(0.85)`;
+    const startX = 920; // Extremo derecho absoluto del horizonte marítimo (al filo de la pantalla)
+    const endX = -45;   // Muelle de atraque en el Faro a la izquierda (llegada exacta a las 00:00)
+    if (this.arenaState() === 'setup') return `translate(${startX}px, 248px) scale(1.50)`;
     const currentX = startX - (p * (startX - endX));
-    const scale = 0.85 + (p * 0.65); // Comienza más pequeño a lo lejos (0.85x) y crece conforme se acerca (1.50x)
+    const scale = 1.50 + (p * 0.70); // Barco grande: 1.50x en el extremo lejano hasta 2.20x al atracar
     return `translate(${currentX.toFixed(1)}px, 248px) scale(${scale.toFixed(3)})`;
   });
 
