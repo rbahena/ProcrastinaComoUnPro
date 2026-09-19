@@ -813,110 +813,152 @@ export class Enfoque implements OnInit, OnDestroy {
     return `translate(240px, ${(204 + bob).toFixed(2)}px) rotate(${pitch.toFixed(2)}deg)`;
   });
 
-  // Estado de fractura del tronco de madera
+  // Estado de fractura de cubiertas superiores (se desgarran en el aire)
   titanicIsSplit = computed(() => {
-    return this.titanicProgress() >= 0.48;
+    return this.titanicProgress() >= 0.46;
   });
 
-  // Salpicadura / oleaje de impacto de la ruptura y caída
-  titanicBreakSplash = computed(() => {
+  // Estado del doble fondo / quilla que permanece SIEMPRE unida como bisagra estructural continua
+  titanicKeelLinked = computed(() => {
+    return this.titanicProgress() >= 0.46;
+  });
+
+  // Tensión y deformación del doble fondo
+  titanicKeelTension = computed(() => {
     const p = this.titanicProgress();
-    return p >= 0.48 && p < 0.66;
+    if (p < 0.46) return 0;
+    return Math.min(1.0, (p - 0.46) / 0.30);
   });
 
-  // Transformación cinemática de la Parte Frontal (Proa / Frente del Tronco que se sumerge)
+
+
+  // Posición espacial compartida exacta de la bisagra de quilla (12px, 18px)
+  // Ambas partes comparten exactamente el mismo punto de anclaje para NUNCA separarse
+  private getTitanicHingePos(p: number): { dx: number; dy: number } {
+    if (p <= 0.0) return { dx: 0, dy: 0 };
+    if (p < 0.18) {
+      const norm = p / 0.18;
+      const ease = norm * norm;
+      return { dx: 0, dy: ease * 2.0 };
+    } else if (p < 0.46) {
+      // Fase 2: Inclinación inicial
+      const norm = (p - 0.18) / 0.28;
+      const ease = norm * norm * (3 - 2 * norm);
+      return {
+        dx: -ease * 5.0,
+        dy: 2.0 + (ease * 10.0), // 2 -> 12px
+      };
+    } else if (p < 0.68) {
+      // Fase 3: TRAS EL QUIEBRE, LA POPA CAE Y SE MANTIENE A NIVEL DEL MAR
+      const norm = (p - 0.46) / 0.22;
+      if (norm < 0.40) {
+        // Caída de la quilla de vuelta al nivel de flotación del mar
+        const fallNorm = norm / 0.40;
+        const fallEase = fallNorm * fallNorm;
+        return {
+          dx: -5.0 + (fallEase * 2.0), // -5 -> -3px
+          dy: 12.0 - (fallEase * 8.5), // 12 -> 3.5px (nivel del mar)
+        };
+      } else {
+        // Se mantiene estable a nivel del mar flotando en superficie
+        const subNorm = (norm - 0.40) / 0.60;
+        return {
+          dx: -3.0,
+          dy: 3.5 + (subNorm * 1.5), // 3.5 -> 5.0px (a nivel del mar)
+        };
+      }
+    } else if (p < 0.84) {
+      // Fase 4: Arrastre por la proa sumergida hacia la posición vertical
+      const norm = (p - 0.68) / 0.16;
+      const ease = norm * norm * (3 - 2 * norm);
+      return {
+        dx: -3.0 - (ease * 15.0), // -3 -> -18px
+        dy: 5.0 + (ease * 45.0),  // 5 -> 50px
+      };
+    } else {
+      // Fase 5: Descenso vertical unido al abismo
+      const norm = Math.min(1.0, (p - 0.84) / 0.16);
+      const ease = norm * norm * (3 - 2 * norm);
+      return {
+        dx: -18.0 - (ease * 6.0),  // -18 -> -24px
+        dy: 50.0 + (ease * 230.0), // 50 -> 280px
+      };
+    }
+  }
+
+  // Transformación cinemática de la Proa (Sección delantera - se hunde agresivamente abriendo separación en "V" arriba)
   titanicFrontTransform = computed(() => {
     const p = this.titanicProgress();
-    if (p <= 0.0) return 'translate(0px, 0px) rotate(0deg)';
+    const { dx, dy } = this.getTitanicHingePos(p);
+    let angle = 0;
 
     if (p < 0.18) {
-      // Fase 1: Flotación equilibrada en superficie
-      const norm = p / 0.18;
-      const ease = norm * norm;
-      const dy = ease * 2.0;
-      return `translate(0px, ${dy.toFixed(2)}px) rotate(0deg)`;
-    } else if (p < 0.48) {
-      // Fase 2: El frente se anega y se inclina hacia abajo en el agua (-0° -> -36°)
-      // La parte trasera se levanta en el aire
-      const norm = (p - 0.18) / 0.30;
+      angle = 0;
+    } else if (p < 0.46) {
+      const norm = (p - 0.18) / 0.28;
       const ease = norm * norm * (3 - 2 * norm);
-      const angle = -ease * 36.0;
-      const dy = 2.0 + (ease * 12.0); // 2 -> 14px
-      const dx = -ease * 6.0;         // 0 -> -6px
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+      angle = -ease * 28.0;
     } else if (p < 0.68) {
-      // Fase 3: RUPTURA EN EL AIRE - El frente liberado se precipita hacia el fondo (-36° -> -64°)
-      const norm = (p - 0.48) / 0.20;
+      // Fase 3: La proa se flexiona hacia el fondo mientras la quilla está a nivel del mar (-28° -> -72°)
+      const norm = (p - 0.46) / 0.22;
+      angle = -28.0 - (Math.pow(norm, 0.75) * 44.0);
+    } else if (p < 0.84) {
+      const norm = (p - 0.68) / 0.16;
       const ease = norm * norm * (3 - 2 * norm);
-      const angle = -36.0 - (ease * 28.0);
-      const dy = 14.0 + (ease * 66.0); // 14 -> 80px
-      const dx = -6.0 - (ease * 14.0);  // -6 -> -20px
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
-    } else if (p < 0.85) {
-      // Fase 4: Descenso profundo y casi vertical del frente (-64° -> -80°)
-      const norm = (p - 0.68) / 0.17;
-      const ease = norm * norm * (3 - 2 * norm);
-      const angle = -64.0 - (ease * 16.0);
-      const dy = 80.0 + (ease * 85.0); // 80 -> 165px
-      const dx = -20.0 - (ease * 8.0);  // -20 -> -28px
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+      angle = -72.0 - (ease * 10.0); // -72° -> -82°
     } else {
-      // Fase 5: Descenso en el abismo vertical (-80° -> -85°)
-      const norm = Math.min(1.0, (p - 0.85) / 0.15);
-      const ease = norm * norm * (3 - 2 * norm);
-      const angle = -80.0 - (ease * 5.0);
-      const dy = 165.0 + (ease * 155.0); // 165 -> 320px
-      const dx = -28.0 - (ease * 4.0);   // -28 -> -32px
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+      const norm = Math.min(1.0, (p - 0.84) / 0.16);
+      angle = -82.0 - (norm * 4.0);  // -82° -> -86°
     }
+
+    return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
   });
 
-  // Transformación cinemática de la Parte Trasera (Popa que se levanta en el aire y cae de golpe)
+  // Transformación cinemática de la Popa (Sección trasera - CAE Y SE MANTIENE FLOTANDO A NIVEL DEL MAR)
   titanicRearTransform = computed(() => {
     const p = this.titanicProgress();
-    if (p <= 0.0) return 'translate(0px, 0px) rotate(0deg)';
+    const { dx, dy } = this.getTitanicHingePos(p);
+    let angle = 0;
 
     if (p < 0.18) {
-      // Fase 1: Flotación unida al frente
-      const norm = p / 0.18;
-      const ease = norm * norm;
-      const dy = ease * 2.0;
-      return `translate(0px, ${dy.toFixed(2)}px) rotate(0deg)`;
-    } else if (p < 0.48) {
-      // Fase 2: Unida rígidamente al frente, se eleva en el aire fuera del agua (-0° -> -36°)
-      const norm = (p - 0.18) / 0.30;
+      angle = 0;
+    } else if (p < 0.46) {
+      // Elevación alta en el aire (-0° -> -28°)
+      const norm = (p - 0.18) / 0.28;
       const ease = norm * norm * (3 - 2 * norm);
-      const angle = -ease * 36.0;
-      const dy = 2.0 + (ease * 12.0);
-      const dx = -ease * 6.0;
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
-    } else if (p < 0.65) {
-      // Fase 3: RUPTURA EN EL AIRE - La parte trasera suspendida en el aire cae de golpe hacia el mar
-      // Pasa de -36° en el aire a caer sobre la superficie (-36° -> 0°) con rebote acuático
-      const norm = (p - 0.48) / 0.17;
-      const dropEase = Math.sin(norm * Math.PI * 0.5); // Caída acelerada
-      const bounce = Math.sin(norm * Math.PI * 2.5) * Math.exp(-norm * 3.5) * 5.0;
-      const angle = (-36.0 * (1 - dropEase)) + bounce;
-      const dy = (14.0 * (1 - dropEase)) + (norm * 4.0) + (bounce * 0.3); // Cae a la superficie del agua
-      const dx = -6.0 + (norm * 16.0); // Se desplaza hacia la derecha al separarse
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
-    } else if (p < 0.85) {
-      // Fase 4: La parte trasera se anega por la fractura y se pone en vertical (-0° -> -78°)
-      const norm = (p - 0.65) / 0.20;
+      angle = -ease * 28.0;
+    } else if (p < 0.68) {
+      // Fase 3: CAE Y SE MANTIENE A NIVEL DEL MAR FLOTANDO HORIZONTAL
+      const norm = (p - 0.46) / 0.22;
+      if (norm < 0.40) {
+        // Caída visible de -28° a -2°
+        const fallNorm = norm / 0.40;
+        const fallEase = fallNorm * fallNorm;
+        angle = -28.0 + (fallEase * 26.0); // -28° -> -2°
+      } else {
+        // Flotación nivelada a nivel del mar (-2° -> -5°)
+        const subNorm = (norm - 0.40) / 0.60;
+        angle = -2.0 - (subNorm * 3.0);
+      }
+    } else if (p < 0.84) {
+      // Fase 4: Arrastre progresivo a la posición vertical (-5° -> -82°)
+      const norm = (p - 0.68) / 0.16;
       const ease = norm * norm * (3 - 2 * norm);
-      const angle = -ease * 78.0;
-      const dy = 4.0 + (ease * 96.0); // 4 -> 100px
-      const dx = 10.0 + (ease * 6.0); // 10 -> 16px
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+      angle = -5.0 - (ease * 77.0);
     } else {
-      // Fase 5: Descenso vertical al fondo oceánico (-78° -> -84°)
-      const norm = Math.min(1.0, (p - 0.85) / 0.15);
-      const ease = norm * norm * (3 - 2 * norm);
-      const angle = -78.0 - (ease * 6.0);
-      const dy = 100.0 + (ease * 190.0); // 100 -> 290px
-      const dx = 16.0 + (ease * 4.0);
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+      // Fase 5: Descenso final vertical
+      const norm = Math.min(1.0, (p - 0.84) / 0.16);
+      angle = -82.0 - (norm * 4.0); // -82° -> -86°
     }
+
+    return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+  });
+
+  // Transformación del punto de unión de quilla / doble fondo
+  titanicHingeTransform = computed(() => {
+    const p = this.titanicProgress();
+    const { dx, dy } = this.getTitanicHingePos(p);
+    return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
   });
 
   // Alias y compatibilidad
@@ -924,21 +966,21 @@ export class Enfoque implements OnInit, OnDestroy {
   titanicBowTransform = this.titanicFrontTransform;
   titanicSternTransform = this.titanicRearTransform;
 
-  // Opacidad del frente y de la parte trasera
+  // Opacidad del frente y de la parte trasera (se desvanecen juntas en el abismo unidas)
   titanicFrontOpacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.88) return 1.0;
+    if (p < 0.85) return 1.0;
     if (p >= 1.0) return 0.0;
-    const t = (p - 0.88) / 0.12;
-    return Math.max(0.0, 1.0 - Math.pow(t, 1.6));
+    const t = (p - 0.85) / 0.15;
+    return Math.max(0.0, 1.0 - Math.pow(t, 1.4));
   });
 
   titanicRearOpacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.90) return 1.0;
+    if (p < 0.85) return 1.0;
     if (p >= 1.0) return 0.0;
-    const t = (p - 0.90) / 0.10;
-    return Math.max(0.0, 1.0 - Math.pow(t, 1.6));
+    const t = (p - 0.85) / 0.15;
+    return Math.max(0.0, 1.0 - Math.pow(t, 1.4));
   });
 
   titanicLogOpacity = this.titanicFrontOpacity;
@@ -960,15 +1002,9 @@ export class Enfoque implements OnInit, OnDestroy {
   // Estado del sistema eléctrico y luces del Titanic
   titanicLightsState = computed<'on' | 'flicker' | 'off'>(() => {
     const p = this.titanicProgress();
-    if (p < 0.40) return 'on';
-    if (p < 0.48) return 'flicker'; // Parpadeo agónico conforme los generadores se anegan
+    if (p < 0.38) return 'on';
+    if (p < 0.46) return 'flicker'; // Parpadeo agónico conforme los generadores se anegan
     return 'off'; // Apagón total al producirse la fractura estructural en el aire
-  });
-
-  // Chispas eléctricas y explosión de vapor en el punto de fractura
-  titanicBreakSparks = computed(() => {
-    const p = this.titanicProgress();
-    return p >= 0.48 && p < 0.58;
   });
 
   // Cinemática de caída de la Chimenea 1 (se desploma hacia adelante cuando el agua alcanza el puente)
@@ -999,8 +1035,8 @@ export class Enfoque implements OnInit, OnDestroy {
   // Cinemática de colapso de la Chimenea 3 durante la fractura en el aire
   titanicFunnel3Transform = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.48) return 'rotate(0deg)';
-    const norm = Math.min(1.0, (p - 0.48) / 0.08);
+    if (p < 0.46) return 'rotate(0deg)';
+    const norm = Math.min(1.0, (p - 0.46) / 0.08);
     const ease = norm * norm;
     const angle = -ease * 38.0;
     const dy = ease * 8.0;
@@ -1010,11 +1046,11 @@ export class Enfoque implements OnInit, OnDestroy {
 
   titanicFunnel3Opacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.54) return 1.0;
-    return Math.max(0.0, 1.0 - (p - 0.54) / 0.06);
+    if (p < 0.52) return 1.0;
+    return Math.max(0.0, 1.0 - (p - 0.52) / 0.06);
   });
 
-  titanicFunnel3Fallen = computed(() => this.titanicProgress() >= 0.48);
+  titanicFunnel3Fallen = computed(() => this.titanicProgress() >= 0.46);
 
   // Chimenea 4 (ficticia/ventilación de turbinas, permanece en la popa)
   titanicFunnel4Transform = computed(() => 'rotate(0deg)');

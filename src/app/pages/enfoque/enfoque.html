@@ -3444,7 +3444,7 @@
                       <g [style.transform]="titanicFrontTransform()"
                          [style.opacity]="titanicFrontOpacity()"
                          [style.transition]="titanicDisableTransition() ? 'none' : 'transform 1s linear, opacity 1s linear'"
-                         style="transform-origin: 12px 0px;">
+                         style="transform-origin: 12px 18px;">
 
                         <!-- Sobre el agua -->
                         <g clip-path="url(#shipAboveWaterRegionClip)">
@@ -3599,12 +3599,6 @@
                           <!-- Cara Interna de Fractura Estructural en Proa (Visible tras la Rotura en el Aire, x=12) -->
                           <g *ngIf="titanicIsSplit()">
                             <path d="M 12 -20 L 7 -12 L 14 -4 L 8 4 L 12 18 Z" fill="url(#titanicFractureSteelGrad)" stroke="#020617" stroke-width="0.8" />
-                            <!-- Vigas de acero rasgadas y tuberías de caldera -->
-                            <line x1="7" y1="-12" x2="1" y2="-12" stroke="#64748b" stroke-width="1.2" stroke-linecap="round" />
-                            <line x1="14" y1="-4" x2="20" y2="-3" stroke="#475569" stroke-width="1.4" stroke-linecap="round" />
-                            <line x1="8" y1="4" x2="2" y2="5" stroke="#94a3b8" stroke-width="1.0" stroke-linecap="round" />
-                            <!-- Resplandor de calderas y carbón incandescente expuesto -->
-                            <ellipse cx="9" cy="0" rx="3.5" ry="6" fill="url(#titanicBoilerGlowGrad)" opacity="0.85" />
                           </g>
                         </g>
 
@@ -3629,7 +3623,7 @@
                       <g [style.transform]="titanicRearTransform()"
                          [style.opacity]="titanicRearOpacity()"
                          [style.transition]="titanicDisableTransition() ? 'none' : 'transform 1s linear, opacity 1s linear'"
-                         style="transform-origin: 12px 0px;">
+                         style="transform-origin: 12px 18px;">
 
                         <!-- Sobre el agua -->
                         <g clip-path="url(#shipAboveWaterRegionClip)">
@@ -3795,8 +3789,6 @@
                           <!-- Cara Interna de Fractura Estructural en Popa (Visible tras la Rotura en el Aire, x=12) -->
                           <g *ngIf="titanicIsSplit()">
                             <path d="M 12 -20 L 7 -12 L 14 -4 L 8 4 L 12 18 Z" fill="url(#titanicFractureSteelGrad)" stroke="#020617" stroke-width="0.8" />
-                            <line x1="7" y1="-12" x2="1" y2="-12" stroke="#64748b" stroke-width="1.2" stroke-linecap="round" />
-                            <line x1="14" y1="-4" x2="20" y2="-3" stroke="#475569" stroke-width="1.4" stroke-linecap="round" />
                           </g>
                         </g>
 
@@ -3816,39 +3808,19 @@
 
                       </g>
 
-                      <!-- ==================== CHISPAS ELÉCTRICAS Y VAPOR EN EL PUNTO DE FRACTURA ==================== -->
-                      <g *ngIf="titanicBreakSparks()" class="titanic-break-sparks" transform="translate(12, -4)">
-                        <!-- Cortocircuito de alta tensión y arcos voltaicos -->
-                        <circle cx="0" cy="0" r="16" fill="rgba(56, 189, 248, 0.35)" filter="url(#titanicLightGlow)" />
-                        <circle cx="0" cy="0" r="8" fill="#ffffff" />
-                        <path d="M -4 -8 L 2 -2 L -2 4 L 4 8" stroke="#fef08a" stroke-width="1.6" fill="none" />
-                        <path d="M 3 -6 L -3 0 L 3 6" stroke="#67e8f9" stroke-width="1.4" fill="none" />
-                        <circle cx="-6" cy="-10" r="1.4" fill="#ffffff" />
-                        <circle cx="8" cy="-8" r="1.2" fill="#fde047" />
-                        <circle cx="-5" cy="8" r="1.5" fill="#bae6fd" />
-                        <circle cx="7" cy="10" r="1.3" fill="#ffffff" />
-                        <!-- Nube de vapor a presión liberada de las calderas -->
-                        <ellipse cx="2" cy="-14" rx="14" ry="8" fill="url(#titanicSteamPlumeGrad)" opacity="0.8" />
-                      </g>
-
-                      <!-- ==================== IMPACTO ACUÁTICO Y SALPICADURA AL CAER LA POPA ==================== -->
-                      <g *ngIf="titanicBreakSplash()" class="titanic-break-splash-fx" transform="translate(55, 6)">
-                        <!-- Ondas de choque superficiales de impacto horizontal -->
-                        <ellipse cx="0" cy="0" rx="55" ry="5" fill="#ffffff" opacity="0.85" class="titanic-break-impact-ripple" />
-                        <ellipse cx="10" cy="0" rx="72" ry="6" fill="#38bdf8" opacity="0.60" class="titanic-break-impact-ripple" />
-                        <ellipse cx="-15" cy="0" rx="88" ry="7" fill="#0284c7" opacity="0.40" class="titanic-break-impact-ripple" />
-                        <!-- Columnas de espuma y surtidores de agua eyectada -->
-                        <path d="M -20 -2 Q -35 -28, -50 -36 Q -42 -18, -25 0" fill="#f0f9ff" opacity="0.9" />
-                        <path d="M -10 -2 Q -18 -38, -26 -44 Q -20 -20, -6 0" fill="#bae6fd" opacity="0.85" />
-                        <path d="M 12 -2 Q 28 -34, 44 -40 Q 32 -20, 16 0" fill="#ffffff" opacity="0.95" />
-                        <path d="M 25 -2 Q 45 -26, 62 -32 Q 46 -15, 30 0" fill="#7dd3fc" opacity="0.8" />
-                        <!-- Gotas de agua pulverizada en el aire -->
-                        <circle cx="-32" cy="-28" r="2.4" fill="#ffffff" opacity="0.95" />
-                        <circle cx="-18" cy="-35" r="2.8" fill="#ffffff" opacity="0.9" />
-                        <circle cx="28" cy="-32" r="3.0" fill="#ffffff" opacity="0.95" />
-                        <circle cx="48" cy="-24" r="2.2" fill="#bae6fd" opacity="0.85" />
-                        <circle cx="-45" cy="-18" r="1.8" fill="#7dd3fc" opacity="0.8" />
-                        <circle cx="58" cy="-16" r="2.0" fill="#7dd3fc" opacity="0.8" />
+                      <!-- ==================== DOBLE FONDO Y QUILLA INFERIOR (MANTIENE LA UNIÓN Y ARRASTRA LA POPA) ==================== -->
+                      <g *ngIf="titanicKeelLinked()" [style.transform]="titanicHingeTransform()" class="titanic-double-bottom-tether" style="z-index: 5;">
+                        <!-- Planchas de acero del doble fondo y quilla curvadas y sometidas a enorme tracción -->
+                        <path d="M 6 15 Q 12 21, 18 15 L 17 19 Q 12 24, 7 19 Z" 
+                              fill="#1e293b" 
+                              stroke="#020617" 
+                              stroke-width="0.9" />
+                        <!-- Núcleo de la quilla roja óxido que actúa como bisagra estructural -->
+                        <path d="M 6 17 Q 12 22.5, 18 17" 
+                              stroke="#991b1b" 
+                              stroke-width="2.2" 
+                              fill="none" 
+                              stroke-linecap="round" />
                       </g>
 
                     </g>
