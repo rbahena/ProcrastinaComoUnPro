@@ -3128,6 +3128,17 @@
   100% { transform: translateX(-15px) scaleY(0.9); opacity: 0.14; }
 }
 
+/* Salpicadura e impacto contra el Iceberg */
+.titanic-impact-spray {
+  animation: titanicImpactSprayAnim 0.25s ease-out infinite alternate;
+}
+
+@keyframes titanicImpactSprayAnim {
+  0% { transform: translate(67px, 204px) scale(0.85); opacity: 0.65; }
+  100% { transform: translate(67px, 204px) scale(1.35); opacity: 1; }
+}
+
+
 /* ===== MODOS SIN SCROLL VERTICAL (BARCO / TITANIC Y EL FARO) ===== */
 :host.timer-titanic-mode,
 :host.timer-lighthouse-mode {
@@ -3194,6 +3205,18 @@
   gap: 0px !important;
   min-height: unset !important;
   justify-content: flex-start !important;
+  position: relative !important;
+}
+
+/* Evitar que la cabecera de estado o descanso desplace el barco entre pomodoro y descanso */
+:host.timer-titanic-mode .arena-state-header {
+  position: absolute !important;
+  top: -30px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  z-index: 12 !important;
 }
 
 :host.timer-lighthouse-mode .main {
@@ -4829,5 +4852,65 @@
   opacity: 0 !important;
   filter: none !important;
   transition: opacity 0.5s ease;
+}
+
+/* ==================== PARPADEO DE BALIZAS EN LAS ANTENAS TITANIC ==================== */
+
+/* Balizas fijas de parpadeo en el tope de los mástiles (proa y popa) */
+.titanic-antenna-beacon {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 3px #ffffff) drop-shadow(0 0 6px #38bdf8);
+  animation: antennaBeaconFlash 1.6s infinite;
+  transform-origin: center;
+}
+
+.titanic-antenna-beacon.aft {
+  animation: antennaBeaconFlash 1.6s infinite 0.8s;
+}
+
+@keyframes antennaBeaconFlash {
+  0%, 80% {
+    opacity: 0.1;
+    fill: #64748b;
+    filter: none;
+  }
+  84%, 94% {
+    opacity: 1;
+    fill: #ffffff;
+    filter: drop-shadow(0 0 3px #ffffff) drop-shadow(0 0 7px #38bdf8);
+  }
+  98%, 100% {
+    opacity: 0.1;
+    fill: #64748b;
+    filter: none;
+  }
+}
+
+/* Estado del sistema eléctrico para las balizas de las antenas */
+.titanic-antenna-sensors-on {
+  opacity: 1;
+}
+
+.titanic-antenna-sensors-flicker {
+  animation: titanicAntennaFlickerStateAnim 0.14s steps(2, start) infinite !important;
+}
+
+@keyframes titanicAntennaFlickerStateAnim {
+  0% { opacity: 0.95; filter: drop-shadow(0 0 3px #fde047); }
+  25% { opacity: 0.10; filter: none; }
+  50% { opacity: 0.85; filter: drop-shadow(0 0 4px #38bdf8); }
+  75% { opacity: 0.05; filter: none; }
+  100% { opacity: 0.90; filter: drop-shadow(0 0 2px #ffffff); }
+}
+
+.titanic-antenna-sensors-off {
+  opacity: 0 !important;
+  filter: none !important;
+  transition: opacity 0.5s ease;
+}
+
+.titanic-antenna-sensors-off .titanic-antenna-beacon {
+  opacity: 0 !important;
+  animation: none !important;
 }
 

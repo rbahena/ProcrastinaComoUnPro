@@ -794,23 +794,55 @@ export class Enfoque implements OnInit, OnDestroy {
     return Math.min(1, Math.max(0, 1 - this.timePercentage()));
   });
 
-  // Transformación del Contenedor Maestro del Tronco (Centrado en el lienzo):
+  // Transformación del Contenedor Maestro del Titanic (Avanza hacia el Iceberg al iniciar y se centra para el hundimiento):
   titanicMasterTransform = computed(() => {
+    const now = this.continuousTimeMs();
     if (this.arenaState() === 'setup') {
-      const now = this.continuousTimeMs();
       const bob = Math.sin(now / 1300) * 1.5;
       const pitch = Math.sin(now / 1700) * 0.8;
-      return `translate(240px, ${(204 + bob).toFixed(2)}px) rotate(${pitch.toFixed(2)}deg)`;
+      // En setup, el buque navega a gran distancia a estribor con amplio mar abierto frente al iceberg
+      return `translate(450px, ${(204 + bob).toFixed(2)}px) rotate(${pitch.toFixed(2)}deg)`;
     }
     const p = this.titanicProgress();
-    const now = this.continuousTimeMs();
 
     // Vaivén y cabeceo oceánico suave (se amortigua gradualmente conforme se sumerge)
     const swellDampening = Math.max(0, 1 - (p * 1.2));
     const bob = Math.sin(now / 1300) * 1.5 * swellDampening;
     const pitch = Math.sin(now / 1700) * 0.8 * swellDampening;
 
-    return `translate(240px, ${(204 + bob).toFixed(2)}px) rotate(${pitch.toFixed(2)}deg)`;
+    let posX = 202;
+    let impactJolt = 0;
+    if (p < 0.08) {
+      // Fase de avance: el barco navega a toda máquina por el océano hacia el iceberg
+      const norm = p / 0.08;
+      const ease = norm * norm * (3 - 2 * norm);
+      posX = 450 - (ease * 248); // 450px -> 202px
+    } else if (p >= 0.08 && p < 0.105) {
+      // Momento de colisión contra la mole de hielo (estremecimiento / sacudida estructural)
+      const joltNorm = (p - 0.08) / 0.025;
+      impactJolt = Math.sin(joltNorm * Math.PI * 4) * 0.75;
+    }
+
+    return `translate(${(posX + impactJolt).toFixed(2)}px, ${(204 + bob).toFixed(2)}px) rotate(${pitch.toFixed(2)}deg)`;
+  });
+
+  // Transformación y posición del Iceberg en el océano (permanece fijo en su sitio en todo momento)
+  titanicIcebergTransform = computed(() => {
+    const now = this.continuousTimeMs();
+    const bob = Math.sin(now / 1900) * 0.7;
+    // El iceberg se mantiene en su posición fija en el mar con suave vaivén oceánico
+    return `translate(25px, ${(204 + bob).toFixed(2)}px)`;
+  });
+
+  // Opacidad del Iceberg (permanece visible en el horizonte oceánico)
+  titanicIcebergOpacity = computed(() => {
+    return 0.95;
+  });
+
+  // Detección del instante de colisión y choque con hielo
+  titanicIsColliding = computed(() => {
+    const p = this.titanicProgress();
+    return p >= 0.075 && p <= 0.105;
   });
 
   // Estado de fractura de cubiertas superiores (se desgarran en el aire)
@@ -833,14 +865,15 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Posición espacial compartida de la bisagra de quilla (12px, 18px) mientras el barco está unido (p < 0.82)
   private getTitanicHingePos(p: number): { dx: number; dy: number } {
-    if (p <= 0.0) return { dx: 0, dy: 0 };
-    if (p < 0.18) {
-      const norm = p / 0.18;
+    if (p <= 0.08) return { dx: 0, dy: 0 };
+    if (p < 0.22) {
+      // Fase 1: Aniego inicial de los compartimentos estancos tras el impacto
+      const norm = (p - 0.08) / 0.14;
       const ease = norm * norm;
       return { dx: 0, dy: ease * 2.0 };
     } else if (p < 0.46) {
-      // Fase 2: Inclinación inicial
-      const norm = (p - 0.18) / 0.28;
+      // Fase 2: Inclinación continua hacia adelante
+      const norm = (p - 0.22) / 0.24;
       const ease = norm * norm * (3 - 2 * norm);
       return {
         dx: -ease * 5.0,
@@ -882,10 +915,10 @@ export class Enfoque implements OnInit, OnDestroy {
     if (p < 0.82) {
       const { dx, dy } = this.getTitanicHingePos(p);
       let angle = 0;
-      if (p < 0.18) {
+      if (p < 0.22) {
         angle = 0;
       } else if (p < 0.46) {
-        const norm = (p - 0.18) / 0.28;
+        const norm = (p - 0.22) / 0.24;
         const ease = norm * norm * (3 - 2 * norm);
         angle = -ease * 28.0;
       } else if (p < 0.68) {
@@ -916,10 +949,10 @@ export class Enfoque implements OnInit, OnDestroy {
     if (p < 0.82) {
       const { dx, dy } = this.getTitanicHingePos(p);
       let angle = 0;
-      if (p < 0.18) {
+      if (p < 0.22) {
         angle = 0;
       } else if (p < 0.46) {
-        const norm = (p - 0.18) / 0.28;
+        const norm = (p - 0.22) / 0.24;
         const ease = norm * norm * (3 - 2 * norm);
         angle = -ease * 28.0;
       } else if (p < 0.68) {
