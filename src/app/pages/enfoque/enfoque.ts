@@ -102,6 +102,15 @@ export class Enfoque implements OnInit, OnDestroy {
       this.activeBackground.set('lofi_cat_window');
       localStorage.setItem('focus-active-bg', 'lofi_cat_window');
     }
+
+    // Configuración rápida de 1 minuto por defecto
+    const savedDuration = localStorage.getItem('focus-duration');
+    if (!savedDuration || savedDuration === '25') {
+      this.focusDuration.set(1);
+      this.totalSessionTime.set(60);
+      this.timeLeft.set(60);
+      localStorage.setItem('focus-duration', '1');
+    }
   }
 
   // Acompañante de sesión compartida
@@ -388,8 +397,8 @@ export class Enfoque implements OnInit, OnDestroy {
     return `${m} min`;
   });
 
-  // Configuración del Pomodoro
-  focusDuration = signal(parseInt(localStorage.getItem('focus-duration') || '25', 10));
+  // Configuración del Pomodoro (1 minuto por defecto para agilizar)
+  focusDuration = signal(parseInt(localStorage.getItem('focus-duration') || '1', 10));
   breakDuration = signal(parseInt(localStorage.getItem('break-duration') || '5', 10));
   shortBreakDuration = this.breakDuration; // Alias para compatibilidad de plantillas
   longBreakInterval = signal(parseInt(localStorage.getItem('long-break-interval') || '4', 10));
@@ -564,9 +573,17 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   });
 
+  // ==================== MOTOR DE ANIMACIÓN FLUIDA A 60 FPS ====================
+  private animFrameId: any = null;
+  highPrecisionProgress = signal<number>(0);
+  continuousTimeMs = signal<number>(Date.now());
 
   // ==================== CINEMÁTICA Y FÍSICAS DE EL FARO EN EL ACANTILADO ====================
   lighthouseProgress = computed(() => {
+    if (this.arenaState() === 'setup') return 0;
+    if (this.timerRunning() && !this.emergencyPauseActive()) {
+      return this.highPrecisionProgress();
+    }
     return Math.min(1, Math.max(0, 1 - this.timePercentage()));
   });
 
@@ -631,9 +648,12 @@ export class Enfoque implements OnInit, OnDestroy {
     return Math.min(1.0, (p - 0.82) / 0.18);
   });
 
-
   // ==================== CINEMÁTICA Y FÍSICAS DEL AVIÓN EN ATERRIZAJE (RUNWAY APPROACH) ====================
   airplaneProgress = computed(() => {
+    if (this.arenaState() === 'setup') return 0;
+    if (this.timerRunning() && !this.emergencyPauseActive()) {
+      return this.highPrecisionProgress();
+    }
     return Math.min(1, Math.max(0, 1 - this.timePercentage()));
   });
 
@@ -757,219 +777,255 @@ export class Enfoque implements OnInit, OnDestroy {
     return Math.max(0.0, 1.0 - norm);
   });
 
-  // ==================== CINEMÁTICA Y FÍSICAS DEL TITANIC ====================
+  // ==================== CINEMÁTICA Y FÍSICAS DE HUNDIMIENTO DEL TRONCO GRUESO ====================
+  // Secuencia de inmersión y pérdida de flotabilidad del tronco de madera (0% a 100%):
+  // - Fase 1 (0% a 20%): Flotación de superficie, equilibrio hidrostático y absorción lenta de agua.
+  // - Fase 2 (20% a 48%): El extremo más pesado se satura de agua y comienza a inclinarse (0° -> 20°).
+  // - Fase 3 (48% a 75%): Pérdida progresiva de empuje de Arquímedes, ángulo pronunciado (20° -> 48°), emanación de burbujas.
+  // - Fase 4 (75% a 88%): Hundimiento crítico vertical (48° -> 78°), la punta superior se sumerge bajo la superficie.
+  // - Fase 5 (88% a 100%): Descenso perpendicular majestuoso hacia el lecho oceánico profundo (78° -> 86°).
   titanicProgress = computed(() => {
-    // 0.0 al inicio (100% tiempo restante) -> 1.0 al final (00:00 tiempo)
+    if (this.arenaState() === 'setup') {
+      return 0;
+    }
+    if (this.timerRunning() && !this.emergencyPauseActive()) {
+      return this.highPrecisionProgress();
+    }
     return Math.min(1, Math.max(0, 1 - this.timePercentage()));
   });
 
-  // Transformación del Contenedor Maestro del Titanic:
-  // En 'setup' navega en crucero panorámico continuo.
-  // En 'active': inicia con un recorrido de navegación náutica (x=75px -> x=230px de p=0.00 a 0.12), antes de alcanzar el iceberg a x=230px.
+  // Transformación del Contenedor Maestro del Tronco (Centrado en el lienzo):
   titanicMasterTransform = computed(() => {
     if (this.arenaState() === 'setup') {
-      return 'translate(75px, 204px)';
+      const now = this.continuousTimeMs();
+      const bob = Math.sin(now / 1300) * 1.5;
+      const pitch = Math.sin(now / 1700) * 0.8;
+      return `translate(240px, ${(204 + bob).toFixed(2)}px) rotate(${pitch.toFixed(2)}deg)`;
     }
     const p = this.titanicProgress();
-    if (p < 0.12) {
-      // Fase de navegación inicial antes del iceberg: recorre de x=75px a x=230px
-      const t = p / 0.12;
-      const x = 75 + (t * 155);
-      // Leve oleaje de navegación serena
-      const bob = Math.sin(t * Math.PI * 4) * 0.75;
-      const pitch = Math.sin(t * Math.PI * 4) * 0.35;
-      return `translate(${x.toFixed(2)}px, ${(204 + bob).toFixed(2)}px) rotate(${pitch.toFixed(2)}deg)`;
-    }
-    return 'translate(230px, 204px)';
+    const now = this.continuousTimeMs();
+
+    // Vaivén y cabeceo oceánico suave (se amortigua gradualmente conforme se sumerge)
+    const swellDampening = Math.max(0, 1 - (p * 1.2));
+    const bob = Math.sin(now / 1300) * 1.5 * swellDampening;
+    const pitch = Math.sin(now / 1700) * 0.8 * swellDampening;
+
+    return `translate(240px, ${(204 + bob).toFixed(2)}px) rotate(${pitch.toFixed(2)}deg)`;
   });
 
-  // Transformación de la Proa (Bow) - Inclinación gradual y ruptura original de abajo hacia arriba
-  titanicBowTransform = computed(() => {
+  // Estado de fractura del tronco de madera
+  titanicIsSplit = computed(() => {
+    return this.titanicProgress() >= 0.48;
+  });
+
+  // Salpicadura / oleaje de impacto de la ruptura y caída
+  titanicBreakSplash = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.12) {
-      return 'translate(0px, 0px) rotate(0deg)';
-    }
-    if (p < 0.50) {
-      // Fase 1 (0.12 a 0.50): Inclinación gradual unificada del navío completo (0° -> 18°)
-      const norm = (p - 0.12) / 0.38;
-      const angle = norm * 18;
-      const dy = norm * 22;
-      return `translate(0px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+    return p >= 0.48 && p < 0.66;
+  });
+
+  // Transformación cinemática de la Parte Frontal (Proa / Frente del Tronco que se sumerge)
+  titanicFrontTransform = computed(() => {
+    const p = this.titanicProgress();
+    if (p <= 0.0) return 'translate(0px, 0px) rotate(0deg)';
+
+    if (p < 0.18) {
+      // Fase 1: Flotación equilibrada en superficie
+      const norm = p / 0.18;
+      const ease = norm * norm;
+      const dy = ease * 2.0;
+      return `translate(0px, ${dy.toFixed(2)}px) rotate(0deg)`;
+    } else if (p < 0.48) {
+      // Fase 2: El frente se anega y se inclina hacia abajo en el agua (-0° -> -36°)
+      // La parte trasera se levanta en el aire
+      const norm = (p - 0.18) / 0.30;
+      const ease = norm * norm * (3 - 2 * norm);
+      const angle = -ease * 36.0;
+      const dy = 2.0 + (ease * 12.0); // 2 -> 14px
+      const dx = -ease * 6.0;         // 0 -> -6px
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+    } else if (p < 0.68) {
+      // Fase 3: RUPTURA EN EL AIRE - El frente liberado se precipita hacia el fondo (-36° -> -64°)
+      const norm = (p - 0.48) / 0.20;
+      const ease = norm * norm * (3 - 2 * norm);
+      const angle = -36.0 - (ease * 28.0);
+      const dy = 14.0 + (ease * 66.0); // 14 -> 80px
+      const dx = -6.0 - (ease * 14.0);  // -6 -> -20px
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+    } else if (p < 0.85) {
+      // Fase 4: Descenso profundo y casi vertical del frente (-64° -> -80°)
+      const norm = (p - 0.68) / 0.17;
+      const ease = norm * norm * (3 - 2 * norm);
+      const angle = -64.0 - (ease * 16.0);
+      const dy = 80.0 + (ease * 85.0); // 80 -> 165px
+      const dx = -20.0 - (ease * 8.0);  // -20 -> -28px
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
     } else {
-      // Fase 2 (0.50 a 1.00): Ruptura de abajo hacia arriba y descenso continuo en el mar
-      const norm = (p - 0.50) / 0.50;
-      const angle = 18 + (norm * 62); // 18° -> 80°
-      const dy = 22 + (norm * 220);  // Desciende bajo el mar
-      const dx = norm * 45;
+      // Fase 5: Descenso en el abismo vertical (-80° -> -85°)
+      const norm = Math.min(1.0, (p - 0.85) / 0.15);
+      const ease = norm * norm * (3 - 2 * norm);
+      const angle = -80.0 - (ease * 5.0);
+      const dy = 165.0 + (ease * 155.0); // 165 -> 320px
+      const dx = -28.0 - (ease * 4.0);   // -28 -> -32px
       return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
     }
   });
 
-  // La Proa se desvanece gradualmente al descender en las profundidades del mar abisal
-  titanicBowOpacity = computed(() => {
+  // Transformación cinemática de la Parte Trasera (Popa que se levanta en el aire y cae de golpe)
+  titanicRearTransform = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.50) return 1.0;
-    const t = (p - 0.50) / 0.50;
-    return Math.max(0.0, 1.0 - Math.pow(t, 2.8));
+    if (p <= 0.0) return 'translate(0px, 0px) rotate(0deg)';
+
+    if (p < 0.18) {
+      // Fase 1: Flotación unida al frente
+      const norm = p / 0.18;
+      const ease = norm * norm;
+      const dy = ease * 2.0;
+      return `translate(0px, ${dy.toFixed(2)}px) rotate(0deg)`;
+    } else if (p < 0.48) {
+      // Fase 2: Unida rígidamente al frente, se eleva en el aire fuera del agua (-0° -> -36°)
+      const norm = (p - 0.18) / 0.30;
+      const ease = norm * norm * (3 - 2 * norm);
+      const angle = -ease * 36.0;
+      const dy = 2.0 + (ease * 12.0);
+      const dx = -ease * 6.0;
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+    } else if (p < 0.65) {
+      // Fase 3: RUPTURA EN EL AIRE - La parte trasera suspendida en el aire cae de golpe hacia el mar
+      // Pasa de -36° en el aire a caer sobre la superficie (-36° -> 0°) con rebote acuático
+      const norm = (p - 0.48) / 0.17;
+      const dropEase = Math.sin(norm * Math.PI * 0.5); // Caída acelerada
+      const bounce = Math.sin(norm * Math.PI * 2.5) * Math.exp(-norm * 3.5) * 5.0;
+      const angle = (-36.0 * (1 - dropEase)) + bounce;
+      const dy = (14.0 * (1 - dropEase)) + (norm * 4.0) + (bounce * 0.3); // Cae a la superficie del agua
+      const dx = -6.0 + (norm * 16.0); // Se desplaza hacia la derecha al separarse
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+    } else if (p < 0.85) {
+      // Fase 4: La parte trasera se anega por la fractura y se pone en vertical (-0° -> -78°)
+      const norm = (p - 0.65) / 0.20;
+      const ease = norm * norm * (3 - 2 * norm);
+      const angle = -ease * 78.0;
+      const dy = 4.0 + (ease * 96.0); // 4 -> 100px
+      const dx = 10.0 + (ease * 6.0); // 10 -> 16px
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+    } else {
+      // Fase 5: Descenso vertical al fondo oceánico (-78° -> -84°)
+      const norm = Math.min(1.0, (p - 0.85) / 0.15);
+      const ease = norm * norm * (3 - 2 * norm);
+      const angle = -78.0 - (ease * 6.0);
+      const dy = 100.0 + (ease * 190.0); // 100 -> 290px
+      const dx = 16.0 + (ease * 4.0);
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+    }
   });
 
-  // Chimenea 1 (Delantera): Caída continua y fluida por gravedad, inclinándose la corona negra hacia el mar
+  // Alias y compatibilidad
+  titanicLogTransform = this.titanicFrontTransform;
+  titanicBowTransform = this.titanicFrontTransform;
+  titanicSternTransform = this.titanicRearTransform;
+
+  // Opacidad del frente y de la parte trasera
+  titanicFrontOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.88) return 1.0;
+    if (p >= 1.0) return 0.0;
+    const t = (p - 0.88) / 0.12;
+    return Math.max(0.0, 1.0 - Math.pow(t, 1.6));
+  });
+
+  titanicRearOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.90) return 1.0;
+    if (p >= 1.0) return 0.0;
+    const t = (p - 0.90) / 0.10;
+    return Math.max(0.0, 1.0 - Math.pow(t, 1.6));
+  });
+
+  titanicLogOpacity = this.titanicFrontOpacity;
+  titanicBowOpacity = this.titanicFrontOpacity;
+  titanicSternOpacity = this.titanicRearOpacity;
+
+  // Actividad de burbujas de aire cristalinas
+  titanicBubblesOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.15) return 0.0;
+    if (p < 0.25) return (p - 0.15) / 0.10 * 0.8;
+    if (p > 0.95) return Math.max(0.0, 1.0 - (p - 0.95) / 0.05);
+    return 1.0;
+  });
+
+  // Transición suave o inmediata
+  titanicDisableTransition = computed(() => false);
+
+  // Estado del sistema eléctrico y luces del Titanic
+  titanicLightsState = computed<'on' | 'flicker' | 'off'>(() => {
+    const p = this.titanicProgress();
+    if (p < 0.40) return 'on';
+    if (p < 0.48) return 'flicker'; // Parpadeo agónico conforme los generadores se anegan
+    return 'off'; // Apagón total al producirse la fractura estructural en el aire
+  });
+
+  // Chispas eléctricas y explosión de vapor en el punto de fractura
+  titanicBreakSparks = computed(() => {
+    const p = this.titanicProgress();
+    return p >= 0.48 && p < 0.58;
+  });
+
+  // Cinemática de caída de la Chimenea 1 (se desploma hacia adelante cuando el agua alcanza el puente)
   titanicFunnel1Transform = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.38) {
-      return 'rotate(8deg)';
-    }
-
-    const t = (p - 0.38) / 0.62;
-    const rollProgress = Math.min(1, t / 0.15);
-    const rollEase = rollProgress * rollProgress * (3 - 2 * rollProgress);
-    const angle = 8 + (rollEase * 86);
-
-    const dx = (rollEase * 38) + (t * 18);
-    const sinkEase = Math.pow(t, 1.25);
-    const dy = sinkEase * 280;
-
+    if (p < 0.38) return 'rotate(0deg)';
+    const norm = Math.min(1.0, (p - 0.38) / 0.10);
+    const ease = norm * norm;
+    const angle = ease * 42.0;
+    const dy = ease * 12.0;
+    const dx = ease * 6.0;
     return `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${angle.toFixed(1)}deg)`;
   });
 
   titanicFunnel1Opacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.42) return 1.0;
-    const t = (p - 0.42) / 0.58;
-    return Math.max(0.0, 1.0 - Math.pow(t, 1.25));
+    if (p < 0.44) return 1.0;
+    return Math.max(0.0, 1.0 - (p - 0.44) / 0.05);
   });
 
   titanicFunnel1Fallen = computed(() => this.titanicProgress() >= 0.38);
 
-  titanicFunnelRuptureLightning = computed(() => {
+  // Chimenea 2 (permanece unida a la sección de proa)
+  titanicFunnel2Transform = computed(() => 'rotate(0deg)');
+  titanicFunnel2Opacity = computed(() => 1.0);
+  titanicFunnel2Fallen = computed(() => false);
+
+  // Cinemática de colapso de la Chimenea 3 durante la fractura en el aire
+  titanicFunnel3Transform = computed(() => {
     const p = this.titanicProgress();
-    return p >= 0.38 && p <= 0.415;
+    if (p < 0.48) return 'rotate(0deg)';
+    const norm = Math.min(1.0, (p - 0.48) / 0.08);
+    const ease = norm * norm;
+    const angle = -ease * 38.0;
+    const dy = ease * 8.0;
+    const dx = -ease * 4.0;
+    return `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${angle.toFixed(1)}deg)`;
   });
 
-  titanicFunnelWaterImpactLightning = computed(() => {
+  titanicFunnel3Opacity = computed(() => {
     const p = this.titanicProgress();
-    return p >= 0.426 && p <= 0.438;
+    if (p < 0.54) return 1.0;
+    return Math.max(0.0, 1.0 - (p - 0.54) / 0.06);
   });
 
-  titanicFlare1Transform = computed(() => {
-    const p = this.titanicProgress();
-    if (p < 0.12) return 'rotate(0deg)';
-    const bowAngle = p < 0.50 ? ((p - 0.12) / 0.38) * 18 : 18 + ((p - 0.50) / 0.50) * 60;
-    return `rotate(-${bowAngle.toFixed(2)}deg)`;
-  });
+  titanicFunnel3Fallen = computed(() => this.titanicProgress() >= 0.48);
 
-  titanicFlare2Transform = computed(() => {
-    const p = this.titanicProgress();
-    if (p < 0.12) return 'rotate(0deg)';
-    if (p < 0.50) {
-      const sternAngle = ((p - 0.12) / 0.38) * 18;
-      return `rotate(-${sternAngle.toFixed(2)}deg)`;
-    } else if (p < 0.65) {
-      const sternAngle = 18 + ((p - 0.50) / 0.15) * 72;
-      return `rotate(-${sternAngle.toFixed(2)}deg)`;
-    } else {
-      return 'rotate(-90deg)';
-    }
-  });
+  // Chimenea 4 (ficticia/ventilación de turbinas, permanece en la popa)
+  titanicFunnel4Transform = computed(() => 'rotate(0deg)');
+  titanicFunnel4Opacity = computed(() => 1.0);
+  titanicFunnel4Fallen = computed(() => false);
 
-  titanicDisableTransition = signal<boolean>(false);
+  titanicMarconiOpacity = computed(() => 0.0);
+  titanicFlare1Transform = computed(() => 'rotate(0deg)');
+  titanicFlare2Transform = computed(() => 'rotate(0deg)');
+  titanicShowFlares = computed(() => false);
 
-  @HostListener('document:visibilitychange')
-  onDocumentVisibilityChange() {
-    if (document.visibilityState === 'visible') {
-      this.titanicDisableTransition.set(true);
-      setTimeout(() => {
-        this.titanicDisableTransition.set(false);
-      }, 60);
-
-      this.checkAndRestoreActiveSession();
-      if (this.arenaState() !== 'active') {
-        this.stopTitleFlashing();
-      } else {
-        this.updateLiveTabTitle();
-      }
-    }
-  }
-
-  @HostListener('window:focus')
-  onWindowFocus() {
-    this.checkAndRestoreActiveSession();
-    if (this.arenaState() !== 'active') {
-      this.stopTitleFlashing();
-    } else {
-      this.updateLiveTabTitle();
-    }
-  }
-
-  // Transformación de la Popa (Stern) - Ruptura original de abajo hacia arriba, se alza a 90° vertical, flota y se hunde
-  titanicSternTransform = computed(() => {
-    const p = this.titanicProgress();
-    if (p < 0.12) {
-      return 'translate(0px, 0px) rotate(0deg)';
-    }
-    if (p < 0.50) {
-      // Fase 1 (0.12 a 0.50): Inclinación gradual unificada con la proa (0° -> 18°)
-      const norm = (p - 0.12) / 0.38;
-      const angle = norm * 18;
-      const dy = norm * 22;
-      return `translate(0px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
-    } else if (p < 0.65) {
-      // Fase 2A (0.50 a 0.65): La popa se alza de 18° a 90° vertical (ruptura de abajo hacia arriba)
-      const tRise = (p - 0.50) / 0.15;
-      const angle = 18 + (tRise * 72); // 18° -> 90°
-      const dy = 22 + Math.sin(tRise * Math.PI) * 3;
-      const dx = -tRise * 15;
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
-    } else if (p < 0.74) {
-      // Fase 2B (0.65 a 0.74): Flotación vertical a 90° sobre las olas
-      const tBob = (p - 0.65) / 0.09;
-      const bobbing = Math.sin(tBob * Math.PI * 2) * 2.5;
-      const dy = 22 + bobbing;
-      const dx = -15 - (tBob * 5);
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(90deg)`;
-    } else {
-      // Fase 2C (0.74 a 1.00): Descenso vertical constante hacia el mar hasta desaparecer a las 00:00 (p=1.00)
-      const tSink = (p - 0.74) / 0.26;
-      const dy = 22 + (tSink * 165);
-      const dx = -20 - (tSink * 8);
-      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(90deg)`;
-    }
-  });
-
-  // La Popa se desvanece suavemente conforme cae al fondo del mar
-  titanicSternOpacity = computed(() => {
-    const p = this.titanicProgress();
-    if (p < 0.74) return 1.0;
-    const t = (p - 0.74) / 0.26;
-    return Math.max(0.0, 1.0 - Math.pow(t, 2.8));
-  });
-
-  // Estado de las luces del Titanic:
-  // 'on' (encendidas y radiantes sobre y bajo el agua) hasta el inicio de la fractura a p=0.50
-  // 'flicker' (parpadeo eléctrico cuando inicia la ruptura: p=0.50 a 0.535)
-  // 'off' (apagón total a partir de p >= 0.535, mostrando las ventanas apagadas)
-  titanicLightsState = computed<'on' | 'flicker' | 'off'>(() => {
-    const p = this.titanicProgress();
-    if (p < 0.50) return 'on';
-    if (p < 0.535) return 'flicker';
-    return 'off';
-  });
-
-  titanicIsSplit = computed(() => this.titanicProgress() >= 0.50);
-
-  // Las bengalas de socorro se lanzan ÚNICAMENTE cuando ya chocó con el iceberg (p >= 0.12) y dejan de salir en cuanto comienza la ruptura del barco (p < 0.50)
-  titanicShowFlares = computed(() => {
-    const p = this.titanicProgress();
-    return p >= 0.12 && p < 0.50;
-  });
-
-  // Rayos y chispas de la fractura: activos durante la fractura (p=0.50 a 0.65)
-  titanicShowBreakSparks = computed(() => {
-    const p = this.titanicProgress();
-    return p >= 0.50 && p < 0.65;
-  });
-
-  // Opciones de sonido para evitar errores de tipado estricto en plantillas Angular
   soundOptions: ('zen' | 'digital' | 'chime')[] = ['zen', 'chime', 'digital'];
   themeOptions: ('samurai' | 'cyberpunk' | 'aurora' | 'zen')[] = ['samurai', 'cyberpunk', 'aurora', 'zen'];
 
@@ -1382,15 +1438,15 @@ export class Enfoque implements OnInit, OnDestroy {
     this.activeMethodology.set(method);
   }
 
-  // Lógica del Temporizador
-  timeLeft = signal(25 * 60);
-  totalSessionTime = signal(25 * 60);
+  // Lógica del Temporizador (1 minuto = 60 segundos)
+  timeLeft = signal(1 * 60);
+  totalSessionTime = signal(1 * 60);
   timerRunning = signal(false);
   isBreak = signal(false);
   private pomodoroTimer: any = null;
 
   // Lógica del Ritual 3-2-1
-  countdownValue = signal(5);
+  countdownValue = signal(3);
   private countdownTimer: any = null;
 
   // Lógica del Botón de Pánico (Pausa de Emergencia de 2 min)
@@ -3837,8 +3893,49 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   }
 
+  private startSmoothAnimationLoop() {
+    this.stopSmoothAnimationLoop();
+
+    const updateLoop = () => {
+      if (!this.timerRunning() || this.emergencyPauseActive()) {
+        this.animFrameId = null;
+        return;
+      }
+
+      const now = Date.now();
+      this.continuousTimeMs.set(now);
+
+      const targetEndStr = localStorage.getItem('focus-session-target-end');
+      if (targetEndStr) {
+        const targetEndTime = parseInt(targetEndStr, 10);
+        const totalDurationMs = Math.max(1000, this.totalSessionTime() * 1000);
+        const startTime = targetEndTime - totalDurationMs;
+        const elapsed = Math.max(0, Math.min(totalDurationMs, now - startTime));
+        const progress = elapsed / totalDurationMs;
+        this.highPrecisionProgress.set(progress);
+      } else {
+        const total = this.totalSessionTime();
+        const left = this.timeLeft();
+        const progress = total > 0 ? Math.min(1, Math.max(0, 1 - (left / total))) : 0;
+        this.highPrecisionProgress.set(progress);
+      }
+
+      this.animFrameId = requestAnimationFrame(updateLoop);
+    };
+
+    this.animFrameId = requestAnimationFrame(updateLoop);
+  }
+
+  private stopSmoothAnimationLoop() {
+    if (this.animFrameId) {
+      cancelAnimationFrame(this.animFrameId);
+      this.animFrameId = null;
+    }
+  }
+
   private startTimerLoop(fromRestore: boolean = false) {
     this.timerRunning.set(true);
+    this.startSmoothAnimationLoop();
     if (!this.isBreak()) {
       this.membership.isFocusActive.set(true);
     } else {
@@ -3915,6 +4012,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   private stopTimerLoop() {
     this.timerRunning.set(false);
+    this.stopSmoothAnimationLoop();
     if (this.pomodoroTimer) {
       clearInterval(this.pomodoroTimer);
       this.pomodoroTimer = null;
