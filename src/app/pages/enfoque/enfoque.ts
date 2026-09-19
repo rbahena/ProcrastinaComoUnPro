@@ -818,22 +818,20 @@ export class Enfoque implements OnInit, OnDestroy {
     return this.titanicProgress() >= 0.46;
   });
 
-  // Estado del doble fondo / quilla que permanece SIEMPRE unida como bisagra estructural continua
+  // Estado del doble fondo / quilla que permanece unida hasta que la popa queda parada a 90 grados
   titanicKeelLinked = computed(() => {
-    return this.titanicProgress() >= 0.46;
+    const p = this.titanicProgress();
+    return p >= 0.46 && p < 0.82;
   });
 
   // Tensión y deformación del doble fondo
   titanicKeelTension = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.46) return 0;
-    return Math.min(1.0, (p - 0.46) / 0.30);
+    if (p < 0.46 || p >= 0.82) return 0;
+    return Math.min(1.0, (p - 0.46) / 0.36);
   });
 
-
-
-  // Posición espacial compartida exacta de la bisagra de quilla (12px, 18px)
-  // Ambas partes comparten exactamente el mismo punto de anclaje para NUNCA separarse
+  // Posición espacial compartida de la bisagra de quilla (12px, 18px) mientras el barco está unido (p < 0.82)
   private getTitanicHingePos(p: number): { dx: number; dy: number } {
     if (p <= 0.0) return { dx: 0, dy: 0 };
     if (p < 0.18) {
@@ -849,7 +847,7 @@ export class Enfoque implements OnInit, OnDestroy {
         dy: 2.0 + (ease * 10.0), // 2 -> 12px
       };
     } else if (p < 0.68) {
-      // Fase 3: TRAS EL QUIEBRE, LA POPA CAE Y SE MANTIENE A NIVEL DEL MAR
+      // Fase 3: Tras el quiebre, la popa cae y se mantiene a nivel del mar
       const norm = (p - 0.46) / 0.22;
       if (norm < 0.40) {
         // Caída de la quilla de vuelta al nivel de flotación del mar
@@ -857,7 +855,7 @@ export class Enfoque implements OnInit, OnDestroy {
         const fallEase = fallNorm * fallNorm;
         return {
           dx: -5.0 + (fallEase * 2.0), // -5 -> -3px
-          dy: 12.0 - (fallEase * 8.5), // 12 -> 3.5px (nivel del mar)
+          dy: 12.0 - (fallEase * 8.5), // 12 -> 3.5px (a nivel del mar)
         };
       } else {
         // Se mantiene estable a nivel del mar flotando en superficie
@@ -867,91 +865,100 @@ export class Enfoque implements OnInit, OnDestroy {
           dy: 3.5 + (subNorm * 1.5), // 3.5 -> 5.0px (a nivel del mar)
         };
       }
-    } else if (p < 0.84) {
-      // Fase 4: Arrastre por la proa sumergida hacia la posición vertical
-      const norm = (p - 0.68) / 0.16;
+    } else {
+      // Fase 4: Arrastre por la proa sumergida levantando la popa hasta los 90° (p -> 0.82)
+      const norm = Math.min(1.0, (p - 0.68) / 0.14);
       const ease = norm * norm * (3 - 2 * norm);
       return {
         dx: -3.0 - (ease * 15.0), // -3 -> -18px
         dy: 5.0 + (ease * 45.0),  // 5 -> 50px
       };
-    } else {
-      // Fase 5: Descenso vertical unido al abismo
-      const norm = Math.min(1.0, (p - 0.84) / 0.16);
-      const ease = norm * norm * (3 - 2 * norm);
-      return {
-        dx: -18.0 - (ease * 6.0),  // -18 -> -24px
-        dy: 50.0 + (ease * 230.0), // 50 -> 280px
-      };
     }
   }
 
-  // Transformación cinemática de la Proa (Sección delantera - se hunde agresivamente abriendo separación en "V" arriba)
+  // Transformación cinemática de la Proa (Levanta la popa a 90°, SE DESPRENDE Y SE HUNDE PRIMERO AL FONDO)
   titanicFrontTransform = computed(() => {
     const p = this.titanicProgress();
-    const { dx, dy } = this.getTitanicHingePos(p);
-    let angle = 0;
-
-    if (p < 0.18) {
-      angle = 0;
-    } else if (p < 0.46) {
-      const norm = (p - 0.18) / 0.28;
-      const ease = norm * norm * (3 - 2 * norm);
-      angle = -ease * 28.0;
-    } else if (p < 0.68) {
-      // Fase 3: La proa se flexiona hacia el fondo mientras la quilla está a nivel del mar (-28° -> -72°)
-      const norm = (p - 0.46) / 0.22;
-      angle = -28.0 - (Math.pow(norm, 0.75) * 44.0);
-    } else if (p < 0.84) {
-      const norm = (p - 0.68) / 0.16;
-      const ease = norm * norm * (3 - 2 * norm);
-      angle = -72.0 - (ease * 10.0); // -72° -> -82°
+    if (p < 0.82) {
+      const { dx, dy } = this.getTitanicHingePos(p);
+      let angle = 0;
+      if (p < 0.18) {
+        angle = 0;
+      } else if (p < 0.46) {
+        const norm = (p - 0.18) / 0.28;
+        const ease = norm * norm * (3 - 2 * norm);
+        angle = -ease * 28.0;
+      } else if (p < 0.68) {
+        // La proa cuelga hacia el fondo mientras la popa está a nivel del mar
+        const norm = (p - 0.46) / 0.22;
+        angle = -28.0 - (Math.pow(norm, 0.75) * 50.0); // -28° -> -78°
+      } else {
+        // Tira de la popa hasta alinearla a 90°
+        const norm = (p - 0.68) / 0.14;
+        const ease = norm * norm * (3 - 2 * norm);
+        angle = -78.0 - (ease * 10.0); // -78° -> -88°
+      }
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
     } else {
-      const norm = Math.min(1.0, (p - 0.84) / 0.16);
-      angle = -82.0 - (norm * 4.0);  // -82° -> -86°
+      // ¡DESPRENDIMIENTO A 90 GRADOS! La proa se desprende y SE HUNDE PRIMERO rápidamente al abismo
+      const norm = (p - 0.82) / 0.18;
+      const ease = Math.pow(norm, 1.2);
+      const dx = -18.0 - (norm * 14.0); // -18 -> -32px
+      const dy = 50.0 + (ease * 270.0); // 50 -> 320px (se hunde primero y más profundo)
+      const angle = -88.0 - (norm * 2.0); // -88° -> -90°
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
     }
-
-    return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
   });
 
-  // Transformación cinemática de la Popa (Sección trasera - CAE Y SE MANTIENE FLOTANDO A NIVEL DEL MAR)
+  // Transformación cinemática de la Popa (Cae a nivel del mar, se levanta parada a 90°, SE DESPRENDE Y TRAS ESTA VA LA POPA)
   titanicRearTransform = computed(() => {
     const p = this.titanicProgress();
-    const { dx, dy } = this.getTitanicHingePos(p);
-    let angle = 0;
-
-    if (p < 0.18) {
-      angle = 0;
-    } else if (p < 0.46) {
-      // Elevación alta en el aire (-0° -> -28°)
-      const norm = (p - 0.18) / 0.28;
-      const ease = norm * norm * (3 - 2 * norm);
-      angle = -ease * 28.0;
-    } else if (p < 0.68) {
-      // Fase 3: CAE Y SE MANTIENE A NIVEL DEL MAR FLOTANDO HORIZONTAL
-      const norm = (p - 0.46) / 0.22;
-      if (norm < 0.40) {
-        // Caída visible de -28° a -2°
-        const fallNorm = norm / 0.40;
-        const fallEase = fallNorm * fallNorm;
-        angle = -28.0 + (fallEase * 26.0); // -28° -> -2°
+    if (p < 0.82) {
+      const { dx, dy } = this.getTitanicHingePos(p);
+      let angle = 0;
+      if (p < 0.18) {
+        angle = 0;
+      } else if (p < 0.46) {
+        const norm = (p - 0.18) / 0.28;
+        const ease = norm * norm * (3 - 2 * norm);
+        angle = -ease * 28.0;
+      } else if (p < 0.68) {
+        // Cae y se mantiene a nivel del mar
+        const norm = (p - 0.46) / 0.22;
+        if (norm < 0.40) {
+          const fallNorm = norm / 0.40;
+          const fallEase = fallNorm * fallNorm;
+          angle = -28.0 + (fallEase * 26.0); // -28° -> -2°
+        } else {
+          const subNorm = (norm - 0.40) / 0.60;
+          angle = -2.0 - (subNorm * 3.0); // -2° -> -5° (flotando a nivel del mar)
+        }
       } else {
-        // Flotación nivelada a nivel del mar (-2° -> -5°)
-        const subNorm = (norm - 0.40) / 0.60;
-        angle = -2.0 - (subNorm * 3.0);
+        // Arrastrada por la proa hasta quedar COMPLETAMENTE PARADA A 90 GRADOS
+        const norm = (p - 0.68) / 0.14;
+        const ease = norm * norm * (3 - 2 * norm);
+        angle = -5.0 - (ease * 85.0); // -5° -> -90.0° (parada perpendicular a 90°)
       }
-    } else if (p < 0.84) {
-      // Fase 4: Arrastre progresivo a la posición vertical (-5° -> -82°)
-      const norm = (p - 0.68) / 0.16;
-      const ease = norm * norm * (3 - 2 * norm);
-      angle = -5.0 - (ease * 77.0);
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
     } else {
-      // Fase 5: Descenso final vertical
-      const norm = Math.min(1.0, (p - 0.84) / 0.16);
-      angle = -82.0 - (norm * 4.0); // -82° -> -86°
+      // ¡DESPRENDIMIENTO A 90 GRADOS! Tras hundirse la proa, desciende la popa vertical
+      let dy: number;
+      let dx: number;
+      if (p < 0.86) {
+        // Se mantiene un momento parada a 90° tras desprenderse la proa
+        const subNorm = (p - 0.82) / 0.04;
+        dx = -18.0;
+        dy = 50.0 + (subNorm * 4.0); // 50 -> 54px
+      } else {
+        // Desciende verticalmente hacia el abismo siguiendo a la proa
+        const norm = (p - 0.86) / 0.14;
+        const ease = Math.pow(norm, 1.5);
+        dx = -18.0 - (norm * 3.0); // -18 -> -21px
+        dy = 54.0 + (ease * 226.0); // 54 -> 280px
+      }
+      const angle = -90.0; // Completamente parada a 90 grados
+      return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
     }
-
-    return `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
   });
 
   // Transformación del punto de unión de quilla / doble fondo
@@ -966,20 +973,21 @@ export class Enfoque implements OnInit, OnDestroy {
   titanicBowTransform = this.titanicFrontTransform;
   titanicSternTransform = this.titanicRearTransform;
 
-  // Opacidad del frente y de la parte trasera (se desvanecen juntas en el abismo unidas)
+  // Opacidad de la proa (se hunde primero y desaparece en las profundidades)
   titanicFrontOpacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.85) return 1.0;
-    if (p >= 1.0) return 0.0;
-    const t = (p - 0.85) / 0.15;
+    if (p < 0.82) return 1.0;
+    if (p >= 0.94) return 0.0;
+    const t = (p - 0.82) / 0.12;
     return Math.max(0.0, 1.0 - Math.pow(t, 1.4));
   });
 
+  // Opacidad de la popa (va tras la proa y se sumerge después)
   titanicRearOpacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.85) return 1.0;
+    if (p < 0.88) return 1.0;
     if (p >= 1.0) return 0.0;
-    const t = (p - 0.85) / 0.15;
+    const t = (p - 0.88) / 0.12;
     return Math.max(0.0, 1.0 - Math.pow(t, 1.4));
   });
 
