@@ -3249,6 +3249,15 @@
                         <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
                       </linearGradient>
 
+                      <!-- Filtro de Oscurecimiento en su Mismo Color para Partes Sumergidas del Barco -->
+                      <filter id="titanicUnderwaterShipFilter" x="-30%" y="-30%" width="160%" height="160%">
+                        <feColorMatrix type="matrix" values="
+                          0.45 0    0    0 0
+                          0    0.45 0    0 0
+                          0    0    0.48 0 0
+                          0    0    0    0.95 0" />
+                      </filter>
+
                       <!-- Gradientes del Casco del Titanic (Acero Negro y Quilla Roja Óxido) -->
                       <linearGradient id="titanicHullBlackGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset="0%" stop-color="#1e293b" />
@@ -3262,6 +3271,14 @@
                         <stop offset="40%" stop-color="#7f1d1d" />
                         <stop offset="80%" stop-color="#5a1010" />
                         <stop offset="100%" stop-color="#3b0808" />
+                      </linearGradient>
+
+                      <!-- Quilla Roja Oscurecida Específicamente Bajo el Agua -->
+                      <linearGradient id="titanicHullRedSubmergedGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#3b0808" />
+                        <stop offset="40%" stop-color="#240505" />
+                        <stop offset="80%" stop-color="#120202" />
+                        <stop offset="100%" stop-color="#050101" />
                       </linearGradient>
 
                       <!-- Gradiente Superestructura Blanca y Cubiertas de Paseo -->
@@ -3278,6 +3295,22 @@
                         <stop offset="55%" stop-color="#fbbf24" />
                         <stop offset="85%" stop-color="#d97706" />
                         <stop offset="100%" stop-color="#78350f" />
+                      </linearGradient>
+
+                      <!-- Gradientes Oscurecidos para Chimeneas Sumergidas bajo el Mar -->
+                      <linearGradient id="titanicSubmergedFunnelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#3b1d07" />
+                        <stop offset="25%" stop-color="#542c0c" />
+                        <stop offset="55%" stop-color="#6b3a12" />
+                        <stop offset="85%" stop-color="#4a250a" />
+                        <stop offset="100%" stop-color="#261304" />
+                      </linearGradient>
+
+                      <linearGradient id="titanicSubmergedFunnelBlackGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#0e131b" />
+                        <stop offset="35%" stop-color="#06090f" />
+                        <stop offset="75%" stop-color="#090d14" />
+                        <stop offset="100%" stop-color="#04060a" />
                       </linearGradient>
 
                       <!-- Gradiente Capuchón Negro Superior de las Chimeneas -->
@@ -3347,9 +3380,9 @@
 
                       <!-- Gradiente Rayos Submarinos / Cáusticas Nocturnas -->
                       <linearGradient id="titanicUnderwaterRayGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25" />
-                        <stop offset="30%" stop-color="#0284c7" stop-opacity="0.14" />
-                        <stop offset="70%" stop-color="#0369a1" stop-opacity="0.06" />
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.22" />
+                        <stop offset="30%" stop-color="#0284c7" stop-opacity="0.12" />
+                        <stop offset="70%" stop-color="#0369a1" stop-opacity="0.05" />
                         <stop offset="100%" stop-color="#075985" stop-opacity="0" />
                       </linearGradient>
 
@@ -3385,18 +3418,41 @@
                         <stop offset="100%" stop-color="#0284c7" />
                       </linearGradient>
 
-                      <linearGradient id="icebergUnderwaterMassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#0284c7" stop-opacity="0.80" />
-                        <stop offset="35%" stop-color="#0369a1" stop-opacity="0.65" />
-                        <stop offset="70%" stop-color="#075985" stop-opacity="0.45" />
-                        <stop offset="100%" stop-color="#020617" stop-opacity="0.10" />
+                      <!-- Gradientes Glaciales para Facetas Submarinas del Iceberg -->
+                      <linearGradient id="icebergSubFacetSpurGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.75" />
+                        <stop offset="30%" stop-color="#0284c7" stop-opacity="0.60" />
+                        <stop offset="70%" stop-color="#0369a1" stop-opacity="0.40" />
+                        <stop offset="100%" stop-color="#082f49" stop-opacity="0.15" />
+                      </linearGradient>
+
+                      <linearGradient id="icebergSubFacetCenterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.70" />
+                        <stop offset="35%" stop-color="#0284c7" stop-opacity="0.50" />
+                        <stop offset="75%" stop-color="#075985" stop-opacity="0.28" />
+                        <stop offset="100%" stop-color="#020617" stop-opacity="0.06" />
+                      </linearGradient>
+
+                      <linearGradient id="icebergSubFacetLeftGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#0284c7" stop-opacity="0.55" />
+                        <stop offset="40%" stop-color="#0369a1" stop-opacity="0.40" />
+                        <stop offset="80%" stop-color="#082f49" stop-opacity="0.22" />
+                        <stop offset="100%" stop-color="#020617" stop-opacity="0.05" />
+                      </linearGradient>
+
+                      <!-- Velo de Absorción de Luz y Disolución Abisal Natural -->
+                      <linearGradient id="icebergDeepDepthFadeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#083066" stop-opacity="0.0" />
+                        <stop offset="35%" stop-color="#05224c" stop-opacity="0.25" />
+                        <stop offset="70%" stop-color="#041c40" stop-opacity="0.65" />
+                        <stop offset="100%" stop-color="#031634" stop-opacity="0.95" />
                       </linearGradient>
 
                       <radialGradient id="titanicImpactSplashGrad" cx="50%" cy="50%" r="50%">
                         <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
                         <stop offset="40%" stop-color="#bae6fd" stop-opacity="0.8" />
                         <stop offset="80%" stop-color="#38bdf8" stop-opacity="0.4" />
-                        <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+                        <stop offset="100%" stop-color="#0284c7" stop-opacity="0.0" />
                       </radialGradient>
 
                       <filter id="oceanLineMistyBlur" x="-20%" y="-40%" width="140%" height="200%">
@@ -3426,38 +3482,46 @@
                     </defs>
 
 
-                    <!-- ==================== CRONÓMETRO AMBIENTAL ==================== -->
-                    <g class="titanic-time-display" opacity="0.88">
-                      <!-- Cápsula de Cristal Glaseado -->
-                      <rect x="192" y="24" width="136" height="30" rx="15" ry="15" 
-                            fill="rgba(2, 6, 23, 0.7)" 
-                            stroke="rgba(56, 189, 248, 0.28)" 
-                            stroke-width="1" />
-                      <!-- Bisel Superior con Brillo Lunar Suave -->
-                      <path d="M 208 25.5 L 312 25.5" stroke="rgba(255, 255, 255, 0.22)" stroke-width="0.75" stroke-linecap="round" />
+                    <!-- ==================== CRONÓMETRO AMBIENTAL (INTEGRADO EN EL FIRMAMENTO ÁRTICO) ==================== -->
+                    <g class="titanic-time-display">
+                      <!-- Halo de Aurora y Luz Estelar Ambiental -->
+                      <ellipse cx="260" cy="38" rx="80" ry="22" fill="#0284c7" opacity="0.12" filter="url(#oceanLineMistyBlur)" />
 
-                      <!-- Luz de Baliza en el Cronómetro -->
-                      <circle cx="208" cy="39" r="2.8" fill="#38bdf8" class="titanic-timer-pulse-dot" />
-                      <circle cx="208" cy="39" r="1.1" fill="#ffffff" opacity="0.9" />
+                      <!-- Placa de Cristal de Hielo y Navegación Náutica -->
+                      <rect x="184" y="22" width="152" height="32" rx="16" ry="16" 
+                            fill="rgba(1, 6, 20, 0.60)" 
+                            stroke="rgba(56, 189, 248, 0.25)" 
+                            stroke-width="0.9" />
+                      
+                      <!-- Filo Superior Iluminado por la Luna Polar -->
+                      <path d="M 200 23.5 L 320 23.5" stroke="rgba(240, 249, 255, 0.35)" stroke-width="0.8" stroke-linecap="round" />
 
-                      <!-- Separadores Sutiles -->
-                      <line x1="220" y1="33" x2="220" y2="45" stroke="rgba(125, 211, 252, 0.22)" stroke-width="0.75" stroke-linecap="round" />
-                      <line x1="300" y1="33" x2="300" y2="45" stroke="rgba(125, 211, 252, 0.22)" stroke-width="0.75" stroke-linecap="round" />
-
-                      <!-- Estrella Polar -->
-                      <g transform="translate(312, 39) scale(0.6)" opacity="0.8">
-                        <path d="M 0 -5 L 1.2 -1.2 L 5 0 L 1.2 1.2 L 0 5 L -1.2 1.2 L -5 0 L -1.2 -1.2 Z" fill="#7dd3fc" />
+                      <!-- Constelación y Rosa Náutica Polar (Izquierda) -->
+                      <g transform="translate(202, 38)" opacity="0.85">
+                        <circle cx="0" cy="0" r="4.5" fill="none" stroke="rgba(56, 189, 248, 0.35)" stroke-width="0.6" stroke-dasharray="2 1.5" />
+                        <circle cx="0" cy="0" r="1.8" fill="#38bdf8" class="titanic-timer-pulse-dot" />
+                        <circle cx="0" cy="0" r="0.8" fill="#ffffff" />
                       </g>
 
-                      <!-- Dígitos del Cronómetro de Concentración -->
-                      <text x="260" y="44.5" 
+                      <!-- Separadores Náuticos de Precisión -->
+                      <line x1="216" y1="30" x2="216" y2="46" stroke="rgba(125, 211, 252, 0.2)" stroke-width="0.6" stroke-linecap="round" />
+                      <line x1="304" y1="30" x2="304" y2="46" stroke="rgba(125, 211, 252, 0.2)" stroke-width="0.6" stroke-linecap="round" />
+
+                      <!-- Estrella Polar / Stella Maris (Derecha) -->
+                      <g transform="translate(318, 38)" opacity="0.9">
+                        <path d="M 0 -6 L 1.4 -1.4 L 6 0 L 1.4 1.4 L 0 6 L -1.4 1.4 L -6 0 L -1.4 -1.4 Z" fill="#7dd3fc" />
+                        <circle cx="0" cy="0" r="1.0" fill="#ffffff" />
+                      </g>
+
+                      <!-- Dígitos Fosforescentes Integrados en la Noche Ártica -->
+                      <text x="260" y="44" 
                             text-anchor="middle" 
-                            fill="#f1f5f9" 
-                            font-size="14.5" 
+                            fill="#f0f9ff" 
+                            font-size="15" 
                             font-weight="700" 
                             font-family="'Space Grotesk', monospace" 
-                            letter-spacing="2px"
-                            style="filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.3));">
+                            letter-spacing="2.5px"
+                            style="filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.45)) drop-shadow(0 0 16px rgba(2, 132, 199, 0.3));">
                         {{ timeString() }}
                       </text>
                     </g>
@@ -3471,15 +3535,25 @@
                       <!-- Bruma y vapor glacial alrededor de la base del Iceberg -->
                       <ellipse cx="-10" cy="6" rx="65" ry="12" fill="#0284c7" opacity="0.18" filter="url(#oceanLineMistyBlur)" />
 
-                      <!-- 1. Mole Submarina y Espolón de Hielo Sumergido (Bajo el agua) -->
+                      <!-- 1. Mole Submarina y Espolón de Hielo Sumergido (Estructura Glacial Facetada) -->
                       <g clip-path="url(#shipUnderwaterRegionClip)">
-                        <path d="M -75 6 Q -95 40, -45 75 Q 0 90, 50 65 Q 80 35, 42 6 Z" 
-                              fill="url(#icebergUnderwaterMassGrad)" 
-                              stroke="#0369a1" 
-                              stroke-width="0.8" />
-                        <path d="M -30 15 Q -15 45, 18 62" fill="none" stroke="#38bdf8" stroke-width="0.7" opacity="0.45" stroke-dasharray="4 3" />
-                        <path d="M 10 12 Q 25 35, 38 48" fill="none" stroke="#7dd3fc" stroke-width="0.6" opacity="0.35" stroke-dasharray="3 2" />
-                        <path d="M -85 6 L 85 6 L 85 95 L -85 95 Z" fill="url(#titanicUnderwaterAqueousVeilGrad)" />
+                        <!-- Faceta 1: Flanco Izquierdo Profundo -->
+                        <polygon points="-68,6 -82,35 -50,68 -35,6" fill="url(#icebergSubFacetLeftGrad)" />
+
+                        <!-- Faceta 2: Cuerpo Central Glacial -->
+                        <polygon points="-35,6 -50,68 0,82 12,6" fill="url(#icebergSubFacetCenterGrad)" />
+
+                        <!-- Faceta 3: Espolón Submarino de Proa (Punta oculta que rasga el casco) -->
+                        <polygon points="12,6 0,82 28,50 46,18 42,6" fill="url(#icebergSubFacetSpurGrad)" />
+
+                        <!-- Faceta 4: Quilla Glacial Abisal -->
+                        <polygon points="-50,68 0,82 15,86 -15,90" fill="url(#icebergSubFacetCenterGrad)" opacity="0.4" />
+
+                        <!-- Aristas internas de hielo con refracción sutil -->
+                        <line x1="-35" y1="6" x2="-50" y2="68" stroke="rgba(125, 211, 252, 0.15)" stroke-width="0.7" />
+                        <line x1="12" y1="6" x2="0" y2="82" stroke="rgba(56, 189, 248, 0.20)" stroke-width="0.8" />
+                        <line x1="28" y1="50" x2="46" y2="18" stroke="rgba(125, 211, 252, 0.20)" stroke-width="0.7" />
+                        <line x1="0" y1="82" x2="28" y2="50" stroke="rgba(3, 105, 161, 0.15)" stroke-width="0.6" />
                       </g>
 
                       <!-- 2. Picos Glaciares y Crestas sobre la Superficie (Sobre el agua) -->
@@ -3539,7 +3613,7 @@
                       </g>
 
                       <!-- Cable de antena inalámbrica Marconi tendido entre los mástiles (ultra-delgado) -->
-                      <g *ngIf="!titanicIsSplit()"
+                      <g *ngIf="titanicAntennaVisible()"
                          [style.transform]="titanicFrontTransform()"
                          [style.opacity]="titanicFrontOpacity()"
                          [style.transition]="titanicDisableTransition() ? 'none' : 'transform 1s linear, opacity 1s linear'"
@@ -3548,14 +3622,23 @@
                         <line x1="-84" y1="-53" x2="78" y2="-51" stroke="rgba(255, 255, 255, 0.20)" stroke-width="0.22" stroke-dasharray="6 2" />
                       </g>
 
-                      <!-- ==================== SECCIÓN DE PROA (FRENTE / SE ANIEGA Y DESCIENDE) ==================== -->
-                      <g [style.transform]="titanicFrontTransform()"
-                         [style.opacity]="titanicFrontOpacity()"
-                         [style.transition]="titanicDisableTransition() ? 'none' : 'transform 1s linear, opacity 1s linear'"
-                         style="transform-origin: 12px 18px;">
+                      <!-- ==================== CAPA 1: ELEMENTOS SOBRE EL AGUA (y <= 6, LUZ, CONTRASTE Y BRILLO CRISP) ==================== -->
+                      <g clip-path="url(#shipAboveWaterRegionClip)">
 
-                        <!-- Sobre el agua -->
-                        <g clip-path="url(#shipAboveWaterRegionClip)">
+                        <!-- Cable de antena inalámbrica Marconi tendido entre los mástiles (ultra-delgado) -->
+                        <g *ngIf="titanicAntennaVisible()"
+                           [style.transform]="titanicFrontTransform()"
+                           [style.opacity]="titanicFrontOpacity()"
+                           [style.transition]="titanicDisableTransition() ? 'none' : 'transform 1s linear, opacity 1s linear'"
+                           style="transform-origin: 12px 18px;">
+                          <line x1="-84" y1="-53" x2="78" y2="-51" stroke="rgba(255, 255, 255, 0.20)" stroke-width="0.22" stroke-dasharray="6 2" />
+                        </g>
+
+                        <!-- PROA SOBRE EL AGUA -->
+                        <g [style.transform]="titanicFrontTransform()"
+                           [style.opacity]="titanicFrontOpacity()"
+                           [style.transition]="titanicDisableTransition() ? 'none' : 'transform 1s linear, opacity 1s linear'"
+                           style="transform-origin: 12px 18px;">
                           <!-- Casco Negro Superior de la Proa (desde el tajamar x=-135 hasta la fractura x=12) -->
                           <path d="M -135 -10 L 12 -10 L 12 6 L -135 6 Z" 
                                 fill="url(#titanicHullBlackGrad)" 
@@ -3572,8 +3655,10 @@
                           <line x1="-135" y1="-14" x2="-96" y2="-14" stroke="rgba(255, 255, 255, 0.35)" stroke-width="0.7" />
 
                           <!-- Asta de Bandera de Proa (Jackstaff) -->
-                          <line x1="-134" y1="-14" x2="-134" y2="-23" stroke="#e2e8f0" stroke-width="0.8" stroke-linecap="round" />
-                          <circle cx="-134" cy="-23" r="0.6" fill="#fde047" />
+                          <g [style.opacity]="titanicBowJackstaffOpacity()">
+                            <line x1="-134" y1="-14" x2="-134" y2="-23" stroke="#e2e8f0" stroke-width="0.8" stroke-linecap="round" />
+                            <circle cx="-134" cy="-23" r="0.6" fill="#fde047" />
+                          </g>
 
                           <!-- Escobén y Ancla de Estribor -->
                           <circle cx="-124" cy="-7" r="1.6" fill="#020617" stroke="#334155" stroke-width="0.4" />
@@ -3603,72 +3688,46 @@
                           <line x1="-68" y1="-12.5" x2="10" y2="-12.5" stroke="#0284c7" stroke-width="0.4" stroke-dasharray="2 1.5" opacity="0.6" />
 
                           <!-- Botes Salvavidas Blancos sobre Pescantes en Proa -->
-                          <g transform="translate(-54, -22)">
-                            <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
-                          </g>
-                          <g transform="translate(-36, -22)">
-                            <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
-                          </g>
-                          <g transform="translate(-18, -22)">
-                            <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
-                          </g>
-                          <g transform="translate(0, -22)">
-                            <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
-                          </g>
-
-                          <!-- Palo Trinquete de Proa con la Cofa del Vigía y Antena -->
-                          <line x1="-86" y1="-10" x2="-84" y2="-54" stroke="#d4a373" stroke-width="1.3" stroke-linecap="round" />
-                          <!-- Cruceta de Antena (Yardarm) de Proa -->
-                          <line x1="-91" y1="-46" x2="-77" y2="-46" stroke="#475569" stroke-width="0.35" stroke-linecap="round" />
-                          <line x1="-90" y1="-46" x2="-84" y2="-54" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
-                          <line x1="-78" y1="-46" x2="-84" y2="-54" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
-
-                          <!-- Cofa del Vigía donde Frederick Fleet vio el iceberg -->
-                          <rect x="-85.8" y="-38" width="3.6" height="3" rx="0.6" fill="#0f172a" stroke="#cbd5e1" stroke-width="0.4" />
-                          <!-- Estayes y cabos de maniobra -->
-                          <line x1="-84" y1="-53" x2="-134" y2="-18" stroke="rgba(203, 213, 225, 0.22)" stroke-width="0.25" />
-                          <line x1="-84" y1="-53" x2="-72" y2="-23" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
-                          <!-- Cable bajante Marconi hacia la cabina de radio -->
-                          <line x1="-84" y1="-53" x2="-68" y2="-23" stroke="rgba(203, 213, 225, 0.20)" stroke-width="0.22" stroke-dasharray="2 1.5" />
-
-                          <!-- Cable de antena de proa que cuelga roto tras la fractura -->
-                          <path *ngIf="titanicIsSplit()" d="M -84 -53 Q -50 -44, -20 -30" fill="none" stroke="rgba(255, 255, 255, 0.18)" stroke-width="0.22" stroke-dasharray="3 2" />
-
-                          <!-- Luz de Baliza con Parpadeo en el Tope del Mástil de Proa -->
-                          <g [ngClass]="'titanic-antenna-sensors-' + titanicLightsState()">
-                            <circle cx="-84" cy="-54" r="1.2" class="titanic-antenna-beacon" />
+                          <g [style.opacity]="titanicBowBoatsOpacity()">
+                            <g transform="translate(-54, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                            <g transform="translate(-36, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                            <g transform="translate(-18, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                            <g transform="translate(0, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
                           </g>
 
-                          <!-- CHIMENEA 1 (Se desploma dinámicamente cuando el agua inunda la cubierta) -->
-                          <g [style.transform]="titanicFunnel1Transform()"
-                             [style.opacity]="titanicFunnel1Opacity()"
-                             style="transform-origin: -46px -20px; transition: transform 0.6s ease-out;">
-                            <!-- Tubo Principal Ocre Buff con inclinación de 10° -->
-                            <polygon points="-50,-20 -44,-20 -42,-42 -48,-42" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
-                            <!-- Capuchón Negro Superior (1/3 superior de la chimenea) -->
-                            <polygon points="-48,-42 -42,-42 -41,-49 -47,-49" fill="url(#titanicFunnelBlackGrad)" />
-                            <!-- Tubería de escape de vapor -->
-                            <line x1="-43" y1="-20" x2="-42" y2="-47" stroke="#09090b" stroke-width="0.7" />
-                            <!-- Vientos de sujeción (Guy wires) -->
-                            <line x1="-45" y1="-38" x2="-58" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
-                            <line x1="-44" y1="-38" x2="-34" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
-                            <!-- Penacho de humo / vapor sutil -->
-                            <ellipse *ngIf="!titanicFunnel1Fallen()" cx="-42" cy="-52" rx="3.5" ry="1.8" fill="url(#titanicSteamPlumeGrad)" />
-                          </g>
+                          <!-- Palo Trinquete de Proa con la Cofa del Vigía y Antena (Se quiebra y colapsa al hundirse la proa) -->
+                          <g [style.transform]="titanicForeMastTransform()"
+                             [style.opacity]="titanicForeMastOpacity()"
+                             style="transform-origin: -86px -10px; transition: transform 0.6s ease-out;">
+                            <line x1="-86" y1="-10" x2="-84" y2="-54" stroke="#d4a373" stroke-width="1.3" stroke-linecap="round" />
+                            <!-- Cruceta de Antena (Yardarm) de Proa -->
+                            <line x1="-91" y1="-46" x2="-77" y2="-46" stroke="#475569" stroke-width="0.35" stroke-linecap="round" />
+                            <line x1="-90" y1="-46" x2="-84" y2="-54" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                            <line x1="-78" y1="-46" x2="-84" y2="-54" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
 
-                          <!-- CHIMENEA 2 (Permanece en la proa) -->
-                          <g style="transform-origin: -18px -20px;">
-                            <!-- Tubo Principal Ocre Buff -->
-                            <polygon points="-22,-20 -16,-20 -14,-42 -20,-42" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
-                            <!-- Capuchón Negro Superior -->
-                            <polygon points="-20,-42 -14,-42 -13,-49 -19,-49" fill="url(#titanicFunnelBlackGrad)" />
-                            <!-- Tubería de vapor -->
-                            <line x1="-15" y1="-20" x2="-14" y2="-47" stroke="#09090b" stroke-width="0.7" />
-                            <!-- Vientos de sujeción -->
-                            <line x1="-17" y1="-38" x2="-30" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
-                            <line x1="-16" y1="-38" x2="-6" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
-                            <!-- Penacho de vapor -->
-                            <ellipse cx="-14" cy="-52" rx="3.5" ry="1.8" fill="url(#titanicSteamPlumeGrad)" />
+                            <!-- Cofa del Vigía donde Frederick Fleet vio el iceberg -->
+                            <rect x="-85.8" y="-38" width="3.6" height="3" rx="0.6" fill="#0f172a" stroke="#cbd5e1" stroke-width="0.4" />
+                            <!-- Estayes y cabos de maniobra -->
+                            <line x1="-84" y1="-53" x2="-134" y2="-18" stroke="rgba(203, 213, 225, 0.22)" stroke-width="0.25" />
+                            <line x1="-84" y1="-53" x2="-72" y2="-23" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                            <!-- Cable bajante Marconi hacia la cabina de radio -->
+                            <line x1="-84" y1="-53" x2="-68" y2="-23" stroke="rgba(203, 213, 225, 0.20)" stroke-width="0.22" stroke-dasharray="2 1.5" />
+
+                            <!-- Cable de antena de proa que cuelga roto tras la fractura -->
+                            <path *ngIf="titanicIsSplit()" d="M -84 -53 Q -50 -44, -20 -30" fill="none" stroke="rgba(255, 255, 255, 0.18)" stroke-width="0.22" stroke-dasharray="3 2" />
+
+                            <!-- Luz de Baliza con Parpadeo en el Tope del Mástil de Proa -->
+                            <g [ngClass]="'titanic-antenna-sensors-' + titanicLightsState()">
+                              <circle cx="-84" cy="-54" r="1.2" class="titanic-antenna-beacon" />
+                            </g>
                           </g>
 
                           <!-- FILAS DE OJOS DE BUEY ILUMINADOS EN PROA (Luz Eléctrica Dorada Cálida) -->
@@ -3723,125 +3782,94 @@
                           <g *ngIf="titanicIsSplit()">
                             <path d="M 12 -20 L 7 -12 L 14 -4 L 8 4 L 12 18 Z" fill="url(#titanicFractureSteelGrad)" stroke="#020617" stroke-width="0.8" />
                           </g>
+
+                          <!-- Quilla Roja en Proa que emerge si cabecea -->
+                          <path d="M -135 6 Q -135 15, -118 18 L 12 18 L 12 6 Z" fill="url(#titanicHullRedGrad)" stroke="#1c0404" stroke-width="0.8" />
+
+                          <!-- CHIMENEAS 1 Y 2 SOBRE EL AGUA (Ocre Brillante y Capuchón Negro) -->
+                          <!-- CHIMENEA 1 (Fijada en cubierta mientras no haya caído) -->
+                          <g *ngIf="!titanicFunnel1Fallen()">
+                            <polygon points="-51,-20 -41,-20 -38.8,-33 -48.8,-33" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                            <polygon points="-48.8,-33 -38.8,-33 -38,-38 -48,-38" fill="url(#titanicFunnelBlackGrad)" />
+                            <line x1="-39.5" y1="-20" x2="-37" y2="-37" stroke="#09090b" stroke-width="0.8" />
+                            <line x1="-43.8" y1="-30" x2="-58" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <line x1="-42" y1="-30" x2="-30" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <ellipse cx="-43" cy="-41" rx="4.0" ry="2.0" fill="url(#titanicSteamPlumeGrad)" />
+                          </g>
+
+                          <!-- CHIMENEA 2 (Fijada en cubierta mientras no haya caído) -->
+                          <g *ngIf="!titanicFunnel2Fallen()">
+                            <polygon points="-23,-20 -13,-20 -10.8,-33 -20.8,-33" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                            <polygon points="-20.8,-33 -10.8,-33 -10,-38 -20,-38" fill="url(#titanicFunnelBlackGrad)" />
+                            <line x1="-11.5" y1="-20" x2="-9" y2="-37" stroke="#09090b" stroke-width="0.8" />
+                            <line x1="-15.8" y1="-30" x2="-30" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <line x1="-14" y1="-30" x2="-2" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <ellipse cx="-15" cy="-41" rx="4.0" ry="2.0" fill="url(#titanicSteamPlumeGrad)" />
+                          </g>
                         </g>
 
-                        <!-- Bajo el agua -->
-                        <g clip-path="url(#shipUnderwaterRegionClip)" pointer-events="none">
-                          <!-- Quilla Roja Óxido y Obra Viva (Fondo del Casco Proa) -->
-                          <path d="M -135 6 Q -135 15, -118 18 L 12 18 L 12 6 Z" 
-                                fill="url(#titanicHullRedGrad)" 
-                                stroke="#450a0a" 
-                                stroke-width="0.8" />
-                          <!-- Franja blanca de flotación (Waterline stripe) -->
-                          <line x1="-135" y1="5.5" x2="12" y2="5.5" stroke="#f8fafc" stroke-width="1.1" />
-
-                          <!-- Velo de refracción marina profunda -->
-                          <path d="M -135 -20 L 12 -20 L 12 25 L -135 25 Z" 
-                                fill="url(#titanicUnderwaterAqueousVeilGrad)" />
-                        </g>
-
-                      </g>
-
-                      <!-- ==================== SECCIÓN DE POPA (TRASERA / SE ELEVA Y CAE DE GOLPE) ==================== -->
-                      <g [style.transform]="titanicRearTransform()"
-                         [style.opacity]="titanicRearOpacity()"
-                         [style.transition]="titanicDisableTransition() ? 'none' : 'transform 1s linear, opacity 1s linear'"
-                         style="transform-origin: 12px 18px;">
-
-                        <!-- Sobre el agua -->
-                        <g clip-path="url(#shipAboveWaterRegionClip)">
+                        <!-- POPA SOBRE EL AGUA -->
+                        <g [style.transform]="titanicRearTransform()"
+                           [style.opacity]="titanicRearOpacity()"
+                           [style.transition]="titanicDisableTransition() ? 'none' : 'transform 1s linear, opacity 1s linear'"
+                           style="transform-origin: 12px 18px;">
                           <!-- Casco Negro Superior de la Popa (desde la fractura x=12 hasta la bovedilla de popa x=130) -->
                           <path d="M 12 -10 L 130 -10 Q 134 -2, 126 6 L 12 6 Z" 
                                 fill="url(#titanicHullBlackGrad)" 
                                 stroke="#020617" 
                                 stroke-width="0.8" />
-                          <!-- Líneas de remaches y soldadura de planchas de acero -->
                           <path d="M 12 -4 L 124 -4" stroke="#334155" stroke-width="0.5" stroke-dasharray="6 2" opacity="0.6" />
                           <path d="M 12 1 L 122 1" stroke="#1e293b" stroke-width="0.5" opacity="0.7" />
-                          <!-- Brillo de luna en la regala de popa (completamente recta) -->
                           <line x1="12" y1="-10" x2="130" y2="-10" stroke="rgba(255, 255, 255, 0.45)" stroke-width="0.9" stroke-linecap="round" />
 
                           <!-- Castillo de Popa (Poop Deck recto horizontal, x=92 a 130) -->
                           <polygon points="92,-10 92,-14 130,-14 130,-10" fill="#0f172a" stroke="#1e293b" stroke-width="0.6" />
                           <line x1="92" y1="-14" x2="130" y2="-14" stroke="rgba(255, 255, 255, 0.35)" stroke-width="0.7" />
-                          <!-- Puente de maniobra de popa (Docking Bridge) -->
                           <rect x="108" y="-17" width="8" height="3" fill="#f8fafc" stroke="#64748b" stroke-width="0.4" />
                           <line x1="112" y1="-17" x2="112" y2="-19" stroke="#94a3b8" stroke-width="0.5" />
 
                           <!-- Asta de Bandera de Popa con la Bandera / Pabellón Rojo Británico -->
-                          <line x1="130" y1="-14" x2="130" y2="-24" stroke="#e2e8f0" stroke-width="0.8" stroke-linecap="round" />
-                          <polygon points="130,-23 137,-21 130,-19" fill="#dc2626" />
-                          <!-- Pequeña estrella blanca en el cantón -->
-                          <circle cx="132.5" cy="-21" r="0.7" fill="#ffffff" />
+                          <g [style.opacity]="titanicAftFlagstaffOpacity()">
+                            <line x1="130" y1="-14" x2="130" y2="-24" stroke="#e2e8f0" stroke-width="0.8" stroke-linecap="round" />
+                            <polygon points="130,-23 137,-21 130,-19" fill="#dc2626" />
+                            <circle cx="132.5" cy="-21" r="0.7" fill="#ffffff" />
+                          </g>
 
                           <!-- Superestructura Blanca Aft y Cubierta de Paseo (x=12 a 88) -->
                           <rect x="12" y="-20" width="76" height="10" fill="url(#titanicSuperstructureGrad)" stroke="#94a3b8" stroke-width="0.4" />
-                          <!-- Botes Salvavidas sobre Pescantes en Popa -->
-                          <g transform="translate(28, -22)">
-                            <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
-                          </g>
-                          <g transform="translate(48, -22)">
-                            <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
-                          </g>
-                          <g transform="translate(68, -22)">
-                            <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                          <g [style.opacity]="titanicRearBoatsOpacity()">
+                            <g transform="translate(28, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                            <g transform="translate(48, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                            <g transform="translate(68, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
                           </g>
 
                           <!-- Ventiladores de Cubierta Tipo Trompeta (Cowls) -->
                           <path d="M 82 -20 L 82 -23 Q 82 -25, 84 -25 Q 86 -25, 86 -23 L 86 -20 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="0.3" />
 
                           <!-- Palo Mayor de Popa (Main Mast) con Cruceta y Sensores Marconi -->
-                          <line x1="76" y1="-10" x2="78" y2="-52" stroke="#d4a373" stroke-width="1.2" stroke-linecap="round" />
-                          <!-- Cruceta de Antena (Yardarm) de Popa -->
-                          <line x1="71" y1="-44" x2="85" y2="-44" stroke="#475569" stroke-width="0.35" stroke-linecap="round" />
-                          <line x1="72" y1="-44" x2="78" y2="-52" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
-                          <line x1="84" y1="-44" x2="78" y2="-52" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                          <g [style.transform]="titanicMainMastTransform()"
+                             [style.opacity]="titanicMainMastOpacity()"
+                             style="transform-origin: 76px -10px; transition: transform 0.6s ease-out;">
+                            <line x1="76" y1="-10" x2="78" y2="-52" stroke="#d4a373" stroke-width="1.2" stroke-linecap="round" />
+                            <line x1="71" y1="-44" x2="85" y2="-44" stroke="#475569" stroke-width="0.35" stroke-linecap="round" />
+                            <line x1="72" y1="-44" x2="78" y2="-52" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                            <line x1="84" y1="-44" x2="78" y2="-52" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                            <line x1="78" y1="-51" x2="130" y2="-14" stroke="rgba(203, 213, 225, 0.22)" stroke-width="0.25" />
+                            <line x1="78" y1="-51" x2="30" y2="-20" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                            <path *ngIf="titanicIsSplit()" d="M 78 -51 Q 45 -42, 20 -26" fill="none" stroke="rgba(255, 255, 255, 0.18)" stroke-width="0.22" stroke-dasharray="3 2" />
 
-                          <!-- Estayes de Popa -->
-                          <line x1="78" y1="-51" x2="130" y2="-14" stroke="rgba(203, 213, 225, 0.22)" stroke-width="0.25" />
-                          <line x1="78" y1="-51" x2="30" y2="-20" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
-
-                          <!-- Cable de antena de popa que cuelga roto tras la fractura -->
-                          <path *ngIf="titanicIsSplit()" d="M 78 -51 Q 45 -42, 20 -26" fill="none" stroke="rgba(255, 255, 255, 0.18)" stroke-width="0.22" stroke-dasharray="3 2" />
-
-                          <!-- Luz de Baliza con Parpadeo en el Tope del Mástil de Popa -->
-                          <g [ngClass]="'titanic-antenna-sensors-' + titanicLightsState()">
-                            <circle cx="78" cy="-52" r="1.2" class="titanic-antenna-beacon aft" />
+                            <g [ngClass]="'titanic-antenna-sensors-' + titanicLightsState()">
+                              <circle cx="78" cy="-52" r="1.2" class="titanic-antenna-beacon aft" />
+                            </g>
                           </g>
 
-                          <!-- CHIMENEA 3 (Colapsa durante la fractura en el aire) -->
-                          <g [style.transform]="titanicFunnel3Transform()"
-                             [style.opacity]="titanicFunnel3Opacity()"
-                             style="transform-origin: 22px -20px; transition: transform 0.6s ease-out;">
-                            <!-- Tubo Principal Ocre Buff -->
-                            <polygon points="18,-20 24,-20 26,-42 20,-42" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
-                            <!-- Capuchón Negro Superior -->
-                            <polygon points="20,-42 26,-42 27,-49 21,-49" fill="url(#titanicFunnelBlackGrad)" />
-                            <!-- Tubería de escape de vapor -->
-                            <line x1="25" y1="-20" x2="26" y2="-47" stroke="#09090b" stroke-width="0.7" />
-                            <!-- Vientos de sujeción -->
-                            <line x1="23" y1="-38" x2="10" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
-                            <line x1="24" y1="-38" x2="34" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
-                            <!-- Penacho de vapor -->
-                            <ellipse *ngIf="!titanicFunnel3Fallen()" cx="24" cy="-52" rx="3.5" ry="1.8" fill="url(#titanicSteamPlumeGrad)" />
-                          </g>
-
-                          <!-- CHIMENEA 4 (Ficticia para ventilación de turbinas, permanece en popa) -->
-                          <g style="transform-origin: 52px -20px;">
-                            <!-- Tubo Principal Ocre Buff -->
-                            <polygon points="48,-20 54,-20 56,-42 50,-42" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
-                            <!-- Capuchón Negro Superior -->
-                            <polygon points="50,-42 56,-42 57,-49 51,-49" fill="url(#titanicFunnelBlackGrad)" />
-                            <!-- Tubería de vapor -->
-                            <line x1="55" y1="-20" x2="56" y2="-47" stroke="#09090b" stroke-width="0.7" />
-                            <!-- Vientos de sujeción -->
-                            <line x1="53" y1="-38" x2="40" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
-                            <line x1="54" y1="-38" x2="64" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
-                            <!-- Humo suave de las cocinas y turbinas -->
-                            <ellipse cx="54" cy="-52" rx="2.5" ry="1.4" fill="url(#titanicSteamPlumeGrad)" />
-                          </g>
-
-                          <!-- FILAS DE OJOS DE BUEY ILUMINADOS EN POPA (Se apagan al romperse el barco) -->
+                          <!-- FILAS DE OJOS DE BUEY ILUMINADOS EN POPA -->
                           <g [ngClass]="'titanic-lights-' + titanicLightsState()">
                             <!-- Fila Cubierta C -->
                             <circle cx="18" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" filter="url(#titanicLightGlow)" />
@@ -3888,13 +3916,12 @@
                           <!-- HÉLICES TRIPLES DE BRONCE Y TIMÓN (¡Visibles con majestuosidad al elevarse la popa en el aire!) -->
                           <g class="titanic-propellers-and-rudder">
                             <!-- Quilla y obra viva que emerge al aire cuando se eleva -->
-                            <path d="M 12 6 L 126 6 Q 120 14, 105 18 L 12 18 Z" fill="url(#titanicHullRedGrad)" stroke="#450a0a" stroke-width="0.8" />
+                            <path d="M 12 6 L 126 6 Q 120 14, 105 18 L 12 18 Z" fill="url(#titanicHullRedGrad)" stroke="#1c0404" stroke-width="0.8" />
                             <line x1="12" y1="5.5" x2="126" y2="5.5" stroke="#f8fafc" stroke-width="1.1" />
 
                             <!-- Hélice Lateral de Babor (Wing Propeller) -->
                             <g transform="translate(112, 10)">
                               <circle cx="0" cy="0" r="1.8" fill="#78350f" />
-                              <!-- 3 Palas de Bronce a 120° con relieve metálico -->
                               <path d="M 0 0 Q -3 -5, 0 -7 Q 3 -5, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
                               <path d="M 0 0 Q 6 -2, 6 4 Q 3 5, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
                               <path d="M 0 0 Q -5 4, -4 6 Q -1 6, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
@@ -3926,37 +3953,420 @@
                           <g *ngIf="titanicIsSplit()">
                             <path d="M 12 -20 L 7 -12 L 14 -4 L 8 4 L 12 18 Z" fill="url(#titanicFractureSteelGrad)" stroke="#020617" stroke-width="0.8" />
                           </g>
+
+                          <!-- CHIMENEAS 3 Y 4 SOBRE EL AGUA -->
+                          <!-- CHIMENEA 3 (Fijada en cubierta mientras no haya caído) -->
+                          <g *ngIf="!titanicFunnel3Fallen()">
+                            <polygon points="17,-20 27,-20 29.2,-33 19.2,-33" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                            <polygon points="19.2,-33 29.2,-33 30,-38 20,-38" fill="url(#titanicFunnelBlackGrad)" />
+                            <line x1="28.5" y1="-20" x2="31" y2="-37" stroke="#09090b" stroke-width="0.8" />
+                            <line x1="24.2" y1="-30" x2="10" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <line x1="26" y1="-30" x2="38" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <ellipse cx="25" cy="-41" rx="4.0" ry="2.0" fill="url(#titanicSteamPlumeGrad)" />
+                          </g>
+
+                          <!-- CHIMENEA 4 (Fijada en cubierta mientras no haya caído) -->
+                          <g *ngIf="!titanicFunnel4Fallen()">
+                            <polygon points="47,-20 57,-20 59.2,-33 49.2,-33" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                            <polygon points="49.2,-33 59.2,-33 60,-38 50,-38" fill="url(#titanicFunnelBlackGrad)" />
+                            <line x1="58.5" y1="-20" x2="61" y2="-37" stroke="#09090b" stroke-width="0.8" />
+                            <line x1="54.2" y1="-30" x2="40" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <line x1="56" y1="-30" x2="68" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <ellipse cx="55" cy="-41" rx="3.2" ry="1.6" fill="url(#titanicSteamPlumeGrad)" />
+                          </g>
                         </g>
 
-                        <!-- Bajo el agua -->
-                        <g clip-path="url(#shipUnderwaterRegionClip)" pointer-events="none">
-                          <!-- Quilla Roja y Fondo Popa Sumergido -->
-                          <path d="M 12 6 L 126 6 Q 120 14, 105 18 L 12 18 Z" 
-                                fill="url(#titanicHullRedGrad)" 
-                                stroke="#450a0a" 
-                                stroke-width="0.8" />
-                          <line x1="12" y1="5.5" x2="126" y2="5.5" stroke="#f8fafc" stroke-width="1.1" />
-
-                          <!-- Velo de refracción marina -->
-                          <path d="M 12 -20 L 135 -20 L 135 25 L 12 25 Z" 
-                                fill="url(#titanicUnderwaterAqueousVeilGrad)" />
+                        <!-- DOBLE FONDO Y QUILLA INFERIOR SOBRE EL AGUA -->
+                        <g *ngIf="titanicKeelLinked()" [style.transform]="titanicHingeTransform()" class="titanic-double-bottom-tether" style="z-index: 5;">
+                          <path d="M 6 15 Q 12 21, 18 15 L 17 19 Q 12 24, 7 19 Z" fill="#1e293b" stroke="#020617" stroke-width="0.9" />
+                          <path d="M 6 17 Q 12 22.5, 18 17" stroke="#991b1b" stroke-width="2.2" fill="none" stroke-linecap="round" />
                         </g>
 
+                        <!-- CHIMENEAS DESPRENDIDAS EN CAÍDA LIBRE (SOBRE EL AGUA) -->
+                        <g *ngIf="titanicFunnel1Fallen()" [style.transform]="titanicFallenFunnel1Transform()" [style.opacity]="titanicFunnel1Opacity()">
+                          <polygon points="-5,0 5,0 7.2,-13 -2.8,-13" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                          <polygon points="-2.8,-13 7.2,-13 8,-18 -2,-18" fill="url(#titanicFunnelBlackGrad)" />
+                          <line x1="6.5" y1="0" x2="9" y2="-17" stroke="#09090b" stroke-width="0.8" />
+                          <line x1="2.2" y1="-10" x2="-12" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          <line x1="4" y1="-10" x2="16" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                        </g>
+                        <g *ngIf="titanicFunnel2Fallen()" [style.transform]="titanicFallenFunnel2Transform()" [style.opacity]="titanicFunnel2Opacity()">
+                          <polygon points="-5,0 5,0 7.2,-13 -2.8,-13" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                          <polygon points="-2.8,-13 7.2,-13 8,-18 -2,-18" fill="url(#titanicFunnelBlackGrad)" />
+                          <line x1="6.5" y1="0" x2="9" y2="-17" stroke="#09090b" stroke-width="0.8" />
+                          <line x1="2.2" y1="-10" x2="-12" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          <line x1="4" y1="-10" x2="16" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                        </g>
+                        <g *ngIf="titanicFunnel3Fallen()" [style.transform]="titanicFallenFunnel3Transform()" [style.opacity]="titanicFunnel3Opacity()">
+                          <polygon points="-5,0 5,0 7.2,-13 -2.8,-13" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                          <polygon points="-2.8,-13 7.2,-13 8,-18 -2,-18" fill="url(#titanicFunnelBlackGrad)" />
+                          <line x1="6.5" y1="0" x2="9" y2="-17" stroke="#09090b" stroke-width="0.8" />
+                          <line x1="2.2" y1="-10" x2="-12" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          <line x1="4" y1="-10" x2="16" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                        </g>
+                        <g *ngIf="titanicFunnel4Fallen()" [style.transform]="titanicFallenFunnel4Transform()" [style.opacity]="titanicFunnel4Opacity()">
+                          <polygon points="-5,0 5,0 7.2,-13 -2.8,-13" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                          <polygon points="-2.8,-13 7.2,-13 8,-18 -2,-18" fill="url(#titanicFunnelBlackGrad)" />
+                          <line x1="6.5" y1="0" x2="9" y2="-17" stroke="#09090b" stroke-width="0.8" />
+                          <line x1="2.2" y1="-10" x2="-12" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          <line x1="4" y1="-10" x2="16" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                        </g>
                       </g>
 
-                      <!-- ==================== DOBLE FONDO Y QUILLA INFERIOR (MANTIENE LA UNIÓN Y ARRASTRA LA POPA) ==================== -->
-                      <g *ngIf="titanicKeelLinked()" [style.transform]="titanicHingeTransform()" class="titanic-double-bottom-tether" style="z-index: 5;">
-                        <!-- Planchas de acero del doble fondo y quilla curvadas y sometidas a enorme tracción -->
-                        <path d="M 6 15 Q 12 21, 18 15 L 17 19 Q 12 24, 7 19 Z" 
-                              fill="#1e293b" 
-                              stroke="#020617" 
-                              stroke-width="0.9" />
-                        <!-- Núcleo de la quilla roja óxido que actúa como bisagra estructural -->
-                        <path d="M 6 17 Q 12 22.5, 18 17" 
-                              stroke="#991b1b" 
-                              stroke-width="2.2" 
-                              fill="none" 
-                              stroke-linecap="round" />
+                      <!-- ==================== CAPA 2: ELEMENTOS SUMERGIDOS BAJO EL MAR (y >= 6, OSCURECIDOS EN SU MISMO COLOR) ==================== -->
+                      <g clip-path="url(#shipUnderwaterRegionClip)" filter="url(#titanicUnderwaterShipFilter)" pointer-events="none">
+
+                        <!-- PROA SUMERGIDA (Conserva todos los colores y detalles originales del Titanic, oscurecidos en su propio tono) -->
+                        <g [style.transform]="titanicFrontTransform()"
+                           [style.opacity]="titanicFrontOpacity()"
+                           [style.transition]="titanicDisableTransition() ? 'none' : 'transform 1s linear, opacity 1s linear'"
+                           style="transform-origin: 12px 18px;">
+                          <!-- Casco Negro Superior de la Proa -->
+                          <path d="M -135 -10 L 12 -10 L 12 6 L -135 6 Z" 
+                                fill="url(#titanicHullBlackGrad)" 
+                                stroke="#020617" 
+                                stroke-width="0.8" />
+                          <path d="M -130 -4 L 12 -4" stroke="#334155" stroke-width="0.5" stroke-dasharray="6 2" opacity="0.6" />
+                          <path d="M -125 1 L 12 1" stroke="#1e293b" stroke-width="0.5" opacity="0.7" />
+
+                          <!-- Quilla Roja en Proa (Color original rojo óxido oscurecido por la inmersión) -->
+                          <path d="M -135 6 Q -135 15, -118 18 L 12 18 L 12 6 Z" 
+                                fill="url(#titanicHullRedGrad)" 
+                                stroke="#1c0404" 
+                                stroke-width="0.8" />
+                          <line x1="-135" y1="5.5" x2="12" y2="5.5" stroke="#f8fafc" stroke-width="1.1" opacity="0.7" />
+
+                          <!-- Castillo de Proa -->
+                          <polygon points="-135,-10 -135,-14 -96,-14 -96,-10" fill="#0f172a" stroke="#1e293b" stroke-width="0.6" />
+
+                          <!-- Asta de Bandera de Proa -->
+                          <g [style.opacity]="titanicBowJackstaffOpacity()">
+                            <line x1="-134" y1="-14" x2="-134" y2="-23" stroke="#e2e8f0" stroke-width="0.8" stroke-linecap="round" />
+                            <circle cx="-134" cy="-23" r="0.6" fill="#fde047" />
+                          </g>
+
+                          <!-- Escobén y Ancla de Estribor -->
+                          <circle cx="-124" cy="-7" r="1.6" fill="#020617" stroke="#334155" stroke-width="0.4" />
+                          <path d="M -124 -7 L -121 -3" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" />
+
+                          <!-- Escotilla de Carga -->
+                          <rect x="-92" y="-12" width="10" height="2" fill="#334155" stroke="#1e293b" stroke-width="0.4" />
+                          <circle cx="-80" cy="-11" r="1.1" fill="#475569" />
+                          <circle cx="-76" cy="-11" r="1.1" fill="#475569" />
+
+                          <!-- Superestructura Blanca y Puente de Mando -->
+                          <rect x="-72" y="-23" width="14" height="13" rx="0.5" fill="url(#titanicSuperstructureGrad)" stroke="#94a3b8" stroke-width="0.4" />
+                          <rect x="-71" y="-21" width="11" height="2.2" rx="0.3" fill="#090d16" stroke="#475569" stroke-width="0.3" />
+                          <line x1="-68" y1="-21" x2="-68" y2="-18.8" stroke="#94a3b8" stroke-width="0.3" />
+                          <line x1="-65" y1="-21" x2="-65" y2="-18.8" stroke="#94a3b8" stroke-width="0.3" />
+                          <line x1="-62" y1="-21" x2="-62" y2="-18.8" stroke="#94a3b8" stroke-width="0.3" />
+                          <rect x="-74" y="-22" width="3" height="3" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.4" />
+
+                          <!-- Cubierta de Botes y Cristalera Paseo A -->
+                          <rect x="-58" y="-20" width="70" height="10" fill="url(#titanicSuperstructureGrad)" stroke="#94a3b8" stroke-width="0.4" />
+                          <rect x="-68" y="-14" width="78" height="3.5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="0.3" />
+
+                          <!-- Botes Salvavidas -->
+                          <g [style.opacity]="titanicBowBoatsOpacity()">
+                            <g transform="translate(-54, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                            <g transform="translate(-36, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                            <g transform="translate(-18, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                            <g transform="translate(0, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                          </g>
+
+                          <!-- Palo Trinquete de Proa con la Cofa del Vigía -->
+                          <g [style.transform]="titanicForeMastTransform()"
+                             [style.opacity]="titanicForeMastOpacity()"
+                             style="transform-origin: -86px -10px; transition: transform 0.6s ease-out;">
+                            <line x1="-86" y1="-10" x2="-84" y2="-54" stroke="#d4a373" stroke-width="1.3" stroke-linecap="round" />
+                            <line x1="-91" y1="-46" x2="-77" y2="-46" stroke="#475569" stroke-width="0.35" stroke-linecap="round" />
+                            <line x1="-90" y1="-46" x2="-84" y2="-54" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                            <line x1="-78" y1="-46" x2="-84" y2="-54" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                            <rect x="-85.8" y="-38" width="3.6" height="3" rx="0.6" fill="#0f172a" stroke="#cbd5e1" stroke-width="0.4" />
+                            <line x1="-84" y1="-53" x2="-134" y2="-18" stroke="rgba(203, 213, 225, 0.22)" stroke-width="0.25" />
+                            <line x1="-84" y1="-53" x2="-72" y2="-23" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                            <line x1="-84" y1="-53" x2="-68" y2="-23" stroke="rgba(203, 213, 225, 0.20)" stroke-width="0.22" stroke-dasharray="2 1.5" />
+                          </g>
+
+                          <!-- Ojos de Buey Iluminados en Proa -->
+                          <g [ngClass]="'titanic-lights-' + titanicLightsState()">
+                            <!-- Fila Cubierta C -->
+                            <circle cx="-62" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-54" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-46" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-38" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-30" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-22" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-14" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-6" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="2" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="8" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+
+                            <!-- Fila Cubierta D -->
+                            <circle cx="-90" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-82" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-74" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-66" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-58" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-50" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-42" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-34" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-26" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-18" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-10" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-2" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="6" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+
+                            <!-- Fila Cubierta E -->
+                            <circle cx="-110" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-102" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-94" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-86" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-78" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-70" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-62" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-54" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-46" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-38" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-30" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-22" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-14" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="-6" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="2" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="8" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                          </g>
+
+                          <!-- Cara Interna de Fractura Estructural en Proa -->
+                          <g *ngIf="titanicIsSplit()">
+                            <path d="M 12 -20 L 7 -12 L 14 -4 L 8 4 L 12 18 Z" fill="url(#titanicFractureSteelGrad)" stroke="#020617" stroke-width="0.8" />
+                          </g>
+
+                          <!-- CHIMENEAS 1 Y 2 SUMERGIDAS (Con sus colores originales Ocre Buff y Negro White Star Line, oscurecidos bajo el agua) -->
+                          <!-- CHIMENEA 1 SUMERGIDA (Fijada en cubierta mientras no haya caído) -->
+                          <g *ngIf="!titanicFunnel1Fallen()">
+                            <polygon points="-51,-20 -41,-20 -38.8,-33 -48.8,-33" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                            <polygon points="-48.8,-33 -38.8,-33 -38,-38 -48,-38" fill="url(#titanicFunnelBlackGrad)" />
+                            <line x1="-39.5" y1="-20" x2="-37" y2="-37" stroke="#09090b" stroke-width="0.8" />
+                            <line x1="-43.8" y1="-30" x2="-58" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <line x1="-42" y1="-30" x2="-30" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          </g>
+
+                          <!-- CHIMENEA 2 SUMERGIDA (Fijada en cubierta mientras no haya caído) -->
+                          <g *ngIf="!titanicFunnel2Fallen()">
+                            <polygon points="-23,-20 -13,-20 -10.8,-33 -20.8,-33" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                            <polygon points="-20.8,-33 -10.8,-33 -10,-38 -20,-38" fill="url(#titanicFunnelBlackGrad)" />
+                            <line x1="-11.5" y1="-20" x2="-9" y2="-37" stroke="#09090b" stroke-width="0.8" />
+                            <line x1="-15.8" y1="-30" x2="-30" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <line x1="-14" y1="-30" x2="-2" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          </g>
+                        </g>
+
+                        <!-- POPA SUMERGIDA (Conserva todos los colores y detalles originales del Titanic, oscurecidos en su propio tono) -->
+                        <g [style.transform]="titanicRearTransform()"
+                           [style.opacity]="titanicRearOpacity()"
+                           [style.transition]="titanicDisableTransition() ? 'none' : 'transform 1s linear, opacity 1s linear'"
+                           style="transform-origin: 12px 18px;">
+                          <!-- Casco Negro Superior de la Popa -->
+                          <path d="M 12 -10 L 130 -10 Q 134 -2, 126 6 L 12 6 Z" 
+                                fill="url(#titanicHullBlackGrad)" 
+                                stroke="#020617" 
+                                stroke-width="0.8" />
+                          <path d="M 12 -4 L 124 -4" stroke="#334155" stroke-width="0.5" stroke-dasharray="6 2" opacity="0.6" />
+                          <path d="M 12 1 L 122 1" stroke="#1e293b" stroke-width="0.5" opacity="0.7" />
+
+                          <!-- Quilla Roja en Popa (Color original rojo óxido oscurecido por la inmersión) -->
+                          <path d="M 12 6 L 126 6 Q 120 14, 105 18 L 12 18 Z" 
+                                fill="url(#titanicHullRedGrad)" 
+                                stroke="#1c0404" 
+                                stroke-width="0.8" />
+                          <line x1="12" y1="5.5" x2="126" y2="5.5" stroke="#f8fafc" stroke-width="1.1" opacity="0.7" />
+
+                          <!-- Castillo de Popa -->
+                          <polygon points="92,-10 92,-14 130,-14 130,-10" fill="#0f172a" stroke="#1e293b" stroke-width="0.6" />
+                          <line x1="92" y1="-14" x2="130" y2="-14" stroke="rgba(255, 255, 255, 0.35)" stroke-width="0.7" />
+                          <rect x="108" y="-17" width="8" height="3" fill="#f8fafc" stroke="#64748b" stroke-width="0.4" />
+                          <line x1="112" y1="-17" x2="112" y2="-19" stroke="#94a3b8" stroke-width="0.5" />
+
+                          <!-- Asta de Bandera de Popa -->
+                          <g [style.opacity]="titanicAftFlagstaffOpacity()">
+                            <line x1="130" y1="-14" x2="130" y2="-24" stroke="#e2e8f0" stroke-width="0.8" stroke-linecap="round" />
+                            <polygon points="130,-23 137,-21 130,-19" fill="#dc2626" />
+                            <circle cx="132.5" cy="-21" r="0.7" fill="#ffffff" />
+                          </g>
+
+                          <!-- Superestructura Blanca Aft -->
+                          <rect x="12" y="-20" width="76" height="10" fill="url(#titanicSuperstructureGrad)" stroke="#94a3b8" stroke-width="0.4" />
+                          <g [style.opacity]="titanicRearBoatsOpacity()">
+                            <g transform="translate(28, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                            <g transform="translate(48, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                            <g transform="translate(68, -22)">
+                              <path d="M 0 0 L 9 0 C 8.5 2.4, 0.5 2.4, 0 0 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.4" />
+                            </g>
+                          </g>
+
+                          <!-- Ventiladores de Cubierta -->
+                          <path d="M 82 -20 L 82 -23 Q 82 -25, 84 -25 Q 86 -25, 86 -23 L 86 -20 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="0.3" />
+
+                          <!-- Palo Mayor de Popa -->
+                          <g [style.transform]="titanicMainMastTransform()"
+                             [style.opacity]="titanicMainMastOpacity()"
+                             style="transform-origin: 76px -10px; transition: transform 0.6s ease-out;">
+                            <line x1="76" y1="-10" x2="78" y2="-52" stroke="#d4a373" stroke-width="1.2" stroke-linecap="round" />
+                            <line x1="71" y1="-44" x2="85" y2="-44" stroke="#475569" stroke-width="0.35" stroke-linecap="round" />
+                            <line x1="72" y1="-44" x2="78" y2="-52" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                            <line x1="84" y1="-44" x2="78" y2="-52" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                            <line x1="78" y1="-51" x2="130" y2="-14" stroke="rgba(203, 213, 225, 0.22)" stroke-width="0.25" />
+                            <line x1="78" y1="-51" x2="30" y2="-20" stroke="rgba(203, 213, 225, 0.18)" stroke-width="0.2" />
+                          </g>
+
+                          <!-- Ojos de Buey Iluminados en Popa -->
+                          <g [ngClass]="'titanic-lights-' + titanicLightsState()">
+                            <!-- Fila Cubierta C -->
+                            <circle cx="18" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="26" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="34" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="42" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="50" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="58" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="66" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="74" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="82" cy="-8" r="1.1" fill="url(#titanicPortholeGlowGrad)" />
+
+                            <!-- Fila Cubierta D -->
+                            <circle cx="16" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="24" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="32" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="40" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="48" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="56" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="64" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="72" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="80" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="88" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="96" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="104" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="112" cy="-4" r="1.0" fill="url(#titanicPortholeGlowGrad)" />
+
+                            <!-- Fila Cubierta E -->
+                            <circle cx="16" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="24" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="32" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="40" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="48" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="56" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="64" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="72" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="80" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="88" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="96" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="104" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                            <circle cx="112" cy="1" r="0.9" fill="url(#titanicPortholeGlowGrad)" />
+                          </g>
+
+                          <!-- HÉLICES TRIPLES DE BRONCE Y TIMÓN (Color original bronce metálico oscurecido bajo el agua) -->
+                          <g class="titanic-propellers-and-rudder">
+                            <!-- Hélice Lateral de Babor (Wing Propeller) -->
+                            <g transform="translate(112, 10)">
+                              <circle cx="0" cy="0" r="1.8" fill="#78350f" />
+                              <path d="M 0 0 Q -3 -5, 0 -7 Q 3 -5, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
+                              <path d="M 0 0 Q 6 -2, 6 4 Q 3 5, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
+                              <path d="M 0 0 Q -5 4, -4 6 Q -1 6, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
+                            </g>
+
+                            <!-- Hélice Central (Center Propeller) de 4 Palas -->
+                            <g transform="translate(120, 12)">
+                              <circle cx="0" cy="0" r="1.6" fill="#78350f" />
+                              <path d="M 0 0 Q -2 -5, 0 -6 Q 2 -5, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
+                              <path d="M 0 0 Q 5 -2, 6 0 Q 5 2, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
+                              <path d="M 0 0 Q 2 5, 0 6 Q -2 5, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
+                              <path d="M 0 0 Q -5 2, -6 0 Q -5 -2, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
+                            </g>
+
+                            <!-- Hélice Lateral de Estribor (Perfil) -->
+                            <g transform="translate(116, 14)">
+                              <circle cx="0" cy="0" r="1.6" fill="#78350f" />
+                              <path d="M 0 0 Q -2 -5, 0 -6 Q 2 -5, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
+                              <path d="M 0 0 Q 5 3, 3 5 Q 1 4, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
+                              <path d="M 0 0 Q -4 4, -3 6 Q 0 4, 0 0 Z" fill="url(#titanicBronzeGrad)" stroke="#78350f" stroke-width="0.3" />
+                            </g>
+
+                            <!-- Timón Principal Compensado del Titanic -->
+                            <polygon points="124,5 129,5 127,16 124,16" fill="#1e293b" stroke="#0f172a" stroke-width="0.6" />
+                            <line x1="124" y1="5" x2="124" y2="16" stroke="#94a3b8" stroke-width="0.8" />
+                          </g>
+
+                          <!-- Cara Interna de Fractura Estructural en Popa -->
+                          <g *ngIf="titanicIsSplit()">
+                            <path d="M 12 -20 L 7 -12 L 14 -4 L 8 4 L 12 18 Z" fill="url(#titanicFractureSteelGrad)" stroke="#020617" stroke-width="0.8" />
+                          </g>
+
+                          <!-- CHIMENEAS 3 Y 4 SUMERGIDAS (Con sus colores originales Ocre Buff y Negro, oscurecidos bajo el agua) -->
+                          <!-- CHIMENEA 3 SUMERGIDA (Fijada en cubierta mientras no haya caído) -->
+                          <g *ngIf="!titanicFunnel3Fallen()">
+                            <polygon points="17,-20 27,-20 29.2,-33 19.2,-33" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                            <polygon points="19.2,-33 29.2,-33 30,-38 20,-38" fill="url(#titanicFunnelBlackGrad)" />
+                            <line x1="28.5" y1="-20" x2="31" y2="-37" stroke="#09090b" stroke-width="0.8" />
+                            <line x1="24.2" y1="-30" x2="10" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <line x1="26" y1="-30" x2="38" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          </g>
+
+                          <!-- CHIMENEA 4 SUMERGIDA (Fijada en cubierta mientras no haya caído) -->
+                          <g *ngIf="!titanicFunnel4Fallen()">
+                            <polygon points="47,-20 57,-20 59.2,-33 49.2,-33" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                            <polygon points="49.2,-33 59.2,-33 60,-38 50,-38" fill="url(#titanicFunnelBlackGrad)" />
+                            <line x1="58.5" y1="-20" x2="61" y2="-37" stroke="#09090b" stroke-width="0.8" />
+                            <line x1="54.2" y1="-30" x2="40" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                            <line x1="56" y1="-30" x2="68" y2="-20" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          </g>
+                        </g>
+
+                        <!-- DOBLE FONDO Y QUILLA INFERIOR SUMERGIDA -->
+                        <g *ngIf="titanicKeelLinked()" [style.transform]="titanicHingeTransform()" class="titanic-double-bottom-tether" style="z-index: 5;">
+                          <path d="M 6 15 Q 12 21, 18 15 L 17 19 Q 12 24, 7 19 Z" fill="#1e293b" stroke="#020617" stroke-width="0.9" />
+                          <path d="M 6 17 Q 12 22.5, 18 17" stroke="#991b1b" stroke-width="2.2" fill="none" stroke-linecap="round" />
+                        </g>
+
+                        <!-- CHIMENEAS SUMERGIDAS EN PROFUNDA INMERSIÓN HACIA EL FONDO DEL OCÉANO -->
+                        <g *ngIf="titanicFunnel1Fallen()" [style.transform]="titanicFallenFunnel1Transform()" [style.opacity]="titanicFunnel1Opacity()">
+                          <polygon points="-5,0 5,0 7.2,-13 -2.8,-13" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                          <polygon points="-2.8,-13 7.2,-13 8,-18 -2,-18" fill="url(#titanicFunnelBlackGrad)" />
+                          <line x1="6.5" y1="0" x2="9" y2="-17" stroke="#09090b" stroke-width="0.8" />
+                          <line x1="2.2" y1="-10" x2="-12" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          <line x1="4" y1="-10" x2="16" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                        </g>
+                        <g *ngIf="titanicFunnel2Fallen()" [style.transform]="titanicFallenFunnel2Transform()" [style.opacity]="titanicFunnel2Opacity()">
+                          <polygon points="-5,0 5,0 7.2,-13 -2.8,-13" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                          <polygon points="-2.8,-13 7.2,-13 8,-18 -2,-18" fill="url(#titanicFunnelBlackGrad)" />
+                          <line x1="6.5" y1="0" x2="9" y2="-17" stroke="#09090b" stroke-width="0.8" />
+                          <line x1="2.2" y1="-10" x2="-12" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          <line x1="4" y1="-10" x2="16" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                        </g>
+                        <g *ngIf="titanicFunnel3Fallen()" [style.transform]="titanicFallenFunnel3Transform()" [style.opacity]="titanicFunnel3Opacity()">
+                          <polygon points="-5,0 5,0 7.2,-13 -2.8,-13" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                          <polygon points="-2.8,-13 7.2,-13 8,-18 -2,-18" fill="url(#titanicFunnelBlackGrad)" />
+                          <line x1="6.5" y1="0" x2="9" y2="-17" stroke="#09090b" stroke-width="0.8" />
+                          <line x1="2.2" y1="-10" x2="-12" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          <line x1="4" y1="-10" x2="16" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                        </g>
+                        <g *ngIf="titanicFunnel4Fallen()" [style.transform]="titanicFallenFunnel4Transform()" [style.opacity]="titanicFunnel4Opacity()">
+                          <polygon points="-5,0 5,0 7.2,-13 -2.8,-13" fill="url(#titanicFunnelGrad)" stroke="#78350f" stroke-width="0.4" />
+                          <polygon points="-2.8,-13 7.2,-13 8,-18 -2,-18" fill="url(#titanicFunnelBlackGrad)" />
+                          <line x1="6.5" y1="0" x2="9" y2="-17" stroke="#09090b" stroke-width="0.8" />
+                          <line x1="2.2" y1="-10" x2="-12" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                          <line x1="4" y1="-10" x2="16" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.22" />
+                        </g>
                       </g>
 
                     </g>
@@ -3989,15 +4399,6 @@
                       <path d="M 190 228 Q 250 225, 310 228" stroke="#075985" stroke-width="1.1" fill="none" opacity="0.25" />
                     </g>
                   </svg>
-
-                  <!-- Contador visual sutil del RMS Titanic / Naufragio -->
-                  <div class="subtle-timer-pill"
-                       style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 15; pointer-events: none; user-select: none;">
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; background: rgba(12, 16, 24, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(56, 189, 248, 0.28); border-radius: 20px; font-family: 'Space Grotesk', monospace; font-size: 13px; font-weight: 800; color: #f1f5f9; letter-spacing: 1px; box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(56, 189, 248, 0.2); text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);">
-                      <i class="fa-solid fa-ship" style="font-size: 10px; color: #7dd3fc;"></i>
-                      {{ timeString() }}
-                    </span>
-                  </div>
 
                 </div>
               </ng-container>

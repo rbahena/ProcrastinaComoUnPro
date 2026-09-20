@@ -1048,55 +1048,163 @@ export class Enfoque implements OnInit, OnDestroy {
     return 'off'; // Apagón total al producirse la fractura estructural en el aire
   });
 
-  // Cinemática de caída de la Chimenea 1 (se desploma hacia adelante cuando el agua alcanza el puente)
-  titanicFunnel1Transform = computed(() => {
+  // Cinemática de caída y hundimiento inmediato al fondo marino de la Chimenea 1
+  titanicFallenFunnel1Transform = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.38) return 'rotate(0deg)';
-    const norm = Math.min(1.0, (p - 0.38) / 0.10);
-    const ease = norm * norm;
-    const angle = ease * 42.0;
-    const dy = ease * 12.0;
-    const dx = ease * 6.0;
-    return `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${angle.toFixed(1)}deg)`;
+    if (p < 0.32) return 'translate(-53.85px, -3.00px) rotate(-10.53deg)';
+    const norm = Math.min(1.0, (p - 0.32) / 0.16); // Se va al fondo rápidamente al desprenderse (0.32 -> 0.48)
+    const ease = Math.pow(norm, 1.6);
+    const x = -53.85 + (norm * 12.0);
+    const y = -3.00 + (ease * 260.0); // Se hunde directo hasta el fondo del mar (y > 250px)
+    const angle = -10.53 + (norm * 65.0);
+    return `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
   });
+  titanicFunnel1Transform = this.titanicFallenFunnel1Transform;
 
   titanicFunnel1Opacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.44) return 1.0;
-    return Math.max(0.0, 1.0 - (p - 0.44) / 0.05);
+    if (p < 0.42) return 1.0;
+    if (p >= 0.49) return 0.0;
+    return Math.max(0.0, 1.0 - Math.pow((p - 0.42) / 0.07, 1.3));
   });
 
-  titanicFunnel1Fallen = computed(() => this.titanicProgress() >= 0.38);
+  titanicFunnel1Fallen = computed(() => this.titanicProgress() >= 0.32);
 
-  // Chimenea 2 (permanece unida a la sección de proa)
-  titanicFunnel2Transform = computed(() => 'rotate(0deg)');
-  titanicFunnel2Opacity = computed(() => 1.0);
-  titanicFunnel2Fallen = computed(() => false);
-
-  // Cinemática de colapso de la Chimenea 3 durante la fractura en el aire
-  titanicFunnel3Transform = computed(() => {
+  // Cinemática de caída y hundimiento inmediato al fondo marino de la Chimenea 2
+  titanicFallenFunnel2Transform = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.46) return 'rotate(0deg)';
-    const norm = Math.min(1.0, (p - 0.46) / 0.08);
-    const ease = norm * norm;
-    const angle = -ease * 38.0;
-    const dy = ease * 8.0;
-    const dx = -ease * 4.0;
-    return `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${angle.toFixed(1)}deg)`;
+    if (p < 0.40) return 'translate(-34.93px, 5.65px) rotate(-23.63deg)';
+    const norm = Math.min(1.0, (p - 0.40) / 0.16); // Se va al fondo rápidamente al desprenderse (0.40 -> 0.56)
+    const ease = Math.pow(norm, 1.6);
+    const x = -34.93 + (norm * 10.0);
+    const y = 5.65 + (ease * 260.0); // Se precipita al fondo marino
+    const angle = -23.63 + (norm * 55.0);
+    return `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
   });
+  titanicFunnel2Transform = this.titanicFallenFunnel2Transform;
+
+  titanicFunnel2Opacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.50) return 1.0;
+    if (p >= 0.57) return 0.0;
+    return Math.max(0.0, 1.0 - Math.pow((p - 0.50) / 0.07, 1.3));
+  });
+
+  titanicFunnel2Fallen = computed(() => this.titanicProgress() >= 0.40);
+
+  // Cinemática de caída y hundimiento inmediato al fondo marino de la Chimenea 3 (quiebre estructural)
+  titanicFallenFunnel3Transform = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.46) return 'translate(-2.01px, -8.24px) rotate(-28.00deg)';
+    const norm = Math.min(1.0, (p - 0.46) / 0.16); // Se va al fondo rápidamente al desprenderse (0.46 -> 0.62)
+    const ease = Math.pow(norm, 1.6);
+    const x = -2.01 - (norm * 10.0);
+    const y = -8.24 + (ease * 270.0); // Cae a la fosa abisal
+    const angle = -28.00 - (norm * 50.0);
+    return `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+  });
+  titanicFunnel3Transform = this.titanicFallenFunnel3Transform;
 
   titanicFunnel3Opacity = computed(() => {
     const p = this.titanicProgress();
-    if (p < 0.52) return 1.0;
-    return Math.max(0.0, 1.0 - (p - 0.52) / 0.06);
+    if (p < 0.56) return 1.0;
+    if (p >= 0.63) return 0.0;
+    return Math.max(0.0, 1.0 - Math.pow((p - 0.56) / 0.07, 1.3));
   });
 
   titanicFunnel3Fallen = computed(() => this.titanicProgress() >= 0.46);
 
-  // Chimenea 4 (ficticia/ventilación de turbinas, permanece en la popa)
-  titanicFunnel4Transform = computed(() => 'rotate(0deg)');
-  titanicFunnel4Opacity = computed(() => 1.0);
-  titanicFunnel4Fallen = computed(() => false);
+  // Cinemática de caída y hundimiento inmediato al fondo marino de la Chimenea 4 (popa vertical)
+  titanicFallenFunnel4Transform = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.70) return 'translate(40.96px, -18.88px) rotate(-10.00deg)';
+    const norm = Math.min(1.0, (p - 0.70) / 0.15); // Se va al fondo rápidamente al desprenderse (0.70 -> 0.85)
+    const ease = Math.pow(norm, 1.6);
+    const x = 40.96 - (norm * 12.0);
+    const y = -18.88 + (ease * 280.0); // Se desploma verticalmente hasta el lecho
+    const angle = -10.00 - (norm * 65.0);
+    return `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${angle.toFixed(2)}deg)`;
+  });
+  titanicFunnel4Transform = this.titanicFallenFunnel4Transform;
+
+  titanicFunnel4Opacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.80) return 1.0;
+    if (p >= 0.86) return 0.0;
+    return Math.max(0.0, 1.0 - Math.pow((p - 0.80) / 0.06, 1.3));
+  });
+
+  titanicFunnel4Fallen = computed(() => this.titanicProgress() >= 0.70);
+
+  // Cinemática y caída del Mástil Trinquete y varillas de proa
+  titanicForeMastTransform = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.34) return 'rotate(0deg)';
+    const norm = Math.min(1.0, (p - 0.34) / 0.06);
+    const ease = norm * norm;
+    const angle = ease * 36.0;
+    const dy = ease * 12.0;
+    return `translate(0px, ${dy.toFixed(1)}px) rotate(${angle.toFixed(1)}deg)`;
+  });
+
+  titanicForeMastOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.37) return 1.0;
+    if (p >= 0.40) return 0.0;
+    return Math.max(0.0, 1.0 - (p - 0.37) / 0.03);
+  });
+
+  titanicBowJackstaffOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.28) return 1.0;
+    if (p >= 0.32) return 0.0;
+    return Math.max(0.0, 1.0 - (p - 0.28) / 0.04);
+  });
+
+  // Cinemática y desprendimiento del Mástil Mayor y varillas de popa
+  titanicMainMastTransform = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.72) return 'rotate(0deg)';
+    const norm = Math.min(1.0, (p - 0.72) / 0.06);
+    const ease = norm * norm;
+    const angle = -ease * 40.0;
+    const dy = ease * 15.0;
+    return `translate(0px, ${dy.toFixed(1)}px) rotate(${angle.toFixed(1)}deg)`;
+  });
+
+  titanicMainMastOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.75) return 1.0;
+    if (p >= 0.78) return 0.0;
+    return Math.max(0.0, 1.0 - (p - 0.75) / 0.03);
+  });
+
+  titanicAftFlagstaffOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.78) return 1.0;
+    if (p >= 0.82) return 0.0;
+    return Math.max(0.0, 1.0 - (p - 0.78) / 0.04);
+  });
+
+  // Visibilidad del tendido de cable de antena Marconi principal
+  titanicAntennaVisible = computed(() => {
+    return this.titanicProgress() < 0.34;
+  });
+
+  // Botes salvavidas que son arriados / arrastrados por las olas
+  titanicBowBoatsOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.30) return 1.0;
+    if (p >= 0.35) return 0.0;
+    return Math.max(0.0, 1.0 - (p - 0.30) / 0.05);
+  });
+
+  titanicRearBoatsOpacity = computed(() => {
+    const p = this.titanicProgress();
+    if (p < 0.55) return 1.0;
+    if (p >= 0.62) return 0.0;
+    return Math.max(0.0, 1.0 - (p - 0.55) / 0.07);
+  });
 
   titanicMarconiOpacity = computed(() => 0.0);
   titanicFlare1Transform = computed(() => 'rotate(0deg)');
