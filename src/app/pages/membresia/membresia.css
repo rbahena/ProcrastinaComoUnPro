@@ -113,8 +113,8 @@
 }
 
 .plan-btn.active {
-  background: var(--text);
-  color: #000;
+  background: var(--accent);
+  color: #ffffff;
 }
 
 .save-tag {
@@ -540,3 +540,83 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== REGLAS PARA MODO CLARO (LIGHT THEME) ===== */
+body.mode-light .plan-toggle,
+body.theme-light .plan-toggle {
+  background: #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body.mode-light .plan-btn,
+body.theme-light .plan-btn {
+  color: #475569 !important;
+}
+
+body.mode-light .plan-btn.active,
+body.theme-light .plan-btn.active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+}
+
+body.mode-light .pricing-table-card,
+body.theme-light .pricing-table-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px -5px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.mode-light .table-responsive,
+body.theme-light .table-responsive {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .comparison-table th,
+body.theme-light .comparison-table th {
+  border-bottom: 1.5px solid #e2e8f0 !important;
+}
+
+body.mode-light .comparison-table td,
+body.theme-light .comparison-table td {
+  border-bottom: 1px solid #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+body.mode-light .plan-header-col,
+body.theme-light .plan-header-col {
+  background: #f8fafc !important;
+}
+
+body.mode-light .plan-header-col.highlight-header-col,
+body.theme-light .plan-header-col.highlight-header-col {
+  background: #f0fdf4 !important;
+  border: 1.5px solid #86efac !important;
+}
+
+body.mode-light .highlight-cell,
+body.theme-light .highlight-cell {
+  background: rgba(240, 253, 244, 0.6) !important;
+}
+
+body.mode-light .free-tier-btn,
+body.theme-light .free-tier-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+body.mode-light .faq-card,
+body.theme-light .faq-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.mode-light .faq-card:hover,
+body.theme-light .faq-card:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06) !important;
+}
+

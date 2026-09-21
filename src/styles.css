@@ -19,8 +19,9 @@
   --r:       8px;           /* Rounded modern borders */
 }
 
-/* ===== THEMES ===== */
-body.theme-samurai {
+/* ===== THEMES (MODO OSCURO & MODO CLARO) ===== */
+body.theme-samurai,
+body.mode-dark {
   --bg:      #050811;
   --bg2:     rgba(15, 23, 42, 0.7);
   --bg3:     rgba(30, 41, 59, 0.85);
@@ -84,6 +85,41 @@ body.theme-zen {
   --r:       14px;          /* Organic circular curves */
 }
 
+/* ===== TEMA CLARO (LIGHT MODE) ===== */
+body.theme-light,
+body.mode-light,
+[data-theme='light'] {
+  --bg:      #f4f6fb;       /* Crisp light slate ambient */
+  --bg2:     #ffffff;       /* Pure clean white card surface */
+  --bg3:     #f8fafc;       /* Elevated clean container */
+  --border:  #e2e8f0;       /* Crisp soft border */
+  --accent:  #0284c7;       /* Electric Azure / Sky 600 */
+  --green:   #10b981;       /* Emerald 500 */
+  --yellow:  #d97706;       /* Warm Amber 600 */
+  --red:     #ef4444;       /* Alert Crimson */
+  --blue:    #2563eb;       /* Royal Blue */
+  --text:    #0f172a;       /* High-contrast Slate 900 */
+  --muted:   #64748b;       /* Readable Slate 500 */
+  --muted2:  #e2e8f0;       /* Light border/divider */
+  --r:       10px;          /* Rounded modern corners */
+}
+
+body.theme-light-zen {
+  --bg:      #f3f6f4;
+  --bg2:     #ffffff;
+  --bg3:     #f8faf9;
+  --border:  #dde5e1;
+  --accent:  #059669;
+  --green:   #10b981;
+  --yellow:  #d97706;
+  --red:     #e11d48;
+  --blue:    #0d9488;
+  --text:    #132a1e;
+  --muted:   #52796f;
+  --muted2:  #e1ece6;
+  --r:       14px;
+}
+
 /* Auth views theme integration */
 body.theme-samurai .auth-container { background: radial-gradient(circle at top, #0c1630 0%, #050811 100%) !important; }
 body.theme-cyberpunk .auth-container { background: radial-gradient(circle at top, #201026 0%, #0b0b14 100%) !important; }
@@ -101,6 +137,15 @@ body.theme-samurai { background: radial-gradient(circle at 50% 0%, #0c1630 0%, #
 body.theme-cyberpunk { background: radial-gradient(circle at 50% 0%, #201026 0%, #0b0b14 80%) !important; }
 body.theme-aurora { background: radial-gradient(circle at 50% 0%, #141b35 0%, #0b0f19 80%) !important; }
 body.theme-zen { background: radial-gradient(circle at 50% 0%, #0f241a 0%, #0c0f0d 80%) !important; }
+body.theme-light,
+body.mode-light {
+  background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f1f5f9 85%) !important;
+  color: var(--text) !important;
+}
+body.theme-light-zen {
+  background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f3f6f4 85%) !important;
+  color: var(--text) !important;
+}
 
 html {
   overflow-x: hidden;
@@ -2312,6 +2357,648 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
     line-height: 1.45;
   }
 }
+
+/* ===== TOPBAR THEME SWITCHER & DROPDOWN ===== */
+.theme-toggle-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: 'Space Grotesk', monospace;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+.theme-toggle-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.15);
+}
+.theme-toggle-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.theme-toggle-nav-btn:hover .theme-toggle-icon-wrap {
+  transform: rotate(30deg) scale(1.15);
+}
+.icon-sun {
+  color: #f59e0b;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.6));
+}
+.icon-moon {
+  color: var(--accent);
+  filter: drop-shadow(0 0 4px rgba(0, 242, 254, 0.4));
+}
+.theme-toggle-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.navbar-dropdown-panel {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  background: rgba(15, 15, 20, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 175px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 1020;
+}
+.dropdown-item-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+.dropdown-item-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--accent);
+}
+.dropdown-item-link.logout-dropdown-link {
+  color: #f87171;
+}
+.dropdown-item-link.logout-dropdown-link:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+.dropdown-theme-row {
+  justify-content: space-between;
+}
+.dropdown-mode-pill {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+}
+
+/* ==========================================================================
+   SISTEMA GLOBAL DE TEMA CLARO (LIGHT MODE STYLES & OVERRIDES)
+   ========================================================================== */
+
+body.mode-light,
+body.theme-light,
+[data-theme='light'] {
+  color-scheme: light;
+  background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f8fafc 100%) !important;
+  color: #0f172a !important;
+}
+
+/* Tipografía y Títulos en Modo Claro */
+body.mode-light h1,
+body.theme-light h1,
+body.mode-light h2,
+body.theme-light h2,
+body.mode-light h3,
+body.theme-light h3,
+body.mode-light h4,
+body.theme-light h4,
+body.mode-light .page-title,
+body.theme-light .page-title,
+body.mode-light .section-title,
+body.theme-light .section-title,
+body.mode-light .widget-title,
+body.theme-light .widget-title {
+  color: #0f172a !important;
+}
+
+body.mode-light .page-sub,
+body.theme-light .page-sub,
+body.mode-light .section-sub,
+body.theme-light .section-sub,
+body.mode-light .label,
+body.theme-light .label {
+  color: #64748b !important;
+}
+
+/* Header Navbar en Modo Claro */
+body.mode-light .sidebar,
+body.theme-light .sidebar {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+body.mode-light.window-scrolled .sidebar,
+body.theme-light.window-scrolled .sidebar {
+  background: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06) !important;
+  border-bottom-color: rgba(2, 132, 199, 0.2) !important;
+}
+
+body.mode-light .logo-text,
+body.theme-light .logo-text {
+  background: linear-gradient(135deg, #0f172a 40%, #0284c7 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+body.mode-light .logo-img,
+body.theme-light .logo-img {
+  border-color: #cbd5e1 !important;
+}
+
+body.mode-light .nav-item,
+body.theme-light .nav-item {
+  color: #475569 !important;
+  font-weight: 600;
+}
+
+body.mode-light .nav-item:hover,
+body.theme-light .nav-item:hover {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+
+body.mode-light .nav-item.active,
+body.theme-light .nav-item.active {
+  color: #0284c7 !important;
+  font-weight: 700 !important;
+}
+
+body.mode-light .nav-item::after,
+body.theme-light .nav-item::after {
+  background: #0284c7 !important;
+  height: 2px !important;
+}
+
+/* Badges del Header en Modo Claro */
+body.mode-light .header-currency-badge,
+body.theme-light .header-currency-badge {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  font-weight: 700 !important;
+}
+
+body.mode-light .header-currency-badge.tomato-badge,
+body.theme-light .header-currency-badge.tomato-badge {
+  background: #fff5f5 !important;
+  border-color: #fecaca !important;
+  color: #dc2626 !important;
+}
+
+body.mode-light .header-currency-badge.pro-coins-badge,
+body.theme-light .header-currency-badge.pro-coins-badge {
+  background: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #d97706 !important;
+}
+
+body.mode-light .header-currency-badge.streak-badge,
+body.theme-light .header-currency-badge.streak-badge {
+  background: #fff7ed !important;
+  border-color: #fed7aa !important;
+  color: #ea580c !important;
+}
+
+body.mode-light .theme-toggle-nav-btn,
+body.theme-light .theme-toggle-nav-btn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+body.mode-light .theme-toggle-nav-btn:hover,
+body.theme-light .theme-toggle-nav-btn:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
+}
+
+body.mode-light .navbar-dropdown-panel,
+body.theme-light .navbar-dropdown-panel {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.12) !important;
+  color: #0f172a !important;
+}
+
+body.mode-light .dropdown-item-link,
+body.theme-light .dropdown-item-link {
+  color: #0f172a !important;
+}
+
+body.mode-light .dropdown-item-link:hover,
+body.theme-light .dropdown-item-link:hover {
+  background: #f1f5f9 !important;
+}
+
+body.mode-light .navbar-avatar-wrapper,
+body.theme-light .navbar-avatar-wrapper {
+  background: #ffffff;
+}
+
+/* Tarjetas y Contenedores Globales en Modo Claro */
+body.mode-light .card,
+body.theme-light .card,
+body.mode-light .bento-card,
+body.theme-light .bento-card,
+body.mode-light .guardian-hero-card,
+body.theme-light .guardian-hero-card,
+body.mode-light .daily-quest-card,
+body.theme-light .daily-quest-card,
+body.mode-light .quick-ideas-card,
+body.theme-light .quick-ideas-card,
+body.mode-light .quick-attack-card,
+body.theme-light .quick-attack-card,
+body.mode-light .stats-subcard,
+body.theme-light .stats-subcard,
+body.mode-light .ideas-container,
+body.theme-light .ideas-container,
+body.mode-light .ideas-input-card,
+body.theme-light .ideas-input-card,
+body.mode-light .idea-card,
+body.theme-light .idea-card,
+body.mode-light .arcade-podium-container,
+body.theme-light .arcade-podium-container,
+body.mode-light .stratis-profile-card,
+body.theme-light .stratis-profile-card,
+body.mode-light .guardian-profile-card,
+body.theme-light .guardian-profile-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 10px 25px -5px rgba(0, 0, 0, 0.03) !important;
+  color: #0f172a !important;
+}
+
+body.mode-light .guardian-hero-card,
+body.theme-light .guardian-hero-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+}
+
+body.mode-light .tactical-passive-box,
+body.theme-light .tactical-passive-box {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .weekly-streak-strip .streak-day-chip,
+body.theme-light .weekly-streak-strip .streak-day-chip {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
+}
+
+body.mode-light .weekly-streak-strip .streak-day-chip.active,
+body.theme-light .weekly-streak-strip .streak-day-chip.active {
+  background: #fff7ed !important;
+  border-color: #fed7aa !important;
+  color: #ea580c !important;
+}
+
+body.mode-light .attack-mode-btn,
+body.theme-light .attack-mode-btn {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .attack-mode-btn:hover,
+body.theme-light .attack-mode-btn:hover {
+  background: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.12) !important;
+}
+
+body.mode-light .pomodoro-phase-block,
+body.theme-light .pomodoro-phase-block {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .pomodoro-phase-block.active,
+body.theme-light .pomodoro-phase-block.active {
+  background: #f0f9ff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 15px rgba(2, 132, 199, 0.15) !important;
+}
+
+body.mode-light .pomodoro-flow-widget,
+body.theme-light .pomodoro-flow-widget {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .pomodoro-user-metric,
+body.theme-light .pomodoro-user-metric {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .podium-mini-row,
+body.theme-light .podium-mini-row {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .podium-mini-row.self-podium,
+body.theme-light .podium-mini-row.self-podium {
+  background: #f0fdf4 !important;
+  border-color: #86efac !important;
+}
+
+/* Tablas y Récords en Modo Claro (Medallero) */
+body.mode-light .arcade-leaderboard-table th,
+body.theme-light .arcade-leaderboard-table th {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+
+body.mode-light .arcade-leaderboard-table td,
+body.theme-light .arcade-leaderboard-table td {
+  border-bottom: 1px solid #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+body.mode-light .arcade-leaderboard-table tbody tr:hover,
+body.theme-light .arcade-leaderboard-table tbody tr:hover {
+  background: #f8fafc !important;
+}
+
+body.mode-light .arcade-leaderboard-table tr.self-row,
+body.theme-light .arcade-leaderboard-table tr.self-row {
+  background: #f0fdf4 !important;
+  border-left: 3px solid #10b981 !important;
+}
+
+body.mode-light .tab-btn,
+body.theme-light .tab-btn {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+body.mode-light .tab-btn:hover,
+body.theme-light .tab-btn:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+body.mode-light .tab-btn.active,
+body.theme-light .tab-btn.active {
+  background: #f0f9ff !important;
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+}
+
+/* Mis Ideas en Modo Claro */
+body.mode-light .idea-text,
+body.theme-light .idea-text {
+  color: #0f172a !important;
+}
+
+body.mode-light .idea-card:hover,
+body.theme-light .idea-card:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 8px 25px -4px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.mode-light .idea-actions,
+body.theme-light .idea-actions {
+  border-top: 1px solid #f1f5f9 !important;
+}
+
+body.mode-light .edit-btn,
+body.theme-light .edit-btn {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+body.mode-light .edit-btn:hover,
+body.theme-light .edit-btn:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+body.mode-light .convert-btn,
+body.theme-light .convert-btn {
+  background: #f0f9ff !important;
+  border: 1px solid #bae6fd !important;
+  color: #0284c7 !important;
+}
+
+body.mode-light .convert-btn:hover,
+body.theme-light .convert-btn:hover {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+body.mode-light .empty-ideas-state,
+body.theme-light .empty-ideas-state {
+  background: #ffffff !important;
+  border: 1.5px dashed #cbd5e1 !important;
+}
+
+/* Formularios e Inputs en Modo Claro */
+body.mode-light input,
+body.theme-light input,
+body.mode-light textarea,
+body.theme-light textarea,
+body.mode-light select,
+body.theme-light select {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1.5px solid #cbd5e1 !important;
+}
+
+body.mode-light input:focus,
+body.theme-light input:focus,
+body.mode-light textarea:focus,
+body.theme-light textarea:focus {
+  background: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+
+body.mode-light input::placeholder,
+body.theme-light input::placeholder,
+body.mode-light textarea::placeholder,
+body.theme-light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Botones en Modo Claro */
+body.mode-light .btn-accent,
+body.theme-light .btn-accent {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+body.mode-light .btn-outline-accent,
+body.theme-light .btn-outline-accent {
+  background: rgba(2, 132, 199, 0.05) !important;
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+}
+
+body.mode-light .btn-ghost,
+body.theme-light .btn-ghost {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Fleeting Notes Widget en Modo Claro */
+body.mode-light .fleeting-fab,
+body.theme-light .fleeting-fab {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.mode-light .fleeting-input-panel,
+body.theme-light .fleeting-input-panel {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.mode-light .fleeting-input-panel .panel-body,
+body.theme-light .fleeting-input-panel .panel-body {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* 3D Flip Cards (Bestiario & Medallero) en Modo Claro */
+body.mode-light .flip-card-back,
+body.theme-light .flip-card-back {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08), 0 0 15px var(--card-glow-bg) !important;
+}
+
+body.mode-light .card-back-header,
+body.theme-light .card-back-header {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .card-back-icon,
+body.theme-light .card-back-icon {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .card-back-desc,
+body.theme-light .card-back-desc {
+  color: #475569 !important;
+}
+
+body.mode-light .card-back-stat-label,
+body.theme-light .card-back-stat-label {
+  color: #64748b !important;
+}
+
+body.mode-light .card-back-stat-row,
+body.theme-light .card-back-stat-row {
+  border-top-color: #f1f5f9 !important;
+}
+
+body.mode-light .card-front-banner,
+body.theme-light .card-front-banner {
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.6) 65%, transparent 100%) !important;
+}
+
+/* Enfoque y Timer en Modo Claro */
+body.mode-light .pomo-card,
+body.theme-light .pomo-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px -5px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.mode-light .timer-modes,
+body.theme-light .timer-modes {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .timer-mode-btn,
+body.theme-light .timer-mode-btn {
+  color: #64748b !important;
+}
+
+body.mode-light .timer-mode-btn.active,
+body.theme-light .timer-mode-btn.active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+}
+
+body.mode-light .active-task-wrapper,
+body.theme-light .active-task-wrapper {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+}
+
+body.mode-light .active-task-wrapper:focus-within,
+body.theme-light .active-task-wrapper:focus-within {
+  background: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+
+body.mode-light .control-btn-secondary,
+body.theme-light .control-btn-secondary {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+body.mode-light .control-btn-secondary:hover,
+body.theme-light .control-btn-secondary:hover {
+  background: #f1f5f9 !important;
+}
+
+body.mode-light .quote-box,
+body.theme-light .quote-box {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-left: 4px solid #0284c7 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.mode-light .stat-pill,
+body.theme-light .stat-pill {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
 
 
 

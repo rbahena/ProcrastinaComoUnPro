@@ -523,14 +523,14 @@
 
 .save-btn {
   background: var(--accent);
-  color: #000;
+  color: #ffffff;
   border: none;
   padding: 8px 14px;
   font-size: 12px;
 }
 
 .save-btn:hover:not(:disabled) {
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.4);
   transform: translateY(-1px);
 }
 
@@ -538,3 +538,58 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* ===== MODO CLARO (LIGHT THEME) OVERRIDES ===== */
+body.mode-light .ideas-input-card,
+body.theme-light .ideas-input-card {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px -5px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.mode-light .quick-idea-input,
+body.theme-light .quick-idea-input {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+body.mode-light .quick-idea-input:focus,
+body.theme-light .quick-idea-input:focus {
+  background: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+
+body.mode-light .add-idea-btn,
+body.theme-light .add-idea-btn {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25) !important;
+}
+
+body.mode-light .add-idea-btn:hover:not(:disabled),
+body.theme-light .add-idea-btn:hover:not(:disabled) {
+  background: #0369a1 !important;
+}
+
+body.mode-light .inline-edit-textarea,
+body.theme-light .inline-edit-textarea {
+  background: #f8fafc !important;
+  border: 1.5px solid #0284c7 !important;
+  color: #0f172a !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1) !important;
+}
+
+body.mode-light .cancel-btn,
+body.theme-light .cancel-btn {
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+body.mode-light .cancel-btn:hover,
+body.theme-light .cancel-btn:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+

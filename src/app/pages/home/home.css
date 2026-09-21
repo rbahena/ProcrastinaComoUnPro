@@ -1088,3 +1088,467 @@
   transform: translate(0, 0) scale(1) !important;
   opacity: 1 !important;
 }
+
+/* ==========================================================================
+   TEMA CLARO EXCLUSIVO PARA HOME (HIGH-CONTRAST COLORFUL LIGHT THEME)
+   ========================================================================== */
+
+/* 1. MÉTRICAS SUPERIORES (ROW 1) */
+
+/* Card 1: Personas Enfocadas (Ahora Mismo / En Vivo) - Menta / Esmeralda con Alto Contraste */
+body.mode-light .metric-card-premium.card-focused-now,
+body.theme-light .metric-card-premium.card-focused-now {
+  background: linear-gradient(160deg, #d1fae5 0%, #ecfdf5 40%, #ffffff 100%) !important;
+  border: 2px solid #6ee7b7 !important;
+  border-top: 5px solid #059669 !important;
+  box-shadow: 0 6px 22px -2px rgba(5, 150, 105, 0.16), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.mode-light .metric-card-premium.card-focused-now:hover,
+body.theme-light .metric-card-premium.card-focused-now:hover {
+  transform: translateY(-4px);
+  border-color: #10b981 !important;
+  box-shadow: 0 14px 32px -4px rgba(5, 150, 105, 0.28) !important;
+}
+
+body.mode-light .card-focused-now .card-title-text,
+body.theme-light .card-focused-now .card-title-text {
+  color: #065f46 !important;
+  font-weight: 800 !important;
+}
+
+body.mode-light .card-focused-now .card-large-value,
+body.theme-light .card-focused-now .card-large-value {
+  color: #064e3b !important;
+  font-weight: 900 !important;
+  text-shadow: 0 1px 2px rgba(6, 78, 59, 0.1);
+}
+
+body.mode-light .card-focused-now .card-sub-desc,
+body.theme-light .card-focused-now .card-sub-desc {
+  color: #047857 !important;
+  font-weight: 700 !important;
+}
+
+body.mode-light .card-focused-now .card-action-play,
+body.theme-light .card-focused-now .card-action-play {
+  background: #059669 !important;
+  border: 1px solid #047857 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3) !important;
+}
+
+body.mode-light .card-focused-now .card-action-play:hover,
+body.theme-light .card-focused-now .card-action-play:hover {
+  background: #047857 !important;
+  transform: scale(1.15);
+}
+
+body.mode-light .card-focused-now .card-float-icon,
+body.theme-light .card-focused-now .card-float-icon {
+  color: #059669 !important;
+  opacity: 0.14 !important;
+}
+
+/* Card 2: Jefe de Raid de la Comunidad - Fresa / Coral con Alto Contraste */
+body.mode-light .metric-card-premium.card-boss,
+body.theme-light .metric-card-premium.card-boss {
+  background: linear-gradient(160deg, #ffe4e6 0%, #fff1f2 40%, #ffffff 100%) !important;
+  border: 2px solid #fda4af !important;
+  border-top: 5px solid #e11d48 !important;
+  box-shadow: 0 6px 22px -2px rgba(225, 29, 72, 0.16), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.mode-light .metric-card-premium.card-boss:hover,
+body.theme-light .metric-card-premium.card-boss:hover {
+  transform: translateY(-4px);
+  border-color: #f43f5e !important;
+  box-shadow: 0 14px 32px -4px rgba(225, 29, 72, 0.28) !important;
+}
+
+body.mode-light .card-boss .card-title-text,
+body.theme-light .card-boss .card-title-text {
+  color: #9f1239 !important;
+  font-weight: 800 !important;
+}
+
+body.mode-light .card-boss .card-large-value,
+body.theme-light .card-boss .card-large-value {
+  color: #881337 !important;
+  font-weight: 900 !important;
+  text-shadow: 0 1px 2px rgba(136, 19, 55, 0.1);
+}
+
+body.mode-light .card-boss .card-sub-desc,
+body.theme-light .card-boss .card-sub-desc {
+  color: #9f1239 !important;
+  font-weight: 800 !important;
+}
+
+body.mode-light .card-boss .card-action-play,
+body.theme-light .card-boss .card-action-play {
+  background: #e11d48 !important;
+  border: 1px solid #be123c !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.3) !important;
+}
+
+body.mode-light .card-boss .card-action-play:hover,
+body.theme-light .card-boss .card-action-play:hover {
+  background: #be123c !important;
+  transform: scale(1.15);
+}
+
+body.mode-light .card-boss .card-float-icon,
+body.theme-light .card-boss .card-float-icon {
+  color: #e11d48 !important;
+  opacity: 0.14 !important;
+}
+
+/* Card 3: Ranking Global / Desempeño - Miel / Ámbar Dorado con Alto Contraste */
+body.mode-light .metric-card-premium.card-user-rank,
+body.theme-light .metric-card-premium.card-user-rank {
+  background: linear-gradient(160deg, #fef3c7 0%, #fffbeb 40%, #ffffff 100%) !important;
+  border: 2px solid #fde68a !important;
+  border-top: 5px solid #d97706 !important;
+  box-shadow: 0 6px 22px -2px rgba(217, 119, 6, 0.16), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.mode-light .metric-card-premium.card-user-rank:hover,
+body.theme-light .metric-card-premium.card-user-rank:hover {
+  transform: translateY(-4px);
+  border-color: #f59e0b !important;
+  box-shadow: 0 14px 32px -4px rgba(217, 119, 6, 0.28) !important;
+}
+
+body.mode-light .card-user-rank .card-title-text,
+body.theme-light .card-user-rank .card-title-text {
+  color: #92400e !important;
+  font-weight: 800 !important;
+}
+
+body.mode-light .card-user-rank .card-large-value,
+body.theme-light .card-user-rank .card-large-value {
+  color: #78350f !important;
+  font-weight: 900 !important;
+  text-shadow: 0 1px 2px rgba(120, 53, 15, 0.1);
+}
+
+body.mode-light .card-user-rank .card-sub-desc,
+body.theme-light .card-user-rank .card-sub-desc {
+  color: #92400e !important;
+  font-weight: 700 !important;
+}
+
+body.mode-light .card-user-rank .card-action-play,
+body.theme-light .card-user-rank .card-action-play {
+  background: #d97706 !important;
+  border: 1px solid #b45309 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3) !important;
+}
+
+body.mode-light .card-user-rank .card-action-play:hover,
+body.theme-light .card-user-rank .card-action-play:hover {
+  background: #b45309 !important;
+  transform: scale(1.15);
+}
+
+body.mode-light .card-user-rank .card-float-icon,
+body.theme-light .card-user-rank .card-float-icon {
+  color: #d97706 !important;
+  opacity: 0.14 !important;
+}
+
+/* 2. FILA INFERIOR EN 3 COLUMNAS */
+
+/* Columna 1: Templo de Enfoque Colectivo - Azul Océano Intenso con Alto Contraste */
+body.mode-light .coworking-card,
+body.theme-light .coworking-card {
+  background: linear-gradient(160deg, #dbeafe 0%, #eff6ff 40%, #ffffff 100%) !important;
+  border: 2px solid #60a5fa !important;
+  border-top: 5px solid #2563eb !important;
+  box-shadow: 0 6px 24px -2px rgba(37, 99, 235, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.mode-light .coworking-card:hover,
+body.theme-light .coworking-card:hover {
+  transform: translateY(-4px);
+  border-color: #3b82f6 !important;
+  box-shadow: 0 16px 36px -4px rgba(37, 99, 235, 0.25) !important;
+}
+
+body.mode-light .coworking-card h4,
+body.theme-light .coworking-card h4 {
+  color: #1e40af !important;
+  font-weight: 900 !important;
+}
+
+body.mode-light .coworking-card p,
+body.theme-light .coworking-card p {
+  color: #1d4ed8 !important;
+  font-weight: 600 !important;
+}
+
+body.mode-light .coworking-btn,
+body.theme-light .coworking-btn {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.5px;
+}
+
+body.mode-light .coworking-btn:hover,
+body.theme-light .coworking-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45) !important;
+  transform: translateY(-2px);
+}
+
+body.mode-light .coworking-card .card-float-icon,
+body.theme-light .coworking-card .card-float-icon {
+  color: #2563eb !important;
+  opacity: 0.12 !important;
+}
+
+/* Columna 2: Podio Semanal - Lavanda / Violeta con Alto Contraste */
+body.mode-light .podio-card,
+body.theme-light .podio-card {
+  background: linear-gradient(160deg, #ede9fe 0%, #f5f3ff 40%, #ffffff 100%) !important;
+  border: 2px solid #c084fc !important;
+  border-top: 5px solid #9333ea !important;
+  box-shadow: 0 6px 24px -2px rgba(147, 51, 234, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.mode-light .podio-card:hover,
+body.theme-light .podio-card:hover {
+  transform: translateY(-4px);
+  border-color: #a855f7 !important;
+  box-shadow: 0 16px 36px -4px rgba(147, 51, 234, 0.25) !important;
+}
+
+body.mode-light .podio-card h4,
+body.theme-light .podio-card h4 {
+  color: #5b21b6 !important;
+  font-weight: 900 !important;
+}
+
+body.mode-light .podio-card p,
+body.theme-light .podio-card p {
+  color: #6d28d9 !important;
+  font-weight: 600 !important;
+}
+
+body.mode-light .podio-column.first-place .podio-bar,
+body.theme-light .podio-column.first-place .podio-bar {
+  background: linear-gradient(to top, #eab308 0%, #fde047 100%) !important;
+  border: 2.5px solid #a16207 !important;
+  color: #422006 !important;
+  box-shadow: 0 6px 18px rgba(161, 98, 7, 0.35) !important;
+  font-weight: 900 !important;
+}
+
+body.mode-light .podio-column.second-place .podio-bar,
+body.theme-light .podio-column.second-place .podio-bar {
+  background: linear-gradient(to top, #94a3b8 0%, #e2e8f0 100%) !important;
+  border: 2.5px solid #475569 !important;
+  color: #0f172a !important;
+  box-shadow: 0 6px 18px rgba(71, 85, 105, 0.3) !important;
+  font-weight: 900 !important;
+}
+
+body.mode-light .podio-column.third-place .podio-bar,
+body.theme-light .podio-column.third-place .podio-bar {
+  background: linear-gradient(to top, #fb923c 0%, #fed7aa 100%) !important;
+  border: 2.5px solid #c2410c !important;
+  color: #431407 !important;
+  box-shadow: 0 6px 18px rgba(194, 65, 12, 0.3) !important;
+  font-weight: 900 !important;
+}
+
+body.mode-light .podio-card .card-float-icon,
+body.theme-light .podio-card .card-float-icon {
+  color: #9333ea !important;
+  opacity: 0.12 !important;
+}
+
+/* Columna 3: Récord Histórico - Turquesa / Eucalipto con Alto Contraste */
+body.mode-light .top-pomodoros-card,
+body.theme-light .top-pomodoros-card {
+  background: linear-gradient(160deg, #ccfbf1 0%, #e6fffa 40%, #ffffff 100%) !important;
+  border: 2px solid #2dd4bf !important;
+  border-top: 5px solid #0d9488 !important;
+  box-shadow: 0 6px 24px -2px rgba(13, 148, 136, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.mode-light .top-pomodoros-card:hover,
+body.theme-light .top-pomodoros-card:hover {
+  transform: translateY(-4px);
+  border-color: #14b8a6 !important;
+  box-shadow: 0 16px 36px -4px rgba(13, 148, 136, 0.25) !important;
+}
+
+body.mode-light .top-pomodoros-card h4,
+body.theme-light .top-pomodoros-card h4 {
+  color: #115e59 !important;
+  font-weight: 900 !important;
+}
+
+body.mode-light .top-pomodoros-card p,
+body.theme-light .top-pomodoros-card p {
+  color: #0f766e !important;
+  font-weight: 600 !important;
+}
+
+body.mode-light .top-pomodoros-card .card-float-icon,
+body.theme-light .top-pomodoros-card .card-float-icon {
+  color: #0d9488 !important;
+  opacity: 0.12 !important;
+}
+
+body.mode-light .historical-record-row,
+body.theme-light .historical-record-row {
+  background: #ffffff !important;
+  border: 1.5px solid #99f6e4 !important;
+  box-shadow: 0 3px 10px rgba(13, 148, 136, 0.08) !important;
+}
+
+body.mode-light .historical-record-row:hover,
+body.theme-light .historical-record-row:hover {
+  background: #f0fdfa !important;
+  border-color: #0d9488 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(13, 148, 136, 0.2) !important;
+}
+
+/* Home Stat Box */
+body.mode-light .home-stat-box,
+body.theme-light .home-stat-box {
+  background: #ffffff !important;
+  border: 1.5px solid #93c5fd !important;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.08) !important;
+}
+
+body.mode-light .home-stat-box span:last-child,
+body.theme-light .home-stat-box span:last-child {
+  color: #1e40af !important;
+  font-weight: 800 !important;
+}
+
+body.mode-light .avatar-stack-item,
+body.theme-light .avatar-stack-item {
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.mode-light .currency-badge-minimal,
+body.theme-light .currency-badge-minimal {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+body.mode-light .challenge-btn,
+body.theme-light .challenge-btn,
+body.mode-light .avatar-select-btn,
+body.theme-light .avatar-select-btn,
+body.mode-light .quick-arena-btn,
+body.theme-light .quick-arena-btn {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+body.mode-light .challenge-btn:hover,
+body.theme-light .challenge-btn:hover,
+body.mode-light .avatar-select-btn:hover,
+body.theme-light .avatar-select-btn:hover,
+body.mode-light .quick-arena-btn:hover,
+body.theme-light .quick-arena-btn:hover {
+  background: #f0f9ff !important;
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+}
+
+/* Base & Dark Mode for Premium Header Badge & Pro Unlock Button */
+.premium-header-badge {
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.25s;
+  padding: 6px 14px;
+  background: rgba(245, 158, 11, 0.05);
+  border: 1.5px solid rgba(245, 158, 11, 0.25);
+  color: var(--yellow);
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
+}
+
+.premium-header-badge:hover {
+  transform: translateY(-1px);
+  border-color: var(--yellow);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+}
+
+.pro-unlock-rank-btn {
+  border: none;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--yellow);
+  border-radius: 8px;
+  padding: 7px;
+  color: var(--yellow);
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.pro-unlock-rank-btn:hover {
+  background: rgba(212, 175, 55, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Light Mode Overrides for Badges & Buttons */
+body.mode-light .premium-header-badge,
+body.theme-light .premium-header-badge {
+  background: #fef3c7 !important;
+  border: 1.5px solid #f59e0b !important;
+  color: #92400e !important;
+  text-shadow: none !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2) !important;
+}
+
+body.mode-light .premium-header-badge:hover,
+body.theme-light .premium-header-badge:hover {
+  background: #fde68a !important;
+  border-color: #d97706 !important;
+}
+
+body.mode-light .pro-unlock-rank-btn,
+body.theme-light .pro-unlock-rank-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  border: 1.5px solid #b45309 !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.3) !important;
+}
+
+body.mode-light .pro-unlock-rank-btn:hover,
+body.theme-light .pro-unlock-rank-btn:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  border-color: #92400e !important;
+  box-shadow: 0 5px 14px rgba(217, 119, 6, 0.4) !important;
+}
+
+
+
+

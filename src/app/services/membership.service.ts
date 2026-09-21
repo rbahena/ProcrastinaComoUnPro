@@ -218,6 +218,9 @@ export class MembershipService {
   selectedTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>(
     getMigratedValue('theme', 'samurai') as any
   );
+  themeMode = signal<'dark' | 'light'>(
+    (getMigratedValue('theme-mode', 'dark') as any) === 'light' ? 'light' : 'dark'
+  );
 
   // Medallas ganadas en podios
   podiumWins = signal<number>(
@@ -459,6 +462,14 @@ export class MembershipService {
       const val = this.selectedTheme();
       localStorage.setItem('procrastina-theme', val);
       if (email) localStorage.setItem(`user:${email}:theme`, val);
+      this.applyGlobalTheme();
+    });
+    effect(() => {
+      const email = this.getCurrentUserEmail();
+      const val = this.themeMode();
+      localStorage.setItem('procrastina-theme-mode', val);
+      if (email) localStorage.setItem(`user:${email}:theme-mode`, val);
+      this.applyGlobalTheme();
     });
     effect(() => {
       const email = this.getCurrentUserEmail();
@@ -973,6 +984,41 @@ export class MembershipService {
     return true;
   }
 
+  // Aplicar tema y modo global en el DOM
+  applyGlobalTheme() {
+    if (typeof document === 'undefined') return;
+    const body = document.body;
+    const mode = this.themeMode();
+    const theme = this.selectedTheme();
+
+    const toRemove: string[] = [];
+    body.classList.forEach(cls => {
+      if (cls.startsWith('theme-') || cls.startsWith('mode-')) {
+        toRemove.push(cls);
+      }
+    });
+    toRemove.forEach(cls => body.classList.remove(cls));
+
+    if (mode === 'light') {
+      body.classList.add('mode-light', 'theme-light');
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      body.classList.add('mode-dark', `theme-${theme || 'samurai'}`);
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  }
+
+  // Alternar entre Modo Claro y Modo Oscuro
+  toggleThemeMode() {
+    const nextMode = this.themeMode() === 'light' ? 'dark' : 'light';
+    this.themeMode.set(nextMode);
+  }
+
+  // Fijar modo de tema explícito
+  setThemeMode(mode: 'dark' | 'light') {
+    this.themeMode.set(mode);
+  }
+
   // Registrar un nuevo usuario (EXCLUSIVAMENTE EN SUPABASE)
   async registerUser(email: string, pass: string): Promise<{ success: boolean; error?: string }> {
     if (!email || !pass) {
@@ -1241,6 +1287,7 @@ export class MembershipService {
       selectedAvatarVal = 'gato';
     }
     const selectedThemeVal = (localStorage.getItem(`user:${email}:theme`) as any) || 'samurai';
+    const themeModeVal = (localStorage.getItem(`user:${email}:theme-mode`) as 'dark' | 'light') || (localStorage.getItem('procrastina-theme-mode') as 'dark' | 'light') || 'dark';
     const userProfessionVal = localStorage.getItem(`user:${email}:user-profession`);
     const userCountryVal = localStorage.getItem(`user:${email}:user-country`);
     const userCountryCodeVal = localStorage.getItem(`user:${email}:user-country-code`);
@@ -1263,6 +1310,7 @@ export class MembershipService {
     this.userName.set(userNameVal);
     this.selectedAvatar.set(selectedAvatarVal);
     this.selectedTheme.set(selectedThemeVal);
+    this.themeMode.set(themeModeVal);
     this.userProfession.set(userProfessionVal ? cleanQuotedString(userProfessionVal) : '');
     this.userCountry.set(userCountryVal ? cleanQuotedString(userCountryVal) : '');
     this.userCountryCode.set(userCountryCodeVal || '');
@@ -1270,6 +1318,7 @@ export class MembershipService {
     this.podiumWins.set(podiumWinsVal);
     this.onboardingCompleted.set(onboardingCompletedVal);
     this.capturedIdeas.set(capturedIdeasVal);
+    this.applyGlobalTheme();
 
     // Recalcular la racha
     this.streak.set(this.calculateStreak(email));
@@ -1285,6 +1334,7 @@ export class MembershipService {
     localStorage.removeItem(`user:${email}:user-name`);
     localStorage.removeItem(`user:${email}:avatar`);
     localStorage.removeItem(`user:${email}:theme`);
+    localStorage.removeItem(`user:${email}:theme-mode`);
     localStorage.removeItem(`user:${email}:pro-coins`);
     localStorage.removeItem(`user:${email}:qualities-catalog`);
     localStorage.removeItem(`user:${email}:focus-points`);
@@ -1295,6 +1345,8 @@ export class MembershipService {
     this.userName.set(email.split('@')[0]);
     this.selectedAvatar.set('gato');
     this.selectedTheme.set('samurai');
+    this.themeMode.set('dark');
+    this.applyGlobalTheme();
     this.proCoins.set(0);
     this.focusPoints.set(0);
     this.onboardingCompleted.set(true);

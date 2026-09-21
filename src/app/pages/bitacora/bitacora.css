@@ -1,9 +1,53 @@
+/* Bitácora Base & Light Mode */
+.back-home-btn {
+  transition: all 0.2s ease;
+}
+
 .back-home-btn:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
+  background: var(--bg3) !important;
   border-color: var(--accent) !important;
   transform: translateY(-1px);
 }
 
 .back-home-btn:active {
   transform: translateY(0);
+}
+
+.bitacora-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bitacora-row:hover {
+  border-color: var(--accent) !important;
+  transform: translateY(-1px);
+}
+
+.achievement-row:hover {
+  border-color: var(--accent) !important;
+  transform: translateY(-1px);
+}
+
+/* Modo Claro Especial */
+body.mode-light .bitacora-card,
+body.theme-light .bitacora-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px -5px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.mode-light .bitacora-row,
+body.theme-light .bitacora-row,
+body.mode-light .achievement-row,
+body.theme-light .achievement-row {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .bitacora-row:hover,
+body.theme-light .bitacora-row:hover,
+body.mode-light .achievement-row:hover,
+body.theme-light .achievement-row:hover {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
 }

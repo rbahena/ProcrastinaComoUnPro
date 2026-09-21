@@ -36,7 +36,7 @@
     </a>
   </div>
 
-  <!-- INDICADORES GLOBALES (TOMATES Y MONEDAS) -->
+  <!-- INDICADORES GLOBALES (TOMATES, MONEDAS Y TEMA) -->
   <div class="global-currency-header">
     <!-- Tomates -->
     <div class="header-currency-badge tomato-badge" 
@@ -61,6 +61,20 @@
       <i class="fa-solid fa-fire"></i>
       <span>{{ membership.streak() }}</span>
     </div>
+
+    <!-- Conmutador de Modo Claro / Modo Oscuro -->
+    <button class="theme-toggle-nav-btn"
+            type="button"
+            (click)="membership.toggleThemeMode()"
+            [attr.data-tooltip]="membership.themeMode() === 'light' ? 'Cambiar a Modo Oscuro' : 'Cambiar a Modo Claro'"
+            data-tooltip-align="bottom"
+            [attr.aria-label]="membership.themeMode() === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'">
+      <span class="theme-toggle-icon-wrap">
+        <i class="fa-solid fa-sun icon-sun" *ngIf="membership.themeMode() === 'light'"></i>
+        <i class="fa-solid fa-moon icon-moon" *ngIf="membership.themeMode() !== 'light'"></i>
+      </span>
+      <span class="theme-toggle-label">{{ membership.themeMode() === 'light' ? 'Claro' : 'Oscuro' }}</span>
+    </button>
   </div>
   
   <!-- CONTENEDOR DE PERFIL CON MENU DESPLEGABLE -->
@@ -79,7 +93,7 @@
 
     <!-- Menú Desplegable -->
     <div *ngIf="membership.avatarMenuOpen() && !membership.isFocusActive()"
-         style="position: absolute; top: 48px; right: 0; background: rgba(15, 15, 20, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 12px; width: 160px; padding: 6px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1020;"
+         class="navbar-dropdown-panel"
          (click)="$event.stopPropagation()">
       <div style="padding: 6px 12px; display: flex; flex-direction: column; gap: 2px; user-select: none;">
         <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">{{ membership.userName() }}</span>
@@ -87,26 +101,24 @@
           Plan {{ membership.isPremium() ? 'Pro' : 'Básico' }}
         </span>
       </div>
-      <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 4px 6px;"></div>
-      <a routerLink="/cualidades" (click)="membership.closeAvatarMenu()"
-         style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text); transition: all 0.2s;"
-         onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='var(--accent)';"
-         onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">
+      <div style="height: 1px; background: var(--border); margin: 4px 6px;"></div>
+      <a routerLink="/cualidades" (click)="membership.closeAvatarMenu()" class="dropdown-item-link">
         <i class="fa-solid fa-user" style="font-size: 11px; width: 14px; text-align: center; color: var(--muted);"></i>
         <span>Mi Perfil</span>
       </a>
-      <a routerLink="/membresia" (click)="membership.closeAvatarMenu()"
-         style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text); transition: all 0.2s;"
-         onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='var(--accent)';"
-         onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">
+      <a routerLink="/membresia" (click)="membership.closeAvatarMenu()" class="dropdown-item-link">
         <i class="fa-solid fa-crown" style="font-size: 11px; width: 14px; text-align: center; color: var(--muted);"></i>
         <span>Mi Plan</span>
       </a>
-      <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 4px 6px;"></div>
-      <a routerLink="/login" (click)="membership.logout()"
-         style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: #f87171; transition: all 0.2s;"
-         onmouseover="this.style.background='rgba(239, 68, 68, 0.08)';"
-         onmouseout="this.style.background='transparent';">
+      <div (click)="membership.toggleThemeMode()" class="dropdown-item-link dropdown-theme-row">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i [class]="membership.themeMode() === 'light' ? 'fa-solid fa-sun text-yellow' : 'fa-solid fa-moon text-blue'" style="font-size: 11px; width: 14px; text-align: center;"></i>
+          <span>Modo {{ membership.themeMode() === 'light' ? 'Claro' : 'Oscuro' }}</span>
+        </div>
+        <span class="dropdown-mode-pill">{{ membership.themeMode() === 'light' ? '☀️' : '🌙' }}</span>
+      </div>
+      <div style="height: 1px; background: var(--border); margin: 4px 6px;"></div>
+      <a routerLink="/login" (click)="membership.logout()" class="dropdown-item-link logout-dropdown-link">
         <i class="fa-solid fa-right-from-bracket" style="font-size: 11px; width: 14px; text-align: center;"></i>
         <span>Cerrar Sesión</span>
       </a>

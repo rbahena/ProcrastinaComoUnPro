@@ -30,15 +30,19 @@ export class App implements OnInit {
 
   applyThemeOnBody() {
     const body = document.body;
-    body.classList.forEach(className => {
-      if (className.startsWith('theme-')) {
-        body.classList.remove(className);
-      }
-    });
-    const targetTheme = this.isLandingOrAuthRoute()
-      ? 'samurai'
-      : (localStorage.getItem('procrastina-theme') || 'samurai');
-    body.classList.add(`theme-${targetTheme}`);
+    if (this.isLandingOrAuthRoute()) {
+      const toRemove: string[] = [];
+      body.classList.forEach(className => {
+        if (className.startsWith('theme-') || className.startsWith('mode-')) {
+          toRemove.push(className);
+        }
+      });
+      toRemove.forEach(cls => body.classList.remove(cls));
+      body.classList.add('theme-samurai', 'mode-dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      this.membership.applyGlobalTheme();
+    }
   }
 
   isLandingOrAuthRoute(): boolean {
