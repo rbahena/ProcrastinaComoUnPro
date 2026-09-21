@@ -6,72 +6,189 @@
     
     <!-- HEADER -->
     <div class="ideas-header">
-      <div class="header-icon-wrapper">
-        <i class="fa-solid fa-box-archive header-icon"></i>
-      </div>
-      <div class="header-text-group">
-        <h1 class="ideas-title">Baúl de Ideas u Objetivos</h1>
-        <p class="ideas-subtitle">Libera tu mente capturando ideas, distractores u objetivos para procesarlos más tarde.</p>
+      <div class="header-left">
+        <div class="header-icon-wrapper">
+          <i class="fa-solid fa-box-archive header-icon"></i>
+        </div>
+        <div class="header-text-group">
+          <div class="title-with-badge">
+            <h1 class="ideas-title">Mis Notas y Objetivos</h1>
+            <span class="count-badge" *ngIf="membership.capturedIdeas().length > 0">
+              {{ membership.capturedIdeas().length }}
+            </span>
+          </div>
+          <p class="ideas-subtitle">Gestiona tus notas, objetivos e ideas capturadas. Edítalos, bórralos o inícialos como tu próxima sesión de enfoque.</p>
+        </div>
       </div>
       
-      <!-- BOTÓN DE ACCIÓN COMPACTO -->
-      <button *ngIf="membership.capturedIdeas().length > 0" 
-              class="clear-all-btn" 
-              (click)="clearAllIdeas()">
-        <i class="fa-solid fa-dumpster"></i> Vaciar Baúl
-      </button>
+      <!-- ACCIONES DE CABECERA -->
+      <div class="header-actions" *ngIf="membership.capturedIdeas().length > 0">
+        <!-- Búsqueda rápida -->
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text"
+                 placeholder="Buscar notas..."
+                 [value]="searchTerm()"
+                 (input)="onSearchChange($event)"
+                 class="search-input" />
+          <button *ngIf="searchTerm()" 
+                  (click)="searchTerm.set('')" 
+                  class="clear-search-btn" 
+                  title="Limpiar búsqueda">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Botón de vaciar baúl -->
+        <button class="clear-all-btn" 
+                (click)="clearAllIdeas()"
+                title="Eliminar todas las notas del baúl">
+          <i class="fa-solid fa-trash-can"></i> Vaciar Baúl
+        </button>
+      </div>
     </div>
 
-    <!-- FORMULARIO DE CAPTURA RÁPIDA DENTRO DE LA VISTA -->
+    <!-- FORMULARIO DE CAPTURA RÁPIDA -->
     <div class="ideas-input-card">
       <div class="input-glow"></div>
+      <div class="input-prefix-icon">
+        <i class="fa-solid fa-bolt"></i>
+      </div>
       <input type="text" 
-             placeholder="¿Tienes otra idea u objetivo en mente? Captúralo aquí..." 
+             placeholder="Escribe una nueva nota u objetivo a capturar..." 
              [value]="newIdeaText()" 
              (input)="onInputChange($event)"
              (keydown.enter)="addIdea()"
              class="quick-idea-input" />
       <button class="add-idea-btn" (click)="addIdea()" [disabled]="!newIdeaText().trim()">
-        <i class="fa-solid fa-feather"></i> Capturar
+        <i class="fa-solid fa-plus"></i>
+        <span>Guardar</span>
       </button>
     </div>
 
-    <!-- LISTA DE IDEAS -->
+    <!-- LISTA DE IDEAS Y OBJETIVOS -->
     <div class="ideas-content">
       
-      <!-- Estado vacío -->
+      <!-- Estado vacío (sin notas en general) -->
       <div class="empty-ideas-state" *ngIf="membership.capturedIdeas().length === 0">
         <div class="empty-icon-circle">
-          <i class="fa-solid fa-feather empty-icon"></i>
+          <i class="fa-solid fa-feather-pointed empty-icon"></i>
         </div>
-        <h3 class="empty-title">El baúl está vacío</h3>
-        <p class="empty-desc">No tienes ideas u objetivos capturados. ¡Usa el botón flotante en la esquina o presiona <strong>Alt + I</strong> desde cualquier pantalla para enviarlos aquí instantáneamente!</p>
+        <h3 class="empty-title">Tu baúl está completamente libre</h3>
+        <p class="empty-desc">No tienes notas ni objetivos capturados todavía. Añade uno arriba o presiona <kbd class="kbd-badge">Alt + I</kbd> desde cualquier pantalla para capturarlo al instante.</p>
       </div>
 
-      <!-- Grid de Tarjetas de Ideas -->
-      <div class="ideas-grid" *ngIf="membership.capturedIdeas().length > 0">
-        <div class="idea-card" *ngFor="let idea of membership.capturedIdeas(); let i = index">
+      <!-- Estado sin resultados de búsqueda -->
+      <div class="empty-search-state" *ngIf="membership.capturedIdeas().length > 0 && filteredIdeas().length === 0">
+        <i class="fa-solid fa-search empty-search-icon"></i>
+        <p>No se encontraron notas que coincidan con "<strong>{{ searchTerm() }}</strong>".</p>
+        <button class="reset-search-btn" (click)="searchTerm.set('')">Mostrar todas las notas</button>
+      </div>
+
+      <!-- Grid de Tarjetas de Notas / Objetivos -->
+      <div class="ideas-grid" *ngIf="filteredIdeas().length > 0">
+        <div class="idea-card" 
+             *ngFor="let idea of filteredIdeas(); let i = index"
+             [class.is-editing]="editingIdeaId() === idea.id"
+             [class.is-confirming-delete]="confirmDeleteId() === idea.id">
           <div class="idea-card-glow"></div>
           
-          <div class="idea-body">
-            <p class="idea-text">{{ idea }}</p>
-            <div class="idea-meta">
-              <span class="meta-tag"><i class="fa-solid fa-clock"></i> Capturado hoy</span>
+          <!-- VISTA DE LECTURA (NORMAL) -->
+          <ng-container *ngIf="editingIdeaId() !== idea.id">
+            <div class="idea-body">
+              <div class="idea-header-row">
+                <span class="idea-type-pill">
+                  <i class="fa-solid fa-bullseye"></i> Objetivo / Nota
+                </span>
+                <span class="meta-tag" [title]="idea.created_at || ''">
+                  <i class="fa-regular fa-clock"></i> {{ formatDate(idea.created_at) }}
+                </span>
+              </div>
+              
+              <p class="idea-text">{{ idea.content }}</p>
             </div>
-          </div>
 
-          <div class="idea-actions">
-            <button class="action-btn convert-btn" 
-                    (click)="convertToObjective(idea, i)"
-                    title="Convertir esta idea en tu objetivo de enfoque activo">
-              <i class="fa-solid fa-yin-yang"></i> Concentrarme
-            </button>
-            <button class="action-btn delete-btn" 
-                    (click)="removeIdea(i)"
-                    title="Eliminar idea definitivamente">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
+            <!-- BARRA DE ACCIONES NORMALES -->
+            <div class="idea-actions" *ngIf="confirmDeleteId() !== idea.id">
+              <button class="action-btn convert-btn" 
+                      (click)="convertToObjective(idea, i)"
+                      title="Convertir esta nota en tu objetivo activo y entrar a la sala de concentración">
+                <i class="fa-solid fa-play"></i>
+                <span>Concentrarme</span>
+              </button>
+
+              <div class="secondary-actions">
+                <button class="action-btn edit-btn" 
+                        (click)="startEditing(idea)"
+                        title="Editar nota u objetivo">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+
+                <button class="action-btn delete-btn" 
+                        (click)="askDelete(idea)"
+                        title="Eliminar esta nota permanentemente">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- BARRA DE CONFIRMACIÓN DE BORRADO -->
+            <div class="delete-confirm-bar" *ngIf="confirmDeleteId() === idea.id">
+              <span class="delete-warning-text">
+                <i class="fa-solid fa-triangle-exclamation"></i> ¿Borrar nota?
+              </span>
+              <div class="delete-confirm-buttons">
+                <button class="action-btn danger-confirm-btn" 
+                        (click)="confirmDelete(idea, i)"
+                        title="Confirmar eliminación permanente">
+                  <i class="fa-solid fa-check"></i> Sí, borrar
+                </button>
+                <button class="action-btn cancel-btn" 
+                        (click)="cancelDelete()"
+                        title="Cancelar">
+                  <i class="fa-solid fa-xmark"></i> Cancelar
+                </button>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- VISTA DE EDICIÓN INLINE -->
+          <ng-container *ngIf="editingIdeaId() === idea.id">
+            <div class="inline-edit-container">
+              <div class="inline-edit-header">
+                <span class="edit-badge">
+                  <i class="fa-solid fa-pen-to-square"></i> Editando nota u objetivo
+                </span>
+                <span class="edit-hint">Enter para guardar • Esc para cancelar</span>
+              </div>
+
+              <textarea class="inline-edit-textarea"
+                        rows="3"
+                        [value]="editingText()"
+                        (input)="editingText.set($any($event.target).value)"
+                        (keydown)="onEditKeydown($event, idea)"
+                        placeholder="Escribe el nuevo texto..."
+                        autofocus></textarea>
+
+              <div class="inline-edit-actions">
+                <button class="action-btn save-btn" 
+                        (click)="saveEdit(idea)" 
+                        [disabled]="!editingText().trim()"
+                        title="Guardar cambios">
+                  <i class="fa-solid fa-check"></i>
+                  <span>Guardar cambios</span>
+                </button>
+
+                <button class="action-btn cancel-btn" 
+                        (click)="cancelEditing()"
+                        title="Descartar cambios">
+                  <i class="fa-solid fa-xmark"></i>
+                  <span>Cancelar</span>
+                </button>
+              </div>
+            </div>
+          </ng-container>
+
         </div>
       </div>
 

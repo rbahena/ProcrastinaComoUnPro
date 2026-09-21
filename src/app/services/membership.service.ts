@@ -1,6 +1,28 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { SupabaseService, CatalogItem, MultilingualText } from './supabase.service';
+import { SupabaseService, CatalogItem, MultilingualText, CapturedIdea } from './supabase.service';
+
+export function normalizeCapturedIdeas(raw: any[]): CapturedIdea[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item, index) => {
+    if (typeof item === 'string') {
+      return {
+        id: `local-${index}-${Date.now()}`,
+        content: item,
+        is_converted_to_objective: false,
+        display_order: index + 1,
+        created_at: new Date().toISOString()
+      };
+    }
+    return {
+      id: item.id || `local-${index}-${Date.now()}`,
+      content: item.content || '',
+      is_converted_to_objective: item.is_converted_to_objective || false,
+      display_order: item.display_order || (index + 1),
+      created_at: item.created_at || new Date().toISOString()
+    };
+  }).filter(i => !!i.content && !i.is_converted_to_objective);
+}
 
 export interface AvatarItem {
   id: string;
@@ -225,8 +247,8 @@ export class MembershipService {
   );
 
   // Ideas capturadas durante sesiones de enfoque
-  capturedIdeas = signal<string[]>(
-    getMigratedValueJSON('captured-ideas', [])
+  capturedIdeas = signal<CapturedIdea[]>(
+    normalizeCapturedIdeas(getMigratedValueJSON('captured-ideas', []))
   );
 
   // Catálogo dinámico cargado desde Supabase
@@ -345,8 +367,8 @@ export class MembershipService {
           }
         });
         this.supabaseService.getCapturedIdeas(user.id).then(({ ideas, error }) => {
-          if (!error && ideas && ideas.length > 0) {
-            this.capturedIdeas.set(ideas.map(i => i.content));
+          if (!error && ideas) {
+            this.capturedIdeas.set(normalizeCapturedIdeas(ideas));
           }
         });
         this.loadCatalogFromSupabase();
@@ -506,26 +528,98 @@ export class MembershipService {
     return Array.from(this.rewardedSessions).filter(id => id.startsWith('session-')).length;
   }
 
-  addIdea(idea: string) {
-    if (!idea.trim()) return;
-    const cleanIdea = idea.trim();
-    const current = this.capturedIdeas();
-    this.capturedIdeas.set([cleanIdea, ...current]);
+  async addIdea(ideaText: string) {
+    if (!ideaText || !ideaText.trim()) return;
+    const cleanContent = ideaText.trim();
+    const tempId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `temp-${Date.now()}`;
+    const newIdea: CapturedIdea = {
+      id: tempId,
+      content: cleanContent,
+      is_converted_to_objective: false,
+      display_order: 1,
+      created_at: new Date().toISOString()
+    };
+
+    this.capturedIdeas.update(list => [newIdea, ...list]);
 
     if (this.supabaseService.isConfigured()) {
-      this.supabaseService.saveCapturedIdea(cleanIdea).catch(err => {
+      try {
+        const res = await this.supabaseService.saveCapturedIdea(cleanContent);
+        if (res.success && res.idea) {
+          this.capturedIdeas.update(list =>
+            list.map(item => item.id === tempId ? res.idea! : item)
+          );
+        }
+      } catch (err) {
         console.warn('[Supabase Idea Save Error]', err);
-      });
+      }
     }
   }
 
-  removeIdea(index: number) {
-    const current = this.capturedIdeas();
-    this.capturedIdeas.set(current.filter((_: string, i: number) => i !== index));
+  async updateIdea(idOrIndex: string | number, newContent: string) {
+    if (!newContent || !newContent.trim()) return;
+    const cleanContent = newContent.trim();
+    let targetId: string | undefined;
+
+    this.capturedIdeas.update(list => {
+      if (typeof idOrIndex === 'number') {
+        const item = list[idOrIndex];
+        if (item) {
+          targetId = item.id;
+          return list.map((it, idx) => idx === idOrIndex ? { ...it, content: cleanContent } : it);
+        }
+        return list;
+      } else {
+        targetId = idOrIndex;
+        return list.map(it => it.id === idOrIndex ? { ...it, content: cleanContent } : it);
+      }
+    });
+
+    if (targetId && !targetId.startsWith('local-') && !targetId.startsWith('temp-') && this.supabaseService.isConfigured()) {
+      try {
+        await this.supabaseService.updateCapturedIdea(targetId, cleanContent);
+      } catch (err) {
+        console.warn('[Supabase Idea Update Error]', err);
+      }
+    }
   }
 
-  clearAllIdeas() {
+  async removeIdea(idOrIndex: string | number) {
+    let targetId: string | undefined;
+
+    this.capturedIdeas.update(list => {
+      if (typeof idOrIndex === 'number') {
+        const item = list[idOrIndex];
+        if (item) targetId = item.id;
+        return list.filter((_, idx) => idx !== idOrIndex);
+      } else {
+        targetId = idOrIndex;
+        return list.filter(it => it.id !== idOrIndex);
+      }
+    });
+
+    if (targetId && !targetId.startsWith('local-') && !targetId.startsWith('temp-') && this.supabaseService.isConfigured()) {
+      try {
+        await this.supabaseService.deleteCapturedIdea(targetId);
+      } catch (err) {
+        console.warn('[Supabase Idea Delete Error]', err);
+      }
+    }
+  }
+
+  async clearAllIdeas() {
     this.capturedIdeas.set([]);
+
+    if (this.supabaseService.isConfigured()) {
+      try {
+        const user = await this.supabaseService.getCurrentUser();
+        if (user) {
+          await this.supabaseService.clearAllCapturedIdeas(user.id);
+        }
+      } catch (err) {
+        console.warn('[Supabase Clear Ideas Error]', err);
+      }
+    }
   }
 
   // Obtener avatares dinámicamente con su estado de bloqueo actualizado
@@ -960,8 +1054,8 @@ export class MembershipService {
       }
       // Cargar ideas desde Supabase
       const { ideas } = await this.supabaseService.getCapturedIdeas(user.id);
-      if (ideas && ideas.length > 0) {
-        this.capturedIdeas.set(ideas.map(i => i.content));
+      if (ideas) {
+        this.capturedIdeas.set(normalizeCapturedIdeas(ideas));
       }
       return { success: true };
     }
@@ -1153,7 +1247,7 @@ export class MembershipService {
     const userActiveDaysVal = JSON.parse(localStorage.getItem(`user:${email}:user-active-days`) || '[1, 2, 3, 4, 5]');
     const podiumWinsVal = parseInt(localStorage.getItem(`user:${email}:podium-wins`) || '0', 10);
     const onboardingCompletedVal = localStorage.getItem(`user:${email}:onboarding-completed`) !== 'false';
-    const capturedIdeasVal = JSON.parse(localStorage.getItem(`user:${email}:captured-ideas`) || '[]');
+    const capturedIdeasVal = normalizeCapturedIdeas(JSON.parse(localStorage.getItem(`user:${email}:captured-ideas`) || '[]'));
 
     this.rewardedSessions = new Set<string>(
       JSON.parse(localStorage.getItem(`user:${email}:rewarded-sessions`) || '[]')

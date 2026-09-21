@@ -1231,6 +1231,29 @@ export class SupabaseService {
     }
   }
 
+  async updateCapturedIdea(id: string, content: string): Promise<{ success: boolean; error?: string; idea?: CapturedIdea }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('captured_ideas')
+        .update({ content: content.trim() })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, idea: data as CapturedIdea };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al actualizar idea' };
+    }
+  }
+
   async deleteCapturedIdea(id: string): Promise<{ success: boolean; error?: string }> {
     if (!this.isConfigured()) {
       return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
@@ -1249,6 +1272,28 @@ export class SupabaseService {
       return { success: true };
     } catch (e: any) {
       return { success: false, error: e.message || 'Error al eliminar idea' };
+    }
+  }
+
+  async clearAllCapturedIdeas(userId: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('captured_ideas')
+        .delete()
+        .eq('user_id', userId)
+        .eq('is_converted_to_objective', false);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al vaciar baúl de ideas' };
     }
   }
 
