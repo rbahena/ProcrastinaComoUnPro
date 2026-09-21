@@ -1047,6 +1047,61 @@
       </div>
     </div>
 
+    <!-- Fondo Panorámico Responsivo de Borde a Borde para Modo Avión (Cielo Nocturno, Estrellas, Nubes y Suelo de Pista / Asfalto hasta el Pie de Pantalla) -->
+    <div *ngIf="timerStyle() === 'airplane' && arenaState() !== 'countdown'"
+         class="airplane-fullscreen-runway-backdrop">
+      <div class="airplane-backdrop-sky">
+        <svg class="airplane-fullscreen-sky-svg" viewBox="0 0 1920 650" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;">
+          <defs>
+            <linearGradient id="screenAirplaneSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#020617" />
+              <stop offset="35%" stop-color="#071739" />
+              <stop offset="70%" stop-color="#0f2b48" />
+              <stop offset="90%" stop-color="#1e3a5f" />
+              <stop offset="100%" stop-color="#2d3748" />
+            </linearGradient>
+            <filter id="screenAirplaneAtmosphereBlur" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="8" />
+            </filter>
+          </defs>
+          <rect x="0" y="0" width="1920" height="650" fill="url(#screenAirplaneSkyGrad)" />
+
+          <!-- Manto Panorámico de Estrellas del Cielo Crepuscular y Nocturno -->
+          <circle cx="120" cy="45" r="0.85" fill="#f8fafc" opacity="0.6" />
+          <circle cx="280" cy="30" r="0.6" fill="#cbd5e1" opacity="0.45" />
+          <circle cx="480" cy="60" r="1.1" fill="#f8fafc" opacity="0.7" />
+          <circle cx="680" cy="25" r="0.75" fill="#7dd3fc" opacity="0.5" />
+          <circle cx="920" cy="50" r="0.9" fill="#f8fafc" opacity="0.65" />
+          <circle cx="1180" cy="35" r="0.7" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="1420" cy="55" r="1.0" fill="#f8fafc" opacity="0.6" />
+          <circle cx="1680" cy="28" r="0.8" fill="#7dd3fc" opacity="0.5" />
+          <circle cx="1850" cy="65" r="0.65" fill="#cbd5e1" opacity="0.45" />
+
+          <circle cx="200" cy="110" r="0.5" fill="#94a3b8" opacity="0.35" />
+          <circle cx="350" cy="140" r="0.8" fill="#f8fafc" opacity="0.55" />
+          <circle cx="580" cy="120" r="0.6" fill="#cbd5e1" opacity="0.4" />
+          <circle cx="820" cy="160" r="0.9" fill="#f8fafc" opacity="0.6" />
+          <circle cx="1060" cy="130" r="0.75" fill="#e2e8f0" opacity="0.5" />
+          <circle cx="1310" cy="150" r="0.55" fill="#94a3b8" opacity="0.35" />
+          <circle cx="1550" cy="115" r="0.85" fill="#f8fafc" opacity="0.55" />
+          <circle cx="1780" cy="145" r="0.65" fill="#cbd5e1" opacity="0.4" />
+
+          <!-- Nubes Lejanas Atmosféricas de Fondo -->
+          <g opacity="0.25">
+            <ellipse cx="320" cy="180" rx="160" ry="20" fill="#1e293b" filter="url(#screenAirplaneAtmosphereBlur)" />
+            <ellipse cx="880" cy="210" rx="220" ry="24" fill="#1e293b" filter="url(#screenAirplaneAtmosphereBlur)" />
+            <ellipse cx="1480" cy="190" rx="190" ry="22" fill="#1e293b" filter="url(#screenAirplaneAtmosphereBlur)" />
+          </g>
+        </svg>
+      </div>
+
+      <!-- Línea de Horizonte Terrestre y Bruma de Pista con Reflejo Dinámico -->
+      <div class="airplane-horizon-line-glow"></div>
+
+      <!-- Asfalto y Pista Nocturna Profunda que llena el 100% del fondo inferior hasta abajo de la pantalla -->
+      <div class="airplane-backdrop-tarmac"></div>
+    </div>
+
     <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
     <div class="main custom-scrollbar" style="display: flex; flex-direction: column; position: relative; z-index: 1; flex: 1;">
 
@@ -4935,14 +4990,14 @@
               </ng-container>
 
 
-              <!-- CASO 13: Avión en Aproximación y Aterrizaje en Pista (Runway Approach) -->
+              <!-- CASO 13: Avión en Aproximación y Aterrizaje en Pista (Runway Approach - Full-Bleed 100vw) -->
               <ng-container *ngIf="timerStyle() === 'airplane'">
                 <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                      class="airplane-runway-container"
-                     style="position: relative; width: 440px; height: 360px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible; z-index: 1; pointer-events: none;">
+                     style="position: relative; width: 100vw; height: auto; aspect-ratio: 1920 / 320; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible; z-index: 6; pointer-events: none;">
                   
-                  <!-- SVG Cinemático del Aterrizaje en Pista (Lienzo 460x320) -->
-                  <svg viewBox="0 0 460 320" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                  <!-- SVG Cinemático del Aterrizaje en Pista Panorámica Completa (Lienzo 1920x320) -->
+                  <svg viewBox="0 0 1920 320" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
                     <defs>
                       <!-- Filtros de iluminación aeronáutica -->
                       <filter id="airplaneStrobeGlow" x="-60%" y="-60%" width="220%" height="220%">
@@ -5016,182 +5071,190 @@
                       </linearGradient>
                     </defs>
 
-                    <!-- ==================== CIELO EXTENDIDO ==================== -->
-                    <rect x="-1400" y="-800" width="3260" height="1050" fill="url(#airplaneSkyGrad)" />
-
-                    <!-- Capas de nubes dinámicas en movimiento horizontal (Parallax Drift) -->
-                    <g class="airplane-clouds-layer-slow" opacity="0.35">
-                      <ellipse cx="750" cy="45" rx="140" ry="16" fill="#1e293b" />
-                      <ellipse cx="380" cy="85" rx="180" ry="22" fill="#1e293b" />
-                      <ellipse cx="-50" cy="60" rx="160" ry="18" fill="#1e293b" />
-                      <ellipse cx="-480" cy="95" rx="200" ry="24" fill="#1e293b" />
+                    <!-- Capas de nubes dinámicas en movimiento horizontal a lo largo de toda la pantalla (1920) -->
+                    <g class="airplane-clouds-layer-slow" opacity="0.25">
+                      <ellipse cx="1720" cy="45" rx="140" ry="14" fill="#1e293b" />
+                      <ellipse cx="1280" cy="75" rx="160" ry="16" fill="#1e293b" />
+                      <ellipse cx="850" cy="50" rx="150" ry="18" fill="#1e293b" />
+                      <ellipse cx="420" cy="85" rx="140" ry="15" fill="#1e293b" />
+                      <ellipse cx="120" cy="40" rx="120" ry="14" fill="#1e293b" />
                     </g>
-                    <g class="airplane-clouds-layer-fast" opacity="0.45">
-                      <ellipse cx="620" cy="75" rx="95" ry="12" fill="#334155" />
-                      <ellipse cx="180" cy="110" rx="120" ry="15" fill="#334155" />
-                      <ellipse cx="-280" cy="80" rx="110" ry="14" fill="#334155" />
+                    <g class="airplane-clouds-layer-fast" opacity="0.32">
+                      <ellipse cx="1550" cy="80" rx="90" ry="11" fill="#334155" />
+                      <ellipse cx="1080" cy="65" rx="110" ry="12" fill="#334155" />
+                      <ellipse cx="620" cy="95" rx="100" ry="11" fill="#334155" />
+                      <ellipse cx="220" cy="70" rx="80" ry="10" fill="#334155" />
                     </g>
 
                     <!-- Líneas de velocidad y corrientes de viento aéreo (Aerodynamic Speed Streaks) -->
-                    <g class="airplane-speed-streaks" opacity="0.75">
-                      <line x1="0" y1="32" x2="160" y2="32" stroke="url(#speedStreakGrad)" stroke-width="1.2" stroke-linecap="round" class="speed-line-fast-1" />
-                      <line x1="0" y1="62" x2="240" y2="62" stroke="url(#speedStreakCyanGrad)" stroke-width="1.6" stroke-linecap="round" class="speed-line-fast-2" />
-                      <line x1="0" y1="88" x2="180" y2="88" stroke="url(#speedStreakGrad)" stroke-width="1.1" stroke-linecap="round" class="speed-line-fast-3" />
-                      <line x1="0" y1="118" x2="280" y2="118" stroke="url(#speedStreakCyanGrad)" stroke-width="1.8" stroke-linecap="round" class="speed-line-fast-4" />
-                      <line x1="0" y1="145" x2="210" y2="145" stroke="url(#speedStreakGrad)" stroke-width="1.3" stroke-linecap="round" class="speed-line-fast-5" />
-                      <line x1="0" y1="175" x2="250" y2="175" stroke="url(#speedStreakCyanGrad)" stroke-width="1.5" stroke-linecap="round" class="speed-line-fast-6" />
-                      <line x1="0" y1="48" x2="130" y2="48" stroke="url(#speedStreakGrad)" stroke-width="0.9" stroke-linecap="round" class="speed-line-fast-7" />
-                      <line x1="0" y1="135" x2="200" y2="135" stroke="url(#speedStreakGrad)" stroke-width="1.4" stroke-linecap="round" class="speed-line-fast-8" />
+                    <g class="airplane-speed-streaks" opacity="0.60">
+                      <line x1="0" y1="32" x2="220" y2="32" stroke="url(#speedStreakGrad)" stroke-width="1.0" stroke-linecap="round" class="speed-line-fast-1" />
+                      <line x1="0" y1="62" x2="320" y2="62" stroke="url(#speedStreakCyanGrad)" stroke-width="1.3" stroke-linecap="round" class="speed-line-fast-2" />
+                      <line x1="0" y1="88" x2="260" y2="88" stroke="url(#speedStreakGrad)" stroke-width="0.9" stroke-linecap="round" class="speed-line-fast-3" />
+                      <line x1="0" y1="118" x2="380" y2="118" stroke="url(#speedStreakCyanGrad)" stroke-width="1.4" stroke-linecap="round" class="speed-line-fast-4" />
+                      <line x1="0" y1="145" x2="300" y2="145" stroke="url(#speedStreakGrad)" stroke-width="1.1" stroke-linecap="round" class="speed-line-fast-5" />
+                      <line x1="0" y1="175" x2="350" y2="175" stroke="url(#speedStreakCyanGrad)" stroke-width="1.2" stroke-linecap="round" class="speed-line-fast-6" />
                     </g>
 
-                    <!-- Estrellas y resplandor crepuscular -->
-                    <g class="airplane-stars" opacity="0.8">
-                      <circle cx="120" cy="35" r="1.2" fill="#ffffff" class="lighthouse-star-1" />
-                      <circle cx="280" cy="48" r="1.3" fill="#fef08a" class="lighthouse-star-2" />
-                      <circle cx="480" cy="28" r="1.4" fill="#ffffff" class="lighthouse-star-3" />
-                      <circle cx="640" cy="42" r="1.1" fill="#fef08a" class="lighthouse-star-1" />
-                      <circle cx="-120" cy="30" r="1.2" fill="#ffffff" class="lighthouse-star-2" />
+                    <!-- Estrellas fijas y resplandor crepuscular (Puntos limpios estáticos, sin parpadeo) -->
+                    <g class="airplane-stars" opacity="0.65">
+                      <circle cx="80" cy="25" r="0.8" fill="#ffffff" />
+                      <circle cx="280" cy="48" r="0.9" fill="#fef08a" />
+                      <circle cx="520" cy="28" r="1.0" fill="#ffffff" />
+                      <circle cx="760" cy="42" r="0.8" fill="#fef08a" />
+                      <circle cx="1020" cy="30" r="0.9" fill="#ffffff" />
+                      <circle cx="1280" cy="45" r="0.8" fill="#fef08a" />
+                      <circle cx="1540" cy="26" r="1.0" fill="#ffffff" />
+                      <circle cx="1780" cy="38" r="0.8" fill="#fef08a" />
                     </g>
 
-                    <!-- ==================== SUELO DEL AEROPUERTO Y PISTA DE ATERRIZAJE (Y=250) ==================== -->
-                    <!-- Terreno y Asfalto -->
-                    <rect x="-1400" y="250" width="3260" height="1400" fill="url(#runwayAsphaltGrad)" />
-                    
-                    <!-- Línea de Horizonte Terrestre y Bruma de Pista con Reflejo Dinámico -->
-                    <line x1="-1400" y1="250" x2="1860" y2="250" stroke="#1e293b" stroke-width="1.4" />
-                    <ellipse cx="100" cy="250" rx="600" ry="8" fill="rgba(56, 189, 248, 0.08)" filter="url(#runwayLightsDiffusion)" class="runway-ambient-pulse" />
+                    <!-- ==================== LÍNEA DE HORIZONTE Y BRUMA DE PISTA (0 a 1920) ==================== -->
+                    <line x1="0" y1="250" x2="1920" y2="250" stroke="#1e293b" stroke-width="1.0" opacity="0.4" />
 
-                    <!-- ==================== ILUMINACIÓN Y ESTRUCTURA DE LA PISTA ==================== -->
-                    <!-- 1. Sistema de Luces de Aproximación Secuenciales "The Rabbit" (ALS Sequenced Flashers) -->
-                    <g class="runway-approach-lighting" transform="translate(180, 250)">
-                      <!-- Torres con destellos secuenciales ultrarrápidos corriendo hacia la pista -->
-                      <!-- Luz 9 (más lejana x=360) -->
-                      <line x1="360" y1="0" x2="360" y2="6" stroke="#475569" stroke-width="1.2" />
-                      <circle cx="360" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-9" />
-                      <circle cx="360" cy="0" r="1.2" fill="#ffffff" />
-
-                      <!-- Luz 8 (x=315) -->
-                      <line x1="315" y1="0" x2="315" y2="6" stroke="#475569" stroke-width="1.2" />
-                      <circle cx="315" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-8" />
-                      <circle cx="315" cy="0" r="1.2" fill="#ffffff" />
-
-                      <!-- Luz 7 (x=270) -->
-                      <line x1="270" y1="0" x2="270" y2="6" stroke="#475569" stroke-width="1.2" />
-                      <circle cx="270" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-7" />
-                      <circle cx="270" cy="0" r="1.2" fill="#ffffff" />
-
-                      <!-- Luz 6 (x=225) -->
-                      <line x1="225" y1="0" x2="225" y2="6" stroke="#475569" stroke-width="1.2" />
-                      <circle cx="225" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-6" />
-                      <circle cx="225" cy="0" r="1.2" fill="#ffffff" />
-
-                      <!-- Luz 5 (x=180) -->
-                      <line x1="180" y1="0" x2="180" y2="6" stroke="#475569" stroke-width="1.2" />
-                      <circle cx="180" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-5" />
-                      <circle cx="180" cy="0" r="1.2" fill="#ffffff" />
-
-                      <!-- Luz 4 (x=135) -->
-                      <line x1="135" y1="0" x2="135" y2="6" stroke="#475569" stroke-width="1.2" />
-                      <circle cx="135" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-4" />
-                      <circle cx="135" cy="0" r="1.2" fill="#ffffff" />
-
-                      <!-- Luz 3 (x=90) -->
-                      <line x1="90" y1="0" x2="90" y2="6" stroke="#475569" stroke-width="1.2" />
-                      <circle cx="90" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-3" />
-                      <circle cx="90" cy="0" r="1.2" fill="#ffffff" />
-
-                      <!-- Luz 2 (x=45) -->
-                      <line x1="45" y1="0" x2="45" y2="6" stroke="#475569" stroke-width="1.2" />
-                      <circle cx="45" cy="0" r="3.2" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-2" />
-                      <circle cx="45" cy="0" r="1.2" fill="#ffffff" />
-
-                      <!-- Luz 1 (x=0 en el umbral) -->
-                      <line x1="0" y1="0" x2="0" y2="6" stroke="#475569" stroke-width="1.2" />
-                      <circle cx="0" cy="0" r="3.8" fill="#fef08a" filter="url(#runwayLightsDiffusion)" class="rabbit-flash-1" />
-                      <circle cx="0" cy="0" r="1.5" fill="#ffffff" />
+                    <!-- ==================== ILUMINACIÓN Y ESTRUCTURA DE LA PISTA COMPLETA (TAMAÑO REDUCIDO Y ELEGANTE) ==================== -->
+                    <!-- 1. Sistema de Luces de Aproximación ALS (de x=1100 a x=1880, Puntos LED Nítidos Fijos) -->
+                    <g class="runway-approach-lighting">
+                      <!-- Torres de aproximación con balizas fijas discretas -->
+                      <g stroke="#334155" stroke-width="1.0">
+                        <line x1="1880" y1="250" x2="1880" y2="254" />
+                        <line x1="1820" y1="250" x2="1820" y2="254" />
+                        <line x1="1760" y1="250" x2="1760" y2="254" />
+                        <line x1="1700" y1="250" x2="1700" y2="254" />
+                        <line x1="1640" y1="250" x2="1640" y2="254" />
+                        <line x1="1580" y1="250" x2="1580" y2="254" />
+                        <line x1="1520" y1="250" x2="1520" y2="254" />
+                        <line x1="1460" y1="250" x2="1460" y2="254" />
+                        <line x1="1400" y1="250" x2="1400" y2="254" />
+                        <line x1="1340" y1="250" x2="1340" y2="254" />
+                        <line x1="1280" y1="250" x2="1280" y2="254" />
+                        <line x1="1220" y1="250" x2="1220" y2="254" />
+                        <line x1="1160" y1="250" x2="1160" y2="254" />
+                        <line x1="1100" y1="250" x2="1100" y2="254" />
+                      </g>
+                      <!-- Puntos de luz LED ámbar/blanco nítidos sin parpadeos expansivos -->
+                      <circle cx="1880" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1880" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1820" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1820" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1760" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1760" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1700" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1700" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1640" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1640" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1580" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1580" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1520" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1520" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1460" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1460" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1400" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1400" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1340" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1340" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1280" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1280" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1220" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1220" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1160" cy="250" r="1.5" fill="#fef08a" />
+                      <circle cx="1160" cy="250" r="0.7" fill="#ffffff" />
+                      <circle cx="1100" cy="250" r="1.8" fill="#fef08a" />
+                      <circle cx="1100" cy="250" r="0.9" fill="#ffffff" />
                     </g>
 
-                    <!-- 2. Pista de Asfalto Iluminada (Runway Tarmac de x=-600 a x=180) -->
+                    <!-- 2. Pista de Asfalto Iluminada (Runway Tarmac de x=0 a x=1100) -->
                     <g class="runway-markings">
-                      <!-- Franja de borde de pista blanca -->
-                      <line x1="-600" y1="248.5" x2="180" y2="248.5" stroke="#f8fafc" stroke-width="1.6" opacity="0.9" />
+                      <!-- Franja de borde de pista blanca continua (de x=0 a x=1100) -->
+                      <line x1="0" y1="248.5" x2="1100" y2="248.5" stroke="#f8fafc" stroke-width="1.5" opacity="0.85" />
                       
-                      <!-- Luces Verdes de Umbral de Pista (Runway Threshold Lights) en x=180 -->
-                      <g transform="translate(180, 248.5)">
-                        <circle cx="0" cy="0" r="3.2" fill="#10b981" filter="url(#runwayLightsDiffusion)" class="threshold-green-pulse" />
-                        <circle cx="0" cy="0" r="1.4" fill="#ffffff" />
-                        <circle cx="0" cy="4" r="2.6" fill="#10b981" filter="url(#runwayLightsDiffusion)" class="threshold-green-pulse" />
+                      <!-- Luces Verdes de Umbral de Pista (Runway Threshold Lights Fijas y Nítidas) en x=1100 -->
+                      <g transform="translate(1100, 248.5)">
+                        <circle cx="0" cy="0" r="2.0" fill="#10b981" />
+                        <circle cx="0" cy="0" r="0.9" fill="#ffffff" />
+                        <circle cx="0" cy="4" r="1.6" fill="#10b981" />
+                        <circle cx="0" cy="4" r="0.7" fill="#ffffff" />
+                        <circle cx="0" cy="-4" r="1.6" fill="#10b981" />
+                        <circle cx="0" cy="-4" r="0.7" fill="#ffffff" />
                       </g>
 
-                      <!-- Marcas de Umbral (Piano Keys) en x=160..130 -->
+                      <!-- Marcas de Umbral (Piano Keys estilizadas y compactas) en x=1040..1092 -->
                       <g fill="#f8fafc" opacity="0.85">
-                        <rect x="135" y="250" width="4" height="6" />
-                        <rect x="143" y="250" width="4" height="6" />
-                        <rect x="151" y="250" width="4" height="6" />
-                        <rect x="159" y="250" width="4" height="6" />
-                        <rect x="167" y="250" width="4" height="6" />
+                        <rect x="1040" y="249.5" width="5" height="5" />
+                        <rect x="1050" y="249.5" width="5" height="5" />
+                        <rect x="1060" y="249.5" width="5" height="5" />
+                        <rect x="1070" y="249.5" width="5" height="5" />
+                        <rect x="1080" y="249.5" width="5" height="5" />
+                        <rect x="1090" y="249.5" width="5" height="5" />
                       </g>
 
-                      <!-- Zona de Toma de Contacto (Touchdown Zone Markings) en x=80..120 -->
+                      <!-- Indicador de Cabecera de Pista "27L" -->
+                      <text x="1015" y="254" text-anchor="middle" fill="#f8fafc" font-size="8" font-weight="900" font-family="'Space Grotesk', monospace" opacity="0.8" transform="rotate(-90 1015 254)">27L</text>
+
+                      <!-- Zona de Toma de Contacto (Touchdown Zone Markings en x=760..910) -->
                       <g fill="#f8fafc" opacity="0.8">
-                        <rect x="95" y="250" width="16" height="3" />
-                        <rect x="115" y="250" width="16" height="3" />
+                        <rect x="760" y="249.5" width="28" height="2.5" />
+                        <rect x="820" y="249.5" width="34" height="3" />
+                        <rect x="880" y="249.5" width="28" height="2.5" />
                       </g>
 
-                      <!-- Eje de Pista Discontinuo (Centerline) -->
-                      <g stroke="#f8fafc" stroke-width="1.8" stroke-dasharray="14 10" opacity="0.85">
-                        <line x1="-550" y1="251.5" x2="130" y2="251.5" />
+                      <!-- Eje de Pista Discontinuo (Centerline de x=0 a x=1030) -->
+                      <g stroke="#f8fafc" stroke-width="1.6" stroke-dasharray="18 14" opacity="0.8">
+                        <line x1="0" y1="251.0" x2="1030" y2="251.0" />
                       </g>
 
-                      <!-- Luces de Borde de Pista Blancas/Ámbar con destello sutil -->
+                      <!-- Luces de Borde de Pista Blancas Fijas Nítidas a lo largo de toda la pista -->
                       <g class="runway-edge-lights">
-                        <circle cx="150" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="100" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="50" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="0" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="-50" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="-100" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="-150" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="-200" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="-250" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="-300" cy="248.5" r="2.2" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
+                        <circle cx="1080" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="1000" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="920" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="840" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="760" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="680" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="600" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="520" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="440" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="360" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="280" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="200" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="120" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
+                        <circle cx="40" cy="248.5" r="1.4" fill="#ffffff" opacity="0.9" />
                       </g>
 
-                      <!-- Sistema PAPI (Precision Approach Path Indicator: 4 luces blanco/rojo en x=90) -->
-                      <g transform="translate(90, 246)">
-                        <circle cx="0" cy="0" r="2.0" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="5" cy="0" r="2.0" fill="#ffffff" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="10" cy="0" r="2.0" fill="#ef4444" filter="url(#runwayLightsDiffusion)" />
-                        <circle cx="15" cy="0" r="2.0" fill="#ef4444" filter="url(#runwayLightsDiffusion)" />
+                      <!-- Sistema PAPI (Precision Approach Path Indicator: 4 luces blanco/rojo en x=940) -->
+                      <g transform="translate(940, 246.5)">
+                        <circle cx="0" cy="0" r="1.5" fill="#ffffff" />
+                        <circle cx="6" cy="0" r="1.5" fill="#ffffff" />
+                        <circle cx="12" cy="0" r="1.5" fill="#ef4444" />
+                        <circle cx="18" cy="0" r="1.5" fill="#ef4444" />
                       </g>
                     </g>
 
-                    <!-- 3. Torre de Control del Aeropuerto y Terminal al Fondo a la Izquierda (x=-110) -->
-                    <g id="airportControlTower" transform="translate(-110, 180)">
+                    <!-- 3. Torre de Control del Aeropuerto al Fondo a la Izquierda (x=140, Escala Compacta) -->
+                    <g id="airportControlTower" transform="translate(140, 195) scale(0.78)">
                       <!-- Fuste / Columna de Hormigón de la Torre -->
                       <polygon points="-8,70 8,70 6,20 -6,20" fill="#1e293b" stroke="#0f172a" stroke-width="0.8" />
                       <!-- Cabina de Control Acristalada Octogonal (VTC Cab) -->
                       <polygon points="-16,20 16,20 12,8 -12,8" fill="#0369a1" stroke="#0284c7" stroke-width="0.8" />
                       <!-- Ventanales con luz verde/ámbar de radar interior -->
-                      <polygon points="-14,18 14,18 10,10 -10,10" fill="#38bdf8" opacity="0.85" filter="url(#airplaneStrobeGlow)" />
+                      <polygon points="-14,18 14,18 10,10 -10,10" fill="#38bdf8" opacity="0.85" />
                       <!-- Techo y Cúpula de Radar de Superficie -->
                       <polygon points="-14,8 14,8 10,4 -10,4" fill="#0f172a" />
                       <!-- Antena Radar Giratoria Superior -->
                       <line x1="0" y1="4" x2="0" y2="-4" stroke="#94a3b8" stroke-width="1.2" />
-                      <line x1="-8" y1="-4" x2="8" y2="-4" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round" class="airport-radar-spin" />
-                      <!-- Baliza Aeronáutica Rotatoria (Airport Rotating Beacon: Verde y Blanco con Haz de Barrido) -->
-                      <circle cx="0" cy="-6" r="3.5" fill="#10b981" class="airport-beacon-flash" filter="url(#airplaneStrobeGlow)" />
-                      <circle cx="0" cy="-6" r="1.4" fill="#ffffff" />
+                      <line x1="-8" y1="-4" x2="8" y2="-4" stroke="#f8fafc" stroke-width="1.8" stroke-linecap="round" class="airport-radar-spin" />
+                      <!-- Baliza Aeronáutica Rotatoria Fija y Nítida -->
+                      <circle cx="0" cy="-6" r="2.0" fill="#10b981" />
+                      <circle cx="0" cy="-6" r="0.9" fill="#ffffff" />
                     </g>
 
-                    <!-- Manga de Viento Iluminada (Windsock en x=-45 con balanceo suave) -->
-                    <g transform="translate(-45, 238)" class="windsock-flutter">
+                    <!-- Manga de Viento Iluminada (Windsock en x=260 con balanceo suave y tamaño reducido) -->
+                    <g transform="translate(260, 241) scale(0.75)" class="windsock-flutter">
                       <line x1="0" y1="12" x2="0" y2="0" stroke="#64748b" stroke-width="1.2" />
                       <!-- Cono Naranja con Franjas Blancas ondeando a la izquierda -->
                       <polygon points="0,0 -16,-3 -16,3 0,4" fill="#f97316" />
                       <polygon points="-4,-1 -8,-1.5 -8,2.5 -4,2.8" fill="#ffffff" />
                       <polygon points="-12,-2.2 -16,-3 -16,3 -12,2" fill="#ffffff" />
-                      <circle cx="0" cy="-1" r="1.2" fill="#fde047" filter="url(#runwayLightsDiffusion)" />
+                      <circle cx="0" cy="-1" r="1.0" fill="#fde047" />
                     </g>
 
                     <!-- ==================== EL AVIÓN COMERCIAL EN APROXIMACIÓN (JET DE PASAJEROS) ==================== -->
@@ -5217,7 +5280,7 @@
                         </g>
 
                         <!-- 3. Humo de Neumáticos en la Toma de Contacto (Touchdown Smoke Puff) -->
-                        <g *ngIf="airplaneTouchdownSmoke()" class="airplane-tire-smoke" transform="translate(6, 6)">
+                        <g *ngIf="airplaneTouchdownSmoke()" class="airplane-tire-smoke" transform="translate(4, 8)">
                           <circle cx="0" cy="0" r="4" fill="rgba(255,255,255,0.85)" />
                           <circle cx="6" cy="-2" r="5" fill="rgba(241,245,249,0.7)" />
                           <circle cx="14" cy="-4" r="7" fill="rgba(203,213,225,0.5)" />
@@ -5299,60 +5362,58 @@
                         <circle cx="43" cy="-18" r="2.2" fill="#ffffff" opacity="0.9" />
                         <polygon points="38,-4 49,-9 47,-6 38,-2" fill="#94a3b8" stroke="#64748b" stroke-width="0.5" />
 
-                        <!-- 9. SISTEMA DE LUCES AERONÁUTICAS INTERMITENTES Y DE NAVEGACIÓN -->
+                        <!-- 9. SISTEMA DE LUCES AERONÁUTICAS Y DE NAVEGACIÓN (Puntos LED Nítidos y Estilizados) -->
                         <g [style.opacity]="airplaneCabinLightsOpacity()" style="transition: opacity 1.5s ease-out;">
-                          <!-- Baliza Anticolisión Roja en el Lomo (Red Beacon Light Flashing) -->
-                          <circle cx="-5" cy="-9" r="2.4" fill="#ef4444" class="airplane-beacon-pulse" filter="url(#airplaneStrobeGlow)" />
-                          <circle cx="-5" cy="-9" r="1.0" fill="#ffffff" />
+                          <!-- Baliza Roja en el Lomo -->
+                          <circle cx="-5" cy="-9" r="1.4" fill="#ef4444" />
+                          <circle cx="-5" cy="-9" r="0.7" fill="#ffffff" />
 
-                          <!-- Baliza Anticolisión Roja en el Vientre -->
-                          <circle cx="-4" cy="2" r="2.2" fill="#ef4444" class="airplane-beacon-pulse" filter="url(#airplaneStrobeGlow)" />
+                          <!-- Baliza Roja en el Vientre -->
+                          <circle cx="-4" cy="2" r="1.3" fill="#ef4444" />
 
-                          <!-- Luz Estroboscópica Blanca de Punta de Ala (Wingtip Strobe con doble flash ágil) -->
-                          <circle cx="37" cy="-15" r="3.0" fill="#ffffff" class="airplane-strobe-flash" filter="url(#airplaneStrobeGlow)" />
+                          <!-- Luz Blanca de Punta de Ala -->
+                          <circle cx="37" cy="-15" r="1.6" fill="#ffffff" />
 
                           <!-- Luz de Navegación Verde en Punta de Ala Derecha (Starboard Green Light) -->
-                          <circle cx="37" cy="-12" r="1.8" fill="#10b981" filter="url(#airplaneStrobeGlow)" />
-                          <circle cx="37" cy="-12" r="0.8" fill="#ffffff" />
+                          <circle cx="37" cy="-12" r="1.3" fill="#10b981" />
+                          <circle cx="37" cy="-12" r="0.6" fill="#ffffff" />
 
                           <!-- Luz Blanca de Cola (Tail White Nav Light) -->
-                          <circle cx="47" cy="-4" r="1.6" fill="#ffffff" filter="url(#airplaneStrobeGlow)" />
+                          <circle cx="47" cy="-4" r="1.2" fill="#ffffff" />
                         </g>
 
                       </g>
                     </g>
 
                     <!-- ==================== HUD / CRONÓMETRO DISCRETO AERONÁUTICO SUPERIOR ==================== -->
-                    <g class="airplane-countdown-hud" transform="translate(230, 30)" style="cursor: default; user-select: none;">
+                    <g class="airplane-countdown-hud" transform="translate(960, 26) scale(0.88)" style="cursor: default; user-select: none;">
                       <!-- Cápsula de cristal aeronáutico -->
-                      <rect x="-75" y="-14" width="150" height="28" rx="14" 
+                      <rect x="-80" y="-15" width="160" height="30" rx="15" 
                             fill="rgba(3, 11, 28, 0.85)" 
-                            stroke="rgba(56, 189, 248, 0.4)" 
-                            stroke-width="1.2" 
-                            filter="url(#airplaneStrobeGlow)" />
-                      <rect x="-75" y="-14" width="150" height="28" rx="14" 
+                            stroke="rgba(56, 189, 248, 0.35)" 
+                            stroke-width="1.0" />
+                      <rect x="-80" y="-15" width="160" height="30" rx="15" 
                             fill="rgba(2, 6, 23, 0.75)" 
-                            stroke="rgba(255, 255, 255, 0.18)" 
-                            stroke-width="0.8" />
+                            stroke="rgba(255, 255, 255, 0.15)" 
+                            stroke-width="0.6" />
 
                       <!-- Icono de Avión o Indicador de Estado -->
-                      <circle cx="-56" cy="0" r="3.2" fill="#38bdf8" class="airplane-hud-pulse" filter="url(#airplaneStrobeGlow)" />
-                      <circle cx="-56" cy="0" r="1.5" fill="#ffffff" />
+                      <circle cx="-60" cy="0" r="2.2" fill="#38bdf8" />
+                      <circle cx="-60" cy="0" r="1.0" fill="#ffffff" />
 
                       <!-- Dígitos del Conteo Regresivo -->
-                      <text x="-16" y="5" 
+                      <text x="-18" y="5.5" 
                             text-anchor="middle" 
                             fill="#f8fafc" 
                             font-size="14" 
                             font-weight="700" 
                             font-family="'Space Grotesk', monospace" 
-                            letter-spacing="1.5px"
-                            style="text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);">
+                            letter-spacing="1.2px">
                         {{ timeString() }}
                       </text>
 
                       <!-- Altitud en Tiempo Real -->
-                      <text x="36" y="4.5" 
+                      <text x="36" y="5" 
                             text-anchor="middle" 
                             fill="#38bdf8" 
                             font-size="10" 

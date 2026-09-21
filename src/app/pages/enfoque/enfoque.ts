@@ -69,7 +69,8 @@ export type FocusTimerStyle =
   host: {
     '[class.zen-inactive]': 'isInactive()',
     '[class.timer-titanic-mode]': 'timerStyle() === "titanic"',
-    '[class.timer-lighthouse-mode]': 'timerStyle() === "lighthouse"'
+    '[class.timer-lighthouse-mode]': 'timerStyle() === "lighthouse"',
+    '[class.timer-airplane-mode]': 'timerStyle() === "airplane"'
   }
 })
 export class Enfoque implements OnInit, OnDestroy {
@@ -655,48 +656,48 @@ export class Enfoque implements OnInit, OnDestroy {
     return '0 FT (GND)';
   });
 
-  // Desplazamiento y ángulo de planeo del avión (Glide Slope continuo)
+  // Desplazamiento y ángulo de planeo del avión (Glide Slope continuo a lo largo de toda la pantalla con tamaño reducido estilizado)
   airplaneTransform = computed(() => {
     const p = this.airplaneProgress();
-    const startX = 860;
-    const startY = 65;
-    const groundY = 244;
+    const startX = 1860;
+    const startY = 48;
+    const groundY = 238.9; // Contacto exacto de los neumáticos (9.4 * 1.18 = 11.09px) al ras de la pista (y=250)
 
     if (this.arenaState() === 'setup') {
-      return `translate(${startX}px, ${startY}px) rotate(-0.5deg) scale(0.85)`;
+      return `translate(${startX}px, ${startY}px) rotate(-0.5deg) scale(0.70)`;
     }
 
     if (p < 0.30) {
-      // Fase 1: Vuelo de crucero en altitud alta
+      // Fase 1: Vuelo de crucero en altitud alta desde el extremo derecho
       const t = p / 0.30;
-      const x = startX - (t * 260); // 860 -> 600
-      const y = startY + (t * 15);   // 65 -> 80
+      const x = startX - (t * 400); // 1860 -> 1460
+      const y = startY + (t * 22);   // 48 -> 70
       const pitch = -1.0;
-      const scale = 0.85 + (t * 0.15); // 0.85x -> 1.00x
+      const scale = 0.70 + (t * 0.15); // 0.70x -> 0.85x
       return `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${pitch.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
     } else if (p < 0.88) {
-      // Fase 2: Senda de planeo y descenso diagonal hacia la pista (Glide Slope 3°)
+      // Fase 2: Senda de planeo y descenso diagonal sobre las luces de aproximación ALS (Glide Slope 3°)
       const t = (p - 0.30) / 0.58;
-      const x = 600 - (t * 400); // 600 -> 200
-      const y = 80 + (t * 155);   // 80 -> 235
+      const x = 1460 - (t * 540); // 1460 -> 920
+      const y = 70 + (t * 160);   // 70 -> 230
       const pitch = -3.5; // Pitch down en senda de planeo
-      const scale = 1.00 + (t * 0.40); // 1.00x -> 1.40x
+      const scale = 0.85 + (t * 0.25); // 0.85x -> 1.10x
       return `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${pitch.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
     } else if (p < 0.94) {
-      // Fase 3: Nivelación y Flare (Eleva el morro para toma con tren principal)
+      // Fase 3: Nivelación y Flare (Eleva el morro y toca pista con tren principal en x=800)
       const t = (p - 0.88) / 0.06;
-      const x = 200 - (t * 60); // 200 -> 140
-      const y = 235 + (t * 9);   // 235 -> 244
-      const pitch = -3.5 + (t * 6.5); // -3.5° -> +3.0° (Flare de aterrizaje)
-      const scale = 1.40 + (t * 0.10); // 1.40x -> 1.50x
+      const x = 920 - (t * 120); // 920 -> 800
+      const y = 230 + (t * 8.9); // 230 -> 238.9 (toma de contacto al ras de pista)
+      const pitch = -3.5 + (t * 6.0); // -3.5° -> +2.5° (Flare de aterrizaje)
+      const scale = 1.10 + (t * 0.08); // 1.10x -> 1.18x
       return `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${pitch.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
     } else {
-      // Fase 4: Carrera de frenado sobre la pista (Rollout, reversas y desaceleración)
+      // Fase 4: Carrera de frenado a lo largo de toda la pista hacia la izquierda (Rollout y desaceleración)
       const t = (p - 0.94) / 0.06;
-      const x = 140 - (t * 190); // 140 -> -50
+      const x = 800 - (t * 720); // 800 -> 80
       const y = groundY;
-      const pitch = 3.0 - (t * 3.0); // +3.0° -> 0.0° (Apoya tren delantero)
-      const scale = 1.50;
+      const pitch = 2.5 - (t * 2.5); // +2.5° -> 0.0° (Apoya tren delantero al ras del suelo)
+      const scale = 1.18;
       return `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${pitch.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
     }
   });

@@ -3139,9 +3139,10 @@
 }
 
 
-/* ===== MODOS SIN SCROLL VERTICAL (BARCO / TITANIC Y EL FARO) ===== */
+/* ===== MODOS SIN SCROLL VERTICAL (BARCO / TITANIC, EL FARO Y AVIÓN EN PISTA) ===== */
 :host.timer-titanic-mode,
-:host.timer-lighthouse-mode {
+:host.timer-lighthouse-mode,
+:host.timer-airplane-mode {
   display: flex !important;
   flex-direction: column !important;
   height: 100vh !important;
@@ -3157,6 +3158,10 @@
 
 :host.timer-lighthouse-mode {
   background-color: #01040f !important;
+}
+
+:host.timer-airplane-mode {
+  background-color: #020617 !important;
 }
 
 :host.timer-titanic-mode .main {
@@ -3256,7 +3261,9 @@
 }
 
 :host.timer-lighthouse-mode .focus-column-center {
-  margin-top: max(4px, calc(57vh - 250px)) !important;
+  max-width: min(1200px, 98vw) !important;
+  width: min(1200px, 98vw) !important;
+  margin-top: max(4px, calc(57vh - 64px - min(250px, 20.4vw))) !important;
   gap: 0px !important;
   justify-content: flex-start !important;
 }
@@ -3278,11 +3285,88 @@
   z-index: 12 !important;
 }
 
+:host.timer-airplane-mode .main {
+  background: transparent !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  padding: 64px 20px 0px !important;
+  gap: 0px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+}
+
+:host.timer-airplane-mode .main {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  overflow-x: hidden !important;
+}
+
+:host.timer-airplane-mode .focus-arena-wrapper {
+  min-height: unset !important;
+  height: calc(100vh - 64px) !important;
+  max-height: calc(100vh - 64px) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+}
+
+:host.timer-airplane-mode .focus-arena-container {
+  height: 100% !important;
+  max-height: 100% !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+:host.timer-airplane-mode .focus-column-center {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  margin-top: max(4px, calc(57vh - 64px - 13.02vw)) !important;
+  gap: 0px !important;
+  justify-content: flex-start !important;
+}
+
+:host.timer-airplane-mode .focus-column-center > div {
+  gap: 0px !important;
+  min-height: unset !important;
+  justify-content: flex-start !important;
+  position: relative !important;
+}
+
+:host.timer-airplane-mode .arena-state-header {
+  position: absolute !important;
+  top: -30px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  z-index: 12 !important;
+}
+
 :host.timer-titanic-mode .zen-timer {
   gap: 0px !important;
 }
 
 :host.timer-lighthouse-mode .zen-timer {
+  gap: 0px !important;
+}
+
+:host.timer-airplane-mode .zen-timer {
   gap: 0px !important;
 }
 
@@ -3294,6 +3378,13 @@
 }
 
 :host.timer-lighthouse-mode .action-buttons-container {
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+:host.timer-airplane-mode .action-buttons-container {
   margin-top: 4px !important;
   margin-bottom: 4px !important;
   position: relative !important;
@@ -3411,11 +3502,79 @@
 
 /* Responsive para el contenedor y vista de El Faro */
 .lighthouse-container {
-  width: min(1000px, 98vw);
-  max-width: 100%;
-  height: 320px;
-  aspect-ratio: 1200 / 320;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1200 / 320 !important;
   margin: 0 auto !important;
+  transform: none !important;
+}
+
+/* ===== FONDO PANORÁMICO RESPONSIVO DE PANTALLA COMPLETA AVIÓN (CIELO CREPUSCULAR Y PISTA DE ASFALTO) ===== */
+.airplane-fullscreen-runway-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  overflow: hidden !important;
+}
+
+.airplane-backdrop-sky {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100vw !important;
+  height: 57% !important;
+  background: linear-gradient(180deg, #020617 0%, #071739 35%, #0f2b48 70%, #1e3a5f 90%, #2d3748 100%) !important;
+  overflow: hidden !important;
+}
+
+.airplane-horizon-line-glow {
+  position: absolute !important;
+  top: 57% !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 2px !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.35) 40%, rgba(254, 240, 138, 0.4) 60%, transparent 100%) !important;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
+  z-index: 2 !important;
+}
+
+.airplane-backdrop-tarmac {
+  position: absolute !important;
+  top: 57% !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 43% !important;
+  min-height: 43vh !important;
+  z-index: 1 !important;
+  background: linear-gradient(180deg, 
+    #0b1120 0%, 
+    #0f172a 15%, 
+    #090d16 45%, 
+    #04070d 75%, 
+    #020408 100%) !important;
+  overflow: hidden !important;
+}
+
+/* Responsive para el contenedor y vista de Avión */
+.airplane-runway-container {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: auto !important;
+  aspect-ratio: 1920 / 320 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
   transform: none !important;
 }
 
@@ -3444,13 +3603,38 @@
   }
   .lighthouse-horizon-line-glow { top: 56% !important; }
   :host.timer-lighthouse-mode .focus-column-center {
-    margin-top: max(4px, calc(56vh - 210px)) !important;
+    max-width: 98vw !important;
+    width: 98vw !important;
+    margin-top: max(4px, calc(56vh - 64px - min(250px, 20.4vw))) !important;
   }
   .lighthouse-container {
-    width: min(800px, 98vw) !important;
+    width: 100% !important;
     height: auto !important;
     aspect-ratio: 1200 / 320 !important;
     margin: 0 auto !important;
+    transform: none !important;
+  }
+  .airplane-backdrop-sky {
+    height: 57% !important;
+  }
+  .airplane-backdrop-tarmac {
+    top: 57% !important;
+    height: 43% !important;
+  }
+  .airplane-horizon-line-glow { top: 57% !important; }
+  :host.timer-airplane-mode .focus-column-center {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    margin-top: max(4px, calc(57vh - 64px - 13.02vw)) !important;
+  }
+  .airplane-runway-container {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    aspect-ratio: 1920 / 320 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
     transform: none !important;
   }
 }
@@ -3470,7 +3654,7 @@
     transform: translateY(12px) !important;
   }
   .lighthouse-backdrop-sky {
-    height: 56% !important;
+    height: 54% !important;
   }
   .lighthouse-backdrop-ocean {
     top: 54% !important;
@@ -3478,29 +3662,54 @@
   }
   .lighthouse-horizon-line-glow { top: 54% !important; }
   :host.timer-lighthouse-mode .focus-column-center {
-    margin-top: max(4px, calc(54vh - 175px)) !important;
+    max-width: 98vw !important;
+    width: 98vw !important;
+    margin-top: max(4px, calc(54vh - 64px - min(250px, 20.4vw))) !important;
   }
   .lighthouse-container {
-    width: min(580px, 98vw) !important;
+    width: 100% !important;
     height: auto !important;
     aspect-ratio: 1200 / 320 !important;
     margin: 0 auto !important;
     transform: none !important;
   }
+  .airplane-backdrop-sky {
+    height: 57% !important;
+  }
+  .airplane-backdrop-tarmac {
+    top: 57% !important;
+    height: 43% !important;
+  }
+  .airplane-horizon-line-glow { top: 57% !important; }
+  :host.timer-airplane-mode .focus-column-center {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    margin-top: max(4px, calc(57vh - 64px - 13.02vw)) !important;
+  }
+  .airplane-runway-container {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    aspect-ratio: 1920 / 320 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+  }
 }
 
 @media (max-height: 650px) {
-  :host.timer-titanic-mode .titanic-container,
-  :host.timer-lighthouse-mode .lighthouse-container {
+  :host.timer-titanic-mode .titanic-container {
     height: min(240px, 46vh) !important;
     width: auto !important;
-    aspect-ratio: 1200 / 320 !important;
-  }
-  :host.timer-titanic-mode .titanic-container {
+    aspect-ratio: 440 / 360 !important;
     transform: translateY(10px) !important;
   }
   :host.timer-lighthouse-mode .focus-column-center {
-    margin-top: max(4px, calc(57vh - 190px)) !important;
+    margin-top: max(4px, calc(57vh - 64px - min(190px, 20.4vw))) !important;
+  }
+  :host.timer-airplane-mode .focus-column-center {
+    margin-top: max(4px, calc(57vh - 64px - 13.02vw)) !important;
   }
 }
 
@@ -3841,248 +4050,6 @@
 
 .lighthouse-countdown-pill:hover {
   transform: translate(400px, 26px) scale(1.04);
-  animation: timerDotPulse 2s ease-in-out infinite alternate;
-  transform-origin: -36px 0px;
-}
-
-@keyframes timerDotPulse {
-  0% { opacity: 0.55; transform: scale(0.85); }
-  100% { opacity: 1; transform: scale(1.2); filter: drop-shadow(0 0 5px #38bdf8); }
-}
-
-/* ==================== ESTILOS Y ANIMACIONES DEL CRONÓMETRO AVIÓN EN PISTA (RUNWAY APPROACH) ==================== */
-.airplane-runway-container {
-  overflow: visible;
-  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.6));
-}
-
-/* Capas de nubes con Parallax dinámico continuo */
-.airplane-clouds-layer-slow {
-  animation: airplaneCloudsDriftSlow 24s linear infinite;
-}
-
-.airplane-clouds-layer-fast {
-  animation: airplaneCloudsDriftFast 12s linear infinite;
-}
-
-@keyframes airplaneCloudsDriftSlow {
-  0% { transform: translateX(0px); }
-  50% { transform: translateX(60px); }
-  100% { transform: translateX(0px); }
-}
-
-@keyframes airplaneCloudsDriftFast {
-  0% { transform: translateX(0px); }
-  50% { transform: translateX(-80px); }
-  100% { transform: translateX(0px); }
-}
-
-/* Líneas de velocidad continua que cruzan el cielo simulando el avance supersónico y vuelo ágil */
-.speed-line-fast-1 { animation: streamLinePass 1.3s linear infinite 0.0s; }
-.speed-line-fast-2 { animation: streamLinePass 1.0s linear infinite 0.35s; }
-.speed-line-fast-3 { animation: streamLinePass 1.6s linear infinite 0.7s; }
-.speed-line-fast-4 { animation: streamLinePass 1.2s linear infinite 0.2s; }
-.speed-line-fast-5 { animation: streamLinePass 1.4s linear infinite 0.85s; }
-.speed-line-fast-6 { animation: streamLinePass 1.1s linear infinite 0.5s; }
-.speed-line-fast-7 { animation: streamLinePass 1.7s linear infinite 1.0s; }
-.speed-line-fast-8 { animation: streamLinePass 1.3s linear infinite 0.45s; }
-
-@keyframes streamLinePass {
-  0% {
-    transform: translateX(-350px);
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.9;
-  }
-  85% {
-    opacity: 0.9;
-  }
-  100% {
-    transform: translateX(850px);
-    opacity: 0;
-  }
-}
-
-/* ==================== LUCES SECUENCIALES DE APROXIMACIÓN "THE RABBIT" (ALS) ==================== */
-/* El destello ultrarrápido corre de derecha a izquierda hacia la pista a 0.9s de ciclo */
-.rabbit-flash-9 { animation: rabbitLightPulse 0.9s infinite linear 0.0s; }
-.rabbit-flash-8 { animation: rabbitLightPulse 0.9s infinite linear 0.1s; }
-.rabbit-flash-7 { animation: rabbitLightPulse 0.9s infinite linear 0.2s; }
-.rabbit-flash-6 { animation: rabbitLightPulse 0.9s infinite linear 0.3s; }
-.rabbit-flash-5 { animation: rabbitLightPulse 0.9s infinite linear 0.4s; }
-.rabbit-flash-4 { animation: rabbitLightPulse 0.9s infinite linear 0.5s; }
-.rabbit-flash-3 { animation: rabbitLightPulse 0.9s infinite linear 0.6s; }
-.rabbit-flash-2 { animation: rabbitLightPulse 0.9s infinite linear 0.7s; }
-.rabbit-flash-1 { animation: rabbitLightPulse 0.9s infinite linear 0.8s; }
-
-@keyframes rabbitLightPulse {
-  0%, 100% {
-    opacity: 0.25;
-    transform: scale(0.85);
-  }
-  8%, 18% {
-    opacity: 1;
-    fill: #ffffff;
-    transform: scale(1.6);
-    filter: drop-shadow(0 0 10px #ffffff);
-  }
-  24% {
-    opacity: 0.35;
-    transform: scale(0.9);
-  }
-}
-
-/* Luces verdes de umbral pulsantes */
-.threshold-green-pulse {
-  animation: greenThresholdPulse 2s infinite ease-in-out;
-}
-
-@keyframes greenThresholdPulse {
-  0%, 100% { opacity: 0.7; filter: drop-shadow(0 0 4px #10b981); }
-  50% { opacity: 1; filter: drop-shadow(0 0 10px #10b981); }
-}
-
-/* Resplandor ambiental de pista */
-.runway-ambient-pulse {
-  animation: runwayAmbientGlow 4s infinite ease-in-out alternate;
-}
-
-@keyframes runwayAmbientGlow {
-  0% { opacity: 0.4; }
-  100% { opacity: 0.85; }
-}
-
-/* Balizas anticolisión rojas (Red Beacon Lights Flashing ágiles) */
-.airplane-beacon-pulse {
-  animation: airplaneBeaconPulse 0.9s infinite ease-in-out;
-}
-
-@keyframes airplaneBeaconPulse {
-  0%, 100% {
-    opacity: 0.15;
-    filter: drop-shadow(0 0 0px #ef4444);
-  }
-  50% {
-    opacity: 1;
-    filter: drop-shadow(0 0 9px #ef4444);
-  }
-}
-
-/* Luces Estroboscópicas Blancas de Puntas de Ala (Double Flash Aeronáutico Rápido) */
-.airplane-strobe-flash {
-  animation: airplaneStrobeFlash 1.1s infinite;
-}
-
-@keyframes airplaneStrobeFlash {
-  0%, 65%, 100% {
-    opacity: 0.1;
-    filter: none;
-  }
-  70%, 74% {
-    opacity: 1;
-    filter: drop-shadow(0 0 12px #ffffff);
-  }
-  72% {
-    opacity: 0.2;
-  }
-  80%, 84% {
-    opacity: 1;
-    filter: drop-shadow(0 0 12px #ffffff);
-  }
-  82% {
-    opacity: 0.2;
-  }
-}
-
-/* Radar Giratorio de la Torre de Control */
-.airport-radar-spin {
-  animation: airportRadarSpin 2.2s linear infinite;
-  transform-origin: 0px -4px;
-}
-
-@keyframes airportRadarSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Baliza Aeronáutica del Aeropuerto (Verde y Blanco alternado ágil) */
-.airport-beacon-flash {
-  animation: airportBeaconFlash 1.8s infinite ease-in-out;
-}
-
-@keyframes airportBeaconFlash {
-  0%, 45% {
-    fill: #10b981;
-    filter: drop-shadow(0 0 10px #10b981);
-    opacity: 1;
-  }
-  50%, 95% {
-    fill: #ffffff;
-    filter: drop-shadow(0 0 10px #ffffff);
-    opacity: 1;
-  }
-  96%, 100% {
-    opacity: 0.2;
-  }
-}
-
-/* Manga de viento ondeando activamente */
-.windsock-flutter {
-  animation: windsockFlutterAnim 1.6s ease-in-out infinite alternate;
-  transform-origin: 0px 0px;
-}
-
-@keyframes windsockFlutterAnim {
-  0% { transform: translate(-45px, 238px) rotate(0deg) skewX(0deg); }
-  50% { transform: translate(-45px, 238px) rotate(-3deg) skewX(-2deg); }
-  100% { transform: translate(-45px, 238px) rotate(2deg) skewX(1.5deg); }
-}
-
-/* Dinámica de vuelo viva con micro-turbulencia, sustentación y cabeceo */
-.airplane-flight-attitude {
-  animation: airplaneMicroDynamics 2.4s ease-in-out infinite alternate;
-  transform-origin: 0px 0px;
-}
-
-@keyframes airplaneMicroDynamics {
-  0% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  30% {
-    transform: translateY(-2.8px) rotate(0.6deg);
-  }
-  70% {
-    transform: translateY(1.8px) rotate(-0.5deg);
-  }
-  100% {
-    transform: translateY(-1.2px) rotate(0.3deg);
-  }
-}
-
-/* Wing Flex / Flexión elástica de las alas al volar */
-.airplane-wing-flex {
-  animation: wingFlexAnim 1.8s ease-in-out infinite alternate;
-  transform-origin: -8px 0px;
-}
-
-@keyframes wingFlexAnim {
-  0% { transform: rotate(0deg); }
-  50% { transform: rotate(-0.8deg); }
-  100% { transform: rotate(0.5deg); }
-}
-
-/* Distorsión térmica de gases de escape de turbina (Jet Heat Shimmer) */
-.jet-exhaust-shimmer {
-  animation: jetExhaustAnim 0.5s ease-in-out infinite alternate;
-  transform-origin: 0px 0px;
-}
-
-@keyframes jetExhaustAnim {
-  0% { opacity: 0.4; transform: translate(10px, 2px) scaleX(0.8) scaleY(0.9); }
-  100% { opacity: 0.85; transform: translate(10px, 2px) scaleX(1.25) scaleY(1.1); }
-}
-
 /* Humo de neumáticos al tocar pista */
 .airplane-tire-smoke {
   animation: tireSmokePuff 0.6s ease-out infinite;
