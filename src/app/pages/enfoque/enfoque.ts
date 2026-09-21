@@ -605,9 +605,9 @@ export class Enfoque implements OnInit, OnDestroy {
     const p = this.lighthouseProgress();
     const startX = 960; // Extremo derecho del horizonte marítimo
     const endX = 75;    // Muelle de atraque en el Faro a la izquierda (llegada exacta a las 00:00)
-    if (this.arenaState() === 'setup') return `translate(${startX}px, 248px) scale(2.10)`;
+    if (this.arenaState() === 'setup') return `translate(${startX}px, 248px) scale(0.95)`;
     const currentX = startX - (p * (startX - endX));
-    const scale = 2.10 + (p * 0.70); // Barco grande: 2.10x en el extremo lejano hasta 2.80x al atracar
+    const scale = 0.95 + (p * 0.30); // Proporción reducida estilizada: 0.95x en el horizonte hasta 1.25x al atracar
     return `translate(${currentX.toFixed(1)}px, 248px) scale(${scale.toFixed(3)})`;
   });
 
