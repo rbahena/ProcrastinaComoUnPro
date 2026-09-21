@@ -23,22 +23,6 @@
       
       <!-- ACCIONES DE CABECERA -->
       <div class="header-actions" *ngIf="membership.capturedIdeas().length > 0">
-        <!-- Búsqueda rápida -->
-        <div class="search-input-wrapper">
-          <i class="fa-solid fa-magnifying-glass search-icon"></i>
-          <input type="text"
-                 placeholder="Buscar notas..."
-                 [value]="searchTerm()"
-                 (input)="onSearchChange($event)"
-                 class="search-input" />
-          <button *ngIf="searchTerm()" 
-                  (click)="searchTerm.set('')" 
-                  class="clear-search-btn" 
-                  title="Limpiar búsqueda">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-
         <!-- Botón de vaciar baúl -->
         <button class="clear-all-btn" 
                 (click)="clearAllIdeas()"
@@ -78,17 +62,10 @@
         <p class="empty-desc">No tienes notas ni objetivos capturados todavía. Añade uno arriba o presiona <kbd class="kbd-badge">Alt + I</kbd> desde cualquier pantalla para capturarlo al instante.</p>
       </div>
 
-      <!-- Estado sin resultados de búsqueda -->
-      <div class="empty-search-state" *ngIf="membership.capturedIdeas().length > 0 && filteredIdeas().length === 0">
-        <i class="fa-solid fa-search empty-search-icon"></i>
-        <p>No se encontraron notas que coincidan con "<strong>{{ searchTerm() }}</strong>".</p>
-        <button class="reset-search-btn" (click)="searchTerm.set('')">Mostrar todas las notas</button>
-      </div>
-
       <!-- Grid de Tarjetas de Notas / Objetivos -->
-      <div class="ideas-grid" *ngIf="filteredIdeas().length > 0">
+      <div class="ideas-grid" *ngIf="membership.capturedIdeas().length > 0">
         <div class="idea-card" 
-             *ngFor="let idea of filteredIdeas(); let i = index"
+             *ngFor="let idea of membership.capturedIdeas(); let i = index"
              [class.is-editing]="editingIdeaId() === idea.id"
              [class.is-confirming-delete]="confirmDeleteId() === idea.id">
           <div class="idea-card-glow"></div>
@@ -97,9 +74,6 @@
           <ng-container *ngIf="editingIdeaId() !== idea.id">
             <div class="idea-body">
               <div class="idea-header-row">
-                <span class="idea-type-pill">
-                  <i class="fa-solid fa-bullseye"></i> Objetivo / Nota
-                </span>
                 <span class="meta-tag" [title]="idea.created_at || ''">
                   <i class="fa-regular fa-clock"></i> {{ formatDate(idea.created_at) }}
                 </span>

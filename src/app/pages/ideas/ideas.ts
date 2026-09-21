@@ -24,7 +24,6 @@ export class Ideas implements OnInit {
   sidebarCollapsed!: any;
 
   newIdeaText = signal('');
-  searchTerm = signal('');
 
   // Estado de edición inline
   editingIdeaId = signal<string | null>(null);
@@ -54,18 +53,6 @@ export class Ideas implements OnInit {
     const input = event.target as HTMLInputElement;
     this.newIdeaText.set(input.value);
   }
-
-  onSearchChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.searchTerm.set(input.value);
-  }
-
-  filteredIdeas = computed(() => {
-    const term = this.searchTerm().toLowerCase().trim();
-    const list = this.membership.capturedIdeas();
-    if (!term) return list;
-    return list.filter(item => item.content.toLowerCase().includes(term));
-  });
 
   async addIdea() {
     const text = this.newIdeaText().trim();
