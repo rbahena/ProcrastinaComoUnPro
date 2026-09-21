@@ -587,66 +587,34 @@ export class Enfoque implements OnInit, OnDestroy {
     return Math.min(1, Math.max(0, 1 - this.timePercentage()));
   });
 
-  // Fase del día en el Faro: 'night' (Noche con haz rotatorio) | 'twilight' (Crepúsculo estrellado) | 'sunrise' (Amanecer dorado)
-  lighthouseTimePhase = computed<'night' | 'twilight' | 'sunrise'>(() => {
-    const p = this.lighthouseProgress();
-    if (p < 0.45) return 'night';
-    if (p < 0.78) return 'twilight';
-    return 'sunrise';
-  });
+  // Fase del día en el Faro: Noche marina profunda con haz rotatorio y firmamento estrellado
+  lighthouseTimePhase = computed<'night'>(() => 'night');
 
-  // Opacidad del haz de luz del faro (se apaga suavemente al amanecer cuando sale el sol)
-  lighthouseBeamOpacity = computed(() => {
-    const p = this.lighthouseProgress();
-    if (p < 0.85) return 1.0;
-    const norm = (p - 0.85) / 0.15;
-    return Math.max(0, 1 - norm);
-  });
+  // Opacidad del haz de luz del faro (Se mantiene encendido al 100% guiando la travesía del buque)
+  lighthouseBeamOpacity = computed(() => 1.0);
 
-  // Resplandor del amanecer dorado en el cielo y en el agua
-  lighthouseSunriseOpacity = computed(() => {
-    const p = this.lighthouseProgress();
-    if (p < 0.65) return 0.0;
-    const norm = (p - 0.65) / 0.35;
-    return Math.min(1.0, norm);
-  });
+  // Amanecer desactivado (Ambiente nocturno permanente)
+  lighthouseSunriseOpacity = computed(() => 0.0);
 
-  // Salida del Sol Dorado sobre el horizonte marino (sube entre p=0.72 y p=1.0)
-  lighthouseSunTransform = computed(() => {
-    const p = this.lighthouseProgress();
-    if (p < 0.72) return 'translate(350px, 260px) scale(0.6)';
-    const t = (p - 0.72) / 0.28;
-    const dy = 260 - (t * 110); // Sube de y=260 a y=150
-    const scale = 0.6 + (t * 0.4);
-    return `translate(350px, ${dy.toFixed(1)}px) scale(${scale.toFixed(2)})`;
-  });
+  // Salida del sol desactivada
+  lighthouseSunTransform = computed(() => 'translate(0px, 0px)');
 
   // Desplazamiento continuo del Buque Balizador desde el confín derecho más lejano hasta el faro en el extremo izquierdo durante todo el Pomodoro
   lighthouseSailboatTransform = computed(() => {
     const p = this.lighthouseProgress();
-    const startX = 920; // Extremo derecho absoluto del horizonte marítimo (al filo de la pantalla)
-    const endX = -45;   // Muelle de atraque en el Faro a la izquierda (llegada exacta a las 00:00)
-    if (this.arenaState() === 'setup') return `translate(${startX}px, 248px) scale(1.50)`;
+    const startX = 960; // Extremo derecho del horizonte marítimo
+    const endX = 75;    // Muelle de atraque en el Faro a la izquierda (llegada exacta a las 00:00)
+    if (this.arenaState() === 'setup') return `translate(${startX}px, 248px) scale(2.10)`;
     const currentX = startX - (p * (startX - endX));
-    const scale = 1.50 + (p * 0.70); // Barco grande: 1.50x en el extremo lejano hasta 2.20x al atracar
+    const scale = 2.10 + (p * 0.70); // Barco grande: 2.10x en el extremo lejano hasta 2.80x al atracar
     return `translate(${currentX.toFixed(1)}px, 248px) scale(${scale.toFixed(3)})`;
   });
 
-  // Apagado de las luces del buque balizador al llegar a puerto (far muelle / llegada)
-  lighthouseBoatLightsOpacity = computed(() => {
-    if (this.arenaState() === 'summary') return 0.0;
-    const p = this.lighthouseProgress();
-    if (p < 0.95) return 1.0;
-    const norm = (p - 0.95) / 0.05;
-    return Math.max(0.0, 1.0 - norm);
-  });
+  // Luces de navegación y trabajo del buque encendidas durante toda la noche marítima
+  lighthouseBoatLightsOpacity = computed(() => 1.0);
 
-  // Gaviotas al amanecer (visibles al final cuando despunta el sol p >= 0.82)
-  lighthouseSeagullsOpacity = computed(() => {
-    const p = this.lighthouseProgress();
-    if (p < 0.82) return 0.0;
-    return Math.min(1.0, (p - 0.82) / 0.18);
-  });
+  // Gaviotas al amanecer desactivadas
+  lighthouseSeagullsOpacity = computed(() => 0.0);
 
   // ==================== CINEMÁTICA Y FÍSICAS DEL AVIÓN EN ATERRIZAJE (RUNWAY APPROACH) ====================
   airplaneProgress = computed(() => {

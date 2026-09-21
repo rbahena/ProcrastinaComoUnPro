@@ -581,18 +581,9 @@
             </radialGradient>
           </defs>
 
-          <!-- Cielo de Amanecer Dorado -->
-          <rect x="0" y="0" width="1920" height="650" fill="url(#screenSunriseSkyGrad)" [style.opacity]="lighthouseSunriseOpacity()" style="transition: opacity 1.5s ease-out;" />
-
-          <!-- Estrellas, Luceros y Luna Nocturna (Idéntico en majestuosidad al cielo del barco) -->
-          <g class="lighthouse-night-sky" [style.opacity]="1 - (lighthouseSunriseOpacity() * 0.9)">
-            <!-- Luna Plateada en el cielo alto (Extremo Superior Derecho) -->
-            <circle cx="1550" cy="110" r="22" fill="url(#screenLighthouseMoonGrad)" filter="url(#screenLighthouseFresnelGlow)" />
-            <circle cx="1544" cy="105" r="5" fill="#cbd5e1" opacity="0.6" />
-            <circle cx="1556" cy="115" r="6" fill="#cbd5e1" opacity="0.5" />
-            <circle cx="1552" cy="104" r="3.5" fill="#cbd5e1" opacity="0.6" />
-
-            <!-- Manto Panorámico de Estrellas Tipo Barco Titanic -->
+          <!-- Estrellas y Luceros (Cielo Nocturno Limpio y Estrellado) -->
+          <g class="lighthouse-night-sky" style="opacity: 1;">
+            <!-- Manto Panorámico de Estrellas -->
             <circle cx="11" cy="30" r="0.75" fill="#e2e8f0" opacity="0.5" />
           <circle cx="73" cy="20" r="0.46" fill="#94a3b8" opacity="0.32" />
           <circle cx="131" cy="12" r="0.95" fill="#f8fafc" opacity="0.58" />
@@ -1016,13 +1007,6 @@
             </g>
           </g>
 
-          <!-- Sol Dorado Naciente al Amanecer -->
-          <g [style.opacity]="lighthouseSunriseOpacity()" style="transition: opacity 1.5s ease-out;">
-            <g [style.transform]="lighthouseSunTransform()" transform="translate(1450, 260)" style="transition: transform 1.2s linear;">
-              <circle cx="0" cy="0" r="32" fill="url(#screenSunGoldenGrad)" filter="url(#screenLighthouseFresnelGlow)" />
-              <path d="M 0 -48 L 0 -38 M 34 -34 L 27 -27 M 48 0 L 38 0 M 34 34 L 27 27 M 0 48 L 0 38 M -34 34 L -27 27 M -48 0 L -38 0 M -34 -34 L -27 -27" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
-            </g>
-          </g>
         </svg>
       </div>
 
@@ -1031,33 +1015,10 @@
       <div class="lighthouse-backdrop-ocean">
         <svg class="lighthouse-fullscreen-ocean-svg" viewBox="0 0 1920 450" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;">
           <defs>
-            <linearGradient id="screenSunriseSeaGlowGrad" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#fde047" stop-opacity="0.75" />
-              <stop offset="35%" stop-color="#f59e0b" stop-opacity="0.45" />
-              <stop offset="70%" stop-color="#0369a1" stop-opacity="0.2" />
-              <stop offset="100%" stop-color="#020617" stop-opacity="0" />
-            </linearGradient>
             <filter id="screenWaterGlowDiffusion" x="-60%" y="-100%" width="220%" height="300%">
               <feGaussianBlur in="SourceGraphic" stdDeviation="8.0" />
             </filter>
           </defs>
-
-          <!-- Resplandor dorado sobre el mar al amanecer -->
-          <rect x="0" y="0" width="1920" height="450" fill="url(#screenSunriseSeaGlowGrad)" [style.opacity]="lighthouseSunriseOpacity()" style="transition: opacity 1.5s ease-out;" />
-
-          <!-- Bruma Luminosa en el Horizonte -->
-          <ellipse cx="960" cy="2" rx="960" ry="14" fill="rgba(56, 189, 248, 0.08)" filter="url(#screenWaterGlowDiffusion)" />
-
-          <!-- Reflejo Sutil de la Luz de Luna sobre las Ondas del Mar -->
-          <g class="lighthouse-moonlight-shimmer" opacity="0.65" transform="translate(590, 0)">
-            <ellipse cx="960" cy="6" rx="140" ry="2.5" fill="#cbd5e1" opacity="0.5" />
-            <path d="M 860 14 Q 960 10, 1060 14" stroke="#e2e8f0" stroke-width="1.2" fill="none" opacity="0.45" />
-            <ellipse cx="965" cy="24" rx="170" ry="3.0" fill="#94a3b8" opacity="0.35" />
-            <path d="M 820 36 Q 960 32, 1100 36" stroke="#7dd3fc" stroke-width="1.4" fill="none" opacity="0.3" />
-            <ellipse cx="955" cy="50" rx="190" ry="3.5" fill="#38bdf8" opacity="0.2" />
-            <path d="M 800 66 Q 965 60, 1130 66" stroke="#38bdf8" stroke-width="1.6" fill="none" opacity="0.2" />
-            <ellipse cx="960" cy="86" rx="220" ry="4.0" fill="#0284c7" opacity="0.15" />
-          </g>
 
           <!-- Líneas de Oleaje Marino Panorámicas -->
           <g class="lighthouse-ocean-waves">
@@ -1392,8 +1353,8 @@
       <div class="focus-column-center timer-column" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; width: 100%; max-width: var(--timer-column-max-width); margin: 0 auto; margin-top: 15px;">
         
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 260px; width: 100%; position: relative;">
-          <!-- Fondo decorativo con auras suaves -->
-          <div style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
+          <!-- Fondo decorativo con auras suaves (solo en modos no cinematográficos) -->
+          <div *ngIf="timerStyle() !== 'lighthouse' && timerStyle() !== 'titanic'" style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
           <!-- Cabecera de Estado Sutil -->
           <div *ngIf="arenaState() !== 'setup' && (arenaState() === 'countdown' || emergencyPauseActive() || isBreak())" 
@@ -4407,7 +4368,7 @@
               <ng-container *ngIf="timerStyle() === 'lighthouse'">
                 <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                      class="lighthouse-container"
-                     style="position: relative; width: min(980px, 98vw); height: min(320px, 48vh); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible; z-index: 6;">
+                     style="position: relative; width: min(1000px, 98vw); height: 320px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto; overflow: visible; z-index: 6;">
                   
                   <!-- SVG Cinemático de El Faro en el Acantilado (Lienzo 680x320) -->
                   <svg viewBox="-200 0 1200 320" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
@@ -4624,8 +4585,11 @@
                       </linearGradient>
                     </defs>
 
-                    <!-- Línea sutil de superficie de agua de proa a popa -->
-                    <line x1="-200" y1="250" x2="1000" y2="250" stroke="#0e2a4a" stroke-width="1.0" opacity="0.4" />
+                    <!-- Destellos y Ondulación Sutil sobre la Superficie del Mar (Fondo Panorámico Continuo) -->
+                    <g class="lighthouse-water-shimmer" opacity="0.6">
+                      <path d="M -200 250 Q 0 248.5, 200 250 Q 400 251.5, 600 250 Q 800 248.5, 1000 250" fill="none" stroke="#38bdf8" stroke-width="1.2" opacity="0.4" />
+                      <path d="M -100 250.5 Q 100 249.5, 300 250.5 Q 500 251.5, 700 250.5 Q 900 249.5, 1100 250.5" fill="none" stroke="#f0f9ff" stroke-width="0.8" opacity="0.5" />
+                    </g>
 
                     <!-- ==================== BUQUE BALIZADOR (BUOY TENDER) ILUMINADO DE GRAN TAMAÑO ==================== -->
                     <g [style.transform]="lighthouseSailboatTransform()" style="transition: transform 1.5s linear;">
@@ -4812,192 +4776,146 @@
                       </g>
                     </g>
 
-                    <!-- ==================== ISLA ROCOSA NATURAL / PROMONTORIO COSTEÑO EN EL BORDE IZQUIERDO ==================== -->
-                    <g id="lighthouseIslandPromontory">
-                      <!-- Base Submarina de Roca (Sumergida bajo el Agua) -->
-                      <path d="M -230 250 Q -235 275, -205 285 Q -155 295, -95 285 Q -50 275, -55 250 Z" fill="#031124" opacity="0.7" />
+                    <!-- ==================== COMPLEJO DEL FARO E ISLA ROCOSA (ESCALADO Y MAJESTUOSO) ==================== -->
+                    <g id="lighthouseIslandGroup" transform="translate(-135, 250) scale(1.35) translate(135, -250)">
 
-                      <!-- Masa Rocosa de Basalto Escarpada Emergente en el Extremo Izquierdo -->
-                      <!-- Perfil: Nace fuera del margen izquierdo (-230, 250), corona en meseta (-188..-90, 212) y desciende al mar en (-52, 250) -->
-                      <path d="M -230 250 L -215 232 L -198 218 L -188 212 L -90 212 L -75 222 L -65 238 L -52 250 L -60 255 L -225 255 Z" fill="url(#cliffRockGrad)" stroke="#0f172a" stroke-width="1.2" />
-                      
-                      <!-- Facetas Geológicas y Sombras de Estratos Rocosos -->
-                      <!-- Flanco Izquierdo -->
-                      <polygon points="-230,250 -215,232 -198,218 -208,250" fill="#1e293b" />
-                      <polygon points="-215,232 -198,218 -186,228 -200,250" fill="#0f172a" />
-                      <!-- Frente Central del Acantilado -->
-                      <polygon points="-188,212 -150,228 -155,250 -200,250" fill="#1e293b" />
-                      <polygon points="-150,228 -115,224 -120,250 -155,250" fill="#334155" opacity="0.8" />
-                      <polygon points="-115,224 -90,212 -95,250 -120,250" fill="#1e293b" />
-                      <!-- Flanco Derecho y Arrecifes -->
-                      <polygon points="-90,212 -75,222 -80,250 -95,250" fill="#0f172a" />
-                      <polygon points="-75,222 -65,238 -52,250 -80,250" fill="#1e293b" />
-                      
-                      <!-- Arrecifes y Rocas Aisladas en el Agua -->
-                      <ellipse cx="-42" cy="254" rx="8" ry="3.5" fill="#1e293b" stroke="#0f172a" stroke-width="0.8" />
+                      <!-- ==================== ISLA ROCOSA NATURAL / PROMONTORIO COSTEÑO EN EL BORDE IZQUIERDO ==================== -->
+                      <g id="lighthouseIslandPromontory">
+                        <!-- Base Submarina de Roca (Sumergida bajo el Agua) -->
+                        <path d="M -230 250 Q -235 275, -205 285 Q -155 295, -95 285 Q -50 275, -55 250 Z" fill="#031124" opacity="0.7" />
 
-                      <!-- Césped Verde Esmeralda y Musgo en la Meseta Superior -->
-                      <path d="M -198 214 Q -140 209, -88 214 L -90 218 Q -140 214, -196 218 Z" fill="#15803d" stroke="#166534" stroke-width="0.8" />
-                      <ellipse cx="-165" cy="213" rx="10" ry="2" fill="#22c55e" opacity="0.8" />
-                      <ellipse cx="-130" cy="212.5" rx="14" ry="2.2" fill="#22c55e" opacity="0.8" />
-                      <ellipse cx="-100" cy="213" rx="10" ry="2" fill="#22c55e" opacity="0.8" />
+                        <!-- Masa Rocosa de Basalto Escarpada Emergente en el Extremo Izquierdo -->
+                        <!-- Perfil: Nace fuera del margen izquierdo (-230, 250), corona en meseta (-188..-90, 212) y desciende al mar en (-52, 250) -->
+                        <path d="M -230 250 L -215 232 L -198 218 L -188 212 L -90 212 L -75 222 L -65 238 L -52 250 L -60 255 L -225 255 Z" fill="url(#cliffRockGrad)" stroke="#0f172a" stroke-width="1.2" />
+                        
+                        <!-- Facetas Geológicas y Sombras de Estratos Rocosos -->
+                        <!-- Flanco Izquierdo -->
+                        <polygon points="-230,250 -215,232 -198,218 -208,250" fill="#1e293b" />
+                        <polygon points="-215,232 -198,218 -186,228 -200,250" fill="#0f172a" />
+                        <!-- Frente Central del Acantilado -->
+                        <polygon points="-188,212 -150,228 -155,250 -200,250" fill="#1e293b" />
+                        <polygon points="-150,228 -115,224 -120,250 -155,250" fill="#334155" opacity="0.8" />
+                        <polygon points="-115,224 -90,212 -95,250 -120,250" fill="#1e293b" />
+                        <!-- Flanco Derecho y Arrecifes -->
+                        <polygon points="-90,212 -75,222 -80,250 -95,250" fill="#0f172a" />
+                        <polygon points="-75,222 -65,238 -52,250 -80,250" fill="#1e293b" />
+                        
+                        <!-- Arrecifes y Rocas Aisladas en el Agua -->
+                        <ellipse cx="-42" cy="254" rx="8" ry="3.5" fill="#1e293b" stroke="#0f172a" stroke-width="0.8" />
 
-                      <!-- Senderito de Adoquines entre el Faro y la Caseta -->
-                      <path d="M -138 214 Q -125 215, -112 214" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="2 1.5" fill="none" opacity="0.85" />
+                        <!-- Césped Verde Esmeralda y Musgo en la Meseta Superior -->
+                        <path d="M -198 214 Q -140 209, -88 214 L -90 218 Q -140 214, -196 218 Z" fill="#15803d" stroke="#166534" stroke-width="0.8" />
+                        <ellipse cx="-165" cy="213" rx="10" ry="2" fill="#22c55e" opacity="0.8" />
+                        <ellipse cx="-130" cy="212.5" rx="14" ry="2.2" fill="#22c55e" opacity="0.8" />
+                        <ellipse cx="-100" cy="213" rx="10" ry="2" fill="#22c55e" opacity="0.8" />
 
-                      <!-- Murete Rústico de Piedra al Borde del Acantilado -->
-                      <path d="M -180 212 L -180 209 L -168 209 L -168 212" stroke="#475569" stroke-width="1.2" fill="none" />
-                      <path d="M -98 212 L -98 209 L -90 209 L -90 212" stroke="#475569" stroke-width="1.2" fill="none" />
+                        <!-- Senderito de Adoquines entre el Faro y la Caseta -->
+                        <path d="M -138 214 Q -125 215, -112 214" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="2 1.5" fill="none" opacity="0.85" />
 
-                      <!-- Pequeño Embarcadero / Muelle de Madera a los Pies del Faro -->
-                      <g transform="translate(-65, 244)">
-                        <!-- Pilares de madera clavados en el agua -->
-                        <line x1="0" y1="2" x2="0" y2="12" stroke="#451a03" stroke-width="1.5" />
-                        <line x1="12" y1="2" x2="12" y2="12" stroke="#451a03" stroke-width="1.5" />
-                        <!-- Tablones de madera -->
-                        <line x1="-3" y1="2" x2="15" y2="2" stroke="#78350f" stroke-width="2" />
-                        <circle cx="12" cy="0" r="1.2" fill="#fbbf24" filter="url(#lighthouseFresnelGlow)" />
+                        <!-- Murete Rústico de Piedra al Borde del Acantilado -->
+                        <path d="M -180 212 L -180 209 L -168 209 L -168 212" stroke="#475569" stroke-width="1.2" fill="none" />
+                        <path d="M -98 212 L -98 209 L -90 209 L -90 212" stroke="#475569" stroke-width="1.2" fill="none" />
+
+                        <!-- Pequeño Embarcadero / Muelle de Madera a los Pies del Faro -->
+                        <g transform="translate(-65, 244)">
+                          <!-- Pilares de madera clavados en el agua -->
+                          <line x1="0" y1="2" x2="0" y2="12" stroke="#451a03" stroke-width="1.5" />
+                          <line x1="12" y1="2" x2="12" y2="12" stroke="#451a03" stroke-width="1.5" />
+                          <!-- Tablones de madera -->
+                          <line x1="-3" y1="2" x2="15" y2="2" stroke="#78350f" stroke-width="2" />
+                          <circle cx="12" cy="0" r="1.2" fill="#fbbf24" filter="url(#lighthouseFresnelGlow)" />
+                        </g>
                       </g>
 
-                      <!-- Rompiente de Olas y Espuma Blanca en la Base -->
-                      <!-- Espuma Flanco Izquierdo -->
-                      <g class="lighthouse-wave-foam" transform="translate(-200, 250)">
-                        <ellipse cx="0" cy="0" rx="12" ry="3.5" fill="#ffffff" opacity="0.85" />
-                        
+                      <!-- ==================== CASETA DEL GUARDIÁN (KEEPER'S COTTAGE) ==================== -->
+                      <g transform="translate(-106, 184)">
+                        <!-- Paredes de Piedra de la Casita -->
+                        <rect x="0" y="8" width="28" height="20" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+                        <!-- Tejado a Dos Aguas Rojo Teja -->
+                        <polygon points="-3,8 14,-2 31,8" fill="#991b1b" stroke="#7f1d1d" stroke-width="0.8" />
+                        <!-- Chimenea -->
+                        <rect x="20" y="-5" width="4" height="7" fill="#7f1d1d" stroke="#450a0a" stroke-width="0.6" />
+                        <!-- Ventana con Luz Cálida Encendida -->
+                        <rect x="10" y="14" width="7" height="7" fill="#fbbf24" stroke="#78350f" stroke-width="0.6" filter="url(#lighthouseFresnelGlow)" />
+                        <line x1="13.5" y1="14" x2="13.5" y2="21" stroke="#78350f" stroke-width="0.5" />
+                        <line x1="10" y1="17.5" x2="17" y2="17.5" stroke="#78350f" stroke-width="0.5" />
                       </g>
-                      <!-- Espuma Frente Central -->
-                      <g class="lighthouse-wave-foam" transform="translate(-135, 251)">
-                        <ellipse cx="0" cy="0" rx="45" ry="4" fill="#ffffff" opacity="0.8" />
-                        <ellipse cx="-15" cy="2" rx="25" ry="3.5" fill="#f0f9ff" opacity="0.9" />
-                        
-                        
+
+                      <!-- ==================== LA TORRE DEL FARO EN EL EXTREMO IZQUIERDO ==================== -->
+                      <g transform="translate(-140, 97)">
+                        <!-- Base de Cantería Cilíndrica Sólida -->
+                        <rect x="-16" y="100" width="32" height="15" fill="#1e293b" stroke="#0f172a" stroke-width="1" />
+                        <!-- Puerta de Madera de Roble Arqueada -->
+                        <path d="M -4 115 L -4 105 A 4 4 0 0 1 4 105 L 4 115 Z" fill="#78350f" stroke="#451a03" stroke-width="0.6" />
+                        <circle cx="2" cy="110" r="0.6" fill="#fcd34d" />
+
+                        <!-- CUERPO CÓNICO DEL FARO (FRANJAS ROJAS Y BLANCAS) -->
+                        <!-- Franja 1 (Base - Rojo) -->
+                        <polygon points="-15,100 -13,78 13,78 15,100" fill="url(#towerRedGrad)" stroke="#0f172a" stroke-width="0.8" />
+                        <!-- Franja 2 (Blanco) -->
+                        <polygon points="-13,78 -11,56 11,56 13,78" fill="url(#towerWhiteGrad)" stroke="#0f172a" stroke-width="0.8" />
+                        <!-- Franja 3 (Rojo) -->
+                        <polygon points="-11,56 -9,34 9,34 11,56" fill="url(#towerRedGrad)" stroke="#0f172a" stroke-width="0.8" />
+                        <!-- Franja 4 (Tope - Blanco) -->
+                        <polygon points="-9,34 -7,16 7,16 9,34" fill="url(#towerWhiteGrad)" stroke="#0f172a" stroke-width="0.8" />
+
+                        <!-- Ventanas de la Torre con Luz Cálida -->
+                        <rect x="-2" y="44" width="4" height="6" rx="1" fill="#fbbf24" stroke="#78350f" stroke-width="0.5" />
+                        <rect x="-2" y="66" width="4" height="6" rx="1" fill="#fbbf24" stroke="#78350f" stroke-width="0.5" />
+
+                        <!-- Balcón / Galería de Hierro Forjado Negro -->
+                        <rect x="-12" y="13" width="24" height="3" fill="#0f172a" stroke="#020617" stroke-width="0.6" />
+                        <!-- Barandilla de Hierro -->
+                        <line x1="-12" y1="8" x2="12" y2="8" stroke="#334155" stroke-width="0.8" />
+                        <line x1="-10" y1="8" x2="-10" y2="13" stroke="#334155" stroke-width="0.6" />
+                        <line x1="-5" y1="8" x2="-5" y2="13" stroke="#334155" stroke-width="0.6" />
+                        <line x1="0" y1="8" x2="0" y2="13" stroke="#334155" stroke-width="0.6" />
+                        <line x1="5" y1="8" x2="5" y2="13" stroke="#334155" stroke-width="0.6" />
+                        <line x1="10" y1="8" x2="10" y2="13" stroke="#334155" stroke-width="0.6" />
+
+                        <!-- Linterna de Cristal (Lantern Room) -->
+                        <rect x="-7" y="0" width="14" height="13" fill="rgba(56, 189, 248, 0.25)" stroke="#0f172a" stroke-width="0.8" />
+                        <!-- Montantes de Cristal -->
+                        <line x1="-2.5" y1="0" x2="-2.5" y2="13" stroke="#0f172a" stroke-width="0.6" />
+                        <line x1="2.5" y1="0" x2="2.5" y2="13" stroke="#0f172a" stroke-width="0.6" />
+
+                        <!-- Lente de Fresnel / Lámpara Náutica Nítida -->
+                        <circle cx="0" cy="6.5" r="4.2" fill="#fde047" />
+                        <circle cx="0" cy="6.5" r="2.2" fill="#ffffff" />
+
+                        <!-- Cúpula de Cobre con Pátina Verde Esmeralda -->
+                        <path d="M -8 0 Q 0 -9, 8 0 Z" fill="url(#copperDomeGrad)" stroke="#042f2e" stroke-width="0.8" />
+                        <!-- Pararrayos y Veleta Superior -->
+                        <line x1="0" y1="-9" x2="0" y2="-17" stroke="#cbd5e1" stroke-width="0.8" />
+                        <circle cx="0" cy="-17" r="1" fill="#fde047" />
+                        <line x1="-3" y1="-14" x2="3" y2="-14" stroke="#cbd5e1" stroke-width="0.6" />
                       </g>
-                      <!-- Espuma Flanco Derecho y Muelle -->
-                      <g class="lighthouse-wave-foam" transform="translate(-60, 250)">
-                        <ellipse cx="0" cy="0" rx="18" ry="4" fill="#ffffff" opacity="0.85" />
-                        <ellipse cx="25" cy="3" rx="10" ry="3" fill="#ffffff" opacity="0.75" />
-                        
-                      </g>
-                    </g>
 
-                    <!-- ==================== CASETA DEL GUARDIÁN (KEEPER'S COTTAGE) ==================== -->
-                    <g transform="translate(-106, 184)">
-                      <!-- Paredes de Piedra de la Casita -->
-                      <rect x="0" y="8" width="28" height="20" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
-                      <!-- Tejado a Dos Aguas Rojo Teja -->
-                      <polygon points="-3,8 14,-2 31,8" fill="#991b1b" stroke="#7f1d1d" stroke-width="0.8" />
-                      <!-- Chimenea con Humo Flotante -->
-                      <rect x="20" y="-5" width="4" height="7" fill="#7f1d1d" stroke="#450a0a" stroke-width="0.6" />
-                      <g class="lighthouse-cottage-smoke" transform="translate(22, -6)">
-                        
-                        
-                        
-                      </g>
-                      <!-- Ventana con Luz Cálida Encendida -->
-                      <rect x="10" y="14" width="7" height="7" fill="#fbbf24" stroke="#78350f" stroke-width="0.6" filter="url(#lighthouseFresnelGlow)" />
-                      <line x1="13.5" y1="14" x2="13.5" y2="21" stroke="#78350f" stroke-width="0.5" />
-                      <line x1="10" y1="17.5" x2="17" y2="17.5" stroke="#78350f" stroke-width="0.5" />
-                    </g>
-
-                    <!-- ==================== LA TORRE DEL FARO EN EL EXTREMO IZQUIERDO ==================== -->
-                    <g transform="translate(-140, 97)">
-                      <!-- Base de Cantería Cilíndrica Sólida -->
-                      <rect x="-16" y="100" width="32" height="15" fill="#1e293b" stroke="#0f172a" stroke-width="1" />
-                      <!-- Puerta de Madera de Roble Arqueada -->
-                      <path d="M -4 115 L -4 105 A 4 4 0 0 1 4 105 L 4 115 Z" fill="#78350f" stroke="#451a03" stroke-width="0.6" />
-                      <circle cx="2" cy="110" r="0.6" fill="#fcd34d" />
-
-                      <!-- CUERPO CÓNICO DEL FARO (FRANJAS ROJAS Y BLANCAS) -->
-                      <!-- Franja 1 (Base - Rojo) -->
-                      <polygon points="-15,100 -13,78 13,78 15,100" fill="url(#towerRedGrad)" stroke="#0f172a" stroke-width="0.8" />
-                      <!-- Franja 2 (Blanco) -->
-                      <polygon points="-13,78 -11,56 11,56 13,78" fill="url(#towerWhiteGrad)" stroke="#0f172a" stroke-width="0.8" />
-                      <!-- Franja 3 (Rojo) -->
-                      <polygon points="-11,56 -9,34 9,34 11,56" fill="url(#towerRedGrad)" stroke="#0f172a" stroke-width="0.8" />
-                      <!-- Franja 4 (Tope - Blanco) -->
-                      <polygon points="-9,34 -7,16 7,16 9,34" fill="url(#towerWhiteGrad)" stroke="#0f172a" stroke-width="0.8" />
-
-                      <!-- Ventanas de la Torre con Luz Cálida -->
-                      <rect x="-2" y="44" width="4" height="6" rx="1" fill="#fbbf24" stroke="#78350f" stroke-width="0.5" />
-                      <rect x="-2" y="66" width="4" height="6" rx="1" fill="#fbbf24" stroke="#78350f" stroke-width="0.5" />
-
-                      <!-- Balcón / Galería de Hierro Forjado Negro -->
-                      <rect x="-12" y="13" width="24" height="3" fill="#0f172a" stroke="#020617" stroke-width="0.6" />
-                      <!-- Barandilla de Hierro -->
-                      <line x1="-12" y1="8" x2="12" y2="8" stroke="#334155" stroke-width="0.8" />
-                      <line x1="-10" y1="8" x2="-10" y2="13" stroke="#334155" stroke-width="0.6" />
-                      <line x1="-5" y1="8" x2="-5" y2="13" stroke="#334155" stroke-width="0.6" />
-                      <line x1="0" y1="8" x2="0" y2="13" stroke="#334155" stroke-width="0.6" />
-                      <line x1="5" y1="8" x2="5" y2="13" stroke="#334155" stroke-width="0.6" />
-                      <line x1="10" y1="8" x2="10" y2="13" stroke="#334155" stroke-width="0.6" />
-
-                      <!-- Linterna de Cristal (Lantern Room) -->
-                      <rect x="-7" y="0" width="14" height="13" fill="rgba(56, 189, 248, 0.25)" stroke="#0f172a" stroke-width="0.8" />
-                      <!-- Montantes de Cristal -->
-                      <line x1="-2.5" y1="0" x2="-2.5" y2="13" stroke="#0f172a" stroke-width="0.6" />
-                      <line x1="2.5" y1="0" x2="2.5" y2="13" stroke="#0f172a" stroke-width="0.6" />
-
-                      <!-- Lente de Fresnel / Lámpara de Alta Intensidad con Aura Difuminada -->
-                      <circle cx="0" cy="6.5" r="22" fill="url(#lighthouseLanternAuraGrad)" filter="url(#lighthouseAtmosphericMist)" />
-                      <circle cx="0" cy="6.5" r="5" fill="#fde047" filter="url(#navLightSoftHalo)" />
-                      <circle cx="0" cy="6.5" r="2.8" fill="#ffffff" />
-
-                      <!-- Cúpula de Cobre con Pátina Verde Esmeralda -->
-                      <path d="M -8 0 Q 0 -9, 8 0 Z" fill="url(#copperDomeGrad)" stroke="#042f2e" stroke-width="0.8" />
-                      <!-- Pararrayos y Veleta Superior -->
-                      <line x1="0" y1="-9" x2="0" y2="-17" stroke="#cbd5e1" stroke-width="0.8" />
-                      <circle cx="0" cy="-17" r="1" fill="#fde047" />
-                      <line x1="-3" y1="-14" x2="3" y2="-14" stroke="#cbd5e1" stroke-width="0.6" />
-                    </g>
-
-                    <!-- ==================== HAZ DE LUZ VOLUMÉTRICO ROTATORIO DIFUMINADO ==================== -->
-                    <g [style.opacity]="lighthouseBeamOpacity()" style="transition: opacity 1s ease-out;">
-                      <!-- Posición fija anclada en la linterna del faro en el extremo izquierdo profundo (x=-140, y=103.5) -->
-                      <g transform="translate(-140, 103.5)">
-                        <!-- Grupo animado con barrido rotatorio CSS centrado en (0,0) -->
-                        <g class="lighthouse-volumetric-beam">
-                          <!-- Capa 1: Vaho / Bruma Atmosférica Amplia Difuminada -->
-                          <polygon points="0,-8 1150,-200 1150,200 0,8" fill="url(#lighthouseBeamGrad)" opacity="0.4" filter="url(#lighthouseAtmosphericMist)" />
-                          <!-- Capa 2: Haz Volumétrico Principal Suavemente Difuminado -->
-                          <polygon points="0,-5 1150,-120 1150,120 0,5" fill="url(#lighthouseBeamGrad)" opacity="0.88" filter="url(#lighthouseBeamDiffusionFilter)" />
-                          <!-- Capa 3: Núcleo Láser Concentrado de Alta Intensidad -->
-                          <polygon points="0,-2 1150,-50 1150,50 0,2" fill="url(#lighthouseBeamCoreGrad)" opacity="0.9" filter="url(#lighthouseFresnelGlow)" />
-                          <!-- Haz Secundario Trasero Sutil Difuminado (Reflejo 180°) -->
-                          <polygon points="0,-2 -160,-25 -160,25 0,2" fill="url(#lighthouseBeamGrad)" opacity="0.3" filter="url(#lighthouseBeamDiffusionFilter)" />
-                          <!-- Aura Central en la Fuente del Haz -->
-                          <circle cx="0" cy="0" r="16" fill="url(#lighthouseLanternAuraGrad)" filter="url(#lighthouseAtmosphericMist)" />
-                          <circle cx="0" cy="0" r="4.5" fill="#ffffff" filter="url(#navLightSoftHalo)" />
+                      <!-- ==================== HAZ DE LUZ VOLUMÉTRICO DIRECCIONAL ==================== -->
+                      <g [style.opacity]="lighthouseBeamOpacity()" style="transition: opacity 1s ease-out;">
+                        <!-- Posición fija anclada en la linterna del faro en el extremo izquierdo profundo (x=-140, y=103.5) -->
+                        <g transform="translate(-140, 103.5)">
+                          <!-- Grupo animado con barrido rotatorio CSS centrado en (0,0) -->
+                          <g class="lighthouse-volumetric-beam">
+                            <!-- Haz Volumétrico Principal -->
+                            <polygon points="0,-4 1150,-90 1150,90 0,4" fill="url(#lighthouseBeamGrad)" opacity="0.8" filter="url(#lighthouseBeamDiffusionFilter)" />
+                            <!-- Núcleo Láser Concentrado de Alta Intensidad -->
+                            <polygon points="0,-1.8 1150,-35 1150,35 0,1.8" fill="url(#lighthouseBeamCoreGrad)" opacity="0.95" />
+                          </g>
                         </g>
                       </g>
                     </g>
 
-                    <!-- ==================== GAVIOTAS AL AMANECER (PROGRESS >= 0.82) ==================== -->
-                    <g [style.opacity]="lighthouseSeagullsOpacity()" class="lighthouse-seagulls-flight" style="transition: opacity 1.5s ease-out;">
-                      <!-- Gaviota 1 -->
-                      <path d="M 240 105 Q 246 98, 252 104 Q 258 98, 264 105" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" />
-                      <!-- Gaviota 2 -->
-                      <path d="M 285 85 Q 290 80, 295 84 Q 300 80, 305 85" fill="none" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" />
-                      <!-- Gaviota 3 -->
-                      <path d="M 320 115 Q 324 110, 328 114 Q 332 110, 336 115" fill="none" stroke="#f8fafc" stroke-width="1.2" stroke-linecap="round" />
-                    </g>
-
-                    <!-- ==================== CRONÓMETRO DISCRETO DE CUENTA REGRESIVA SUPERIOR ==================== -->
                     <g class="lighthouse-countdown-pill" transform="translate(400, 28)" style="cursor: default; user-select: none;">
-                      <!-- Sombra / Resplandor Atmosférico Sutil -->
+                      <!-- Cuerpo de Cristal Esmerilado Marino Nítido -->
                       <rect x="-54" y="-13" width="108" height="26" rx="13" 
-                            fill="rgba(3, 11, 28, 0.85)" 
-                            stroke="rgba(56, 189, 248, 0.4)" 
-                            stroke-width="1.2" 
-                            filter="url(#lighthouseFresnelGlow)" />
-                      <!-- Cuerpo de Cristal Esmerilado Marina -->
-                      <rect x="-54" y="-13" width="108" height="26" rx="13" 
-                            fill="rgba(2, 6, 23, 0.75)" 
-                            stroke="rgba(255, 255, 255, 0.18)" 
-                            stroke-width="0.8" />
+                            fill="rgba(2, 6, 23, 0.8)" 
+                            stroke="rgba(56, 189, 248, 0.35)" 
+                            stroke-width="1.0" />
 
                       <!-- Luz Destellante del Cronómetro Marino (Pulse Dot) -->
-                      <circle cx="-36" cy="0" r="3.2" fill="#38bdf8" class="lighthouse-timer-pulse-dot" filter="url(#navLightSoftHalo)" />
-                      <circle cx="-36" cy="0" r="1.5" fill="#ffffff" />
+                      <circle cx="-36" cy="0" r="2.5" fill="#38bdf8" class="lighthouse-timer-pulse-dot" />
+                      <circle cx="-36" cy="0" r="1.2" fill="#ffffff" />
 
                       <!-- Dígitos del Conteo Regresivo -->
                       <text x="7" y="5" 

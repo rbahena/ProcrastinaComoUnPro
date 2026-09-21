@@ -3229,7 +3229,7 @@
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: column !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
 }
 
 :host.timer-lighthouse-mode .focus-arena-wrapper {
@@ -3240,7 +3240,7 @@
   overflow: hidden !important;
   margin: 0 auto !important;
   display: flex !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   justify-content: center !important;
   width: 100% !important;
 }
@@ -3249,15 +3249,33 @@
   height: 100% !important;
   max-height: 100% !important;
   display: flex !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   justify-content: center !important;
   overflow: visible !important;
   width: 100% !important;
 }
 
 :host.timer-lighthouse-mode .focus-column-center {
-  margin-top: 0 !important;
-  gap: 4px !important;
+  margin-top: max(4px, calc(57vh - 250px)) !important;
+  gap: 0px !important;
+  justify-content: flex-start !important;
+}
+
+:host.timer-lighthouse-mode .focus-column-center > div {
+  gap: 0px !important;
+  min-height: unset !important;
+  justify-content: flex-start !important;
+  position: relative !important;
+}
+
+:host.timer-lighthouse-mode .arena-state-header {
+  position: absolute !important;
+  top: -30px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  z-index: 12 !important;
 }
 
 :host.timer-titanic-mode .zen-timer {
@@ -3265,7 +3283,7 @@
 }
 
 :host.timer-lighthouse-mode .zen-timer {
-  gap: 6px !important;
+  gap: 0px !important;
 }
 
 :host.timer-titanic-mode .action-buttons-container {
@@ -3276,8 +3294,8 @@
 }
 
 :host.timer-lighthouse-mode .action-buttons-container {
-  margin-top: 6px !important;
-  margin-bottom: 6px !important;
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
   position: relative !important;
   z-index: 100 !important;
 }
@@ -3356,14 +3374,14 @@
   left: 0 !important;
   right: 0 !important;
   width: 100vw !important;
-  height: 60% !important;
+  height: 57% !important;
   background: linear-gradient(180deg, #010309 0%, #020817 35%, #04122b 70%, #071b3b 100%) !important;
   overflow: hidden !important;
 }
 
 .lighthouse-horizon-line-glow {
   position: absolute !important;
-  top: 60% !important;
+  top: 57% !important;
   left: 0 !important;
   right: 0 !important;
   height: 2px !important;
@@ -3374,13 +3392,13 @@
 
 .lighthouse-backdrop-ocean {
   position: absolute !important;
-  top: 60% !important;
+  top: 57% !important;
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
   width: 100vw !important;
-  height: 40% !important;
-  min-height: 40vh !important;
+  height: 43% !important;
+  min-height: 43vh !important;
   z-index: 1 !important;
   background: linear-gradient(180deg, 
     #031124 0%, 
@@ -3393,12 +3411,12 @@
 
 /* Responsive para el contenedor y vista de El Faro */
 .lighthouse-container {
-  width: min(980px, 98vw);
+  width: min(1000px, 98vw);
   max-width: 100%;
-  height: min(320px, 48vh);
+  height: 320px;
   aspect-ratio: 1200 / 320;
   margin: 0 auto !important;
-  transform: translateY(20px) !important;
+  transform: none !important;
 }
 
 @media (max-width: 768px) {
@@ -3418,19 +3436,22 @@
     transform: translateY(18px) !important;
   }
   .lighthouse-backdrop-sky {
-    height: 58% !important;
+    height: 56% !important;
   }
   .lighthouse-backdrop-ocean {
     top: 56% !important;
     height: calc(100% - 56% + 4px) !important;
   }
   .lighthouse-horizon-line-glow { top: 56% !important; }
+  :host.timer-lighthouse-mode .focus-column-center {
+    margin-top: max(4px, calc(56vh - 210px)) !important;
+  }
   .lighthouse-container {
     width: min(800px, 98vw) !important;
     height: auto !important;
     aspect-ratio: 1200 / 320 !important;
     margin: 0 auto !important;
-    transform: translateY(14px) !important;
+    transform: none !important;
   }
 }
 
@@ -3456,12 +3477,15 @@
     height: calc(100% - 54% + 4px) !important;
   }
   .lighthouse-horizon-line-glow { top: 54% !important; }
+  :host.timer-lighthouse-mode .focus-column-center {
+    margin-top: max(4px, calc(54vh - 175px)) !important;
+  }
   .lighthouse-container {
     width: min(580px, 98vw) !important;
     height: auto !important;
     aspect-ratio: 1200 / 320 !important;
     margin: 0 auto !important;
-    transform: translateY(8px) !important;
+    transform: none !important;
   }
 }
 
@@ -3475,6 +3499,68 @@
   :host.timer-titanic-mode .titanic-container {
     transform: translateY(10px) !important;
   }
+  :host.timer-lighthouse-mode .focus-column-center {
+    margin-top: max(4px, calc(57vh - 190px)) !important;
+  }
+}
+
+/* Animaciones Náuticas del Faro */
+.lighthouse-sailboat-bobbing {
+  animation: lighthouseBoatBobbingAnim 6.5s ease-in-out infinite;
+  transform-origin: 0px 0px;
+}
+
+@keyframes lighthouseBoatBobbingAnim {
+  0% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-1.8px) rotate(-0.6deg); }
+  50% { transform: translateY(0.5px) rotate(0.4deg); }
+  75% { transform: translateY(-1.2px) rotate(0.8deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+
+.lighthouse-volumetric-beam {
+  animation: lighthouseBeamSweepAnim 14s ease-in-out infinite alternate;
+  transform-origin: 0px 0px;
+}
+
+@keyframes lighthouseBeamSweepAnim {
+  0% { transform: rotate(-8deg) scaleY(0.92); opacity: 0.75; }
+  35% { transform: rotate(12deg) scaleY(1.12); opacity: 1; }
+  70% { transform: rotate(-4deg) scaleY(0.96); opacity: 0.88; }
+  100% { transform: rotate(16deg) scaleY(1.18); opacity: 0.96; }
+}
+
+.lighthouse-cottage-smoke {
+  animation: lighthouseSmokeDriftAnim 4s ease-in-out infinite;
+}
+
+@keyframes lighthouseSmokeDriftAnim {
+  0% { opacity: 0.3; transform: translate(22px, -6px) scale(0.8); }
+  50% { opacity: 0.8; transform: translate(26px, -12px) scale(1.2); }
+  100% { opacity: 0; transform: translate(30px, -18px) scale(1.6); }
+}
+
+.lighthouse-wave-anim-1 { animation: waveDrift1 12s linear infinite; }
+.lighthouse-wave-anim-2 { animation: waveDrift2 16s linear infinite; }
+.lighthouse-wave-anim-3 { animation: waveDrift3 10s linear infinite; }
+.lighthouse-wave-anim-4 { animation: waveDrift4 14s linear infinite; }
+
+@keyframes waveDrift1 {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(25px); }
+}
+@keyframes waveDrift2 {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-30px); }
+}
+@keyframes waveDrift3 {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(20px); }
+}
+@keyframes waveDrift4 {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-20px); }
 }
 
 /* Cronómetro Náutico Discreto Titanic */
