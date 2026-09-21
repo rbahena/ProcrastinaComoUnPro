@@ -3928,20 +3928,19 @@
   }
 }
 
-/* Cronómetro Náutico Discreto Titanic */
-.titanic-time-display {
+/* Cronómetro Unificado Compacto (Modos Titanic, El Faro y Avión) */
+.panoramic-unified-countdown {
   transition: opacity 0.3s ease, transform 0.3s ease;
+  user-select: none;
+  cursor: default;
 }
 
-.titanic-time-display:hover {
-  opacity: 1 !important;
+.panoramic-timer-pulse-dot {
+  animation: panoramicTimerPulseAnim 2.4s ease-in-out infinite alternate;
+  transform-origin: 0px 0px;
 }
 
-.titanic-timer-pulse-dot {
-  animation: titanicTimerBeaconPulse 2.8s ease-in-out infinite alternate;
-}
-
-@keyframes titanicTimerBeaconPulse {
+@keyframes panoramicTimerPulseAnim {
   0% { opacity: 0.55; transform: scale(0.9); transform-origin: 0px 0px; }
   100% { opacity: 1; transform: scale(1.2); transform-origin: 0px 0px; filter: drop-shadow(0 0 4px #38bdf8); }
 }
@@ -4005,15 +4004,6 @@
 .titanic-lights-off {
   opacity: 0 !important;
   transition: opacity 0.3s ease;
-}
-
-/* Cronómetro discreto superior */
-.lighthouse-countdown-pill {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-}
-
-.lighthouse-countdown-pill:hover {
-  transform: translate(400px, 26px) scale(1.04);
 }
 
 /* ==================== ESTILOS Y ANIMACIONES DEL CRONÓMETRO AVIÓN EN PISTA ==================== */

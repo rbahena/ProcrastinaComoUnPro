@@ -97,20 +97,25 @@ export class Enfoque implements OnInit, OnDestroy {
     // Initialize Comunidad Boss theme to Siren of Distractions
     this.bossService.updateBossTheme('siren');
 
-    // Garantizar que todo usuario que entre vea por defecto el "Gatito con la luna de noche" (lofi_cat_window)
+    // Garantizar que todo usuario que entre vea por defecto "Otoño Lofi" (theme_autumn)
     const savedBg = localStorage.getItem('focus-active-bg') as FocusBackgroundType;
-    if (!savedBg || savedBg === 'lofi_space_cosmos' || !this.backgroundOptions.includes(savedBg)) {
-      this.activeBackground.set('lofi_cat_window');
-      localStorage.setItem('focus-active-bg', 'lofi_cat_window');
+    if (!savedBg || savedBg === 'lofi_space_cosmos' || savedBg === 'lofi_cat_window' || !this.backgroundOptions.includes(savedBg)) {
+      this.activeBackground.set('theme_autumn');
+      localStorage.setItem('focus-active-bg', 'theme_autumn');
     }
 
-    // Configuración rápida de 1 minuto por defecto
+    // Configuración por defecto de 25 min de pomodoro y 5 min de descanso
     const savedDuration = localStorage.getItem('focus-duration');
-    if (!savedDuration || savedDuration === '25') {
-      this.focusDuration.set(1);
-      this.totalSessionTime.set(60);
-      this.timeLeft.set(60);
-      localStorage.setItem('focus-duration', '1');
+    if (!savedDuration || savedDuration === '1') {
+      this.focusDuration.set(25);
+      this.totalSessionTime.set(25 * 60);
+      this.timeLeft.set(25 * 60);
+      localStorage.setItem('focus-duration', '25');
+    }
+    const savedBreak = localStorage.getItem('break-duration');
+    if (!savedBreak || savedBreak === '1') {
+      this.breakDuration.set(5);
+      localStorage.setItem('break-duration', '5');
     }
   }
 
@@ -398,8 +403,8 @@ export class Enfoque implements OnInit, OnDestroy {
     return `${m} min`;
   });
 
-  // Configuración del Pomodoro (1 minuto por defecto para agilizar)
-  focusDuration = signal(parseInt(localStorage.getItem('focus-duration') || '1', 10));
+  // Configuración del Pomodoro (25 minutos por defecto)
+  focusDuration = signal(parseInt(localStorage.getItem('focus-duration') || '25', 10));
   breakDuration = signal(parseInt(localStorage.getItem('break-duration') || '5', 10));
   shortBreakDuration = this.breakDuration; // Alias para compatibilidad de plantillas
   longBreakInterval = signal(parseInt(localStorage.getItem('long-break-interval') || '4', 10));
@@ -465,8 +470,8 @@ export class Enfoque implements OnInit, OnDestroy {
   activeBackground = signal<FocusBackgroundType>(
     (() => {
       const saved = localStorage.getItem('focus-active-bg');
-      if (saved === 'lofi_girl_sunset' || saved === 'lofi_boy_study' || saved === 'theme_animation_studio' || saved === 'lofi_study_rain' || saved === 'forest_campfire') return 'lofi_cat_window';
-      return (saved as FocusBackgroundType) || 'lofi_cat_window';
+      if (saved === 'lofi_girl_sunset' || saved === 'lofi_boy_study' || saved === 'theme_animation_studio' || saved === 'lofi_study_rain' || saved === 'forest_campfire') return 'theme_autumn';
+      return (saved as FocusBackgroundType) || 'theme_autumn';
     })()
   );
 
@@ -1592,9 +1597,9 @@ export class Enfoque implements OnInit, OnDestroy {
     this.activeMethodology.set(method);
   }
 
-  // Lógica del Temporizador (1 minuto = 60 segundos)
-  timeLeft = signal(1 * 60);
-  totalSessionTime = signal(1 * 60);
+  // Lógica del Temporizador (25 minutos = 1500 segundos)
+  timeLeft = signal(25 * 60);
+  totalSessionTime = signal(25 * 60);
   timerRunning = signal(false);
   isBreak = signal(false);
   private pomodoroTimer: any = null;
@@ -3927,8 +3932,8 @@ export class Enfoque implements OnInit, OnDestroy {
           this.activeBackground.set('lofi_space_moon');
           localStorage.setItem('focus-active-bg', 'lofi_space_moon');
         } else {
-          this.activeBackground.set('lofi_cat_window');
-          localStorage.setItem('focus-active-bg', 'lofi_cat_window');
+          this.activeBackground.set('theme_autumn');
+          localStorage.setItem('focus-active-bg', 'theme_autumn');
         }
       } else {
         if (style === 'solar') {
