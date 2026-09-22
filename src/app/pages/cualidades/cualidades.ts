@@ -294,38 +294,44 @@ interface CountryOption {
             
             <div class="clean-spotlight-card">
               
-              <!-- 1. HERO HEADER INTEGRADO -->
+              <!-- 1. HERO HEADER INTEGRADO CON AVATAR DESTACADO / GIGANTE -->
               <div class="detail-hero-header">
-                <!-- AURA AMBIENTAL MUY SUAVE -->
-                <div class="hero-ambient-glow" [style.background]="'radial-gradient(circle at 20% 50%, ' + (inspectedAvatar().isUnlocked ? inspectedAvatar().color : '#64748b') + '18 0%, transparent 70%)'"></div>
+                <!-- AURA AMBIENTAL DINÁMICA -->
+                <div class="hero-ambient-glow" [style.background]="'radial-gradient(circle at 50% 38%, ' + (inspectedAvatar().isUnlocked ? inspectedAvatar().color : '#64748b') + '25 0%, transparent 70%)'"></div>
 
-                <!-- AVATAR PORTRAIT -->
-                <div class="hero-portrait-frame" [class.is-locked-dock]="!inspectedAvatar().isUnlocked">
-                  <div [class]="'avatar-sprite hero-portrait-sprite sprite-' + inspectedAvatar().id" [class.is-locked-sprite]="!inspectedAvatar().isUnlocked"></div>
-                  <div *ngIf="!inspectedAvatar().isUnlocked" class="hero-portrait-locked-overlay">
-                    <i class="fa-solid fa-lock"></i>
+                <!-- TOP ROW CON RAREZA Y ESTADO -->
+                <div class="hero-top-badges-bar">
+                  <div class="hero-stars-pill" title="Tier y Rareza">
+                    <i *ngFor="let s of [1,2,3,4,5]" 
+                       class="fa-solid fa-star" 
+                       [class.is-lit]="s <= inspectedAvatar().stars"></i>
+                    <span class="hero-tier-name">{{ inspectedAvatar().tier }}</span>
+                  </div>
+
+                  <span class="hero-state-pill" 
+                        [class.is-active]="membership.selectedAvatar() === inspectedAvatar().id"
+                        [class.is-unlocked]="inspectedAvatar().isUnlocked && membership.selectedAvatar() !== inspectedAvatar().id"
+                        [class.is-locked]="!inspectedAvatar().isUnlocked">
+                    <i [class]="membership.selectedAvatar() === inspectedAvatar().id ? 'fa-solid fa-circle-check' : (inspectedAvatar().isUnlocked ? 'fa-solid fa-shield-cat' : 'fa-solid fa-lock')"></i>
+                    {{ membership.selectedAvatar() === inspectedAvatar().id ? 'Activo' : (inspectedAvatar().isUnlocked ? 'En Escuadra' : 'Bloqueado') }}
+                  </span>
+                </div>
+
+                <!-- AVATAR PORTRAIT GIGANTE / DESTACADO -->
+                <div class="hero-showcase-wrapper">
+                  <div class="hero-portrait-frame" 
+                       [class.is-locked-dock]="!inspectedAvatar().isUnlocked"
+                       [style.border-color]="inspectedAvatar().isUnlocked ? inspectedAvatar().color : 'rgba(255,255,255,0.18)'"
+                       [style.box-shadow]="'0 14px 36px rgba(0, 0, 0, 0.65), 0 0 32px ' + (inspectedAvatar().isUnlocked ? inspectedAvatar().color : '#64748b') + '44'">
+                    <div [class]="'avatar-sprite hero-portrait-sprite sprite-' + inspectedAvatar().id" [class.is-locked-sprite]="!inspectedAvatar().isUnlocked"></div>
+                    <div *ngIf="!inspectedAvatar().isUnlocked" class="hero-portrait-locked-overlay">
+                      <i class="fa-solid fa-lock"></i>
+                    </div>
                   </div>
                 </div>
 
                 <!-- INFORMACIÓN DE IDENTIDAD -->
                 <div class="hero-identity-body">
-                  <div class="hero-identity-top-row">
-                    <div class="hero-stars-pill" title="Tier y Rareza">
-                      <i *ngFor="let s of [1,2,3,4,5]" 
-                         class="fa-solid fa-star" 
-                         [class.is-lit]="s <= inspectedAvatar().stars"></i>
-                      <span class="hero-tier-name">{{ inspectedAvatar().tier }}</span>
-                    </div>
-
-                    <span class="hero-state-pill" 
-                          [class.is-active]="membership.selectedAvatar() === inspectedAvatar().id"
-                          [class.is-unlocked]="inspectedAvatar().isUnlocked && membership.selectedAvatar() !== inspectedAvatar().id"
-                          [class.is-locked]="!inspectedAvatar().isUnlocked">
-                      <i [class]="membership.selectedAvatar() === inspectedAvatar().id ? 'fa-solid fa-circle-check' : (inspectedAvatar().isUnlocked ? 'fa-solid fa-shield-cat' : 'fa-solid fa-lock')"></i>
-                      {{ membership.selectedAvatar() === inspectedAvatar().id ? 'Activo' : (inspectedAvatar().isUnlocked ? 'En Escuadra' : 'Bloqueado') }}
-                    </span>
-                  </div>
-
                   <h3 class="hero-avatar-name">{{ inspectedAvatar().name }}</h3>
 
                   <div class="hero-meta-tags">
@@ -647,7 +653,7 @@ interface CountryOption {
     }
 
     .profile-banner-cover {
-      height: 130px;
+      height: 140px;
       position: relative;
       display: flex;
       justify-content: flex-end;
@@ -677,17 +683,17 @@ interface CountryOption {
 
     .avatar-overlapping-wrapper {
       position: relative;
-      width: 102px;
-      height: 102px;
-      margin-top: -51px;
-      margin-bottom: 10px;
+      width: 140px;
+      height: 140px;
+      margin-top: -70px;
+      margin-bottom: 12px;
       z-index: 10;
     }
     .round-avatar-frame {
-      width: 102px;
-      height: 102px;
+      width: 140px;
+      height: 140px;
       border-radius: 50%;
-      border: 4px solid #121620;
+      border: 4.5px solid #121620;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -697,29 +703,29 @@ interface CountryOption {
       transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, transform 0.2s ease;
     }
     .round-avatar-frame:hover {
-      transform: scale(1.03);
+      transform: scale(1.04);
     }
     .sprite-circle {
-      width: 94px;
-      height: 94px;
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
       background-size: cover;
       background-position: center;
     }
     .avatar-circle-edit-btn {
       position: absolute;
-      bottom: 2px;
-      right: 2px;
-      width: 28px;
-      height: 28px;
+      bottom: 4px;
+      right: 4px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
-      border: 2px solid #0f172a;
+      border: 2.5px solid #0f172a;
       color: #ffffff;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 13px;
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 15;
@@ -1153,8 +1159,8 @@ interface CountryOption {
     /* CONTENEDOR DE LA CUADRÍCULA */
     .avatars-grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+      gap: 10px;
       max-height: 720px;
       overflow-y: auto;
       padding: 4px 4px 12px 2px;
@@ -1172,8 +1178,8 @@ interface CountryOption {
     /* TARJETA VERTICAL HERO DENTRO DE LA CUADRÍCULA */
     .vertical-hero-card {
       width: 100%;
-      height: 135px;
-      border-radius: 10px;
+      height: 152px;
+      border-radius: 12px;
       background: #0f1422;
       border: 1.5px solid rgba(255, 255, 255, 0.08);
       position: relative;
@@ -1317,31 +1323,31 @@ interface CountryOption {
       z-index: 2;
     }
     .hero-card-sprite {
-      width: 72px;
-      height: 72px;
+      width: 88px;
+      height: 88px;
       background-size: cover;
       background-position: center;
-      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
       border-radius: 50%;
       transition: transform 0.3s ease;
     }
     .vertical-hero-card:hover .hero-card-sprite {
-      transform: scale(1.06);
+      transform: scale(1.08);
     }
 
     .hero-card-footer-glass {
       position: relative;
       z-index: 5;
       background: linear-gradient(180deg, transparent 0%, rgba(10, 14, 24, 0.92) 28%, rgba(8, 11, 18, 0.98) 100%);
-      padding: 10px 4px 4px;
+      padding: 10px 4px 5px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 1px;
+      gap: 2px;
     }
     .hero-card-name {
-      font-size: 9.5px;
+      font-size: 11px;
       font-weight: 850;
       color: #fff;
       margin: 0;
@@ -1352,7 +1358,7 @@ interface CountryOption {
     }
     .hero-card-status-strip {
       margin-top: 1px;
-      font-size: 6px;
+      font-size: 6.5px;
       font-weight: 850;
       letter-spacing: 0.3px;
       text-transform: uppercase;
@@ -1409,16 +1415,18 @@ interface CountryOption {
       box-sizing: border-box;
     }
 
-    /* 1. HERO HEADER INTEGRADO */
+    /* 1. HERO HEADER INTEGRADO CON AVATAR GIGANTE / DESTACADO */
     .detail-hero-header {
       display: flex;
-      gap: 16px;
+      flex-direction: column;
       align-items: center;
+      text-align: center;
+      gap: 10px;
       position: relative;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
-      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 16px 18px 18px;
       overflow: hidden;
     }
     .hero-ambient-glow {
@@ -1427,59 +1435,14 @@ interface CountryOption {
       pointer-events: none;
       transition: background 0.4s ease;
     }
-    .hero-portrait-frame {
-      width: 86px;
-      height: 86px;
-      border-radius: 50%;
-      background: #090c14;
-      border: 1.5px solid rgba(255, 255, 255, 0.12);
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-      z-index: 2;
-    }
-    .hero-portrait-sprite {
-      width: 78px;
-      height: 78px;
-      background-size: cover;
-      background-position: center;
-      border-radius: 50%;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
-    }
-    .hero-portrait-locked-overlay {
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: radial-gradient(circle at center, rgba(15, 20, 32, 0.9) 0%, rgba(8, 11, 18, 0.98) 100%);
-      border: 1.5px solid rgba(255, 255, 255, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
-    }
 
-    .hero-identity-body {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-      flex: 1;
-      z-index: 2;
-    }
-    .hero-identity-top-row {
+    .hero-top-badges-bar {
+      width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
+      z-index: 5;
     }
     .hero-stars-pill {
       display: inline-flex;
@@ -1487,19 +1450,19 @@ interface CountryOption {
       gap: 3px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 2.5px 7px;
+      padding: 3px 8px;
       border-radius: 12px;
-      font-size: 8.5px;
+      font-size: 9px;
     }
     .hero-stars-pill i {
-      font-size: 8px;
+      font-size: 8.5px;
       color: #475569;
     }
     .hero-stars-pill i.is-lit {
       color: #fbbf24;
     }
     .hero-tier-name {
-      font-size: 8.5px;
+      font-size: 9px;
       font-weight: 800;
       color: #e2e8f0;
       margin-left: 3px;
@@ -1507,48 +1470,108 @@ interface CountryOption {
     }
 
     .hero-state-pill {
-      font-size: 9px;
+      font-size: 9.5px;
       font-weight: 750;
-      padding: 2.5px 8px;
+      padding: 3px 10px;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.08);
       color: #94a3b8;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       text-transform: uppercase;
       letter-spacing: 0.3px;
     }
     .hero-state-pill.is-active {
       color: #34d399;
-      background: rgba(16, 185, 129, 0.1);
-      border-color: rgba(16, 185, 129, 0.25);
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
     }
     .hero-state-pill.is-unlocked {
       color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
-      border-color: rgba(56, 189, 248, 0.25);
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.3);
     }
     .hero-state-pill.is-locked {
       color: #f87171;
-      background: rgba(239, 68, 68, 0.1);
-      border-color: rgba(239, 68, 68, 0.25);
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
     }
 
+    .hero-showcase-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 4px 0 6px 0;
+      z-index: 5;
+    }
+    .hero-portrait-frame {
+      width: 172px;
+      height: 172px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(22, 30, 48, 0.95) 0%, #090c14 100%);
+      border: 3.5px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65);
+      z-index: 2;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+    .hero-portrait-frame:hover {
+      transform: scale(1.05);
+    }
+    .hero-portrait-sprite {
+      width: 160px;
+      height: 160px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 50%;
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.65));
+    }
+    .hero-portrait-locked-overlay {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(15, 20, 32, 0.95) 0%, rgba(8, 11, 18, 0.98) 100%);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 15px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.9);
+    }
+
+    .hero-identity-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      width: 100%;
+      z-index: 2;
+    }
     .hero-avatar-name {
-      font-size: 20px;
-      font-weight: 850;
+      font-size: 22px;
+      font-weight: 900;
       color: #ffffff;
       margin: 0;
-      letter-spacing: -0.3px;
+      letter-spacing: -0.4px;
       font-family: 'Space Grotesk', sans-serif;
     }
     .hero-meta-tags {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      font-size: 11px;
+      font-size: 11.5px;
       color: #94a3b8;
       font-weight: 600;
       flex-wrap: wrap;
@@ -1560,7 +1583,7 @@ interface CountryOption {
       gap: 4px;
     }
     .meta-tag.weapon-text i {
-      font-size: 9px;
+      font-size: 9.5px;
       color: #00f2fe;
     }
     .meta-dot {
@@ -1568,19 +1591,20 @@ interface CountryOption {
       font-size: 8px;
     }
     .hero-quote-snippet {
-      font-size: 10.5px;
+      font-size: 11px;
       font-style: italic;
-      color: #64748b;
+      color: #94a3b8;
       margin-top: 2px;
-      line-height: 1.35;
+      line-height: 1.4;
       display: flex;
-      align-items: flex-start;
-      gap: 4px;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      max-width: 90%;
     }
     .hero-quote-snippet i {
-      font-size: 8px;
-      color: #94a3b8;
-      margin-top: 3px;
+      font-size: 8.5px;
+      color: var(--accent, #00f2fe);
       flex-shrink: 0;
     }
 
@@ -2020,12 +2044,13 @@ interface CountryOption {
     }
     .success-badge { font-size: 10px; font-weight: 900; color: #10b981; letter-spacing: 1px; }
     .sprite-reward {
-      width: 90px;
-      height: 90px;
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
       background-size: cover;
       background-position: center;
-      border: 3px solid #10b981;
+      border: 3.5px solid #10b981;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.4);
     }
     .reward-title { font-size: 17px; font-weight: 900; color: #fff; margin: 0; }
     .success-quality { font-size: 13px; font-weight: 800; color: #10b981; }
