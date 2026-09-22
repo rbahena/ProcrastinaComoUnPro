@@ -1013,6 +1013,23 @@
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(var(--card-accent-rgb), 0.08);
 }
 
+.historical-record-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.historical-record-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(var(--card-accent-rgb), 0.25);
+  transform: translateX(2px);
+}
+
 .dashboard-main-column {
   display: flex;
   flex-direction: column;

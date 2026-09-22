@@ -163,6 +163,31 @@ export class ComunidadBossService {
           status: boss.status
         });
         this.comunidadShield.set(boss.community_shield ?? 1000);
+
+        // Cargar eventos recientes del feed de combate desde Supabase
+        const { events } = await this.supabaseService.getRecentBossEvents(boss.id, 20);
+        if (events && events.length > 0) {
+          const logMessages = events.map(ev => ev.message).filter(Boolean);
+          if (logMessages.length > 0) {
+            this.bossLogs.set(logMessages);
+          }
+        }
+
+        // Cargar daño total acumulado por el usuario actual desde Supabase
+        const user = await this.supabaseService.getCurrentUser();
+        if (user) {
+          const { data: userAttacks } = await this.supabaseService.client
+            .from('community_boss_attacks')
+            .select('damage_dealt')
+            .eq('user_id', user.id)
+            .gt('damage_dealt', 0);
+
+          if (userAttacks && userAttacks.length > 0) {
+            const totalDamage = userAttacks.reduce((sum: number, att: any) => sum + (att.damage_dealt || 0), 0);
+            this.userDamageDealt.set(totalDamage);
+          }
+        }
+
         this.saveState();
       }
     } catch (e) {
@@ -190,6 +215,11 @@ export class ComunidadBossService {
             this.comunidadShield.set(row.community_shield);
           }
           this.saveState();
+        }
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'community_boss_attacks' }, (payload: any) => {
+        if (payload.new && payload.new.message) {
+          this.addLog(payload.new.message);
         }
       })
       .subscribe();

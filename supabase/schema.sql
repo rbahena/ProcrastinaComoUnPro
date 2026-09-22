@@ -2058,8 +2058,7 @@ CREATE INDEX IF NOT EXISTS idx_community_boss_attacks_boss_date ON public.commun
 -- ------------------------------------------------------------------------------
 
 -- [TIPO DE OBJETO: SENTENCIA DML DE INSERCIÓN CON UPSERT (INSERT ... ON CONFLICT)]
--- ¿Qué es? Carga únicamente a La Sirena como oponente activo inicial del dojo con 100% de vida (9000/9000 HP).
--- ¿Nota de Extensibilidad? La tabla queda lista para recibir cualquier nuevo jefe que definas en el futuro.
+-- ¿Qué es? Carga el catálogo completo de los 7 Jefes de la Comunidad con sus estadísticas de combate.
 INSERT INTO public.community_bosses (
     id, boss_type, max_hp, current_hp, status, community_shield, max_community_shield,
     defeat_reward_coins, is_current_active, name, description
@@ -2068,6 +2067,36 @@ INSERT INTO public.community_bosses (
     'siren', 'siren', 9000, 9000, 'active', 1000, 1000, 150, TRUE,
     '{"es": "La Sirena de las Distracciones", "en": "The Siren of Distractions"}',
     '{"es": "Canta con notificaciones y pestañas infinitas para romper tu concentración.", "en": "Sings with infinite notifications and tabs to break your focus."}'
+),
+(
+    'samurai', 'samurai', 12000, 12000, 'active', 1000, 1000, 180, FALSE,
+    '{"es": "La Hidra de las Tareas Interminables", "en": "The Hydra of Endless Tasks"}',
+    '{"es": "Por cada pendiente que completas sin estrategia, brotan dos nuevas distracciones.", "en": "For every task you rush without strategy, two new distractions sprout."}'
+),
+(
+    'cyberpunk', 'cyberpunk', 10000, 10000, 'active', 1000, 1000, 160, FALSE,
+    '{"es": "El Kraken del Caos y Pendientes", "en": "The Kraken of Chaos and Backlogs"}',
+    '{"es": "Envuelve tu atención en un mar de pestañas abiertas y notificaciones desordenadas.", "en": "Wraps your attention in an ocean of open tabs and chaotic alerts."}'
+),
+(
+    'zen', 'zen', 8000, 8000, 'active', 1000, 1000, 140, FALSE,
+    '{"es": "El Basilisco de la Parálisis y Bloqueo", "en": "The Basilisk of Paralysis"}',
+    '{"es": "Petrifica la iniciativa con la ilusión del perfeccionismo excesivo.", "en": "Petrifies initiative with the illusion of excessive perfectionism."}'
+),
+(
+    'aurora', 'aurora', 15000, 15000, 'active', 1000, 1000, 200, FALSE,
+    '{"es": "La Quimera de la Multitarea", "en": "The Chimera of Multitasking"}',
+    '{"es": "Confunde tu energía haciéndote creer que hacer todo al mismo tiempo es avanzar.", "en": "Confuses your energy making you believe doing everything at once is progress."}'
+),
+(
+    'werewolf', 'werewolf', 16000, 16000, 'active', 1000, 1000, 220, FALSE,
+    '{"es": "El Hombre Lobo de la Madrugada", "en": "The Werewolf of the Dawn"}',
+    '{"es": "Te tienta a posponer el descanso y sacrificar horas de sueño reparador.", "en": "Tempts you to postpone rest and sacrifice restorative sleep."}'
+),
+(
+    'vampire', 'vampire', 18000, 18000, 'active', 1000, 1000, 250, FALSE,
+    '{"es": "El Vampiro del Insomnio", "en": "The Vampire of Insomnia"}',
+    '{"es": "Drena tu vitalidad y claridad mental manteniéndote despierto frente a pantallas nocturnas.", "en": "Drains your vitality and mental clarity keeping you glued to late-night screens."}'
 )
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
@@ -2076,14 +2105,6 @@ ON CONFLICT (id) DO UPDATE SET
     current_hp = EXCLUDED.current_hp,
     community_shield = EXCLUDED.community_shield,
     defeat_reward_coins = EXCLUDED.defeat_reward_coins;
-
--- ==============================================================================
--- 💡 PLANTILLA PARA AGREGAR NUEVOS JEFES EN EL FUTURO (CUANDO LOS DEFINAS):
--- ==============================================================================
--- INSERT INTO public.community_bosses (id, boss_type, max_hp, current_hp, status, community_shield, max_community_shield, defeat_reward_coins, is_current_active, name, description)
--- VALUES ('slug_jefe', 'slug_jefe', 10000, 10000, 'active', 1000, 1000, 150, FALSE, '{"es": "Nombre", "en": "Name"}', '{"es": "Descripción", "en": "Description"}')
--- ON CONFLICT (id) DO NOTHING;
--- ==============================================================================
 
 
 -- ------------------------------------------------------------------------------
@@ -2743,20 +2764,21 @@ BEGIN
         END IF;
     END IF;
 
-    -- 4. Podio Semanal: Top 3 usuarios por puntos de enfoque
+    -- 4. Podio Semanal: Top 3 usuarios por puntos de enfoque (solo con actividad registrada)
     SELECT COALESCE(json_agg(p), '[]'::json) INTO v_podium FROM (
         SELECT id, username, selected_avatar, selected_theme, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals
         FROM public.profiles
+        WHERE focus_points > 0 OR focus_tomatoes > 0
         ORDER BY focus_points DESC, focus_tomatoes DESC, created_at ASC
         LIMIT 3
     ) p;
 
-    -- 5. Récords Históricos: Top 5 maestros del pomodoro
+    -- 5. Récords Históricos: Top 10 maestros del pomodoro
     SELECT COALESCE(json_agg(r), '[]'::json) INTO v_top_records FROM (
         SELECT id, username, selected_avatar, selected_theme, focus_tomatoes, focus_points, streak_days, podium_wins, gold_medals
         FROM public.profiles
         ORDER BY focus_tomatoes DESC, focus_points DESC, created_at ASC
-        LIMIT 5
+        LIMIT 10
     ) r;
 
     -- 6. Usuarios recientes para presencia comunitaria en vivo

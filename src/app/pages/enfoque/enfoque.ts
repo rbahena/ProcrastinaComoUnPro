@@ -94,9 +94,6 @@ export class Enfoque implements OnInit, OnDestroy {
     this.selectedAvatar = this.membership.selectedAvatar;
     this.sidebarCollapsed = this.membership.sidebarCollapsed;
 
-    // Initialize Comunidad Boss theme to Siren of Distractions
-    this.bossService.updateBossTheme('siren');
-
     // Garantizar que todo usuario que entre vea por defecto "Otoño Lofi" (theme_autumn)
     const savedBg = localStorage.getItem('focus-active-bg') as FocusBackgroundType;
     if (!savedBg || savedBg === 'lofi_space_cosmos' || savedBg === 'lofi_cat_window' || !this.backgroundOptions.includes(savedBg)) {
@@ -2844,7 +2841,6 @@ export class Enfoque implements OnInit, OnDestroy {
       }
     });
     body.classList.add(`theme-${theme}`);
-    this.bossService.updateBossTheme('siren');
   }
 
   // Generadores de Ruido (Web Audio API)

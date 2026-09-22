@@ -857,6 +857,7 @@ export class SupabaseService {
     }
 
     try {
+      // 1. Buscar el jefe actualmente marcado como activo en la BD
       const { data, error } = await this.supabase
         .from('community_bosses')
         .select('*')
@@ -867,7 +868,30 @@ export class SupabaseService {
         return { boss: null, error: error.message };
       }
 
-      return { boss: data as CommunityBossData, error: null };
+      if (data) {
+        return { boss: data as CommunityBossData, error: null };
+      }
+
+      // 2. Fallback: Si ninguno tiene is_current_active=true, tomar el primer jefe activo de la BD
+      const { data: fallbackActive, error: fbError } = await this.supabase
+        .from('community_bosses')
+        .select('*')
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+
+      if (!fbError && fallbackActive) {
+        return { boss: fallbackActive as CommunityBossData, error: null };
+      }
+
+      // 3. Último recurso: Tomar cualquier fila de la tabla community_bosses
+      const { data: anyBoss } = await this.supabase
+        .from('community_bosses')
+        .select('*')
+        .limit(1)
+        .maybeSingle();
+
+      return { boss: (anyBoss as CommunityBossData) || null, error: null };
     } catch (e: any) {
       return { boss: null, error: e.message || 'Error al obtener jefe activo' };
     }
@@ -1513,13 +1537,13 @@ export class SupabaseService {
         }
       }
 
-      // Podio: Top 3 por focus_points
-      const podium = allProfiles.slice(0, 3);
+      // Podio: Top 3 por focus_points (solo usuarios con actividad)
+      const podium = allProfiles.filter(p => (p.focus_points || 0) > 0 || (p.focus_tomatoes || 0) > 0).slice(0, 3);
 
-      // Top récords: Top 5 por focus_tomatoes
+      // Top récords: Top 10 por focus_tomatoes
       const topRecords = [...allProfiles]
         .sort((a, b) => (b.focus_tomatoes || 0) - (a.focus_tomatoes || 0))
-        .slice(0, 5);
+        .slice(0, 10);
 
       // Recientes
       const recentAvatars = allProfiles.slice(0, 6);

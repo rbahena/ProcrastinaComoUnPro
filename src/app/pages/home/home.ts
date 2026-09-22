@@ -75,16 +75,28 @@ export class Home implements OnInit, OnDestroy {
     return this.topPodiumUsers();
   });
 
+  hasPodiumWinners = computed(() => {
+    const list = this.topPodiumUsers();
+    if (!list || list.length < 3) return false;
+    return list.some(u => u.name !== 'En disputa' && u.name !== 'Disponible' && (u.value && u.value !== '0 puntos' && u.value !== 'Disponible'));
+  });
+
   featuredCompanionName = computed(() => {
     const list = this.liveCommunityUsers();
     return list.length > 0 ? list[0].name : this.userName();
   });
 
   rankingPosition = computed(() => {
+    if (!this.membership.isPremium()) {
+      return Math.max(1, this.totalCommunityUsers());
+    }
     return Math.max(1, this.liveUserRank());
   });
 
   percentageBeaten = computed(() => {
+    if (!this.membership.isPremium()) {
+      return 0;
+    }
     const total = Math.max(1, this.totalCommunityUsers());
     const pos = this.rankingPosition();
     if (total <= 1) return 100;
@@ -92,6 +104,9 @@ export class Home implements OnInit, OnDestroy {
   });
 
   potentialReward = computed(() => {
+    if (!this.membership.isPremium()) {
+      return 0;
+    }
     const pos = this.rankingPosition();
     if (pos === 1) return 100;
     if (pos <= 3) return 70;
@@ -257,32 +272,26 @@ export class Home implements OnInit, OnDestroy {
   }
 
   private processPodiumData(podiumUsers: CommunityLeaderboardUser[]) {
-    const myName = this.userName();
-    const myAvatar = this.selectedAvatar();
-    const myPoints = this.membership.focusPoints();
-    const myWins = this.membership.podiumWins();
+    // Filtrar solo usuarios que tengan puntos o tomates registrados en BD
+    const activeUsers = (podiumUsers || []).filter(u => (u.focus_points || 0) > 0 || (u.focus_tomatoes || 0) > 0);
 
-    // Construir los 3 lugares del podio con datos reales
-    const firstUser = podiumUsers[0];
-    const secondUser = podiumUsers[1];
-    const thirdUser = podiumUsers[2];
+    if (activeUsers.length === 0) {
+      this.topPodiumUsers.set([]);
+      return;
+    }
 
-    const first: PodiumDisplayItem = firstUser ? {
+    const firstUser = activeUsers[0];
+    const secondUser = activeUsers[1];
+    const thirdUser = activeUsers[2];
+
+    const first: PodiumDisplayItem = {
       position: 1,
       name: firstUser.username || 'Guerrero',
       avatar: firstUser.selected_avatar || 'gato',
       color: this.membership.getAvatarColorById(firstUser.selected_avatar || 'gato'),
-      value: (firstUser.focus_points || 0) > 0 ? `${(firstUser.focus_points || 0).toLocaleString()} puntos` : `${firstUser.focus_points || 0} puntos`,
+      value: (firstUser.focus_points || 0) > 0 ? `${(firstUser.focus_points || 0).toLocaleString()} puntos` : `${firstUser.focus_tomatoes || 0} 🍅`,
       place: '1º',
       wins: firstUser.podium_wins || 0
-    } : {
-      position: 1,
-      name: myName,
-      avatar: myAvatar,
-      color: this.getSelectedAvatarColor(),
-      value: myPoints > 0 ? `${myPoints.toLocaleString()} puntos` : '0 puntos',
-      place: '1º',
-      wins: myWins
     };
 
     const second: PodiumDisplayItem = secondUser ? {
@@ -290,7 +299,7 @@ export class Home implements OnInit, OnDestroy {
       name: secondUser.username || 'Guerrero',
       avatar: secondUser.selected_avatar || 'gato',
       color: this.membership.getAvatarColorById(secondUser.selected_avatar || 'gato'),
-      value: (secondUser.focus_points || 0) > 0 ? `${(secondUser.focus_points || 0).toLocaleString()} puntos` : '0 puntos',
+      value: (secondUser.focus_points || 0) > 0 ? `${(secondUser.focus_points || 0).toLocaleString()} puntos` : `${secondUser.focus_tomatoes || 0} 🍅`,
       place: '2º',
       wins: secondUser.podium_wins || 0
     } : {
@@ -308,7 +317,7 @@ export class Home implements OnInit, OnDestroy {
       name: thirdUser.username || 'Guerrero',
       avatar: thirdUser.selected_avatar || 'gato',
       color: this.membership.getAvatarColorById(thirdUser.selected_avatar || 'gato'),
-      value: (thirdUser.focus_points || 0) > 0 ? `${(thirdUser.focus_points || 0).toLocaleString()} puntos` : '0 puntos',
+      value: (thirdUser.focus_points || 0) > 0 ? `${(thirdUser.focus_points || 0).toLocaleString()} puntos` : `${thirdUser.focus_tomatoes || 0} 🍅`,
       place: '3º',
       wins: thirdUser.podium_wins || 0
     } : {
@@ -351,7 +360,7 @@ export class Home implements OnInit, OnDestroy {
       });
     }
 
-    this.topHistoricalRecords.set(list.slice(0, 5));
+    this.topHistoricalRecords.set(list.slice(0, 10));
   }
 
   private processRecentAvatars(recent: CommunityLeaderboardUser[]) {

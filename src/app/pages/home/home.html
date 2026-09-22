@@ -157,9 +157,6 @@
           <span class="card-title-text" style="color: var(--yellow); font-weight: 700;" *ngIf="membership.isPremium()">
             Top {{ 100 - percentageBeaten() }}%
           </span>
-          <span class="card-title-text" style="color: var(--muted); font-weight: 700;" *ngIf="!membership.isPremium()">
-            Clasificación
-          </span>
           <button routerLink="/membresia" class="card-action-play" title="Ver Membresía">
             <i class="fa-solid fa-crown"></i>
           </button>
@@ -167,14 +164,14 @@
       </div>
 
       <!-- VISTA GRATUITA -->
-      <div *ngIf="!membership.isPremium()" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px; flex: 1; justify-content: center;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <!-- Posición Actual -->
+      <div *ngIf="!membership.isPremium()" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; flex: 1; justify-content: center;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <!-- Posición Actual (Solo Candado) -->
           <div style="display: flex; flex-direction: column; gap: 2px;">
             <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
-            <span class="card-large-value" style="font-size: 20px !important; margin-top: 0; color: var(--text);">
-              #{{ rankingPosition() }}
-            </span>
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;">
+              <i class="fa-solid fa-lock" style="font-size: 16px; color: var(--yellow);"></i>
+            </div>
           </div>
 
           <!-- Rendimiento -->
@@ -186,12 +183,15 @@
           </div>
         </div>
         
-        <p style="font-size: 10.5px; color: var(--muted); line-height: 1.4; margin: 4px 0; text-align: center;">
-          Compite en la clasificación en tiempo real y gana recompensas de monedas diarias.
-        </p>
+        <!-- Mensaje explícito de que no cuenta en la competencia -->
+        <div style="font-size: 10px; color: #fbbf24; background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 6px 8px; line-height: 1.35; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 11px; flex-shrink: 0; color: #f59e0b;"></i>
+          <span>Tu tiempo <strong>no cuenta en la competencia</strong> comunitaria sin suscripción Premium.</span>
+        </div>
 
-        <button routerLink="/membresia" class="pro-unlock-rank-btn">
-          Desbloquear Clasificación Premium
+        <button routerLink="/membresia" class="pro-unlock-rank-btn" style="margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <i class="fa-solid fa-lock-open" style="font-size: 11px;"></i>
+          <span>Activar Puesto Oficial con Pro</span>
         </button>
       </div>
 
@@ -348,8 +348,8 @@
           </button> -->
         </div>
 
-        <!-- Podio (Vista en Hilera Dinámica) -->
-        <div *ngIf="rankingData().length >= 3" style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 180px; margin-top: 10px; padding-bottom: 5px;">
+        <!-- Podio (Vista en Hilera Dinámica con Ganadores Reales) -->
+        <div *ngIf="hasPodiumWinners()" style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 180px; margin-top: 10px; padding-bottom: 5px;">
           
           <!-- 2º Puesto (Izquierda) -->
           <div class="podio-column second-place custom-tooltip-host" 
@@ -406,6 +406,21 @@
 
         </div>
 
+        <!-- Podio Vacío (Pendiente de Ganar) -->
+        <div *ngIf="!hasPodiumWinners()" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 180px; margin-top: 10px; gap: 10px; text-align: center; padding: 8px 14px; z-index: 2;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(234, 179, 8, 0.1); border: 1.5px solid rgba(234, 179, 8, 0.3); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(234, 179, 8, 0.15);">
+            <i class="fa-solid fa-trophy" style="color: var(--yellow); font-size: 18px;"></i>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 3px;">
+            <span style="font-size: 12.5px; font-weight: 800; color: var(--text); letter-spacing: 0.3px;">Podio Pendiente de Ganar</span>
+            <span style="font-size: 10.5px; color: var(--muted); max-width: 240px; line-height: 1.35;">Aún no hay campeones coronados esta semana. ¡Completa sesiones de concentración para reclamar el 1º puesto!</span>
+          </div>
+          <button routerLink="/enfoque" style="width: auto; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); color: var(--yellow); cursor: pointer; transition: all 0.2s;">
+            <i class="fa-solid fa-play" style="font-size: 9px;"></i>
+            <span>Conquistar el Podio</span>
+          </button>
+        </div>
+
         <!-- Icono flotante decorativo -->
         <div class="card-float-icon">
           <i class="fa-solid fa-yin-yang"></i>
@@ -414,19 +429,19 @@
 
     </div>
 
-    <!-- COLUMNA 3: RÉCORDS DE LA COMUNIDAD (TOP 5 POMODOROS) -->
+    <!-- COLUMNA 3: RÉCORDS DE LA COMUNIDAD (TOP 10 POMODOROS) -->
     <div class="dashboard-sidebar-column">
       
-      <!-- CARD: RÉCORDS DE LA COMUNIDAD (TOP 5 POMODOROS) -->
+      <!-- CARD: RÉCORDS DE LA COMUNIDAD (TOP 10 POMODOROS) -->
       <div class="top-pomodoros-card" style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
         
         <!-- Cabecera -->
-        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; z-index: 10;">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; z-index: 10;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-fire" style="color: var(--green); font-size: 14px;"></i>
             <div>
               <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Récord Histórico</h4>
-              <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Se actualiza en tiempo real</p>
+              <p style="font-size: 10.5px; color: var(--muted); margin: 2px 0 0 0;">Top 10 en Pomodoros</p>
             </div>
           </div>
           <button routerLink="/fechas" class="card-action-play" title="Ver Estadísticas">
@@ -434,21 +449,24 @@
           </button>
         </div>
 
-        <!-- Listado Dinámico desde Base de Datos -->
-        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px; flex: 1; justify-content: center; z-index: 2;">
+        <!-- Listado Dinámico desde Base de Datos (Top 10) -->
+        <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 8px; flex: 1; justify-content: flex-start; z-index: 2;">
           
           <div *ngFor="let record of topHistoricalRecords(); let idx = index"
                class="historical-record-row"
-               [title]="'Ver perfil de ' + record.name">
+               [title]="'Ver perfil de ' + record.name"
+               style="padding: 5px 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 10px; font-weight: 800; width: 12px; text-align: center;"
-                    [style.color]="idx === 0 ? 'var(--yellow)' : 'var(--muted)'">{{ record.rank }}</span>
+              <span style="font-size: 10px; font-weight: 800; width: 14px; text-align: center;"
+                    [style.color]="idx === 0 ? 'var(--yellow)' : (idx === 1 ? '#cbd5e1' : (idx === 2 ? '#f59e0b' : 'var(--muted)'))">
+                {{ record.rank }}
+              </span>
               <div class="avatar-sprite" 
                    [class]="'sprite-' + record.avatar"
                    [style.background-color]="record.color" 
                    style="width: 20px; height: 20px; border-radius: 50%; cursor: zoom-in;"
                    (click)="zoomAvatar(record.avatar, record.name, getAvatarTitle(record.avatar), record.color, record.wins)"></div>
-              <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">{{ record.name }}</span>
+              <span style="font-size: 11px; font-weight: 700; color: var(--text);">{{ record.name }}</span>
             </div>
             <span style="font-size: 10px; font-weight: 800; color: var(--green); display: flex; align-items: center; gap: 3px;">
               🍅 {{ record.tomatoes }}
