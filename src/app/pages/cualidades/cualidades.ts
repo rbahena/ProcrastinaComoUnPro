@@ -86,11 +86,9 @@ interface CountryOption {
               
               <div class="avatar-overlapping-wrapper">
                 <div class="round-avatar-frame" 
-                     (click)="toggleEditProfile()"
-                     title="Cambiar Avatar / Editar Perfil"
                      [style.border-color]="activeAvatar().color"
                      [style.background]="'radial-gradient(circle at center, ' + activeAvatar().color + '55 0%, ' + activeAvatar().color + '1a 60%, #121620 90%)'"
-                     [style.box-shadow]="'0 8px 24px rgba(0, 0, 0, 0.55), 0 0 25px ' + activeAvatar().color + '66'">
+                     [style.box-shadow]="'0 10px 30px rgba(0, 0, 0, 0.6), 0 0 30px ' + activeAvatar().color + '66'">
                   <div [class]="'avatar-sprite sprite-circle sprite-' + membership.selectedAvatar()"></div>
                 </div>
                 <button class="avatar-circle-edit-btn" 
@@ -317,13 +315,14 @@ interface CountryOption {
                   </span>
                 </div>
 
-                <!-- AVATAR PORTRAIT GIGANTE / DESTACADO -->
+                <!-- AVATAR PORTRAIT GIGANTE DESTACADO EN EL DETALLE -->
                 <div class="hero-showcase-wrapper">
                   <div class="hero-portrait-frame" 
                        [class.is-locked-dock]="!inspectedAvatar().isUnlocked"
                        [style.border-color]="inspectedAvatar().isUnlocked ? inspectedAvatar().color : 'rgba(255,255,255,0.18)'"
-                       [style.box-shadow]="'0 14px 36px rgba(0, 0, 0, 0.65), 0 0 32px ' + (inspectedAvatar().isUnlocked ? inspectedAvatar().color : '#64748b') + '44'">
-                    <div [class]="'avatar-sprite hero-portrait-sprite sprite-' + inspectedAvatar().id" [class.is-locked-sprite]="!inspectedAvatar().isUnlocked"></div>
+                       [style.box-shadow]="'0 18px 44px rgba(0, 0, 0, 0.7), 0 0 40px ' + (inspectedAvatar().isUnlocked ? inspectedAvatar().color : '#64748b') + '55'">
+                    <div [class]="'avatar-sprite hero-portrait-sprite sprite-' + inspectedAvatar().id" 
+                         [class.is-locked-sprite]="!inspectedAvatar().isUnlocked"></div>
                     <div *ngIf="!inspectedAvatar().isUnlocked" class="hero-portrait-locked-overlay">
                       <i class="fa-solid fa-lock"></i>
                     </div>
@@ -333,16 +332,6 @@ interface CountryOption {
                 <!-- INFORMACIÓN DE IDENTIDAD -->
                 <div class="hero-identity-body">
                   <h3 class="hero-avatar-name">{{ inspectedAvatar().name }}</h3>
-
-                  <div class="hero-meta-tags">
-                    <span class="meta-tag">{{ inspectedAvatar().species }}</span>
-                    <span class="meta-dot">•</span>
-                    <span class="meta-tag">{{ inspectedAvatar().role }}</span>
-                    <span class="meta-dot" *ngIf="inspectedAvatar().weaponName">•</span>
-                    <span class="meta-tag weapon-text" *ngIf="inspectedAvatar().weaponName">
-                      <i class="fa-solid fa-wand-magic-sparkles"></i> {{ inspectedAvatar().weaponName }}
-                    </span>
-                  </div>
 
                   <div class="hero-quote-snippet" *ngIf="inspectedAvatar().tacticalQuote">
                     <i class="fa-solid fa-quote-left"></i>
@@ -572,11 +561,11 @@ interface CountryOption {
             <p class="reward-description">
               Has demostrado la cualidad de <strong>{{ unlockedRewardQuality()?.name }}</strong>. El guardián correspondiente ahora está disponible en tu colección.
             </p>
-            <button (click)="closeRewardFlow()" class="btn-equip-now-action">
-              Continuar <i class="fa-solid fa-circle-check"></i>
-            </button>
+            <button class="btn-equip-now-action" (click)="closeRewardFlow()">¡Genial, Entendido!</button>
           </div>
         </div>
+
+
 
         <!-- TOAST FLOTANTE -->
         <div class="toast-popup-alert" *ngIf="toastMessage()">
@@ -683,49 +672,49 @@ interface CountryOption {
 
     .avatar-overlapping-wrapper {
       position: relative;
-      width: 140px;
-      height: 140px;
-      margin-top: -70px;
-      margin-bottom: 12px;
+      width: 170px;
+      height: 170px;
+      margin-top: -85px;
+      margin-bottom: 14px;
       z-index: 10;
     }
     .round-avatar-frame {
-      width: 140px;
-      height: 140px;
+      width: 170px;
+      height: 170px;
       border-radius: 50%;
-      border: 4.5px solid #121620;
+      border: 5px solid #121620;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      cursor: pointer;
       transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, transform 0.2s ease;
     }
     .round-avatar-frame:hover {
       transform: scale(1.04);
     }
     .sprite-circle {
-      width: 130px;
-      height: 130px;
+      width: 158px;
+      height: 158px;
       border-radius: 50%;
       background-size: cover;
       background-position: center;
+      transition: transform 0.2s ease;
     }
     .avatar-circle-edit-btn {
       position: absolute;
-      bottom: 4px;
-      right: 4px;
-      width: 34px;
-      height: 34px;
+      bottom: 6px;
+      right: 6px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
-      border: 2.5px solid #0f172a;
+      border: 3px solid #0f172a;
       color: #ffffff;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 15;
@@ -1064,7 +1053,7 @@ interface CountryOption {
     /* ==================================================== */
     .guardian-selection-dashboard {
       display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) minmax(370px, 1.2fr);
       gap: 22px;
       align-items: start;
       width: 100%;
@@ -1503,63 +1492,64 @@ interface CountryOption {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 4px 0 6px 0;
+      margin: 8px 0 14px 0;
       z-index: 5;
     }
     .hero-portrait-frame {
-      width: 172px;
-      height: 172px;
+      width: 270px;
+      height: 270px;
       border-radius: 50%;
       background: radial-gradient(circle at center, rgba(22, 30, 48, 0.95) 0%, #090c14 100%);
-      border: 3.5px solid rgba(255, 255, 255, 0.2);
+      border: 4.5px solid rgba(255, 255, 255, 0.2);
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.7);
       z-index: 2;
+      overflow: hidden;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-      cursor: pointer;
     }
     .hero-portrait-frame:hover {
-      transform: scale(1.05);
+      transform: scale(1.04);
     }
     .hero-portrait-sprite {
-      width: 160px;
-      height: 160px;
+      width: 256px;
+      height: 256px;
       background-size: cover;
       background-position: center;
       border-radius: 50%;
-      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.65));
+      filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.75));
+      transition: transform 0.2s ease;
     }
     .hero-portrait-locked-overlay {
       position: absolute;
-      bottom: 6px;
-      right: 6px;
-      width: 38px;
-      height: 38px;
+      bottom: 12px;
+      right: 12px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       background: radial-gradient(circle at center, rgba(15, 20, 32, 0.95) 0%, rgba(8, 11, 18, 0.98) 100%);
-      border: 2px solid rgba(255, 255, 255, 0.4);
+      border: 2.5px solid rgba(255, 255, 255, 0.45);
       display: flex;
       align-items: center;
       justify-content: center;
       color: #ffffff;
-      font-size: 15px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.9);
+      font-size: 20px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.9);
     }
 
     .hero-identity-body {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       width: 100%;
       z-index: 2;
     }
     .hero-avatar-name {
-      font-size: 22px;
+      font-size: 25px;
       font-weight: 900;
       color: #ffffff;
       margin: 0;
