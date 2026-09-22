@@ -14,6 +14,7 @@ export interface PodiumDisplayItem {
   value: string;
   place: string;
   wins: number;
+  isAssigned?: boolean;
 }
 
 export interface HistoricalRecordItem {
@@ -23,6 +24,7 @@ export interface HistoricalRecordItem {
   color: string;
   tomatoes: number;
   wins: number;
+  isAssigned?: boolean;
 }
 
 export interface CommunityCompanionItem {
@@ -272,8 +274,8 @@ export class Home implements OnInit, OnDestroy {
   }
 
   private processPodiumData(podiumUsers: CommunityLeaderboardUser[]) {
-    // Filtrar solo usuarios que tengan puntos o tomates registrados en BD
-    const activeUsers = (podiumUsers || []).filter(u => (u.focus_points || 0) > 0 || (u.focus_tomatoes || 0) > 0);
+    // Filtrar solo usuarios PREMIUM que tengan puntos o tomates registrados en BD
+    const activeUsers = (podiumUsers || []).filter(u => u.is_premium === true && ((u.focus_points || 0) > 0 || (u.focus_tomatoes || 0) > 0));
 
     if (activeUsers.length === 0) {
       this.topPodiumUsers.set([]);
@@ -291,7 +293,8 @@ export class Home implements OnInit, OnDestroy {
       color: this.membership.getAvatarColorById(firstUser.selected_avatar || 'gato'),
       value: (firstUser.focus_points || 0) > 0 ? `${(firstUser.focus_points || 0).toLocaleString()} puntos` : `${firstUser.focus_tomatoes || 0} 🍅`,
       place: '1º',
-      wins: firstUser.podium_wins || 0
+      wins: firstUser.podium_wins || 0,
+      isAssigned: true
     };
 
     const second: PodiumDisplayItem = secondUser ? {
@@ -301,15 +304,17 @@ export class Home implements OnInit, OnDestroy {
       color: this.membership.getAvatarColorById(secondUser.selected_avatar || 'gato'),
       value: (secondUser.focus_points || 0) > 0 ? `${(secondUser.focus_points || 0).toLocaleString()} puntos` : `${secondUser.focus_tomatoes || 0} 🍅`,
       place: '2º',
-      wins: secondUser.podium_wins || 0
+      wins: secondUser.podium_wins || 0,
+      isAssigned: true
     } : {
       position: 2,
       name: 'En disputa',
-      avatar: 'lobo',
-      color: '#3a86f0',
+      avatar: '',
+      color: 'rgba(255, 255, 255, 0.05)',
       value: 'Disponible',
       place: '2º',
-      wins: 0
+      wins: 0,
+      isAssigned: false
     };
 
     const third: PodiumDisplayItem = thirdUser ? {
@@ -319,15 +324,17 @@ export class Home implements OnInit, OnDestroy {
       color: this.membership.getAvatarColorById(thirdUser.selected_avatar || 'gato'),
       value: (thirdUser.focus_points || 0) > 0 ? `${(thirdUser.focus_points || 0).toLocaleString()} puntos` : `${thirdUser.focus_tomatoes || 0} 🍅`,
       place: '3º',
-      wins: thirdUser.podium_wins || 0
+      wins: thirdUser.podium_wins || 0,
+      isAssigned: true
     } : {
       position: 3,
       name: 'En disputa',
-      avatar: 'buho',
-      color: '#10b981',
+      avatar: '',
+      color: 'rgba(255, 255, 255, 0.05)',
       value: 'Disponible',
       place: '3º',
-      wins: 0
+      wins: 0,
+      isAssigned: false
     };
 
     // Formato requerido para la UI: [2º (izquierda), 1º (centro), 3º (derecha)]
@@ -337,30 +344,38 @@ export class Home implements OnInit, OnDestroy {
   private processHistoricalRecords(records: CommunityLeaderboardUser[]) {
     const list: HistoricalRecordItem[] = [];
 
-    if (records && records.length > 0) {
-      records.forEach((r, idx) => {
+    // Solo usuarios con membresía PREMIUM compiten en el ranking histórico
+    const activeRecords = (records || []).filter(r => r.is_premium === true && (r.focus_tomatoes || 0) > 0);
+
+    if (activeRecords.length > 0) {
+      activeRecords.slice(0, 10).forEach((r, idx) => {
         list.push({
           rank: idx + 1,
           name: r.username || 'Guerrero',
           avatar: r.selected_avatar || 'gato',
           color: this.membership.getAvatarColorById(r.selected_avatar || 'gato'),
           tomatoes: r.focus_tomatoes || 0,
-          wins: r.podium_wins || 0
+          wins: r.podium_wins || 0,
+          isAssigned: true
         });
-      });
-    } else {
-      // Si no hay otros usuarios, registrar al usuario actual con sus pomodoros reales
-      list.push({
-        rank: 1,
-        name: this.userName(),
-        avatar: this.selectedAvatar(),
-        color: this.getSelectedAvatarColor(),
-        tomatoes: this.membership.focusTomatoes(),
-        wins: this.membership.podiumWins()
       });
     }
 
-    this.topHistoricalRecords.set(list.slice(0, 10));
+    // Llenar los puestos restantes hasta 10 con filas disponibles sin imagen de avatar
+    const currentCount = list.length;
+    for (let i = currentCount + 1; i <= 10; i++) {
+      list.push({
+        rank: i,
+        name: 'Disponible',
+        avatar: '',
+        color: 'transparent',
+        tomatoes: 0,
+        wins: 0,
+        isAssigned: false
+      });
+    }
+
+    this.topHistoricalRecords.set(list);
   }
 
   private processRecentAvatars(recent: CommunityLeaderboardUser[]) {

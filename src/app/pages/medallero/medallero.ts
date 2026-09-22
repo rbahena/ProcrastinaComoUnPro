@@ -96,7 +96,7 @@ export class Medallero implements OnInit, OnDestroy {
     let bestStreakVal = rec.bestStreak?.streak ?? 15;
     let streakDate = '25 Ago 2026';
 
-    if (ramStreak >= bestStreakVal && ramStreak > 0) {
+    if (this.membership.isPremium() && ramStreak >= bestStreakVal && ramStreak > 0) {
       bestStreakVal = ramStreak;
       streakHolderName = ramName;
       streakHolderAvatar = ramAvatar;
@@ -111,7 +111,7 @@ export class Medallero implements OnInit, OnDestroy {
     let bestTomatoesVal = rec.mostTomatoes?.tomatoes ?? 2450;
     let tomatoDate = 'Histórico';
 
-    if (ramTomatoes >= bestTomatoesVal && ramTomatoes > 0) {
+    if (this.membership.isPremium() && ramTomatoes >= bestTomatoesVal && ramTomatoes > 0) {
       bestTomatoesVal = ramTomatoes;
       tomatoHolderName = ramName;
       tomatoHolderAvatar = ramAvatar;
@@ -126,7 +126,7 @@ export class Medallero implements OnInit, OnDestroy {
     let bestCoinsVal = rec.mostCoins?.coins ?? 75000;
     let coinDate = 'Histórico';
 
-    if (ramCoins >= bestCoinsVal && ramCoins > 0) {
+    if (this.membership.isPremium() && ramCoins >= bestCoinsVal && ramCoins > 0) {
       bestCoinsVal = ramCoins;
       coinHolderName = ramName;
       coinHolderAvatar = ramAvatar;
@@ -313,7 +313,7 @@ export class Medallero implements OnInit, OnDestroy {
         isSelf: p.username === ramName
       }));
       const hasSelf = mapped.some(p => p.isSelf);
-      if (!hasSelf) {
+      if (!hasSelf && this.membership.isPremium()) {
         mapped.push({
           name: ramName,
           avatar: ramAvatar,
@@ -340,8 +340,11 @@ export class Medallero implements OnInit, OnDestroy {
       { name: 'Lucas "Veloz"', avatar: 'hamster', objectives: 22, rankName: 'Aprendiz Veloz', isSelf: false }
     ];
     
-    const rPlayer = { name: ramName, avatar: ramAvatar, objectives: ramObjCount, rankName: this.membership.getAvatarTitle(ramAvatar) + ' del Foco', isSelf: true };
-    const all = [...players, rPlayer].sort((a, b) => b.objectives - a.objectives);
+    const all = [...players];
+    if (this.membership.isPremium()) {
+      all.push({ name: ramName, avatar: ramAvatar, objectives: ramObjCount, rankName: this.membership.getAvatarTitle(ramAvatar) + ' del Foco', isSelf: true });
+    }
+    all.sort((a, b) => b.objectives - a.objectives);
     
     return all.slice(0, 10).map((p, idx) => ({
       rank: idx + 1,
@@ -365,7 +368,7 @@ export class Medallero implements OnInit, OnDestroy {
         isSelf: p.username === ramName
       }));
       const hasSelf = mapped.some(p => p.isSelf);
-      if (!hasSelf) {
+      if (!hasSelf && this.membership.isPremium()) {
         mapped.push({
           name: ramName,
           avatar: ramAvatar,
@@ -392,8 +395,11 @@ export class Medallero implements OnInit, OnDestroy {
       { name: 'Lucas "Veloz"', avatar: 'hamster', pomodoros: 60, title: 'Velocidad Zen', isSelf: false }
     ];
     
-    const rPlayer = { name: ramName, avatar: ramAvatar, pomodoros: ramPomCount, title: 'Guerrero del Pomodoro', isSelf: true };
-    const all = [...players, rPlayer].sort((a, b) => b.pomodoros - a.pomodoros);
+    const all = [...players];
+    if (this.membership.isPremium()) {
+      all.push({ name: ramName, avatar: ramAvatar, pomodoros: ramPomCount, title: 'Guerrero del Pomodoro', isSelf: true });
+    }
+    all.sort((a, b) => b.pomodoros - a.pomodoros);
     
     return all.slice(0, 10).map((p, idx) => ({
       rank: idx + 1,
@@ -417,7 +423,7 @@ export class Medallero implements OnInit, OnDestroy {
         isSelf: p.username === ramName
       }));
       const hasSelf = mapped.some(p => p.isSelf);
-      if (!hasSelf) {
+      if (!hasSelf && this.membership.isPremium()) {
         mapped.push({
           name: ramName,
           avatar: ramAvatar,
@@ -444,8 +450,11 @@ export class Medallero implements OnInit, OnDestroy {
       { name: 'Lucas "Veloz"', avatar: 'hamster', streakCount: 3, tag: 'Velocidad Rápida', isSelf: false }
     ];
     
-    const rPlayer = { name: ramName, avatar: ramAvatar, streakCount: ramStreak, tag: 'Racha Activa', isSelf: true };
-    const all = [...players, rPlayer].sort((a, b) => b.streakCount - a.streakCount);
+    const all = [...players];
+    if (this.membership.isPremium()) {
+      all.push({ name: ramName, avatar: ramAvatar, streakCount: ramStreak, tag: 'Racha Activa', isSelf: true });
+    }
+    all.sort((a, b) => b.streakCount - a.streakCount);
     
     return all.slice(0, 10).map((p, idx) => ({
       rank: idx + 1,
@@ -469,7 +478,7 @@ export class Medallero implements OnInit, OnDestroy {
         isSelf: p.username === ramName
       }));
       const hasSelf = mapped.some(p => p.isSelf);
-      if (!hasSelf) {
+      if (!hasSelf && this.membership.isPremium()) {
         mapped.push({
           name: ramName,
           avatar: ramAvatar,
@@ -496,8 +505,11 @@ export class Medallero implements OnInit, OnDestroy {
       { name: 'Lucas "Veloz"', avatar: 'hamster', damage: 1200, label: 'Rayo Veloz', isSelf: false }
     ];
     
-    const rPlayer = { name: ramName, avatar: ramAvatar, damage: ramDamage, label: 'Guerrero Activo', isSelf: true };
-    const all = [...players, rPlayer].sort((a, b) => b.damage - a.damage);
+    const all = [...players];
+    if (this.membership.isPremium()) {
+      all.push({ name: ramName, avatar: ramAvatar, damage: ramDamage, label: 'Guerrero Activo', isSelf: true });
+    }
+    all.sort((a, b) => b.damage - a.damage);
     
     return all.slice(0, 10).map((p, idx) => ({
       rank: idx + 1,

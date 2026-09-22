@@ -13,7 +13,7 @@
         <div class="header-text-group">
           <div class="title-with-badge">
             <h1 class="ideas-title">Mis Notas y Objetivos</h1>
-            <span class="count-badge" *ngIf="countPending() > 0" title="Notas y tareas pendientes">
+            <span class="count-badge" *ngIf="hasIdeas() && countPending() > 0" title="Notas y tareas pendientes">
               {{ countPending() }}
             </span>
           </div>
@@ -22,7 +22,7 @@
       </div>
       
       <!-- ACCIONES DE CABECERA -->
-      <div class="header-actions" *ngIf="membership.capturedIdeas().length > 0">
+      <div class="header-actions" *ngIf="hasIdeas()">
         <button class="clear-all-btn" 
                 (click)="clearAllIdeas()"
                 title="Vaciar baúl (eliminar todas las notas)">
@@ -92,7 +92,7 @@
     </div>
 
     <!-- BARRA DE FILTROS Y ORDENACIÓN (TOOLBAR SOLO ICONOS + TOOLTIPS) -->
-    <div class="ideas-toolbar" *ngIf="membership.capturedIdeas().length > 0">
+    <div class="ideas-toolbar" *ngIf="hasIdeas()">
       
       <!-- Pestañas de Filtro (Iconos con Tooltips + Contadores) -->
       <div class="filter-tabs-wrapper">
@@ -163,7 +163,7 @@
     <div class="ideas-content">
       
       <!-- Estado vacío general (sin notas) -->
-      <div class="empty-ideas-state" *ngIf="membership.capturedIdeas().length === 0">
+      <div class="empty-ideas-state" *ngIf="!hasIdeas()">
         <div class="empty-icon-circle">
           <i class="fa-solid fa-feather-pointed empty-icon"></i>
         </div>
@@ -172,7 +172,7 @@
       </div>
 
       <!-- Estado vacío por filtro específico -->
-      <div class="empty-filter-state" *ngIf="membership.capturedIdeas().length > 0 && filteredIdeas().length === 0">
+      <div class="empty-filter-state" *ngIf="hasIdeas() && filteredIdeas().length === 0">
         <div class="empty-filter-icon">
           <i class="fa-solid fa-clipboard-check" *ngIf="activeFilter() === 'completed'"></i>
           <i class="fa-solid fa-filter-circle-xmark" *ngIf="activeFilter() !== 'completed'"></i>
@@ -189,7 +189,7 @@
       </div>
 
       <!-- Grid de Tarjetas de Notas / Objetivos (Minimalista) -->
-      <div class="ideas-grid" *ngIf="paginatedIdeas().length > 0">
+      <div class="ideas-grid" *ngIf="hasIdeas() && paginatedIdeas().length > 0">
         <div class="idea-card" 
              *ngFor="let idea of paginatedIdeas(); let i = index"
              [class.priority-alta]="idea.priority === 'alta'"
@@ -388,7 +388,7 @@
       </div>
 
       <!-- BARRA DE PAGINACIÓN -->
-      <div class="ideas-pagination-toolbar" *ngIf="filteredIdeas().length > 0">
+      <div class="ideas-pagination-toolbar" *ngIf="hasIdeas() && filteredIdeas().length > 0">
         
         <!-- Selector de Registros por Página -->
         <div class="page-size-control">

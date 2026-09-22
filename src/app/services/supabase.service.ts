@@ -183,6 +183,7 @@ export interface CommunityLeaderboardUser {
   username: string;
   selected_avatar: string;
   selected_theme?: string;
+  is_premium?: boolean;
   focus_points?: number;
   focus_tomatoes?: number;
   streak_days?: number;
@@ -1518,7 +1519,7 @@ export class SupabaseService {
       
       const { data: profiles, error: profilesError } = await this.supabase
         .from('profiles')
-        .select('id, username, selected_avatar, selected_theme, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, updated_at')
+        .select('id, username, selected_avatar, selected_theme, is_premium, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, updated_at')
         .order('focus_points', { ascending: false });
 
       if (profilesError) {
@@ -1528,20 +1529,26 @@ export class SupabaseService {
       const allProfiles: CommunityLeaderboardUser[] = profiles || [];
       const totalUsers = allProfiles.length;
 
-      // Calcular user_rank
+      // Filtrar únicamente perfiles con membresía Premium para el Podio y Récords
+      const premiumProfiles = allProfiles.filter(p => p.is_premium === true);
+
+      // Calcular user_rank (solo entre usuarios premium si el usuario es premium)
       let userRank = 1;
       if (currentUser) {
-        const foundIdx = allProfiles.findIndex(p => p.id === currentUser.id);
+        const foundIdx = premiumProfiles.findIndex(p => p.id === currentUser.id);
         if (foundIdx !== -1) {
           userRank = foundIdx + 1;
+        } else {
+          userRank = totalUsers;
         }
       }
 
-      // Podio: Top 3 por focus_points (solo usuarios con actividad)
-      const podium = allProfiles.filter(p => (p.focus_points || 0) > 0 || (p.focus_tomatoes || 0) > 0).slice(0, 3);
+      // Podio: Top 3 usuarios PREMIUM con actividad
+      const podium = premiumProfiles.filter(p => (p.focus_points || 0) > 0 || (p.focus_tomatoes || 0) > 0).slice(0, 3);
 
-      // Top récords: Top 10 por focus_tomatoes
-      const topRecords = [...allProfiles]
+      // Top récords: Top 10 usuarios PREMIUM por focus_tomatoes
+      const topRecords = [...premiumProfiles]
+        .filter(p => (p.focus_tomatoes || 0) > 0)
         .sort((a, b) => (b.focus_tomatoes || 0) - (a.focus_tomatoes || 0))
         .slice(0, 10);
 
@@ -1607,13 +1614,14 @@ export class SupabaseService {
       // 2. Fallback con queries directas a profiles y community_boss_attacks
       const { data: profiles, error: profilesError } = await this.supabase
         .from('profiles')
-        .select('id, username, selected_avatar, country_code, pro_coins, focus_points, focus_tomatoes, streak_days, longest_streak, podium_wins, gold_medals, created_at');
+        .select('id, username, selected_avatar, country_code, pro_coins, focus_points, focus_tomatoes, streak_days, longest_streak, podium_wins, gold_medals, is_premium, created_at');
 
       if (profilesError) {
         return { data: null, error: profilesError.message };
       }
 
-      const allProfiles = profiles || [];
+      // Solo usuarios premium compiten por récords y rankings
+      const allProfiles = (profiles || []).filter(p => p.is_premium === true);
 
       // A. Récords
       const sortedByStreak = [...allProfiles].sort((a, b) => 

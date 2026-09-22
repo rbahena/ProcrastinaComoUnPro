@@ -859,14 +859,31 @@ export class MembershipService {
     return { success: true };
   }
 
-  // Activar/desactivar Premium
-  setPremium(premium: boolean) {
+  // Activar/desactivar Premium (Mantiene 100% transparentes los tomates, rachas y monedas acumuladas)
+  async setPremium(premium: boolean) {
     this.isPremium.set(premium);
+    const email = this.getCurrentUserEmail();
+    const val = String(premium);
+    localStorage.setItem('procrastina-premium', val);
+    if (email) localStorage.setItem(`user:${email}:premium`, val);
+
     if (premium) {
-      // Regalo de bienvenida si se activa Premium (por única vez)
+      // Regalo de bienvenida solo para cuentas completamente nuevas sin actividad
       if (this.focusPoints() === 0 && this.proCoins() === 0) {
         this.addFocusPoints(200);
         this.addProCoins(100);
+      }
+    }
+
+    // Sincronizar estado en Supabase profiles si está conectado
+    if (this.supabaseService.isConfigured()) {
+      try {
+        const user = this.supabaseService.currentUser();
+        if (user) {
+          await this.supabaseService.updateProfile(user.id, { is_premium: premium });
+        }
+      } catch (e) {
+        console.warn('[MembershipService] Error sincronizando is_premium en Supabase:', e);
       }
     }
   }

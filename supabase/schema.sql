@@ -2764,19 +2764,20 @@ BEGIN
         END IF;
     END IF;
 
-    -- 4. Podio Semanal: Top 3 usuarios por puntos de enfoque (solo con actividad registrada)
+    -- 4. Podio Semanal: Top 3 usuarios PREMIUM por puntos de enfoque (solo con actividad registrada)
     SELECT COALESCE(json_agg(p), '[]'::json) INTO v_podium FROM (
-        SELECT id, username, selected_avatar, selected_theme, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals
+        SELECT id, username, selected_avatar, selected_theme, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, is_premium
         FROM public.profiles
-        WHERE focus_points > 0 OR focus_tomatoes > 0
+        WHERE is_premium = TRUE AND (focus_points > 0 OR focus_tomatoes > 0)
         ORDER BY focus_points DESC, focus_tomatoes DESC, created_at ASC
         LIMIT 3
     ) p;
 
-    -- 5. Récords Históricos: Top 10 maestros del pomodoro
+    -- 5. Récords Históricos: Top 10 maestros PREMIUM del pomodoro
     SELECT COALESCE(json_agg(r), '[]'::json) INTO v_top_records FROM (
-        SELECT id, username, selected_avatar, selected_theme, focus_tomatoes, focus_points, streak_days, podium_wins, gold_medals
+        SELECT id, username, selected_avatar, selected_theme, focus_tomatoes, focus_points, streak_days, podium_wins, gold_medals, is_premium
         FROM public.profiles
+        WHERE is_premium = TRUE AND focus_tomatoes > 0
         ORDER BY focus_tomatoes DESC, focus_points DESC, created_at ASC
         LIMIT 10
     ) r;
@@ -2852,7 +2853,7 @@ DECLARE
     v_ranking_streaks JSON;
     v_ranking_boss JSON;
 BEGIN
-    -- 1. Récord Histórico: Mejor Racha
+    -- 1. Récord Histórico: Mejor Racha (Exclusivo Premium)
     SELECT json_build_object(
         'holder', username,
         'avatar', selected_avatar,
@@ -2861,10 +2862,11 @@ BEGIN
         'user_id', id
     ) INTO v_best_streak
     FROM public.profiles
+    WHERE is_premium = TRUE AND GREATEST(longest_streak, streak_days) > 0
     ORDER BY GREATEST(longest_streak, streak_days) DESC, created_at ASC
     LIMIT 1;
 
-    -- 2. Récord Histórico: Más Sesiones de Concentración (Pomodoros)
+    -- 2. Récord Histórico: Más Sesiones de Concentración (Pomodoros) (Exclusivo Premium)
     SELECT json_build_object(
         'holder', username,
         'avatar', selected_avatar,
@@ -2873,10 +2875,11 @@ BEGIN
         'user_id', id
     ) INTO v_most_tomatoes
     FROM public.profiles
+    WHERE is_premium = TRUE AND focus_tomatoes > 0
     ORDER BY focus_tomatoes DESC, created_at ASC
     LIMIT 1;
 
-    -- 3. Récord Histórico: El Magnate de Focus (Pro Coins)
+    -- 3. Récord Histórico: El Magnate de Focus (Pro Coins) (Exclusivo Premium)
     SELECT json_build_object(
         'holder', username,
         'avatar', selected_avatar,
@@ -2885,10 +2888,11 @@ BEGIN
         'user_id', id
     ) INTO v_most_coins
     FROM public.profiles
+    WHERE is_premium = TRUE AND pro_coins > 0
     ORDER BY pro_coins DESC, created_at ASC
     LIMIT 1;
 
-    -- 4. Récord Histórico: Podios Conquistados
+    -- 4. Récord Histórico: Podios Conquistados (Exclusivo Premium)
     SELECT json_build_object(
         'holder', username,
         'avatar', selected_avatar,
@@ -2897,37 +2901,41 @@ BEGIN
         'user_id', id
     ) INTO v_most_podiums
     FROM public.profiles
+    WHERE is_premium = TRUE AND (podium_wins > 0 OR gold_medals > 0)
     ORDER BY podium_wins DESC, gold_medals DESC, created_at ASC
     LIMIT 1;
 
-    -- 5. Ranking por Puntos de Enfoque y Objetivos (Top 10)
+    -- 5. Ranking por Puntos de Enfoque y Objetivos (Top 10 Exclusivo Premium)
     SELECT COALESCE(json_agg(r), '[]'::json) INTO v_ranking_objectives FROM (
         SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
                focus_points, focus_tomatoes, podium_wins, streak_days
         FROM public.profiles
+        WHERE is_premium = TRUE AND focus_points > 0
         ORDER BY focus_points DESC, created_at ASC
         LIMIT 10
     ) r;
 
-    -- 6. Ranking por Pomodoros Completados (Top 10)
+    -- 6. Ranking por Pomodoros Completados (Top 10 Exclusivo Premium)
     SELECT COALESCE(json_agg(r), '[]'::json) INTO v_ranking_pomodoros FROM (
         SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
                focus_tomatoes, focus_points, streak_days
         FROM public.profiles
+        WHERE is_premium = TRUE AND focus_tomatoes > 0
         ORDER BY focus_tomatoes DESC, created_at ASC
         LIMIT 10
     ) r;
 
-    -- 7. Ranking por Rachas Consecutivas (Top 10)
+    -- 7. Ranking por Rachas Consecutivas (Top 10 Exclusivo Premium)
     SELECT COALESCE(json_agg(r), '[]'::json) INTO v_ranking_streaks FROM (
         SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
                GREATEST(longest_streak, streak_days) as streak_count, streak_days
         FROM public.profiles
+        WHERE is_premium = TRUE AND GREATEST(longest_streak, streak_days) > 0
         ORDER BY GREATEST(longest_streak, streak_days) DESC, streak_days DESC, created_at ASC
         LIMIT 10
     ) r;
 
-    -- 8. Ranking por Aporte y Daño a Villanos (Top 10)
+    -- 8. Ranking por Aporte y Daño a Villanos (Top 10 Exclusivo Premium)
     SELECT COALESCE(json_agg(b), '[]'::json) INTO v_ranking_boss FROM (
         SELECT 
             COALESCE(p.id::text, ba.user_name) as id,
@@ -2937,7 +2945,7 @@ BEGIN
             SUM(ba.damage_dealt)::BIGINT as total_damage
         FROM public.community_boss_attacks ba
         LEFT JOIN public.profiles p ON p.id = ba.user_id
-        WHERE ba.damage_dealt > 0
+        WHERE ba.damage_dealt > 0 AND (p.is_premium = TRUE OR p.is_premium IS NULL)
         GROUP BY p.id, p.username, p.selected_avatar, p.country_code, ba.user_name, ba.user_avatar
         ORDER BY total_damage DESC
         LIMIT 10

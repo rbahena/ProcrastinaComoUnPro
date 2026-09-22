@@ -42,6 +42,9 @@ export class Ideas implements OnInit {
   confirmDeleteId = signal<string | null>(null);
   confirmCompleteId = signal<string | null>(null);
 
+  // Estado de existencia de notas/cards
+  hasIdeas = computed(() => this.membership.capturedIdeas().length > 0);
+
   // Contadores reactivos por categoría
   countPending = computed(() => this.membership.capturedIdeas().filter(i => !i.is_completed).length);
   countAll = computed(() => this.countPending());
