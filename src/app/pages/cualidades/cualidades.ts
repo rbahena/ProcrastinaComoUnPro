@@ -86,10 +86,13 @@ interface CountryOption {
               
               <div class="avatar-overlapping-wrapper">
                 <div class="round-avatar-frame" 
+                     (mousemove)="onHeaderAvatarMouseMove($event)"
+                     (mouseleave)="onHeaderAvatarMouseLeave()"
                      [style.border-color]="activeAvatar().color"
                      [style.background]="'radial-gradient(circle at center, ' + activeAvatar().color + '55 0%, ' + activeAvatar().color + '1a 60%, #121620 90%)'"
                      [style.box-shadow]="'0 10px 30px rgba(0, 0, 0, 0.6), 0 0 30px ' + activeAvatar().color + '66'">
-                  <div [class]="'avatar-sprite sprite-circle sprite-' + membership.selectedAvatar()"></div>
+                  <div [class]="'avatar-sprite sprite-circle sprite-' + membership.selectedAvatar()"
+                       [style.transform-origin]="headerAvatarZoomOrigin()"></div>
                 </div>
                 <button class="avatar-circle-edit-btn" 
                         (click)="toggleEditProfile()" 
@@ -315,13 +318,16 @@ interface CountryOption {
                   </span>
                 </div>
 
-                <!-- AVATAR PORTRAIT GIGANTE DESTACADO EN EL DETALLE -->
+                <!-- AVATAR PORTRAIT GIGANTE DESTACADO EN EL DETALLE CON HOVER ZOOM -->
                 <div class="hero-showcase-wrapper">
                   <div class="hero-portrait-frame" 
+                       (mousemove)="onPortraitMouseMove($event)"
+                       (mouseleave)="onPortraitMouseLeave()"
                        [class.is-locked-dock]="!inspectedAvatar().isUnlocked"
                        [style.border-color]="inspectedAvatar().isUnlocked ? inspectedAvatar().color : 'rgba(255,255,255,0.18)'"
                        [style.box-shadow]="'0 18px 44px rgba(0, 0, 0, 0.7), 0 0 40px ' + (inspectedAvatar().isUnlocked ? inspectedAvatar().color : '#64748b') + '55'">
                     <div [class]="'avatar-sprite hero-portrait-sprite sprite-' + inspectedAvatar().id" 
+                         [style.transform-origin]="portraitZoomOrigin()"
                          [class.is-locked-sprite]="!inspectedAvatar().isUnlocked"></div>
                     <div *ngIf="!inspectedAvatar().isUnlocked" class="hero-portrait-locked-overlay">
                       <i class="fa-solid fa-lock"></i>
@@ -688,10 +694,11 @@ interface CountryOption {
       align-items: center;
       justify-content: center;
       position: relative;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, transform 0.2s ease;
+      cursor: pointer;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
     }
     .round-avatar-frame:hover {
-      transform: scale(1.04);
+      border-color: rgba(255, 255, 255, 0.4);
     }
     .sprite-circle {
       width: 158px;
@@ -699,7 +706,11 @@ interface CountryOption {
       border-radius: 50%;
       background-size: cover;
       background-position: center;
-      transition: transform 0.2s ease;
+      transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform-origin: center center;
+    }
+    .round-avatar-frame:hover .sprite-circle {
+      transform: scale(1.32);
     }
     .avatar-circle-edit-btn {
       position: absolute;
@@ -1509,10 +1520,11 @@ interface CountryOption {
       box-shadow: 0 18px 44px rgba(0, 0, 0, 0.7);
       z-index: 2;
       overflow: hidden;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+      cursor: crosshair;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
     .hero-portrait-frame:hover {
-      transform: scale(1.04);
+      border-color: rgba(255, 255, 255, 0.45);
     }
     .hero-portrait-sprite {
       width: 256px;
@@ -1521,7 +1533,11 @@ interface CountryOption {
       background-position: center;
       border-radius: 50%;
       filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.75));
-      transition: transform 0.2s ease;
+      transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform-origin: center center;
+    }
+    .hero-portrait-frame:hover .hero-portrait-sprite {
+      transform: scale(1.4);
     }
     .hero-portrait-locked-overlay {
       position: absolute;
@@ -2141,6 +2157,8 @@ export class Cualidades implements OnInit {
   ];
 
   unlockedRewardQuality = signal<QualityItem | null>(null);
+  portraitZoomOrigin = signal<string>('center center');
+  headerAvatarZoomOrigin = signal<string>('center center');
 
   countryOptions: CountryOption[] = [
     { name: 'México', code: 'MX', flag: '🇲🇽' },
@@ -2547,5 +2565,27 @@ export class Cualidades implements OnInit {
     setTimeout(() => {
       this.toastMessage.set(null);
     }, 3500);
+  }
+
+  onPortraitMouseMove(event: MouseEvent) {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100));
+    this.portraitZoomOrigin.set(`${x.toFixed(1)}% ${y.toFixed(1)}%`);
+  }
+
+  onPortraitMouseLeave() {
+    this.portraitZoomOrigin.set('center center');
+  }
+
+  onHeaderAvatarMouseMove(event: MouseEvent) {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100));
+    this.headerAvatarZoomOrigin.set(`${x.toFixed(1)}% ${y.toFixed(1)}%`);
+  }
+
+  onHeaderAvatarMouseLeave() {
+    this.headerAvatarZoomOrigin.set('center center');
   }
 }

@@ -205,8 +205,8 @@ export class MembershipService {
     this.focusTomatoes.update(t => t + tomatoes);
   }
 
-  // Cosméticos desbloqueados (Todos los avatares, temas y relojes 100% desbloqueados)
-  unlockedAvatars = signal<string[]>(ALL_AVATARS_LIST);
+  // Cosméticos desbloqueados (Solo los 6 iniciales por defecto: Kuro, Baky, Bunny, Kiko, Pipo, Mickey)
+  unlockedAvatars = signal<string[]>(INITIAL_AVATARS_LIST);
   unlockedThemes = signal<string[]>(['samurai', 'cyberpunk', 'aurora', 'zen']);
   unlockedTimers = signal<string[]>([
     'digital', 'ring', 'line', 'fire', 'hourglass', 'ice', 'battery', 
@@ -301,15 +301,15 @@ export class MembershipService {
     return [];
   });
 
-  // Catálogo completo de Cualidades (100% Desbloqueadas)
+  // Catálogo completo de Cualidades (Bloqueadas por defecto para desbloqueo por mérito/retos)
   qualitiesCatalog = signal<QualityItem[]>([
-    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: true, unlockProgress: 7, unlockTotal: 7 },
-    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: true, unlockProgress: 15, unlockTotal: 15 },
-    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: true, unlockProgress: 5, unlockTotal: 5 },
-    { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: true, unlockProgress: 5, unlockTotal: 5 },
-    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: true, unlockProgress: 5, unlockTotal: 5 },
-    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: true, unlockProgress: 5, unlockTotal: 5 },
-    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: true, unlockProgress: 3, unlockTotal: 3 }
+    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 0, unlockTotal: 7 },
+    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+    { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
+    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: false, unlockProgress: 0, unlockTotal: 3 }
   ]);
 
   // Registro de sesiones procesadas para idempotencia
@@ -333,31 +333,27 @@ export class MembershipService {
     const email = this.getCurrentUserEmail();
     this.streak.set(this.calculateStreak(email));
 
-    // Desbloquear incondicionalmente todo lo Premium y personalizaciones cosméticas
-    this.isPremium.set(true);
-    this.unlockedAvatars.set(ALL_AVATARS_LIST);
-    this.unlockedThemes.set(['samurai', 'cyberpunk', 'aurora', 'zen']);
-    this.unlockedTimers.set([
-      'digital', 'ring', 'line', 'fire', 'hourglass', 'ice', 'battery', 
-      'solar', 'satellite', 'moon', 'titanic', 'lighthouse', 'airplane'
-    ]);
-
-    // Persistir desbloqueo cosmético en localStorage
-    localStorage.setItem('procrastina-premium', 'true');
-    localStorage.setItem('procrastina-unlocked-avatars', JSON.stringify(ALL_AVATARS_LIST));
-    localStorage.setItem('procrastina-unlocked-themes', JSON.stringify(['samurai', 'cyberpunk', 'aurora', 'zen']));
-    localStorage.setItem('procrastina-unlocked-timers', JSON.stringify([
-      'digital', 'ring', 'line', 'fire', 'hourglass', 'ice', 'battery', 
-      'solar', 'satellite', 'moon', 'titanic', 'lighthouse', 'airplane'
-    ]));
+    // Desbloquear únicamente los 6 avatares iniciales (Kuro, Baky, Bunny, Kiko, Pipo, Mickey)
+    const storedAvatarsStr = localStorage.getItem('procrastina-unlocked-avatars') || (email ? localStorage.getItem(`user:${email}:unlocked-avatars`) : null);
+    let initialAvatars = [...INITIAL_AVATARS_LIST];
+    if (storedAvatarsStr) {
+      try {
+        const parsed = JSON.parse(storedAvatarsStr);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          if (parsed.length >= ALL_AVATARS_LIST.length) {
+            initialAvatars = [...INITIAL_AVATARS_LIST];
+          } else {
+            initialAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...parsed]));
+          }
+        }
+      } catch (e) {
+        initialAvatars = [...INITIAL_AVATARS_LIST];
+      }
+    }
+    this.unlockedAvatars.set(initialAvatars);
+    localStorage.setItem('procrastina-unlocked-avatars', JSON.stringify(initialAvatars));
     if (email) {
-      localStorage.setItem(`user:${email}:premium`, 'true');
-      localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(ALL_AVATARS_LIST));
-      localStorage.setItem(`user:${email}:unlocked-themes`, JSON.stringify(['samurai', 'cyberpunk', 'aurora', 'zen']));
-      localStorage.setItem(`user:${email}:unlocked-timers`, JSON.stringify([
-        'digital', 'ring', 'line', 'fire', 'hourglass', 'ice', 'battery', 
-        'solar', 'satellite', 'moon', 'titanic', 'lighthouse', 'airplane'
-      ]));
+      localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(initialAvatars));
     }
 
     // Cargar catálogo de artículos desde Supabase
@@ -1428,8 +1424,7 @@ export class MembershipService {
       (itemIds || []).filter(id => knownTimers.includes(id))
     ));
 
-    // Si Supabase no tiene nada, mantener al menos el gato básico como fallback
-    const finalAvatars = avatars.length > 0 ? avatars : ['gato'];
+    const finalAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...avatars]));
     const finalThemes = themes.length > 0 ? themes : ['samurai'];
     const finalTimers = timers.length > 0 ? timers : ['digital'];
 
@@ -1486,7 +1481,11 @@ export class MembershipService {
       try {
         const parsed = JSON.parse(storedAvatars);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          mergedUnlockedAvatars = Array.from(new Set(parsed));
+          if (parsed.length >= ALL_AVATARS_LIST.length) {
+            mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
+          } else {
+            mergedUnlockedAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...parsed]));
+          }
         } else {
           mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
         }
@@ -1495,8 +1494,8 @@ export class MembershipService {
       }
     } else {
       mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
-      localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(mergedUnlockedAvatars));
     }
+    localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(mergedUnlockedAvatars));
 
     const unlockedThemesVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-themes`) || '["samurai"]');
     const userNameVal = localStorage.getItem(`user:${email}:user-name`) || email.split('@')[0];
