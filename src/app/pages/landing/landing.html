@@ -69,7 +69,7 @@
           <div class="podium-base-wrapper">
             <!-- 2nd Place -->
             <div class="podium-column-holo second">
-              <span class="holo-name">Ana</span>
+              <span class="holo-name">Jose</span>
               <span class="holo-pts">320 pts</span>
               <div class="holo-avatar">🥈</div>
               <div class="holo-bar">2º</div>
@@ -77,7 +77,7 @@
 
             <!-- 1st Place -->
             <div class="podium-column-holo first">
-              <span class="holo-name">Ramiro</span>
+              <span class="holo-name">Renata</span>
               <span class="holo-pts">450 pts</span>
               <div class="holo-avatar-crown">
                 <i class="fa-solid fa-crown holo-crown"></i>
@@ -88,7 +88,7 @@
 
             <!-- 3rd Place -->
             <div class="podium-column-holo third">
-              <span class="holo-name">Carlos</span>
+              <span class="holo-name">Aylen</span>
               <span class="holo-pts">280 pts</span>
               <div class="holo-avatar">🥉</div>
               <div class="holo-bar">3º</div>
@@ -101,44 +101,50 @@
       </div>
     </div>
 
-    <!-- Quick Metrics Grid -->
-    <div class="landing-container" style="max-width: 1100px; position: relative; z-index: 2;">
-      <div class="hero-metrics-grid">
-        <div class="hero-metric-card">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-            <div class="avatar-stack" style="margin-right: 4px;">
-              <div class="avatar-stack-emoji" style="border-color: #ff9f43; z-index: 5;">🦊</div>
-              <div class="avatar-stack-emoji" style="border-color: #ff4757; z-index: 4;">🐺</div>
-              <div class="avatar-stack-emoji" style="border-color: #a4b0be; z-index: 3;">🐼</div>
-              <div class="avatar-stack-emoji" style="border-color: #54a0ff; z-index: 2;">🦉</div>
-              <div class="avatar-stack-emoji" style="border-color: var(--accent); z-index: 1;">🐉</div>
+    <!-- Minimalist Hero Indicators -->
+    <div class="landing-container" style="max-width: 1050px; position: relative; z-index: 2;">
+      <div class="hero-stats-minimal">
+        <!-- Metric 1: Usuarios Enfocados Ahora -->
+        <div class="stat-card-min stat-live">
+          <div class="stat-icon-box">
+            <span class="stat-live-dot"></span>
+            <span class="stat-icon">👥</span>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number text-green">
+              <span>{{ focusedNowCount() }}</span>
+              <span class="stat-badge live">EN VIVO</span>
             </div>
-            <span class="num" style="margin: 0; line-height: 1;">{{ focusedNowCount() }}</span>
+            <div class="stat-label">Usuarios enfocados ahora</div>
           </div>
-          <span class="lbl">Usuarios Enfocados Ahora</span>
         </div>
-        <div class="hero-metric-card">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-            <div class="avatar-stack" style="margin-right: 4px;">
-              <div class="avatar-stack-emoji" style="border-color: #ef4444; z-index: 5;">🐙</div>
-              <div class="avatar-stack-emoji" style="border-color: #3b82f6; z-index: 4;">🐉</div>
-              <div class="avatar-stack-emoji" style="border-color: #eab308; z-index: 3;">🐍</div>
-              <div class="avatar-stack-emoji" style="border-color: #06b6d4; z-index: 2;">🐺</div>
-              <div class="avatar-stack-emoji" style="border-color: #f59e0b; z-index: 1;">🦇</div>
+
+        <!-- Metric 2: 7 Jefes de Conducta Procrastinadora -->
+        <div class="stat-card-min stat-bosses">
+          <div class="stat-icon-box boss">
+            <span class="stat-icon">💀</span>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number text-red">
+              <span>7 Jefes</span>
+              <span class="stat-badge boss">DUELO</span>
             </div>
-            <span class="num" style="margin: 0; line-height: 1;">7</span>
+            <div class="stat-label">Bestias de conducta procrastinadora</div>
           </div>
-          <span class="lbl" style="white-space: nowrap; font-size: 10.5px; letter-spacing: 0.2px;">Jefes de la
-            procrastinación</span>
         </div>
-        <div class="hero-metric-card">
-          <div class="avatar-stack" style="margin-bottom: 8px;">
-            <div class="avatar-stack-emoji" style="border-color: #ff4757; z-index: 3;">🍅</div>
-            <div class="avatar-stack-emoji" style="border-color: #eab308; z-index: 2;">🪙</div>
-            <div class="avatar-stack-emoji" style="border-color: #00f2fe; z-index: 1;">🔓</div>
+
+        <!-- Metric 3: Tomates & Monedas -->
+        <div class="stat-card-min stat-rewards">
+          <div class="stat-icon-box reward">
+            <span class="stat-icon">🍅</span>
           </div>
-          <span class="lbl" style="white-space: nowrap; font-size: 10.5px; letter-spacing: 0.2px;">Gana tomates, monedas
-            y niveles</span>
+          <div class="stat-info">
+            <div class="stat-number text-yellow">
+              <span>Tomates & Oro</span>
+              <span class="stat-badge reward">RPG</span>
+            </div>
+            <div class="stat-label">Recompensas y niveles</div>
+          </div>
         </div>
       </div>
     </div>

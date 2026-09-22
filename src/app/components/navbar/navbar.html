@@ -61,20 +61,6 @@
       <i class="fa-solid fa-fire"></i>
       <span>{{ membership.streak() }}</span>
     </div>
-
-    <!-- Conmutador de Modo Claro / Modo Oscuro -->
-    <button class="theme-toggle-nav-btn"
-            type="button"
-            (click)="membership.toggleThemeMode()"
-            [attr.data-tooltip]="membership.themeMode() === 'light' ? 'Cambiar a Modo Oscuro' : 'Cambiar a Modo Claro'"
-            data-tooltip-align="bottom"
-            [attr.aria-label]="membership.themeMode() === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'">
-      <span class="theme-toggle-icon-wrap">
-        <i class="fa-solid fa-sun icon-sun" *ngIf="membership.themeMode() === 'light'"></i>
-        <i class="fa-solid fa-moon icon-moon" *ngIf="membership.themeMode() !== 'light'"></i>
-      </span>
-      <span class="theme-toggle-label">{{ membership.themeMode() === 'light' ? 'Claro' : 'Oscuro' }}</span>
-    </button>
   </div>
   
   <!-- CONTENEDOR DE PERFIL CON MENU DESPLEGABLE -->
@@ -110,13 +96,6 @@
         <i class="fa-solid fa-crown" style="font-size: 11px; width: 14px; text-align: center; color: var(--muted);"></i>
         <span>Mi Plan</span>
       </a>
-      <div (click)="membership.toggleThemeMode()" class="dropdown-item-link dropdown-theme-row">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <i [class]="membership.themeMode() === 'light' ? 'fa-solid fa-sun text-yellow' : 'fa-solid fa-moon text-blue'" style="font-size: 11px; width: 14px; text-align: center;"></i>
-          <span>Modo {{ membership.themeMode() === 'light' ? 'Claro' : 'Oscuro' }}</span>
-        </div>
-        <span class="dropdown-mode-pill">{{ membership.themeMode() === 'light' ? '☀️' : '🌙' }}</span>
-      </div>
       <div style="height: 1px; background: var(--border); margin: 4px 6px;"></div>
       <a routerLink="/login" (click)="membership.logout()" class="dropdown-item-link logout-dropdown-link">
         <i class="fa-solid fa-right-from-bracket" style="font-size: 11px; width: 14px; text-align: center;"></i>

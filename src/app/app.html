@@ -5,9 +5,38 @@
   <!-- Contenedor del Input Expandible -->
   <div class="fleeting-input-panel" [class.expanded]="showFloatingInput()">
     <div class="panel-header">
-      <span class="panel-tag"><i class="fa-solid fa-bolt"></i> Idea u Objetivo</span>
+      <div class="panel-header-left">
+        <span class="panel-tag"><i class="fa-solid fa-bolt"></i> Idea / Objetivo</span>
+      </div>
+
+      <!-- Mini Selector de Prioridad Flotante -->
+      <div class="floating-priority-chips">
+        <button type="button" 
+                class="mini-p-chip p-alta" 
+                [class.active]="selectedPriority() === 'alta'"
+                (click)="setPriority('alta')"
+                title="🔥 Prioridad / Urgente">
+          🔥
+        </button>
+        <button type="button" 
+                class="mini-p-chip p-media" 
+                [class.active]="selectedPriority() === 'media'"
+                (click)="setPriority('media')"
+                title="⏳ Puede esperar">
+          ⏳
+        </button>
+        <button type="button" 
+                class="mini-p-chip p-baja" 
+                [class.active]="selectedPriority() === 'baja'"
+                (click)="setPriority('baja')"
+                title="💤 Aplazar">
+          💤
+        </button>
+      </div>
+
       <span class="shortcut-tag">Alt + I</span>
     </div>
+
     <div class="panel-body">
       <input #ideaInput
              type="text" 
@@ -15,10 +44,16 @@
              [value]="ideaText()" 
              (input)="onInputChange($event)"
              (keydown)="onInputKeydown($event)" />
-      <button class="submit-btn" (click)="submitIdea()" [disabled]="!ideaText().trim()">
+      <button class="submit-btn" 
+              (click)="submitIdea()" 
+              [disabled]="!ideaText().trim()"
+              [class.btn-alta]="selectedPriority() === 'alta'"
+              [class.btn-media]="selectedPriority() === 'media'"
+              [class.btn-baja]="selectedPriority() === 'baja'">
         <i class="fa-solid fa-arrow-right"></i>
       </button>
     </div>
+
     <div class="panel-footer">
       <span>Presiona <strong>Enter</strong> para guardar o <strong>Esc</strong> para cerrar</span>
     </div>

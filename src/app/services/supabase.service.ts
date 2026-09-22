@@ -161,13 +161,19 @@ export interface FirewallBlockedSite {
   created_at?: string;
 }
 
+export type IdeaPriority = 'alta' | 'media' | 'baja';
+
 export interface CapturedIdea {
   id?: string;
   user_id?: string;
   content: string;
-  is_converted_to_objective: boolean;
+  is_converted_to_objective?: boolean;
   converted_at?: string;
+  is_completed?: boolean;
+  completed_at?: string;
   display_order: number;
+  priority?: IdeaPriority;
+  dedicated_minutes?: number;
   created_at?: string;
 }
 
@@ -1179,30 +1185,77 @@ export class SupabaseService {
   }
 
   // --- BAÚL DE IDEAS (/ideas) ---
-  async getCapturedIdeas(userId: string): Promise<{ ideas: CapturedIdea[]; error: string | null }> {
+  async getCapturedIdeas(
+    userId: string,
+    options?: {
+      page?: number;
+      pageSize?: number;
+      priority?: 'all' | IdeaPriority;
+      status?: 'pending' | 'completed' | 'all';
+      sortBy?: 'priority' | 'newest' | 'oldest' | 'alpha';
+    }
+  ): Promise<{ ideas: CapturedIdea[]; total?: number; error: string | null }> {
     if (!this.isConfigured()) {
-      return { ideas: [], error: 'SUPABASE_NOT_CONFIGURED' };
+      return { ideas: [], total: 0, error: 'SUPABASE_NOT_CONFIGURED' };
     }
 
     try {
-      const { data, error } = await this.supabase
+      let query = this.supabase
         .from('captured_ideas')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('is_converted_to_objective', false)
-        .order('created_at', { ascending: false });
+        .select('*', { count: 'exact' })
+        .eq('user_id', userId);
 
-      if (error) {
-        return { ideas: [], error: error.message };
+      const status = options?.status || 'all';
+      if (status === 'pending') {
+        query = query.eq('is_completed', false);
+      } else if (status === 'completed') {
+        query = query.eq('is_completed', true);
       }
 
-      return { ideas: (data || []) as CapturedIdea[], error: null };
+      if (options?.priority && options.priority !== 'all') {
+        query = query.eq('priority', options.priority);
+      }
+
+      if (options?.sortBy === 'oldest') {
+        query = query.order('created_at', { ascending: true });
+      } else if (options?.sortBy === 'alpha') {
+        query = query.order('content', { ascending: true });
+      } else {
+        query = query.order('created_at', { ascending: false });
+      }
+
+      if (options?.page && options?.pageSize) {
+        const from = (options.page - 1) * options.pageSize;
+        const to = from + options.pageSize - 1;
+        query = query.range(from, to);
+      }
+
+      const { data, count, error } = await query;
+
+      if (error) {
+        return { ideas: [], total: 0, error: error.message };
+      }
+
+      let ideas = (data || []) as CapturedIdea[];
+      if (options?.sortBy === 'priority') {
+        const priorityOrder: Record<IdeaPriority, number> = { alta: 1, media: 2, baja: 3 };
+        ideas.sort((a, b) => {
+          const pa = priorityOrder[a.priority || 'media'];
+          const pb = priorityOrder[b.priority || 'media'];
+          if (pa !== pb) return pa - pb;
+          const timeA = new Date(a.created_at || '').getTime() || 0;
+          const timeB = new Date(b.created_at || '').getTime() || 0;
+          return timeB - timeA;
+        });
+      }
+
+      return { ideas, total: count !== null ? count : ideas.length, error: null };
     } catch (e: any) {
-      return { ideas: [], error: e.message || 'Error al obtener ideas' };
+      return { ideas: [], total: 0, error: e.message || 'Error al obtener ideas' };
     }
   }
 
-  async saveCapturedIdea(content: string, displayOrder: number = 1): Promise<{ success: boolean; error?: string; idea?: CapturedIdea }> {
+  async saveCapturedIdea(content: string, displayOrder: number = 1, priority: IdeaPriority = 'media'): Promise<{ success: boolean; error?: string; idea?: CapturedIdea }> {
     if (!this.isConfigured()) {
       return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
     }
@@ -1216,7 +1269,8 @@ export class SupabaseService {
         .insert({
           user_id: user.id,
           content: content.trim(),
-          display_order: displayOrder
+          display_order: displayOrder,
+          priority: priority
         })
         .select()
         .single();
@@ -1231,15 +1285,20 @@ export class SupabaseService {
     }
   }
 
-  async updateCapturedIdea(id: string, content: string): Promise<{ success: boolean; error?: string; idea?: CapturedIdea }> {
+  async updateCapturedIdea(id: string, content?: string, priority?: IdeaPriority, dedicatedMinutes?: number): Promise<{ success: boolean; error?: string; idea?: CapturedIdea }> {
     if (!this.isConfigured()) {
       return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
     }
 
     try {
+      const updatePayload: Record<string, any> = {};
+      if (content !== undefined) updatePayload['content'] = content.trim();
+      if (priority !== undefined) updatePayload['priority'] = priority;
+      if (dedicatedMinutes !== undefined) updatePayload['dedicated_minutes'] = dedicatedMinutes;
+
       const { data, error } = await this.supabase
         .from('captured_ideas')
-        .update({ content: content.trim() })
+        .update(updatePayload)
         .eq('id', id)
         .select()
         .single();
@@ -1251,6 +1310,87 @@ export class SupabaseService {
       return { success: true, idea: data as CapturedIdea };
     } catch (e: any) {
       return { success: false, error: e.message || 'Error al actualizar idea' };
+    }
+  }
+
+  async addDedicatedTimeToIdea(id: string, additionalMinutes: number): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured() || !id || additionalMinutes <= 0) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED_OR_INVALID_INPUT' };
+    }
+
+    try {
+      const { data: current, error: fetchErr } = await this.supabase
+        .from('captured_ideas')
+        .select('dedicated_minutes')
+        .eq('id', id)
+        .single();
+
+      if (fetchErr) {
+        return { success: false, error: fetchErr.message };
+      }
+
+      const newTotal = (current?.dedicated_minutes || 0) + additionalMinutes;
+
+      const { error: updateErr } = await this.supabase
+        .from('captured_ideas')
+        .update({ dedicated_minutes: newTotal })
+        .eq('id', id);
+
+      if (updateErr) {
+        return { success: false, error: updateErr.message };
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al acumular tiempo dedicado' };
+    }
+  }
+
+  async completeCapturedIdea(id: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured() || !id) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED_OR_INVALID_INPUT' };
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('captured_ideas')
+        .update({
+          is_completed: true,
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al completar idea' };
+    }
+  }
+
+  async reactivateCapturedIdea(id: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured() || !id) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED_OR_INVALID_INPUT' };
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('captured_ideas')
+        .update({
+          is_completed: false,
+          completed_at: null
+        })
+        .eq('id', id);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al reactivar idea' };
     }
   }
 

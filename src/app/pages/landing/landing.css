@@ -850,35 +850,163 @@
   margin-bottom: 70px;
 }
 
-.hero-metrics-grid {
+/* ==========================================================================
+   HERO STATS MINIMAL (SLEEK EYE-CATCHING INDICATORS)
+   ========================================================================== */
+
+.hero-stats-minimal {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
+  gap: 16px;
   width: 100%;
-  max-width: 700px;
-  margin: 50px 0 0 0;
+  margin: 50px auto 0 auto;
 }
 
-.hero-metric-card {
+.stat-card-min {
+  background: rgba(12, 16, 36, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 16px 20px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
 }
 
-.hero-metric-card .num {
-  font-size: 32px;
-  font-weight: 900;
-  color: var(--text);
+.stat-card-min:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.stat-card-min.stat-live:hover {
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4), 0 0 25px rgba(34, 197, 94, 0.15);
+}
+
+.stat-card-min.stat-bosses:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4), 0 0 25px rgba(239, 68, 68, 0.15);
+}
+
+.stat-card-min.stat-rewards:hover {
+  border-color: rgba(234, 179, 8, 0.4);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4), 0 0 25px rgba(234, 179, 8, 0.15);
+}
+
+.stat-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.stat-icon-box.boss {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.stat-icon-box.reward {
+  background: rgba(234, 179, 8, 0.1);
+  border-color: rgba(234, 179, 8, 0.25);
+}
+
+.stat-live-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #0c1024;
+  box-shadow: 0 0 8px #22c55e;
+  animation: pulseBeacon 1.8s infinite ease-in-out;
+}
+
+.stat-icon {
+  font-size: 22px;
   line-height: 1;
 }
 
-.hero-metric-card .lbl {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 6px;
-  font-weight: 600;
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stat-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.2;
+}
+
+.stat-number.text-green {
+  color: #4ade80;
+  text-shadow: 0 0 12px rgba(74, 222, 128, 0.35);
+}
+
+.stat-number.text-red {
+  color: #f87171;
+  text-shadow: 0 0 12px rgba(248, 113, 113, 0.35);
+}
+
+.stat-number.text-yellow {
+  color: #facc15;
+  text-shadow: 0 0 12px rgba(250, 204, 21, 0.35);
+}
+
+.stat-badge {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 2px 6px;
+  border-radius: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+}
+
+.stat-badge.live {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.stat-badge.boss {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.stat-badge.reward {
+  background: rgba(234, 179, 8, 0.15);
+  color: #facc15;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.stat-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ==========================================================================
@@ -1363,6 +1491,11 @@
 @media (max-width: 992px) {
   .hero-premium-title {
     font-size: 46px;
+  }
+  .hero-stats-minimal {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 36px;
   }
   .scanner-container {
     grid-template-columns: 1fr;

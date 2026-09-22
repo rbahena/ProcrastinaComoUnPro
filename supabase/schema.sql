@@ -1579,6 +1579,8 @@ CREATE TABLE IF NOT EXISTS public.focus_sessions (
     grit_bonus_applied BOOLEAN NOT NULL DEFAULT FALSE,
     
     -- [COLUMNAS: MARCAS TEMPORALES]
+    -- idea_id: Referencia opcional a la tarea del baúl asociada a esta sesión de concentración.
+    idea_id UUID REFERENCES public.captured_ideas(id) ON DELETE SET NULL,
     -- started_at: Momento exacto en que comenzó el temporizador.
     started_at TIMESTAMPTZ NOT NULL DEFAULT TIMEZONE('utc'::text, NOW()),
     -- completed_at: Momento en que la sesión fue liquidada.
@@ -1587,11 +1589,15 @@ CREATE TABLE IF NOT EXISTS public.focus_sessions (
     created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
+-- Asegurar que la columna idea_id exista en bases de datos existentes
+ALTER TABLE public.focus_sessions ADD COLUMN IF NOT EXISTS idea_id UUID REFERENCES public.captured_ideas(id) ON DELETE SET NULL;
+
 -- [TIPO DE OBJETO: ÍNDICES B-TREE (INDEXES)]
 -- ¿Para qué sirven? Aceleran la carga del historial en la bitácora, estadísticas semanales y validación de idempotencia.
 CREATE INDEX IF NOT EXISTS idx_focus_sessions_user_date ON public.focus_sessions(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_focus_sessions_status ON public.focus_sessions(status);
 CREATE INDEX IF NOT EXISTS idx_focus_sessions_nonce ON public.focus_sessions(nonce_id);
+CREATE INDEX IF NOT EXISTS idx_focus_sessions_idea_id ON public.focus_sessions(idea_id);
 
 
 -- ------------------------------------------------------------------------------
@@ -1698,11 +1704,8 @@ BEGIN
     IF p_status = 'completed' THEN
         -- Anti-Exploit de tiempo: mínimo 120 segundos para otorgar recompensas
         IF p_actual_seconds >= 120 THEN
-            -- Factor de tiempo proporcional respecto al estándar (25 min = 1500s)
-            v_time_factor := LEAST(1.0, p_actual_seconds::numeric / 1500.0);
-            
-            -- Monedas base escaladas
-            v_coins_earned := ROUND(v_avatar.coins_per_pomodoro * v_time_factor);
+            -- Recompensa estándar por pomodoro completado: 1 tomate y 1 moneda
+            v_coins_earned := 1;
             
             -- Daño base al Boss escalado
             v_boss_damage := ROUND(v_avatar.boss_damage_points * v_time_factor);
@@ -1711,30 +1714,21 @@ BEGIN
             IF p_methodology = 'sapo' AND (p_objective_completed = 'yes' OR p_objective_completed = 'progress') THEN
                 v_is_critical := TRUE;
                 v_boss_damage := GREATEST(v_boss_damage, 300);
-                v_coins_earned := v_coins_earned + 8;
             END IF;
 
             -- Pasiva Táctica: Metodología Pareto 80/20 (Búho / Enfoque Estratégico)
             IF p_methodology = 'pareto' THEN
                 v_boss_damage := v_boss_damage * 2;
-                v_coins_earned := v_coins_earned + 5;
             END IF;
 
             -- Pasiva Táctica: Coworking Comunitario (Abeja / Apoyo de Enjambre)
             IF p_coworking_mode = 'comunitario' THEN
-                v_coins_earned := v_coins_earned + 5;
                 v_boss_damage := v_boss_damage + 20;
             END IF;
 
             -- Pasiva Táctica: Bono de Coraje (Baja energía vencida)
             IF p_energy_level = 'low' THEN
                 v_grit_bonus := TRUE;
-                -- Si el avatar es Renard (zorro), el bono se duplica a +70
-                IF p_avatar_id = 'zorro' THEN
-                    v_coins_earned := v_coins_earned + 70;
-                ELSE
-                    v_coins_earned := v_coins_earned + 35;
-                END IF;
                 IF v_user.is_premium THEN
                     v_xp_earned := v_xp_earned + 50;
                 END IF;
@@ -1747,7 +1741,6 @@ BEGIN
 
             -- Bono de Objetivo Cumplido
             IF p_objective_completed = 'yes' THEN
-                v_coins_earned := v_coins_earned + 15;
                 IF v_user.is_premium THEN
                     v_xp_earned := v_xp_earned + 30;
                 END IF;
@@ -2430,32 +2423,55 @@ CREATE INDEX IF NOT EXISTS idx_firewall_user_domain ON public.firewall_blocked_s
 
 
 -- ------------------------------------------------------------------------------
--- 3. TABLA DEL BAÚL DE IDEAS (BRAIN DUMP & PARKING LOT)
+-- 3. TABLA DEL BAÚL DE IDEAS Y OBJETIVOS (BRAIN DUMP & TASK ACCUMULATOR)
 -- ------------------------------------------------------------------------------
 
 -- [TIPO DE OBJETO: TABLA (TABLE)]
--- ¿Qué es? Depósito rápido de pensamientos fugaces capturados durante el hiperfoco.
--- ¿Para qué sirve? Evita que el usuario abra pestañas secundarias o interrumpa su pomodoro actual,
--- permitiéndole aparcar ideas y convertirlas luego en objetivos de sesión con 1 solo clic.
+-- ¿Qué es? Depósito rápido de pensamientos fugaces capturados durante el hiperfoco y acumulador de tareas.
+-- ¿Para qué sirve? Permite aparcar ideas al vuelo, organizarlas por prioridad ('alta', 'media', 'baja'),
+-- registrar el tiempo total de concentración invertido sesión a sesión (dedicated_minutes),
+-- y gestionar su ciclo de vida hasta marcarlas como completadas (is_completed) con filtrado y reapertura.
 CREATE TABLE IF NOT EXISTS public.captured_ideas (
+    -- [COLUMNA: IDENTIFICADORES Y VINCULACIÓN]
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     
-    -- [COLUMNAS: CONTENIDO DE LA IDEA]
+    -- [COLUMNAS: CONTENIDO Y PRIORIDAD]
     -- content: Texto o pensamiento anotado (ej. 'Revisar presupuesto para el servidor').
     content TEXT NOT NULL,
-    -- is_converted_to_objective: Flag para marcar si la idea ya fue convertida en una sesión de enfoque.
-    is_converted_to_objective BOOLEAN NOT NULL DEFAULT FALSE,
-    -- converted_at: Momento exacto de la conversión.
-    converted_at TIMESTAMPTZ DEFAULT NULL,
+    -- priority: Nivel de prioridad ('alta' | 'media' | 'baja').
+    priority TEXT NOT NULL DEFAULT 'media' CHECK (priority IN ('alta', 'media', 'baja')),
     -- display_order: Orden personalizado en la lista.
     display_order INTEGER NOT NULL DEFAULT 1,
     
+    -- [COLUMNAS: CONTROL DE TIEMPO DEDICADO Y CONVERSIÓN A ENFOQUE]
+    -- dedicated_minutes: Minutos acumulados de concentración invertidos en este objetivo a lo largo de pomodoros.
+    dedicated_minutes INTEGER NOT NULL DEFAULT 0 CHECK (dedicated_minutes >= 0),
+    -- is_converted_to_objective: Flag para marcar si la idea fue seleccionada para una sala de enfoque.
+    is_converted_to_objective BOOLEAN NOT NULL DEFAULT FALSE,
+    -- converted_at: Momento exacto de la conversión.
+    converted_at TIMESTAMPTZ DEFAULT NULL,
+    
+    -- [COLUMNAS: ESTADO DE COMPLETADO Y ARCHIVADO]
+    -- is_completed: Flag que indica si la tarea fue finalizada con éxito (ocultándose del baúl activo).
+    is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    -- completed_at: Marca de tiempo exacta en que fue marcada como completada.
+    completed_at TIMESTAMPTZ DEFAULT NULL,
+    
+    -- [COLUMNAS: AUDITORÍA TEMPORAL]
     created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- [TIPO DE OBJETO: ÍNDICE B-TREE (INDEX)]
+-- Asegurar que las columnas priority, dedicated_minutes, is_completed y completed_at existan en bases de datos existentes
+ALTER TABLE public.captured_ideas ADD COLUMN IF NOT EXISTS priority TEXT NOT NULL DEFAULT 'media';
+ALTER TABLE public.captured_ideas ADD COLUMN IF NOT EXISTS dedicated_minutes INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE public.captured_ideas ADD COLUMN IF NOT EXISTS is_completed BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE public.captured_ideas ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ DEFAULT NULL;
+
+-- [TIPO DE OBJETO: ÍNDICES B-TREE (INDEXES)]
+-- ¿Para qué sirven? Aceleran la carga de notas activas por fecha y el filtrado instantáneo por estado completado/pendiente.
 CREATE INDEX IF NOT EXISTS idx_captured_ideas_user ON public.captured_ideas(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_captured_ideas_user_completed ON public.captured_ideas(user_id, is_completed, created_at DESC);
 
 
 -- ------------------------------------------------------------------------------
@@ -2517,6 +2533,98 @@ BEGIN
         'success', TRUE,
         'idea_id', v_idea.id,
         'objective_text', v_idea.content
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC PARA ACUMULAR TIEMPO DEDICADO A UNA IDEA/OBJETIVO]
+CREATE OR REPLACE FUNCTION public.add_dedicated_time_to_idea(p_idea_id UUID, p_minutes INTEGER)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_idea RECORD;
+BEGIN
+    IF v_user_id IS NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
+    END IF;
+
+    UPDATE public.captured_ideas
+    SET dedicated_minutes = GREATEST(0, dedicated_minutes + COALESCE(p_minutes, 0))
+    WHERE id = p_idea_id AND user_id = v_user_id
+    RETURNING * INTO v_idea;
+
+    IF NOT FOUND THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Idea no encontrada');
+    END IF;
+
+    RETURN json_build_object(
+        'success', TRUE,
+        'idea_id', v_idea.id,
+        'dedicated_minutes', v_idea.dedicated_minutes
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC PARA MARCAR IDEA COMO COMPLETADA]
+CREATE OR REPLACE FUNCTION public.complete_captured_idea(p_idea_id UUID)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_idea RECORD;
+BEGIN
+    IF v_user_id IS NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
+    END IF;
+
+    UPDATE public.captured_ideas
+    SET 
+        is_completed = TRUE,
+        completed_at = TIMEZONE('utc'::text, NOW())
+    WHERE id = p_idea_id AND user_id = v_user_id
+    RETURNING * INTO v_idea;
+
+    IF NOT FOUND THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Idea no encontrada');
+    END IF;
+
+    RETURN json_build_object(
+        'success', TRUE,
+        'idea_id', v_idea.id,
+        'is_completed', TRUE,
+        'completed_at', v_idea.completed_at
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- [TIPO DE OBJETO: PROCEDIMIENTO RPC PARA REABRIR TAREA COMPLETADA]
+CREATE OR REPLACE FUNCTION public.reactivate_captured_idea(p_idea_id UUID)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_idea RECORD;
+BEGIN
+    IF v_user_id IS NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
+    END IF;
+
+    UPDATE public.captured_ideas
+    SET 
+        is_completed = FALSE,
+        completed_at = NULL
+    WHERE id = p_idea_id AND user_id = v_user_id
+    RETURNING * INTO v_idea;
+
+    IF NOT FOUND THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Idea no encontrada');
+    END IF;
+
+    RETURN json_build_object(
+        'success', TRUE,
+        'idea_id', v_idea.id,
+        'is_completed', FALSE
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

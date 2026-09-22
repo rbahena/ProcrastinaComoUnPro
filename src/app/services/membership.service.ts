@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { SupabaseService, CatalogItem, MultilingualText, CapturedIdea } from './supabase.service';
+import { SupabaseService, CatalogItem, MultilingualText, CapturedIdea, IdeaPriority } from './supabase.service';
 
 export function normalizeCapturedIdeas(raw: any[]): CapturedIdea[] {
   if (!Array.isArray(raw)) return [];
@@ -10,7 +10,10 @@ export function normalizeCapturedIdeas(raw: any[]): CapturedIdea[] {
         id: `local-${index}-${Date.now()}`,
         content: item,
         is_converted_to_objective: false,
+        is_completed: false,
         display_order: index + 1,
+        priority: 'media' as IdeaPriority,
+        dedicated_minutes: 0,
         created_at: new Date().toISOString()
       };
     }
@@ -18,10 +21,15 @@ export function normalizeCapturedIdeas(raw: any[]): CapturedIdea[] {
       id: item.id || `local-${index}-${Date.now()}`,
       content: item.content || '',
       is_converted_to_objective: item.is_converted_to_objective || false,
+      converted_at: item.converted_at,
+      is_completed: item.is_completed || false,
+      completed_at: item.completed_at,
       display_order: item.display_order || (index + 1),
+      priority: (item.priority as IdeaPriority) || 'media',
+      dedicated_minutes: Number(item.dedicated_minutes) || 0,
       created_at: item.created_at || new Date().toISOString()
     };
-  }).filter(i => !!i.content && !i.is_converted_to_objective);
+  }).filter(i => !!i.content);
 }
 
 export interface AvatarItem {
@@ -79,6 +87,10 @@ function getMigratedValue(key: string, defaultValue: string): string {
   const userKey = getUserKeyStatic(key);
   const userVal = localStorage.getItem(userKey);
   if (userVal !== null) {
+    if (key === 'pro-coins' && userVal === '999999') return defaultValue;
+    if (key === 'focus-tomatoes' && userVal === '100') return defaultValue;
+    if (key === 'focus-points' && userVal === '10000') return defaultValue;
+    if (key === 'streak' && userVal === '7') return defaultValue;
     return userVal;
   }
   // No migrar valores antiguos residuales de profesión ni país
@@ -88,6 +100,10 @@ function getMigratedValue(key: string, defaultValue: string): string {
   const globalKey = `procrastina-${key}`;
   const globalVal = localStorage.getItem(globalKey);
   if (globalVal !== null) {
+    if (key === 'pro-coins' && globalVal === '999999') return defaultValue;
+    if (key === 'focus-tomatoes' && globalVal === '100') return defaultValue;
+    if (key === 'focus-points' && globalVal === '10000') return defaultValue;
+    if (key === 'streak' && globalVal === '7') return defaultValue;
     localStorage.setItem(userKey, globalVal);
     return globalVal;
   }
@@ -167,21 +183,23 @@ export class MembershipService {
 
   // Puntos de enfoque (para ranking)
   focusPoints = signal<number>(
-    parseInt(getMigratedValue('focus-points', '10000'), 10)
+    parseInt(getMigratedValue('focus-points', '0'), 10)
   );
 
-  // Pro Coins (Monedas ilimitadas para desbloqueables)
+  // Pro Coins
   proCoins = signal<number>(
-    parseInt(getMigratedValue('pro-coins', '999999'), 10)
+    parseInt(getMigratedValue('pro-coins', '0'), 10)
   );
 
-  // Tomates de enfoque (1 por sesión)
+  // Tomates de enfoque (1 por sesión de concentración)
   focusTomatoes = signal<number>(
-    parseInt(getMigratedValue('focus-tomatoes', '100'), 10)
+    parseInt(getMigratedValue('focus-tomatoes', '0'), 10)
   );
 
   // Racha de días de enfoque
-  streak = signal<number>(7);
+  streak = signal<number>(
+    parseInt(getMigratedValue('streak', '0'), 10)
+  );
 
   addFocusTomatoes(tomatoes: number) {
     this.focusTomatoes.update(t => t + tomatoes);
@@ -308,15 +326,10 @@ export class MembershipService {
 
     // Calcular la racha inicial
     const email = this.getCurrentUserEmail();
-    if (email) {
-      this.streak.set(this.calculateStreak(email));
-    }
+    this.streak.set(this.calculateStreak(email));
 
-    // Desbloquear incondicionalmente todo lo Premium y todo lo de Monedas
+    // Desbloquear incondicionalmente todo lo Premium y personalizaciones cosméticas
     this.isPremium.set(true);
-    if (this.proCoins() < 999999) {
-      this.proCoins.set(999999);
-    }
     this.unlockedAvatars.set(ALL_AVATARS_LIST);
     this.unlockedThemes.set(['samurai', 'cyberpunk', 'aurora', 'zen']);
     this.unlockedTimers.set([
@@ -324,9 +337,8 @@ export class MembershipService {
       'solar', 'satellite', 'moon', 'titanic', 'lighthouse', 'airplane'
     ]);
 
-    // Persistir desbloqueo total en localStorage
+    // Persistir desbloqueo cosmético en localStorage
     localStorage.setItem('procrastina-premium', 'true');
-    localStorage.setItem('procrastina-pro-coins', '999999');
     localStorage.setItem('procrastina-unlocked-avatars', JSON.stringify(ALL_AVATARS_LIST));
     localStorage.setItem('procrastina-unlocked-themes', JSON.stringify(['samurai', 'cyberpunk', 'aurora', 'zen']));
     localStorage.setItem('procrastina-unlocked-timers', JSON.stringify([
@@ -335,7 +347,6 @@ export class MembershipService {
     ]));
     if (email) {
       localStorage.setItem(`user:${email}:premium`, 'true');
-      localStorage.setItem(`user:${email}:pro-coins`, '999999');
       localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(ALL_AVATARS_LIST));
       localStorage.setItem(`user:${email}:unlocked-themes`, JSON.stringify(['samurai', 'cyberpunk', 'aurora', 'zen']));
       localStorage.setItem(`user:${email}:unlocked-timers`, JSON.stringify([
@@ -402,6 +413,12 @@ export class MembershipService {
       const val = String(this.focusTomatoes());
       localStorage.setItem('procrastina-focus-tomatoes', val);
       if (email) localStorage.setItem(`user:${email}:focus-tomatoes`, val);
+    });
+    effect(() => {
+      const email = this.getCurrentUserEmail();
+      const val = String(this.streak());
+      localStorage.setItem('procrastina-streak', val);
+      if (email) localStorage.setItem(`user:${email}:streak`, val);
     });
     effect(() => {
       const email = this.getCurrentUserEmail();
@@ -539,7 +556,7 @@ export class MembershipService {
     return Array.from(this.rewardedSessions).filter(id => id.startsWith('session-')).length;
   }
 
-  async addIdea(ideaText: string) {
+  async addIdea(ideaText: string, priority: IdeaPriority = 'media') {
     if (!ideaText || !ideaText.trim()) return;
     const cleanContent = ideaText.trim();
     const tempId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `temp-${Date.now()}`;
@@ -548,6 +565,7 @@ export class MembershipService {
       content: cleanContent,
       is_converted_to_objective: false,
       display_order: 1,
+      priority: priority,
       created_at: new Date().toISOString()
     };
 
@@ -555,10 +573,10 @@ export class MembershipService {
 
     if (this.supabaseService.isConfigured()) {
       try {
-        const res = await this.supabaseService.saveCapturedIdea(cleanContent);
+        const res = await this.supabaseService.saveCapturedIdea(cleanContent, 1, priority);
         if (res.success && res.idea) {
           this.capturedIdeas.update(list =>
-            list.map(item => item.id === tempId ? res.idea! : item)
+            list.map(item => item.id === tempId ? { ...res.idea!, priority: res.idea!.priority || priority } : item)
           );
         }
       } catch (err) {
@@ -567,7 +585,7 @@ export class MembershipService {
     }
   }
 
-  async updateIdea(idOrIndex: string | number, newContent: string) {
+  async updateIdea(idOrIndex: string | number, newContent: string, newPriority?: IdeaPriority) {
     if (!newContent || !newContent.trim()) return;
     const cleanContent = newContent.trim();
     let targetId: string | undefined;
@@ -577,20 +595,150 @@ export class MembershipService {
         const item = list[idOrIndex];
         if (item) {
           targetId = item.id;
-          return list.map((it, idx) => idx === idOrIndex ? { ...it, content: cleanContent } : it);
+          return list.map((it, idx) => idx === idOrIndex ? { 
+            ...it, 
+            content: cleanContent, 
+            priority: newPriority !== undefined ? newPriority : it.priority 
+          } : it);
         }
         return list;
       } else {
         targetId = idOrIndex;
-        return list.map(it => it.id === idOrIndex ? { ...it, content: cleanContent } : it);
+        return list.map(it => it.id === idOrIndex ? { 
+          ...it, 
+          content: cleanContent, 
+          priority: newPriority !== undefined ? newPriority : it.priority 
+        } : it);
       }
     });
 
     if (targetId && !targetId.startsWith('local-') && !targetId.startsWith('temp-') && this.supabaseService.isConfigured()) {
       try {
-        await this.supabaseService.updateCapturedIdea(targetId, cleanContent);
+        await this.supabaseService.updateCapturedIdea(targetId, cleanContent, newPriority);
       } catch (err) {
         console.warn('[Supabase Idea Update Error]', err);
+      }
+    }
+  }
+
+  async setIdeaPriority(idOrIndex: string | number, priority: IdeaPriority) {
+    let targetId: string | undefined;
+
+    this.capturedIdeas.update(list => {
+      if (typeof idOrIndex === 'number') {
+        const item = list[idOrIndex];
+        if (item) {
+          targetId = item.id;
+          return list.map((it, idx) => idx === idOrIndex ? { ...it, priority } : it);
+        }
+        return list;
+      } else {
+        targetId = idOrIndex;
+        return list.map(it => it.id === idOrIndex ? { ...it, priority } : it);
+      }
+    });
+
+    if (targetId && !targetId.startsWith('local-') && !targetId.startsWith('temp-') && this.supabaseService.isConfigured()) {
+      try {
+        await this.supabaseService.updateCapturedIdea(targetId, undefined, priority);
+      } catch (err) {
+        console.warn('[Supabase Idea Priority Update Error]', err);
+      }
+    }
+  }
+
+  async addDedicatedTimeToIdea(idOrIndex: string | number, minutes: number) {
+    if (!minutes || minutes <= 0) return;
+    let targetId: string | undefined;
+
+    this.capturedIdeas.update(list => {
+      if (typeof idOrIndex === 'number') {
+        const item = list[idOrIndex];
+        if (item) {
+          targetId = item.id;
+          return list.map((it, idx) => idx === idOrIndex ? { 
+            ...it, 
+            dedicated_minutes: (it.dedicated_minutes || 0) + minutes 
+          } : it);
+        }
+        return list;
+      } else {
+        targetId = idOrIndex;
+        return list.map(it => it.id === idOrIndex ? { 
+          ...it, 
+          dedicated_minutes: (it.dedicated_minutes || 0) + minutes 
+        } : it);
+      }
+    });
+
+    if (targetId && !targetId.startsWith('local-') && !targetId.startsWith('temp-') && this.supabaseService.isConfigured()) {
+      try {
+        await this.supabaseService.addDedicatedTimeToIdea(targetId, minutes);
+      } catch (err) {
+        console.warn('[Supabase Idea Dedicated Time Error]', err);
+      }
+    }
+  }
+
+  async completeIdea(idOrIndex: string | number) {
+    let targetId: string | undefined;
+    const now = new Date().toISOString();
+
+    this.capturedIdeas.update(list => {
+      if (typeof idOrIndex === 'number') {
+        const item = list[idOrIndex];
+        if (item) targetId = item.id;
+        return list.map((it, idx) => idx === idOrIndex ? { 
+          ...it, 
+          is_completed: true, 
+          completed_at: now 
+        } : it);
+      } else {
+        targetId = idOrIndex;
+        return list.map(it => it.id === idOrIndex ? { 
+          ...it, 
+          is_completed: true, 
+          completed_at: now 
+        } : it);
+      }
+    });
+
+    if (targetId && !targetId.startsWith('local-') && !targetId.startsWith('temp-') && this.supabaseService.isConfigured()) {
+      try {
+        await this.supabaseService.completeCapturedIdea(targetId);
+      } catch (err) {
+        console.warn('[Supabase Idea Complete Error]', err);
+      }
+    }
+  }
+
+  async reactivateIdea(idOrIndex: string | number) {
+    let targetId: string | undefined;
+
+    this.capturedIdeas.update(list => {
+      if (typeof idOrIndex === 'number') {
+        const item = list[idOrIndex];
+        if (item) targetId = item.id;
+        return list.map((it, idx) => idx === idOrIndex ? { 
+          ...it, 
+          is_completed: false, 
+          completed_at: undefined 
+        } : it);
+      } else {
+        targetId = idOrIndex;
+        return list.map(it => it.id === idOrIndex ? { 
+          ...it, 
+          is_completed: false, 
+          completed_at: undefined 
+        } : it);
+      }
+    });
+
+    if (targetId && !targetId.startsWith('local-') && !targetId.startsWith('temp-') && this.supabaseService.isConfigured()) {
+      try {
+        await this.supabaseService.reactivateCapturedIdea(targetId);
+      } catch (err) {
+        console.warn('[Supabase Idea Reactivate Error]', err);
       }
     }
   }
@@ -705,6 +853,11 @@ export class MembershipService {
     // Registrar sesión
     this.rewardedSessions.add(sessionId);
     const email = this.getCurrentUserEmail();
+    const userKey = getUserKeyStatic('rewarded-sessions');
+    localStorage.setItem(
+      userKey,
+      JSON.stringify(Array.from(this.rewardedSessions))
+    );
     if (email) {
       localStorage.setItem(
         `user:${email}:rewarded-sessions`,
@@ -712,11 +865,9 @@ export class MembershipService {
       );
     }
 
-    // Recompensa de monedas basada en el avatar equipado
-    const avatarId = this.selectedAvatar();
-    const baseAvatarCoins = this.getAvatarCoinsPerPomodoro(avatarId);
+    // Recompensa: 1 tomate y 1 moneda por periodo de concentración completado
     const tomatoesEarned = 1;
-    const coinsEarned = baseAvatarCoins + (isShared ? 5 : 0);
+    const coinsEarned = 1;
     this.addFocusTomatoes(tomatoesEarned);
     this.addProCoins(coinsEarned);
 
@@ -729,7 +880,7 @@ export class MembershipService {
     return { points: pointsEarned, coins: coinsEarned, tomatoes: tomatoesEarned, isNew: true };
   }
 
-  // Monedas aportadas por cada avatar al completar un pomodoro
+  // Monedas aportadas por cada avatar al completar un pomodoro (referencia)
   getAvatarCoinsPerPomodoro(avatarId: string): number {
     switch (avatarId) {
       case 'dragon': return 25;
@@ -755,6 +906,11 @@ export class MembershipService {
 
     this.rewardedSessions.add(key);
     const email = this.getCurrentUserEmail();
+    const userKey = getUserKeyStatic('rewarded-sessions');
+    localStorage.setItem(
+      userKey,
+      JSON.stringify(Array.from(this.rewardedSessions))
+    );
     if (email) {
       localStorage.setItem(
         `user:${email}:rewarded-sessions`,
@@ -762,9 +918,8 @@ export class MembershipService {
       );
     }
 
-    // Monedas por objetivo completado
-    const coinsEarned = 15;
-    this.addProCoins(coinsEarned);
+    // Monedas por objetivo completado (0 monedas adicionales para mantener 1 moneda por pomodoro)
+    const coinsEarned = 0;
 
     let pointsEarned = 0;
     if (this.isPremium()) {
@@ -867,32 +1022,36 @@ export class MembershipService {
     }
   }
 
+  private getLocalDateKey(date: Date = new Date()): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private isDateInList(dates: string[], date: Date): boolean {
+    const isoKey = this.getLocalDateKey(date);
+    const localeKey = date.toLocaleDateString();
+    return dates.includes(isoKey) || dates.includes(localeKey);
+  }
+
   private updateStreakProgress() {
     const email = this.getCurrentUserEmail();
-    if (!email) return;
-    const key = `user:${email}:streak-dates`;
+    const key = getUserKeyStatic('streak-dates');
     const savedDates = localStorage.getItem(key);
     let dates: string[] = savedDates ? JSON.parse(savedDates) : [];
 
-    const todayStr = new Date().toLocaleDateString();
-    if (!dates.includes(todayStr)) {
+    const today = new Date();
+    const todayStr = this.getLocalDateKey(today);
+    if (!this.isDateInList(dates, today)) {
       dates.push(todayStr);
       localStorage.setItem(key, JSON.stringify(dates));
-    }
-
-    let currentStreak = 1;
-    let checkDate = new Date();
-    
-    while (true) {
-      checkDate.setDate(checkDate.getDate() - 1);
-      const checkStr = checkDate.toLocaleDateString();
-      if (dates.includes(checkStr)) {
-        currentStreak++;
-      } else {
-        break;
+      if (email) {
+        localStorage.setItem(`user:${email}:streak-dates`, JSON.stringify(dates));
       }
     }
 
+    const currentStreak = this.calculateStreakFromDates(dates);
     this.streak.set(currentStreak);
 
     this.qualitiesCatalog.update(list => {
@@ -914,43 +1073,48 @@ export class MembershipService {
     });
   }
 
-  calculateStreak(email: string): number {
-    if (!email) return 0;
-    const key = `user:${email}:streak-dates`;
+  calculateStreakFromDates(dates: string[]): number {
+    if (!dates || dates.length === 0) return 0;
+
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const hasToday = this.isDateInList(dates, today);
+    const hasYesterday = this.isDateInList(dates, yesterday);
+
+    // Si hoy no se ha enfocado y ayer tampoco, la racha activa es 0
+    if (!hasToday && !hasYesterday) {
+      return 0;
+    }
+
+    let currentStreak = 0;
+    let checkDate = new Date();
+
+    // Si hoy aún no se ha enfocado pero ayer sí, contamos la racha acumulada hasta ayer
+    if (!hasToday && hasYesterday) {
+      checkDate = yesterday;
+    }
+
+    while (true) {
+      if (this.isDateInList(dates, checkDate)) {
+        currentStreak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return currentStreak;
+  }
+
+  calculateStreak(email?: string): number {
+    const activeEmail = email || this.getCurrentUserEmail();
+    const key = activeEmail ? `user:${activeEmail}:streak-dates` : getUserKeyStatic('streak-dates');
     const savedDates = localStorage.getItem(key);
     if (!savedDates) return 0;
     try {
       const dates: string[] = JSON.parse(savedDates);
-      if (dates.length === 0) return 0;
-
-      const todayStr = new Date().toLocaleDateString();
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toLocaleDateString();
-
-      // Si hoy no se ha enfocado y ayer tampoco, la racha activa es 0
-      if (!dates.includes(todayStr) && !dates.includes(yesterdayStr)) {
-        return 0;
-      }
-
-      let currentStreak = 0;
-      let checkDate = new Date();
-      
-      // Si hoy no se ha enfocado pero ayer sí, empezamos a contar desde ayer
-      if (!dates.includes(todayStr) && dates.includes(yesterdayStr)) {
-        checkDate = yesterday;
-      }
-
-      while (true) {
-        const checkStr = checkDate.toLocaleDateString();
-        if (dates.includes(checkStr)) {
-          currentStreak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-      return currentStreak;
+      return this.calculateStreakFromDates(dates);
     } catch (e) {
       return 0;
     }

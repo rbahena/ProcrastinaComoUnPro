@@ -1591,10 +1591,47 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Objetivo Activo (La batalla de hoy) e Integración Metodológica
   activeObjective = signal('');
+  associatedIdeaId = signal<string | null>(null);
   activeMethodology = signal<'sapo' | 'pareto' | 'normal'>('normal');
 
   selectMethodology(method: 'sapo' | 'pareto' | 'normal') {
     this.activeMethodology.set(method);
+  }
+
+  onObjectiveInputChange(val: string) {
+    this.activeObjective.set(val);
+    if (!val || !val.trim()) {
+      this.associatedIdeaId.set(null);
+      localStorage.removeItem('activeObjectiveDraft');
+      localStorage.removeItem('activeObjectiveIdeaId');
+      localStorage.removeItem('focus-session-objective');
+      localStorage.removeItem('focus-session-idea-id');
+    }
+  }
+
+  disassociateObjective() {
+    this.activeObjective.set('');
+    this.associatedIdeaId.set(null);
+    this.objectiveConfirmed.set(false);
+    localStorage.removeItem('activeObjectiveDraft');
+    localStorage.removeItem('activeObjectiveIdeaId');
+    localStorage.removeItem('focus-session-objective');
+    localStorage.removeItem('focus-session-idea-id');
+    this.showToastFeedback('Objetivo desasociado.', 'info');
+  }
+
+  associatedIdeaObj = computed(() => {
+    const id = this.associatedIdeaId();
+    if (!id) return null;
+    return this.membership.capturedIdeas().find(i => i.id === id) || null;
+  });
+
+  formatDedicatedTime(minutes?: number): string {
+    if (!minutes || minutes <= 0) return '0m';
+    if (minutes < 60) return `${minutes}m`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
   }
 
   // Lógica del Temporizador (25 minutos = 1500 segundos)
@@ -2083,7 +2120,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (!this.isBreak()) {
       // 🍅 Fin del Pomodoro (Sesión de concentración completada)
       this.sessionEndingStatus.set('completed');
-      this.objectiveCompleted.set('yes');
+      this.objectiveCompleted.set(null);
       this.arenaState.set('summary');
       this.playFocusAlarm(); // Alarma sonora de Pomodoro
       this.triggerCelebration();
@@ -2216,9 +2253,15 @@ export class Enfoque implements OnInit, OnDestroy {
     }, 12000);
 
     const draft = localStorage.getItem('activeObjectiveDraft');
+    const draftIdeaId = localStorage.getItem('activeObjectiveIdeaId');
     if (draft) {
       this.activeObjective.set(draft);
-      localStorage.removeItem('activeObjectiveDraft');
+      this.objectiveConfirmed.set(true);
+      localStorage.setItem('focus-session-objective', draft);
+    }
+    if (draftIdeaId) {
+      this.associatedIdeaId.set(draftIdeaId);
+      localStorage.setItem('focus-session-idea-id', draftIdeaId);
     }
 
     // Registración de escuchas de inactividad Zen
@@ -2416,6 +2459,14 @@ export class Enfoque implements OnInit, OnDestroy {
     this.showAbandonConfirmModal.set(false);
     this.membership.isFocusActive.set(false);
 
+    // Guardar minutos dedicados a la tarea antes del abandono
+    const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
+    const actualSeconds = Math.max(0, plannedSeconds - Math.max(0, this.timeLeft()));
+    const actualMins = Math.floor(actualSeconds / 60);
+    if (actualMins > 0 && this.associatedIdeaId()) {
+      this.membership.addDedicatedTimeToIdea(this.associatedIdeaId()!, actualMins);
+    }
+
     // Liquidar sesión en Supabase con estado abandoned
     this.settleCurrentSession('abandoned', 'no');
     this.clearPersistedSession();
@@ -2557,13 +2608,42 @@ export class Enfoque implements OnInit, OnDestroy {
           this.activeObjective()
         );
 
+        const targetIdeaId = this.associatedIdeaId();
+        const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
+        const actualSeconds = currentStatus === 'completed'
+          ? plannedSeconds
+          : Math.max(0, plannedSeconds - Math.max(0, this.timeLeft()));
+        const dedicatedMins = Math.max(1, Math.round(actualSeconds / 60));
+
+        if (targetIdeaId) {
+          // Acumular el tiempo dedicado en la nota/idea
+          await this.membership.addDedicatedTimeToIdea(targetIdeaId, dedicatedMins);
+        }
+
+        // Si el usuario confirmó que SÍ terminó el objetivo al final del pomodoro
+        if (objCompleted === 'yes') {
+          if (targetIdeaId) {
+            await this.membership.completeIdea(targetIdeaId);
+          }
+          // Limpiar el objetivo ya completado
+          this.activeObjective.set('');
+          this.associatedIdeaId.set(null);
+          this.objectiveConfirmed.set(false);
+          localStorage.removeItem('activeObjectiveDraft');
+          localStorage.removeItem('activeObjectiveIdeaId');
+          localStorage.removeItem('focus-session-objective');
+          localStorage.removeItem('focus-session-idea-id');
+          this.showToastFeedback('🎯 ¡Objetivo completado y archivado en tus victorias!', 'success');
+        } else if (targetIdeaId) {
+          this.showToastFeedback(`⏱️ Se registraron +${dedicatedMins}m dedicados a tu tarea en el baúl.`, 'info');
+        }
+
         // Bono de Coraje (Grit Bonus): Si empezó con baja energía y venció la desmotivación
         if (this.energyLevel() === 'low') {
-          this.membership.proCoins.update(c => c + 35);
           if (this.membership.isPremium()) {
             this.membership.addFocusPoints(50);
           }
-          this.showToastFeedback('🛡️ ¡Bono de Coraje (+35 monedas)! Venciste la desmotivación.', 'success');
+          this.showToastFeedback('🛡️ ¡Bono de Coraje (+50 XP)! Venciste la desmotivación.', 'success');
         }
       } else if (currentStatus === 'abandoned' && this.membership.isPremium()) {
         // Castigo de -50 XP por abandonar
@@ -3976,6 +4056,7 @@ export class Enfoque implements OnInit, OnDestroy {
     localStorage.removeItem('focus-session-total-duration');
     localStorage.removeItem('focus-session-is-break');
     localStorage.removeItem('focus-session-objective');
+    localStorage.removeItem('focus-session-idea-id');
     localStorage.removeItem('focus-session-methodology');
     localStorage.removeItem('focus-session-coworking');
     localStorage.removeItem('focus-session-energy');
@@ -3990,6 +4071,11 @@ export class Enfoque implements OnInit, OnDestroy {
     localStorage.setItem('focus-session-total-duration', this.totalSessionTime().toString());
     localStorage.setItem('focus-session-is-break', this.isBreak().toString());
     localStorage.setItem('focus-session-objective', this.activeObjective());
+    if (this.associatedIdeaId()) {
+      localStorage.setItem('focus-session-idea-id', this.associatedIdeaId()!);
+    } else {
+      localStorage.removeItem('focus-session-idea-id');
+    }
     localStorage.setItem('focus-session-methodology', this.activeMethodology());
     localStorage.setItem('focus-session-coworking', this.coworkingMode());
     localStorage.setItem('focus-session-energy', this.energyLevel());
@@ -4023,6 +4109,7 @@ export class Enfoque implements OnInit, OnDestroy {
     const totalDuration = parseInt(localStorage.getItem('focus-session-total-duration') || '1500', 10);
     const isBreak = localStorage.getItem('focus-session-is-break') === 'true';
     const objective = localStorage.getItem('focus-session-objective') || '';
+    const ideaId = localStorage.getItem('focus-session-idea-id') || null;
     const methodology = (localStorage.getItem('focus-session-methodology') as any) || 'normal';
     const coworking = (localStorage.getItem('focus-session-coworking') as any) || 'comunitario';
     const energy = (localStorage.getItem('focus-session-energy') as any) || 'medium';
@@ -4030,6 +4117,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.totalSessionTime.set(totalDuration);
     this.isBreak.set(isBreak);
     if (objective) this.activeObjective.set(objective);
+    if (ideaId) this.associatedIdeaId.set(ideaId);
     this.activeMethodology.set(methodology);
     this.coworkingMode.set(coworking);
     this.energyLevel.set(energy);

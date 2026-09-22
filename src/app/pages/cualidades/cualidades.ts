@@ -150,21 +150,11 @@ interface CountryOption {
                   </p>
                 </div>
 
-                <!-- TELEMETRÍA EN LÍNEA -->
+                <!-- TELEMETRÍA EN LÍNEA (HISTÓRICOS) -->
                 <div class="user-inline-telemetry">
-                  <div class="tele-pill tomato-pill" [class.is-zero]="membership.focusTomatoes() === 0" data-tooltip="1 tomate por cada sesión completada">
+                  <div class="tele-pill tomato-pill" [class.is-zero]="membership.focusTomatoes() === 0" data-tooltip="Total histórico de tomates completados">
                     <span class="tele-icon">🍅</span>
                     <span class="tele-num">{{ membership.focusTomatoes() }}</span>
-                  </div>
-
-                  <div class="tele-pill coin-pill" [class.is-zero]="membership.proCoins() === 0" data-tooltip="Monedas de concentración obtenidas">
-                    <span class="tele-icon"><i class="fa-solid fa-coins"></i></span>
-                    <span class="tele-num">{{ membership.proCoins() }}</span>
-                  </div>
-
-                  <div class="tele-pill streak-pill" [class.is-zero]="membership.streak() === 0" data-tooltip="Días consecutivos enfocándote">
-                    <span class="tele-icon"><i class="fa-solid fa-fire"></i></span>
-                    <span class="tele-num">{{ membership.streak() }}</span>
                   </div>
 
                   <div class="tele-pill trophy-pill gold-pill" [class.is-zero]="membership.goldMedals() === 0" data-tooltip="Trofeos de oro ganados">

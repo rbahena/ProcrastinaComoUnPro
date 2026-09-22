@@ -5420,6 +5420,29 @@
 <!-- Controles de Acción Minimalistas -->
              <div class="action-buttons-container hide-on-inactive" style="position: relative; z-index: 100; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 15px; margin-bottom: 20px; pointer-events: auto;">
                
+               <!-- BANNER DE OBJETIVO PRECARGADO EN VISTA DE CONFIGURACIÓN (SETUP) -->
+               <div *ngIf="arenaState() === 'setup' && !isBreak() && activeObjective() && activeObjective().trim()" 
+                    class="setup-objective-banner">
+                 <div class="setup-obj-pill">
+                   <div class="setup-obj-meta">
+                     <i class="fa-solid" [class.fa-bookmark]="associatedIdeaId()" [class.fa-bullseye]="!associatedIdeaId()"></i>
+                     <span>{{ associatedIdeaId() ? 'Nota enlazada' : 'Objetivo' }}</span>
+                   </div>
+                   <span class="setup-obj-title" [title]="activeObjective()">"{{ activeObjective() }}"</span>
+                   <span *ngIf="associatedIdeaObj()?.dedicated_minutes" 
+                         class="setup-obj-dedicated-pill" 
+                         [title]="'Tiempo total ya acumulado en esta tarea: ' + formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes)">
+                     <i class="fa-solid fa-hourglass-half"></i> {{ formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) }}
+                   </span>
+                   <button type="button" 
+                           class="setup-obj-clear-btn" 
+                           (click)="disassociateObjective()" 
+                           title="Desasociar objetivo (permanecerá en tu baúl)">
+                     <i class="fa-solid fa-xmark"></i>
+                   </button>
+                 </div>
+               </div>
+
                <ng-container *ngIf="arenaState() !== 'summary'">
                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
                                         <!-- Iniciar / Iniciar Descanso (en setup) -->
@@ -5630,10 +5653,17 @@
         
           <!-- VISTA ENFOQUE ACTIVO: OBJETIVO (Se muestra debajo del reloj durante active/countdown) -->
           <div *ngIf="arenaState() !== 'setup' && !isBreak() && arenaState() !== 'summary' && activeObjective() && activeObjective().trim()" 
-               class="hide-on-inactive"
-               style="text-align: center; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2;">
-            <span style="font-size: var(--objective-header-size); font-weight: 800; text-transform: uppercase; color: var(--muted); letter-spacing: 1.5px;">Objetivo de Concentración</span>
-            <span style="font-size: var(--objective-text-size); font-weight: 800; color: var(--text);">"{{ activeObjective() }}"</span>
+               class="hide-on-inactive active-objective-display">
+            <span class="active-obj-header">Objetivo de Concentración</span>
+            <div class="active-obj-pill">
+              <span class="active-obj-text">"{{ activeObjective() }}"</span>
+              <button type="button" 
+                      class="active-obj-clear-btn"
+                      (click)="disassociateObjective()"
+                      title="Desasociar objetivo (permanecerá en tu baúl)">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
           </div>
 
       </div>
@@ -7743,7 +7773,7 @@
           <input type="text" 
                  [disabled]="arenaState() !== 'setup'"
                  [ngModel]="activeObjective()" 
-                 (ngModelChange)="activeObjective.set($event)"
+                 (ngModelChange)="onObjectiveInputChange($event)"
                  [placeholder]="activeMethodology() === 'sapo' ? '¿Qué sapo te vas a comer hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave hoy?' : '¿Qué tarea vas a realizar?')"
                  style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; padding-right: 30px; color: var(--text); font-size: var(--modal-text-size); font-weight: 600; outline: none; font-family: inherit;"
                  [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'text'">
@@ -7753,6 +7783,15 @@
              style="position: absolute; right: 10px; font-size: var(--modal-header-size); pointer-events: none;"></i>
         </div>
         
+        <!-- Botón para desasociar / limpiar si hay objetivo -->
+        <button *ngIf="activeObjective() && activeObjective().trim()"
+                (click)="disassociateObjective()"
+                [disabled]="arenaState() !== 'setup'"
+                class="settings-disassociate-btn"
+                title="Desasociar objetivo (permanecerá en tu baúl)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
         <!-- Botón para asociar objetivo -->
         <button (click)="confirmObjective()"
                 [disabled]="arenaState() !== 'setup'"

@@ -2,6 +2,7 @@ import { Component, OnInit, signal, HostListener, ViewChild, ElementRef } from '
 import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from './services/membership.service';
+import { IdeaPriority } from './services/supabase.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,7 @@ export class App implements OnInit {
   
   showFloatingInput = signal(false);
   ideaText = signal('');
+  selectedPriority = signal<IdeaPriority>('media');
   isAnimatingSuccess = signal(false);
   isShootingStarFlying = signal(false);
 
@@ -78,6 +80,7 @@ export class App implements OnInit {
     this.showFloatingInput.set(nextState);
     if (nextState) {
       this.ideaText.set('');
+      this.selectedPriority.set('media');
       setTimeout(() => {
         this.ideaInputRef?.nativeElement?.focus();
       }, 50);
@@ -88,11 +91,15 @@ export class App implements OnInit {
     this.showFloatingInput.set(false);
   }
 
+  setPriority(p: IdeaPriority) {
+    this.selectedPriority.set(p);
+  }
+
   submitIdea() {
     const text = this.ideaText().trim();
     if (!text) return;
     
-    this.membership.addIdea(text);
+    this.membership.addIdea(text, this.selectedPriority());
     
     // Disparar animación de éxito y estrella fugaz
     this.isAnimatingSuccess.set(true);
