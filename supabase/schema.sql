@@ -1648,6 +1648,7 @@ CREATE OR REPLACE FUNCTION public.settle_focus_session(
     p_total_pause_seconds INTEGER,
     p_status VARCHAR,
     p_objective_completed VARCHAR,
+    p_idea_id UUID DEFAULT NULL,
     p_log_learnings TEXT DEFAULT NULL,
     p_distractions JSONB DEFAULT '[]'::jsonb
 )
@@ -1803,20 +1804,29 @@ BEGIN
     INSERT INTO public.focus_sessions (
         nonce_id, user_id, objective_text, status, methodology, coworking_mode, energy_level,
         planned_duration_seconds, actual_duration_seconds, pause_count, total_pause_seconds,
-        objective_completed, avatar_id, coins_earned, coins_penalized, xp_earned,
+        objective_completed, avatar_id, idea_id, coins_earned, coins_penalized, xp_earned,
         boss_damage_dealt, boss_hp_healed, is_critical_hit, grit_bonus_applied,
         started_at, completed_at
     ) VALUES (
         p_nonce_id, v_user_id, p_objective_text, p_status::focus_session_status_enum,
         p_methodology::focus_methodology_enum, p_coworking_mode::coworking_mode_enum,
         p_energy_level::energy_level_enum, p_planned_seconds, p_actual_seconds,
-        p_pause_count, p_total_pause_seconds, p_objective_completed, p_avatar_id,
+        p_pause_count, p_total_pause_seconds, p_objective_completed, p_avatar_id, p_idea_id,
         v_coins_earned, v_coins_penalized, v_xp_earned, v_boss_damage, v_boss_heal,
         v_is_critical, v_grit_bonus,
         TIMEZONE('utc'::text, NOW() - (p_actual_seconds || ' seconds')::interval),
         TIMEZONE('utc'::text, NOW())
     )
     RETURNING id INTO v_new_session_id;
+
+    -- 6.1 Si está vinculada a una idea/tarea del baúl, marcar is_converted_to_objective = TRUE
+    IF p_idea_id IS NOT NULL THEN
+        UPDATE public.captured_ideas
+        SET 
+            is_converted_to_objective = TRUE,
+            converted_at = COALESCE(converted_at, TIMEZONE('utc'::text, NOW()))
+        WHERE id = p_idea_id AND user_id = v_user_id;
+    END IF;
 
     -- 7. Si se proporcionó nota de bitácora, guardarla vinculada a la sesión
     IF p_log_learnings IS NOT NULL AND TRIM(p_log_learnings) <> '' THEN

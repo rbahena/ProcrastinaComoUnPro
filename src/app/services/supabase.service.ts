@@ -80,6 +80,7 @@ export interface FocusSessionData {
   total_pause_seconds: number;
   objective_completed: 'yes' | 'no' | 'progress' | 'partial';
   avatar_id: string;
+  idea_id?: string;
   coins_earned?: number;
   coins_penalized?: number;
   xp_earned?: number;
@@ -753,6 +754,7 @@ export class SupabaseService {
         p_total_pause_seconds: data.total_pause_seconds,
         p_status: data.status,
         p_objective_completed: data.objective_completed,
+        p_idea_id: data.idea_id || null,
         p_log_learnings: logLearnings || null,
         p_distractions: distractions
       });

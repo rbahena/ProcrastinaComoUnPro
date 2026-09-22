@@ -272,6 +272,11 @@ export class MembershipService {
     normalizeCapturedIdeas(getMigratedValueJSON('captured-ideas', []))
   );
 
+  // Contador de ideas y tareas pendientes (no completadas)
+  pendingCapturedIdeasCount = computed(() =>
+    this.capturedIdeas().filter(i => !i.is_completed).length
+  );
+
   // Catálogo dinámico cargado desde Supabase
   catalogItems = signal<CatalogItem[]>(
     getMigratedValueJSON<CatalogItem[]>('catalog-cache', [])
@@ -739,6 +744,38 @@ export class MembershipService {
         await this.supabaseService.reactivateCapturedIdea(targetId);
       } catch (err) {
         console.warn('[Supabase Idea Reactivate Error]', err);
+      }
+    }
+  }
+
+  async convertIdeaToObjective(idOrIndex: string | number) {
+    let targetId: string | undefined;
+    const now = new Date().toISOString();
+
+    this.capturedIdeas.update(list => {
+      if (typeof idOrIndex === 'number') {
+        const item = list[idOrIndex];
+        if (item) targetId = item.id;
+        return list.map((it, idx) => idx === idOrIndex ? { 
+          ...it, 
+          is_converted_to_objective: true, 
+          converted_at: now 
+        } : it);
+      } else {
+        targetId = idOrIndex;
+        return list.map(it => it.id === idOrIndex ? { 
+          ...it, 
+          is_converted_to_objective: true, 
+          converted_at: now 
+        } : it);
+      }
+    });
+
+    if (targetId && !targetId.startsWith('local-') && !targetId.startsWith('temp-') && this.supabaseService.isConfigured()) {
+      try {
+        await this.supabaseService.convertIdeaToObjective(targetId);
+      } catch (err) {
+        console.warn('[Supabase Convert Idea Error]', err);
       }
     }
   }

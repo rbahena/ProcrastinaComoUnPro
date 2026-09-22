@@ -303,8 +303,10 @@ export class Ideas implements OnInit {
     localStorage.setItem('activeObjectiveDraft', idea.content);
     if (idea.id) {
       localStorage.setItem('activeObjectiveIdeaId', idea.id);
+      await this.membership.convertIdeaToObjective(idea.id);
     } else {
       localStorage.setItem('activeObjectiveIdeaId', `temp-${index}`);
+      await this.membership.convertIdeaToObjective(index);
     }
 
     // Redireccionar a la zona de concentración (donde estará precargado en estado setup antes de iniciar)

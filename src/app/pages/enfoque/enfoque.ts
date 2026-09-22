@@ -1785,7 +1785,9 @@ export class Enfoque implements OnInit, OnDestroy {
 
   async settleCurrentSession(
     status: 'completed' | 'abandoned' | 'interrupted',
-    objCompleted?: 'yes' | 'no' | 'progress' | 'partial'
+    objCompleted?: 'yes' | 'no' | 'progress' | 'partial',
+    overrideObjective?: string,
+    overrideIdeaId?: string | null
   ) {
     if (!this.supabaseService.isConfigured() || !this.supabaseService.currentUser()) {
       return;
@@ -1805,13 +1807,17 @@ export class Enfoque implements OnInit, OnDestroy {
       time: d.time
     }));
 
+    const finalObjective = (overrideObjective !== undefined ? overrideObjective : this.activeObjective())?.trim() || 'Sesión de Enfoque';
+    const finalIdeaId = overrideIdeaId !== undefined ? overrideIdeaId : this.associatedIdeaId();
+
     const sessionPayload: FocusSessionData = {
       nonce_id: nonceId,
       avatar_id: this.membership.selectedAvatar() || 'gato',
       methodology: this.activeMethodology() || 'normal',
       coworking_mode: this.coworkingMode() === 'comunitario' ? 'comunitario' : 'individual',
       energy_level: this.energyLevel() || 'medium',
-      objective_text: this.activeObjective()?.trim() || 'Sesión de Enfoque',
+      objective_text: finalObjective,
+      idea_id: finalIdeaId || undefined,
       planned_duration_seconds: plannedSeconds,
       actual_duration_seconds: actualSeconds,
       pause_count: this.interruptedByPause() ? 1 : 0,
@@ -2459,16 +2465,19 @@ export class Enfoque implements OnInit, OnDestroy {
     this.showAbandonConfirmModal.set(false);
     this.membership.isFocusActive.set(false);
 
+    const currentIdeaId = this.associatedIdeaId();
+    const currentObjective = this.activeObjective()?.trim() || 'Sesión de Enfoque';
+
     // Guardar minutos dedicados a la tarea antes del abandono
     const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
     const actualSeconds = Math.max(0, plannedSeconds - Math.max(0, this.timeLeft()));
     const actualMins = Math.floor(actualSeconds / 60);
-    if (actualMins > 0 && this.associatedIdeaId()) {
-      this.membership.addDedicatedTimeToIdea(this.associatedIdeaId()!, actualMins);
+    if (actualMins > 0 && currentIdeaId) {
+      this.membership.addDedicatedTimeToIdea(currentIdeaId, actualMins);
     }
 
-    // Liquidar sesión en Supabase con estado abandoned
-    this.settleCurrentSession('abandoned', 'no');
+    // Liquidar sesión en Supabase con estado abandoned preservando tarea e idea_id
+    this.settleCurrentSession('abandoned', 'no', currentObjective, currentIdeaId);
     this.clearPersistedSession();
 
     // Penalización de monedas (ProCoins)
@@ -2609,6 +2618,7 @@ export class Enfoque implements OnInit, OnDestroy {
         );
 
         const targetIdeaId = this.associatedIdeaId();
+        const currentObjective = this.activeObjective()?.trim() || 'Sesión de Enfoque';
         const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
         const actualSeconds = currentStatus === 'completed'
           ? plannedSeconds
@@ -2619,6 +2629,14 @@ export class Enfoque implements OnInit, OnDestroy {
           // Acumular el tiempo dedicado en la nota/idea
           await this.membership.addDedicatedTimeToIdea(targetIdeaId, dedicatedMins);
         }
+
+        // Liquidar e insertar la sesión inmutable en Supabase ANTES de resetear el estado local
+        await this.settleCurrentSession(
+          currentStatus as 'completed' | 'abandoned' | 'interrupted',
+          (this.objectiveCompleted() as any) || (currentStatus === 'completed' ? 'yes' : 'no'),
+          currentObjective,
+          targetIdeaId
+        );
 
         // Si el usuario confirmó que SÍ terminó el objetivo al final del pomodoro
         if (objCompleted === 'yes') {
@@ -2648,13 +2666,14 @@ export class Enfoque implements OnInit, OnDestroy {
       } else if (currentStatus === 'abandoned' && this.membership.isPremium()) {
         // Castigo de -50 XP por abandonar
         this.membership.addFocusPoints(-50);
+        await this.settleCurrentSession(
+          'abandoned',
+          'no',
+          this.activeObjective()?.trim() || 'Sesión de Enfoque',
+          this.associatedIdeaId()
+        );
       }
 
-      // Liquidar e insertar la sesión inmutable en Supabase y actualizar perfil del usuario
-      await this.settleCurrentSession(
-        currentStatus as 'completed' | 'abandoned' | 'interrupted',
-        (this.objectiveCompleted() as any) || (currentStatus === 'completed' ? 'yes' : 'no')
-      );
       this.clearPersistedSession();
     }
 

@@ -5420,28 +5420,40 @@
 <!-- Controles de Acción Minimalistas -->
              <div class="action-buttons-container hide-on-inactive" style="position: relative; z-index: 100; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 15px; margin-bottom: 20px; pointer-events: auto;">
                
-               <!-- BANNER DE OBJETIVO PRECARGADO EN VISTA DE CONFIGURACIÓN (SETUP) -->
-               <div *ngIf="arenaState() === 'setup' && !isBreak() && activeObjective() && activeObjective().trim()" 
-                    class="setup-objective-banner">
-                 <div class="setup-obj-pill">
-                   <div class="setup-obj-meta">
-                     <i class="fa-solid" [class.fa-bookmark]="associatedIdeaId()" [class.fa-bullseye]="!associatedIdeaId()"></i>
-                     <span>{{ associatedIdeaId() ? 'Nota enlazada' : 'Objetivo' }}</span>
-                   </div>
-                   <span class="setup-obj-title" [title]="activeObjective()">"{{ activeObjective() }}"</span>
-                   <span *ngIf="associatedIdeaObj()?.dedicated_minutes" 
-                         class="setup-obj-dedicated-pill" 
-                         [title]="'Tiempo total ya acumulado en esta tarea: ' + formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes)">
-                     <i class="fa-solid fa-hourglass-half"></i> {{ formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) }}
-                   </span>
-                   <button type="button" 
-                           class="setup-obj-clear-btn" 
-                           (click)="disassociateObjective()" 
-                           title="Desasociar objetivo (permanecerá en tu baúl)">
-                     <i class="fa-solid fa-xmark"></i>
-                   </button>
-                 </div>
-               </div>
+                <!-- BANNER DE OBJETIVO PRECARGADO EN VISTA DE CONFIGURACIÓN (SETUP) -->
+                <div *ngIf="arenaState() === 'setup' && !isBreak() && activeObjective() && activeObjective().trim()" 
+                     class="setup-objective-banner">
+                  <div class="setup-obj-pill">
+                    <div class="setup-obj-left">
+                      <div class="setup-obj-meta">
+                        <i class="fa-solid" [class.fa-bookmark]="associatedIdeaId()" [class.fa-bullseye]="!associatedIdeaId()"></i>
+                        <span>{{ associatedIdeaId() ? 'Nota enlazada' : 'Objetivo' }}</span>
+                      </div>
+                      <div class="setup-obj-title-wrapper" 
+                           [attr.data-tooltip]="activeObjective()"
+                           data-tooltip-align="top">
+                        <span class="setup-obj-title">"{{ activeObjective() }}"</span>
+                      </div>
+                    </div>
+
+                    <div class="setup-obj-right">
+                      <span *ngIf="associatedIdeaObj()?.dedicated_minutes" 
+                            class="setup-obj-dedicated-pill" 
+                            [attr.data-tooltip]="'⏱️ ' + formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) + ' acumulados'"
+                            data-tooltip-align="top">
+                        <i class="fa-solid fa-hourglass-half"></i> {{ formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) }}
+                      </span>
+                      <button type="button" 
+                              class="setup-obj-clear-btn" 
+                              (click)="disassociateObjective()" 
+                              [attr.data-tooltip]="'Desvincular tarea'"
+                              data-tooltip-align="left"
+                              aria-label="Desvincular tarea">
+                        <i class="fa-solid fa-xmark"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
                <ng-container *ngIf="arenaState() !== 'summary'">
                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
@@ -5651,18 +5663,38 @@
         </div>
 
         
-          <!-- VISTA ENFOQUE ACTIVO: OBJETIVO (Se muestra debajo del reloj durante active/countdown) -->
+          <!-- VISTA ENFOQUE ACTIVO: OBJETIVO (Se muestra debajo del reloj durante active/countdown con el mismo tamaño y diseño) -->
           <div *ngIf="arenaState() !== 'setup' && !isBreak() && arenaState() !== 'summary' && activeObjective() && activeObjective().trim()" 
-               class="hide-on-inactive active-objective-display">
-            <span class="active-obj-header">Objetivo de Concentración</span>
-            <div class="active-obj-pill">
-              <span class="active-obj-text">"{{ activeObjective() }}"</span>
-              <button type="button" 
-                      class="active-obj-clear-btn"
-                      (click)="disassociateObjective()"
-                      title="Desasociar objetivo (permanecerá en tu baúl)">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
+               class="hide-on-inactive setup-objective-banner active-objective-display">
+            <div class="setup-obj-pill">
+              <div class="setup-obj-left">
+                <div class="setup-obj-meta">
+                  <i class="fa-solid" [class.fa-bookmark]="associatedIdeaId()" [class.fa-bullseye]="!associatedIdeaId()"></i>
+                  <span>{{ associatedIdeaId() ? 'Nota enlazada' : 'Objetivo' }}</span>
+                </div>
+                <div class="setup-obj-title-wrapper" 
+                     [attr.data-tooltip]="activeObjective()"
+                     data-tooltip-align="top">
+                  <span class="setup-obj-title">"{{ activeObjective() }}"</span>
+                </div>
+              </div>
+
+              <div class="setup-obj-right">
+                <span *ngIf="associatedIdeaObj()?.dedicated_minutes" 
+                      class="setup-obj-dedicated-pill" 
+                      [attr.data-tooltip]="'⏱️ ' + formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) + ' acumulados'"
+                      data-tooltip-align="top">
+                  <i class="fa-solid fa-hourglass-half"></i> {{ formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) }}
+                </span>
+                <button type="button" 
+                        class="setup-obj-clear-btn" 
+                        (click)="disassociateObjective()" 
+                        [attr.data-tooltip]="'Desvincular tarea'"
+                        data-tooltip-align="left"
+                        aria-label="Desvincular tarea">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -7788,7 +7820,9 @@
                 (click)="disassociateObjective()"
                 [disabled]="arenaState() !== 'setup'"
                 class="settings-disassociate-btn"
-                title="Desasociar objetivo (permanecerá en tu baúl)">
+                [attr.data-tooltip]="'Desasociar objetivo (permanecerá en tu baúl)'"
+                data-tooltip-align="left"
+                aria-label="Desasociar objetivo">
           <i class="fa-solid fa-xmark"></i>
         </button>
 

@@ -22,8 +22,8 @@
     <a (click)="onNavClick($event, '/ideas')" [routerLink]="membership.isFocusActive() ? null : '/ideas'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
       Mis ideas
-      <span *ngIf="membership.capturedIdeas().length > 0" class="ideas-badge">
-        {{ membership.capturedIdeas().length }}
+      <span *ngIf="membership.pendingCapturedIdeasCount() > 0" class="ideas-badge" title="Ideas y tareas pendientes">
+        {{ membership.pendingCapturedIdeasCount() }}
       </span>
     </a>
     <a (click)="onNavClick($event, '/bestiario')" [routerLink]="membership.isFocusActive() ? null : '/bestiario'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">

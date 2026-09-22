@@ -13,8 +13,8 @@
         <div class="header-text-group">
           <div class="title-with-badge">
             <h1 class="ideas-title">Mis Notas y Objetivos</h1>
-            <span class="count-badge" *ngIf="membership.capturedIdeas().length > 0" title="Total de notas guardadas">
-              {{ membership.capturedIdeas().length }}
+            <span class="count-badge" *ngIf="countPending() > 0" title="Notas y tareas pendientes">
+              {{ countPending() }}
             </span>
           </div>
           <p class="ideas-subtitle">Captura tus ideas al vuelo, organízalas por nivel de prioridad o entra directamente a la sala de concentración.</p>

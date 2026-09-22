@@ -69,9 +69,9 @@
       <i class="fa-solid fa-xmark" *ngIf="showFloatingInput()"></i>
     </div>
     
-    <!-- Indicador de cantidad de ideas en el baúl -->
-    <div class="ideas-count-badge" *ngIf="membership.capturedIdeas().length > 0">
-      {{ membership.capturedIdeas().length }}
+    <!-- Indicador de cantidad de ideas pendientes en el baúl -->
+    <div class="ideas-count-badge" *ngIf="membership.pendingCapturedIdeasCount() > 0" title="Ideas y tareas pendientes">
+      {{ membership.pendingCapturedIdeasCount() }}
     </div>
   </button>
   
