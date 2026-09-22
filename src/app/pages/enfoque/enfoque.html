@@ -6939,9 +6939,7 @@
             <div [style.opacity]="timerStyle() === 'titanic' ? 0.45 : 1" [style.pointerEvents]="timerStyle() === 'titanic' ? 'none' : 'auto'" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px; transition: opacity 0.2s;">
               <div *ngFor="let bg of availableBackgroundOptions()"
                    (click)="setBackground(bg)"
-                   style="display: flex; flex-direction: column; cursor: pointer; align-items: center; width: 100%;"
-                   onmouseover="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1.04)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color='var(--text)' };"
-                   onmouseout="const wrapper = this.querySelector('.thumb-img-wrapper'); if(wrapper) { wrapper.style.transform='scale(1)' }; const label = this.querySelector('.thumb-label'); if(label) { label.style.color = this.getAttribute('data-active') === 'true' ? 'var(--accent)' : 'var(--muted)' };"
+                   class="bg-thumb-card"
                    [attr.data-active]="activeBackground() === bg ? 'true' : 'false'">
                 
                 <!-- Thumbnail wrapper -->

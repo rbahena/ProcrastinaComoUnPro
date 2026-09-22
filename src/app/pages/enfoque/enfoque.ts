@@ -510,10 +510,10 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'fairy') return 'assets/themes/fairy_world.webp';
     if (bg === 'lofi_study_desktop') return 'assets/themes/lofi_study_desktop.webp';
     if (bg === 'lofi_moons') return 'assets/themes/lofi_moons.webp';
-    if (bg === 'theme_airplane') return 'assets/themes/airplane.png';
-    if (bg === 'theme_tunezoro') return 'assets/themes/tunezoro.png';
-    if (bg === 'theme_tunezoro2') return 'assets/themes/tunezoro2.png';
-    if (bg === 'theme_tunezoro_anime') return 'assets/themes/tunezoro-anime.png';
+    if (bg === 'theme_airplane') return 'assets/themes/airplane_optimized.jpg';
+    if (bg === 'theme_tunezoro') return 'assets/themes/tunezoro_optimized.jpg';
+    if (bg === 'theme_tunezoro2') return 'assets/themes/tunezoro2_optimized.jpg';
+    if (bg === 'theme_tunezoro_anime') return 'assets/themes/tunezoro_anime_optimized.jpg';
     if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos.webp';
     if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula.webp';
     if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon.webp';
@@ -3907,18 +3907,18 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'theme_autumn') return 'assets/themes/autumn_thumb.webp';
     if (bg === 'theme_sunset') return 'assets/themes/sunset_thumb.webp';
     if (bg === 'theme_aninditaerina_lofi') return 'assets/themes/aninditaerina-lofi_thumb.webp';
-    if (bg === 'fairy') return 'assets/themes/fairy_world.webp';
-    if (bg === 'lofi_study_desktop') return 'assets/themes/lofi_study_desktop.webp';
-    if (bg === 'lofi_moons') return 'assets/themes/lofi_moons.webp';
-    if (bg === 'theme_airplane') return 'assets/themes/airplane.png';
-    if (bg === 'theme_tunezoro') return 'assets/themes/tunezoro.png';
-    if (bg === 'theme_tunezoro2') return 'assets/themes/tunezoro2.png';
-    if (bg === 'theme_tunezoro_anime') return 'assets/themes/tunezoro-anime.png';
-    if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos.webp';
-    if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula.webp';
-    if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon.webp';
-    if (bg === 'lofi_titanic_ocean') return 'assets/themes/lofi_titanic_ocean.webp';
-    if (bg === 'lofi_lighthouse_ocean') return 'assets/themes/lofi_lighthouse_ocean.webp';
+    if (bg === 'fairy') return 'assets/themes/fairy_world_thumb.webp';
+    if (bg === 'lofi_study_desktop') return 'assets/themes/lofi_study_desktop_thumb.webp';
+    if (bg === 'lofi_moons') return 'assets/themes/lofi_moons_thumb.webp';
+    if (bg === 'theme_airplane') return 'assets/themes/airplane_thumb.webp';
+    if (bg === 'theme_tunezoro') return 'assets/themes/tunezoro_thumb.webp';
+    if (bg === 'theme_tunezoro2') return 'assets/themes/tunezoro2_thumb.webp';
+    if (bg === 'theme_tunezoro_anime') return 'assets/themes/tunezoro_anime_thumb.webp';
+    if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos_thumb.webp';
+    if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula_thumb.webp';
+    if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon_thumb.webp';
+    if (bg === 'lofi_titanic_ocean') return 'assets/themes/lofi_space_cosmos_thumb.webp';
+    if (bg === 'lofi_lighthouse_ocean') return 'assets/themes/lofi_space_cosmos_thumb.webp';
     return '';
   }
 

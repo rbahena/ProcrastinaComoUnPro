@@ -1079,6 +1079,27 @@
   transform: scale(0.97);
 }
 
+/* Tarjetas de Selección de Fondo Zen */
+.bg-thumb-card {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  user-select: none;
+}
+.bg-thumb-card:hover .thumb-img-wrapper {
+  transform: scale(1.05);
+  border-color: var(--accent) !important;
+}
+.bg-thumb-card:hover .thumb-label {
+  color: var(--text) !important;
+}
+.bg-thumb-card:active .thumb-img-wrapper {
+  transform: scale(0.97);
+}
+
 /* ===== FUEGO SAGRADO PREMIUM STYLE ===== */
 /* ===== FUEGO SAGRADO PREMIUM STYLE (CARTOON / VECTOR VERSION) ===== */
 .fire-container {
