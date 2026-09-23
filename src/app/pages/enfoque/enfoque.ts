@@ -1631,8 +1631,7 @@ export class Enfoque implements OnInit, OnDestroy {
   // Escala del fuego basada en el tiempo restante (de 1.20 a 0.35)
   fireScale = computed(() => {
     if (this.isBreak()) {
-      const pct = this.timePercentage();
-      return 0.40 + pct * 0.15;
+      return 0; // En descanso la flama está apagada
     }
     const pct = this.timePercentage();
     if (pct <= 0) return 0;
@@ -1641,7 +1640,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Opacidad y parpadeo final del fuego
   fireOpacity = computed(() => {
-    if (this.isBreak()) return 1.0;
+    if (this.isBreak()) return 0; // En descanso la flama está apagada
     const pct = this.timePercentage();
     if (pct <= 0) return 0;
     if (pct < 0.05) {
@@ -1652,12 +1651,12 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Opacidades individuales para las capas de la llama y chispas
   sparksOpacity = computed(() => {
-    if (this.isBreak()) return 0.50; // Chispas constantes en descanso
+    if (this.isBreak()) return 0.60;
     if (this.arenaState() === 'setup') return 1.0;
     const pct = this.timePercentage();
     if (pct > 0.3) return 1.0;
-    if (pct <= 0.2) return 0.25; // Se mantienen al 25% siempre
-    return 0.25 + ((pct - 0.2) / 0.1) * 0.75;
+    if (pct <= 0) return 0.55; // Mantiene el humo y chispas vivas desde los leños incandescentes
+    return 0.55 + (pct / 0.3) * 0.45;
   });
 
   innerFlameOpacity = computed(() => {

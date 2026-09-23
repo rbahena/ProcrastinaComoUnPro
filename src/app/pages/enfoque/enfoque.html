@@ -1469,13 +1469,15 @@
                    [class.is-break]="isBreak()"
                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto; overflow: visible;">
                 <div class="campfire-visual-wrapper" style="position: relative; width: 175px; height: 190px; margin-top: -12px; margin-bottom: 32px; display: flex; justify-content: center; align-items: center;">
-                  <!-- Aura de brillo de fondo detrás de la flama (se encoge con ella) -->
-                <div class="fire-glow" 
+                  <!-- Aura de brillo de fondo detrás de la flama (se encoge con ella y desaparece al apagarse) -->
+                <div *ngIf="(arenaState() === 'setup' || timePercentage() > 0) && fireOpacity() > 0"
+                     class="fire-glow" 
                      [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.20 : fireScale()) + ')'" 
                      [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()"></div>
 
-                <!-- Resplandor exterior suave alrededor de toda la fogata (se atenúa ligeramente al apagarse) -->
-                <div class="fire-outer-glow" 
+                <!-- Resplandor exterior suave alrededor de toda la fogata (desaparece al apagarse) -->
+                <div *ngIf="(arenaState() === 'setup' || timePercentage() > 0) && fireOpacity() > 0"
+                     class="fire-outer-glow" 
                      [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.20 : fireScale() * 0.9 + 0.1) + ')'" 
                      [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()"></div>
 
@@ -1484,7 +1486,7 @@
                      [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.20 : fireScale()) + ')'" 
                      [style.transformOrigin]="'50px 94px'"
                      [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()"
-                     style="width: 100%; height: 100%; z-index: 4; overflow: visible; position: absolute; top: -42px; left: 0; transition: transform 0.2s, opacity 0.2s;">
+                     style="width: 100%; height: 100%; z-index: 4; overflow: visible; position: absolute; top: -18px; left: 0; transition: transform 0.2s, opacity 0.2s;">
                   <defs>
                     <!-- Filtro de refracción de calor (Heat Shimmer) -->
                     <filter id="heatShimmer" x="-50%" y="-50%" width="200%" height="200%">
@@ -1542,64 +1544,187 @@
                   </g>
                 </svg>
 
-                <!-- Troncos de base bajo la llama activa (SE MANTIENEN FIJOS en escala 1.0, z-index 3 detrás de la flama, mismo viewBox) -->
+                <!-- Troncos de base bajo la llama activa con textura de carbón ultra-realista y calor incandescente rojo vivo -->
                 <svg viewBox="0 -15 100 115" style="width: 100%; height: 100%; z-index: 3; overflow: visible; position: absolute; top: 0; left: 0; pointer-events: none;">
-                  <g class="svg-logs-base" transform="translate(-6, 20) scale(1.08)">
-                    <!-- Base de ceniza/carbón en el suelo -->
-                    <ellipse cx="50" cy="45" rx="38" ry="7" fill="#140d09" opacity="0.85" />
-                    <ellipse cx="50" cy="45" rx="26" ry="5" fill="#080503" opacity="0.95" />
+                  <defs>
+                    <linearGradient id="charcoalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#381309" />
+                      <stop offset="25%" stop-color="#200a04" />
+                      <stop offset="65%" stop-color="#0f0402" />
+                      <stop offset="100%" stop-color="#280e06" />
+                    </linearGradient>
+                    <linearGradient id="charcoalFacetWarm" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#4a1508" />
+                      <stop offset="35%" stop-color="#220b05" />
+                      <stop offset="75%" stop-color="#0d0402" />
+                      <stop offset="100%" stop-color="#2c0c04" />
+                    </linearGradient>
+                    <radialGradient id="deepHeartHeat" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                      <stop offset="20%" stop-color="#fff59d" stop-opacity="0.9" />
+                      <stop offset="45%" stop-color="#ff3d00" stop-opacity="0.85" />
+                      <stop offset="75%" stop-color="#d50000" stop-opacity="0.6" />
+                      <stop offset="100%" stop-color="#7f0000" stop-opacity="0" />
+                    </radialGradient>
+                    <radialGradient id="bedEmbersRed" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#ff1744" stop-opacity="0.9" />
+                      <stop offset="35%" stop-color="#ff3d00" stop-opacity="0.75" />
+                      <stop offset="70%" stop-color="#b71c1c" stop-opacity="0.45" />
+                      <stop offset="100%" stop-color="#b71c1c" stop-opacity="0" />
+                    </radialGradient>
+                    <linearGradient id="redHotFissureGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#ff1744" />
+                      <stop offset="25%" stop-color="#ff3d00" />
+                      <stop offset="50%" stop-color="#ff9100" />
+                      <stop offset="75%" stop-color="#fff59d" />
+                      <stop offset="100%" stop-color="#ff3d00" />
+                    </linearGradient>
+                    <linearGradient id="ashDustGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#8c7873" stop-opacity="0.4" />
+                      <stop offset="50%" stop-color="#e7e5e4" stop-opacity="0.8" />
+                      <stop offset="100%" stop-color="#785952" stop-opacity="0.35" />
+                    </linearGradient>
+                    <filter id="emberGlowFilter" x="-40%" y="-40%" width="180%" height="180%">
+                      <feGaussianBlur stdDeviation="1.0" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                    <filter id="deepHeatBlur" x="-30%" y="-30%" width="160%" height="160%">
+                      <feGaussianBlur stdDeviation="2.2" />
+                    </filter>
+                  </defs>
 
-                    <!-- Tronco Fondo (Horizontal en la base, corteza rugosa) -->
+                  <g class="svg-logs-base" transform="translate(-8, 38) scale(1.15)">
+                    <!-- 1. BASE DE CENIZA Y SUELO CALCINADO CON CALOR ROJO -->
+                    <ellipse cx="50" cy="45" rx="40" ry="8" fill="#140d09" opacity="0.9" />
+                    <ellipse cx="50" cy="45" rx="30" ry="6" fill="#080503" opacity="0.95" />
+                    <ellipse cx="49" cy="44" rx="26" ry="4.5" fill="url(#bedEmbersRed)" filter="url(#deepHeatBlur)" style="animation: deepEmberGlow 2.4s infinite alternate ease-in-out;" />
+                    <ellipse cx="48" cy="44.5" rx="20" ry="3.5" fill="#292524" opacity="0.5" />
+                    <ellipse cx="52" cy="44" rx="13" ry="2.2" fill="#57534e" opacity="0.35" />
+
+                    <!-- 2. TRONCO FONDO -->
                     <path d="M 23 34 Q 35 33, 50 34 Q 65 33, 77 34 L 77 44 Q 65 45, 50 44 Q 35 45, 23 44 Z" fill="#2d1c11" stroke="#1c110a" stroke-width="1.2" />
                     <path d="M 28 37 Q 50 36, 72 37 M 32 41 Q 50 42, 68 41" stroke="#1c110a" stroke-width="0.8" fill="none" />
+                    <path d="M 38 35 Q 50 34.5, 62 35" stroke="#ff3d00" stroke-width="0.7" opacity="0.75" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.8s infinite alternate;" />
                     <ellipse cx="23" cy="39" rx="2" ry="5" fill="#a06c48" stroke="#1c110a" stroke-width="0.8" />
                     <ellipse cx="23" cy="39" rx="0.8" ry="2.2" fill="#5a3921" />
                     <ellipse cx="77" cy="39" rx="2" ry="5" fill="#a06c48" stroke="#1c110a" stroke-width="0.8" />
                     <ellipse cx="77" cy="39" rx="0.8" ry="2.2" fill="#5a3921" />
 
-                    <!-- Tronco 1 (Diagonal Izquierda a Derecha) -->
+                    <!-- 3. TRONCO 1 (Diagonal Izquierda a Derecha) -->
                     <g transform="rotate(12 50 31)">
-                      <path d="M 14 36 L 81 36 L 81 37 L 14 37 Z" fill="#1f120a" opacity="0.4" />
-                      <path d="M 14 24 Q 28 22, 42 24 Q 48 21, 54 24 Q 68 23, 81 25 L 81 37 Q 68 36, 54 37 Q 48 39, 42 37 Q 28 36, 14 37 Z" fill="#4d2f1d" stroke="#2d1a10" stroke-width="1.5" />
-                      <path d="M 20 28 C 30 26, 38 32, 48 29" stroke="#2d1a10" stroke-width="1" fill="none" />
-                      <path d="M 52 30 C 62 27, 70 33, 76 30" stroke="#2d1a10" stroke-width="1" fill="none" />
-                      <circle cx="48" cy="27" r="1.5" fill="#2d1a10" />
-                      <path d="M 38 24 Q 50 22, 62 24 L 59 37 Q 50 39, 39 37 Z" fill="#140d09" stroke="#080503" stroke-width="1" />
-                      <path d="M 42 27 Q 50 29, 58 27 M 40 33 Q 50 34, 60 33" stroke="#080503" stroke-width="0.8" fill="none" />
-                      <path d="M 81 25 A 3 6 0 0 1 81 37 A 3 6 0 0 1 81 25 Z" fill="#b07b53" stroke="#2d1a10" stroke-width="1.2" />
-                      <ellipse cx="81" cy="31" rx="1.2" ry="3.5" fill="none" stroke="#6b462c" stroke-width="0.6" />
+                      <path d="M 14 36 L 81 36 L 81 37.5 L 14 37.5 Z" fill="#1f120a" opacity="0.45" />
+                      <path d="M 14 24 Q 28 22, 42 24 Q 48 21, 54 24 Q 68 23, 81 25 L 81 37 Q 68 36, 54 37 Q 48 39, 42 37 Q 28 36, 14 37 Z" fill="#4d2f1d" stroke="#26150b" stroke-width="1.3" />
+                      <path d="M 18 27 C 24 25.5, 30 29, 36 27.5" stroke="#2a160b" stroke-width="0.9" fill="none" />
+                      <path d="M 64 28.5 C 70 27, 75 31, 79 29.5" stroke="#2a160b" stroke-width="0.9" fill="none" />
+                      <circle cx="27" cy="32" r="1.1" fill="#2a160b" />
+                      <circle cx="73" cy="32" r="1.2" fill="#2a160b" />
+                      
+                      <!-- SECCIÓN CARBONIZADA ROJO VIVO -->
+                      <path d="M 36 24.5 Q 48 22.5, 62 25 L 60 36.5 Q 48 38.5, 36 36.5 Z" fill="#ff1744" opacity="0.75" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.5s infinite alternate;" />
+                      <path d="M 35 24 Q 41 22.5, 48 23.5 Q 56 22, 63 24.5 L 61 37 Q 54 38.5, 47 37.5 Q 40 38.5, 36 36.8 Z" fill="url(#charcoalGrad)" stroke="#1a0804" stroke-width="0.9" />
+                      
+                      <polygon points="36,24.5 43,24 42,29.5 35.5,29" fill="url(#charcoalFacetWarm)" stroke="#2b0d06" stroke-width="0.5" />
+                      <polygon points="44,24 53,23.2 52,28.8 43.5,29.5" fill="#1c0a05" stroke="#2b0d06" stroke-width="0.5" />
+                      <polygon points="54,23.5 62,25 60.5,30 52.8,28.8" fill="url(#charcoalFacetWarm)" stroke="#2b0d06" stroke-width="0.5" />
+                      <polygon points="36,30 43,30.5 42,36.5 36.5,36" fill="#170703" stroke="#2b0d06" stroke-width="0.5" />
+                      <polygon points="44,30.5 53,29.8 52.5,37 43,36.8" fill="url(#charcoalFacetWarm)" stroke="#2b0d06" stroke-width="0.5" />
+                      <polygon points="54,30.2 60.5,30.8 59,36.8 53.5,37" fill="#1a0804" stroke="#2b0d06" stroke-width="0.5" />
+
+                      <!-- Grietas incandescentes vivas -->
+                      <path d="M 35.5 29 L 43.5 29.5 L 53 28.8 L 61 30" stroke="#ff3d00" stroke-width="1.2" fill="none" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.3s infinite alternate;" />
+                      <path d="M 43.5 24 L 43 37" stroke="#ff1744" stroke-width="1.0" fill="none" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.7s infinite alternate;" />
+                      <path d="M 53 23.5 L 52.8 37" stroke="#ff3d00" stroke-width="1.0" fill="none" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.4s infinite alternate;" />
+                      <path d="M 47.5 24 L 48 29" stroke="#ff9100" stroke-width="0.8" fill="none" />
+                      <path d="M 48 30 L 47.5 37" stroke="#ff9100" stroke-width="0.8" fill="none" />
+                      
+                      <path d="M 41 29.5 L 45 29.6" stroke="#fffde7" stroke-width="0.9" fill="none" filter="blur(0.2px)" />
+                      <path d="M 50.5 29 L 54.5 29.2" stroke="#fffde7" stroke-width="0.9" fill="none" filter="blur(0.2px)" />
+
+                      <path d="M 35 24 Q 40 23, 44 24" stroke="url(#ashDustGrad)" stroke-width="0.8" fill="none" />
+                      <path d="M 55 23.5 Q 59 24, 63 25" stroke="url(#ashDustGrad)" stroke-width="0.8" fill="none" />
+                      <path d="M 36 36.8 Q 42 38, 48 37.2" stroke="url(#ashDustGrad)" stroke-width="0.7" fill="none" />
+
+                      <path d="M 81 25 A 3 6 0 0 1 81 37 A 3 6 0 0 1 81 25 Z" fill="#b07b53" stroke="#26150b" stroke-width="1.2" />
+                      <ellipse cx="81" cy="31" rx="1.3" ry="3.6" fill="none" stroke="#6b462c" stroke-width="0.6" />
                       <ellipse cx="81" cy="31" rx="0.5" ry="1.5" fill="#4d2f1d" />
                     </g>
                     
-                    <!-- Tronco 2 (Diagonal Derecha a Izquierda, encima) -->
+                    <!-- 4. TRONCO 2 (Diagonal Derecha a Izquierda, encima) -->
                     <g transform="rotate(-12 50 31)">
-                      <path d="M 14 24 Q 28 23, 42 25 Q 48 22, 54 25 Q 68 22, 81 24 L 81 36 Q 68 37, 54 36 Q 48 34, 42 36 Q 28 37, 14 36 Z" fill="#5c3823" stroke="#372114" stroke-width="1.5" />
-                      <path d="M 18 31 C 28 29, 36 34, 46 31" stroke="#372114" stroke-width="1" fill="none" />
-                      <path d="M 54 28 C 64 30, 72 26, 78 29" stroke="#372114" stroke-width="1" fill="none" />
-                      <circle cx="36" cy="29" r="1.3" fill="#372114" />
-                      <path d="M 36 25 Q 50 23, 60 25 L 58 36 Q 50 38, 38 36 Z" fill="#140d09" stroke="#080503" stroke-width="1" />
-                      <path d="M 40 29 Q 50 28, 56 29 M 38 33 Q 50 32, 58 33" stroke="#080503" stroke-width="0.8" fill="none" />
-                      <path D="M 14 24 A 3 6 0 0 0 14 36 A 3 6 0 0 0 14 24 Z" fill="#bf8c60" stroke="#372114" stroke-width="1.2" />
-                      <ellipse cx="14" cy="30" rx="1.2" ry="3.5" fill="none" stroke="#754f33" stroke-width="0.6" />
+                      <path d="M 14 24 Q 28 23, 42 25 Q 48 22, 54 25 Q 68 22, 81 24 L 81 36 Q 68 37, 54 36 Q 48 34, 42 36 Q 28 37, 14 36 Z" fill="#5c3823" stroke="#2f190e" stroke-width="1.3" />
+                      <path d="M 19 31 C 26 29, 32 33.5, 37 31" stroke="#321a0e" stroke-width="0.9" fill="none" />
+                      <path d="M 62 29 C 68 31, 73 27, 78 29.5" stroke="#321a0e" stroke-width="0.9" fill="none" />
+                      <circle cx="28" cy="27" r="1.1" fill="#321a0e" />
+                      <circle cx="71" cy="33" r="1.2" fill="#321a0e" />
+
+                      <!-- SECCIÓN CARBONIZADA ROJO VIVO -->
+                      <path d="M 35 25 Q 48 23, 61 25.5 L 59 36 Q 48 38, 35 36 Z" fill="#ff1744" opacity="0.8" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.6s infinite alternate;" />
+                      <path d="M 34 24.5 Q 42 23, 50 23.8 Q 57 22.8, 62 25.2 L 60 36.5 Q 52 38, 45 36.8 Q 39 37.8, 35 36 Z" fill="url(#charcoalGrad)" stroke="#1a0804" stroke-width="0.9" />
+
+                      <polygon points="34.5,25 42.5,24.2 41.5,30 34,29.5" fill="#200a05" stroke="#300d06" stroke-width="0.5" />
+                      <polygon points="43.5,24.2 52,23.8 51.5,29.5 42.5,30" fill="url(#charcoalFacetWarm)" stroke="#300d06" stroke-width="0.5" />
+                      <polygon points="53,23.8 61.5,25.5 59.8,30.5 52,29.5" fill="#180703" stroke="#300d06" stroke-width="0.5" />
+                      <polygon points="34.5,30.2 42,30.8 41,36 35.2,35.5" fill="url(#charcoalFacetWarm)" stroke="#300d06" stroke-width="0.5" />
+                      <polygon points="42.8,30.8 51.8,30.2 51,36.5 42,36" fill="#1c0904" stroke="#300d06" stroke-width="0.5" />
+                      <polygon points="52.5,30.2 59.5,31 58.2,36.2 51.8,36.5" fill="url(#charcoalFacetWarm)" stroke="#300d06" stroke-width="0.5" />
+
+                      <path d="M 34 29.8 L 42.5 30.5 L 52 29.8 L 60.5 30.8" stroke="#ff3d00" stroke-width="1.2" fill="none" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.4s infinite alternate;" />
+                      <path d="M 42.5 24.2 L 41.8 36.2" stroke="#ff1744" stroke-width="1.1" fill="none" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.8s infinite alternate;" />
+                      <path d="M 52 23.8 L 51.5 36.5" stroke="#ff3d00" stroke-width="1.1" fill="none" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.5s infinite alternate;" />
+                      <path d="M 47 24 L 46.5 30" stroke="#ff9100" stroke-width="0.8" fill="none" />
+                      <path d="M 56 24.8 L 55.5 30.5" stroke="#ff9100" stroke-width="0.8" fill="none" />
+                      
+                      <path d="M 40 30.2 L 44 30.5" stroke="#fffde7" stroke-width="0.9" fill="none" filter="blur(0.2px)" />
+                      <path d="M 49.5 29.8 L 53.5 30.1" stroke="#fffde7" stroke-width="0.9" fill="none" filter="blur(0.2px)" />
+
+                      <path d="M 34 24.8 Q 40 23.5, 45 24.2" stroke="url(#ashDustGrad)" stroke-width="0.8" fill="none" />
+                      <path d="M 53 23.8 Q 58 24.5, 62 25.5" stroke="url(#ashDustGrad)" stroke-width="0.8" fill="none" />
+                      <path d="M 35 35.8 Q 43 37.2, 50 36.5" stroke="url(#ashDustGrad)" stroke-width="0.7" fill="none" />
+
+                      <path d="M 14 24 A 3 6 0 0 0 14 36 A 3 6 0 0 0 14 24 Z" fill="#bf8c60" stroke="#2f190e" stroke-width="1.2" />
+                      <ellipse cx="14" cy="30" rx="1.3" ry="3.6" fill="none" stroke="#754f33" stroke-width="0.6" />
                       <ellipse cx="14" cy="30" rx="0.5" ry="1.5" fill="#5c3823" />
                     </g>
 
-                    <!-- Grietas incandescentes -->
-                    <path d="M 45 30 L 53 31 L 52 33 L 44 32 Z" fill="#ff3d00" filter="blur(0.4px)" transform="rotate(12 50 31)" style="animation: emberPulse 1.4s infinite alternate;" />
-                    <path d="M 43 30 L 52 31 L 51 33 L 42 32 Z" fill="#ff9100" filter="blur(0.4px)" transform="rotate(-12 50 31)" style="animation: emberPulse 1.7s infinite alternate;" />
-                    <path d="M 48 26 L 55 27 L 54 28 L 47 27 Z" fill="#ffd54f" filter="blur(0.3px)" transform="rotate(12 50 31)" style="animation: emberPulse 1.1s infinite alternate;" />
+                    <!-- 5. CORAZÓN INCANDESCENTE CENTRAL AL ROJO VIVO -->
+                    <circle cx="48.5" cy="31" r="7.5" fill="url(#deepHeartHeat)" style="animation: deepEmberGlow 2s infinite alternate ease-in-out;" />
 
-                    <!-- Detalles de madera quemada / brasas -->
-                    <circle cx="48" cy="40" r="2.5" fill="#ff3d00" filter="blur(0.5px)" style="animation: emberPulse 1.5s infinite alternate;" />
-                    <circle cx="53" cy="42" r="1.8" fill="#ffb300" filter="blur(0.5px)" style="animation: emberPulse 1.2s infinite alternate;" />
-                    <circle cx="44" cy="43" r="1.5" fill="#ff3d00" filter="blur(0.5px)" style="animation: emberPulse 1.8s infinite alternate;" />
-                    <circle cx="49" cy="44" r="1.2" fill="#ffe082" filter="blur(0.3px)" style="animation: emberPulse 1.0s infinite alternate;" />
+                    <path d="M 42 28.5 L 50 29.8 L 56 28.8 L 53 33.5 L 45 33 Z" fill="#ff1744" opacity="0.9" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.3s infinite alternate;" />
+                    <path d="M 38 30.5 L 46 31.8 L 44.5 34.5 L 37.5 33.2 Z" fill="#d50000" opacity="0.85" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.7s infinite alternate;" />
+                    <path d="M 49 29.5 L 58 30.5 L 56 34 L 48 33 Z" fill="#ff1744" opacity="0.85" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.5s infinite alternate;" />
 
-                    <!-- Carbones encendidos en el suelo -->
-                    <circle cx="28" cy="45" r="1.8" fill="#2c1e15" />
-                    <circle cx="28" cy="45" r="1.0" fill="#ff3d00" style="animation: emberPulse 1.3s infinite alternate;" />
-                    <circle cx="70" cy="46" r="2.0" fill="#2c1e15" />
-                    <circle cx="70" cy="46" r="1.2" fill="#ff9100" style="animation: emberPulse 1.6s infinite alternate;" />
+                    <path d="M 44 29 L 49.5 30.5 L 54.5 29.5 L 52 33 L 45.5 32.2 Z" fill="#ff3d00" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.2s infinite alternate;" />
+                    <path d="M 39.5 31.2 L 45 32 L 43.8 33.8 L 38.5 33 Z" fill="#ff5722" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.6s infinite alternate;" />
+                    <path d="M 50 30 L 56.5 30.8 L 55 33.2 L 49 32.5 Z" fill="#ff5722" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.4s infinite alternate;" />
+
+                    <path d="M 45 29.8 L 49 30.8 L 53.5 30" stroke="#ffe082" stroke-width="1.2" fill="none" filter="blur(0.3px)" style="animation: emberPulse 1.1s infinite alternate;" />
+                    <path d="M 41 31.8 L 45 32.3" stroke="#ffd54f" stroke-width="1.0" fill="none" filter="blur(0.3px)" style="animation: emberPulse 1.4s infinite alternate;" />
+                    <path d="M 51 30.8 L 55.5 31.4" stroke="#ffe082" stroke-width="1.0" fill="none" filter="blur(0.3px)" style="animation: emberPulse 1.5s infinite alternate;" />
+
+                    <circle cx="48" cy="30.5" r="1.6" fill="#ffffff" filter="blur(0.2px)" style="animation: emberPulse 1.0s infinite alternate;" />
+                    <circle cx="52" cy="30.8" r="1.3" fill="#fff9c4" filter="blur(0.2px)" style="animation: emberPulse 1.3s infinite alternate;" />
+                    <circle cx="44" cy="32.2" r="1.2" fill="#fff9c4" filter="blur(0.2px)" style="animation: emberPulse 1.5s infinite alternate;" />
+                    <circle cx="49.5" cy="32.5" r="1.0" fill="#ffffff" filter="blur(0.15px)" style="animation: emberPulse 1.2s infinite alternate;" />
+
+                    <!-- 6. BRASAS ROJAS Y ASCOLAS EN EL LECHO DE CENIZAS -->
+                    <circle cx="47.5" cy="40.5" r="2.8" fill="#ff1744" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.4s infinite alternate;" />
+                    <circle cx="47.5" cy="40.5" r="1.6" fill="#ff9100" filter="blur(0.3px)" />
+                    <circle cx="53.5" cy="42" r="2.2" fill="#ff3d00" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.1s infinite alternate;" />
+                    <circle cx="53.5" cy="42" r="1.2" fill="#ffd54f" filter="blur(0.25px)" />
+                    <circle cx="43.5" cy="43.5" r="1.9" fill="#ff1744" filter="url(#emberGlowFilter)" style="animation: emberPulse 1.7s infinite alternate;" />
+                    <circle cx="43.5" cy="43.5" r="1.0" fill="#ff9100" filter="blur(0.25px)" />
+                    <circle cx="49" cy="44.2" r="1.4" fill="#ffab00" filter="blur(0.25px)" style="animation: emberPulse 0.9s infinite alternate;" />
+
+                    <polygon points="26,43 31,43.8 29.8,47 25.2,46.2" fill="#2d0c04" stroke="#ff1744" stroke-width="0.5" filter="url(#emberGlowFilter)" />
+                    <circle cx="28" cy="45" r="1.3" fill="#ff1744" filter="blur(0.3px)" style="animation: emberPulse 1.3s infinite alternate;" />
+                    <circle cx="28" cy="45" r="0.7" fill="#ffe082" />
+                    
+                    <polygon points="68,44 73.5,44.8 72.5,48 67.2,47.2" fill="#2d0c04" stroke="#ff3d00" stroke-width="0.5" filter="url(#emberGlowFilter)" />
+                    <circle cx="70" cy="46" r="1.4" fill="#ff3d00" filter="blur(0.3px)" style="animation: emberPulse 1.5s infinite alternate;" />
+                    <circle cx="70" cy="46" r="0.7" fill="#ffd54f" />
                   </g>
                 </svg>
 
@@ -1696,64 +1821,179 @@
                   <div class="spark-particle anim-spark-3" style="left: 45.9%; width: 1.9px; height: 1.9px; background: #ff9100; animation-duration: 4.19s; animation-delay: 2.49s; opacity: 0.7;"></div>
                    </div>
 
-                   <!-- Troncos SVG de Resumen (Mismo tamaño de base, mismo viewBox, alineado perfecto) -->
+                   <!-- Troncos SVG de Resumen con textura de carbón ultra-realista y calor incandescente rojo vivo -->
                    <svg viewBox="0 -15 100 115" style="width: 100%; height: 100%; z-index: 2; overflow: visible; position: absolute; top: 0; left: 0;">
-                     <g class="svg-logs-base" transform="translate(-6, 20) scale(1.08)">
-                       <!-- Base de ceniza/carbón en el suelo -->
-                       <ellipse cx="50" cy="45" rx="38" ry="7" fill="#140d09" opacity="0.85" />
-                       <ellipse cx="50" cy="45" rx="26" ry="5" fill="#080503" opacity="0.95" />
+                     <defs>
+                       <linearGradient id="charcoalGradSummary" x1="0%" y1="0%" x2="0%" y2="100%">
+                         <stop offset="0%" stop-color="#381309" />
+                         <stop offset="25%" stop-color="#200a04" />
+                         <stop offset="65%" stop-color="#0f0402" />
+                         <stop offset="100%" stop-color="#280e06" />
+                       </linearGradient>
+                       <linearGradient id="charcoalFacetWarmSummary" x1="0%" y1="0%" x2="100%" y2="100%">
+                         <stop offset="0%" stop-color="#4a1508" />
+                         <stop offset="35%" stop-color="#220b05" />
+                         <stop offset="75%" stop-color="#0d0402" />
+                         <stop offset="100%" stop-color="#2c0c04" />
+                       </linearGradient>
+                       <radialGradient id="deepHeartHeatSummary" cx="50%" cy="50%" r="50%">
+                         <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                         <stop offset="20%" stop-color="#fff59d" stop-opacity="0.9" />
+                         <stop offset="45%" stop-color="#ff3d00" stop-opacity="0.85" />
+                         <stop offset="75%" stop-color="#d50000" stop-opacity="0.6" />
+                         <stop offset="100%" stop-color="#7f0000" stop-opacity="0" />
+                       </radialGradient>
+                       <radialGradient id="bedEmbersRedSummary" cx="50%" cy="50%" r="50%">
+                         <stop offset="0%" stop-color="#ff1744" stop-opacity="0.9" />
+                         <stop offset="35%" stop-color="#ff3d00" stop-opacity="0.75" />
+                         <stop offset="70%" stop-color="#b71c1c" stop-opacity="0.45" />
+                         <stop offset="100%" stop-color="#b71c1c" stop-opacity="0" />
+                       </radialGradient>
+                       <linearGradient id="ashDustGradSummary" x1="0%" y1="0%" x2="100%" y2="0%">
+                         <stop offset="0%" stop-color="#8c7873" stop-opacity="0.4" />
+                         <stop offset="50%" stop-color="#e7e5e4" stop-opacity="0.8" />
+                         <stop offset="100%" stop-color="#785952" stop-opacity="0.35" />
+                       </linearGradient>
+                       <filter id="emberGlowFilterSummary" x="-40%" y="-40%" width="180%" height="180%">
+                         <feGaussianBlur stdDeviation="1.0" result="blur" />
+                         <feMerge>
+                           <feMergeNode in="blur" />
+                           <feMergeNode in="SourceGraphic" />
+                         </feMerge>
+                       </filter>
+                       <filter id="deepHeatBlurSummary" x="-30%" y="-30%" width="160%" height="160%">
+                         <feGaussianBlur stdDeviation="2.2" />
+                       </filter>
+                     </defs>
 
-                       <!-- Tronco Fondo (Horizontal en la base, corteza rugosa) -->
+                     <g class="svg-logs-base" transform="translate(-8, 38) scale(1.15)">
+                       <!-- 1. BASE DE CENIZA Y SUELO CALCINADO CON CALOR ROJO -->
+                       <ellipse cx="50" cy="45" rx="40" ry="8" fill="#140d09" opacity="0.9" />
+                       <ellipse cx="50" cy="45" rx="30" ry="6" fill="#080503" opacity="0.95" />
+                       <ellipse cx="49" cy="44" rx="26" ry="4.5" fill="url(#bedEmbersRedSummary)" filter="url(#deepHeatBlurSummary)" style="animation: deepEmberGlow 2.4s infinite alternate ease-in-out;" />
+                       <ellipse cx="48" cy="44.5" rx="20" ry="3.5" fill="#292524" opacity="0.5" />
+                       <ellipse cx="52" cy="44" rx="13" ry="2.2" fill="#57534e" opacity="0.35" />
+
+                       <!-- 2. TRONCO FONDO -->
                        <path d="M 23 34 Q 35 33, 50 34 Q 65 33, 77 34 L 77 44 Q 65 45, 50 44 Q 35 45, 23 44 Z" fill="#2d1c11" stroke="#1c110a" stroke-width="1.2" />
                        <path d="M 28 37 Q 50 36, 72 37 M 32 41 Q 50 42, 68 41" stroke="#1c110a" stroke-width="0.8" fill="none" />
+                       <path d="M 38 35 Q 50 34.5, 62 35" stroke="#ff3d00" stroke-width="0.7" opacity="0.75" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.8s infinite alternate;" />
                        <ellipse cx="23" cy="39" rx="2" ry="5" fill="#a06c48" stroke="#1c110a" stroke-width="0.8" />
                        <ellipse cx="23" cy="39" rx="0.8" ry="2.2" fill="#5a3921" />
                        <ellipse cx="77" cy="39" rx="2" ry="5" fill="#a06c48" stroke="#1c110a" stroke-width="0.8" />
                        <ellipse cx="77" cy="39" rx="0.8" ry="2.2" fill="#5a3921" />
 
-                       <!-- Tronco 1 (Diagonal Izquierda a Derecha) -->
+                       <!-- 3. TRONCO 1 (Diagonal Izquierda a Derecha) -->
                        <g transform="rotate(12 50 31)">
-                         <path d="M 14 36 L 81 36 L 81 37 L 14 37 Z" fill="#1f120a" opacity="0.4" />
-                         <path d="M 14 24 Q 28 22, 42 24 Q 48 21, 54 24 Q 68 23, 81 25 L 81 37 Q 68 36, 54 37 Q 48 39, 42 37 Q 28 36, 14 37 Z" fill="#4d2f1d" stroke="#2d1a10" stroke-width="1.5" />
-                         <path d="M 20 28 C 30 26, 38 32, 48 29" stroke="#2d1a10" stroke-width="1" fill="none" />
-                         <path d="M 52 30 C 62 27, 70 33, 76 30" stroke="#2d1a10" stroke-width="1" fill="none" />
-                         <circle cx="48" cy="27" r="1.5" fill="#2d1a10" />
-                         <path d="M 38 24 Q 50 22, 62 24 L 59 37 Q 50 39, 39 37 Z" fill="#140d09" stroke="#080503" stroke-width="1" />
-                         <path d="M 42 27 Q 50 29, 58 27 M 40 33 Q 50 34, 60 33" stroke="#080503" stroke-width="0.8" fill="none" />
-                         <path d="M 81 25 A 3 6 0 0 1 81 37 A 3 6 0 0 1 81 25 Z" fill="#b07b53" stroke="#2d1a10" stroke-width="1.2" />
-                         <ellipse cx="81" cy="31" rx="1.2" ry="3.5" fill="none" stroke="#6b462c" stroke-width="0.6" />
+                         <path d="M 14 36 L 81 36 L 81 37.5 L 14 37.5 Z" fill="#1f120a" opacity="0.45" />
+                         <path d="M 14 24 Q 28 22, 42 24 Q 48 21, 54 24 Q 68 23, 81 25 L 81 37 Q 68 36, 54 37 Q 48 39, 42 37 Q 28 36, 14 37 Z" fill="#4d2f1d" stroke="#26150b" stroke-width="1.3" />
+                         <path d="M 18 27 C 24 25.5, 30 29, 36 27.5" stroke="#2a160b" stroke-width="0.9" fill="none" />
+                         <path d="M 64 28.5 C 70 27, 75 31, 79 29.5" stroke="#2a160b" stroke-width="0.9" fill="none" />
+                         <circle cx="27" cy="32" r="1.1" fill="#2a160b" />
+                         <circle cx="73" cy="32" r="1.2" fill="#2a160b" />
+                         
+                         <!-- SECCIÓN CARBONIZADA ROJO VIVO -->
+                         <path d="M 36 24.5 Q 48 22.5, 62 25 L 60 36.5 Q 48 38.5, 36 36.5 Z" fill="#ff1744" opacity="0.75" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.5s infinite alternate;" />
+                         <path d="M 35 24 Q 41 22.5, 48 23.5 Q 56 22, 63 24.5 L 61 37 Q 54 38.5, 47 37.5 Q 40 38.5, 36 36.8 Z" fill="url(#charcoalGradSummary)" stroke="#1a0804" stroke-width="0.9" />
+                         
+                         <polygon points="36,24.5 43,24 42,29.5 35.5,29" fill="url(#charcoalFacetWarmSummary)" stroke="#2b0d06" stroke-width="0.5" />
+                         <polygon points="44,24 53,23.2 52,28.8 43.5,29.5" fill="#1c0a05" stroke="#2b0d06" stroke-width="0.5" />
+                         <polygon points="54,23.5 62,25 60.5,30 52.8,28.8" fill="url(#charcoalFacetWarmSummary)" stroke="#2b0d06" stroke-width="0.5" />
+                         <polygon points="36,30 43,30.5 42,36.5 36.5,36" fill="#170703" stroke="#2b0d06" stroke-width="0.5" />
+                         <polygon points="44,30.5 53,29.8 52.5,37 43,36.8" fill="url(#charcoalFacetWarmSummary)" stroke="#2b0d06" stroke-width="0.5" />
+                         <polygon points="54,30.2 60.5,30.8 59,36.8 53.5,37" fill="#1a0804" stroke="#2b0d06" stroke-width="0.5" />
+
+                         <path d="M 35.5 29 L 43.5 29.5 L 53 28.8 L 61 30" stroke="#ff3d00" stroke-width="1.2" fill="none" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.3s infinite alternate;" />
+                         <path d="M 43.5 24 L 43 37" stroke="#ff1744" stroke-width="1.0" fill="none" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.7s infinite alternate;" />
+                         <path d="M 53 23.5 L 52.8 37" stroke="#ff3d00" stroke-width="1.0" fill="none" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.4s infinite alternate;" />
+                         <path d="M 47.5 24 L 48 29" stroke="#ff9100" stroke-width="0.8" fill="none" />
+                         <path d="M 48 30 L 47.5 37" stroke="#ff9100" stroke-width="0.8" fill="none" />
+                         
+                         <path d="M 41 29.5 L 45 29.6" stroke="#fffde7" stroke-width="0.9" fill="none" filter="blur(0.2px)" />
+                         <path d="M 50.5 29 L 54.5 29.2" stroke="#fffde7" stroke-width="0.9" fill="none" filter="blur(0.2px)" />
+
+                         <path d="M 35 24 Q 40 23, 44 24" stroke="url(#ashDustGradSummary)" stroke-width="0.8" fill="none" />
+                         <path d="M 55 23.5 Q 59 24, 63 25" stroke="url(#ashDustGradSummary)" stroke-width="0.8" fill="none" />
+                         <path d="M 36 36.8 Q 42 38, 48 37.2" stroke="url(#ashDustGradSummary)" stroke-width="0.7" fill="none" />
+
+                         <path d="M 81 25 A 3 6 0 0 1 81 37 A 3 6 0 0 1 81 25 Z" fill="#b07b53" stroke="#26150b" stroke-width="1.2" />
+                         <ellipse cx="81" cy="31" rx="1.3" ry="3.6" fill="none" stroke="#6b462c" stroke-width="0.6" />
                          <ellipse cx="81" cy="31" rx="0.5" ry="1.5" fill="#4d2f1d" />
                        </g>
                        
-                       <!-- Tronco 2 (Diagonal Derecha a Izquierda, encima) -->
+                       <!-- 4. TRONCO 2 (Diagonal Derecha a Izquierda, encima) -->
                        <g transform="rotate(-12 50 31)">
-                         <path d="M 14 24 Q 28 23, 42 25 Q 48 22, 54 25 Q 68 22, 81 24 L 81 36 Q 68 37, 54 36 Q 48 34, 42 36 Q 28 37, 14 36 Z" fill="#5c3823" stroke="#372114" stroke-width="1.5" />
-                         <path d="M 18 31 C 28 29, 36 34, 46 31" stroke="#372114" stroke-width="1" fill="none" />
-                         <path d="M 54 28 C 64 30, 72 26, 78 29" stroke="#372114" stroke-width="1" fill="none" />
-                         <circle cx="36" cy="29" r="1.3" fill="#372114" />
-                         <path d="M 36 25 Q 50 23, 60 25 L 58 36 Q 50 38, 38 36 Z" fill="#140d09" stroke="#080503" stroke-width="1" />
-                         <path d="M 40 29 Q 50 28, 56 29 M 38 33 Q 50 32, 58 33" stroke="#080503" stroke-width="0.8" fill="none" />
-                         <path d="M 14 24 A 3 6 0 0 0 14 36 A 3 6 0 0 0 14 24 Z" fill="#bf8c60" stroke="#372114" stroke-width="1.2" />
-                         <ellipse cx="14" cy="30" rx="1.2" ry="3.5" fill="none" stroke="#754f33" stroke-width="0.6" />
+                         <path d="M 14 24 Q 28 23, 42 25 Q 48 22, 54 25 Q 68 22, 81 24 L 81 36 Q 68 37, 54 36 Q 48 34, 42 36 Q 28 37, 14 36 Z" fill="#5c3823" stroke="#2f190e" stroke-width="1.3" />
+                         <path d="M 19 31 C 26 29, 32 33.5, 37 31" stroke="#321a0e" stroke-width="0.9" fill="none" />
+                         <path d="M 62 29 C 68 31, 73 27, 78 29.5" stroke="#321a0e" stroke-width="0.9" fill="none" />
+                         <circle cx="28" cy="27" r="1.1" fill="#321a0e" />
+                         <circle cx="71" cy="33" r="1.2" fill="#321a0e" />
+
+                         <!-- SECCIÓN CARBONIZADA ROJO VIVO -->
+                         <path d="M 35 25 Q 48 23, 61 25.5 L 59 36 Q 48 38, 35 36 Z" fill="#ff1744" opacity="0.8" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.6s infinite alternate;" />
+                         <path d="M 34 24.5 Q 42 23, 50 23.8 Q 57 22.8, 62 25.2 L 60 36.5 Q 52 38, 45 36.8 Q 39 37.8, 35 36 Z" fill="url(#charcoalGradSummary)" stroke="#1a0804" stroke-width="0.9" />
+
+                         <polygon points="34.5,25 42.5,24.2 41.5,30 34,29.5" fill="#200a05" stroke="#300d06" stroke-width="0.5" />
+                         <polygon points="43.5,24.2 52,23.8 51.5,29.5 42.5,30" fill="url(#charcoalFacetWarmSummary)" stroke="#300d06" stroke-width="0.5" />
+                         <polygon points="53,23.8 61.5,25.5 59.8,30.5 52,29.5" fill="#180703" stroke="#300d06" stroke-width="0.5" />
+                         <polygon points="34.5,30.2 42,30.8 41,36 35.2,35.5" fill="url(#charcoalFacetWarmSummary)" stroke="#300d06" stroke-width="0.5" />
+                         <polygon points="42.8,30.8 51.8,30.2 51,36.5 42,36" fill="#1c0904" stroke="#300d06" stroke-width="0.5" />
+                         <polygon points="52.5,30.2 59.5,31 58.2,36.2 51.8,36.5" fill="url(#charcoalFacetWarmSummary)" stroke="#300d06" stroke-width="0.5" />
+
+                         <path d="M 34 29.8 L 42.5 30.5 L 52 29.8 L 60.5 30.8" stroke="#ff3d00" stroke-width="1.2" fill="none" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.4s infinite alternate;" />
+                         <path d="M 42.5 24.2 L 41.8 36.2" stroke="#ff1744" stroke-width="1.1" fill="none" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.8s infinite alternate;" />
+                         <path d="M 52 23.8 L 51.5 36.5" stroke="#ff3d00" stroke-width="1.1" fill="none" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.5s infinite alternate;" />
+                         <path d="M 47 24 L 46.5 30" stroke="#ff9100" stroke-width="0.8" fill="none" />
+                         <path d="M 56 24.8 L 55.5 30.5" stroke="#ff9100" stroke-width="0.8" fill="none" />
+                         
+                         <path d="M 40 30.2 L 44 30.5" stroke="#fffde7" stroke-width="0.9" fill="none" filter="blur(0.2px)" />
+                         <path d="M 49.5 29.8 L 53.5 30.1" stroke="#fffde7" stroke-width="0.9" fill="none" filter="blur(0.2px)" />
+
+                         <path d="M 34 24.8 Q 40 23.5, 45 24.2" stroke="url(#ashDustGradSummary)" stroke-width="0.8" fill="none" />
+                         <path d="M 53 23.8 Q 58 24.5, 62 25.5" stroke="url(#ashDustGradSummary)" stroke-width="0.8" fill="none" />
+                         <path d="M 35 35.8 Q 43 37.2, 50 36.5" stroke="url(#ashDustGradSummary)" stroke-width="0.7" fill="none" />
+
+                         <path d="M 14 24 A 3 6 0 0 0 14 36 A 3 6 0 0 0 14 24 Z" fill="#bf8c60" stroke="#2f190e" stroke-width="1.2" />
+                         <ellipse cx="14" cy="30" rx="1.3" ry="3.6" fill="none" stroke="#754f33" stroke-width="0.6" />
                          <ellipse cx="14" cy="30" rx="0.5" ry="1.5" fill="#5c3823" />
                        </g>
 
-                       <!-- Grietas incandescentes -->
-                       <path d="M 45 30 L 53 31 L 52 33 L 44 32 Z" fill="#ff3d00" filter="blur(0.4px)" transform="rotate(12 50 31)" style="animation: emberPulse 1.4s infinite alternate;" />
-                       <path d="M 43 30 L 52 31 L 51 33 L 42 32 Z" fill="#ff9100" filter="blur(0.4px)" transform="rotate(-12 50 31)" style="animation: emberPulse 1.7s infinite alternate;" />
-                       <path d="M 48 26 L 55 27 L 54 28 L 47 27 Z" fill="#ffd54f" filter="blur(0.3px)" transform="rotate(12 50 31)" style="animation: emberPulse 1.1s infinite alternate;" />
+                       <!-- 5. CORAZÓN INCANDESCENTE CENTRAL AL ROJO VIVO -->
+                       <circle cx="48.5" cy="31" r="7.5" fill="url(#deepHeartHeatSummary)" style="animation: deepEmberGlow 2s infinite alternate ease-in-out;" />
 
-                       <!-- Detalles de madera quemada / brasas -->
-                       <circle cx="48" cy="40" r="2.5" fill="#ff3d00" filter="blur(0.5px)" style="animation: emberPulse 1.5s infinite alternate;" />
-                       <circle cx="53" cy="42" r="1.8" fill="#ffb300" filter="blur(0.5px)" style="animation: emberPulse 1.2s infinite alternate;" />
-                       <circle cx="44" cy="43" r="1.5" fill="#ff3d00" filter="blur(0.5px)" style="animation: emberPulse 1.8s infinite alternate;" />
-                       <circle cx="49" cy="44" r="1.2" fill="#ffe082" filter="blur(0.3px)" style="animation: emberPulse 1.0s infinite alternate;" />
+                       <path d="M 42 28.5 L 50 29.8 L 56 28.8 L 53 33.5 L 45 33 Z" fill="#ff1744" opacity="0.9" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.3s infinite alternate;" />
+                       <path d="M 38 30.5 L 46 31.8 L 44.5 34.5 L 37.5 33.2 Z" fill="#d50000" opacity="0.85" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.7s infinite alternate;" />
+                       <path d="M 49 29.5 L 58 30.5 L 56 34 L 48 33 Z" fill="#ff1744" opacity="0.85" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.5s infinite alternate;" />
 
-                       <!-- Carbones encendidos -->
-                       <circle cx="28" cy="45" r="1.8" fill="#2c1e15" />
-                       <circle cx="28" cy="45" r="1.0" fill="#ff3d00" style="animation: emberPulse 1.3s infinite alternate;" />
-                    <ellipse cx="70" cy="46" r="2.0" fill="#2c1e15" />
-                       <circle cx="70" cy="46" r="1.2" fill="#ff9100" style="animation: emberPulse 1.6s infinite alternate;" />
+                       <path d="M 44 29 L 49.5 30.5 L 54.5 29.5 L 52 33 L 45.5 32.2 Z" fill="#ff3d00" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.2s infinite alternate;" />
+                       <path d="M 39.5 31.2 L 45 32 L 43.8 33.8 L 38.5 33 Z" fill="#ff5722" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.6s infinite alternate;" />
+                       <path d="M 50 30 L 56.5 30.8 L 55 33.2 L 49 32.5 Z" fill="#ff5722" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.4s infinite alternate;" />
+
+                       <path d="M 45 29.8 L 49 30.8 L 53.5 30" stroke="#ffe082" stroke-width="1.2" fill="none" filter="blur(0.3px)" style="animation: emberPulse 1.1s infinite alternate;" />
+                       <path d="M 41 31.8 L 45 32.3" stroke="#ffd54f" stroke-width="1.0" fill="none" filter="blur(0.3px)" style="animation: emberPulse 1.4s infinite alternate;" />
+                       <path d="M 51 30.8 L 55.5 31.4" stroke="#ffe082" stroke-width="1.0" fill="none" filter="blur(0.3px)" style="animation: emberPulse 1.5s infinite alternate;" />
+
+                       <circle cx="48" cy="30.5" r="1.6" fill="#ffffff" filter="blur(0.2px)" style="animation: emberPulse 1.0s infinite alternate;" />
+                       <circle cx="52" cy="30.8" r="1.3" fill="#fff9c4" filter="blur(0.2px)" style="animation: emberPulse 1.3s infinite alternate;" />
+                       <circle cx="44" cy="32.2" r="1.2" fill="#fff9c4" filter="blur(0.2px)" style="animation: emberPulse 1.5s infinite alternate;" />
+                       <circle cx="49.5" cy="32.5" r="1.0" fill="#ffffff" filter="blur(0.15px)" style="animation: emberPulse 1.2s infinite alternate;" />
+
+                       <!-- 6. BRASAS ROJAS Y ASCOLAS EN EL LECHO DE CENIZAS -->
+                       <circle cx="47.5" cy="40.5" r="2.8" fill="#ff1744" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.4s infinite alternate;" />
+                       <circle cx="47.5" cy="40.5" r="1.6" fill="#ff9100" filter="blur(0.3px)" />
+                       <circle cx="53.5" cy="42" r="2.2" fill="#ff3d00" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.1s infinite alternate;" />
+                       <circle cx="53.5" cy="42" r="1.2" fill="#ffd54f" filter="blur(0.25px)" />
+                       <circle cx="43.5" cy="43.5" r="1.9" fill="#ff1744" filter="url(#emberGlowFilterSummary)" style="animation: emberPulse 1.7s infinite alternate;" />
+                       <circle cx="43.5" cy="43.5" r="1.0" fill="#ff9100" filter="blur(0.25px)" />
+                       <circle cx="49" cy="44.2" r="1.4" fill="#ffab00" filter="blur(0.25px)" style="animation: emberPulse 0.9s infinite alternate;" />
+
+                       <polygon points="26,43 31,43.8 29.8,47 25.2,46.2" fill="#2d0c04" stroke="#ff1744" stroke-width="0.5" filter="url(#emberGlowFilterSummary)" />
+                       <circle cx="28" cy="45" r="1.3" fill="#ff1744" filter="blur(0.3px)" style="animation: emberPulse 1.3s infinite alternate;" />
+                       <circle cx="28" cy="45" r="0.7" fill="#ffe082" />
+                       
+                       <polygon points="68,44 73.5,44.8 72.5,48 67.2,47.2" fill="#2d0c04" stroke="#ff3d00" stroke-width="0.5" filter="url(#emberGlowFilterSummary)" />
+                       <circle cx="70" cy="46" r="1.4" fill="#ff3d00" filter="blur(0.3px)" style="animation: emberPulse 1.5s infinite alternate;" />
+                       <circle cx="70" cy="46" r="0.7" fill="#ffd54f" />
                      </g>
                    </svg>
                 </div>
