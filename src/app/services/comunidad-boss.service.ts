@@ -158,24 +158,19 @@ export class ComunidadBossService {
     }));
   }
 
-  // Infligir daño directo al Jefe (completar sesión o sapo)
-  dealDamage(amount: number, isCritical = false) {
-    let finalAmount = amount;
-
-    // Bonificador Premium (+25% de daño de enfoque)
-    if (this.membership.isPremium()) {
-      finalAmount = Math.round(finalAmount * 1.25);
-    }
+  // Infligir daño directo al Jefe (exactamente el daño de la ficha del avatar)
+  dealDamage(amount: number) {
+    const finalAmount = amount;
 
     // Incrementar daño total del usuario
     this.userDamageDealt.update(d => d + finalAmount);
 
-    // Enviar transacción atómica a Supabase RPC
+    // Enviar transacción a Supabase RPC
     if (this.supabaseService.isConfigured()) {
       this.supabaseService.dealBossDamage(
         this.activeBoss().type,
         finalAmount,
-        isCritical,
+        false,
         this.membership.userName() || 'Guerrero'
       ).catch(err => console.warn('[Supabase Boss Damage Error]', err));
     }
@@ -193,9 +188,7 @@ export class ComunidadBossService {
         this.membership.proCoins.update(c => c + 150);
         return { ...boss, currentHp: 0, status: 'defeated' };
       } else {
-        const text = isCritical
-          ? `💥 ¡GOLPE CRÍTICO! Has infligido ${finalAmount} de daño con tu Sapo.`
-          : `⚔️ Has infligido ${finalAmount} de daño con tu Pomodoro.`;
+        const text = `⚔️ Has infligido ${finalAmount} de daño con tu Pomodoro.`;
         this.addLog(text);
         return { ...boss, currentHp: newHp };
       }

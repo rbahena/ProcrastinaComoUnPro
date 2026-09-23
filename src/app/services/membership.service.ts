@@ -930,21 +930,28 @@ export class MembershipService {
     return { points: pointsEarned, coins: coinsEarned, tomatoes: tomatoesEarned, isNew: true };
   }
 
-  // Monedas aportadas por cada avatar al completar un pomodoro (referencia)
+  // Puntos de daño al Boss de la Comunidad aportados por el avatar (100% dinámico desde Supabase)
+  getAvatarDamagePoints(avatarId: string): number {
+    const item = this.catalogItems().find(i => i.id === avatarId);
+    return item?.boss_damage_points ?? 20;
+  }
+
+  // Puntos de curación del Boss por distracción/abandono según el avatar (100% dinámico desde Supabase)
+  getAvatarHealPoints(avatarId: string): number {
+    const item = this.catalogItems().find(i => i.id === avatarId);
+    return item?.boss_heal_points ?? 10;
+  }
+
+  // Monedas aportadas por cada avatar al completar un pomodoro (100% dinámico desde Supabase)
   getAvatarCoinsPerPomodoro(avatarId: string): number {
-    switch (avatarId) {
-      case 'dragon': return 25;
-      case 'grifo': return 24;
-      case 'fenix': return 22;
-      case 'lobo': return 16;
-      case 'leon': case 'tigre': return 15;
-      case 'oso': case 'elefante': return 14;
-      case 'zorro': case 'lince': case 'panda': return 12;
-      case 'buho': case 'aguila': case 'abeja': return 9;
-      case 'tortuga': case 'hormiga': case 'rana': case 'castor': return 8;
-      case 'conejo': case 'hamster': return 6;
-      default: return 5;
-    }
+    const item = this.catalogItems().find(i => i.id === avatarId);
+    return item?.coins_per_pomodoro ?? 10;
+  }
+
+  // Penalización de monedas por pausa/abandono (100% dinámico desde Supabase)
+  getAvatarPausePenalty(avatarId: string): number {
+    const item = this.catalogItems().find(i => i.id === avatarId);
+    return item?.pause_penalty_coins ?? 5;
   }
 
   // Intentar recompensar objetivo terminado (idempotente)

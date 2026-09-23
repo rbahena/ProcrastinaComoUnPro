@@ -2587,15 +2587,13 @@ export class Enfoque implements OnInit, OnDestroy {
         const sessionId = `session-${Date.now()}`;
         this.membership.rewardCompletedSession(sessionId, isShared);
         
-        // Daño adicional al Boss por completar el Pomodoro en la Comunidad
+        // Daño al Boss por completar el Pomodoro en la Comunidad (únicamente el daño marcado en la ficha del avatar)
         if (isShared) {
-          const isCritical = this.activeMethodology() === 'sapo';
-          const damage = isCritical ? 300 : 100;
-          this.bossService.dealDamage(damage, isCritical);
+          const equippedAvatar = this.membership.selectedAvatar() || 'gato';
+          const damage = this.membership.getAvatarDamagePoints(equippedAvatar);
+          this.bossService.dealDamage(damage);
           
-          const eventText = isCritical 
-            ? `🔥 ¡CRÍTICO! ${this.userName()} completó su Sapo e infligió ${damage} de daño al Boss.`
-            : `🗡️ ${this.userName()} completó su Pomodoro e infligió ${damage} de daño al Boss.`;
+          const eventText = `🗡️ ${this.userName()} completó su Pomodoro e infligió ${damage} de daño al Boss.`;
           this.addComunidadEvent(eventText, 'complete');
         }
         
@@ -4235,24 +4233,9 @@ export class Enfoque implements OnInit, OnDestroy {
         this.timeLeft.set(remaining);
         this.updateLiveTabTitle();
 
-        // Simulación en tiempo real del Templo Comunitario y daño del Jefe
+        // Simulación en tiempo real del Templo Comunitario
         if (this.coworkingMode() === 'comunitario' && remaining > 0) {
           this.partnerSessionTicks.update(ticks => ticks + 1);
-          if (!this.isBreak() && this.bossService.activeBoss().status === 'active') {
-            // El usuario inflige 1 de daño continuo por segundo
-            this.bossService.activeBoss.update(boss => {
-              if (boss.status === 'defeated') return boss;
-              const nextHp = Math.max(0, boss.currentHp - 1);
-              if (nextHp === 0) {
-                setTimeout(() => {
-                  this.bossService.addLog(`🏆 ¡VICTORIA! Has asestado el golpe final a ${boss.name}.`);
-                  this.membership.proCoins.update(c => c + 150);
-                }, 0);
-                return { ...boss, currentHp: 0, status: 'defeated' };
-              }
-              return { ...boss, currentHp: nextHp };
-            });
-          }
         }
 
         if (remaining <= 0) {
