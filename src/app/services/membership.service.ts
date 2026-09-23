@@ -927,6 +927,9 @@ export class MembershipService {
       this.addFocusPoints(pointsEarned);
     }
 
+    // Actualizar racha y progreso de Constancia de inmediato
+    this.updateStreakProgress();
+
     return { points: pointsEarned, coins: coinsEarned, tomatoes: tomatoesEarned, isNew: true };
   }
 

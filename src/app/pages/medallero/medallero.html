@@ -40,17 +40,28 @@
           <div class="flip-card">
             <div class="flip-card-inner">
               
-              <!-- Cara Frontal (Avatar ocupa toda la card) -->
+              <!-- Cara Frontal (Avatar ocupa toda la card si está asignado) -->
               <div class="flip-card-front">
-                <!-- El Avatar como fondo completo -->
-                <div [class]="'avatar-sprite sprite-' + record.avatar" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
+                <!-- El Avatar como fondo completo SOLO si está asignado y tiene avatar -->
+                <div *ngIf="record.isAssigned && record.avatar" 
+                     [class]="'avatar-sprite sprite-' + record.avatar" 
+                     style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
                 
+                <!-- Placeholder visual si no hay usuario asignado (sin imágenes ni avatares) -->
+                <div *ngIf="!record.isAssigned || !record.avatar" 
+                     style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, rgba(10, 10, 15, 0.95) 100%);">
+                  <div style="width: 110px; height: 110px; border-radius: 50%; background: rgba(255, 255, 255, 0.02); border: 2px dashed rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; margin-bottom: 60px; box-shadow: inset 0 2px 12px rgba(0,0,0,0.6);">
+                    <i [class]="'fa-solid ' + record.icon" [style.color]="record.color" style="font-size: 40px; opacity: 0.45; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"></i>
+                  </div>
+                </div>
+
                 <!-- Banner Degradado Inferior para los Textos -->
                 <div class="card-front-banner">
-                  <!-- Nombre del Poseedor con Bandera -->
+                  <!-- Nombre del Poseedor con Bandera (Bandera solo si está asignado) -->
                   <h4 class="card-holder-name" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
                     <span>{{ record.holder }}</span>
-                    <img [src]="'https://flagcdn.com/w40/' + record.flag + '.png'" 
+                    <img *ngIf="record.isAssigned && record.flag" 
+                         [src]="'https://flagcdn.com/w40/' + record.flag + '.png'" 
                          [alt]="record.flag" 
                          style="width: 20px; height: auto; border-radius: 2px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: inline-block;">
                   </h4>
@@ -116,18 +127,20 @@
                   
                   <div class="card-back-stat-row" style="border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
                     <span class="card-back-stat-label">Establecido por</span>
-                    <span class="card-back-stat-value">{{ record.holder }}</span>
+                    <span class="card-back-stat-value" [style.color]="record.isAssigned ? 'var(--text)' : 'var(--muted)'">{{ record.holder }}</span>
                   </div>
                   
                   <div class="card-back-stat-row">
-                    <span class="card-back-stat-label">Última actualización</span>
-                    <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 10.5px;">{{ getFormattedToday() }}</span>
+                    <span class="card-back-stat-label">Estado</span>
+                    <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 10.5px;">
+                      {{ record.isAssigned ? record.date : 'En disputa' }}
+                    </span>
                   </div>
 
                   <!-- Redes Sociales -->
                   <div class="card-back-stat-row" style="border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
                     <span class="card-back-stat-label">Redes / Contacto</span>
-                    <div style="display: flex; gap: 8px; align-items: center;">
+                    <div *ngIf="record.isAssigned && record.socials && record.socials.length > 0; else noSocials" style="display: flex; gap: 8px; align-items: center;">
                       <a *ngFor="let social of record.socials" [href]="social.link" target="_blank" [title]="social.platform" 
                          [style.color]="record.color"
                          style="font-size: 13px; opacity: 0.8; transition: all 0.2s; display: inline-flex;" 
@@ -136,6 +149,9 @@
                         <i [class]="'fa-brands ' + social.icon"></i>
                       </a>
                     </div>
+                    <ng-template #noSocials>
+                      <span style="font-size: 10.5px; color: var(--muted); font-style: italic;">Sin usuario asignado</span>
+                    </ng-template>
                   </div>
                 </div>
               </div>
