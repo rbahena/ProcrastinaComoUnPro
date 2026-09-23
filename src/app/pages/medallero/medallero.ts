@@ -66,8 +66,83 @@ export class Medallero implements OnInit, OnDestroy {
   sidebarCollapsed = this.membership.sidebarCollapsed;
   userName = this.membership.userName;
 
+  // Modo de vista principal: 'records_3d' | 'signifier_map' | 'weekly_podium'
+  viewMode = signal<'records_3d' | 'signifier_map' | 'weekly_podium'>('records_3d');
+
+  // Categoría activa dentro del Mapa de Significadores
+  activeSignifierCategory = signal<'podiums' | 'streaks' | 'broken_records' | 'ranks' | 'qualities' | 'economy'>('podiums');
+
   // Indice activo de la tarjeta en el slider full-screen
   activeCardIndex = signal(0);
+
+  // Computados para el Mapa de Significadores y Estado del Usuario
+  userLevel = computed(() => Math.floor(this.membership.focusTomatoes() / 4) + 1);
+
+  userRankName = computed(() => {
+    const lvl = this.userLevel();
+    if (lvl >= 30) return 'Comandante Supremo';
+    if (lvl >= 20) return 'Gran Maestro';
+    if (lvl >= 15) return 'Estratega Élite';
+    if (lvl >= 10) return 'Guerrero Veterano';
+    if (lvl >= 5) return 'Centinela';
+    return 'Recluta de Enfoque';
+  });
+
+  userRankIcon = computed(() => {
+    const lvl = this.userLevel();
+    if (lvl >= 30) return 'fa-crown';
+    if (lvl >= 20) return 'fa-dragon';
+    if (lvl >= 15) return 'fa-bolt';
+    if (lvl >= 10) return 'fa-shield-halved';
+    if (lvl >= 5) return 'fa-feather';
+    return 'fa-seedling';
+  });
+
+  userRankNextTomatoes = computed(() => {
+    const t = this.membership.focusTomatoes();
+    const lvl = this.userLevel();
+    let nextThreshold = 16;
+    if (lvl < 5) nextThreshold = 16;
+    else if (lvl < 10) nextThreshold = 36;
+    else if (lvl < 15) nextThreshold = 56;
+    else if (lvl < 20) nextThreshold = 76;
+    else if (lvl < 30) nextThreshold = 116;
+    else return 0;
+    return Math.max(0, nextThreshold - t);
+  });
+
+  userRankProgressPercent = computed(() => {
+    const t = this.membership.focusTomatoes();
+    const lvl = this.userLevel();
+    if (lvl >= 30) return 100;
+    let start = 0;
+    let end = 16;
+    if (lvl >= 20) { start = 76; end = 116; }
+    else if (lvl >= 15) { start = 56; end = 76; }
+    else if (lvl >= 10) { start = 36; end = 56; }
+    else if (lvl >= 5) { start = 16; end = 36; }
+    else { start = 0; end = 16; }
+    const pct = Math.round(((t - start) / (end - start)) * 100);
+    return Math.min(100, Math.max(0, pct));
+  });
+
+  unlockedQualitiesCount = computed(() => 
+    this.membership.qualitiesCatalog().filter(q => q.isUnlocked).length
+  );
+
+  userStreak = computed(() => this.membership.streak());
+  userPodiumWins = computed(() => this.membership.podiumWins());
+  userGoldMedals = computed(() => this.membership.goldMedals());
+  userSilverMedals = computed(() => this.membership.silverMedals());
+  userBronzeMedals = computed(() => this.membership.bronzeMedals());
+
+  setViewMode(mode: 'records_3d' | 'signifier_map' | 'weekly_podium') {
+    this.viewMode.set(mode);
+  }
+
+  setSignifierCategory(cat: 'podiums' | 'streaks' | 'broken_records' | 'ranks' | 'qualities' | 'economy') {
+    this.activeSignifierCategory.set(cat);
+  }
 
   // Datos en vivo desde Supabase
   private realtimeChannel: any = null;

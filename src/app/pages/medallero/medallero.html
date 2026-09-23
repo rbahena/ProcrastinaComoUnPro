@@ -7,18 +7,45 @@
   <!-- MAIN WORKSPACE -->
   <div class="main">
     
-    <!-- Cabecera de Página -->
+    <!-- CABECERA DE PÁGINA -->
     <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
       <div>
         <h1 class="page-title" style="margin: 0; display: flex; align-items: center; gap: 12px;">
-          Récords de la Comunidad
+          Récords & Medallero
         </h1>
-        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">Conoce los récords de nuestros usuarios y las marcas históricas que han alcanzado en su camino al enfoque.</p>
+        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">Conoce las marcas históricas, el mapa de significadores y la contienda semanal del Dojo.</p>
+      </div>
+
+      <!-- SELECTOR DE VISTAS PRINCIPALES (TABS) -->
+      <div class="header-view-switcher">
+        <button class="view-switcher-btn" 
+                [class.active]="viewMode() === 'records_3d'" 
+                (click)="setViewMode('records_3d')">
+          <i class="fa-solid fa-trophy"></i>
+          <span>Salón de Récords</span>
+        </button>
+
+        <button class="view-switcher-btn" 
+                [class.active]="viewMode() === 'signifier_map'" 
+                (click)="setViewMode('signifier_map')">
+          <i class="fa-solid fa-compass-drafting"></i>
+          <span>Mapa de Significadores</span>
+          <span class="guide-glow-pill">Guía</span>
+        </button>
+
+        <button class="view-switcher-btn" 
+                [class.active]="viewMode() === 'weekly_podium'" 
+                (click)="setViewMode('weekly_podium')">
+          <i class="fa-solid fa-ranking-star"></i>
+          <span>Podios Semanales</span>
+        </button>
       </div>
     </div>
 
-    <!-- CONTENEDOR DEL SLIDER DE TARJETAS (OCUPA TODO EL ALTO RESTANTE) -->
-    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-top: 24px; min-height: 0; width: 100%;">
+    <!-- ========================================================================= -->
+    <!-- VISTA 1: SALÓN DE RÉCORDS 3D (SLIDER HOLOGRÁFICO)                        -->
+    <!-- ========================================================================= -->
+    <div *ngIf="viewMode() === 'records_3d'" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-top: 18px; min-height: 0; width: 100%;">
       
       <!-- Contenedor del Deck 3D -->
       <div class="cards-slider-container">
@@ -42,12 +69,10 @@
               
               <!-- Cara Frontal (Avatar ocupa toda la card si está asignado) -->
               <div class="flip-card-front">
-                <!-- El Avatar como fondo completo SOLO si está asignado y tiene avatar -->
                 <div *ngIf="record.isAssigned && record.avatar" 
                      [class]="'avatar-sprite sprite-' + record.avatar" 
                      style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
                 
-                <!-- Placeholder visual si no hay usuario asignado (sin imágenes ni avatares) -->
                 <div *ngIf="!record.isAssigned || !record.avatar" 
                      style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, rgba(10, 10, 15, 0.95) 100%);">
                   <div style="width: 110px; height: 110px; border-radius: 50%; background: rgba(255, 255, 255, 0.02); border: 2px dashed rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; margin-bottom: 60px; box-shadow: inset 0 2px 12px rgba(0,0,0,0.6);">
@@ -55,9 +80,7 @@
                   </div>
                 </div>
 
-                <!-- Banner Degradado Inferior para los Textos -->
                 <div class="card-front-banner">
-                  <!-- Nombre del Poseedor con Bandera (Bandera solo si está asignado) -->
                   <h4 class="card-holder-name" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
                     <span>{{ record.holder }}</span>
                     <img *ngIf="record.isAssigned && record.flag" 
@@ -66,12 +89,10 @@
                          style="width: 20px; height: auto; border-radius: 2px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: inline-block;">
                   </h4>
                   
-                  <!-- Nombre de Récord -->
                   <span class="card-record-badge" [style.color]="record.color">
                     {{ record.title }}
                   </span>
                   
-                  <!-- Pista interactiva -->
                   <span class="card-flip-hint">
                     <i class="fa-solid fa-arrows-rotate"></i> Pasa el cursor para girar
                   </span>
@@ -105,7 +126,6 @@
                     {{ record.description }}
                   </p>
                   <div style="margin-top: 14px; padding: 10px 14px; background: linear-gradient(to right, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 75%, transparent 100%); border-radius: 6px; display: flex; gap: 10px; align-items: flex-start; text-align: left; box-sizing: border-box;">
-                    <!-- Punto Neón Brillante -->
                     <span [style.background]="record.color" 
                           [style.boxShadow]="'0 0 10px ' + record.color" 
                           style="width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-top: 5px;"></span>
@@ -116,7 +136,6 @@
                   </div>
                 </div>
 
-                <!-- Estadísticas de Récord -->
                 <div class="card-back-stats">
                   <div class="card-back-stat-row">
                     <span class="card-back-stat-label">Récord Histórico</span>
@@ -137,7 +156,6 @@
                     </span>
                   </div>
 
-                  <!-- Redes Sociales -->
                   <div class="card-back-stat-row" style="border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
                     <span class="card-back-stat-label">Redes / Contacto</span>
                     <div *ngIf="record.isAssigned && record.socials && record.socials.length > 0; else noSocials" style="display: flex; gap: 8px; align-items: center;">
@@ -173,6 +191,807 @@
               class="slider-dot" 
               [class.active]="i === activeCardIndex()"
               (click)="setCard(i)"></span>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- VISTA 2: MAPA DE SIGNIFICADORES & CRITERIOS DE CALIFICACIÓN              -->
+    <!-- ========================================================================= -->
+    <div *ngIf="viewMode() === 'signifier_map'" class="signifier-map-page-wrapper">
+      
+      <!-- HERO DE BIENVENIDA DEL MAPA -->
+      <div class="signifier-map-hero-panel">
+        <div class="hero-map-left">
+          <div class="hero-badge-pill">
+            <i class="fa-solid fa-compass"></i>
+            <span>SISTEMA DE CALIFICACIÓN & SIGNIFICADORES</span>
+          </div>
+          <h2 class="hero-map-title">¿Cómo calificar para Podios, Rachas y Récords?</h2>
+          <p class="hero-map-desc">
+            En COFU, cada logro tiene un significado concreto y un criterio de evaluación algorítmica transparente. Explora las categorías para dominar las reglas del Dojo.
+          </p>
+        </div>
+
+        <!-- TU RESUMEN RÁPIDO DE CALIFICACIÓN -->
+        <div class="hero-map-user-card">
+          <div class="user-card-header">
+            <span class="user-card-avatar-pill">
+              <i [class]="'avatar-sprite sprite-' + (membership.selectedAvatar() || 'gato')" style="width: 28px; height: 28px; border-radius: 50%; display: inline-block;"></i>
+              <strong>{{ userName() }}</strong>
+            </span>
+            <span class="user-card-rank-tag">
+              <i [class]="'fa-solid ' + userRankIcon()"></i> {{ userRankName() }} (Nv. {{ userLevel() }})
+            </span>
+          </div>
+          
+          <div class="user-card-stats-grid">
+            <div class="user-card-stat">
+              <span class="stat-lbl">Racha Activa</span>
+              <span class="stat-val text-fire">🔥 {{ userStreak() }} días</span>
+            </div>
+            <div class="user-card-stat">
+              <span class="stat-lbl">Tomates 🍅</span>
+              <span class="stat-val text-green">{{ membership.focusTomatoes() }}</span>
+            </div>
+            <div class="user-card-stat">
+              <span class="stat-lbl">Victorias Podio</span>
+              <span class="stat-val text-yellow">🏆 {{ userPodiumWins() }}</span>
+            </div>
+            <div class="user-card-stat">
+              <span class="stat-lbl">Medallas Totales</span>
+              <span class="stat-val text-accent">🥇{{ userGoldMedals() }} 🥈{{ userSilverMedals() }} 🥉{{ userBronzeMedals() }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SELECTOR DE CATEGORÍAS DEL MAPA -->
+      <div class="signifier-category-tabs">
+        <button class="signifier-cat-btn" 
+                [class.active]="activeSignifierCategory() === 'podiums'" 
+                (click)="setSignifierCategory('podiums')">
+          <i class="fa-solid fa-trophy"></i>
+          <span>Podios Semanales</span>
+        </button>
+
+        <button class="signifier-cat-btn" 
+                [class.active]="activeSignifierCategory() === 'streaks'" 
+                (click)="setSignifierCategory('streaks')">
+          <i class="fa-solid fa-fire"></i>
+          <span>Rachas de Disciplina</span>
+        </button>
+
+        <button class="signifier-cat-btn" 
+                [class.active]="activeSignifierCategory() === 'broken_records'" 
+                (click)="setSignifierCategory('broken_records')">
+          <i class="fa-solid fa-crown"></i>
+          <span>Récords de la Comunidad</span>
+        </button>
+
+        <button class="signifier-cat-btn" 
+                [class.active]="activeSignifierCategory() === 'ranks'" 
+                (click)="setSignifierCategory('ranks')">
+          <i class="fa-solid fa-medal"></i>
+          <span>Rangos & Niveles</span>
+        </button>
+
+        <button class="signifier-cat-btn" 
+                [class.active]="activeSignifierCategory() === 'qualities'" 
+                (click)="setSignifierCategory('qualities')">
+          <i class="fa-solid fa-award"></i>
+          <span>Cualidades del Dojo</span>
+        </button>
+
+        <button class="signifier-cat-btn" 
+                [class.active]="activeSignifierCategory() === 'economy'" 
+                (click)="setSignifierCategory('economy')">
+          <i class="fa-solid fa-coins"></i>
+          <span>Economía & Anti-Exploits</span>
+        </button>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- 1. DETALLE: PODIOS SEMANALES               -->
+      <!-- ========================================== -->
+      <div *ngIf="activeSignifierCategory() === 'podiums'" class="signifier-detail-section">
+        
+        <div class="signifier-intro-box gold-border">
+          <div class="intro-box-icon text-yellow">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <div class="intro-box-text">
+            <h3>¿Qué es un Podio y qué significa ganar uno?</h3>
+            <p>
+              El <strong>Podio</strong> es la contienda semanal comunitaria de mayor prestigio en COFU. Evalúa el rendimiento de todos los guerreros del Dojo durante la semana (de <strong>Lunes 00:00 a Domingo 23:59 hrs</strong>) en 4 disciplinas clave.
+            </p>
+          </div>
+        </div>
+
+        <div class="signifier-grid-2col">
+          
+          <!-- Tarjeta: Criterios de Evaluación -->
+          <div class="signifier-card">
+            <div class="card-head">
+              <i class="fa-solid fa-list-check text-cyan"></i>
+              <h4>Disciplinas que Califican al Podio</h4>
+            </div>
+            <div class="card-body">
+              <ul class="criteria-list">
+                <li>
+                  <span class="criteria-bullet">🍅</span>
+                  <div>
+                    <strong>Pomodoros Completados:</strong>
+                    <p>Total de bloques de 25+ minutos finalizados con éxito durante la semana en curso.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="criteria-bullet">🎯</span>
+                  <div>
+                    <strong>Objetivos Alcanzados:</strong>
+                    <p>Misiones y tareas concluidas marcando "Objetivo Cumplido" al terminar las sesiones.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="criteria-bullet">🔥</span>
+                  <div>
+                    <strong>Racha de Disciplina:</strong>
+                    <p>Días consecutivos activos sostenidos sin interrupciones en tus jornadas pactadas.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="criteria-bullet">⚔️</span>
+                  <div>
+                    <strong>Daño a Jefes de Raid:</strong>
+                    <p>Total de puntos de daño asestados en el modo de Coworking Comunitario.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Tarjeta: Recompensas por Puesto -->
+          <div class="signifier-card">
+            <div class="card-head">
+              <i class="fa-solid fa-gift text-yellow"></i>
+              <h4>Premios y Condecoraciones por Puesto</h4>
+            </div>
+            <div class="card-body">
+              <div class="rewards-table-wrapper">
+                <table class="rewards-table">
+                  <thead>
+                    <tr>
+                      <th>Puesto</th>
+                      <th>Premio Monedas</th>
+                      <th>Condecoración</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="highlight-gold">
+                      <td><span class="podium-rank-pill r1">🥇 1º Lugar</span></td>
+                      <td><strong>+100 Pro Coins 🪙</strong></td>
+                      <td>+1 Victoria de Podio 🏆 + Medalla de Oro</td>
+                    </tr>
+                    <tr class="highlight-silver">
+                      <td><span class="podium-rank-pill r2">🥈 2º Lugar</span></td>
+                      <td><strong>+70 Pro Coins 🪙</strong></td>
+                      <td>+1 Victoria de Podio 🏆 + Medalla de Plata</td>
+                    </tr>
+                    <tr class="highlight-bronze">
+                      <td><span class="podium-rank-pill r3">🥉 3º Lugar</span></td>
+                      <td><strong>+70 Pro Coins 🪙</strong></td>
+                      <td>+1 Victoria de Podio 🏆 + Medalla de Bronce</td>
+                    </tr>
+                    <tr>
+                      <td><span class="podium-rank-pill">🎖️ Top 4 - 10</span></td>
+                      <td><strong>+50 Pro Coins 🪙</strong></td>
+                      <td>Mención de Honor Semanal</td>
+                    </tr>
+                    <tr>
+                      <td><span class="podium-rank-pill">👥 Participantes</span></td>
+                      <td><strong>+20 Pro Coins 🪙</strong></td>
+                      <td>Recompensa de Constancia</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="table-footnote">
+                * Las medallas de Oro, Plata y Bronce y las victorias de podio se acreditan permanentemente a tu perfil y te acercan al récord de <em>Podios Conquistados</em>.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Botón de acción rápida a la tabla de podios -->
+        <div class="signifier-action-dock">
+          <button class="btn-goto-action" (click)="setViewMode('weekly_podium')">
+            <i class="fa-solid fa-ranking-star"></i>
+            <span>Ver Clasificación Semanal en Vivo</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- 2. DETALLE: RACHAS DE DISCIPLINA          -->
+      <!-- ========================================== -->
+      <div *ngIf="activeSignifierCategory() === 'streaks'" class="signifier-detail-section">
+        
+        <div class="signifier-intro-box fire-border">
+          <div class="intro-box-icon text-fire">
+            <i class="fa-solid fa-fire"></i>
+          </div>
+          <div class="intro-box-text">
+            <h3>¿Qué califica para sostener una Racha y cómo opera el blindaje?</h3>
+            <p>
+              La <strong>Racha</strong> es la medida de tu constancia diaria contra la resistencia psicológica. A diferencia de apps rígidas, COFU incluye un sistema de <strong>Semana Activa Protegida</strong> que respeta tus días de descanso.
+            </p>
+          </div>
+        </div>
+
+        <div class="signifier-grid-2col">
+          
+          <!-- Reglas de Calificación de Racha -->
+          <div class="signifier-card">
+            <div class="card-head">
+              <i class="fa-solid fa-circle-check text-green"></i>
+              <h4>¿Qué Califica para Sumar Racha?</h4>
+            </div>
+            <div class="card-body">
+              <div class="criteria-step-box">
+                <div class="step-num">1</div>
+                <div>
+                  <strong>Al menos 1 Pomodoro Completo (25+ min):</strong>
+                  <p>Debes finalizar con éxito como mínimo 1 bloque de concentración de 25 minutos durante tu jornada.</p>
+                </div>
+              </div>
+
+              <div class="criteria-step-box">
+                <div class="step-num">2</div>
+                <div>
+                  <strong>Jornada Activa Pactada:</strong>
+                  <p>El día debe coincidir con tus días activos configurados en tu perfil (ej. Lunes a Viernes).</p>
+                </div>
+              </div>
+
+              <div class="criteria-step-box">
+                <div class="step-num">3</div>
+                <div>
+                  <strong>Periodo de Gracia (120 Segundos):</strong>
+                  <p>Cancelar o interrumpir una sesión en los primeros 2 minutos no penaliza ni rompe tu racha.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Blindaje y Protección en Días Libres -->
+          <div class="signifier-card">
+            <div class="card-head">
+              <i class="fa-solid fa-shield-halved text-cyan"></i>
+              <h4>Blindaje de Días de Descanso</h4>
+            </div>
+            <div class="card-body">
+              <div class="shield-feature-banner">
+                <i class="fa-solid fa-umbrella text-cyan"></i>
+                <div>
+                  <strong>Tu Racha Nunca se Pierde en Días Libres</strong>
+                  <p>En los días que tengas desactivados en tu configuración (ej. Sábados y Domingos), la racha queda en estado <em>Congelada y Blindada</em>. No es obligatorio entrar a la app y tu contador se mantiene intacto.</p>
+                </div>
+              </div>
+
+              <div class="break-condition-banner">
+                <i class="fa-solid fa-triangle-exclamation text-red"></i>
+                <div>
+                  <strong>¿Cuándo se Reinicia la Racha?</strong>
+                  <p>Si transcurre un día marcado como <strong>activo</strong> y llega la medianoche (23:59 hrs) sin registrar ningún pomodoro, la racha se reinicia a 1 en tu siguiente sesión exitosa.</p>
+                </div>
+              </div>
+
+              <div class="passive-synergy-banner">
+                <i class="fa-solid fa-wand-magic-sparkles text-yellow"></i>
+                <div>
+                  <strong>Sinergia con Genbu (Tortuga):</strong>
+                  <p>Otorga <strong>+5% de daño extra al Boss</strong> por cada día de racha activo (hasta un máximo de +50% de daño permanente).</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- 3. DETALLE: RÉCORDS DE LA COMUNIDAD       -->
+      <!-- ========================================== -->
+      <div *ngIf="activeSignifierCategory() === 'broken_records'" class="signifier-detail-section">
+        
+        <div class="signifier-intro-box purple-border">
+          <div class="intro-box-icon text-accent">
+            <i class="fa-solid fa-crown"></i>
+          </div>
+          <div class="intro-box-text">
+            <h3>¿Qué son los Broken Records y cómo se rompe una marca histórica?</h3>
+            <p>
+              El <strong>Salón de la Fama</strong> conmemora las 4 marcas más altas alcanzadas por cualquier usuario en la historia de COFU. Romper un récord inmortaliza tu nombre y tu avatar ante toda la comunidad.
+            </p>
+          </div>
+        </div>
+
+        <!-- LAS 4 CORONAS HISTÓRICAS -->
+        <div class="records-four-cards-grid">
+          
+          <div class="record-meaning-card r-streak">
+            <div class="rm-head">
+              <i class="fa-solid fa-fire text-fire"></i>
+              <h4>Mejor Racha</h4>
+            </div>
+            <p class="rm-desc">Racha continua más larga de días de enfoque completados sin interrupciones.</p>
+            <div class="rm-rule">
+              <span>¿Cómo romperlo?</span>
+              <strong>Superar los días del poseedor actual</strong>
+            </div>
+          </div>
+
+          <div class="record-meaning-card r-tomatoes">
+            <div class="rm-head">
+              <i class="fa-solid fa-apple-whole text-green"></i>
+              <h4>Sesiones de Concentración</h4>
+            </div>
+            <p class="rm-desc">Total acumulado histórico de pomodoros de 25+ minutos completados desde el registro.</p>
+            <div class="rm-rule">
+              <span>¿Cómo romperlo?</span>
+              <strong>Superar el volumen total de sesiones</strong>
+            </div>
+          </div>
+
+          <div class="record-meaning-card r-coins">
+            <div class="rm-head">
+              <i class="fa-solid fa-coins text-yellow"></i>
+              <h4>El Magnate de Focus</h4>
+            </div>
+            <p class="rm-desc">Total acumulado histórico de Pro Coins generadas trabajando con disciplina.</p>
+            <div class="rm-rule">
+              <span>¿Cómo romperlo?</span>
+              <strong>Acumular mayor saldo total de monedas</strong>
+            </div>
+          </div>
+
+          <div class="record-meaning-card r-podiums">
+            <div class="rm-head">
+              <i class="fa-solid fa-trophy text-orange"></i>
+              <h4>Podios Conquistados</h4>
+            </div>
+            <p class="rm-desc">Total acumulado de primeros lugares (🥇 Oro) ganados en la liga comunitaria semanal.</p>
+            <div class="rm-rule">
+              <span>¿Cómo romperlo?</span>
+              <strong>Conquistar más podios de 1º lugar</strong>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- PRIVILEGIOS DEL POSEEDOR -->
+        <div class="signifier-card" style="margin-top: 18px;">
+          <div class="card-head">
+            <i class="fa-solid fa-star text-yellow"></i>
+            <h4>Privilegios y Condecoraciones del Poseedor de Récord</h4>
+          </div>
+          <div class="card-body">
+            <div class="holder-perks-grid">
+              <div class="holder-perk-item">
+                <i class="fa-solid fa-image-portrait text-accent"></i>
+                <strong>Avatar 3D a Escala Completa:</strong>
+                <p>Tu guardián cobra vida en la tarjeta 3D holográfica visible para toda la comunidad.</p>
+              </div>
+              <div class="holder-perk-item">
+                <i class="fa-solid fa-flag text-cyan"></i>
+                <strong>Bandera Nacional & Nombre Oficial:</strong>
+                <p>Tu bandera de país y tu nombre de guerrero quedan grabados con placa dorada.</p>
+              </div>
+              <div class="holder-perk-item">
+                <i class="fa-solid fa-share-nodes text-green"></i>
+                <strong>Redes Sociales Públicas:</strong>
+                <p>Tus perfiles de GitHub, LinkedIn, Twitter/X o Twitch quedan vinculados directamente.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- 4. DETALLE: RANGOS Y NIVELES DE HONOR      -->
+      <!-- ========================================== -->
+      <div *ngIf="activeSignifierCategory() === 'ranks'" class="signifier-detail-section">
+        
+        <div class="signifier-intro-box cyan-border">
+          <div class="intro-box-icon text-cyan">
+            <i class="fa-solid fa-medal"></i>
+          </div>
+          <div class="intro-box-text">
+            <h3>¿Cómo se calculan los Niveles y qué representa cada Rango?</h3>
+            <p>
+              Tu nivel militar en el Dojo se basa estrictamente en el tiempo de vida enfocado. La fórmula oficial es <strong>Nivel = ⌊Tomates / 4⌋ + 1</strong>, donde cada tomate equivale a 25 minutos de concentración profunda.
+            </p>
+          </div>
+        </div>
+
+        <div class="ranks-ladder-grid">
+          
+          <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 1 && userLevel() <= 4">
+            <div class="rank-icon-badge seed"><i class="fa-solid fa-seedling"></i></div>
+            <div class="rank-info-col">
+              <h4>Recluta de Enfoque</h4>
+              <span class="rank-lvl-range">Nivel 1 a 4 (0 a 15 Tomates)</span>
+              <p>Primeros pasos para vencer la resistencia inicial y crear el hábito de enfoque.</p>
+            </div>
+            <span class="rank-hours-tag">0 - 6.3 horas</span>
+          </div>
+
+          <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 5 && userLevel() <= 9">
+            <div class="rank-icon-badge guard"><i class="fa-solid fa-feather"></i></div>
+            <div class="rank-info-col">
+              <h4>Centinela</h4>
+              <span class="rank-lvl-range">Nivel 5 a 9 (16 a 35 Tomates)</span>
+              <p>Capacidad de sostener bloques de trabajo regulares sin sucumbir a impulsos rápidos.</p>
+            </div>
+            <span class="rank-hours-tag">6.7 - 14.7 horas</span>
+          </div>
+
+          <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 10 && userLevel() <= 14">
+            <div class="rank-icon-badge warrior"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="rank-info-col">
+              <h4>Guerrero Veterano</h4>
+              <span class="rank-lvl-range">Nivel 10 a 14 (36 a 55 Tomates)</span>
+              <p>Dominio de metodologías tácticas (Sapo, Pareto) y resistencia a la fatiga mental.</p>
+            </div>
+            <span class="rank-hours-tag">15.1 - 23.1 horas</span>
+          </div>
+
+          <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 15 && userLevel() <= 19">
+            <div class="rank-icon-badge elite"><i class="fa-solid fa-bolt"></i></div>
+            <div class="rank-info-col">
+              <h4>Estratega Élite</h4>
+              <span class="rank-lvl-range">Nivel 15 a 19 (56 a 75 Tomates)</span>
+              <p>Alto rendimiento consistente. Hábitos de deep work consolidados en la rutina diaria.</p>
+            </div>
+            <span class="rank-hours-tag">23.5 - 31.5 horas</span>
+          </div>
+
+          <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 20 && userLevel() <= 29">
+            <div class="rank-icon-badge master"><i class="fa-solid fa-dragon"></i></div>
+            <div class="rank-info-col">
+              <h4>Gran Maestro</h4>
+              <span class="rank-lvl-range">Nivel 20 a 29 (76 a 115 Tomates)</span>
+              <p>Maestría mental. Productividad fluida y liderazgo en combates comunitarios.</p>
+            </div>
+            <span class="rank-hours-tag">31.9 - 48.3 horas</span>
+          </div>
+
+          <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 30">
+            <div class="rank-icon-badge supreme"><i class="fa-solid fa-crown"></i></div>
+            <div class="rank-info-col">
+              <h4>Comandante Supremo</h4>
+              <span class="rank-lvl-range">Nivel 30+ (116+ Tomates)</span>
+              <p>El pináculo del enfoque. La procrastinación ha sido completamente derrotada.</p>
+            </div>
+            <span class="rank-hours-tag">48.7+ horas</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- 5. DETALLE: CUALIDADES DEL DOJO            -->
+      <!-- ========================================== -->
+      <div *ngIf="activeSignifierCategory() === 'qualities'" class="signifier-detail-section">
+        
+        <div class="signifier-intro-box green-border">
+          <div class="intro-box-icon text-green">
+            <i class="fa-solid fa-award"></i>
+          </div>
+          <div class="intro-box-text">
+            <h3>¿Cómo calificar para desbloquear las 7 Cualidades de Honor?</h3>
+            <p>
+              Las <strong>Cualidades del Dojo</strong> son avatares de categoría Rara que <strong>no se compran con dinero ni monedas</strong>: se conquistan cumpliendo retos reales de productividad.
+            </p>
+          </div>
+        </div>
+
+        <div class="qualities-matrix-cards">
+          
+          <div *ngFor="let q of membership.qualitiesCatalog()" class="quality-card-detail" [class.is-unlocked]="q.isUnlocked">
+            <div class="q-head">
+              <span class="q-emoji">{{ membership.getEmoji(q.animal) }}</span>
+              <div class="q-titles">
+                <h4>{{ q.name }}</h4>
+                <span class="q-sub">{{ q.description }}</span>
+              </div>
+              <span class="q-status-tag" [class.unlocked]="q.isUnlocked">
+                <i [class]="q.isUnlocked ? 'fa-solid fa-circle-check text-green' : 'fa-solid fa-lock'"></i>
+                {{ q.isUnlocked ? 'Desbloqueada' : 'Bloqueada' }}
+              </span>
+            </div>
+
+            <div class="q-req-box">
+              <span class="req-label">Requisito de Calificación:</span>
+              <span class="req-desc">{{ q.unlockRequirement }}</span>
+            </div>
+
+            <div class="q-progress-strip">
+              <div class="q-progress-bar">
+                <div class="q-progress-fill" [style.width.%]="q.isUnlocked ? 100 : ((q.unlockProgress / q.unlockTotal) * 100)"></div>
+              </div>
+              <span class="q-progress-txt">{{ q.isUnlocked ? 'Completado' : (q.unlockProgress + ' / ' + q.unlockTotal) }}</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- 6. DETALLE: ECONOMÍA & ANTI-EXPLOITS      -->
+      <!-- ========================================== -->
+      <div *ngIf="activeSignifierCategory() === 'economy'" class="signifier-detail-section">
+        
+        <div class="signifier-intro-box yellow-border">
+          <div class="intro-box-icon text-yellow">
+            <i class="fa-solid fa-shield-check"></i>
+          </div>
+          <div class="intro-box-text">
+            <h3>Economía de Pro Coins & Blindaje Anti-Exploits</h3>
+            <p>
+              El motor algorítmico de COFU protege la integridad del juego recompensando el esfuerzo real y neutralizando cualquier intento de granja automática o manipulación de tiempo.
+            </p>
+          </div>
+        </div>
+
+        <div class="signifier-grid-2col">
+          
+          <!-- Fuentes de Ganancia -->
+          <div class="signifier-card">
+            <div class="card-head">
+              <i class="fa-solid fa-arrow-trend-up text-green"></i>
+              <h4>¿Qué Califica para Ganar Pro Coins?</h4>
+            </div>
+            <div class="card-body">
+              <ul class="criteria-list">
+                <li>
+                  <span class="criteria-bullet">⚡</span>
+                  <div>
+                    <strong>Micro-bloques (5 y 10 min):</strong>
+                    <p>5 min = 1 Coin fija | 10 min = 2 Coins fijas (ideales para romper parálisis mental).</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="criteria-bullet">🍅</span>
+                  <div>
+                    <strong>Pomodoro Completo (25 min):</strong>
+                    <p>100% de las monedas del avatar equipado (+10 a +60 Coins según rareza).</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="criteria-bullet">🦁</span>
+                  <div>
+                    <strong>Bono de Coraje (Baja Motivación):</strong>
+                    <p>Vencer la desgana y completar el bloque otorga <strong>+35 Coins extra</strong> (+70 con Renard).</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="criteria-bullet">🎯</span>
+                  <div>
+                    <strong>Objetivo Cumplido al Cierre:</strong>
+                    <p>Finalizar y validar tu misión suma <strong>+15 Pro Coins</strong> (+30 XP Plan Pro).</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Blindaje Anti-Exploits -->
+          <div class="signifier-card">
+            <div class="card-head">
+              <i class="fa-solid fa-lock text-cyan"></i>
+              <h4>Reglas de Seguridad Algorítmica</h4>
+            </div>
+            <div class="card-body">
+              <div class="security-rule-box">
+                <i class="fa-solid fa-snowflake text-cyan"></i>
+                <div>
+                  <strong>Snapshot Inmutable:</strong>
+                  <p>Al iniciar el reloj, el avatar y la metodología quedan congelados. Cambiar de pestaña o guardián no altera la liquidación.</p>
+                </div>
+              </div>
+
+              <div class="security-rule-box">
+                <i class="fa-solid fa-scale-balanced text-green"></i>
+                <div>
+                  <strong>Piso de Billetera (Floor 0):</strong>
+                  <p><code>pro_coins = GREATEST(0, saldo - multa)</code>. Tu balance jamás puede caer en números negativos.</p>
+                </div>
+              </div>
+
+              <div class="security-rule-box">
+                <i class="fa-solid fa-fingerprint text-yellow"></i>
+                <div>
+                  <strong>Idempotencia con Nonce UUID:</strong>
+                  <p>Cada sesión genera un identificador criptográfico único. Reintentos o clicks dobles no duplican recompensas.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- VISTA 3: PODIOS Y CLASIFICACIÓN SEMANAL (ARCADE PODIUM & LEADERBOARD)     -->
+    <!-- ========================================================================= -->
+    <div *ngIf="viewMode() === 'weekly_podium'" class="weekly-podium-view-wrapper">
+      
+      <!-- Pestañas de Disciplina Semanal -->
+      <div class="podium-tabs-bar">
+        <button class="podium-tab-btn" [class.active]="activeTab() === 'objectives'" (click)="activeTab.set('objectives')">
+          <i class="fa-solid fa-bullseye"></i>
+          <span>Objetivos Alcanzados</span>
+        </button>
+        <button class="podium-tab-btn" [class.active]="activeTab() === 'pomodoros'" (click)="activeTab.set('pomodoros')">
+          <i class="fa-solid fa-apple-whole"></i>
+          <span>Pomodoros Completados</span>
+        </button>
+        <button class="podium-tab-btn" [class.active]="activeTab() === 'streaks'" (click)="activeTab.set('streaks')">
+          <i class="fa-solid fa-fire"></i>
+          <span>Mejor Racha</span>
+        </button>
+        <button class="podium-tab-btn" [class.active]="activeTab() === 'boss'" (click)="activeTab.set('boss')">
+          <i class="fa-solid fa-hand-fist"></i>
+          <span>Aporte al Jefe de Raid</span>
+        </button>
+      </div>
+
+      <!-- PODIO ARCADE 3D (TOP 3 PILARES) -->
+      <div class="arcade-podium-container" style="display: flex; justify-content: center; align-items: flex-end; gap: 18px; margin-bottom: 36px; padding: 24px 16px 0; background: radial-gradient(circle at center 70%, rgba(255,255,255,0.03) 0%, rgba(10,12,18,0.85) 100%); border: 1px solid var(--border); border-radius: 16px; position: relative; overflow: hidden; min-height: 250px;">
+        
+        <div class="podium-bg-glow"></div>
+
+        <!-- 2º LUGAR (PLATA - IZQUIERDA) -->
+        <div class="podium-pillar-wrapper" style="display: flex; flex-direction: column; align-items: center; width: 130px;">
+          <div class="podium-avatar-circle" style="width: 58px; height: 58px; border-radius: 50%; border: 2px solid #a1a1aa; box-shadow: 0 0 15px rgba(161,161,170,0.3); display: flex; align-items: center; justify-content: center; background: #141724; margin-bottom: 8px; position: relative;">
+            <div *ngIf="getPodiumUser(2).avatar" [class]="'avatar-sprite sprite-' + getPodiumUser(2).avatar" style="width: 50px; height: 50px; border-radius: 50%;"></div>
+            <i *ngIf="!getPodiumUser(2).avatar" class="fa-solid fa-user" style="color: #a1a1aa; font-size: 20px;"></i>
+            <span style="position: absolute; bottom: -5px; right: -5px; background: #a1a1aa; color: #000; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900;">2</span>
+          </div>
+          <span style="font-size: 12px; font-weight: 700; color: var(--text); max-width: 110px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 2px;">
+            {{ getPodiumUser(2).name || 'En disputa' }}
+          </span>
+          <span style="font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 8px;">
+            {{ getPodiumUser(2).value }}
+          </span>
+          <div class="pillar" style="width: 100%; height: 95px; background: linear-gradient(180deg, rgba(161,161,170,0.2) 0%, rgba(161,161,170,0.04) 100%); border: 1px solid rgba(161,161,170,0.3); border-bottom: none; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #a1a1aa; text-shadow: 0 0 10px rgba(161,161,170,0.4);">
+            2
+          </div>
+        </div>
+
+        <!-- 1º LUGAR (ORO - CENTRO) -->
+        <div class="podium-pillar-wrapper" style="display: flex; flex-direction: column; align-items: center; width: 145px; z-index: 5;">
+          <div class="podium-avatar-circle" style="width: 72px; height: 72px; border-radius: 50%; border: 3px solid var(--yellow); box-shadow: 0 0 24px rgba(245, 158, 11, 0.45); display: flex; align-items: center; justify-content: center; background: #141724; margin-bottom: 8px; position: relative;">
+            <div *ngIf="getPodiumUser(1).avatar" [class]="'avatar-sprite sprite-' + getPodiumUser(1).avatar" style="width: 64px; height: 64px; border-radius: 50%;"></div>
+            <i *ngIf="!getPodiumUser(1).avatar" class="fa-solid fa-crown" style="color: var(--yellow); font-size: 26px;"></i>
+            <span style="position: absolute; bottom: -5px; right: -5px; background: var(--yellow); color: #000; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900;">1</span>
+          </div>
+          <span style="font-size: 13.5px; font-weight: 800; color: #fff; max-width: 130px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 2px;">
+            {{ getPodiumUser(1).name || 'En disputa' }}
+          </span>
+          <span style="font-size: 12px; font-weight: 800; color: var(--yellow); margin-bottom: 8px;">
+            {{ getPodiumUser(1).value }}
+          </span>
+          <div class="pillar" style="width: 100%; height: 135px; background: linear-gradient(180deg, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0.05) 100%); border: 1px solid rgba(245, 158, 11, 0.45); border-bottom: none; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: var(--yellow); text-shadow: 0 0 15px rgba(245, 158, 11, 0.5);">
+            1
+          </div>
+        </div>
+
+        <!-- 3º LUGAR (BRONCE - DERECHA) -->
+        <div class="podium-pillar-wrapper" style="display: flex; flex-direction: column; align-items: center; width: 130px;">
+          <div class="podium-avatar-circle" style="width: 58px; height: 58px; border-radius: 50%; border: 2px solid #cd7f32; box-shadow: 0 0 15px rgba(205, 127, 50, 0.3); display: flex; align-items: center; justify-content: center; background: #141724; margin-bottom: 8px; position: relative;">
+            <div *ngIf="getPodiumUser(3).avatar" [class]="'avatar-sprite sprite-' + getPodiumUser(3).avatar" style="width: 50px; height: 50px; border-radius: 50%;"></div>
+            <i *ngIf="!getPodiumUser(3).avatar" class="fa-solid fa-user" style="color: #cd7f32; font-size: 20px;"></i>
+            <span style="position: absolute; bottom: -5px; right: -5px; background: #cd7f32; color: #000; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900;">3</span>
+          </div>
+          <span style="font-size: 12px; font-weight: 700; color: var(--text); max-width: 110px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 2px;">
+            {{ getPodiumUser(3).name || 'En disputa' }}
+          </span>
+          <span style="font-size: 11px; font-weight: 700; color: #cd7f32; margin-bottom: 8px;">
+            {{ getPodiumUser(3).value }}
+          </span>
+          <div class="pillar" style="width: 100%; height: 75px; background: linear-gradient(180deg, rgba(205, 127, 50, 0.2) 0%, rgba(205, 127, 50, 0.04) 100%); border: 1px solid rgba(205, 127, 50, 0.3); border-bottom: none; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #cd7f32; text-shadow: 0 0 10px rgba(205, 127, 50, 0.4);">
+            3
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TABLA DE CLASIFICACIÓN TOP 10 -->
+      <div class="arcade-leaderboard-container" style="background: rgba(18, 22, 32, 0.85); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+        <table class="arcade-leaderboard-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px;">
+          <thead>
+            <tr style="background: rgba(255,255,255,0.03); color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+              <th style="padding: 12px 18px; width: 60px;">#</th>
+              <th style="padding: 12px 18px;">Guerrero</th>
+              <th style="padding: 12px 18px;">Rango / Título</th>
+              <th style="padding: 12px 18px; text-align: right;">Puntaje Semanal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Fila para cada jugador según pestaña -->
+            <ng-container *ngIf="activeTab() === 'objectives'">
+              <tr *ngFor="let p of rankingObjectives()" [class.self-row]="p.isSelf" style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 12px 18px;">
+                  <span class="rank-badge" [class.r1]="p.rank === 1" [class.r2]="p.rank === 2" [class.r3]="p.rank === 3">{{ p.rank }}</span>
+                </td>
+                <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
+                  <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
+                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
+                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">TÚ</span>
+                </td>
+                <td style="padding: 12px 18px; color: var(--muted);">{{ p.rankName }}</td>
+                <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--yellow);">{{ p.objectives }} misiones</td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="activeTab() === 'pomodoros'">
+              <tr *ngFor="let p of rankingPomodoros()" [class.self-row]="p.isSelf" style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 12px 18px;">
+                  <span class="rank-badge" [class.r1]="p.rank === 1" [class.r2]="p.rank === 2" [class.r3]="p.rank === 3">{{ p.rank }}</span>
+                </td>
+                <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
+                  <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
+                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
+                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">TÚ</span>
+                </td>
+                <td style="padding: 12px 18px; color: var(--muted);">{{ p.title }}</td>
+                <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--green);">{{ p.pomodoros }} pomodoros</td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="activeTab() === 'streaks'">
+              <tr *ngFor="let p of rankingStreaks()" [class.self-row]="p.isSelf" style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 12px 18px;">
+                  <span class="rank-badge" [class.r1]="p.rank === 1" [class.r2]="p.rank === 2" [class.r3]="p.rank === 3">{{ p.rank }}</span>
+                </td>
+                <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
+                  <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
+                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
+                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">TÚ</span>
+                </td>
+                <td style="padding: 12px 18px; color: var(--muted);">{{ p.tag }}</td>
+                <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--fire, #ff6b00);">{{ p.streakCount }} días</td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="activeTab() === 'boss'">
+              <tr *ngFor="let p of rankingBoss()" [class.self-row]="p.isSelf" style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 12px 18px;">
+                  <span class="rank-badge" [class.r1]="p.rank === 1" [class.r2]="p.rank === 2" [class.r3]="p.rank === 3">{{ p.rank }}</span>
+                </td>
+                <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
+                  <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
+                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
+                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">TÚ</span>
+                </td>
+                <td style="padding: 12px 18px; color: var(--muted);">{{ p.label }}</td>
+                <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--accent);">{{ p.damage }} HP</td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
       </div>
 
     </div>

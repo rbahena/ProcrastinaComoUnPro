@@ -270,6 +270,8 @@ export interface UserDailyAttempt {
   status: 'completed' | 'abandoned' | 'interrupted';
   time: string;
   duration_seconds: number;
+  objective_text?: string;
+  objective_completed?: 'yes' | 'no' | 'progress' | 'partial';
 }
 
 export interface UserFocusStatsData {
@@ -283,6 +285,8 @@ export interface UserFocusStatsData {
   longest_streak: number;
   total_pomodoros: number;
   total_focus_seconds: number;
+  total_completed_objectives?: number;
+  today_completed_objectives?: number;
 }
 
 export interface UserProfile {
@@ -1795,7 +1799,9 @@ export class SupabaseService {
             streak_days: rpcData.streak_days || 0,
             longest_streak: rpcData.longest_streak || 0,
             total_pomodoros: rpcData.total_pomodoros || 0,
-            total_focus_seconds: rpcData.total_focus_seconds || 0
+            total_focus_seconds: rpcData.total_focus_seconds || 0,
+            total_completed_objectives: rpcData.total_completed_objectives || 0,
+            today_completed_objectives: rpcData.today_completed_objectives || 0
           },
           error: null
         };
@@ -1834,7 +1840,9 @@ export class SupabaseService {
         return {
           status: s.status,
           time: timeStr,
-          duration_seconds: s.actual_duration_seconds || 0
+          duration_seconds: s.actual_duration_seconds || 0,
+          objective_text: s.objective_text,
+          objective_completed: s.objective_completed
         };
       });
 
@@ -1842,6 +1850,8 @@ export class SupabaseService {
       const todayFocusSeconds = todaySessions
         .filter(s => s.status === 'completed')
         .reduce((sum, s) => sum + (s.actual_duration_seconds || 0), 0);
+      const todayCompletedObjectives = todaySessions.filter(s => s.objective_completed === 'yes').length;
+      const totalCompletedObjectives = allSessions.filter(s => s.objective_completed === 'yes').length;
 
       // Semana actual (Lunes a Domingo)
       const dayOfWeek = (now.getDay() + 6) % 7; // 0=Lun ... 6=Dom
@@ -1892,7 +1902,9 @@ export class SupabaseService {
           streak_days: profile?.streak_days || 0,
           longest_streak: profile?.longest_streak || 0,
           total_pomodoros: profile?.focus_tomatoes || 0,
-          total_focus_seconds: totalFocusSeconds
+          total_focus_seconds: totalFocusSeconds,
+          total_completed_objectives: totalCompletedObjectives,
+          today_completed_objectives: todayCompletedObjectives
         },
         error: null
       };

@@ -1,6 +1,6 @@
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .stats-container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 32px 24px 60px 24px;
   color: var(--text);
@@ -69,20 +69,26 @@
   box-shadow: 0 6px 20px rgba(0, 119, 181, 0.4);
 }
 
-/* ===== 4 TARJETAS PRINCIPALES (KPIS) ===== */
+/* ===== 5 TARJETAS PRINCIPALES (KPIS) ===== */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1160px) {
   .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 740px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
   .kpi-grid {
     grid-template-columns: 1fr;
   }
@@ -91,61 +97,69 @@
 .kpi-card {
   background: var(--bg2);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 18px;
+  padding: 18px 20px;
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 132px;
+  gap: 12px;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s, box-shadow 0.25s;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  position: relative;
 }
 
 .kpi-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--accent);
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
 }
 
-.kpi-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+.kpi-top {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.kpi-icon.blue { background: rgba(0, 242, 254, 0.1); color: var(--accent); }
-.kpi-icon.gold { background: rgba(245, 158, 11, 0.1); color: var(--yellow); }
-.kpi-icon.green { background: rgba(16, 185, 129, 0.1); color: var(--green); }
-.kpi-icon.purple { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
-
-.kpi-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .kpi-label {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   color: var(--muted);
-  letter-spacing: 0.6px;
+  letter-spacing: 0.8px;
 }
 
-.kpi-value-row {
+.kpi-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.kpi-icon.blue { background: rgba(0, 242, 254, 0.12); color: var(--accent); }
+.kpi-icon.gold { background: rgba(245, 158, 11, 0.12); color: var(--yellow); }
+.kpi-icon.green { background: rgba(16, 185, 129, 0.12); color: var(--green); }
+.kpi-icon.purple { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
+.kpi-icon.cyan { background: rgba(6, 182, 212, 0.12); color: #06b6d4; }
+.kpi-icon.emerald { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+
+.kpi-body {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  margin: 2px 0;
 }
 
 .kpi-number {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 900;
   color: var(--text);
   line-height: 1;
+  letter-spacing: -0.5px;
 }
 
 .kpi-unit {
@@ -154,9 +168,51 @@
   font-weight: 600;
 }
 
-.kpi-subtext {
-  font-size: 11.5px;
+.kpi-footer {
+  display: flex;
+  align-items: center;
+}
+
+.kpi-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.kpi-pill i {
+  font-size: 10.5px;
+  opacity: 0.9;
+}
+
+.kpi-pill.flame {
+  color: var(--yellow);
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.22);
+}
+
+.kpi-pill.flame i {
+  color: var(--yellow);
+}
+
+.kpi-pill.success {
+  color: var(--green);
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.kpi-pill.success i {
+  color: var(--green);
 }
 
 /* ===== 2 PANELES VISUALES (GRÁFICOS) ===== */

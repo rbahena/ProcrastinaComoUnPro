@@ -5421,7 +5421,7 @@
              <div class="action-buttons-container hide-on-inactive" style="position: relative; z-index: 100; width: 100%; max-width: var(--buttons-container-width); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 15px; margin-bottom: 20px; pointer-events: auto;">
                
                 <!-- BANNER DE OBJETIVO PRECARGADO EN VISTA DE CONFIGURACIÓN (SETUP) -->
-                <div *ngIf="arenaState() === 'setup' && !isBreak() && activeObjective() && activeObjective().trim()" 
+                <div *ngIf="arenaState() === 'setup' && !isBreak() && isObjectiveAssociated()" 
                      class="setup-objective-banner">
                   <div class="setup-obj-pill">
                     <div class="setup-obj-left">
@@ -5664,7 +5664,7 @@
 
         
           <!-- VISTA ENFOQUE ACTIVO: OBJETIVO (Se muestra debajo del reloj durante active/countdown con el mismo tamaño y diseño) -->
-          <div *ngIf="arenaState() !== 'setup' && !isBreak() && arenaState() !== 'summary' && activeObjective() && activeObjective().trim()" 
+          <div *ngIf="arenaState() !== 'setup' && !isBreak() && arenaState() !== 'summary' && isObjectiveAssociated()" 
                class="hide-on-inactive setup-objective-banner active-objective-display">
             <div class="setup-obj-pill">
               <div class="setup-obj-left">
@@ -6104,7 +6104,7 @@
   </div>
 </div>
 
-<!-- TOAST FLOTANTE INFERIOR DE NOTIFICACIONES (ENFOQUE, ABANDONO, RECOMPENSAS, MOTIVACIONES, ETC.) -->
+<!-- TOAST FLOTANTE INFERIOR DE NOTIFICACIONES (CARD LIMPIA SIN ÍCONO NI TAG) -->
 <div *ngIf="showPartnerNotification()" 
      class="enfoque-bottom-toast"
      [class.toast-danger]="partnerNotificationType() === 'danger'"
@@ -6112,30 +6112,10 @@
      [class.toast-success]="partnerNotificationType() === 'success'"
      [class.toast-info]="partnerNotificationType() === 'info'">
   
-  <!-- Icono / Badge con Aura de Brillo -->
-  <div class="enfoque-toast-icon-badge">
-    <i class="fa-solid" 
-       [class.fa-heart-crack]="partnerNotificationType() === 'danger' && partnerNotificationMessage().includes('abandonado')"
-       [class.fa-triangle-exclamation]="partnerNotificationType() === 'danger' && !partnerNotificationMessage().includes('abandonado')"
-       [class.fa-bell]="partnerNotificationType() === 'warning'"
-       [class.fa-circle-check]="partnerNotificationType() === 'success'"
-       [class.fa-sparkles]="partnerNotificationType() === 'info'">
-    </i>
-  </div>
+  <p class="enfoque-toast-text">
+    {{ partnerNotificationMessage() }}
+  </p>
 
-  <!-- Contenido -->
-  <div class="enfoque-toast-body">
-    <div class="enfoque-toast-header">
-      <span class="enfoque-toast-tag">
-        {{ partnerNotificationType() === 'danger' ? (partnerNotificationMessage().includes('abandonado') ? 'SESIÓN ABANDONADA' : 'AVISO CRÍTICO') : (partnerNotificationType() === 'success' ? 'ÉXITO' : (partnerNotificationType() === 'warning' ? 'ATENCIÓN' : 'NOTIFICACIÓN')) }}
-      </span>
-    </div>
-    <p class="enfoque-toast-text">
-      {{ partnerNotificationMessage() }}
-    </p>
-  </div>
-
-  <!-- Botón cerrar -->
   <button class="enfoque-toast-close" (click)="showPartnerNotification.set(false)" aria-label="Cerrar aviso" title="Cerrar aviso">
     <i class="fa-solid fa-xmark"></i>
   </button>
@@ -7574,25 +7554,25 @@
 </div>
 
 <!-- PANEL DE CONSOLA UNIFICADO (SE APERTURA DESDE EL BOTÓN ÚNICO EN ESQUINA INFERIOR IZQUIERDA) -->
-<div class="floating-drawer custom-scrollbar"
+<div class="floating-drawer"
      [class.console-hidden]="!showCommunityConsole()"
      [class.hide-on-inactive]="!isConsolePinned()"
      [class.console-pinned]="isConsolePinned()"
-     style="left: 12px; right: auto; bottom: 64px; top: auto; width: var(--drawer-width); height: var(--drawer-height); max-height: calc(100vh - 140px); display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1.5px solid var(--border); background: rgba(10, 10, 12, 0.96); box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65); border-radius: 16px; z-index: 2000;">
+     style="left: 12px; right: auto; bottom: 64px; top: auto; width: var(--drawer-width); height: var(--drawer-height); max-height: calc(100vh - 140px); display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1.5px solid var(--border); background: rgba(10, 10, 12, 0.96); box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65); border-radius: 16px; z-index: 2000; box-sizing: border-box; overflow: hidden;">
   
   <!-- Cabecera de la Consola con Selector de Pestañas (Tabs) al lado del título -->
-  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; width: 100%;">
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; width: 100%; box-sizing: border-box; flex-shrink: 0;">
     
     <!-- Título de la Consola -->
-    <div style="font-size: 9.5px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; text-align: left;">
+    <div style="font-size: 10px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">
       {{ communityActiveTab() === 'strategy' ? 'Estrategia y Enfoque' : (communityActiveTab() === 'boss' ? 'Combate con el Jefe' : (communityActiveTab() === 'users' ? 'Usuarios Conectados' : 'Muro de Motivación')) }}
     </div>
 
     <!-- Contenedor Derecho (Tabs + Botones Acción) -->
-    <div style="display: flex; align-items: center; gap: 24px; margin-left: auto; flex-shrink: 0;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0;">
       
       <!-- Barra de Pestañas (Tabs) Compacta -->
-      <div style="display: flex; gap: 2px; background: rgba(0,0,0,0.3); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); box-sizing: border-box; align-items: center;">
+      <div style="display: flex; gap: 2px; background: rgba(0,0,0,0.3); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); box-sizing: border-box; align-items: center; flex-shrink: 0;">
         
         <!-- Pestaña 2: Estrategia -->
         <button (click)="communityActiveTab.set('strategy')"
@@ -7600,7 +7580,7 @@
                 [style.color]="communityActiveTab() === 'strategy' ? '#000' : 'var(--muted)'"
                 style="border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
                 title="Estrategia y Enfoque">
-          <i class="fa-solid fa-crosshairs" style="font-size: 16px;"></i>
+          <i class="fa-solid fa-crosshairs" style="font-size: 15px;"></i>
         </button>
 
         <!-- Pestaña 1: Combate Boss (Sólo si modo comunitario está activo) -->
@@ -7610,7 +7590,7 @@
                 [style.color]="communityActiveTab() === 'boss' ? '#fff' : 'var(--muted)'"
                 style="border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
                 title="Combate con el Jefe (Boss)">
-          <i class="fa-solid fa-skull-crossbones" style="font-size: 16px;"></i>
+          <i class="fa-solid fa-skull-crossbones" style="font-size: 15px;"></i>
         </button>
 
         <!-- Pestaña 3: Compañeros -->
@@ -7619,7 +7599,7 @@
                 [style.color]="communityActiveTab() === 'users' ? '#000' : 'var(--muted)'"
                 style="border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
                 title="Compañeros y Guerreros">
-          <i class="fa-solid fa-users" style="font-size: 16px;"></i>
+          <i class="fa-solid fa-users" style="font-size: 15px;"></i>
         </button>
 
         <!-- Pestaña 4: Motivación Colectiva -->
@@ -7628,12 +7608,12 @@
                 [style.color]="communityActiveTab() === 'motivation' ? '#000' : 'var(--muted)'"
                 style="border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
                 title="Muro de Motivación y Chat">
-          <i class="fa-solid fa-fire-flame-curved" style="font-size: 16px;"></i>
+          <i class="fa-solid fa-fire-flame-curved" style="font-size: 15px;"></i>
         </button>
       </div>
 
       <!-- Botones de Acción (Pin + Minimizar) -->
-      <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
         <!-- Botón Pin (Fijar) -->
         <button (click)="isConsolePinned.set(!isConsolePinned())" 
                 [style.color]="isConsolePinned() ? 'var(--accent)' : 'var(--muted)'"
@@ -7725,15 +7705,15 @@
               </button>
             </div>
           </span>
-          <div style="display: flex; flex-direction: column; gap: 4px; font-size: var(--modal-text-size); line-height: 1.3; flex: 1; overflow-y: auto; margin-top: 2px;">
-            <div *ngFor="let log of bossService.bossLogs().slice(0, 8)" 
+          <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 5px; flex: 1; overflow-y: auto; margin-top: 4px; padding-right: 2px;">
+            <div *ngFor="let log of bossService.bossLogs().slice(0, 10)" 
                  [class.premium-log-glow]="log.includes('⚡')"
-                 style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04); padding: 4px 6px; border-radius: 5px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; text-align: left; color: rgba(255,255,255,0.85); font-weight: 600; display: flex; align-items: center; gap: 5px;">
-              <span *ngIf="log.includes('⚔️')" style="font-size: var(--modal-text-size); flex-shrink: 0;">⚔️</span>
-              <i *ngIf="log.includes('⚡')" class="fa-solid fa-bolt-lightning" style="color: #c084fc; font-size: var(--modal-badge-size); flex-shrink: 0;"></i>
-              <i *ngIf="log.includes('🩸')" class="fa-solid fa-droplet" style="color: #ef4444; font-size: var(--modal-badge-size); flex-shrink: 0;"></i>
-              <i *ngIf="log.includes('⚠️')" class="fa-solid fa-triangle-exclamation" style="color: #fbbf24; font-size: var(--modal-badge-size); flex-shrink: 0;"></i>
-              <span>{{ log.replace('⚔️', '').replace('⚡', '').replace('🩸', '').replace('⚠️', '').trim() }}</span>
+                 style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 5px 8px; border-radius: 6px; text-align: left; color: rgba(255,255,255,0.9); font-size: 10.5px; font-weight: 600; line-height: 1.35; display: flex; align-items: flex-start; gap: 6px; word-break: break-word;">
+              <span *ngIf="log.includes('⚔️')" style="font-size: 11px; flex-shrink: 0; line-height: 1;">⚔️</span>
+              <i *ngIf="log.includes('⚡')" class="fa-solid fa-bolt-lightning" style="color: #c084fc; font-size: 10px; flex-shrink: 0; margin-top: 2px;"></i>
+              <i *ngIf="log.includes('🩸')" class="fa-solid fa-droplet" style="color: #ef4444; font-size: 10px; flex-shrink: 0; margin-top: 2px;"></i>
+              <i *ngIf="log.includes('⚠️')" class="fa-solid fa-triangle-exclamation" style="color: #fbbf24; font-size: 10px; flex-shrink: 0; margin-top: 2px;"></i>
+              <span style="flex: 1;">{{ log.replace('⚔️', '').replace('⚡', '').replace('🩸', '').replace('⚠️', '').trim() }}</span>
             </div>
           </div>
         </div>
@@ -7743,29 +7723,30 @@
   </div>
 
   <!-- CONTENIDO DE LA PESTAÑA: ESTRATEGIA -->
-  <div *ngIf="communityActiveTab() === 'strategy'" style="flex: 1; display: flex; flex-direction: column; gap: 10px; text-align: left; min-height: 0;">
+  <div *ngIf="communityActiveTab() === 'strategy'" style="flex: 1; display: flex; flex-direction: column; gap: 14px; text-align: left; min-height: 0;">
     
-    <!-- Objetivo y metodología -->
-    <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px;">
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-        <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
+    <!-- 1. Objetivo y Metodología -->
+    <div style="display: flex; flex-direction: column; gap: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; padding: 16px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: nowrap;">
+        <span style="font-size: 11.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; white-space: nowrap; flex-shrink: 0;">
+          <i class="fa-solid fa-bullseye" style="color: var(--accent); font-size: 12px;"></i>
           Definir Objetivo
           <i class="fa-regular fa-circle-question" 
-             style="cursor: pointer; font-size: var(--modal-header-size); color: var(--muted); transition: color 0.2s;"
+             style="cursor: pointer; font-size: 12px; color: var(--muted); transition: color 0.2s;"
              onmouseover="this.style.color='var(--accent)'"
              onmouseout="this.style.color='var(--muted)'"
              [attr.data-tooltip]="activeMethodology() === 'sapo' ? 'Cómete el Sapo: Dedica esta sesión a la tarea de mayor resistencia mental. Completarla romperá la procrastinación para el resto del día.' : (activeMethodology() === 'pareto' ? 'Principio de Pareto: Enfócate en el 20% clave de tu trabajo. Evita distractores de bajo retorno para maximizar tu impacto hoy.' : 'Enfoque Estándar: Trabaja de forma tradicional en tu tarea del momento a ritmo constante. Ideal para avanzar rutinas o tareas menores.')">
           </i>
         </span>
         
-        <!-- Metodología -->
-        <div style="display: flex; gap: 2px; background: rgba(0,0,0,0.25); padding: 2px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.04);"
+        <!-- Metodología Selectores -->
+        <div style="display: flex; gap: 3px; background: rgba(0,0,0,0.35); padding: 3px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; white-space: nowrap;"
              [style.opacity]="arenaState() !== 'setup' ? 0.6 : 1"
              [style.pointerEvents]="arenaState() !== 'setup' ? 'none' : 'auto'">
           <button (click)="selectMethodology('normal')"
                   [disabled]="arenaState() !== 'setup'"
-                  style="border: none; padding: 2px 5px; border-radius: 3px; font-size: var(--modal-badge-size); font-weight: 900; cursor: pointer; transition: all 0.2s;"
-                  [style.background]="activeMethodology() === 'normal' ? 'rgba(255, 255, 255, 0.08)' : 'transparent'"
+                  style="border: none; padding: 4px 9px; border-radius: 5px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                  [style.background]="activeMethodology() === 'normal' ? 'rgba(255, 255, 255, 0.12)' : 'transparent'"
                   [style.color]="activeMethodology() === 'normal' ? 'var(--text)' : 'var(--muted)'"
                   [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'pointer'"
                   [attr.data-tooltip]="'Sesión de Enfoque Estándar: enfócate en una tarea tradicional a tu propio ritmo.'">
@@ -7773,8 +7754,8 @@
           </button>
           <button (click)="selectMethodology('sapo')"
                   [disabled]="arenaState() !== 'setup'"
-                  style="border: none; padding: 2px 5px; border-radius: 3px; font-size: var(--modal-badge-size); font-weight: 900; cursor: pointer; transition: all 0.2s;"
-                  [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.15)' : 'transparent'"
+                  style="border: none; padding: 4px 9px; border-radius: 5px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                  [style.background]="activeMethodology() === 'sapo' ? 'rgba(16, 185, 129, 0.22)' : 'transparent'"
                   [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : 'var(--muted)'"
                   [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'pointer'"
                   [attr.data-tooltip]="'Metodología Cómete el Sapo: la tarea más difícil e importante de tu día.'">
@@ -7782,8 +7763,8 @@
           </button>
           <button (click)="selectMethodology('pareto')"
                   [disabled]="arenaState() !== 'setup'"
-                  style="border: none; padding: 2px 5px; border-radius: 3px; font-size: var(--modal-badge-size); font-weight: 900; cursor: pointer; transition: all 0.2s;"
-                  [style.background]="activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.15)' : 'transparent'"
+                  style="border: none; padding: 4px 9px; border-radius: 5px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
+                  [style.background]="activeMethodology() === 'pareto' ? 'rgba(99, 102, 241, 0.22)' : 'transparent'"
                   [style.color]="activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)'"
                   [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'pointer'"
                   [attr.data-tooltip]="'Filtro Pareto 80/20: el 20% del esfuerzo que genera el 80% del impacto real.'">
@@ -7801,95 +7782,167 @@
                  [disabled]="arenaState() !== 'setup'"
                  [ngModel]="activeObjective()" 
                  (ngModelChange)="onObjectiveInputChange($event)"
+                 (keydown.enter)="confirmObjective()"
                  [placeholder]="activeMethodology() === 'sapo' ? '¿Qué sapo te vas a comer hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave hoy?' : '¿Qué tarea vas a realizar?')"
-                 style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; padding-right: 30px; color: var(--text); font-size: var(--modal-text-size); font-weight: 600; outline: none; font-family: inherit;"
+                 style="width: 100%; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; padding-right: 36px; color: var(--text); font-size: 12.5px; font-weight: 600; outline: none; font-family: inherit; height: 42px; box-sizing: border-box;"
                  [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'text'">
-          <i class="fa-solid" 
-             [class]="activeMethodology() === 'sapo' ? 'fa-frog' : (activeMethodology() === 'pareto' ? 'fa-bullseye' : 'fa-pen-clip')" 
-             [style.color]="activeMethodology() === 'sapo' ? 'var(--green)' : (activeMethodology() === 'pareto' ? 'var(--accent)' : 'var(--muted)')"
-             style="position: absolute; right: 10px; font-size: var(--modal-header-size); pointer-events: none;"></i>
+
+          <!-- Botón X integrado DENTRO del input a la derecha para borrar todo el contenido -->
+          <button *ngIf="activeObjective() && activeObjective().trim() && arenaState() === 'setup'"
+                  type="button"
+                  (click)="disassociateObjective()"
+                  style="position: absolute; right: 10px; background: rgba(255, 255, 255, 0.08); border: none; width: 22px; height: 22px; border-radius: 50%; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; padding: 0; transition: all 0.2s; z-index: 5;"
+                  onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'; this.style.color='#ef4444'; this.style.transform='scale(1.15)';"
+                  onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='var(--muted)'; this.style.transform='scale(1)';"
+                  [attr.data-tooltip]="'Borrar contenido del objetivo'"
+                  data-tooltip-align="left"
+                  aria-label="Borrar contenido del objetivo">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+          <!-- Ícono cuando el input está vacío -->
+          <i *ngIf="!activeObjective() || !activeObjective().trim()"
+             class="fa-solid fa-pen-clip" 
+             style="position: absolute; right: 12px; font-size: 13px; color: var(--muted); pointer-events: none;"></i>
         </div>
-        
-        <!-- Botón para desasociar / limpiar si hay objetivo -->
-        <button *ngIf="activeObjective() && activeObjective().trim()"
-                (click)="disassociateObjective()"
-                [disabled]="arenaState() !== 'setup'"
-                class="settings-disassociate-btn"
-                [attr.data-tooltip]="'Desasociar objetivo (permanecerá en tu baúl)'"
-                data-tooltip-align="left"
-                aria-label="Desasociar objetivo">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
 
         <!-- Botón para asociar objetivo -->
         <button (click)="confirmObjective()"
-                [disabled]="arenaState() !== 'setup'"
-                [style.background]="objectiveConfirmed() ? 'rgba(16, 185, 129, 0.15)' : 'rgba(99, 102, 241, 0.12)'"
-                [style.borderColor]="objectiveConfirmed() ? 'var(--green)' : 'rgba(99, 102, 241, 0.25)'"
-                [style.color]="objectiveConfirmed() ? 'var(--green)' : 'var(--accent)'"
-                [style.opacity]="arenaState() !== 'setup' ? 0.5 : 1"
-                [style.pointerEvents]="arenaState() !== 'setup' ? 'none' : 'auto'"
-                style="border: 1px solid; padding: 0 12px; border-radius: 6px; font-size: 11px; font-weight: 900; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: inherit; height: 35px; box-sizing: border-box;"
+                [disabled]="arenaState() !== 'setup' || !activeObjective() || !activeObjective().trim()"
+                [style.background]="isObjectiveAssociated() ? 'rgba(16, 185, 129, 0.2)' : 'rgba(99, 102, 241, 0.16)'"
+                [style.borderColor]="isObjectiveAssociated() ? 'var(--green)' : 'rgba(99, 102, 241, 0.35)'"
+                [style.color]="isObjectiveAssociated() ? 'var(--green)' : 'var(--accent)'"
+                [style.opacity]="(arenaState() !== 'setup' || !activeObjective() || !activeObjective().trim()) ? 0.45 : 1"
+                [style.pointerEvents]="(arenaState() !== 'setup' || !activeObjective() || !activeObjective().trim()) ? 'none' : 'auto'"
+                style="border: 1px solid; padding: 0 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; height: 42px; box-sizing: border-box;"
                 onmouseover="this.style.filter='brightness(1.2)'"
                 onmouseout="this.style.filter='none'"
-                title="Asociar este objetivo a tu Pomodoro">
-          <i class="fa-solid" [class.fa-check]="objectiveConfirmed()" [class.fa-plus]="!objectiveConfirmed()"></i>
-          <span>{{ objectiveConfirmed() ? 'Asociado' : 'Asociar' }}</span>
+                [title]="isObjectiveAssociated() ? 'Objetivo asociado y guardado en Mis Ideas' : 'Asociar este objetivo a tu Pomodoro y guardarlo en Mis Ideas'">
+          <i class="fa-solid" [class.fa-check]="isObjectiveAssociated()" [class.fa-plus]="!isObjectiveAssociated()"></i>
+          <span>{{ isObjectiveAssociated() ? 'Asociado' : 'Asociar' }}</span>
         </button>
+      </div>
+
+      <!-- Guía / Estado de la Misión -->
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); font-weight: 500;">
+        <span style="font-size: 13px;">{{ isObjectiveAssociated() ? '💡' : '⚡' }}</span>
+        <span *ngIf="isObjectiveAssociated()" style="color: var(--green); font-weight: 600;">
+          Objetivo enlazado a tu sesión y sincronizado con Mis Ideas.
+        </span>
+        <span *ngIf="!isObjectiveAssociated()">
+          {{ activeMethodology() === 'sapo' ? 'Metodología Sapo: Termina primero la tarea más pesada del día.' : (activeMethodology() === 'pareto' ? 'Metodología Pareto: Enfócate en el 20% de tareas con 80% de impacto.' : 'Enfoque Estándar: Trabaja a tu propio ritmo con concentración continua.') }}
+        </span>
       </div>
     </div>
 
-    <!-- Modo de Enfoque Selector (Comunidad vs Solo) -->
-    <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 12px;">
-      <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Modo de Enfoque</span>
+    <!-- 2. Modo de Enfoque Selector Minimalista (Comunidad vs Solo) -->
+    <div style="display: flex; flex-direction: column; gap: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; padding: 16px;">
       
-      <div *ngIf="arenaState() === 'setup'" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-        <div (click)="setFocusMode('comunitario')"
-             style="border: 1px solid var(--border); border-radius: 6px; padding: 8px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;"
-             [style.borderColor]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--border)'"
-             [style.background]="coworkingMode() === 'comunitario' ? 'rgba(99,102,241,0.06)' : 'rgba(0,0,0,0.15)'">
-          <i class="fa-solid fa-users" style="font-size: var(--modal-header-size);" [style.color]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--muted)'"></i>
-          <span style="font-size: var(--modal-text-size); font-weight: 800; color: var(--text);">Comunidad</span>
-        </div>
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-layer-group" style="color: var(--accent); font-size: 12px;"></i>
+          Modo de Enfoque
+        </span>
+        <span style="font-size: 10.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; border: 1px solid;"
+              [style.borderColor]="coworkingMode() === 'comunitario' ? 'rgba(99, 102, 241, 0.35)' : 'rgba(16, 185, 129, 0.35)'"
+              [style.background]="coworkingMode() === 'comunitario' ? 'rgba(99, 102, 241, 0.12)' : 'rgba(16, 185, 129, 0.12)'"
+              [style.color]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--green)'">
+          {{ coworkingMode() === 'comunitario' ? 'Multijugador' : 'Individual' }}
+        </span>
+      </div>
 
-        <div (click)="setFocusMode('solo')"
-             style="border: 1px solid var(--border); border-radius: 6px; padding: 8px 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;"
-             [style.borderColor]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--border)'"
-             [style.background]="coworkingMode() === 'solo' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.15)'">
-          <i class="fa-solid fa-user-slash" style="font-size: var(--modal-header-size);" [style.color]="coworkingMode() === 'solo' ? 'var(--text)' : 'var(--muted)'"></i>
-          <span style="font-size: var(--modal-text-size); font-weight: 800; color: var(--text);">Solitario</span>
-        </div>
+      <!-- Segmented Toggle Intuitivo -->
+      <div *ngIf="arenaState() === 'setup'" 
+           style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: rgba(0, 0, 0, 0.35); padding: 4px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.05);">
+        
+        <!-- Opción Comunidad -->
+        <button type="button"
+                (click)="setFocusMode('comunitario')"
+                style="border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; font-size: 12.5px; font-weight: 800;"
+                [style.background]="coworkingMode() === 'comunitario' ? 'rgba(99, 102, 241, 0.25)' : 'transparent'"
+                [style.color]="coworkingMode() === 'comunitario' ? '#fff' : 'var(--muted)'"
+                [style.boxShadow]="coworkingMode() === 'comunitario' ? '0 0 0 1px rgba(99, 102, 241, 0.45)' : 'none'"
+                title="Modo Comunidad: lucha contra el jefe con otros guerreros">
+          <i class="fa-solid fa-users" [style.color]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--muted)'" style="font-size: 13px;"></i>
+          <span>Comunidad</span>
+          <span *ngIf="coworkingMode() === 'comunitario'" 
+                style="width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); margin-left: 2px;"></span>
+        </button>
+
+        <!-- Opción Solitario -->
+        <button type="button"
+                (click)="setFocusMode('solo')"
+                style="border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; font-size: 12.5px; font-weight: 800;"
+                [style.background]="coworkingMode() === 'solo' ? 'rgba(16, 185, 129, 0.22)' : 'transparent'"
+                [style.color]="coworkingMode() === 'solo' ? '#fff' : 'var(--muted)'"
+                [style.boxShadow]="coworkingMode() === 'solo' ? '0 0 0 1px rgba(16, 185, 129, 0.45)' : 'none'"
+                title="Modo Solitario: concentración 100% privada">
+          <i class="fa-solid fa-user-shield" [style.color]="coworkingMode() === 'solo' ? 'var(--green)' : 'var(--muted)'" style="font-size: 13px;"></i>
+          <span>Solitario</span>
+          <span *ngIf="coworkingMode() === 'solo'" 
+                style="width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); margin-left: 2px;"></span>
+        </button>
       </div>
 
       <!-- Aviso durante la concentración -->
       <div *ngIf="arenaState() !== 'setup'" 
-           style="background: rgba(99, 102, 241, 0.03); border: 1.5px dashed rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center;">
-        <i class="fa-solid fa-circle-info" style="color: var(--accent); font-size: var(--modal-header-size);"></i>
-        <p style="margin: 0; font-size: 11px; line-height: 1.3; color: var(--muted); font-weight: 600;">
-          Modo de enfoque bloqueado. No es posible modificarlo durante la sesión de concentración activa.
-        </p>
+           style="background: rgba(99, 102, 241, 0.03); border: 1px dashed rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+        <i class="fa-solid fa-lock" style="color: var(--muted); font-size: 11px;"></i>
+        <span style="font-size: 11px; color: var(--muted); font-weight: 600;">
+          Modo bloqueado durante la sesión de concentración activa.
+        </span>
       </div>
 
-      <div style="font-size: var(--modal-text-size); color: var(--muted); line-height: 1.3; margin-top: 2px;">
-        <span *ngIf="coworkingMode() === 'solo'">🧘 Modo en Solitario activo. Tu templo es privado.</span>
+      <!-- Ficha de Información Minimalista del Modo Activo -->
+      <div style="background: rgba(0, 0, 0, 0.25); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(255, 255, 255, 0.04);">
         
-        <!-- Indicador pulsing de Comunidad -->
-        <div *ngIf="coworkingMode() === 'comunitario'" 
-             style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.1); border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;">
-          <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(99, 102, 241, 0.1); border-radius: 50%;">
-            <i class="fa-solid fa-users" style="color: var(--accent); font-size: var(--modal-header-size);"></i>
-            <span style="position: absolute; top: -1px; right: -1px; width: 6px; height: 6px; background: var(--green); border-radius: 50%; border: 1.5px solid var(--bg3); animation: pulseGreen 1.5s infinite;"></span>
-          </div>
-          <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;">
-            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text);">Comunidad Activa</span>
-            <span style="font-size: var(--modal-text-size); color: var(--muted); font-weight: 600;">
-              Hay <strong style="color: var(--accent);">{{ globalFocusedCount() }} usuarios</strong> enfocados ahora mismo.
-            </span>
-          </div>
+        <!-- Píldoras según el modo activo (1 item por línea, tonos sutiles y elegantes) -->
+        <div *ngIf="coworkingMode() === 'comunitario'" style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+          <button type="button"
+                  (click)="communityActiveTab.set('boss')"
+                  style="font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.03); padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                  onmouseover="this.style.background='rgba(255, 255, 255, 0.07)'; this.style.borderColor='rgba(255, 255, 255, 0.15)'; this.style.color='#fff';"
+                  onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.06)'; this.style.color='rgba(255, 255, 255, 0.75)';"
+                  title="Clic para ver el combate con el Jefe">
+            <span>⚔️</span> <span>Daño al Jefe</span>
+          </button>
+
+          <button type="button"
+                  (click)="communityActiveTab.set('users')"
+                  style="font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.03); padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                  onmouseover="this.style.background='rgba(255, 255, 255, 0.07)'; this.style.borderColor='rgba(255, 255, 255, 0.15)'; this.style.color='#fff';"
+                  onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.06)'; this.style.color='rgba(255, 255, 255, 0.75)';"
+                  title="Clic para ver la lista de guerreros conectados">
+            <span>👥</span> <span>Conectados en vivo</span>
+          </button>
+
+          <button type="button"
+                  (click)="communityActiveTab.set('motivation')"
+                  style="font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.03); padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                  onmouseover="this.style.background='rgba(255, 255, 255, 0.07)'; this.style.borderColor='rgba(255, 255, 255, 0.15)'; this.style.color='#fff';"
+                  onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.06)'; this.style.color='rgba(255, 255, 255, 0.75)';"
+                  title="Clic para ver el muro de motivación">
+            <span>💬</span> <span>Muro de concentración</span>
+          </button>
+
+          <span style="font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.03); padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">
+            <span>🪙</span> <span>Suma monedas, tomates y rachas</span>
+          </span>
+        </div>
+
+        <div *ngIf="coworkingMode() === 'solo'" style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+          <span style="font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.03); padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">
+            <span>🧘</span> <span>100% Privado</span>
+          </span>
+          <span style="font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.03); padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">
+            <span>🚫</span> <span>Sin Jefe ni Muro</span>
+          </span>
+          <span style="font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.03); padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">
+            <span>🪙</span> <span>Suma monedas, tomates y rachas</span>
+          </span>
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- CONTENIDO DE LA PESTAÑA: COMPAÑEROS -->
@@ -7897,11 +7950,23 @@
     
     <!-- Lista de Guerreros Enfocados -->
     <div style="width: 100%; background: rgba(10, 10, 12, 0.78); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0;">
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.04); padding-bottom: 4px;">
-        <div style="display: flex; align-items: center; gap: 4px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.04); padding-bottom: 5px; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
           <i class="fa-solid fa-users" style="color: var(--accent); font-size: var(--modal-badge-size);"></i>
           <span style="font-size: var(--modal-badge-size); font-weight: 900; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">Guerreros Activos ({{ coworkingMode() === 'solo' ? '1' : comunidadUsers().length }})</span>
         </div>
+
+        <!-- Checkbox para mostrar u ocultar mi tarea (inicia marcado = oculta) -->
+        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 10px; font-weight: 700; user-select: none; margin: 0; white-space: nowrap;"
+               [title]="hideMyObjectiveInCommunity() ? 'Tu tarea está oculta para la comunidad' : 'Tu tarea es visible en la comunidad'">
+          <input type="checkbox"
+                 [ngModel]="hideMyObjectiveInCommunity()"
+                 (ngModelChange)="hideMyObjectiveInCommunity.set($event)"
+                 style="accent-color: var(--accent); cursor: pointer; width: 12px; height: 12px; margin: 0;">
+          <span [style.color]="hideMyObjectiveInCommunity() ? 'var(--accent)' : 'var(--muted)'">
+            Ocultar mi tarea
+          </span>
+        </label>
       </div>
 
       <div class="no-scrollbar" style="display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto;">
@@ -7913,10 +7978,16 @@
                style="width: 18px; height: 18px; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; border: 1px solid;"
                [style.borderColor]="isBreak() ? 'var(--green)' : 'var(--accent)'"></div>
           <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; text-align: left;">
-            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text);">Tú (Guerrero)</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
+              <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text);">Tú (Guerrero)</span>
+              <span *ngIf="hideMyObjectiveInCommunity()" 
+                    style="font-size: 8px; font-weight: 800; color: var(--muted); background: rgba(255,255,255,0.05); padding: 1px 4px; border-radius: 3px; display: inline-flex; align-items: center; gap: 3px;">
+                <i class="fa-solid fa-lock" style="font-size: 7px;"></i> Privada
+              </span>
+            </div>
             <span style="font-size: var(--modal-text-size); font-weight: 700; margin-top: 1px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"
                   [style.color]="isBreak() ? 'var(--green)' : 'var(--accent)'">
-              {{ isBreak() ? 'Pausa de descanso' : (activeObjective() && activeObjective().trim() ? activeObjective() : 'Enfoque Activo') }}
+              {{ isBreak() ? 'Pausa de descanso' : (hideMyObjectiveInCommunity() ? 'Enfoque Activo' : ((activeObjective() && activeObjective().trim()) ? activeObjective() : 'Enfoque Activo')) }}
             </span>
           </div>
         </div>

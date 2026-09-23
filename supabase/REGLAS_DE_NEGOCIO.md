@@ -256,34 +256,79 @@ graph TD
 
 ---
 
-## 📈 9. PROGRESIÓN DE USUARIO: NIVELES, RANGOS, RACHAS Y MEDALLERO
+## 📈 9. PROGRESIÓN DE USUARIO, MAPA DE SIGNIFICADORES Y MEDALLERO
 
-### 🎖️ 9.1 Fórmulas de Nivel y Rangos
+### 🗺️ 9.1 Mapa de Significadores y Criterios de Calificación
+El **Mapa de Significadores** es la matriz formal que define qué califica para cada logro, podio, racha o récord dentro del ecosistema de COFU:
+
+```mermaid
+graph TD
+    subgraph Evaluación Semanal
+        Sessions[Pomodoros Completados] --> Podiums[Podio Semanal]
+        Objectives[Objetivos Validados] --> Podiums
+        Streak[Días de Racha Activa] --> Podiums
+        BossDmg[Daño a Jefes de Raid] --> Podiums
+    end
+
+    subgraph Premiación del Podio
+        Podiums --> Gold[🥇 1º Oro: +100 Coins / +1 Victoria Podio]
+        Podiums --> Silver[🥈 2º Plata: +70 Coins / +1 Victoria Podio]
+        Podiums --> Bronze[🥉 3º Bronce: +70 Coins / +1 Victoria Podio]
+        Podiums --> Top10[🎖️ Top 4-10: +50 Coins]
+        Podiums --> Active[👥 Participantes: +20 Coins]
+    end
+
+    subgraph Salón de Récords
+        Record1[Mejor Racha Histórica] --> HallOfFame[Tarjeta Holográfica 3D]
+        Record2[Mayor Volumen Pomodoros] --> HallOfFame
+        Record3[Magnate de Pro Coins] --> HallOfFame
+        Record4[Podios Conquistados] --> HallOfFame
+    end
+```
+
+### 🎖️ 9.2 Fórmulas de Nivel y Rangos de Honor
 * **Nivel de Usuario:**
   $$\text{Nivel} = \lfloor \frac{\text{focus\_tomatoes}}{4} \rfloor + 1$$
 * **Horas Totales Enfocadas:**
   $$\text{Horas} = \text{focus\_tomatoes} \times 0.42\text{ h}$$
 
-| Rango de Honor | Nivel Requerido | Pomodoros Estimados |
-| :--- | :---: | :---: |
-| **Recluta de Enfoque** | Nivel 1 a 4 | 0 a 15 Tomates |
-| **Centinela** | Nivel 5 a 9 | 16 a 35 Tomates |
-| **Guerrero Veterano** | Nivel 10 a 14 | 36 a 55 Tomates |
-| **Estratega Élite** | Nivel 15 a 19 | 56 a 75 Tomates |
-| **Gran Maestro** | Nivel 20 a 29 | 76 a 115 Tomates |
-| **Comandante Supremo** | Nivel 30+ | 116+ Tomates |
+| Rango de Honor | Nivel Requerido | Pomodoros Estimados | Horas Equivalentes |
+| :--- | :---: | :---: | :---: |
+| **Recluta de Enfoque** | Nivel 1 a 4 | 0 a 15 Tomates | 0 - 6.3 h |
+| **Centinela** | Nivel 5 a 9 | 16 a 35 Tomates | 6.7 - 14.7 h |
+| **Guerrero Veterano** | Nivel 10 a 14 | 36 a 55 Tomates | 15.1 - 23.1 h |
+| **Estratega Élite** | Nivel 15 a 19 | 56 a 75 Tomates | 23.5 - 31.5 h |
+| **Gran Maestro** | Nivel 20 a 29 | 76 a 115 Tomates | 31.9 - 48.3 h |
+| **Comandante Supremo** | Nivel 30+ | 116+ Tomates | 48.7+ h |
 
-### 🔥 9.2 Sistema de Racha Diaria (Streak) y Protección de Días Inactivos
+### 🔥 9.3 Sistema de Racha Diaria (Streak) y Protección de Días Inactivos
+* **¿Qué califica para sumar racha?:** Completar exitosamente al menos **1 Pomodoro (25+ min)** en un día configurado como activo en el perfil.
 * **Días Activos Pactados (`active_days`):** El usuario define en su perfil qué días de la semana trabaja (ej. Lunes a Viernes `[1,2,3,4,5]`).
-* **Regla de Blindaje:** En los días desactivados (ej. Sábado y Domingo), la racha está **inmune** y no se reinicia aunque el usuario no inicie sesión.
-* **Ruptura de Racha:** Si transcurre un día pactado como activo sin registrar al menos 1 pomodoro completado, la racha se reinicia a 1 en su siguiente sesión exitosa.
+* **Regla de Blindaje Total:** En los días desactivados (ej. Sábado y Domingo), la racha está **inmune** y no se reinicia aunque el usuario no inicie sesión.
+* **Periodo de Gracia Anti-Frustración:** Cancelar en los primeros 120 segundos no penaliza ni altera la racha.
+* **Ruptura de Racha:** Si transcurre un día pactado como activo sin registrar al menos 1 pomodoro completado (a las 23:59 hrs), la racha se reinicia a 1 en su siguiente sesión exitosa.
+* **Bono de Racha (Genbu):** Otorga **+5% de daño al Boss por cada día de racha** acumulado (hasta un tope de +50% de daño permanente).
 
-### 🥇 9.3 Podio Semanal y Recompensas del Medallero
-Los domingos a medianoche se liquida la liga semanal comunitaria:
+### 🥇 9.4 Podio Semanal y Recompensas del Medallero
+Los domingos a las 23:59 hrs se liquida la liga semanal comunitaria:
 * 🥇 **1er Lugar (Oro):** +100 Pro Coins, +1 Victoria de Podio, +1 Medalla de Oro.
-* 🥈 **2do y 3er Lugar (Plata/Bronce):** +70 Pro Coins, +1 Victoria de Podio, Medalla correspondiente.
-* 🎖️ **Top 4 al 10:** +50 Pro Coins.
-* 👥 **Participantes activos:** +20 Pro Coins.
+* 🥈 **2do Lugar (Plata):** +70 Pro Coins, +1 Victoria de Podio, +1 Medalla de Plata.
+* 🥉 **3er Lugar (Bronce):** +70 Pro Coins, +1 Victoria de Podio, +1 Medalla de Bronce.
+* 🎖️ **Top 4 al 10:** +50 Pro Coins de honor militar.
+* 👥 **Participantes activos:** +20 Pro Coins de constancia.
+* **Criterio de Desempate:** En caso de igualdad de puntos/pomodoros, califica quien registre menor tasa de pausas y mayor daño en combates de Boss.
+
+### 👑 9.5 Récords Históricos de la Comunidad (Broken Records / Salón de la Fama)
+* **¿Cómo calificar para romper un récord?:** Superar o igualar la marca histórica más alta registrada por cualquier usuario en la base de datos de la plataforma.
+* **Las 4 Marcas Históricas:**
+  1. **Mejor Racha:** Mayor número de días consecutivos activos.
+  2. **Sesiones de Concentración:** Mayor volumen acumulado histórico de pomodoros completados.
+  3. **El Magnate de Focus:** Mayor cantidad acumulada histórica de Pro Coins generadas.
+  4. **Podios Conquistados:** Mayor cantidad de primeros lugares ganados en la historia.
+* **Privilegios del Poseedor:**
+  - Avatar a cuerpo completo exhibido en la tarjeta 3D holográfica.
+  - Placa dorada con Bandera Nacional y Nombre Oficial de Guerrero.
+  - Enlaces públicos directos a Redes Sociales (GitHub, LinkedIn, Twitter/X, Twitch).
 
 ---
 

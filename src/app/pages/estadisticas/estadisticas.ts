@@ -40,6 +40,8 @@ export class Estadisticas implements OnInit, OnDestroy {
   userLongestStreak = signal<number>(0);
   userTotalPomodoros = signal<number>(0);
   userTotalFocusSeconds = signal<number>(0);
+  userTotalCompletedObjectives = signal<number>(0);
+  userTodayCompletedObjectives = signal<number>(0);
 
   // Estado del modal de compartir en LinkedIn
   showShareModal = signal(false);
@@ -80,6 +82,9 @@ export class Estadisticas implements OnInit, OnDestroy {
       // Fallback local: usar datos de MembershipService si Supabase no está conectado
       this.userStreak.set(this.membership.streak());
       this.userTotalPomodoros.set(this.membership.focusTomatoes());
+      const ideasCompleted = this.membership.capturedIdeas().filter(i => i.is_completed).length;
+      const pointsObjectives = Math.floor(this.membership.focusPoints() / 40);
+      this.userTotalCompletedObjectives.set(Math.max(ideasCompleted, pointsObjectives));
       return;
     }
 
@@ -89,6 +94,9 @@ export class Estadisticas implements OnInit, OnDestroy {
         // En caso de no tener sesiones aún, todo permanece limpiamente en 0
         this.userStreak.set(this.membership.streak());
         this.userTotalPomodoros.set(this.membership.focusTomatoes());
+        const ideasCompleted = this.membership.capturedIdeas().filter(i => i.is_completed).length;
+        const pointsObjectives = Math.floor(this.membership.focusPoints() / 40);
+        this.userTotalCompletedObjectives.set(Math.max(ideasCompleted, pointsObjectives));
         return;
       }
 
@@ -100,6 +108,8 @@ export class Estadisticas implements OnInit, OnDestroy {
       this.userLongestStreak.set(data.longest_streak || 0);
       this.userTotalPomodoros.set(data.total_pomodoros || 0);
       this.userTotalFocusSeconds.set(data.total_focus_seconds || 0);
+      this.userTotalCompletedObjectives.set(data.total_completed_objectives || 0);
+      this.userTodayCompletedObjectives.set(data.today_completed_objectives || 0);
     } catch (e) {
       console.warn('[Estadísticas Load Error]', e);
     }
@@ -242,6 +252,38 @@ export class Estadisticas implements OnInit, OnDestroy {
     return Math.max(...this.annualData(), 1);
   });
 
+  // --- CÁLCULOS DE OBJETIVOS Y METAS ---
+  totalCompletedObjectives = computed(() => {
+    const ideasCompleted = this.membership.capturedIdeas().filter(i => i.is_completed).length;
+    const pointsObjectives = Math.floor(this.membership.focusPoints() / 40);
+    return Math.max(this.userTotalCompletedObjectives(), ideasCompleted, pointsObjectives);
+  });
+
+  todayCompletedObjectives = computed(() => {
+    const fromAttempts = this.dailyAttempts().filter(a => a.objective_completed === 'yes').length;
+    const todayISO = new Date().toISOString().split('T')[0];
+    const fromIdeasToday = this.membership.capturedIdeas().filter(i => {
+      if (!i.is_completed || !i.completed_at) return false;
+      return i.completed_at.startsWith(todayISO);
+    }).length;
+    return Math.max(this.userTodayCompletedObjectives(), fromAttempts, fromIdeasToday);
+  });
+
+  objectiveCompletionRate = computed(() => {
+    const totalPoms = this.annualTotal();
+    const totalObjs = this.totalCompletedObjectives();
+    if (totalPoms === 0) return totalObjs > 0 ? 100 : 0;
+    return Math.min(100, Math.round((totalObjs / totalPoms) * 100));
+  });
+
+  completedIdeasCount = computed(() => {
+    return this.membership.capturedIdeas().filter(i => i.is_completed).length;
+  });
+
+  pendingIdeasCount = computed(() => {
+    return this.membership.capturedIdeas().filter(i => !i.is_completed).length;
+  });
+
   // --- COMPARTIR EN LINKEDIN ---
   openShareModal() {
     this.showShareModal.set(true);
@@ -253,7 +295,7 @@ export class Estadisticas implements OnInit, OnDestroy {
 
   shareOnLinkedIn() {
     const text = encodeURIComponent(
-      `🎯 ¡He completado ${this.annualTotal()} sesiones de enfoque (${this.totalFocusHours()} horas) en COFU y mantengo una racha de ${this.longestStreak} días! 🔥🧠\n\n` +
+      `🎯 ¡He completado ${this.annualTotal()} sesiones de enfoque (${this.totalFocusHours()} horas) y conquistado ${this.totalCompletedObjectives()} objetivos en COFU manteniendo una racha de ${this.longestStreak} días! 🔥🧠\n\n` +
       `Supera la procrastinación en: https://cofu.app`
     );
     window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}`, '_blank');

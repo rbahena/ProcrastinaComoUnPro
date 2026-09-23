@@ -18,65 +18,100 @@
       </div>
     </header>
 
-    <!-- 4 TARJETAS PRINCIPALES (EL VISTAZO RÁPIDO) -->
+    <!-- 5 TARJETAS PRINCIPALES (VISTAZO RÁPIDO Y ESPACIOSO) -->
     <div class="kpi-grid">
-      <!-- Hoy -->
+      <!-- 1. Hoy -->
       <div class="kpi-card">
-        <div class="kpi-icon blue">
-          <i class="fa-solid fa-calendar-day"></i>
-        </div>
-        <div class="kpi-details">
+        <div class="kpi-top">
           <span class="kpi-label">Hoy</span>
-          <div class="kpi-value-row">
-            <span class="kpi-number">{{ todayCompletedCount() }}</span>
-            <span class="kpi-unit">pomodoros</span>
+          <div class="kpi-icon blue">
+            <i class="fa-solid fa-calendar-day"></i>
           </div>
-          <span class="kpi-subtext">{{ todayFocusHoursFormatted() }} de concentración pura</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-number">{{ todayCompletedCount() }}</span>
+          <span class="kpi-unit">pomodoros</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-pill">
+            <i class="fa-regular fa-clock"></i> {{ todayFocusHoursFormatted() }}
+          </span>
         </div>
       </div>
 
-      <!-- Esta Semana -->
+      <!-- 2. Esta Semana -->
       <div class="kpi-card">
-        <div class="kpi-icon gold">
-          <i class="fa-solid fa-calendar-week"></i>
-        </div>
-        <div class="kpi-details">
+        <div class="kpi-top">
           <span class="kpi-label">Esta Semana</span>
-          <div class="kpi-value-row">
-            <span class="kpi-number">{{ weeklyTotal() }}</span>
-            <span class="kpi-unit">pomodoros</span>
+          <div class="kpi-icon gold">
+            <i class="fa-solid fa-calendar-week"></i>
           </div>
-          <span class="kpi-subtext">Promedio: {{ weeklyAvg() }} por día</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-number">{{ weeklyTotal() }}</span>
+          <span class="kpi-unit">pomodoros</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-pill">
+            <i class="fa-solid fa-chart-simple"></i> {{ weeklyAvg() }}/día prom.
+          </span>
         </div>
       </div>
 
-      <!-- Racha Activa -->
+      <!-- 3. Racha Activa -->
       <div class="kpi-card">
-        <div class="kpi-icon green">
-          <i class="fa-solid fa-fire"></i>
-        </div>
-        <div class="kpi-details">
-          <span class="kpi-label">Racha de Disciplina</span>
-          <div class="kpi-value-row">
-            <span class="kpi-number">{{ longestStreak }}</span>
-            <span class="kpi-unit">días activos</span>
+        <div class="kpi-top">
+          <span class="kpi-label">Racha Activa</span>
+          <div class="kpi-icon green">
+            <i class="fa-solid fa-fire"></i>
           </div>
-          <span class="kpi-subtext" style="color: var(--yellow);">🔥 Récord personal activo</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-number">{{ longestStreak }}</span>
+          <span class="kpi-unit">días</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-pill flame">
+            <i class="fa-solid fa-bolt"></i> Récord: {{ longestStreak }}d
+          </span>
         </div>
       </div>
 
-      <!-- Total Acumulado -->
+      <!-- 4. Objetivos Conquistados -->
       <div class="kpi-card">
-        <div class="kpi-icon purple">
-          <i class="fa-solid fa-hourglass-end"></i>
-        </div>
-        <div class="kpi-details">
-          <span class="kpi-label">Total Acumulado</span>
-          <div class="kpi-value-row">
-            <span class="kpi-number">{{ annualTotal() }}</span>
-            <span class="kpi-unit">sesiones</span>
+        <div class="kpi-top">
+          <span class="kpi-label">Objetivos</span>
+          <div class="kpi-icon cyan">
+            <i class="fa-solid fa-bullseye"></i>
           </div>
-          <span class="kpi-subtext">{{ totalFocusHours() }} horas de vida enfocada</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-number">{{ totalCompletedObjectives() }}</span>
+          <span class="kpi-unit">logrados</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-pill success">
+            <i class="fa-solid fa-circle-check"></i> {{ objectiveCompletionRate() }}% éxito
+          </span>
+        </div>
+      </div>
+
+      <!-- 5. Total Acumulado -->
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Total Histórico</span>
+          <div class="kpi-icon purple">
+            <i class="fa-solid fa-hourglass-end"></i>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-number">{{ annualTotal() }}</span>
+          <span class="kpi-unit">sesiones</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-pill">
+            <i class="fa-solid fa-stopwatch"></i> {{ totalFocusHours() }}h totales
+          </span>
         </div>
       </div>
     </div>
@@ -273,7 +308,7 @@
       </div>
       <span class="badge-user-name">{{ userName() }}</span>
       <span class="badge-stats-line">
-        {{ annualTotal() }} Pomodoros completados • Racha de {{ longestStreak }} días
+        {{ annualTotal() }} Pomodoros • {{ totalCompletedObjectives() }} Objetivos • Racha de {{ longestStreak }} días
       </span>
     </div>
 

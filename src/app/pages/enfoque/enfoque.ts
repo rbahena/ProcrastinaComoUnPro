@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
-import { SupabaseService, FocusSessionData } from '../../services/supabase.service';
+import { SupabaseService, FocusSessionData, IdeaPriority } from '../../services/supabase.service';
 import { Navbar } from '../../components/navbar/navbar';
 import { BACKGROUND_SOUNDS, END_SESSION_SOUNDS, BackgroundSoundOption, EndSessionSoundOption } from './sounds.data';
 
@@ -1590,6 +1590,9 @@ export class Enfoque implements OnInit, OnDestroy {
   activeObjective = signal('');
   associatedIdeaId = signal<string | null>(null);
   activeMethodology = signal<'sapo' | 'pareto' | 'normal'>('normal');
+  isObjectiveAssociated = computed(() => {
+    return !!this.associatedIdeaId() && !!this.activeObjective()?.trim();
+  });
 
   selectMethodology(method: 'sapo' | 'pareto' | 'normal') {
     this.activeMethodology.set(method);
@@ -1597,12 +1600,16 @@ export class Enfoque implements OnInit, OnDestroy {
 
   onObjectiveInputChange(val: string) {
     this.activeObjective.set(val);
+    // Al editar o escribir nuevo texto, se desasocia cualquier idea previa hasta que el usuario pulse 'Asociar'
+    this.associatedIdeaId.set(null);
+    this.objectiveConfirmed.set(false);
+    localStorage.removeItem('activeObjectiveIdeaId');
+    localStorage.removeItem('focus-session-idea-id');
     if (!val || !val.trim()) {
-      this.associatedIdeaId.set(null);
       localStorage.removeItem('activeObjectiveDraft');
-      localStorage.removeItem('activeObjectiveIdeaId');
       localStorage.removeItem('focus-session-objective');
-      localStorage.removeItem('focus-session-idea-id');
+    } else {
+      localStorage.setItem('activeObjectiveDraft', val);
     }
   }
 
@@ -1661,6 +1668,7 @@ export class Enfoque implements OnInit, OnDestroy {
   globalFocusedCount = signal<number>(74);
   communityInterval: any = null;
   comunidadPanelExpanded = signal<boolean>(false);
+  hideMyObjectiveInCommunity = signal<boolean>(true);
 
   private initialComunidadUsers = [
     { name: 'Ana', avatar: 'lobo', status: 'focused', mission: 'Refactorizando el dashboard en Angular', timeLeft: 1200, percentage: 40 },
@@ -1722,11 +1730,48 @@ export class Enfoque implements OnInit, OnDestroy {
   bossHealAmount = computed(() => Math.round(this.bossService.activeBoss().maxHp * 0.02));
   objectiveConfirmed = signal(false);
 
-  confirmObjective() {
+  async confirmObjective() {
+    const text = this.activeObjective()?.trim();
+    if (!text) return;
+
+    let currentId = this.associatedIdeaId();
+    if (!currentId) {
+      // Verificar si ya existe una nota con el mismo contenido en el baúl de ideas
+      const existing = this.membership.capturedIdeas().find(
+        i => i.content.trim().toLowerCase() === text.toLowerCase()
+      );
+      if (existing && existing.id) {
+        currentId = existing.id;
+        this.associatedIdeaId.set(currentId);
+        await this.membership.convertIdeaToObjective(currentId);
+      } else {
+        // Crear la nueva idea en la tabla de ideas y guardarla en Supabase/local
+        const priority: IdeaPriority = this.activeMethodology() === 'sapo' 
+          ? 'alta' 
+          : (this.activeMethodology() === 'pareto' ? 'alta' : 'media');
+        
+        await this.membership.addIdea(text, priority);
+        // Buscar la idea recién creada en la lista
+        const newlyCreated = this.membership.capturedIdeas().find(i => i.content === text) || this.membership.capturedIdeas()[0];
+        if (newlyCreated && newlyCreated.id) {
+          currentId = newlyCreated.id;
+          this.associatedIdeaId.set(currentId);
+          await this.membership.convertIdeaToObjective(currentId);
+        }
+      }
+    } else {
+      await this.membership.convertIdeaToObjective(currentId);
+    }
+
+    localStorage.setItem('activeObjectiveDraft', text);
+    if (currentId) {
+      localStorage.setItem('activeObjectiveIdeaId', currentId);
+      localStorage.setItem('focus-session-idea-id', currentId);
+    }
+    localStorage.setItem('focus-session-objective', text);
+
     this.objectiveConfirmed.set(true);
-    setTimeout(() => {
-      this.objectiveConfirmed.set(false);
-    }, 2000);
+    this.showToastFeedback('🎯 Objetivo asociado a tu Pomodoro y guardado en Mis Ideas', 'success');
   }
 
   // Resultados del Cuestionario Post-Sesión
@@ -2257,14 +2302,16 @@ export class Enfoque implements OnInit, OnDestroy {
 
     const draft = localStorage.getItem('activeObjectiveDraft');
     const draftIdeaId = localStorage.getItem('activeObjectiveIdeaId');
-    if (draft) {
+    if (draft && draftIdeaId) {
       this.activeObjective.set(draft);
+      this.associatedIdeaId.set(draftIdeaId);
       this.objectiveConfirmed.set(true);
       localStorage.setItem('focus-session-objective', draft);
-    }
-    if (draftIdeaId) {
-      this.associatedIdeaId.set(draftIdeaId);
       localStorage.setItem('focus-session-idea-id', draftIdeaId);
+    } else if (draft) {
+      this.activeObjective.set(draft);
+      this.associatedIdeaId.set(null);
+      this.objectiveConfirmed.set(false);
     }
 
     // Registración de escuchas de inactividad Zen
@@ -4447,8 +4494,10 @@ export class Enfoque implements OnInit, OnDestroy {
   setFocusMode(mode: 'solo' | 'comunitario') {
     if (mode === 'solo') {
       this.coworkingMode.set('solo');
-      this.communityActiveTab.set('strategy');
-      this.showToast('👤 Has vuelto a enfocarte en solitario.', 'info');
+      if (this.communityActiveTab() === 'boss') {
+        this.communityActiveTab.set('strategy');
+      }
+      this.showToast('👤 Modo Solitario activado (100% privado).', 'info');
       return;
     }
 
@@ -4458,8 +4507,7 @@ export class Enfoque implements OnInit, OnDestroy {
     }
 
     this.coworkingMode.set('comunitario');
-    this.communityActiveTab.set('boss');
-    this.showToast('👥 Te has unido al Templo de Enfoque Comunitario.', 'info');
+    this.showToast('👥 Modo Comunidad activado (combate Boss y guerreros en vivo).', 'info');
   }
 
   initializeComunidadUsers() {
