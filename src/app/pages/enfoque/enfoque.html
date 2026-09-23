@@ -10,11 +10,14 @@
          [class.bg-titanic-midnight]="activeBackground() === 'lofi_titanic_ocean'"
          [class.bg-lighthouse-night]="activeBackground() === 'lofi_lighthouse_ocean'">
       
+      <!-- Capa de Fondo para Colores Sólidos Profesionales / Gradientes -->
+      <div *ngIf="isSolidColorBackground()" class="zen-bg-solid-backdrop" [style.background]="getSolidColorGradient()"></div>
+
       <!-- Capa de Fondo de Respaldo y Atmósfera de Borde a Borde -->
-      <div class="zen-bg-ambient-backdrop" [style.backgroundImage]="'url(' + backgroundUrl() + ')'"></div>
+      <div *ngIf="!isSolidColorBackground()" class="zen-bg-ambient-backdrop" [style.backgroundImage]="'url(' + backgroundUrl() + ')'"></div>
 
       <!-- Imagen Zen HD Alejada (Abarca la Mayor Parte de la Ilustración, Cuidando Dimensiones y Aspect Ratio) -->
-      <img *ngIf="!isVideoBackground() && activeBackground() !== 'off'"
+      <img *ngIf="!isVideoBackground() && !isSolidColorBackground() && activeBackground() !== 'off'"
            [src]="backgroundUrl()"
            class="zen-bg-image-wide"
            alt="Fondo Zen" />
@@ -1424,12 +1427,7 @@
           <!-- Reloj Digital / Fuego Premium Contenedor -->
           <div class="zen-timer" [class.has-fire]="timerStyle() === 'fire'" style="z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 16px;">
             
-            <!-- Indicador sutil de arrastre de fogata (Desaparece tras unos segundos) -->
-            <div *ngIf="showCampfireDragTooltip() && arenaState() === 'setup' && timerStyle() === 'fire'"
-                 style="font-size: 9px; color: var(--muted); background: rgba(10, 10, 12, 0.7); border: 1px dashed rgba(255, 255, 255, 0.15); padding: 6px 12px; border-radius: 8px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.6px; text-transform: uppercase; animation: fadeIn 0.4s ease, fadeOut 0.5s 7.5s forwards; margin-bottom: 4px; pointer-events: none; user-select: none;">
-              <i class="fa-solid fa-arrows-up-down-left-right" style="color: var(--accent); font-size: 10px;"></i>
-              <span>Puedes arrastrar la fogata a cualquier zona para que combine con tu fondo</span>
-            </div>
+            
             
              <!-- CASO 1: Dígitos Clásicos y Cuenta Regresiva Universal -->
              <ng-container *ngIf="timerStyle() === 'digital' || arenaState() === 'countdown' || emergencyPauseActive()">
@@ -1469,13 +1467,9 @@
               <div *ngIf="(arenaState() === 'active' || (arenaState() === 'setup' && !isBreak())) && !emergencyPauseActive()"
                    class="fire-container"
                    [class.is-break]="isBreak()"
-                   (mousedown)="onDragStart($event)"
-                   (touchstart)="onTouchStart($event)"
-                   (dblclick)="resetCampfirePosition()"
-                   [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                   style="position: relative; width: 190px; height: 190px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
-                
-                <!-- Aura de brillo de fondo detrás de la flama (se encoge con ella) -->
+                   style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto; overflow: visible;">
+                <div class="campfire-visual-wrapper" style="position: relative; width: 175px; height: 190px; margin-top: -12px; margin-bottom: 32px; display: flex; justify-content: center; align-items: center;">
+                  <!-- Aura de brillo de fondo detrás de la flama (se encoge con ella) -->
                 <div class="fire-glow" 
                      [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.20 : fireScale()) + ')'" 
                      [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()"></div>
@@ -1490,7 +1484,7 @@
                      [style.transform]="'scale(' + (arenaState() === 'setup' ? 1.20 : fireScale()) + ')'" 
                      [style.transformOrigin]="'50px 94px'"
                      [style.opacity]="arenaState() === 'setup' ? 1.0 : fireOpacity()"
-                     style="width: 100%; height: 100%; z-index: 4; overflow: visible; position: absolute; top: -20px; left: 0; transition: transform 0.2s, opacity 0.2s;">
+                     style="width: 100%; height: 100%; z-index: 4; overflow: visible; position: absolute; top: -42px; left: 0; transition: transform 0.2s, opacity 0.2s;">
                   <defs>
                     <!-- Filtro de refracción de calor (Heat Shimmer) -->
                     <filter id="heatShimmer" x="-50%" y="-50%" width="200%" height="200%">
@@ -1550,7 +1544,7 @@
 
                 <!-- Troncos de base bajo la llama activa (SE MANTIENEN FIJOS en escala 1.0, z-index 3 detrás de la flama, mismo viewBox) -->
                 <svg viewBox="0 -15 100 115" style="width: 100%; height: 100%; z-index: 3; overflow: visible; position: absolute; top: 0; left: 0; pointer-events: none;">
-                  <g class="svg-logs-base" transform="translate(-10, 48) scale(1.2)">
+                  <g class="svg-logs-base" transform="translate(-6, 20) scale(1.08)">
                     <!-- Base de ceniza/carbón en el suelo -->
                     <ellipse cx="50" cy="45" rx="38" ry="7" fill="#140d09" opacity="0.85" />
                     <ellipse cx="50" cy="45" rx="26" ry="5" fill="#080503" opacity="0.95" />
@@ -1653,12 +1647,12 @@
                   <div class="spark-particle anim-spark-1" style="left: 65.1%; width: 2.6px; height: 2.6px; background: #ff9100; animation-duration: 2.88s; animation-delay: 2.14s;"></div>
                   <div class="spark-particle anim-spark-5" style="left: 46.5%; width: 3.1px; height: 3.1px; background: #ffffff; animation-duration: 2.85s; animation-delay: 0.3s;"></div>
                 </div>
-
+                </div>
                 <!-- Contador visual sutil de la Fogata -->
                 <div class="subtle-timer-pill"
-                     style="position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%); z-index: 15; pointer-events: none; user-select: none;">
-                  <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; background: rgba(15, 10, 8, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 145, 0, 0.28); border-radius: 20px; font-family: 'Space Grotesk', monospace; font-size: 13px; font-weight: 800; color: #ff9100; letter-spacing: 1px; box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(255, 61, 0, 0.2); text-shadow: 0 0 10px rgba(255, 145, 0, 0.5);">
-                    <i class="fa-solid fa-fire-flame-curved" style="font-size: 10px; color: #ff5722;"></i>
+                     style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none; user-select: none;">
+                  <span style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 110px; padding: 5px 16px; background: rgba(15, 10, 8, 0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 145, 0, 0.35); border-radius: 999px; font-family: 'Space Grotesk', monospace; font-size: 14px; font-weight: 850; color: #ff9100; letter-spacing: 1px; line-height: 1; box-shadow: 0 4px 18px rgba(0,0,0,0.5), 0 0 14px rgba(255, 61, 0, 0.25); text-shadow: 0 0 10px rgba(255, 145, 0, 0.5);">
+                    <i class="fa-solid fa-fire-flame-curved" style="font-size: 11px; color: #ff5722;"></i>
                     {{ timeString() }}
                   </span>
                 </div>
@@ -1667,13 +1661,9 @@
               <!-- CONTENEDOR DE TRONCOS Y HUMO (Se muestra en summary, y en setup únicamente cuando es descanso) -->
               <div *ngIf="arenaState() === 'summary' || (arenaState() === 'setup' && isBreak())"
                    class="logs-container"
-                   (mousedown)="onDragStart($event)"
-                   (touchstart)="onTouchStart($event)"
-                   (dblclick)="resetCampfirePosition()"
-                   [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                   style="position: relative; width: 250px; height: 250px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; margin: 5px auto; overflow: visible;">
-                   
-                   <!-- Humo animado en los troncos de resumen (15 partículas para humo más denso y continuo) -->
+                   style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto; overflow: visible;">
+                <div class="campfire-visual-wrapper" style="position: relative; width: 175px; height: 190px; margin-top: -12px; margin-bottom: 32px; display: flex; justify-content: center; align-items: center;">
+                  <!-- Humo animado en los troncos de resumen (15 partículas para humo más denso y continuo) -->
                    <div class="smoke-particles-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 200px; overflow: visible; pointer-events: none;">
                   <div class="smoke-particle anim-smoke-1" style="left: 62.0%; animation-duration: 5.49s; animation-delay: 0.28s; transform: scale(0.93);"></div>
                   <div class="smoke-particle anim-smoke-2" style="left: 41.4%; animation-duration: 5.4s; animation-delay: 3.35s; transform: scale(1.33);"></div>
@@ -1708,7 +1698,7 @@
 
                    <!-- Troncos SVG de Resumen (Mismo tamaño de base, mismo viewBox, alineado perfecto) -->
                    <svg viewBox="0 -15 100 115" style="width: 100%; height: 100%; z-index: 2; overflow: visible; position: absolute; top: 0; left: 0;">
-                     <g class="svg-logs-base" transform="translate(-10, 48) scale(1.2)">
+                     <g class="svg-logs-base" transform="translate(-6, 20) scale(1.08)">
                        <!-- Base de ceniza/carbón en el suelo -->
                        <ellipse cx="50" cy="45" rx="38" ry="7" fill="#140d09" opacity="0.85" />
                        <ellipse cx="50" cy="45" rx="26" ry="5" fill="#080503" opacity="0.95" />
@@ -1766,17 +1756,15 @@
                        <circle cx="70" cy="46" r="1.2" fill="#ff9100" style="animation: emberPulse 1.6s infinite alternate;" />
                      </g>
                    </svg>
-              </div>
-              
-              <!-- Línea de progreso de fusión consumible (diseño de fusible quemado/charcoal, visible en countdown y active) -->
-              <div *ngIf="arenaState() === 'countdown' || arenaState() === 'active'"
-                   [style.borderColor]="isBreak() ? 'rgba(0, 242, 254, 0.15)' : 'rgba(255, 61, 0, 0.15)'"
-                   style="width: 130px; height: 8px; background: #140d09; border-radius: 6px; margin: 16px auto 6px auto; overflow: hidden; position: relative; border: 1.5px solid; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9); z-index: 10;">
-                <div [style.width]="(timePercentage() * 100) + '%'"
-                     [style.background]="isBreak() ? 'linear-gradient(90deg, #0052d4 0%, #00f2fe 70%, #ffffff 100%)' : 'linear-gradient(90deg, #ff3d00 0%, #ff9100 70%, #ffea00 100%)'"
-                     [style.boxShadow]="isBreak() ? '0 0 12px rgba(0, 242, 254, 0.9), 0 0 4px rgba(255, 255, 255, 0.8)' : '0 0 12px rgba(255, 61, 0, 0.9), 0 0 4px rgba(255, 234, 0, 0.8)'"
-                     style="height: 100%; transition: width 1s linear; border-radius: 6px;">
                 </div>
+                <!-- Contador visual sutil de Troncos / Descanso -->
+                   <div class="subtle-timer-pill"
+                        style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none; user-select: none;">
+                     <span style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 110px; padding: 5px 16px; background: rgba(15, 10, 8, 0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 145, 0, 0.35); border-radius: 999px; font-family: 'Space Grotesk', monospace; font-size: 14px; font-weight: 850; color: #ff9100; letter-spacing: 1px; line-height: 1; box-shadow: 0 4px 18px rgba(0,0,0,0.5), 0 0 14px rgba(255, 61, 0, 0.25); text-shadow: 0 0 10px rgba(255, 145, 0, 0.5);">
+                       <i class="fa-solid fa-fire-flame-curved" style="font-size: 11px; color: #ff5722;"></i>
+                       {{ timeString() }}
+                     </span>
+                   </div>
               </div>
 
             </ng-container>
@@ -1787,14 +1775,10 @@
                <!-- Reloj de Arena interactiva arrastrable (Oculto durante la cuenta regresiva o interrupción) -->
                 <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                     class="apple-container"
-                    (mousedown)="onDragStart($event)"
-                    (touchstart)="onTouchStart($event)"
-                    (dblclick)="resetCampfirePosition()"
-                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto -25px auto; overflow: visible;">
+                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto; overflow: visible;">
                  
                  <!-- SVG del Reloj de Arena -->
-                 <svg viewBox="0 20 100 82" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                 <svg viewBox="0 -12 100 140" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
                    <defs>
                       <linearGradient id="sandGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset="0%" stop-color="#ffe082" />
@@ -1851,9 +1835,9 @@
 
                  <!-- Contador visual sutil del Reloj de Arena -->
                  <div class="subtle-timer-pill"
-                      style="position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); z-index: 15; pointer-events: none; user-select: none;">
-                   <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; background: rgba(18, 14, 8, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 179, 0, 0.28); border-radius: 20px; font-family: 'Space Grotesk', monospace; font-size: 13px; font-weight: 800; color: #ffb300; letter-spacing: 1px; box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(255, 179, 0, 0.2); text-shadow: 0 0 10px rgba(255, 179, 0, 0.5);">
-                     <i class="fa-solid fa-hourglass-half" style="font-size: 10px; color: #ffe082;"></i>
+                      style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none; user-select: none;">
+                   <span style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 110px; padding: 5px 16px; background: rgba(18, 14, 8, 0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 179, 0, 0.35); border-radius: 999px; font-family: 'Space Grotesk', monospace; font-size: 14px; font-weight: 850; color: #ffb300; letter-spacing: 1px; line-height: 1; box-shadow: 0 4px 18px rgba(0,0,0,0.5), 0 0 14px rgba(255, 179, 0, 0.25); text-shadow: 0 0 10px rgba(255, 179, 0, 0.5);">
+                     <i class="fa-solid fa-hourglass-half" style="font-size: 11px; color: #ffe082;"></i>
                      {{ timeString() }}
                    </span>
                  </div>
@@ -1868,11 +1852,7 @@
                <!-- Cubo de Hielo interactivo (Oculto en cuenta regresiva) -->
                <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                     class="ice-container"
-                    (mousedown)="onDragStart($event)"
-                    (touchstart)="onTouchStart($event)"
-                    (dblclick)="resetCampfirePosition()"
-                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto -25px auto; overflow: visible;">
+                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto; overflow: visible;">
                  
                  <!-- SVG del Cubo de Hielo -->
                  <svg viewBox="0 0 100 120" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
@@ -1972,9 +1952,9 @@
 
                  <!-- Contador visual sutil del Cubo de Hielo -->
                  <div class="subtle-timer-pill"
-                      style="position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); z-index: 15; pointer-events: none; user-select: none;">
-                   <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; background: rgba(6, 16, 26, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(0, 242, 254, 0.28); border-radius: 20px; font-family: 'Space Grotesk', monospace; font-size: 13px; font-weight: 800; color: #00f2fe; letter-spacing: 1px; box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(0, 242, 254, 0.2); text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);">
-                     <i class="fa-solid fa-cube" style="font-size: 10px; color: #80deea;"></i>
+                      style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none; user-select: none;">
+                   <span style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 110px; padding: 5px 16px; background: rgba(6, 16, 26, 0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 999px; font-family: 'Space Grotesk', monospace; font-size: 14px; font-weight: 850; color: #00f2fe; letter-spacing: 1px; line-height: 1; box-shadow: 0 4px 18px rgba(0,0,0,0.5), 0 0 14px rgba(0, 242, 254, 0.25); text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);">
+                     <i class="fa-solid fa-cube" style="font-size: 11px; color: #80deea;"></i>
                      {{ timeString() }}
                    </span>
                  </div>
@@ -1988,14 +1968,10 @@
                <!-- Batería interactiva arrastrable (Oculto en cuenta regresiva) -->
                <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                     class="battery-container"
-                    (mousedown)="onDragStart($event)"
-                    (touchstart)="onTouchStart($event)"
-                    (dblclick)="resetCampfirePosition()"
-                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
-                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto -25px auto; overflow: visible;">
+                    style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto; overflow: visible;">
                  
                  <!-- SVG de la Batería -->
-                 <svg viewBox="0 0 100 120" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                 <svg viewBox="0 0 100 120" style="width: 175px; height: 210px; margin-top: -10px; margin-bottom: 32px; overflow: visible; z-index: 4;">
                    <defs>
                      <!-- Filtro de resplandor de neón -->
                      <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
@@ -2094,13 +2070,13 @@
 
                  <!-- Contador visual sutil de la Batería -->
                  <div class="subtle-timer-pill"
-                      style="position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); z-index: 15; pointer-events: none; user-select: none;">
-                   <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; background: rgba(8, 14, 10, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 20px; font-family: 'Space Grotesk', monospace; font-size: 13px; font-weight: 800; letter-spacing: 1px;"
+                      style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none; user-select: none;">
+                   <span style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 110px; padding: 5px 16px; background: rgba(8, 14, 10, 0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 999px; font-family: 'Space Grotesk', monospace; font-size: 14px; font-weight: 850; letter-spacing: 1px; line-height: 1;"
                          [style.color]="timePercentage() > 0.5 ? '#00e676' : (timePercentage() > 0.2 ? '#ffd600' : '#ff1744')"
-                         [style.border]="'1px solid ' + (timePercentage() > 0.5 ? 'rgba(0, 230, 118, 0.3)' : (timePercentage() > 0.2 ? 'rgba(255, 214, 0, 0.3)' : 'rgba(255, 23, 68, 0.3)'))"
-                         [style.boxShadow]="timePercentage() > 0.5 ? '0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(0, 230, 118, 0.2)' : (timePercentage() > 0.2 ? '0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(255, 214, 0, 0.2)' : '0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(255, 23, 68, 0.2)')"
+                         [style.border]="'1px solid ' + (timePercentage() > 0.5 ? 'rgba(0, 230, 118, 0.35)' : (timePercentage() > 0.2 ? 'rgba(255, 214, 0, 0.35)' : 'rgba(255, 23, 68, 0.35)'))"
+                         [style.boxShadow]="timePercentage() > 0.5 ? '0 4px 18px rgba(0,0,0,0.5), 0 0 14px rgba(0, 230, 118, 0.25)' : (timePercentage() > 0.2 ? '0 4px 18px rgba(0,0,0,0.5), 0 0 14px rgba(255, 214, 0, 0.25)' : '0 4px 18px rgba(0,0,0,0.5), 0 0 14px rgba(255, 23, 68, 0.25)')"
                          [style.textShadow]="timePercentage() > 0.5 ? '0 0 10px rgba(0, 230, 118, 0.5)' : (timePercentage() > 0.2 ? '0 0 10px rgba(255, 214, 0, 0.5)' : '0 0 10px rgba(255, 23, 68, 0.5)')">
-                     <i class="fa-solid fa-bolt" style="font-size: 10px;"></i>
+                     <i class="fa-solid fa-bolt" style="font-size: 11px;"></i>
                      {{ timeString() }}
                    </span>
                  </div>
@@ -2113,10 +2089,6 @@
                <!-- Anillo interactivo arrastrable (Oculto en cuenta regresiva) -->
                <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                     class="ring-container"
-                    (mousedown)="onDragStart($event)"
-                    (touchstart)="onTouchStart($event)"
-                    (dblclick)="resetCampfirePosition()"
-                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
                     style="position: relative; width: 280px; height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto -20px auto; overflow: visible;">
                  
                  <!-- SVG del Anillo -->
@@ -2158,10 +2130,6 @@
                <!-- Línea interactiva arrastrable (Oculto en cuenta regresiva) -->
                <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
                     class="line-container"
-                    (mousedown)="onDragStart($event)"
-                    (touchstart)="onTouchStart($event)"
-                    (dblclick)="resetCampfirePosition()"
-                    [style.transform]="'translate(' + campfireX() + 'px, ' + campfireY() + 'px)'"
                     style="position: relative; width: 280px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 10px auto -30px auto; overflow: visible;">
                  
                  <!-- SVG de la Línea -->
@@ -5426,8 +5394,7 @@
                   <div class="setup-obj-pill">
                     <div class="setup-obj-left">
                       <div class="setup-obj-meta">
-                        <i class="fa-solid" [class.fa-bookmark]="associatedIdeaId()" [class.fa-bullseye]="!associatedIdeaId()"></i>
-                        <span>{{ associatedIdeaId() ? 'Nota enlazada' : 'Objetivo' }}</span>
+                        <span>Objetivo de la sesión</span>
                       </div>
                       <div class="setup-obj-title-wrapper" 
                            [attr.data-tooltip]="activeObjective()"
@@ -5439,9 +5406,9 @@
                     <div class="setup-obj-right">
                       <span *ngIf="associatedIdeaObj()?.dedicated_minutes" 
                             class="setup-obj-dedicated-pill" 
-                            [attr.data-tooltip]="'⏱️ ' + formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) + ' acumulados'"
+                            [attr.data-tooltip]="formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) + ' acumulados'"
                             data-tooltip-align="top">
-                        <i class="fa-solid fa-hourglass-half"></i> {{ formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) }}
+                        {{ formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) }}
                       </span>
                       <button type="button" 
                               class="setup-obj-clear-btn" 
@@ -5669,8 +5636,7 @@
             <div class="setup-obj-pill">
               <div class="setup-obj-left">
                 <div class="setup-obj-meta">
-                  <i class="fa-solid" [class.fa-bookmark]="associatedIdeaId()" [class.fa-bullseye]="!associatedIdeaId()"></i>
-                  <span>{{ associatedIdeaId() ? 'Nota enlazada' : 'Objetivo' }}</span>
+                  <span>Objetivo de la sesión</span>
                 </div>
                 <div class="setup-obj-title-wrapper" 
                      [attr.data-tooltip]="activeObjective()"
@@ -5682,9 +5648,9 @@
               <div class="setup-obj-right">
                 <span *ngIf="associatedIdeaObj()?.dedicated_minutes" 
                       class="setup-obj-dedicated-pill" 
-                      [attr.data-tooltip]="'⏱️ ' + formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) + ' acumulados'"
+                      [attr.data-tooltip]="formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) + ' acumulados'"
                       data-tooltip-align="top">
-                  <i class="fa-solid fa-hourglass-half"></i> {{ formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) }}
+                  {{ formatDedicatedTime(associatedIdeaObj()?.dedicated_minutes) }}
                 </span>
                 <button type="button" 
                         class="setup-obj-clear-btn" 
@@ -6886,12 +6852,28 @@
 
           <div style="height: 1px; background: rgba(255,255,255,0.03);"></div>
 
-          <!-- Miniaturas de Fondos Zen -->
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
-              <i class="fa-image fa-solid" style="color: var(--accent);"></i>
-              Fondo de Pantalla 
-            </span>
+          <!-- Miniaturas de Fondos Zen Clasificados -->
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-image fa-solid" style="color: var(--accent);"></i>
+                Fondo de Pantalla 
+              </span>
+
+              <!-- Filtro de Categorías -->
+              <div style="display: flex; gap: 4px; overflow-x: auto; max-width: 100%; padding-bottom: 2px;">
+                <button *ngFor="let cat of backgroundCategories"
+                        type="button"
+                        (click)="setBackgroundCategory(cat.id)"
+                        style="border: 1px solid; border-radius: 999px; padding: 4px 10px; font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 4px; font-family: inherit;"
+                        [style.background]="activeBackgroundCategory() === cat.id ? 'var(--accent)' : 'rgba(255, 255, 255, 0.04)'"
+                        [style.borderColor]="activeBackgroundCategory() === cat.id ? 'var(--accent)' : 'rgba(255, 255, 255, 0.1)'"
+                        [style.color]="activeBackgroundCategory() === cat.id ? '#050508' : 'var(--muted)'">
+                  <i class="fa-solid" [ngClass]="cat.icon" style="font-size: 9px;"></i>
+                  <span>{{ cat.label }}</span>
+                </button>
+              </div>
+            </div>
             
             <!-- Aviso de Fondos Permitidos para Relojes de Órbitas -->
             <div *ngIf="isOrbitalTimer()" 
@@ -6913,52 +6895,89 @@
               </div>
             </div>
 
-            <div [style.opacity]="timerStyle() === 'titanic' ? 0.45 : 1" [style.pointerEvents]="timerStyle() === 'titanic' ? 'none' : 'auto'" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px; transition: opacity 0.2s;">
-              <div *ngFor="let bg of availableBackgroundOptions()"
-                   (click)="setBackground(bg)"
-                   class="bg-thumb-card"
-                   [attr.data-active]="activeBackground() === bg ? 'true' : 'false'">
-                
-                <!-- Thumbnail wrapper -->
-                <div class="thumb-img-wrapper"
-                     style="width: 100%; aspect-ratio: 16/10; border-radius: 8px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background-color: rgba(0,0,0,0.4);"
-                     [style.borderColor]="activeBackground() === bg ? 'var(--accent)' : 'var(--border)'"
-                     [style.boxShadow]="activeBackground() === bg ? '0 0 12px rgba(99, 102, 241, 0.25)' : '0 4px 10px rgba(0,0,0,0.3)'">
-                  
-                  <div style="width: 100%; height: 100%; background-size: cover; background-position: center;"
-                       [style.backgroundImage]="bg === 'off' ? 'none' : 'url(' + getBackgroundThumbnailUrl(bg) + ')'"
-                       [style.opacity]="bg === 'off' ? '0.3' : '1'">
-                  </div>
-
-                  <!-- Badge Animado/Video para fondos en video HD -->
-                  <div *ngIf="bg === 'lofi_cat_window' || bg === 'lofi_cat_rain' || bg === 'lofi_cat_sun' || bg === 'lofi_car_ride'"
-                       style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.25); padding: 1px 4px; border-radius: 4px; display: flex; align-items: center; gap: 3px; z-index: 3;">
-                    <i class="fa-solid fa-video" style="color: #38bdf8; font-size: 7.5px;"></i>
-                    <span style="font-size: 7.5px; font-weight: 800; color: #fff; letter-spacing: 0.5px;">VIDEO</span>
-                  </div>
-
-                  <div *ngIf="activeBackground() === bg"
-                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
-                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
-                  </div>
-
-                  <div *ngIf="bg === 'off'"
-                       style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: var(--muted); text-transform: uppercase;">
-                    Off
-                  </div>
+            <!-- Grupos Clasificados -->
+            <div [style.opacity]="timerStyle() === 'titanic' ? 0.45 : 1" 
+                 [style.pointerEvents]="timerStyle() === 'titanic' ? 'none' : 'auto'" 
+                 style="display: flex; flex-direction: column; gap: 18px; transition: opacity 0.2s;">
+              
+              <div *ngFor="let cat of filteredBackgroundCategories()" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Encabezado de Categoría -->
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 5px;">
+                  <span style="font-size: 11px; font-weight: 800; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid" [ngClass]="cat.icon" [style.color]="cat.badgeColor" style="font-size: 10.5px;"></i>
+                    {{ cat.title }}
+                  </span>
+                  <span style="font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px; border: 1px solid;"
+                        [style.borderColor]="cat.badgeColor + '55'"
+                        [style.background]="cat.badgeColor + '18'"
+                        [style.color]="cat.badgeColor">
+                    {{ cat.badge }}
+                  </span>
                 </div>
 
-                <span class="thumb-label" 
-                      style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
-                      [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
-                  {{ getBackgroundLabel(bg) }}
-                </span>
+                <!-- Grilla de Tarjetas -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px;">
+                  <div *ngFor="let bg of cat.availableItems"
+                       (click)="setBackground(bg)"
+                       class="bg-thumb-card"
+                       [attr.data-active]="activeBackground() === bg ? 'true' : 'false'">
+                    
+                    <!-- Thumbnail wrapper -->
+                    <div class="thumb-img-wrapper"
+                         style="width: 100%; aspect-ratio: 16/10; border-radius: 8px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background-color: rgba(0,0,0,0.4);"
+                         [style.borderColor]="activeBackground() === bg ? 'var(--accent)' : 'var(--border)'"
+                         [style.boxShadow]="activeBackground() === bg ? '0 0 12px rgba(99, 102, 241, 0.25)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                      
+                      <!-- Vista previa para Colores Sólidos Pro -->
+                      <div *ngIf="isSolidColor(bg)"
+                           style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
+                           [style.background]="getSolidColorGradient(bg)">
+                        <i class="fa-solid fa-palette" style="color: rgba(255,255,255,0.35); font-size: 13px;"></i>
+                      </div>
+
+                      <!-- Vista previa para fondos de imagen/video/off -->
+                      <div *ngIf="!isSolidColor(bg)"
+                           style="width: 100%; height: 100%; background-size: cover; background-position: center;"
+                           [style.backgroundImage]="bg === 'off' ? 'none' : 'url(' + getBackgroundThumbnailUrl(bg) + ')'"
+                           [style.opacity]="bg === 'off' ? '0.3' : '1'">
+                      </div>
+
+                      <!-- Badge Animado/Video para fondos en video HD -->
+                      <div *ngIf="bg === 'lofi_cat_window' || bg === 'lofi_cat_rain' || bg === 'lofi_cat_sun' || bg === 'lofi_car_ride'"
+                           style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.25); padding: 1px 4px; border-radius: 4px; display: flex; align-items: center; gap: 3px; z-index: 3;">
+                        <i class="fa-solid fa-video" style="color: #38bdf8; font-size: 7.5px;"></i>
+                        <span style="font-size: 7.5px; font-weight: 800; color: #fff; letter-spacing: 0.5px;">VIDEO</span>
+                      </div>
+
+                      <div *ngIf="activeBackground() === bg"
+                           style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3;">
+                        <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                      </div>
+
+                      <div *ngIf="bg === 'off'"
+                           style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 8px; font-weight: 800; color: var(--muted); text-transform: uppercase; background: rgba(0,0,0,0.5);">
+                        <i class="fa-solid fa-power-off" style="font-size: 13px; opacity: 0.75;"></i>
+                        <span>Off</span>
+                      </div>
+                    </div>
+
+                    <span class="thumb-label" 
+                          style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;"
+                          [style.color]="activeBackground() === bg ? 'var(--accent)' : 'var(--muted)'">
+                      {{ getBackgroundLabel(bg) }}
+                    </span>
+                  </div>
+                </div>
               </div>
+
             </div>
             
-            <span style="font-size: var(--modal-subtext-size); color: var(--muted); line-height: 1.3; margin-top: 2px;">
-              {{ getBackgroundActiveDescription() }}
-            </span>
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-circle-info" style="color: var(--accent); font-size: 12px;"></i>
+              <span style="font-size: var(--modal-subtext-size); color: var(--muted); line-height: 1.3;">
+                {{ getBackgroundActiveDescription() }}
+              </span>
+            </div>
           </div>
 
         </div>
@@ -7780,57 +7799,53 @@
              [style.pointerEvents]="arenaState() !== 'setup' ? 'none' : 'auto'">
           <input type="text" 
                  [disabled]="arenaState() !== 'setup'"
-                 [ngModel]="activeObjective()" 
+                 [ngModel]="objectiveInput()" 
                  (ngModelChange)="onObjectiveInputChange($event)"
                  (keydown.enter)="confirmObjective()"
                  [placeholder]="activeMethodology() === 'sapo' ? '¿Qué sapo te vas a comer hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave hoy?' : '¿Qué tarea vas a realizar?')"
                  style="width: 100%; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; padding-right: 36px; color: var(--text); font-size: 12.5px; font-weight: 600; outline: none; font-family: inherit; height: 42px; box-sizing: border-box;"
                  [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'text'">
 
-          <!-- Botón X integrado DENTRO del input a la derecha para borrar todo el contenido -->
-          <button *ngIf="activeObjective() && activeObjective().trim() && arenaState() === 'setup'"
+          <!-- Botón X integrado DENTRO del input a la derecha para borrar lo que se está escribiendo -->
+          <button *ngIf="objectiveInput() && objectiveInput().trim() && arenaState() === 'setup'"
                   type="button"
-                  (click)="disassociateObjective()"
+                  (click)="objectiveInput.set('')"
                   style="position: absolute; right: 10px; background: rgba(255, 255, 255, 0.08); border: none; width: 22px; height: 22px; border-radius: 50%; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; padding: 0; transition: all 0.2s; z-index: 5;"
                   onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'; this.style.color='#ef4444'; this.style.transform='scale(1.15)';"
                   onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='var(--muted)'; this.style.transform='scale(1)';"
-                  [attr.data-tooltip]="'Borrar contenido del objetivo'"
+                  [attr.data-tooltip]="'Borrar texto escrito'"
                   data-tooltip-align="left"
-                  aria-label="Borrar contenido del objetivo">
+                  aria-label="Borrar texto escrito">
             <i class="fa-solid fa-xmark"></i>
           </button>
 
           <!-- Ícono cuando el input está vacío -->
-          <i *ngIf="!activeObjective() || !activeObjective().trim()"
+          <i *ngIf="!objectiveInput() || !objectiveInput().trim()"
              class="fa-solid fa-pen-clip" 
              style="position: absolute; right: 12px; font-size: 13px; color: var(--muted); pointer-events: none;"></i>
         </div>
 
         <!-- Botón para asociar objetivo -->
         <button (click)="confirmObjective()"
-                [disabled]="arenaState() !== 'setup' || !activeObjective() || !activeObjective().trim()"
-                [style.background]="isObjectiveAssociated() ? 'rgba(16, 185, 129, 0.2)' : 'rgba(99, 102, 241, 0.16)'"
-                [style.borderColor]="isObjectiveAssociated() ? 'var(--green)' : 'rgba(99, 102, 241, 0.35)'"
-                [style.color]="isObjectiveAssociated() ? 'var(--green)' : 'var(--accent)'"
-                [style.opacity]="(arenaState() !== 'setup' || !activeObjective() || !activeObjective().trim()) ? 0.45 : 1"
-                [style.pointerEvents]="(arenaState() !== 'setup' || !activeObjective() || !activeObjective().trim()) ? 'none' : 'auto'"
+                [disabled]="arenaState() !== 'setup' || !objectiveInput() || !objectiveInput().trim()"
+                [style.background]="(objectiveInput() && objectiveInput().trim()) ? 'rgba(99, 102, 241, 0.16)' : 'rgba(255, 255, 255, 0.05)'"
+                [style.borderColor]="(objectiveInput() && objectiveInput().trim()) ? 'rgba(99, 102, 241, 0.35)' : 'rgba(255, 255, 255, 0.1)'"
+                [style.color]="(objectiveInput() && objectiveInput().trim()) ? 'var(--accent)' : 'var(--muted)'"
+                [style.opacity]="(arenaState() !== 'setup' || !objectiveInput() || !objectiveInput().trim()) ? 0.45 : 1"
+                [style.pointerEvents]="(arenaState() !== 'setup' || !objectiveInput() || !objectiveInput().trim()) ? 'none' : 'auto'"
                 style="border: 1px solid; padding: 0 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; height: 42px; box-sizing: border-box;"
                 onmouseover="this.style.filter='brightness(1.2)'"
                 onmouseout="this.style.filter='none'"
-                [title]="isObjectiveAssociated() ? 'Objetivo asociado y guardado en Mis Ideas' : 'Asociar este objetivo a tu Pomodoro y guardarlo en Mis Ideas'">
-          <i class="fa-solid" [class.fa-check]="isObjectiveAssociated()" [class.fa-plus]="!isObjectiveAssociated()"></i>
-          <span>{{ isObjectiveAssociated() ? 'Asociado' : 'Asociar' }}</span>
+                title="Asociar este objetivo a tu Pomodoro y guardarlo en Mis Ideas">
+          <i class="fa-solid fa-plus"></i>
+          <span>Asociar</span>
         </button>
       </div>
 
-      <!-- Guía / Estado de la Misión -->
-      <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); font-weight: 500;">
-        <span style="font-size: 13px;">{{ isObjectiveAssociated() ? '💡' : '⚡' }}</span>
-        <span *ngIf="isObjectiveAssociated()" style="color: var(--green); font-weight: 600;">
-          Objetivo enlazado a tu sesión y sincronizado con Mis Ideas.
-        </span>
-        <span *ngIf="!isObjectiveAssociated()">
-          {{ activeMethodology() === 'sapo' ? 'Metodología Sapo: Termina primero la tarea más pesada del día.' : (activeMethodology() === 'pareto' ? 'Metodología Pareto: Enfócate en el 20% de tareas con 80% de impacto.' : 'Enfoque Estándar: Trabaja a tu propio ritmo con concentración continua.') }}
+      <!-- Guía Metodológica / Importancia del Objetivo -->
+      <div style="font-size: 11px; color: var(--muted); font-weight: 500; line-height: 1.4;">
+        <span>
+          {{ activeMethodology() === 'sapo' ? 'Un objetivo claro te da dirección: liquidar tu tarea más dura primero elimina la procrastinación del día.' : (activeMethodology() === 'pareto' ? 'Un objetivo definido multiplica tu impacto: enfocarte en el 20% clave genera el 80% de tus resultados.' : 'Definir tu objetivo evita distracciones: saber exactamente qué vas a lograr maximiza cada minuto de tu sesión.') }}
         </span>
       </div>
     </div>

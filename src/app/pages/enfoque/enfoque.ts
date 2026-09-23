@@ -43,7 +43,11 @@ export type FocusBackgroundType =
   | 'lofi_space_nebula' 
   | 'lofi_space_moon' 
   | 'lofi_titanic_ocean' 
-  | 'lofi_lighthouse_ocean';
+  | 'lofi_lighthouse_ocean'
+  | 'color_midnight_navy'
+  | 'color_espresso_charcoal'
+  | 'color_forest_matcha'
+  | 'color_executive_burgundy';
 
 export type FocusTimerStyle = 
   | 'digital' 
@@ -467,7 +471,7 @@ export class Enfoque implements OnInit, OnDestroy {
   activeBackground = signal<FocusBackgroundType>(
     (() => {
       const saved = localStorage.getItem('focus-active-bg');
-      if (saved === 'lofi_girl_sunset' || saved === 'lofi_boy_study' || saved === 'theme_animation_studio' || saved === 'lofi_study_rain' || saved === 'forest_campfire') return 'theme_autumn';
+      if (saved === 'lofi_girl_sunset' || saved === 'lofi_boy_study' || saved === 'theme_animation_studio' || saved === 'lofi_study_rain' || saved === 'forest_campfire' || saved === 'color_oled_black') return 'off';
       return (saved as FocusBackgroundType) || 'theme_autumn';
     })()
   );
@@ -478,8 +482,33 @@ export class Enfoque implements OnInit, OnDestroy {
   @ViewChild('bgVideoB') bgVideoBRef?: ElementRef<HTMLVideoElement>;
 
   backgroundOptions: FocusBackgroundType[] = [
-    'off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'theme_airplane', 'theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
+    'off', 'color_midnight_navy', 'color_espresso_charcoal', 'color_forest_matcha', 'color_executive_burgundy', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'theme_airplane', 'theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
   ];
+
+  isSolidColorBackground = computed(() => {
+    const bg = this.activeBackground();
+    return bg === 'color_midnight_navy' || bg === 'color_espresso_charcoal' || bg === 'color_forest_matcha' || bg === 'color_executive_burgundy';
+  });
+
+  isSolidColor(bg: string): boolean {
+    return bg === 'color_midnight_navy' || bg === 'color_espresso_charcoal' || bg === 'color_forest_matcha' || bg === 'color_executive_burgundy';
+  }
+
+  getSolidColorGradient(bg?: string): string {
+    const targetBg = bg || this.activeBackground();
+    switch (targetBg) {
+      case 'color_midnight_navy':
+        return 'radial-gradient(circle at 50% 30%, #0f1d38 0%, #050b18 100%)';
+      case 'color_espresso_charcoal':
+        return 'radial-gradient(circle at 50% 30%, #221a18 0%, #0d0b0a 100%)';
+      case 'color_forest_matcha':
+        return 'radial-gradient(circle at 50% 30%, #11281e 0%, #06100b 100%)';
+      case 'color_executive_burgundy':
+        return 'radial-gradient(circle at 50% 30%, #281220 0%, #0e070c 100%)';
+      default:
+        return 'transparent';
+    }
+  }
 
   isVideoBackground = computed(() => {
     const bg = this.activeBackground();
@@ -536,8 +565,82 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.timerStyle() === 'titanic') {
       return ['lofi_titanic_ocean'] as FocusBackgroundType[];
     }
-    // Para todos los demás relojes normales, incluir los videos Lofi HD, los temas de ilustración y fondos estándar
-    return ['off', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'theme_airplane', 'theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
+    // Para todos los demás relojes normales, incluir 'off', los colores pro, videos Lofi HD, temas de ilustración y fondos estándar
+    return ['off', 'color_midnight_navy', 'color_espresso_charcoal', 'color_forest_matcha', 'color_executive_burgundy', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'theme_airplane', 'theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
+  });
+
+  // ==================== CLASIFICACIONES DE FONDOS DE PANTALLA ====================
+  activeBackgroundCategory = signal<string>('all');
+
+  backgroundCategories = [
+    { id: 'all', label: 'Todos', icon: 'fa-border-all' },
+    { id: 'colors', label: 'Colores Pro', icon: 'fa-palette' },
+    { id: 'video', label: 'Con Movimiento', icon: 'fa-film' },
+    { id: 'inspiration', label: 'Inspiración Lofi', icon: 'fa-wand-magic-sparkles' },
+    { id: 'anime', label: 'Anime y Aventura', icon: 'fa-compass' },
+    { id: 'cosmos', label: 'Cosmos y Océano', icon: 'fa-moon' }
+  ];
+
+  backgroundCategoriesConfig = [
+    {
+      id: 'colors',
+      title: 'Modo Estudio Profesional (Colores y Gradientes)',
+      badge: 'Deep Focus Pro',
+      badgeColor: '#38bdf8',
+      icon: 'fa-palette',
+      items: ['off', 'color_midnight_navy', 'color_espresso_charcoal', 'color_forest_matcha', 'color_executive_burgundy'] as FocusBackgroundType[]
+    },
+    {
+      id: 'video',
+      title: 'Fondos con Movimiento',
+      badge: 'Video HD',
+      badgeColor: '#00f2fe',
+      icon: 'fa-film',
+      items: ['lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride'] as FocusBackgroundType[]
+    },
+    {
+      id: 'inspiration',
+      title: 'Inspiración y Arte Lofi',
+      badge: 'Ilustración',
+      badgeColor: '#a855f7',
+      icon: 'fa-wand-magic-sparkles',
+      items: ['theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons'] as FocusBackgroundType[]
+    },
+    {
+      id: 'anime',
+      title: 'Anime y Aventura',
+      badge: 'Cinemático',
+      badgeColor: '#10b981',
+      icon: 'fa-compass',
+      items: ['theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'theme_airplane'] as FocusBackgroundType[]
+    },
+    {
+      id: 'cosmos',
+      title: 'Cosmos y Océano Profundo',
+      badge: 'Inmersivo',
+      badgeColor: '#6366f1',
+      icon: 'fa-moon',
+      items: ['lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'] as FocusBackgroundType[]
+    }
+  ];
+
+  setBackgroundCategory(catId: string) {
+    this.activeBackgroundCategory.set(catId);
+  }
+
+  filteredBackgroundCategories = computed(() => {
+    const selected = this.activeBackgroundCategory();
+    const available = this.availableBackgroundOptions();
+    
+    const categoriesWithItems = this.backgroundCategoriesConfig.map(cat => ({
+      ...cat,
+      availableItems: cat.items.filter(bg => available.includes(bg))
+    })).filter(cat => cat.availableItems.length > 0);
+
+    if (selected === 'all') {
+      return categoriesWithItems;
+    }
+    return categoriesWithItems.filter(cat => cat.id === selected);
   });
 
   // Información de color y fondo de la cuenta regresiva según el tema visual activo (samurai, cyberpunk, aurora, zen)
@@ -1450,9 +1553,8 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   setMotivationAsObjective(text: string) {
-    this.activeObjective.set(text);
+    this.objectiveInput.set(text);
     this.confirmObjective();
-    this.showToastFeedback('🎯 ¡Establecida como misión de tu sesión de enfoque!', 'success');
   }
 
   pinMotivationAsMantra(text: string) {
@@ -1588,6 +1690,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Objetivo Activo (La batalla de hoy) e Integración Metodológica
   activeObjective = signal('');
+  objectiveInput = signal('');
   associatedIdeaId = signal<string | null>(null);
   activeMethodology = signal<'sapo' | 'pareto' | 'normal'>('normal');
   isObjectiveAssociated = computed(() => {
@@ -1599,22 +1702,12 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   onObjectiveInputChange(val: string) {
-    this.activeObjective.set(val);
-    // Al editar o escribir nuevo texto, se desasocia cualquier idea previa hasta que el usuario pulse 'Asociar'
-    this.associatedIdeaId.set(null);
-    this.objectiveConfirmed.set(false);
-    localStorage.removeItem('activeObjectiveIdeaId');
-    localStorage.removeItem('focus-session-idea-id');
-    if (!val || !val.trim()) {
-      localStorage.removeItem('activeObjectiveDraft');
-      localStorage.removeItem('focus-session-objective');
-    } else {
-      localStorage.setItem('activeObjectiveDraft', val);
-    }
+    this.objectiveInput.set(val);
   }
 
   disassociateObjective() {
     this.activeObjective.set('');
+    this.objectiveInput.set('');
     this.associatedIdeaId.set(null);
     this.objectiveConfirmed.set(false);
     localStorage.removeItem('activeObjectiveDraft');
@@ -1731,7 +1824,7 @@ export class Enfoque implements OnInit, OnDestroy {
   objectiveConfirmed = signal(false);
 
   async confirmObjective() {
-    const text = this.activeObjective()?.trim();
+    const text = (this.objectiveInput()?.trim() || this.activeObjective()?.trim());
     if (!text) return;
 
     let currentId = this.associatedIdeaId();
@@ -1763,6 +1856,9 @@ export class Enfoque implements OnInit, OnDestroy {
       await this.membership.convertIdeaToObjective(currentId);
     }
 
+    this.activeObjective.set(text);
+    this.objectiveInput.set('');
+
     localStorage.setItem('activeObjectiveDraft', text);
     if (currentId) {
       localStorage.setItem('activeObjectiveIdeaId', currentId);
@@ -1771,7 +1867,7 @@ export class Enfoque implements OnInit, OnDestroy {
     localStorage.setItem('focus-session-objective', text);
 
     this.objectiveConfirmed.set(true);
-    this.showToastFeedback('🎯 Objetivo asociado a tu Pomodoro y guardado en Mis Ideas', 'success');
+    this.showToastFeedback('🎯 Objetivo asociado a tu sesión y guardado en Mis Ideas.', 'success');
   }
 
   // Resultados del Cuestionario Post-Sesión
@@ -2756,8 +2852,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Verificación si el cronómetro actual tiene habilitada la función de arrastre
   isDraggableTimer = computed(() => {
-    const s = this.timerStyle();
-    return s === 'fire' || s === 'hourglass' || s === 'ice' || s === 'battery' || s === 'ring' || s === 'line';
+    return false; // Drag disabled for all objects
   });
 
   // Métodos para arrastrar el cronómetro interactivo (Solo permitido en: fogata, reloj de arena, cubo de hielo, batería, anillo, línea)
@@ -3967,6 +4062,10 @@ export class Enfoque implements OnInit, OnDestroy {
   getBackgroundLabel(bg: string): string {
     switch (bg) {
       case 'off': return 'Apagado';
+      case 'color_midnight_navy': return 'Azul Medianoche';
+      case 'color_espresso_charcoal': return 'Café Espresso';
+      case 'color_forest_matcha': return 'Verde Bosque';
+      case 'color_executive_burgundy': return 'Borgoña Ejecutivo';
       case 'lofi_cat_window': return 'Gato Ventana';
       case 'lofi_cat_rain': return 'Gatito Lluvia';
       case 'lofi_cat_sun': return 'Gatito Sol';
@@ -3993,8 +4092,12 @@ export class Enfoque implements OnInit, OnDestroy {
   // Descripción textual del fondo activo
   getBackgroundActiveDescription(): string {
     const bg = this.activeBackground();
-    if (bg === 'off') return 'Fondo por defecto del tema activo';
+    if (bg === 'off') return 'Fondo por defecto del tema activo (Cero distracciones visuales)';
     switch (bg) {
+      case 'color_midnight_navy': return 'Atmósfera profesional Azul Medianoche Ejecutivo para concentración y lucidez';
+      case 'color_espresso_charcoal': return 'Atmósfera profesional Café Espresso cálido y sobrio';
+      case 'color_forest_matcha': return 'Atmósfera profesional Verde Bosque Zen anti-fatiga visual';
+      case 'color_executive_burgundy': return 'Atmósfera profesional Borgoña Ejecutivo de lujo refinado';
       case 'lofi_cat_window': return 'Fondo interactivo en video HD "Gato Ventana Lofi" con bucle continuo imperceptible';
       case 'lofi_cat_rain': return 'Fondo interactivo en video HD "Gatito Lluvia Lofi" con bucle continuo imperceptible';
       case 'lofi_cat_sun': return 'Fondo interactivo en video HD "Gatito Sol Lofi" con bucle continuo imperceptible';

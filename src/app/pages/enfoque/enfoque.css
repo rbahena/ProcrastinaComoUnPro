@@ -641,55 +641,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Tooltips personalizados estilizados */
-[data-tooltip] {
-  position: relative;
-}
-
-[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 135%;
-  left: 50%;
-  transform: translateX(-50%) scale(0.85);
-  background: rgba(18, 18, 24, 0.96);
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
-  color: var(--text);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 700;
-  text-align: center;
-  line-height: 1.4;
-  white-space: normal;
-  width: 200px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 10px rgba(99, 102, 241, 0.15);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  z-index: 999;
-}
-
-[data-tooltip]::before {
-  content: '';
-  position: absolute;
-  bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%) scale(0.85);
-  border-width: 6px;
-  border-style: solid;
-  border-color: rgba(18, 18, 24, 0.96) transparent transparent transparent;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  z-index: 999;
-}
-
-[data-tooltip]:hover::after,
-[data-tooltip]:hover::before {
-  opacity: 1;
-  transform: translateX(-50%) scale(1);
-}
+/* Tooltips gestionados por styles.css global */
 
 /* ===== MINIMALIST CURRENCY BADGES (REPLICADO DE INICIO) ===== */
 .currency-panel {
@@ -1104,12 +1056,12 @@
 /* ===== FUEGO SAGRADO PREMIUM STYLE (CARTOON / VECTOR VERSION) ===== */
 .fire-container {
   position: relative;
-  width: 150px;
-  height: 150px;
+  width: 280px;
+  height: 280px;
   display: flex;
   justify-content: center;
-  align-items: flex-end;
-  margin: 5px auto;
+  align-items: center;
+  margin: 10px auto;
   transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
   transform-origin: bottom center;
 }
@@ -2519,6 +2471,21 @@
   opacity: 0.9 !important;
 }
 
+/* Capa de fondo sólido profesional y gradiente de enfoque profundo */
+.zen-bg-solid-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Imagen Zen Ultra HD: Cubre el 100% de la pantalla (Pantalla Completa / Cover) preservando proporciones */
 .zen-bg-image-wide,
 .zen-bg-image-cover {
@@ -2598,12 +2565,12 @@
 
 /* Draggable Campfire Cursors & Tooltip Animations */
 .fire-container, .logs-container {
-  cursor: grab !important;
+  /* cursor removed */
   user-select: none !important;
-  touch-action: none !important; /* Prevents browser scroll during mobile touch drags */
+  
 }
 .fire-container:active, .logs-container:active {
-  cursor: grabbing !important;
+  /* cursor removed */
 }
 
 @keyframes fadeOut {
@@ -2613,12 +2580,12 @@
 
 /* Draggable Apple Cursors & Animations */
 .apple-container {
-  cursor: grab !important;
+  /* cursor removed */
   user-select: none !important;
-  touch-action: none !important;
+  
 }
 .apple-container:active {
-  cursor: grabbing !important;
+  /* cursor removed */
 }
 
 .worm-eat-wiggle {
@@ -2670,12 +2637,12 @@
 
 /* ===== CUBO DE HIELO PREMIUM STYLE ===== */
 .ice-container {
-  cursor: grab !important;
+  /* cursor removed */
   user-select: none !important;
-  touch-action: none !important;
+  
 }
 .ice-container:active {
-  cursor: grabbing !important;
+  /* cursor removed */
 }
 
 .ice-drip {
@@ -2702,13 +2669,13 @@
 
 /* ===== BATERÍA ZEN, ANILLO Y LÍNEA PREMIUM STYLE ===== */
 .battery-container, .ring-container, .line-container {
-  cursor: grab !important;
+  /* cursor removed */
   user-select: none !important;
-  touch-action: none !important;
+  
   max-width: 100%;
 }
 .battery-container:active, .ring-container:active, .line-container:active {
-  cursor: grabbing !important;
+  /* cursor removed */
 }
 
 .battery-spark {
