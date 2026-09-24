@@ -317,8 +317,94 @@ export class MembershipService {
     getMigratedValueJSON('rewarded-sessions', [] as string[])
   );
 
-  private getCurrentUserEmail(): string {
+  getCurrentUserEmail(): string {
     return localStorage.getItem('procrastina-current-user-email') || this.supabaseService.currentUser()?.email || '';
+  }
+
+  getFocusSetting(key: string, defaultValue: string): string {
+    const email = this.getCurrentUserEmail();
+    if (email) {
+      const userVal = localStorage.getItem(`user:${email}:${key}`);
+      if (userVal !== null && userVal !== undefined && userVal !== '') {
+        return userVal;
+      }
+    }
+    const globalVal = localStorage.getItem(key);
+    if (globalVal !== null && globalVal !== undefined && globalVal !== '') {
+      if (email) {
+        localStorage.setItem(`user:${email}:${key}`, globalVal);
+      }
+      return globalVal;
+    }
+    return defaultValue;
+  }
+
+  private focusSyncTimeout: any = null;
+
+  setFocusSetting(key: string, value: string): void {
+    localStorage.setItem(key, value);
+    const email = this.getCurrentUserEmail();
+    if (email) {
+      localStorage.setItem(`user:${email}:${key}`, value);
+    }
+    this.queueFocusPreferencesSync();
+  }
+
+  private setFocusSettingLocal(key: string, value: string, email: string) {
+    localStorage.setItem(key, value);
+    if (email) {
+      localStorage.setItem(`user:${email}:${key}`, value);
+    }
+  }
+
+  queueFocusPreferencesSync() {
+    if (!this.supabaseService.isConfigured()) return;
+    if (this.focusSyncTimeout) {
+      clearTimeout(this.focusSyncTimeout);
+    }
+    this.focusSyncTimeout = setTimeout(() => {
+      this.syncFocusPreferencesToSupabase();
+    }, 1200);
+  }
+
+  async syncFocusPreferencesToSupabase() {
+    if (!this.supabaseService.isConfigured()) return;
+    const user = this.supabaseService.currentUser();
+    if (!user) return;
+
+    const prefs = {
+      timer_style: this.getFocusSetting('focus-timer-style', 'digital'),
+      active_background: this.getFocusSetting('focus-active-bg', 'theme_autumn'),
+      background_sound: this.getFocusSetting('focus-bg-sound', 'off'),
+      break_background_sound: this.getFocusSetting('focus-break-bg-sound', 'off'),
+      long_break_background_sound: this.getFocusSetting('focus-long-break-bg-sound', 'off'),
+      background_volume: parseFloat(this.getFocusSetting('focus-bg-volume', '1.0')),
+      end_session_sound: this.getFocusSetting('focus-end-sound', 'tone'),
+      break_sound_enabled: this.getFocusSetting('focus-break-sound-enabled', 'true') !== 'false',
+      break_end_sound: this.getFocusSetting('focus-break-sound', 'electronic_chime'),
+      long_break_end_sound: this.getFocusSetting('focus-long-break-sound', 'electronic_chime'),
+      focus_duration: parseInt(this.getFocusSetting('focus-duration', '25'), 10),
+      break_duration: parseInt(this.getFocusSetting('break-duration', '5'), 10),
+      long_break_interval: parseInt(this.getFocusSetting('long-break-interval', '4'), 10),
+      long_break_duration: parseInt(this.getFocusSetting('long-break-duration', '15'), 10),
+      desktop_notifications_enabled: this.getFocusSetting('desktop-notifications-enabled', 'true') !== 'false',
+      tab_notifications_enabled: this.getFocusSetting('tab-notifications-enabled', 'true') !== 'false',
+      focus_notification_enabled: this.getFocusSetting('focus-notification-enabled', 'true') !== 'false',
+      break_notification_enabled: this.getFocusSetting('break-notification-enabled', 'true') !== 'false',
+      long_break_notification_enabled: this.getFocusSetting('long-break-notification-enabled', 'true') !== 'false',
+      motivation_notification_enabled: this.getFocusSetting('motivation-notification-enabled', 'true') !== 'false',
+      abandon_sound_enabled: this.getFocusSetting('abandon-sound-enabled', 'true') !== 'false',
+      show_battery_button_in_arena: this.getFocusSetting('show-battery-button-in-arena', 'true') !== 'false'
+    };
+
+    try {
+      await this.supabaseService.updateProfile(user.id, {
+        focus_preferences: prefs,
+        selected_timer: prefs.timer_style
+      });
+    } catch (e) {
+      console.warn('[MembershipService] Error sincronizando preferencias de enfoque con Supabase:', e);
+    }
   }
 
   constructor() {
@@ -1389,6 +1475,37 @@ export class MembershipService {
     if (p.silver_medals !== undefined) this.silverMedals.set(p.silver_medals);
     if (p.bronze_medals !== undefined) this.bronzeMedals.set(p.bronze_medals);
     if (p.onboarding_completed !== undefined) this.onboardingCompleted.set(p.onboarding_completed);
+
+    // Restaurar preferencias de la Arena de Enfoque desde la nube (Supabase)
+    if (p.focus_preferences) {
+      const email = this.getCurrentUserEmail();
+      const fp = p.focus_preferences;
+      if (fp.timer_style) this.setFocusSettingLocal('focus-timer-style', fp.timer_style, email);
+      if (fp.active_background) this.setFocusSettingLocal('focus-active-bg', fp.active_background, email);
+      if (fp.background_sound) this.setFocusSettingLocal('focus-bg-sound', fp.background_sound, email);
+      if (fp.break_background_sound) this.setFocusSettingLocal('focus-break-bg-sound', fp.break_background_sound, email);
+      if (fp.long_break_background_sound) this.setFocusSettingLocal('focus-long-break-bg-sound', fp.long_break_background_sound, email);
+      if (fp.background_volume !== undefined) this.setFocusSettingLocal('focus-bg-volume', String(fp.background_volume), email);
+      if (fp.end_session_sound) this.setFocusSettingLocal('focus-end-sound', fp.end_session_sound, email);
+      if (fp.break_sound_enabled !== undefined) this.setFocusSettingLocal('focus-break-sound-enabled', String(fp.break_sound_enabled), email);
+      if (fp.break_end_sound) this.setFocusSettingLocal('focus-break-sound', fp.break_end_sound, email);
+      if (fp.long_break_end_sound) this.setFocusSettingLocal('focus-long-break-sound', fp.long_break_end_sound, email);
+      if (fp.focus_duration !== undefined) this.setFocusSettingLocal('focus-duration', String(fp.focus_duration), email);
+      if (fp.break_duration !== undefined) this.setFocusSettingLocal('break-duration', String(fp.break_duration), email);
+      if (fp.long_break_interval !== undefined) this.setFocusSettingLocal('long-break-interval', String(fp.long_break_interval), email);
+      if (fp.long_break_duration !== undefined) this.setFocusSettingLocal('long-break-duration', String(fp.long_break_duration), email);
+      if (fp.desktop_notifications_enabled !== undefined) this.setFocusSettingLocal('desktop-notifications-enabled', String(fp.desktop_notifications_enabled), email);
+      if (fp.tab_notifications_enabled !== undefined) this.setFocusSettingLocal('tab-notifications-enabled', String(fp.tab_notifications_enabled), email);
+      if (fp.focus_notification_enabled !== undefined) this.setFocusSettingLocal('focus-notification-enabled', String(fp.focus_notification_enabled), email);
+      if (fp.break_notification_enabled !== undefined) this.setFocusSettingLocal('break-notification-enabled', String(fp.break_notification_enabled), email);
+      if (fp.long_break_notification_enabled !== undefined) this.setFocusSettingLocal('long-break-notification-enabled', String(fp.long_break_notification_enabled), email);
+      if (fp.motivation_notification_enabled !== undefined) this.setFocusSettingLocal('motivation-notification-enabled', String(fp.motivation_notification_enabled), email);
+      if (fp.abandon_sound_enabled !== undefined) this.setFocusSettingLocal('abandon-sound-enabled', String(fp.abandon_sound_enabled), email);
+      if (fp.show_battery_button_in_arena !== undefined) this.setFocusSettingLocal('show-battery-button-in-arena', String(fp.show_battery_button_in_arena), email);
+    } else if (p.selected_timer) {
+      const email = this.getCurrentUserEmail();
+      this.setFocusSettingLocal('focus-timer-style', p.selected_timer, email);
+    }
   }
 
   // Cargar catálogo de artículos desde Supabase
@@ -1547,6 +1664,44 @@ export class MembershipService {
     this.capturedIdeas.set(capturedIdeasVal);
     this.applyGlobalTheme();
 
+    // Sincronizar y restaurar configuraciones de la Arena de Enfoque por usuario
+    const focusSettingsList: { key: string; defaultVal: string }[] = [
+      { key: 'focus-timer-style', defaultVal: 'digital' },
+      { key: 'focus-active-bg', defaultVal: 'theme_autumn' },
+      { key: 'focus-bg-sound', defaultVal: 'off' },
+      { key: 'focus-break-bg-sound', defaultVal: 'off' },
+      { key: 'focus-long-break-bg-sound', defaultVal: 'off' },
+      { key: 'focus-bg-volume', defaultVal: '1.0' },
+      { key: 'focus-end-sound', defaultVal: 'tone' },
+      { key: 'focus-break-sound-enabled', defaultVal: 'true' },
+      { key: 'focus-break-sound', defaultVal: 'electronic_chime' },
+      { key: 'focus-long-break-sound', defaultVal: 'electronic_chime' },
+      { key: 'focus-duration', defaultVal: '25' },
+      { key: 'break-duration', defaultVal: '5' },
+      { key: 'long-break-interval', defaultVal: '4' },
+      { key: 'long-break-duration', defaultVal: '15' },
+      { key: 'desktop-notifications-enabled', defaultVal: 'true' },
+      { key: 'tab-notifications-enabled', defaultVal: 'true' },
+      { key: 'focus-notification-enabled', defaultVal: 'true' },
+      { key: 'break-notification-enabled', defaultVal: 'true' },
+      { key: 'long-break-notification-enabled', defaultVal: 'true' },
+      { key: 'motivation-notification-enabled', defaultVal: 'true' },
+      { key: 'abandon-sound-enabled', defaultVal: 'true' },
+      { key: 'show-battery-button-in-arena', defaultVal: 'true' }
+    ];
+
+    for (const item of focusSettingsList) {
+      const userVal = localStorage.getItem(`user:${email}:${item.key}`);
+      if (userVal !== null && userVal !== undefined && userVal !== '') {
+        localStorage.setItem(item.key, userVal);
+      } else {
+        const globalVal = localStorage.getItem(item.key);
+        const finalVal = (globalVal !== null && globalVal !== undefined && globalVal !== '') ? globalVal : item.defaultVal;
+        localStorage.setItem(item.key, finalVal);
+        localStorage.setItem(`user:${email}:${item.key}`, finalVal);
+      }
+    }
+
     // Recalcular la racha
     this.streak.set(this.calculateStreak(email));
   }
@@ -1566,6 +1721,20 @@ export class MembershipService {
     localStorage.removeItem(`user:${email}:qualities-catalog`);
     localStorage.removeItem(`user:${email}:focus-points`);
     localStorage.removeItem(`user:${email}:rewarded-sessions`);
+
+    const focusKeys = [
+      'focus-timer-style', 'focus-active-bg', 'focus-bg-sound', 'focus-break-bg-sound',
+      'focus-long-break-bg-sound', 'focus-bg-volume', 'focus-end-sound', 'focus-break-sound-enabled',
+      'focus-break-sound', 'focus-long-break-sound', 'focus-duration', 'break-duration',
+      'long-break-interval', 'long-break-duration'
+    ];
+    for (const k of focusKeys) {
+      localStorage.removeItem(`user:${email}:${k}`);
+    }
+    localStorage.setItem(`user:${email}:focus-timer-style`, 'digital');
+    localStorage.setItem('focus-timer-style', 'digital');
+    localStorage.setItem(`user:${email}:focus-active-bg`, 'theme_autumn');
+    localStorage.setItem('focus-active-bg', 'theme_autumn');
 
     this.unlockedAvatars.set([...INITIAL_AVATARS_LIST]);
     this.unlockedThemes.set(['samurai']);

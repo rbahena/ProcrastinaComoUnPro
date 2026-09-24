@@ -104,6 +104,33 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     selected_theme user_theme_enum DEFAULT 'samurai',
     -- selected_weapon: Identificador del arma equipada actualmente (ej. 'katana_wood', 'shadow_blade').
     selected_weapon VARCHAR(50) DEFAULT 'katana_wood',
+    -- selected_timer: Identificador del estilo de reloj equipado (por defecto 'digital').
+    selected_timer VARCHAR(50) DEFAULT 'digital',
+    -- focus_preferences: Objeto JSON con la personalización de la Arena de Enfoque (reloj, fondo, sonidos ambientales, alarmas, tiempos pomodoro, notificaciones).
+    focus_preferences JSONB DEFAULT '{
+        "timer_style": "digital",
+        "active_background": "theme_autumn",
+        "background_sound": "off",
+        "break_background_sound": "off",
+        "long_break_background_sound": "off",
+        "background_volume": 1.0,
+        "end_session_sound": "tone",
+        "break_sound_enabled": true,
+        "break_end_sound": "electronic_chime",
+        "long_break_end_sound": "electronic_chime",
+        "focus_duration": 25,
+        "break_duration": 5,
+        "long_break_interval": 4,
+        "long_break_duration": 15,
+        "desktop_notifications_enabled": true,
+        "tab_notifications_enabled": true,
+        "focus_notification_enabled": true,
+        "break_notification_enabled": true,
+        "long_break_notification_enabled": true,
+        "motivation_notification_enabled": true,
+        "abandon_sound_enabled": true,
+        "show_battery_button_in_arena": true
+    }'::jsonb,
     
     -- [COLUMNAS: ESTADO DE CUENTA, MONETIZACIÓN Y ONBOARDING]
     -- is_premium: Flag booleano que indica si el usuario tiene suscripción Pro activa.
@@ -204,6 +231,8 @@ BEGIN
         selected_avatar,
         selected_theme,
         selected_weapon,
+        selected_timer,
+        focus_preferences,
         is_premium,
         pro_coins,
         focus_points,
@@ -223,6 +252,8 @@ BEGIN
         'gato',
         'samurai',
         'katana_wood',
+        'digital',
+        '{"timer_style": "digital", "active_background": "theme_autumn", "background_sound": "off", "break_background_sound": "off", "long_break_background_sound": "off", "background_volume": 1.0, "end_session_sound": "tone", "break_sound_enabled": true, "break_end_sound": "electronic_chime", "long_break_end_sound": "electronic_chime", "focus_duration": 25, "break_duration": 5, "long_break_interval": 4, "long_break_duration": 15, "desktop_notifications_enabled": true, "tab_notifications_enabled": true, "focus_notification_enabled": true, "break_notification_enabled": true, "long_break_notification_enabled": true, "motivation_notification_enabled": true, "abandon_sound_enabled": true, "show_battery_button_in_arena": true}'::jsonb,
         FALSE,
         0,
         0,

@@ -79,6 +79,9 @@ export type FocusTimerStyle =
 })
 export class Enfoque implements OnInit, OnDestroy {
   public supabaseService = inject(SupabaseService);
+  public membership = inject(MembershipService);
+  public bossService = inject(ComunidadBossService);
+  private router = inject(Router);
   currentSessionNonceId: string | null = null;
   isSettlingSession = signal<boolean>(false);
 
@@ -88,35 +91,42 @@ export class Enfoque implements OnInit, OnDestroy {
   sidebarCollapsed!: any;
   Math = Math;
 
-  constructor(
-    private router: Router, 
-    public membership: MembershipService,
-    public bossService: ComunidadBossService
-  ) {
+  constructor() {
     this.currentTheme = this.membership.selectedTheme;
     this.userName = this.membership.userName;
     this.selectedAvatar = this.membership.selectedAvatar;
     this.sidebarCollapsed = this.membership.sidebarCollapsed;
 
-    // Garantizar que todo usuario que entre vea por defecto "Otoño Lofi" (theme_autumn)
-    const savedBg = localStorage.getItem('focus-active-bg') as FocusBackgroundType;
-    if (!savedBg || savedBg === 'lofi_space_cosmos' || savedBg === 'lofi_cat_window' || !this.backgroundOptions.includes(savedBg)) {
-      this.activeBackground.set('theme_autumn');
-      localStorage.setItem('focus-active-bg', 'theme_autumn');
+    // Reloj digital por defecto siempre si el usuario no tiene una preferencia previa guardada
+    const savedTimer = this.membership.getFocusSetting('focus-timer-style', 'digital') as FocusTimerStyle;
+    if (!savedTimer) {
+      this.timerStyle.set('digital');
+      this.membership.setFocusSetting('focus-timer-style', 'digital');
+    } else {
+      this.timerStyle.set(savedTimer);
     }
 
-    // Configuración por defecto de 25 min de pomodoro y 5 min de descanso
-    const savedDuration = localStorage.getItem('focus-duration');
+    // Garantizar que todo usuario tenga un fondo válido (por defecto "theme_autumn" si no hay ninguno)
+    const savedBg = this.membership.getFocusSetting('focus-active-bg', 'theme_autumn') as FocusBackgroundType;
+    if (!savedBg || !this.backgroundOptions.includes(savedBg)) {
+      this.activeBackground.set('theme_autumn');
+      this.membership.setFocusSetting('focus-active-bg', 'theme_autumn');
+    } else {
+      this.activeBackground.set(savedBg);
+    }
+
+    // Configuración de pomodoro y descanso del usuario
+    const savedDuration = this.membership.getFocusSetting('focus-duration', '25');
     if (!savedDuration || savedDuration === '1') {
       this.focusDuration.set(25);
       this.totalSessionTime.set(25 * 60);
       this.timeLeft.set(25 * 60);
-      localStorage.setItem('focus-duration', '25');
+      this.membership.setFocusSetting('focus-duration', '25');
     }
-    const savedBreak = localStorage.getItem('break-duration');
+    const savedBreak = this.membership.getFocusSetting('break-duration', '5');
     if (!savedBreak || savedBreak === '1') {
       this.breakDuration.set(5);
-      localStorage.setItem('break-duration', '5');
+      this.membership.setFocusSetting('break-duration', '5');
     }
   }
 
@@ -148,16 +158,16 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Escudo acústico / Ruido de fondo en vivo (Concentración)
   backgroundSound = signal<string>(
-    localStorage.getItem('focus-bg-sound') || 'off'
+    this.membership.getFocusSetting('focus-bg-sound', 'off')
   );
 
   // Sonido de fondo para el Descanso
   breakBackgroundSound = signal<string>(
-    localStorage.getItem('focus-break-bg-sound') || 'off'
+    this.membership.getFocusSetting('focus-break-bg-sound', 'off')
   );
 
   backgroundVolume = signal<number>(
-    parseFloat(localStorage.getItem('focus-bg-volume') || '1.0')
+    parseFloat(this.membership.getFocusSetting('focus-bg-volume', '1.0'))
   );
   isPlayingPreview = signal<boolean>(false);
   private previewSoundTimeout: any = null;
@@ -251,23 +261,23 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Alerta de Fin de Sesión Pomodoro
   endSessionSound = signal<string>(
-    localStorage.getItem('focus-end-sound') || 'tone'
+    this.membership.getFocusSetting('focus-end-sound', 'tone')
   );
 
   // Alerta de Fin de Descanso
   breakSoundEnabled = signal<boolean>(
-    localStorage.getItem('focus-break-sound-enabled') !== 'false'
+    this.membership.getFocusSetting('focus-break-sound-enabled', 'true') !== 'false'
   );
   breakEndSound = signal<string>(
-    localStorage.getItem('focus-break-sound') || 'electronic_chime'
+    this.membership.getFocusSetting('focus-break-sound', 'electronic_chime')
   );
 
   // Sonido de fondo para Descanso Largo
   longBreakBackgroundSound = signal<string>(
-    localStorage.getItem('focus-long-break-bg-sound') || 'off'
+    this.membership.getFocusSetting('focus-long-break-bg-sound', 'off')
   );
   longBreakEndSound = signal<string>(
-    localStorage.getItem('focus-long-break-sound') || 'electronic_chime'
+    this.membership.getFocusSetting('focus-long-break-sound', 'electronic_chime')
   );
 
   // Custom Select Dropdown UI States
@@ -328,7 +338,7 @@ export class Enfoque implements OnInit, OnDestroy {
   // ==================== SUITE ANTI-PROCRASTINACIÓN: BATERÍA, BODY DOUBLING Y DISTRACCIONES ====================
   energyLevel = signal<'low' | 'medium' | 'high'>('medium');
   showEnergyModal = signal<boolean>(false);
-  showBatteryButtonInArena = signal<boolean>(localStorage.getItem('show-battery-button-in-arena') !== 'false');
+  showBatteryButtonInArena = signal<boolean>(this.membership.getFocusSetting('show-battery-button-in-arena', 'true') !== 'false');
   isFreeExitChallenge = signal<boolean>(false);
   bodyDoublingCount = signal<number>(142);
   private bodyDoublingInterval: any = null;
@@ -336,7 +346,7 @@ export class Enfoque implements OnInit, OnDestroy {
   toggleBatteryButtonInArena() {
     const nextVal = !this.showBatteryButtonInArena();
     this.showBatteryButtonInArena.set(nextVal);
-    localStorage.setItem('show-battery-button-in-arena', String(nextVal));
+    this.membership.setFocusSetting('show-battery-button-in-arena', String(nextVal));
   }
 
   distractionInput = signal<string>('');
@@ -405,11 +415,11 @@ export class Enfoque implements OnInit, OnDestroy {
   });
 
   // Configuración del Pomodoro (25 minutos por defecto)
-  focusDuration = signal(parseInt(localStorage.getItem('focus-duration') || '25', 10));
-  breakDuration = signal(parseInt(localStorage.getItem('break-duration') || '5', 10));
+  focusDuration = signal(parseInt(this.membership.getFocusSetting('focus-duration', '25'), 10));
+  breakDuration = signal(parseInt(this.membership.getFocusSetting('break-duration', '5'), 10));
   shortBreakDuration = this.breakDuration; // Alias para compatibilidad de plantillas
-  longBreakInterval = signal(parseInt(localStorage.getItem('long-break-interval') || '4', 10));
-  longBreakDuration = signal(parseInt(localStorage.getItem('long-break-duration') || '15', 10));
+  longBreakInterval = signal(parseInt(this.membership.getFocusSetting('long-break-interval', '4'), 10));
+  longBreakDuration = signal(parseInt(this.membership.getFocusSetting('long-break-duration', '15'), 10));
   dailyAttempts = signal<{ status: 'completed' | 'abandoned' | 'interrupted', time: string }[]>(
     (() => {
       const saved = localStorage.getItem('daily-attempts');
@@ -470,7 +480,7 @@ export class Enfoque implements OnInit, OnDestroy {
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
   activeBackground = signal<FocusBackgroundType>(
     (() => {
-      const saved = localStorage.getItem('focus-active-bg');
+      const saved = this.membership.getFocusSetting('focus-active-bg', 'theme_autumn');
       if (saved === 'lofi_girl_sunset' || saved === 'lofi_boy_study' || saved === 'theme_animation_studio' || saved === 'lofi_study_rain' || saved === 'forest_campfire' || saved === 'color_oled_black') return 'off';
       return (saved as FocusBackgroundType) || 'theme_autumn';
     })()
@@ -1610,9 +1620,9 @@ export class Enfoque implements OnInit, OnDestroy {
   private onActivityFn = () => this.onUserActivity();
   private onMouseLeaveFn = () => this.onMouseLeaveWindow();
 
-  // Estilo del Temporizador (Clásico vs Fuego Premium vs Órbita Solar vs Titanic vs El Faro vs Avión en Pista)
+  // Estilo del Temporizador (Clásico Digital por defecto vs Fuego Premium vs Órbita Solar vs Titanic vs El Faro vs Avión en Pista)
   timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic' | 'lighthouse' | 'airplane'>(
-    (localStorage.getItem('focus-timer-style') as any) || 'digital'
+    (this.membership.getFocusSetting('focus-timer-style', 'digital') as any) || 'digital'
   );
 
   // Porcentaje de tiempo restante
@@ -1628,14 +1638,29 @@ export class Enfoque implements OnInit, OnDestroy {
     return 15 + this.timePercentage() * 70;
   });
 
-  // Escala del fuego basada en el tiempo restante (de 1.20 a 0.35)
+  // Escala del fuego basada en el tiempo restante (de 1.20 a 0.10)
   fireScale = computed(() => {
     if (this.isBreak()) {
       return 0; // En descanso la flama está apagada
     }
     const pct = this.timePercentage();
     if (pct <= 0) return 0;
-    return 0.35 + pct * 0.85;
+    // Escala continua y suave hasta 0.10 antes de extinguirse
+    if (pct < 0.15) {
+      return 0.10 + (pct / 0.15) * 0.28; // de 0.10 a 0.38
+    }
+    return 0.38 + ((pct - 0.15) / 0.85) * 0.82; // de 0.38 a 1.20
+  });
+
+  // Desplazamiento dinámico en Y para que la flama permanezca pegada a los troncos al achicarse
+  fireTranslateY = computed(() => {
+    if (this.arenaState() === 'setup') return 0;
+    const scale = this.fireScale();
+    if (scale >= 1.20) return 0;
+    if (scale <= 0) return 19;
+    // A medida que la escala baja de 1.20 a 0, la llama desciende hasta +19px para sentarse en los leños
+    const factor = Math.max(0, Math.min(1, (1.20 - scale) / 1.10));
+    return Math.round(factor * 19);
   });
 
   // Opacidad y parpadeo final del fuego
@@ -1643,8 +1668,8 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.isBreak()) return 0; // En descanso la flama está apagada
     const pct = this.timePercentage();
     if (pct <= 0) return 0;
-    if (pct < 0.05) {
-      return (pct / 0.05) * 0.8;
+    if (pct < 0.04) {
+      return (pct / 0.04);
     }
     return 1.0;
   });
@@ -1663,27 +1688,27 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.isBreak()) return 0.0;
     if (this.arenaState() === 'setup') return 1.0;
     const pct = this.timePercentage();
-    if (pct > 0.2) return 1.0;
-    if (pct <= 0.1) return 0.0;
-    return (pct - 0.1) / 0.1;
+    if (pct > 0.06) return 1.0;
+    if (pct <= 0) return 0.0;
+    return pct / 0.06;
   });
 
   middleFlameOpacity = computed(() => {
     if (this.isBreak()) return 0.0;
     if (this.arenaState() === 'setup') return 1.0;
     const pct = this.timePercentage();
-    if (pct > 0.1) return 1.0;
-    if (pct <= 0.05) return 0.0;
-    return (pct - 0.05) / 0.05;
+    if (pct > 0.04) return 1.0;
+    if (pct <= 0) return 0.0;
+    return pct / 0.04;
   });
 
   outerFlameOpacity = computed(() => {
     if (this.isBreak()) return 0.0;
     if (this.arenaState() === 'setup') return 1.0;
     const pct = this.timePercentage();
-    if (pct > 0.05) return 1.0;
+    if (pct > 0.02) return 1.0;
     if (pct <= 0) return 0;
-    return pct / 0.05;
+    return pct / 0.02;
   });
 
 
@@ -1998,25 +2023,25 @@ export class Enfoque implements OnInit, OnDestroy {
   private originalDocumentTitle = 'COFU - Procrastina Como un Pro';
   notificationPermission = signal<string>('default');
   notificationsEnabled = signal<boolean>(
-    localStorage.getItem('desktop-notifications-enabled') !== 'false'
+    this.membership.getFocusSetting('desktop-notifications-enabled', 'true') !== 'false'
   );
   tabNotificationsEnabled = signal<boolean>(
-    localStorage.getItem('tab-notifications-enabled') !== 'false'
+    this.membership.getFocusSetting('tab-notifications-enabled', 'true') !== 'false'
   );
   focusNotificationEnabled = signal<boolean>(
-    localStorage.getItem('focus-notification-enabled') !== 'false'
+    this.membership.getFocusSetting('focus-notification-enabled', 'true') !== 'false'
   );
   breakNotificationEnabled = signal<boolean>(
-    localStorage.getItem('break-notification-enabled') !== 'false'
+    this.membership.getFocusSetting('break-notification-enabled', 'true') !== 'false'
   );
   longBreakNotificationEnabled = signal<boolean>(
-    localStorage.getItem('long-break-notification-enabled') !== 'false'
+    this.membership.getFocusSetting('long-break-notification-enabled', 'true') !== 'false'
   );
   motivationNotificationEnabled = signal<boolean>(
-    localStorage.getItem('motivation-notification-enabled') !== 'false'
+    this.membership.getFocusSetting('motivation-notification-enabled', 'true') !== 'false'
   );
   abandonSoundEnabled = signal<boolean>(
-    localStorage.getItem('abandon-sound-enabled') !== 'false'
+    this.membership.getFocusSetting('abandon-sound-enabled', 'true') !== 'false'
   );
 
   // Aliases and helpers for notifications settings UI
@@ -2029,7 +2054,7 @@ export class Enfoque implements OnInit, OnDestroy {
   toggleAbandonSound(enabled?: boolean) {
     const newVal = enabled !== undefined ? enabled : !this.abandonSoundEnabled();
     this.abandonSoundEnabled.set(newVal);
-    localStorage.setItem('abandon-sound-enabled', String(newVal));
+    this.membership.setFocusSetting('abandon-sound-enabled', String(newVal));
     if (newVal) {
       this.showToastFeedback('🔊 Sonido de abandono activado.', 'info');
     } else {
@@ -2081,7 +2106,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   toggleDesktopNotifications(enabled: boolean) {
     this.notificationsEnabled.set(enabled);
-    localStorage.setItem('desktop-notifications-enabled', String(enabled));
+    this.membership.setFocusSetting('desktop-notifications-enabled', String(enabled));
     if (enabled) {
       this.requestNotificationPermission(true);
     } else {
@@ -2091,27 +2116,27 @@ export class Enfoque implements OnInit, OnDestroy {
 
   toggleTabNotifications(enabled: boolean) {
     this.tabNotificationsEnabled.set(enabled);
-    localStorage.setItem('tab-notifications-enabled', String(enabled));
+    this.membership.setFocusSetting('tab-notifications-enabled', String(enabled));
   }
 
   toggleFocusNotification(enabled: boolean) {
     this.focusNotificationEnabled.set(enabled);
-    localStorage.setItem('focus-notification-enabled', String(enabled));
+    this.membership.setFocusSetting('focus-notification-enabled', String(enabled));
   }
 
   toggleBreakNotification(enabled: boolean) {
     this.breakNotificationEnabled.set(enabled);
-    localStorage.setItem('break-notification-enabled', String(enabled));
+    this.membership.setFocusSetting('break-notification-enabled', String(enabled));
   }
 
   toggleLongBreakNotification(enabled: boolean) {
     this.longBreakNotificationEnabled.set(enabled);
-    localStorage.setItem('long-break-notification-enabled', String(enabled));
+    this.membership.setFocusSetting('long-break-notification-enabled', String(enabled));
   }
 
   toggleMotivationNotification(enabled: boolean) {
     this.motivationNotificationEnabled.set(enabled);
-    localStorage.setItem('motivation-notification-enabled', String(enabled));
+    this.membership.setFocusSetting('motivation-notification-enabled', String(enabled));
   }
 
   testFocusNotification() {
@@ -2740,7 +2765,7 @@ export class Enfoque implements OnInit, OnDestroy {
         }
         
         // Recompensa adicional por objetivo cumplido (Pregunta 2)
-        const objCompleted = this.objectiveCompleted();
+        const objCompleted = this.objectiveCompleted() || 'yes';
         if (objCompleted === 'yes' || objCompleted === 'progress') {
           const objectiveId = `obj-${Date.now()}`;
           this.membership.rewardCompletedObjective(objectiveId);
@@ -3267,7 +3292,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   updateBackgroundSound(sound: string) {
     this.backgroundSound.set(sound);
-    localStorage.setItem('focus-bg-sound', sound);
+    this.membership.setFocusSetting('focus-bg-sound', sound);
     
     // Limpiar timeout de prueba previa si existía
     if (this.previewSoundTimeout) {
@@ -3298,7 +3323,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   updateBreakBackgroundSound(sound: string) {
     this.breakBackgroundSound.set(sound);
-    localStorage.setItem('focus-break-bg-sound', sound);
+    this.membership.setFocusSetting('focus-break-bg-sound', sound);
     
     // Limpiar timeout de prueba previa si existía
     if (this.previewSoundTimeout) {
@@ -3329,7 +3354,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   updateLongBreakBackgroundSound(sound: string) {
     this.longBreakBackgroundSound.set(sound);
-    localStorage.setItem('focus-long-break-bg-sound', sound);
+    this.membership.setFocusSetting('focus-long-break-bg-sound', sound);
     
     // Limpiar timeout de prueba previa si existía
     if (this.previewSoundTimeout) {
@@ -3438,7 +3463,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   updateBackgroundVolume(vol: number) {
     this.backgroundVolume.set(vol);
-    localStorage.setItem('focus-bg-volume', vol.toString());
+    this.membership.setFocusSetting('focus-bg-volume', vol.toString());
     if (this.currentBackgroundAudio) {
       this.currentBackgroundAudio.volume = vol;
     }
@@ -3567,29 +3592,29 @@ export class Enfoque implements OnInit, OnDestroy {
 
   toggleFocusSound(enabled: boolean) {
     this.soundEnabled.set(enabled);
-    localStorage.setItem('focus-sound-enabled', String(enabled));
+    this.membership.setFocusSetting('focus-sound-enabled', String(enabled));
   }
 
   toggleBreakSound(enabled: boolean) {
     this.breakSoundEnabled.set(enabled);
-    localStorage.setItem('focus-break-sound-enabled', String(enabled));
+    this.membership.setFocusSetting('focus-break-sound-enabled', String(enabled));
   }
 
   setEndSessionSound(soundId: string) {
     this.endSessionSound.set(soundId);
-    localStorage.setItem('focus-end-sound', soundId);
+    this.membership.setFocusSetting('focus-end-sound', soundId);
     this.previewAlarmSound(soundId);
   }
 
   setBreakEndSound(soundId: string) {
     this.breakEndSound.set(soundId);
-    localStorage.setItem('focus-break-sound', soundId);
+    this.membership.setFocusSetting('focus-break-sound', soundId);
     this.previewAlarmSound(soundId);
   }
 
   setLongBreakEndSound(soundId: string) {
     this.longBreakEndSound.set(soundId);
-    localStorage.setItem('focus-long-break-sound', soundId);
+    this.membership.setFocusSetting('focus-long-break-sound', soundId);
     this.previewAlarmSound(soundId);
   }
 
@@ -3894,10 +3919,10 @@ export class Enfoque implements OnInit, OnDestroy {
 
   applyTimeSettings() {
     this.stopTimerLoop();
-    localStorage.setItem('focus-duration', String(this.focusDuration()));
-    localStorage.setItem('break-duration', String(this.breakDuration()));
-    localStorage.setItem('long-break-interval', String(this.longBreakInterval()));
-    localStorage.setItem('long-break-duration', String(this.longBreakDuration()));
+    this.membership.setFocusSetting('focus-duration', String(this.focusDuration()));
+    this.membership.setFocusSetting('break-duration', String(this.breakDuration()));
+    this.membership.setFocusSetting('long-break-interval', String(this.longBreakInterval()));
+    this.membership.setFocusSetting('long-break-duration', String(this.longBreakDuration()));
 
     if (!this.isBreak()) {
       this.totalSessionTime.set(this.focusDuration() * 60);
@@ -3963,7 +3988,7 @@ export class Enfoque implements OnInit, OnDestroy {
       return;
     }
     this.activeBackground.set(bg);
-    localStorage.setItem('focus-active-bg', bg);
+    this.membership.setFocusSetting('focus-active-bg', bg);
     this.activeVideoLayer.set('A');
     this.isCrossfading = false;
 
@@ -4152,30 +4177,30 @@ export class Enfoque implements OnInit, OnDestroy {
   // Setter del estilo de cronómetro Zen (100% libre para todos)
   setTimerStyle(style: FocusTimerStyle) {
     this.timerStyle.set(style);
-    localStorage.setItem('focus-timer-style', style);
+    this.membership.setFocusSetting('focus-timer-style', style);
 
     // Auto-asignación y validación de fondos según el cronómetro
     if (style === 'lighthouse') {
       this.activeBackground.set('lofi_lighthouse_ocean');
-      localStorage.setItem('focus-active-bg', 'lofi_lighthouse_ocean');
+      this.membership.setFocusSetting('focus-active-bg', 'lofi_lighthouse_ocean');
     } else if (style === 'titanic') {
       this.activeBackground.set('lofi_titanic_ocean');
-      localStorage.setItem('focus-active-bg', 'lofi_titanic_ocean');
+      this.membership.setFocusSetting('focus-active-bg', 'lofi_titanic_ocean');
     } else {
       // Si se cambia a cualquier otro reloj que no sea marítimo y el fondo actual es marítimo exclusivo, reasignar
       if (this.activeBackground() === 'lofi_titanic_ocean' || this.activeBackground() === 'lofi_lighthouse_ocean') {
         if (style === 'solar') {
           this.activeBackground.set('lofi_space_cosmos');
-          localStorage.setItem('focus-active-bg', 'lofi_space_cosmos');
+          this.membership.setFocusSetting('focus-active-bg', 'lofi_space_cosmos');
         } else if (style === 'satellite') {
           this.activeBackground.set('lofi_space_nebula');
-          localStorage.setItem('focus-active-bg', 'lofi_space_nebula');
+          this.membership.setFocusSetting('focus-active-bg', 'lofi_space_nebula');
         } else if (style === 'moon') {
           this.activeBackground.set('lofi_space_moon');
-          localStorage.setItem('focus-active-bg', 'lofi_space_moon');
+          this.membership.setFocusSetting('focus-active-bg', 'lofi_space_moon');
         } else {
           this.activeBackground.set('theme_autumn');
-          localStorage.setItem('focus-active-bg', 'theme_autumn');
+          this.membership.setFocusSetting('focus-active-bg', 'theme_autumn');
         }
       } else {
         if (style === 'solar') {

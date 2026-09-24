@@ -289,6 +289,31 @@ export interface UserFocusStatsData {
   today_completed_objectives?: number;
 }
 
+export interface FocusPreferences {
+  timer_style?: string;
+  active_background?: string;
+  background_sound?: string;
+  break_background_sound?: string;
+  long_break_background_sound?: string;
+  background_volume?: number;
+  end_session_sound?: string;
+  break_end_sound?: string;
+  break_sound_enabled?: boolean;
+  long_break_end_sound?: string;
+  focus_duration?: number;
+  break_duration?: number;
+  long_break_interval?: number;
+  long_break_duration?: number;
+  desktop_notifications_enabled?: boolean;
+  tab_notifications_enabled?: boolean;
+  focus_notification_enabled?: boolean;
+  break_notification_enabled?: boolean;
+  long_break_notification_enabled?: boolean;
+  motivation_notification_enabled?: boolean;
+  abandon_sound_enabled?: boolean;
+  show_battery_button_in_arena?: boolean;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -301,6 +326,8 @@ export interface UserProfile {
   selected_avatar?: string;
   selected_theme?: 'samurai' | 'cyberpunk' | 'aurora' | 'zen';
   selected_weapon?: string;
+  selected_timer?: string;
+  focus_preferences?: FocusPreferences;
   is_premium?: boolean;
   pro_coins?: number;
   focus_points?: number;
@@ -547,16 +574,32 @@ export class SupabaseService {
       return { error: 'SUPABASE_NOT_CONFIGURED' };
     }
 
-    const { error } = await this.supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', userId);
+    try {
+      const { error } = await this.supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', userId);
 
-    if (error) {
-      return { error: error.message };
+      if (error) {
+        // Si la columna focus_preferences no existe aún en la tabla profiles de Supabase, fallback seguro
+        if (updates.focus_preferences && error.message?.toLowerCase().includes('focus_preferences')) {
+          const { focus_preferences, ...restUpdates } = updates;
+          if (Object.keys(restUpdates).length > 0) {
+            const fallbackRes = await this.supabase
+              .from('profiles')
+              .update(restUpdates)
+              .eq('id', userId);
+            return { error: fallbackRes.error ? fallbackRes.error.message : null };
+          }
+          return { error: null };
+        }
+        return { error: error.message };
+      }
+
+      return { error: null };
+    } catch (e: any) {
+      return { error: e?.message || 'Error updating profile' };
     }
-
-    return { error: null };
   }
 
   // ==========================================
