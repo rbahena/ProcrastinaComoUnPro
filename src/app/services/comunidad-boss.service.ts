@@ -150,6 +150,8 @@ export class ComunidadBossService {
   }
 
   private saveState() {
+    const email = localStorage.getItem('procrastina-current-user-email');
+    if (!email) return;
     localStorage.setItem('comunidad-boss-state', JSON.stringify({
       boss: this.activeBoss(),
       shield: this.comunidadShield(),

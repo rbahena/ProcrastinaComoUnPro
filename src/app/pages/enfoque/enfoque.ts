@@ -4607,7 +4607,7 @@ export class Enfoque implements OnInit, OnDestroy {
     }
     const success = this.membership.unlockAvatar(avatar, cost);
     if (success) {
-      this.membership.selectedAvatar.set(avatar as any);
+      this.membership.equipAvatar(avatar);
       alert(`¡Felicidades! Has desbloqueado el avatar ${avatar.toUpperCase()} con éxito.`);
     } else {
       alert('No tienes suficientes Pro Coins. Completa más sesiones para ganar monedas.');

@@ -2351,7 +2351,7 @@ export class Cualidades implements OnInit {
 
   equipAvatar(avatar: ComunidadAvatar) {
     if (avatar.isUnlocked) {
-      this.membership.selectedAvatar.set(avatar.id);
+      this.membership.equipAvatar(avatar.id);
       this.showToast(`¡${avatar.name} equipado como tu guardián activo!`);
     }
   }

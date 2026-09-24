@@ -55,10 +55,30 @@ export interface QualityItem {
   unlockedAt?: string;
 }
 
-function getUserKeyStatic(key: string): string {
-  const email = localStorage.getItem('procrastina-current-user-email') || '';
-  return email ? `user:${email}:${key}` : `procrastina-${key}`;
-}
+export const DEFAULT_FOCUS_PREFERENCES: Record<string, string> = {
+  'focus-timer-style': 'digital',
+  'focus-active-bg': 'theme_autumn',
+  'focus-bg-sound': 'off',
+  'focus-break-bg-sound': 'off',
+  'focus-long-break-bg-sound': 'off',
+  'focus-bg-volume': '1.0',
+  'focus-end-sound': 'tone',
+  'focus-break-sound-enabled': 'true',
+  'focus-break-sound': 'electronic_chime',
+  'focus-long-break-sound': 'electronic_chime',
+  'focus-duration': '25',
+  'break-duration': '5',
+  'long-break-interval': '4',
+  'long-break-duration': '15',
+  'desktop-notifications-enabled': 'true',
+  'tab-notifications-enabled': 'true',
+  'focus-notification-enabled': 'true',
+  'break-notification-enabled': 'true',
+  'long-break-notification-enabled': 'true',
+  'motivation-notification-enabled': 'true',
+  'abandon-sound-enabled': 'true',
+  'show-battery-button-in-arena': 'true'
+};
 
 function cleanQuotedString(val: string): string {
   if (!val) return '';
@@ -81,59 +101,6 @@ function cleanQuotedString(val: string): string {
     }
   }
   return str.replace(/["'\\]+/g, '').replace(/[\/\\]+/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
-function getMigratedValue(key: string, defaultValue: string): string {
-  const userKey = getUserKeyStatic(key);
-  const userVal = localStorage.getItem(userKey);
-  if (userVal !== null) {
-    if (key === 'pro-coins' && userVal === '999999') return defaultValue;
-    if (key === 'focus-tomatoes' && userVal === '100') return defaultValue;
-    if (key === 'focus-points' && userVal === '10000') return defaultValue;
-    if (key === 'streak' && userVal === '7') return defaultValue;
-    return userVal;
-  }
-  // No migrar valores antiguos residuales de profesión ni país
-  if (key === 'user-profession' || key === 'user-country' || key === 'user-country-code') {
-    return defaultValue;
-  }
-  const globalKey = `procrastina-${key}`;
-  const globalVal = localStorage.getItem(globalKey);
-  if (globalVal !== null) {
-    if (key === 'pro-coins' && globalVal === '999999') return defaultValue;
-    if (key === 'focus-tomatoes' && globalVal === '100') return defaultValue;
-    if (key === 'focus-points' && globalVal === '10000') return defaultValue;
-    if (key === 'streak' && globalVal === '7') return defaultValue;
-    localStorage.setItem(userKey, globalVal);
-    return globalVal;
-  }
-  return defaultValue;
-}
-
-function getMigratedValueJSON<T>(key: string, defaultValue: T, legacyKeyPrefix = 'procrastina-'): T {
-  const userKey = getUserKeyStatic(key);
-  const userVal = localStorage.getItem(userKey);
-  if (userVal !== null) {
-    try {
-      return JSON.parse(userVal);
-    } catch (e) {
-      return defaultValue;
-    }
-  }
-  // No migrar desbloqueables antiguos residuales para que usuarios nuevos comiencen estrictamente con los comunes
-  if (key === 'unlocked-avatars' || key === 'unlocked-themes' || key === 'unlocked-timers') {
-    return defaultValue;
-  }
-  const legacyKey = key === 'captured-ideas' ? 'captured-ideas' : `${legacyKeyPrefix}${key}`;
-  const globalVal = localStorage.getItem(legacyKey);
-  if (globalVal !== null) {
-    try {
-      const parsed = JSON.parse(globalVal);
-      localStorage.setItem(userKey, globalVal);
-      return parsed;
-    } catch (e) {}
-  }
-  return defaultValue;
 }
 
 export const INITIAL_AVATARS_LIST = [
@@ -182,95 +149,57 @@ export class MembershipService {
   isFocusActive = signal<boolean>(false);
 
   // Puntos de enfoque (para ranking)
-  focusPoints = signal<number>(
-    parseInt(getMigratedValue('focus-points', '0'), 10)
-  );
+  focusPoints = signal<number>(0);
 
   // Pro Coins
-  proCoins = signal<number>(
-    parseInt(getMigratedValue('pro-coins', '0'), 10)
-  );
+  proCoins = signal<number>(0);
 
   // Tomates de enfoque (1 por sesión de concentración)
-  focusTomatoes = signal<number>(
-    parseInt(getMigratedValue('focus-tomatoes', '0'), 10)
-  );
+  focusTomatoes = signal<number>(0);
 
   // Racha de días de enfoque
-  streak = signal<number>(
-    parseInt(getMigratedValue('streak', '0'), 10)
-  );
+  streak = signal<number>(0);
 
   addFocusTomatoes(tomatoes: number) {
     this.focusTomatoes.update(t => t + tomatoes);
   }
 
-  // Cosméticos desbloqueados (Solo los 6 iniciales por defecto: Kuro, Baky, Bunny, Kiko, Pipo, Mickey)
-  unlockedAvatars = signal<string[]>(INITIAL_AVATARS_LIST);
-  unlockedThemes = signal<string[]>(['samurai', 'cyberpunk', 'aurora', 'zen']);
-  unlockedTimers = signal<string[]>([
-    'digital', 'ring', 'line', 'fire', 'hourglass', 'ice', 'battery', 
-    'solar', 'satellite', 'moon', 'titanic', 'lighthouse', 'airplane'
-  ]);
+  // Cosméticos desbloqueados (Solo los 6 iniciales por defecto)
+  unlockedAvatars = signal<string[]>([...INITIAL_AVATARS_LIST]);
+  unlockedThemes = signal<string[]>(['samurai']);
+  unlockedTimers = signal<string[]>(['digital']);
 
   // Perfil del usuario
-  userName = signal<string>(
-    getMigratedValue('user-name', 'Guerrero')
-  );
-  userProfession = signal<string>(
-    cleanQuotedString(getMigratedValue('user-profession', ''))
-  );
+  userName = signal<string>('Guerrero');
+  userProfession = signal<string>('');
   // Días activos de la semana (1: Lun, 2: Mar, 3: Mié, 4: Jue, 5: Vie, 6: Sáb, 7: Dom)
-  userActiveDays = signal<number[]>(
-    getMigratedValueJSON('user-active-days', [1, 2, 3, 4, 5])
-  );
-  userCountry = signal<string>(
-    cleanQuotedString(getMigratedValue('user-country', ''))
-  );
-  userCountryCode = signal<string>(
-    getMigratedValue('user-country-code', '')
-  );
-  selectedAvatar = signal<string>(
-    getMigratedValue('avatar', 'gato')
-  );
-  selectedTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>(
-    getMigratedValue('theme', 'samurai') as any
-  );
-  themeMode = signal<'dark' | 'light'>(
-    (getMigratedValue('theme-mode', 'dark') as any) === 'light' ? 'light' : 'dark'
-  );
+  userActiveDays = signal<number[]>([1, 2, 3, 4, 5]);
+  userCountry = signal<string>('');
+  userCountryCode = signal<string>('');
+  selectedAvatar = signal<string>('gato');
+  selectedTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>('samurai');
+  themeMode = signal<'dark' | 'light'>('dark');
 
   // Medallas ganadas en podios
-  podiumWins = signal<number>(
-    parseInt(getMigratedValue('podium-wins', '0'), 10)
-  );
-  goldMedals = signal<number>(
-    parseInt(getMigratedValue('gold-medals', '0'), 10)
-  );
-  silverMedals = signal<number>(
-    parseInt(getMigratedValue('silver-medals', '0'), 10)
-  );
-  bronzeMedals = signal<number>(
-    parseInt(getMigratedValue('bronze-medals', '0'), 10)
-  );
+  podiumWins = signal<number>(0);
+  goldMedals = signal<number>(0);
+  silverMedals = signal<number>(0);
+  bronzeMedals = signal<number>(0);
 
-  // Estado de onboarding completado (por defecto true para comenzar de inmediato)
-  onboardingCompleted = signal<boolean>(
-    getMigratedValue('onboarding-completed', 'true') !== 'false'
-  );
+  // Estado de onboarding completado
+  onboardingCompleted = signal<boolean>(true);
 
   // Control global para abrir el modal de configuración de identidad
   showSettingsModal = signal<boolean>(false);
 
   // Idioma de la interfaz ('es' por defecto o 'en')
-  userLanguage = signal<'es' | 'en'>(
-    (localStorage.getItem('procrastina-language') as any) || 'es'
-  );
+  userLanguage = signal<'es' | 'en'>('es');
+
+  // Preferencias centralizadas de la Arena de Enfoque
+  focusPreferences = signal<Record<string, string>>({ ...DEFAULT_FOCUS_PREFERENCES });
 
   // Ideas capturadas durante sesiones de enfoque
-  capturedIdeas = signal<CapturedIdea[]>(
-    normalizeCapturedIdeas(getMigratedValueJSON('captured-ideas', []))
-  );
+  capturedIdeas = signal<CapturedIdea[]>([]);
 
   // Contador de ideas y tareas pendientes (no completadas)
   pendingCapturedIdeasCount = computed(() =>
@@ -278,9 +207,7 @@ export class MembershipService {
   );
 
   // Catálogo dinámico cargado desde Supabase
-  catalogItems = signal<CatalogItem[]>(
-    getMigratedValueJSON<CatalogItem[]>('catalog-cache', [])
-  );
+  catalogItems = signal<CatalogItem[]>([]);
 
   // Catálogo completo de avatares disponibles (generado dinámicamente desde Supabase)
   avatarsCatalog = computed<AvatarItem[]>(() => {
@@ -313,28 +240,87 @@ export class MembershipService {
   ]);
 
   // Registro de sesiones procesadas para idempotencia
-  private rewardedSessions = new Set<string>(
-    getMigratedValueJSON('rewarded-sessions', [] as string[])
-  );
+  private rewardedSessions = new Set<string>();
 
   getCurrentUserEmail(): string {
     return localStorage.getItem('procrastina-current-user-email') || this.supabaseService.currentUser()?.email || '';
   }
 
-  getFocusSetting(key: string, defaultValue: string): string {
+  // Limpiar todas las claves residuales sueltas de localStorage
+  cleanupLegacyLocalStorageKeys() {
+    if (typeof localStorage === 'undefined') return;
     const email = this.getCurrentUserEmail();
+    const preserved = new Set<string>([
+      'procrastina-current-user-email'
+    ]);
     if (email) {
-      const userVal = localStorage.getItem(`user:${email}:${key}`);
-      if (userVal !== null && userVal !== undefined && userVal !== '') {
-        return userVal;
-      }
+      preserved.add(`user:${email}:data`);
     }
-    const globalVal = localStorage.getItem(key);
-    if (globalVal !== null && globalVal !== undefined && globalVal !== '') {
-      if (email) {
-        localStorage.setItem(`user:${email}:${key}`, globalVal);
-      }
-      return globalVal;
+
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      if (key.startsWith('sb-')) continue; // Token de autenticación de Supabase
+      if (preserved.has(key)) continue;
+      if (key.startsWith('focus-session-') || key.startsWith('activeObjective') || key.startsWith('campfire-pos-')) continue;
+      keysToRemove.push(key);
+    }
+    for (const k of keysToRemove) {
+      localStorage.removeItem(k);
+    }
+  }
+
+  // Guardar paquete consolidado unificado del usuario en localStorage
+  saveConsolidatedUserData() {
+    const email = this.getCurrentUserEmail();
+    if (!email) return;
+
+    const bundle = {
+      profile: {
+        userName: this.userName(),
+        profession: this.userProfession(),
+        country: this.userCountry(),
+        countryCode: this.userCountryCode(),
+        activeDays: this.userActiveDays(),
+        avatar: this.selectedAvatar(),
+        theme: this.selectedTheme(),
+        themeMode: this.themeMode(),
+        onboardingCompleted: this.onboardingCompleted(),
+        language: this.userLanguage(),
+        isPremium: this.isPremium()
+      },
+      gamification: {
+        proCoins: this.proCoins(),
+        focusPoints: this.focusPoints(),
+        focusTomatoes: this.focusTomatoes(),
+        streak: this.streak(),
+        goldMedals: this.goldMedals(),
+        silverMedals: this.silverMedals(),
+        bronzeMedals: this.bronzeMedals(),
+        podiumWins: this.podiumWins(),
+        rewardedSessions: Array.from(this.rewardedSessions)
+      },
+      inventory: {
+        unlockedAvatars: this.unlockedAvatars(),
+        unlockedThemes: this.unlockedThemes(),
+        unlockedTimers: this.unlockedTimers()
+      },
+      focusPreferences: this.focusPreferences(),
+      capturedIdeas: this.capturedIdeas()
+    };
+
+    try {
+      localStorage.setItem(`user:${email}:data`, JSON.stringify(bundle));
+    } catch (e) {
+      console.warn('[MembershipService] Error saving consolidated user data:', e);
+    }
+  }
+
+  getFocusSetting(key: string, defaultValue: string): string {
+    const prefs = this.focusPreferences();
+    if (prefs && prefs[key] !== undefined && prefs[key] !== null && prefs[key] !== '') {
+      return String(prefs[key]);
     }
     return defaultValue;
   }
@@ -342,19 +328,9 @@ export class MembershipService {
   private focusSyncTimeout: any = null;
 
   setFocusSetting(key: string, value: string): void {
-    localStorage.setItem(key, value);
-    const email = this.getCurrentUserEmail();
-    if (email) {
-      localStorage.setItem(`user:${email}:${key}`, value);
-    }
+    this.focusPreferences.update(p => ({ ...p, [key]: value }));
+    this.saveConsolidatedUserData();
     this.queueFocusPreferencesSync();
-  }
-
-  private setFocusSettingLocal(key: string, value: string, email: string) {
-    localStorage.setItem(key, value);
-    if (email) {
-      localStorage.setItem(`user:${email}:${key}`, value);
-    }
   }
 
   queueFocusPreferencesSync() {
@@ -415,34 +391,15 @@ export class MembershipService {
       });
     }
 
-    // Calcular la racha inicial
+    // Limpiar claves legacy sueltas y cargar datos del usuario si existe sesión
     const email = this.getCurrentUserEmail();
-    this.streak.set(this.calculateStreak(email));
-
-    // Desbloquear únicamente los 6 avatares iniciales (Kuro, Baky, Bunny, Kiko, Pipo, Mickey)
-    const storedAvatarsStr = localStorage.getItem('procrastina-unlocked-avatars') || (email ? localStorage.getItem(`user:${email}:unlocked-avatars`) : null);
-    let initialAvatars = [...INITIAL_AVATARS_LIST];
-    if (storedAvatarsStr) {
-      try {
-        const parsed = JSON.parse(storedAvatarsStr);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          if (parsed.length >= ALL_AVATARS_LIST.length) {
-            initialAvatars = [...INITIAL_AVATARS_LIST];
-          } else {
-            initialAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...parsed]));
-          }
-        }
-      } catch (e) {
-        initialAvatars = [...INITIAL_AVATARS_LIST];
-      }
-    }
-    this.unlockedAvatars.set(initialAvatars);
-    localStorage.setItem('procrastina-unlocked-avatars', JSON.stringify(initialAvatars));
     if (email) {
-      localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(initialAvatars));
+      this.loadUserData(email);
+    } else {
+      this.cleanupLegacyLocalStorageKeys();
     }
 
-    // Cargar catálogo de artículos desde Supabase
+    // Cargar catálogo de artículos desde Supabase (solo en memoria)
     this.loadCatalogFromSupabase();
 
     // Sincronizar perfil e inventario automáticamente cuando Supabase tenga sesión activa
@@ -476,134 +433,38 @@ export class MembershipService {
       }
     });
 
-    // Sincronizar automáticamente con localStorage al cambiar valores
+    // Sincronizar automáticamente el paquete consolidado cuando cambien las señales reactivas
     effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = String(this.isPremium());
-      localStorage.setItem('procrastina-premium', val);
-      if (email) localStorage.setItem(`user:${email}:premium`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = String(this.focusPoints());
-      localStorage.setItem('procrastina-focus-points', val);
-      if (email) localStorage.setItem(`user:${email}:focus-points`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = String(this.proCoins());
-      localStorage.setItem('procrastina-pro-coins', val);
-      if (email) localStorage.setItem(`user:${email}:pro-coins`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = String(this.focusTomatoes());
-      localStorage.setItem('procrastina-focus-tomatoes', val);
-      if (email) localStorage.setItem(`user:${email}:focus-tomatoes`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = String(this.streak());
-      localStorage.setItem('procrastina-streak', val);
-      if (email) localStorage.setItem(`user:${email}:streak`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = JSON.stringify(this.unlockedAvatars());
-      localStorage.setItem('procrastina-unlocked-avatars', val);
-      if (email) localStorage.setItem(`user:${email}:unlocked-avatars`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = JSON.stringify(this.unlockedThemes());
-      localStorage.setItem('procrastina-unlocked-themes', val);
-      if (email) localStorage.setItem(`user:${email}:unlocked-themes`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = JSON.stringify(this.unlockedTimers());
-      localStorage.setItem('procrastina-unlocked-timers', val);
-      if (email) localStorage.setItem(`user:${email}:unlocked-timers`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = this.userName();
-      localStorage.setItem('procrastina-user-name', val);
-      if (email) localStorage.setItem(`user:${email}:user-name`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = cleanQuotedString(this.userProfession());
-      localStorage.setItem('procrastina-user-profession', val);
-      if (email) localStorage.setItem(`user:${email}:user-profession`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = JSON.stringify(this.userActiveDays());
-      localStorage.setItem('procrastina-user-active-days', val);
-      if (email) localStorage.setItem(`user:${email}:user-active-days`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = this.userCountry();
-      localStorage.setItem('procrastina-user-country', val);
-      if (email) localStorage.setItem(`user:${email}:user-country`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = this.userCountryCode();
-      localStorage.setItem('procrastina-user-country-code', val);
-      if (email) localStorage.setItem(`user:${email}:user-country-code`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = this.selectedAvatar();
-      localStorage.setItem('procrastina-avatar', val);
-      if (email) localStorage.setItem(`user:${email}:avatar`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = this.selectedTheme();
-      localStorage.setItem('procrastina-theme', val);
-      if (email) localStorage.setItem(`user:${email}:theme`, val);
+      this.userName();
+      this.userProfession();
+      this.userCountry();
+      this.userCountryCode();
+      this.userActiveDays();
+      this.selectedAvatar();
+      this.selectedTheme();
+      this.themeMode();
+      this.onboardingCompleted();
+      this.userLanguage();
+      this.isPremium();
+      this.proCoins();
+      this.focusPoints();
+      this.focusTomatoes();
+      this.streak();
+      this.goldMedals();
+      this.silverMedals();
+      this.bronzeMedals();
+      this.podiumWins();
+      this.unlockedAvatars();
+      this.unlockedThemes();
+      this.unlockedTimers();
+      this.focusPreferences();
+      this.capturedIdeas();
+
+      const currentEmail = this.getCurrentUserEmail();
+      if (!currentEmail) return;
+
+      this.saveConsolidatedUserData();
       this.applyGlobalTheme();
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = this.themeMode();
-      localStorage.setItem('procrastina-theme-mode', val);
-      if (email) localStorage.setItem(`user:${email}:theme-mode`, val);
-      this.applyGlobalTheme();
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = String(this.onboardingCompleted());
-      localStorage.setItem('procrastina-onboarding-completed', val);
-      if (email) localStorage.setItem(`user:${email}:onboarding-completed`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = JSON.stringify(this.capturedIdeas());
-      localStorage.setItem('captured-ideas', val);
-      if (email) localStorage.setItem(`user:${email}:captured-ideas`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = String(this.goldMedals());
-      localStorage.setItem('procrastina-gold-medals', val);
-      if (email) localStorage.setItem(`user:${email}:gold-medals`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = String(this.silverMedals());
-      localStorage.setItem('procrastina-silver-medals', val);
-      if (email) localStorage.setItem(`user:${email}:silver-medals`, val);
-    });
-    effect(() => {
-      const email = this.getCurrentUserEmail();
-      const val = String(this.bronzeMedals());
-      localStorage.setItem('procrastina-bronze-medals', val);
-      if (email) localStorage.setItem(`user:${email}:bronze-medals`, val);
     });
   }
 
@@ -905,6 +766,24 @@ export class MembershipService {
     return this.avatarsCatalog();
   }
 
+  // Equipar avatar seleccionado y sincronizar en Supabase + local
+  async equipAvatar(avatarId: string): Promise<boolean> {
+    this.selectedAvatar.set(avatarId);
+    this.saveConsolidatedUserData();
+
+    if (this.supabaseService.isConfigured()) {
+      try {
+        const user = this.supabaseService.currentUser();
+        if (user) {
+          await this.supabaseService.updateProfile(user.id, { selected_avatar: avatarId });
+        }
+      } catch (e) {
+        console.warn('[MembershipService] Error persistiendo avatar seleccionado en Supabase:', e);
+      }
+    }
+    return true;
+  }
+
   // Persistencia en Supabase (profiles table)
   async saveSupabaseProfile(username: string, avatarId: string, country?: string, countryCode?: string, profession?: string, activeDays?: number[]): Promise<{ success: boolean; error?: string }> {
     const cleanProf = profession !== undefined ? cleanQuotedString(profession) : undefined;
@@ -937,17 +816,14 @@ export class MembershipService {
     if (cleanProf !== undefined) this.userProfession.set(cleanProf);
     if (activeDays !== undefined) this.userActiveDays.set(activeDays);
     this.onboardingCompleted.set(true);
+    this.saveConsolidatedUserData();
 
     return { success: true };
   }
 
-  // Activar/desactivar Premium (Mantiene 100% transparentes los tomates, rachas y monedas acumuladas)
+  // Activar/desactivar Premium
   async setPremium(premium: boolean) {
     this.isPremium.set(premium);
-    const email = this.getCurrentUserEmail();
-    const val = String(premium);
-    localStorage.setItem('procrastina-premium', val);
-    if (email) localStorage.setItem(`user:${email}:premium`, val);
 
     if (premium) {
       // Regalo de bienvenida solo para cuentas completamente nuevas sin actividad
@@ -956,6 +832,8 @@ export class MembershipService {
         this.addProCoins(100);
       }
     }
+
+    this.saveConsolidatedUserData();
 
     // Sincronizar estado en Supabase profiles si está conectado
     if (this.supabaseService.isConfigured()) {
@@ -988,18 +866,6 @@ export class MembershipService {
 
     // Registrar sesión
     this.rewardedSessions.add(sessionId);
-    const email = this.getCurrentUserEmail();
-    const userKey = getUserKeyStatic('rewarded-sessions');
-    localStorage.setItem(
-      userKey,
-      JSON.stringify(Array.from(this.rewardedSessions))
-    );
-    if (email) {
-      localStorage.setItem(
-        `user:${email}:rewarded-sessions`,
-        JSON.stringify(Array.from(this.rewardedSessions))
-      );
-    }
 
     // Recompensa: 1 tomate y 1 moneda por periodo de concentración completado
     const tomatoesEarned = 1;
@@ -1015,6 +881,7 @@ export class MembershipService {
 
     // Actualizar racha y progreso de Constancia de inmediato
     this.updateStreakProgress();
+    this.saveConsolidatedUserData();
 
     return { points: pointsEarned, coins: coinsEarned, tomatoes: tomatoesEarned, isNew: true };
   }
@@ -1051,20 +918,8 @@ export class MembershipService {
     }
 
     this.rewardedSessions.add(key);
-    const email = this.getCurrentUserEmail();
-    const userKey = getUserKeyStatic('rewarded-sessions');
-    localStorage.setItem(
-      userKey,
-      JSON.stringify(Array.from(this.rewardedSessions))
-    );
-    if (email) {
-      localStorage.setItem(
-        `user:${email}:rewarded-sessions`,
-        JSON.stringify(Array.from(this.rewardedSessions))
-      );
-    }
 
-    // Monedas por objetivo completado (0 monedas adicionales para mantener 1 moneda por pomodoro)
+    // Monedas por objetivo completado
     const coinsEarned = 0;
 
     let pointsEarned = 0;
@@ -1073,6 +928,7 @@ export class MembershipService {
       this.addFocusPoints(pointsEarned);
     }
 
+    this.saveConsolidatedUserData();
     return { points: pointsEarned, coins: coinsEarned, isNew: true };
   }
 
@@ -1182,24 +1038,9 @@ export class MembershipService {
   }
 
   private updateStreakProgress() {
-    const email = this.getCurrentUserEmail();
-    const key = getUserKeyStatic('streak-dates');
-    const savedDates = localStorage.getItem(key);
-    let dates: string[] = savedDates ? JSON.parse(savedDates) : [];
+    this.streak.update(s => s + 1);
 
-    const today = new Date();
-    const todayStr = this.getLocalDateKey(today);
-    if (!this.isDateInList(dates, today)) {
-      dates.push(todayStr);
-      localStorage.setItem(key, JSON.stringify(dates));
-      if (email) {
-        localStorage.setItem(`user:${email}:streak-dates`, JSON.stringify(dates));
-      }
-    }
-
-    const currentStreak = this.calculateStreakFromDates(dates);
-    this.streak.set(currentStreak);
-
+    const currentStreak = this.streak();
     this.qualitiesCatalog.update(list => {
       return list.map(q => {
         if (q.id === 'constancia') {
@@ -1217,53 +1058,11 @@ export class MembershipService {
         return q;
       });
     });
-  }
-
-  calculateStreakFromDates(dates: string[]): number {
-    if (!dates || dates.length === 0) return 0;
-
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    const hasToday = this.isDateInList(dates, today);
-    const hasYesterday = this.isDateInList(dates, yesterday);
-
-    // Si hoy no se ha enfocado y ayer tampoco, la racha activa es 0
-    if (!hasToday && !hasYesterday) {
-      return 0;
-    }
-
-    let currentStreak = 0;
-    let checkDate = new Date();
-
-    // Si hoy aún no se ha enfocado pero ayer sí, contamos la racha acumulada hasta ayer
-    if (!hasToday && hasYesterday) {
-      checkDate = yesterday;
-    }
-
-    while (true) {
-      if (this.isDateInList(dates, checkDate)) {
-        currentStreak++;
-        checkDate.setDate(checkDate.getDate() - 1);
-      } else {
-        break;
-      }
-    }
-    return currentStreak;
+    this.saveConsolidatedUserData();
   }
 
   calculateStreak(email?: string): number {
-    const activeEmail = email || this.getCurrentUserEmail();
-    const key = activeEmail ? `user:${activeEmail}:streak-dates` : getUserKeyStatic('streak-dates');
-    const savedDates = localStorage.getItem(key);
-    if (!savedDates) return 0;
-    try {
-      const dates: string[] = JSON.parse(savedDates);
-      return this.calculateStreakFromDates(dates);
-    } catch (e) {
-      return 0;
-    }
+    return this.streak();
   }
 
   // Desbloquear avatar
@@ -1435,7 +1234,13 @@ export class MembershipService {
     if (this.supabaseService.isConfigured()) {
       await this.supabaseService.signOut();
     }
+    const email = this.getCurrentUserEmail();
+    if (email) {
+      localStorage.removeItem(`user:${email}:data`);
+    }
     localStorage.removeItem('procrastina-current-user-email');
+    localStorage.removeItem('procrastina-just-registered');
+    this.cleanupLegacyLocalStorageKeys();
     this.closeAvatarMenu();
     this.router.navigate(['/login']);
   }
@@ -1464,13 +1269,16 @@ export class MembershipService {
     if (p.active_days) this.userActiveDays.set(p.active_days);
     if (p.language) {
       this.userLanguage.set(p.language);
-      localStorage.setItem('procrastina-language', p.language);
     }
     if (p.is_premium !== undefined) this.isPremium.set(p.is_premium);
-    if (p.pro_coins !== undefined) this.proCoins.set(p.pro_coins);
-    if (p.focus_points !== undefined) this.focusPoints.set(p.focus_points);
-    if (p.focus_tomatoes !== undefined) this.focusTomatoes.set(p.focus_tomatoes);
-    if (p.streak_days !== undefined) this.streak.set(p.streak_days);
+    if (p.coins !== undefined) this.proCoins.set(p.coins);
+    else if (p.pro_coins !== undefined) this.proCoins.set(p.pro_coins);
+    if (p.points !== undefined) this.focusPoints.set(p.points);
+    else if (p.focus_points !== undefined) this.focusPoints.set(p.focus_points);
+    if (p.tomatoes !== undefined) this.focusTomatoes.set(p.tomatoes);
+    else if (p.focus_tomatoes !== undefined) this.focusTomatoes.set(p.focus_tomatoes);
+    if (p.streak !== undefined) this.streak.set(p.streak);
+    else if (p.streak_days !== undefined) this.streak.set(p.streak_days);
     if (p.gold_medals !== undefined) this.goldMedals.set(p.gold_medals);
     if (p.silver_medals !== undefined) this.silverMedals.set(p.silver_medals);
     if (p.bronze_medals !== undefined) this.bronzeMedals.set(p.bronze_medals);
@@ -1478,34 +1286,36 @@ export class MembershipService {
 
     // Restaurar preferencias de la Arena de Enfoque desde la nube (Supabase)
     if (p.focus_preferences) {
-      const email = this.getCurrentUserEmail();
       const fp = p.focus_preferences;
-      if (fp.timer_style) this.setFocusSettingLocal('focus-timer-style', fp.timer_style, email);
-      if (fp.active_background) this.setFocusSettingLocal('focus-active-bg', fp.active_background, email);
-      if (fp.background_sound) this.setFocusSettingLocal('focus-bg-sound', fp.background_sound, email);
-      if (fp.break_background_sound) this.setFocusSettingLocal('focus-break-bg-sound', fp.break_background_sound, email);
-      if (fp.long_break_background_sound) this.setFocusSettingLocal('focus-long-break-bg-sound', fp.long_break_background_sound, email);
-      if (fp.background_volume !== undefined) this.setFocusSettingLocal('focus-bg-volume', String(fp.background_volume), email);
-      if (fp.end_session_sound) this.setFocusSettingLocal('focus-end-sound', fp.end_session_sound, email);
-      if (fp.break_sound_enabled !== undefined) this.setFocusSettingLocal('focus-break-sound-enabled', String(fp.break_sound_enabled), email);
-      if (fp.break_end_sound) this.setFocusSettingLocal('focus-break-sound', fp.break_end_sound, email);
-      if (fp.long_break_end_sound) this.setFocusSettingLocal('focus-long-break-sound', fp.long_break_end_sound, email);
-      if (fp.focus_duration !== undefined) this.setFocusSettingLocal('focus-duration', String(fp.focus_duration), email);
-      if (fp.break_duration !== undefined) this.setFocusSettingLocal('break-duration', String(fp.break_duration), email);
-      if (fp.long_break_interval !== undefined) this.setFocusSettingLocal('long-break-interval', String(fp.long_break_interval), email);
-      if (fp.long_break_duration !== undefined) this.setFocusSettingLocal('long-break-duration', String(fp.long_break_duration), email);
-      if (fp.desktop_notifications_enabled !== undefined) this.setFocusSettingLocal('desktop-notifications-enabled', String(fp.desktop_notifications_enabled), email);
-      if (fp.tab_notifications_enabled !== undefined) this.setFocusSettingLocal('tab-notifications-enabled', String(fp.tab_notifications_enabled), email);
-      if (fp.focus_notification_enabled !== undefined) this.setFocusSettingLocal('focus-notification-enabled', String(fp.focus_notification_enabled), email);
-      if (fp.break_notification_enabled !== undefined) this.setFocusSettingLocal('break-notification-enabled', String(fp.break_notification_enabled), email);
-      if (fp.long_break_notification_enabled !== undefined) this.setFocusSettingLocal('long-break-notification-enabled', String(fp.long_break_notification_enabled), email);
-      if (fp.motivation_notification_enabled !== undefined) this.setFocusSettingLocal('motivation-notification-enabled', String(fp.motivation_notification_enabled), email);
-      if (fp.abandon_sound_enabled !== undefined) this.setFocusSettingLocal('abandon-sound-enabled', String(fp.abandon_sound_enabled), email);
-      if (fp.show_battery_button_in_arena !== undefined) this.setFocusSettingLocal('show-battery-button-in-arena', String(fp.show_battery_button_in_arena), email);
+      const newPrefs: Record<string, string> = { ...this.focusPreferences() };
+      if (fp.timer_style) newPrefs['focus-timer-style'] = fp.timer_style;
+      if (fp.active_background) newPrefs['focus-active-bg'] = fp.active_background;
+      if (fp.background_sound) newPrefs['focus-bg-sound'] = fp.background_sound;
+      if (fp.break_background_sound) newPrefs['focus-break-bg-sound'] = fp.break_background_sound;
+      if (fp.long_break_background_sound) newPrefs['focus-long-break-bg-sound'] = fp.long_break_background_sound;
+      if (fp.background_volume !== undefined) newPrefs['focus-bg-volume'] = String(fp.background_volume);
+      if (fp.end_session_sound) newPrefs['focus-end-sound'] = fp.end_session_sound;
+      if (fp.break_sound_enabled !== undefined) newPrefs['focus-break-sound-enabled'] = String(fp.break_sound_enabled);
+      if (fp.break_end_sound) newPrefs['focus-break-sound'] = fp.break_end_sound;
+      if (fp.long_break_end_sound) newPrefs['focus-long-break-sound'] = fp.long_break_end_sound;
+      if (fp.focus_duration !== undefined) newPrefs['focus-duration'] = String(fp.focus_duration);
+      if (fp.break_duration !== undefined) newPrefs['break-duration'] = String(fp.break_duration);
+      if (fp.long_break_interval !== undefined) newPrefs['long-break-interval'] = String(fp.long_break_interval);
+      if (fp.long_break_duration !== undefined) newPrefs['long-break-duration'] = String(fp.long_break_duration);
+      if (fp.desktop_notifications_enabled !== undefined) newPrefs['desktop-notifications-enabled'] = String(fp.desktop_notifications_enabled);
+      if (fp.tab_notifications_enabled !== undefined) newPrefs['tab-notifications-enabled'] = String(fp.tab_notifications_enabled);
+      if (fp.focus_notification_enabled !== undefined) newPrefs['focus-notification-enabled'] = String(fp.focus_notification_enabled);
+      if (fp.break_notification_enabled !== undefined) newPrefs['break-notification-enabled'] = String(fp.break_notification_enabled);
+      if (fp.long_break_notification_enabled !== undefined) newPrefs['long-break-notification-enabled'] = String(fp.long_break_notification_enabled);
+      if (fp.motivation_notification_enabled !== undefined) newPrefs['motivation-notification-enabled'] = String(fp.motivation_notification_enabled);
+      if (fp.abandon_sound_enabled !== undefined) newPrefs['abandon-sound-enabled'] = String(fp.abandon_sound_enabled);
+      if (fp.show_battery_button_in_arena !== undefined) newPrefs['show-battery-button-in-arena'] = String(fp.show_battery_button_in_arena);
+      this.focusPreferences.set(newPrefs);
     } else if (p.selected_timer) {
-      const email = this.getCurrentUserEmail();
-      this.setFocusSettingLocal('focus-timer-style', p.selected_timer, email);
+      this.focusPreferences.update(pr => ({ ...pr, 'focus-timer-style': p.selected_timer }));
     }
+
+    this.saveConsolidatedUserData();
   }
 
   // Cargar catálogo de artículos desde Supabase
@@ -1514,14 +1324,6 @@ export class MembershipService {
       const { items, error } = await this.supabaseService.getCatalogItems();
       if (!error && items && items.length > 0) {
         this.catalogItems.set(items);
-        localStorage.setItem('procrastina-catalog-cache', JSON.stringify(items));
-      } else {
-        const cached = localStorage.getItem('procrastina-catalog-cache');
-        if (cached) {
-          try {
-            this.catalogItems.set(JSON.parse(cached));
-          } catch (e) {}
-        }
       }
     }
   }
@@ -1535,7 +1337,10 @@ export class MembershipService {
 
   // Aplicar items desbloqueados desde Supabase (user_unlocked_items)
   applySupabaseUnlockedItems(itemIds: string[]) {
-    const allKnownAvatars = ALL_AVATARS_LIST;
+    const catalogAvatars = this.catalogItems().filter(i => i.category === 'avatar').map(i => i.id);
+    const catalogInitialAvatars = this.catalogItems().filter(i => i.category === 'avatar' && i.is_initial).map(i => i.id);
+    const allKnownAvatars = Array.from(new Set([...ALL_AVATARS_LIST, ...catalogAvatars]));
+
     const knownThemes = ['samurai', 'cyberpunk', 'aurora', 'zen'];
     const knownTimers = ['digital', 'ring', 'line'];
 
@@ -1551,7 +1356,7 @@ export class MembershipService {
       (itemIds || []).filter(id => knownTimers.includes(id))
     ));
 
-    const finalAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...avatars]));
+    const finalAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...catalogInitialAvatars, ...avatars]));
     const finalThemes = themes.length > 0 ? themes : ['samurai'];
     const finalTimers = timers.length > 0 ? timers : ['digital'];
 
@@ -1559,16 +1364,11 @@ export class MembershipService {
     this.unlockedThemes.set(finalThemes);
     this.unlockedTimers.set(finalTimers);
 
-    if (!finalAvatars.includes(this.selectedAvatar())) {
+    if (this.selectedAvatar() && !finalAvatars.includes(this.selectedAvatar())) {
       this.selectedAvatar.set(finalAvatars[0] || 'gato');
     }
 
-    const email = this.getCurrentUserEmail();
-    if (email) {
-      localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(finalAvatars));
-      localStorage.setItem(`user:${email}:unlocked-themes`, JSON.stringify(finalThemes));
-      localStorage.setItem(`user:${email}:unlocked-timers`, JSON.stringify(finalTimers));
-    }
+    this.saveConsolidatedUserData();
   }
 
   // Aplicar progreso de cualidades desde Supabase (user_quality_progress)
@@ -1596,161 +1396,85 @@ export class MembershipService {
   loadUserData(email: string) {
     localStorage.setItem('procrastina-current-user-email', email);
 
-    // Leer valores de localStorage con su prefijo, o usar valores por defecto limpios
-    const isPremiumVal = localStorage.getItem(`user:${email}:premium`) === 'true';
-    const focusPointsVal = parseInt(localStorage.getItem(`user:${email}:focus-points`) || '0', 10);
-    const proCoinsVal = parseInt(localStorage.getItem(`user:${email}:pro-coins`) || '0', 10);
-    const focusTomatoesVal = parseInt(localStorage.getItem(`user:${email}:focus-tomatoes`) || '0', 10);
-
-    let mergedUnlockedAvatars: string[];
-    const storedAvatars = localStorage.getItem(`user:${email}:unlocked-avatars`);
-    if (storedAvatars) {
+    const bundleStr = localStorage.getItem(`user:${email}:data`);
+    if (bundleStr) {
       try {
-        const parsed = JSON.parse(storedAvatars);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          if (parsed.length >= ALL_AVATARS_LIST.length) {
-            mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
-          } else {
-            mergedUnlockedAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...parsed]));
-          }
-        } else {
-          mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
+        const bundle = JSON.parse(bundleStr);
+        if (bundle.profile) {
+          if (bundle.profile.userName) this.userName.set(bundle.profile.userName);
+          if (bundle.profile.profession) this.userProfession.set(cleanQuotedString(bundle.profile.profession));
+          if (bundle.profile.country) this.userCountry.set(cleanQuotedString(bundle.profile.country));
+          if (bundle.profile.countryCode) this.userCountryCode.set(bundle.profile.countryCode);
+          if (bundle.profile.activeDays) this.userActiveDays.set(bundle.profile.activeDays);
+          if (bundle.profile.avatar) this.selectedAvatar.set(bundle.profile.avatar);
+          if (bundle.profile.theme) this.selectedTheme.set(bundle.profile.theme);
+          if (bundle.profile.themeMode) this.themeMode.set(bundle.profile.themeMode);
+          if (bundle.profile.onboardingCompleted !== undefined) this.onboardingCompleted.set(bundle.profile.onboardingCompleted);
+          if (bundle.profile.language) this.userLanguage.set(bundle.profile.language);
+          if (bundle.profile.isPremium !== undefined) this.isPremium.set(bundle.profile.isPremium);
         }
-      } catch {
-        mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
+        if (bundle.gamification) {
+          if (bundle.gamification.proCoins !== undefined) this.proCoins.set(bundle.gamification.proCoins);
+          if (bundle.gamification.focusPoints !== undefined) this.focusPoints.set(bundle.gamification.focusPoints);
+          if (bundle.gamification.focusTomatoes !== undefined) this.focusTomatoes.set(bundle.gamification.focusTomatoes);
+          if (bundle.gamification.streak !== undefined) this.streak.set(bundle.gamification.streak);
+          if (bundle.gamification.goldMedals !== undefined) this.goldMedals.set(bundle.gamification.goldMedals);
+          if (bundle.gamification.silverMedals !== undefined) this.silverMedals.set(bundle.gamification.silverMedals);
+          if (bundle.gamification.bronzeMedals !== undefined) this.bronzeMedals.set(bundle.gamification.bronzeMedals);
+          if (bundle.gamification.podiumWins !== undefined) this.podiumWins.set(bundle.gamification.podiumWins);
+          if (bundle.gamification.rewardedSessions) this.rewardedSessions = new Set(bundle.gamification.rewardedSessions);
+        }
+        if (bundle.inventory) {
+          if (bundle.inventory.unlockedAvatars) this.unlockedAvatars.set(bundle.inventory.unlockedAvatars);
+          if (bundle.inventory.unlockedThemes) this.unlockedThemes.set(bundle.inventory.unlockedThemes);
+          if (bundle.inventory.unlockedTimers) this.unlockedTimers.set(bundle.inventory.unlockedTimers);
+        }
+        if (bundle.focusPreferences) {
+          this.focusPreferences.set({ ...DEFAULT_FOCUS_PREFERENCES, ...bundle.focusPreferences });
+        }
+        if (bundle.capturedIdeas) {
+          this.capturedIdeas.set(normalizeCapturedIdeas(bundle.capturedIdeas));
+        }
+      } catch (e) {
+        console.warn('[MembershipService] Error parsing user bundle:', e);
       }
     } else {
-      mergedUnlockedAvatars = [...INITIAL_AVATARS_LIST];
+      this.saveConsolidatedUserData();
     }
-    localStorage.setItem(`user:${email}:unlocked-avatars`, JSON.stringify(mergedUnlockedAvatars));
 
-    const unlockedThemesVal = JSON.parse(localStorage.getItem(`user:${email}:unlocked-themes`) || '["samurai"]');
-    const userNameVal = localStorage.getItem(`user:${email}:user-name`) || email.split('@')[0];
-    let selectedAvatarVal = localStorage.getItem(`user:${email}:avatar`) || 'gato';
-    if (!mergedUnlockedAvatars.includes(selectedAvatarVal)) {
-      selectedAvatarVal = 'gato';
-    }
-    const selectedThemeVal = (localStorage.getItem(`user:${email}:theme`) as any) || 'samurai';
-    const themeModeVal = (localStorage.getItem(`user:${email}:theme-mode`) as 'dark' | 'light') || (localStorage.getItem('procrastina-theme-mode') as 'dark' | 'light') || 'dark';
-    const userProfessionVal = localStorage.getItem(`user:${email}:user-profession`);
-    const userCountryVal = localStorage.getItem(`user:${email}:user-country`);
-    const userCountryCodeVal = localStorage.getItem(`user:${email}:user-country-code`);
-    const userActiveDaysVal = JSON.parse(localStorage.getItem(`user:${email}:user-active-days`) || '[1, 2, 3, 4, 5]');
-    const podiumWinsVal = parseInt(localStorage.getItem(`user:${email}:podium-wins`) || '0', 10);
-    const onboardingCompletedVal = localStorage.getItem(`user:${email}:onboarding-completed`) !== 'false';
-    const capturedIdeasVal = normalizeCapturedIdeas(JSON.parse(localStorage.getItem(`user:${email}:captured-ideas`) || '[]'));
-
-    this.rewardedSessions = new Set<string>(
-      JSON.parse(localStorage.getItem(`user:${email}:rewarded-sessions`) || '[]')
-    );
-
-    // Actualizar señales
-    this.isPremium.set(isPremiumVal);
-    this.focusPoints.set(focusPointsVal);
-    this.proCoins.set(proCoinsVal);
-    this.focusTomatoes.set(focusTomatoesVal);
-    this.unlockedAvatars.set(mergedUnlockedAvatars);
-    this.unlockedThemes.set(unlockedThemesVal);
-    this.userName.set(userNameVal);
-    this.selectedAvatar.set(selectedAvatarVal);
-    this.selectedTheme.set(selectedThemeVal);
-    this.themeMode.set(themeModeVal);
-    this.userProfession.set(userProfessionVal ? cleanQuotedString(userProfessionVal) : '');
-    this.userCountry.set(userCountryVal ? cleanQuotedString(userCountryVal) : '');
-    this.userCountryCode.set(userCountryCodeVal || '');
-    this.userActiveDays.set(userActiveDaysVal);
-    this.podiumWins.set(podiumWinsVal);
-    this.onboardingCompleted.set(onboardingCompletedVal);
-    this.capturedIdeas.set(capturedIdeasVal);
     this.applyGlobalTheme();
-
-    // Sincronizar y restaurar configuraciones de la Arena de Enfoque por usuario
-    const focusSettingsList: { key: string; defaultVal: string }[] = [
-      { key: 'focus-timer-style', defaultVal: 'digital' },
-      { key: 'focus-active-bg', defaultVal: 'theme_autumn' },
-      { key: 'focus-bg-sound', defaultVal: 'off' },
-      { key: 'focus-break-bg-sound', defaultVal: 'off' },
-      { key: 'focus-long-break-bg-sound', defaultVal: 'off' },
-      { key: 'focus-bg-volume', defaultVal: '1.0' },
-      { key: 'focus-end-sound', defaultVal: 'tone' },
-      { key: 'focus-break-sound-enabled', defaultVal: 'true' },
-      { key: 'focus-break-sound', defaultVal: 'electronic_chime' },
-      { key: 'focus-long-break-sound', defaultVal: 'electronic_chime' },
-      { key: 'focus-duration', defaultVal: '25' },
-      { key: 'break-duration', defaultVal: '5' },
-      { key: 'long-break-interval', defaultVal: '4' },
-      { key: 'long-break-duration', defaultVal: '15' },
-      { key: 'desktop-notifications-enabled', defaultVal: 'true' },
-      { key: 'tab-notifications-enabled', defaultVal: 'true' },
-      { key: 'focus-notification-enabled', defaultVal: 'true' },
-      { key: 'break-notification-enabled', defaultVal: 'true' },
-      { key: 'long-break-notification-enabled', defaultVal: 'true' },
-      { key: 'motivation-notification-enabled', defaultVal: 'true' },
-      { key: 'abandon-sound-enabled', defaultVal: 'true' },
-      { key: 'show-battery-button-in-arena', defaultVal: 'true' }
-    ];
-
-    for (const item of focusSettingsList) {
-      const userVal = localStorage.getItem(`user:${email}:${item.key}`);
-      if (userVal !== null && userVal !== undefined && userVal !== '') {
-        localStorage.setItem(item.key, userVal);
-      } else {
-        const globalVal = localStorage.getItem(item.key);
-        const finalVal = (globalVal !== null && globalVal !== undefined && globalVal !== '') ? globalVal : item.defaultVal;
-        localStorage.setItem(item.key, finalVal);
-        localStorage.setItem(`user:${email}:${item.key}`, finalVal);
-      }
-    }
-
-    // Recalcular la racha
-    this.streak.set(this.calculateStreak(email));
+    this.cleanupLegacyLocalStorageKeys();
   }
 
   // Restablecer cuenta para nuevo registro desde cero
   resetNewUserAccount() {
     const email = this.getCurrentUserEmail();
     if (!email) return;
-    
-    localStorage.removeItem(`user:${email}:unlocked-avatars`);
-    localStorage.removeItem(`user:${email}:unlocked-themes`);
-    localStorage.removeItem(`user:${email}:user-name`);
-    localStorage.removeItem(`user:${email}:avatar`);
-    localStorage.removeItem(`user:${email}:theme`);
-    localStorage.removeItem(`user:${email}:theme-mode`);
-    localStorage.removeItem(`user:${email}:pro-coins`);
-    localStorage.removeItem(`user:${email}:qualities-catalog`);
-    localStorage.removeItem(`user:${email}:focus-points`);
-    localStorage.removeItem(`user:${email}:rewarded-sessions`);
-
-    const focusKeys = [
-      'focus-timer-style', 'focus-active-bg', 'focus-bg-sound', 'focus-break-bg-sound',
-      'focus-long-break-bg-sound', 'focus-bg-volume', 'focus-end-sound', 'focus-break-sound-enabled',
-      'focus-break-sound', 'focus-long-break-sound', 'focus-duration', 'break-duration',
-      'long-break-interval', 'long-break-duration'
-    ];
-    for (const k of focusKeys) {
-      localStorage.removeItem(`user:${email}:${k}`);
-    }
-    localStorage.setItem(`user:${email}:focus-timer-style`, 'digital');
-    localStorage.setItem('focus-timer-style', 'digital');
-    localStorage.setItem(`user:${email}:focus-active-bg`, 'theme_autumn');
-    localStorage.setItem('focus-active-bg', 'theme_autumn');
 
     this.unlockedAvatars.set([...INITIAL_AVATARS_LIST]);
     this.unlockedThemes.set(['samurai']);
+    this.unlockedTimers.set(['digital']);
     this.userName.set(email.split('@')[0]);
     this.selectedAvatar.set('gato');
     this.selectedTheme.set('samurai');
     this.themeMode.set('dark');
-    this.applyGlobalTheme();
+    this.userProfession.set('');
+    this.userCountry.set('');
+    this.userCountryCode.set('');
+    this.userActiveDays.set([1, 2, 3, 4, 5]);
     this.proCoins.set(0);
     this.focusPoints.set(0);
+    this.focusTomatoes.set(0);
+    this.streak.set(0);
+    this.goldMedals.set(0);
+    this.silverMedals.set(0);
+    this.bronzeMedals.set(0);
+    this.podiumWins.set(0);
     this.onboardingCompleted.set(true);
     this.rewardedSessions.clear();
+    this.focusPreferences.set({ ...DEFAULT_FOCUS_PREFERENCES });
+    this.capturedIdeas.set([]);
 
-    localStorage.setItem(`user:${email}:avatar`, 'gato');
-    localStorage.setItem(`user:${email}:onboarding-completed`, 'true');
-    localStorage.setItem('procrastina-onboarding-completed', 'true');
     // Reestablecer cualidades
     this.qualitiesCatalog.set([
       { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 0, unlockTotal: 7 },
@@ -1761,6 +1485,10 @@ export class MembershipService {
       { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
       { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: false, unlockProgress: 0, unlockTotal: 3 }
     ]);
+
+    this.saveConsolidatedUserData();
+    this.applyGlobalTheme();
+    this.cleanupLegacyLocalStorageKeys();
   }
 
   // Auxiliares globales para avatars
