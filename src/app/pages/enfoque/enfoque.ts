@@ -39,6 +39,9 @@ export type FocusBackgroundType =
   | 'theme_tunezoro'
   | 'theme_tunezoro2'
   | 'theme_tunezoro_anime'
+  | 'space_deep_void'
+  | 'space_silent_nebula'
+  | 'space_milky_zenith'
   | 'lofi_space_cosmos' 
   | 'lofi_space_nebula' 
   | 'lofi_space_moon' 
@@ -492,7 +495,7 @@ export class Enfoque implements OnInit, OnDestroy {
   @ViewChild('bgVideoB') bgVideoBRef?: ElementRef<HTMLVideoElement>;
 
   backgroundOptions: FocusBackgroundType[] = [
-    'off', 'color_midnight_navy', 'color_espresso_charcoal', 'color_forest_matcha', 'color_executive_burgundy', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'theme_airplane', 'theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
+    'off', 'color_midnight_navy', 'color_espresso_charcoal', 'color_forest_matcha', 'color_executive_burgundy', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'theme_airplane', 'theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'space_deep_void', 'space_silent_nebula', 'space_milky_zenith', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'
   ];
 
   isSolidColorBackground = computed(() => {
@@ -550,6 +553,9 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'theme_tunezoro') return 'assets/themes/tunezoro_optimized.jpg';
     if (bg === 'theme_tunezoro2') return 'assets/themes/tunezoro2_optimized.jpg';
     if (bg === 'theme_tunezoro_anime') return 'assets/themes/tunezoro_anime_optimized.jpg';
+    if (bg === 'space_deep_void') return 'assets/themes/space_deep_void.webp';
+    if (bg === 'space_silent_nebula') return 'assets/themes/space_silent_nebula.webp';
+    if (bg === 'space_milky_zenith') return 'assets/themes/space_milky_zenith.webp';
     if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos.webp';
     if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula.webp';
     if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon.webp';
@@ -567,7 +573,7 @@ export class Enfoque implements OnInit, OnDestroy {
   // Lista de fondos disponibles según el estilo de reloj seleccionado
   availableBackgroundOptions = computed(() => {
     if (this.isOrbitalTimer()) {
-      return ['lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
+      return ['space_deep_void', 'space_silent_nebula', 'space_milky_zenith', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
     }
     if (this.timerStyle() === 'lighthouse') {
       return ['lofi_lighthouse_ocean'] as FocusBackgroundType[];
@@ -576,7 +582,7 @@ export class Enfoque implements OnInit, OnDestroy {
       return ['lofi_titanic_ocean'] as FocusBackgroundType[];
     }
     // Para todos los demás relojes normales, incluir 'off', los colores pro, videos Lofi HD, temas de ilustración y fondos estándar
-    return ['off', 'color_midnight_navy', 'color_espresso_charcoal', 'color_forest_matcha', 'color_executive_burgundy', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'theme_airplane', 'theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
+    return ['off', 'color_midnight_navy', 'color_espresso_charcoal', 'color_forest_matcha', 'color_executive_burgundy', 'lofi_cat_window', 'lofi_cat_rain', 'lofi_cat_sun', 'lofi_car_ride', 'theme_autumn', 'theme_sunset', 'theme_aninditaerina_lofi', 'fairy', 'lofi_study_desktop', 'lofi_moons', 'theme_airplane', 'theme_tunezoro', 'theme_tunezoro2', 'theme_tunezoro_anime', 'space_deep_void', 'space_silent_nebula', 'space_milky_zenith', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'] as FocusBackgroundType[];
   });
 
   // ==================== CLASIFICACIONES DE FONDOS DE PANTALLA ====================
@@ -630,7 +636,7 @@ export class Enfoque implements OnInit, OnDestroy {
       badge: 'Inmersivo',
       badgeColor: '#6366f1',
       icon: 'fa-moon',
-      items: ['lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'] as FocusBackgroundType[]
+      items: ['space_deep_void', 'space_silent_nebula', 'space_milky_zenith', 'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon', 'lofi_titanic_ocean', 'lofi_lighthouse_ocean'] as FocusBackgroundType[]
     }
   ];
 
@@ -3984,8 +3990,12 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.timerStyle() === 'titanic' && bg !== 'lofi_titanic_ocean') {
       return;
     }
-    // Si el cronómetro activo es de órbitas (Sol, Satélite, Luna), solo se permiten Espacio, Nebulosa y Lunar
-    if (this.isOrbitalTimer() && bg !== 'lofi_space_cosmos' && bg !== 'lofi_space_nebula' && bg !== 'lofi_space_moon') {
+    // Si el cronómetro activo es de órbitas (Sol, Satélite, Luna), solo se permiten fondos espaciales
+    const spaceBgs: FocusBackgroundType[] = [
+      'space_deep_void', 'space_silent_nebula', 'space_milky_zenith',
+      'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'
+    ];
+    if (this.isOrbitalTimer() && !spaceBgs.includes(bg)) {
       return;
     }
     this.activeBackground.set(bg);
@@ -4075,6 +4085,9 @@ export class Enfoque implements OnInit, OnDestroy {
     if (bg === 'theme_tunezoro') return 'assets/themes/tunezoro_thumb.webp';
     if (bg === 'theme_tunezoro2') return 'assets/themes/tunezoro2_thumb.webp';
     if (bg === 'theme_tunezoro_anime') return 'assets/themes/tunezoro_anime_thumb.webp';
+    if (bg === 'space_deep_void') return 'assets/themes/space_deep_void_thumb.webp';
+    if (bg === 'space_silent_nebula') return 'assets/themes/space_silent_nebula_thumb.webp';
+    if (bg === 'space_milky_zenith') return 'assets/themes/space_milky_zenith_thumb.webp';
     if (bg === 'lofi_space_cosmos') return 'assets/themes/lofi_space_cosmos_thumb.webp';
     if (bg === 'lofi_space_nebula') return 'assets/themes/lofi_space_nebula_thumb.webp';
     if (bg === 'lofi_space_moon') return 'assets/themes/lofi_space_moon_thumb.webp';
@@ -4105,6 +4118,9 @@ export class Enfoque implements OnInit, OnDestroy {
       case 'theme_tunezoro': return 'Tunezoro';
       case 'theme_tunezoro2': return 'Tunezoro II';
       case 'theme_tunezoro_anime': return 'Zoro Anime';
+      case 'space_deep_void': return 'Vacío Profundo';
+      case 'space_silent_nebula': return 'Nebulosa Silente';
+      case 'space_milky_zenith': return 'Vía Láctea Cenital';
       case 'lofi_space_cosmos': return 'Espacio';
       case 'lofi_space_nebula': return 'Nebulosa';
       case 'lofi_space_moon': return 'Luz Lunar';
@@ -4137,6 +4153,9 @@ export class Enfoque implements OnInit, OnDestroy {
       case 'theme_tunezoro': return 'Fondo artístico Ultra HD "Tunezoro"';
       case 'theme_tunezoro2': return 'Fondo artístico Ultra HD "Tunezoro II"';
       case 'theme_tunezoro_anime': return 'Fondo artístico Ultra HD "Zoro Anime"';
+      case 'space_deep_void': return 'Fondo cósmico minimalista "Vacío Estelar Profundo" con estrellas finas';
+      case 'space_silent_nebula': return 'Fondo cósmico sutil "Nebulosa Silente" en tonos azul medianoche y violeta tenue';
+      case 'space_milky_zenith': return 'Fondo cósmico panorámico "Vía Láctea Cenital" con horizonte estelar sereno';
       case 'lofi_space_cosmos': return 'Fondo lofi "Espacio Cósmico con Saturno y Luceros" activo con aura cósmica';
       case 'lofi_space_nebula': return 'Fondo lofi "Nebulosa Cósmica" activo con aura cósmica';
       case 'lofi_space_moon': return 'Fondo lofi "Polvo Lunar y Vía Láctea" activo con aura cósmica';
@@ -4180,6 +4199,11 @@ export class Enfoque implements OnInit, OnDestroy {
     this.timerStyle.set(style);
     this.membership.setFocusSetting('focus-timer-style', style);
 
+    const spaceBgs: FocusBackgroundType[] = [
+      'space_deep_void', 'space_silent_nebula', 'space_milky_zenith',
+      'lofi_space_cosmos', 'lofi_space_nebula', 'lofi_space_moon'
+    ];
+
     // Auto-asignación y validación de fondos según el cronómetro
     if (style === 'lighthouse') {
       this.activeBackground.set('lofi_lighthouse_ocean');
@@ -4204,20 +4228,11 @@ export class Enfoque implements OnInit, OnDestroy {
           this.membership.setFocusSetting('focus-active-bg', 'theme_autumn');
         }
       } else {
-        if (style === 'solar') {
+        if (style === 'solar' || style === 'satellite' || style === 'moon') {
           const cur = this.activeBackground();
-          if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
-            this.setBackground('lofi_space_cosmos');
-          }
-        } else if (style === 'satellite') {
-          const cur = this.activeBackground();
-          if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
-            this.setBackground('lofi_space_nebula');
-          }
-        } else if (style === 'moon') {
-          const cur = this.activeBackground();
-          if (cur !== 'lofi_space_cosmos' && cur !== 'lofi_space_nebula' && cur !== 'lofi_space_moon') {
-            this.setBackground('lofi_space_moon');
+          if (!spaceBgs.includes(cur)) {
+            const defaultOrbitalBg = style === 'solar' ? 'lofi_space_cosmos' : (style === 'satellite' ? 'lofi_space_nebula' : 'lofi_space_moon');
+            this.setBackground(defaultOrbitalBg);
           }
         }
       }
