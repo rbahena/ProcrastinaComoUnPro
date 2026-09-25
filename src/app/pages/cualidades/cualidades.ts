@@ -142,13 +142,18 @@ interface CountryOption {
                     </div>
                   }
 
-                  <p class="user-active-week-line">
-                    <span class="active-week-txt" title="Días activos para el control de rachas">
-                      <strong class="week-summary-highlight">
-                        <i class="fa-regular fa-calendar-check"></i> {{ membership.getActiveDaysSummary() }}
-                      </strong>
+                  <div class="user-active-week-line">
+                    <span class="active-days-chip" title="Días configurados para mantener la racha de enfoque">
+                      <i class="fa-regular fa-calendar-check"></i>
+                      <span class="active-days-label">Días de actividad:</span>
+                      <strong class="active-days-value">{{ membership.getActiveDaysSummary() }}</strong>
                     </span>
-                  </p>
+
+                    <span class="last-focus-date-chip" [title]="membership.lastFocusDate() ? ('Fecha de último pomodoro: ' + formatLastFocusDate(membership.lastFocusDate())) : 'Aún no has completado un pomodoro de 25 min'">
+                      <i class="fa-regular fa-clock"></i>
+                      <span>{{ getFormattedLastFocusText() }}</span>
+                    </span>
+                  </div>
                 </div>
 
                 <!-- TELEMETRÍA EN LÍNEA (HISTÓRICOS) -->
@@ -837,27 +842,68 @@ interface CountryOption {
     .user-active-week-line {
       display: flex;
       align-items: center;
-      margin: 3px 0 0;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 4px 0 0;
       line-height: 1.4;
     }
-    .active-week-txt {
+    .active-days-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 12px;
       font-weight: 500;
-      color: #64748b;
-    }
-    .week-summary-highlight {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 11.5px;
-      font-weight: 550;
       color: #94a3b8;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 1.5px 7px;
-      border-radius: 6px;
+      background: rgba(14, 165, 233, 0.06);
+      border: 1px solid rgba(14, 165, 233, 0.18);
+      padding: 3px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .active-days-chip:hover {
+      background: rgba(14, 165, 233, 0.1);
+      border-color: rgba(14, 165, 233, 0.32);
+    }
+    .active-days-chip i {
+      color: #38bdf8;
+      font-size: 11.5px;
+    }
+    .active-days-label {
+      color: #94a3b8;
+      font-size: 11.5px;
+      font-weight: 500;
+    }
+    .active-days-value {
+      color: #f1f5f9;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .last-focus-date-chip {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #cbd5e1;
+      background: rgba(249, 115, 22, 0.06);
+      border: 1px solid rgba(249, 115, 22, 0.2);
+      padding: 3px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .last-focus-date-chip:hover {
+      background: rgba(249, 115, 22, 0.1);
+      border-color: rgba(249, 115, 22, 0.35);
+    }
+    .last-focus-date-chip i {
+      color: #f97316;
+      font-size: 11.5px;
     }
     .plan-status-pill {
       position: relative;
@@ -2379,6 +2425,32 @@ export class Cualidades implements OnInit {
       raw.toLowerCase().startsWith(c.name.toLowerCase())
     );
     return opt ? opt.flag : '🌐';
+  }
+
+  getFormattedLastFocusText(): string {
+    const raw = this.membership.lastFocusDate();
+    if (!raw) return 'Sin pomodoros de 25 min';
+    
+    const today = this.membership.getLocalDateKey(new Date());
+    if (raw === today) return 'Último pomodoro realizado: Hoy';
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yestStr = this.membership.getLocalDateKey(yesterday);
+    if (raw === yestStr) return 'Último pomodoro realizado: Ayer';
+
+    return 'Último pomodoro realizado el día: ' + this.formatLastFocusDate(raw);
+  }
+
+  formatLastFocusDate(rawDateStr?: string): string {
+    const raw = rawDateStr || this.membership.lastFocusDate();
+    if (!raw) return 'Sin fecha registrada';
+    const parts = raw.split('-').map(Number);
+    if (parts.length === 3) {
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    }
+    return raw;
   }
 
   getCleanCountry(): string {
