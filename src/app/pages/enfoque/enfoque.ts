@@ -3396,11 +3396,15 @@ export class Enfoque implements OnInit, OnDestroy {
     const soundOption = this.backgroundSoundsList.find(s => s.id === sound);
     if (!soundOption) return;
 
+    const vol = (this.backgroundVolume() !== undefined && !isNaN(this.backgroundVolume()) && this.backgroundVolume() > 0) 
+      ? this.backgroundVolume() 
+      : 0.8;
+
     try {
       if (soundOption.type === 'file' && soundOption.file) {
         const audio = new Audio('assets/sounds/' + soundOption.file);
         audio.loop = true;
-        audio.volume = this.backgroundVolume();
+        audio.volume = vol;
         audio.play().catch(e => console.warn('Audio play background error:', e));
         this.currentBackgroundAudio = audio;
       } else if (soundOption.type === 'ticking' && soundOption.files && soundOption.files.length > 0) {
@@ -3409,7 +3413,7 @@ export class Enfoque implements OnInit, OnDestroy {
           const file = soundOption.files![tickIdx % soundOption.files!.length];
           tickIdx++;
           const a = new Audio('assets/sounds/' + file);
-          a.volume = this.backgroundVolume();
+          a.volume = vol;
           a.play().catch(() => {});
         };
         playTick();
@@ -3448,7 +3452,7 @@ export class Enfoque implements OnInit, OnDestroy {
         this.backgroundSource.loop = true;
 
         this.backgroundGain = this.backgroundAudioCtx.createGain();
-        this.backgroundGain.gain.value = this.backgroundVolume();
+        this.backgroundGain.gain.value = vol;
 
         if (sound === 'lluvia' || sound === 'viento') {
           const filter = this.backgroundAudioCtx.createBiquadFilter();
@@ -3505,9 +3509,11 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   togglePreviewBackgroundSound() {
-    if (this.isPlayingPreview()) {
+    const sound = this.backgroundSound();
+    if (this.isPlayingPreview() && this.previewingSoundId() === sound) {
       this.stopBackgroundSound();
       this.isPlayingPreview.set(false);
+      this.previewingSoundId.set(null);
       if (this.previewSoundTimeout) {
         clearTimeout(this.previewSoundTimeout);
         this.previewSoundTimeout = null;
@@ -3515,13 +3521,15 @@ export class Enfoque implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.backgroundSound() === 'off') {
-      this.updateBackgroundSound('lluvia');
+    if (sound === 'off') {
+      this.showToast('Selecciona un sonido de fondo para escuchar la prueba', 'info');
       return;
     }
 
+    this.stopBackgroundSound();
     this.isPlayingPreview.set(true);
-    this.startBackgroundAudio(this.backgroundSound());
+    this.previewingSoundId.set(sound);
+    this.startBackgroundAudio(sound);
 
     if (this.previewSoundTimeout) {
       clearTimeout(this.previewSoundTimeout);
@@ -3530,15 +3538,18 @@ export class Enfoque implements OnInit, OnDestroy {
       if (this.isPlayingPreview() && (!this.timerRunning() || this.arenaState() !== 'active')) {
         this.stopBackgroundSound();
         this.isPlayingPreview.set(false);
+        this.previewingSoundId.set(null);
       }
       this.previewSoundTimeout = null;
     }, 8000);
   }
 
   togglePreviewBreakBackgroundSound() {
-    if (this.isPlayingPreview()) {
+    const sound = this.breakBackgroundSound();
+    if (this.isPlayingPreview() && this.previewingSoundId() === sound) {
       this.stopBackgroundSound();
       this.isPlayingPreview.set(false);
+      this.previewingSoundId.set(null);
       if (this.previewSoundTimeout) {
         clearTimeout(this.previewSoundTimeout);
         this.previewSoundTimeout = null;
@@ -3546,13 +3557,15 @@ export class Enfoque implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.breakBackgroundSound() === 'off') {
-      this.updateBreakBackgroundSound('olas');
+    if (sound === 'off') {
+      this.showToast('Selecciona un sonido de fondo para escuchar la prueba', 'info');
       return;
     }
 
+    this.stopBackgroundSound();
     this.isPlayingPreview.set(true);
-    this.startBackgroundAudio(this.breakBackgroundSound());
+    this.previewingSoundId.set(sound);
+    this.startBackgroundAudio(sound);
 
     if (this.previewSoundTimeout) {
       clearTimeout(this.previewSoundTimeout);
@@ -3561,15 +3574,18 @@ export class Enfoque implements OnInit, OnDestroy {
       if (this.isPlayingPreview() && (!this.timerRunning() || this.arenaState() !== 'active')) {
         this.stopBackgroundSound();
         this.isPlayingPreview.set(false);
+        this.previewingSoundId.set(null);
       }
       this.previewSoundTimeout = null;
     }, 8000);
   }
 
   togglePreviewLongBreakBackgroundSound() {
-    if (this.isPlayingPreview()) {
+    const sound = this.longBreakBackgroundSound();
+    if (this.isPlayingPreview() && this.previewingSoundId() === sound) {
       this.stopBackgroundSound();
       this.isPlayingPreview.set(false);
+      this.previewingSoundId.set(null);
       if (this.previewSoundTimeout) {
         clearTimeout(this.previewSoundTimeout);
         this.previewSoundTimeout = null;
@@ -3577,13 +3593,15 @@ export class Enfoque implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.longBreakBackgroundSound() === 'off') {
-      this.updateLongBreakBackgroundSound('bosque');
+    if (sound === 'off') {
+      this.showToast('Selecciona un sonido de fondo para escuchar la prueba', 'info');
       return;
     }
 
+    this.stopBackgroundSound();
     this.isPlayingPreview.set(true);
-    this.startBackgroundAudio(this.longBreakBackgroundSound());
+    this.previewingSoundId.set(sound);
+    this.startBackgroundAudio(sound);
 
     if (this.previewSoundTimeout) {
       clearTimeout(this.previewSoundTimeout);
@@ -3592,6 +3610,7 @@ export class Enfoque implements OnInit, OnDestroy {
       if (this.isPlayingPreview() && (!this.timerRunning() || this.arenaState() !== 'active')) {
         this.stopBackgroundSound();
         this.isPlayingPreview.set(false);
+        this.previewingSoundId.set(null);
       }
       this.previewSoundTimeout = null;
     }, 8000);
