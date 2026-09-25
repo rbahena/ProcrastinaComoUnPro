@@ -1654,18 +1654,90 @@ CREATE TABLE IF NOT EXISTS public.focus_logs (
 CREATE INDEX IF NOT EXISTS idx_focus_logs_user_date ON public.focus_logs(user_id, created_at DESC);
 
 
+-- [TIPO DE OBJETO: FUNCIÓN INMUTABLE DE EVALUACIÓN DE RACHA SEGÚN DÍAS ACTIVOS]
+-- ¿Para qué sirve? Verifica si entre la última fecha de enfoque y la fecha objetivo se omitió algún día activo/forzoso (active_days).
+CREATE OR REPLACE FUNCTION public.check_is_streak_broken(
+    p_last_focus_date DATE,
+    p_check_date DATE,
+    p_active_days INTEGER[]
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+    v_day DATE;
+    v_dow INTEGER;
+    v_active INTEGER[] := COALESCE(p_active_days, ARRAY[1, 2, 3, 4, 5]);
+BEGIN
+    IF p_last_focus_date IS NULL THEN
+        RETURN FALSE;
+    END IF;
+    
+    -- Si la última fecha es igual o posterior a la fecha a verificar, no está rota
+    IF p_last_focus_date >= p_check_date THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Si active_days está vacío, fallback por defecto a Lunes-Viernes
+    IF cardinality(v_active) = 0 THEN
+        v_active := ARRAY[1, 2, 3, 4, 5];
+    END IF;
+
+    -- Revisar todos los días estrictamente intermedios: (p_last_focus_date + 1) hasta (p_check_date - 1)
+    v_day := p_last_focus_date + INTERVAL '1 day';
+    WHILE v_day < p_check_date LOOP
+        v_dow := EXTRACT(ISODOW FROM v_day)::INTEGER;
+        IF v_dow = ANY(v_active) THEN
+            -- Se omitió un día activo/forzoso configurado por el usuario
+            RETURN TRUE;
+        END IF;
+        v_day := v_day + INTERVAL '1 day';
+    END LOOP;
+
+    RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+-- [TIPO DE OBJETO: FUNCIÓN DE CÁLCULO DE RACHA EFECTIVA]
+-- ¿Para qué sirve? Retorna la racha real activa considerando si venció algún día forzoso.
+CREATE OR REPLACE FUNCTION public.get_effective_streak(
+    p_last_focus_date DATE,
+    p_streak_days INTEGER,
+    p_active_days INTEGER[],
+    p_today DATE DEFAULT CURRENT_DATE
+)
+RETURNS INTEGER AS $$
+BEGIN
+    IF p_last_focus_date IS NULL OR p_streak_days IS NULL OR p_streak_days <= 0 THEN
+        RETURN 0;
+    END IF;
+
+    IF p_last_focus_date >= p_today THEN
+        RETURN p_streak_days;
+    END IF;
+
+    -- Si entre last_focus_date y hoy se omitió un día forzoso, la racha activa se considera rota (0)
+    IF public.check_is_streak_broken(p_last_focus_date, p_today, p_active_days) THEN
+        RETURN 0;
+    END IF;
+
+    -- Si no se rompió, la racha de días anteriores sigue vigente a la espera de la sesión de hoy
+    RETURN p_streak_days;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+
 -- ------------------------------------------------------------------------------
 -- 4. PROCEDIMIENTO RPC MAESTRO DE LIQUIDACIÓN Y BLINDAJE ANTI-EXPLOITS
 -- ------------------------------------------------------------------------------
 
 -- [TIPO DE OBJETO: PROCEDIMIENTO RPC / FUNCIÓN TRANSACCIONAL (SECURITY DEFINER FUNCTION)]
 -- ¿Qué es? El motor de liquidación algorítmica de sesiones de enfoque en el servidor.
--- ¿Para qué sirve? Aplica las 5 reglas de blindaje anti-trampas:
+-- ¿Para qué sirve? Aplica las reglas de blindaje anti-trampas y cálculo de racha diaria por pomodoro de >=25m:
 --   1. Idempotencia con Nonce UUID: Si el nonce ya fue procesado, retorna el resultado previo sin alterar saldos.
 --   2. Snapshot Inmutable: Valida los atributos RPG del avatar registrado al iniciar, previniendo alteraciones intermedias.
 --   3. Periodo de Gracia (120 Segundos): Cancelaciones en los primeros 2 minutos no aplican multa ni curan al jefe.
 --   4. Escalado Proporcional de Tiempo: factor = Math.min(1.0, actual_seconds / 1500). Sesiones < 120s no dan monedas.
 --   5. Piso de Billetera Floor 0: new_balance = Math.max(0, current_coins - penalty). Jamás genera saldos negativos.
+--   6. Racha Diaria (Streak): Requiere >= 25 min (1500s). Solo incrementa 1 vez por día calendario respetando active_days.
 CREATE OR REPLACE FUNCTION public.settle_focus_session(
     p_nonce_id UUID,
     p_avatar_id VARCHAR,
@@ -1788,28 +1860,46 @@ BEGIN
             v_boss_damage := 5;
         END IF;
 
-        -- Cálculo seguro de Racha (Streak)
-        IF v_user.last_focus_date IS NULL THEN
-            v_new_streak := 1;
-        ELSIF v_user.last_focus_date = v_today THEN
-            v_new_streak := v_user.streak_days;
-        ELSIF v_user.last_focus_date = v_today - INTERVAL '1 day' THEN
-            v_new_streak := v_user.streak_days + 1;
-        ELSE
-            v_new_streak := 1;
-        END IF;
-        v_new_longest_streak := GREATEST(v_user.longest_streak, v_new_streak);
+        -- Cálculo de Racha (Streak) basado en active_days y mínimo 25 min (1500 segundos)
+        IF p_actual_seconds >= 1500 THEN
+            IF v_user.last_focus_date IS NULL THEN
+                v_new_streak := 1;
+            ELSIF v_user.last_focus_date = v_today THEN
+                -- Ya completó un pomodoro válido hoy: la racha no incrementa múltiples veces el mismo día
+                v_new_streak := GREATEST(1, COALESCE(v_user.streak_days, 1));
+            ELSIF public.check_is_streak_broken(v_user.last_focus_date, v_today, v_user.active_days) THEN
+                -- Se rompió por faltar a un día forzoso intermedio: reinicia en 1 hoy
+                v_new_streak := 1;
+            ELSE
+                -- Día consecutivo válido o tras días de descanso permitidos: incrementa 1 día
+                v_new_streak := COALESCE(v_user.streak_days, 0) + 1;
+            END IF;
 
-        -- Actualizar perfil con ganancias
-        UPDATE public.profiles
-        SET 
-            pro_coins = pro_coins + v_coins_earned,
-            focus_tomatoes = focus_tomatoes + 1,
-            focus_points = focus_points + v_xp_earned,
-            streak_days = v_new_streak,
-            longest_streak = v_new_longest_streak,
-            last_focus_date = v_today
-        WHERE id = v_user_id;
+            v_new_longest_streak := GREATEST(COALESCE(v_user.longest_streak, 0), v_new_streak);
+
+            -- Actualizar perfil con ganancias y racha
+            UPDATE public.profiles
+            SET 
+                pro_coins = pro_coins + v_coins_earned,
+                focus_tomatoes = focus_tomatoes + 1,
+                focus_points = focus_points + v_xp_earned,
+                streak_days = v_new_streak,
+                longest_streak = v_new_longest_streak,
+                last_focus_date = v_today
+            WHERE id = v_user_id;
+        ELSE
+            -- Sesión completada en menos de 25 min:
+            -- Se otorgan tomates, monedas y XP correspondientes, pero NO actualiza/incrementa la racha diaria
+            v_new_streak := public.get_effective_streak(v_user.last_focus_date, v_user.streak_days, v_user.active_days, v_today);
+            v_new_longest_streak := COALESCE(v_user.longest_streak, 0);
+
+            UPDATE public.profiles
+            SET 
+                pro_coins = pro_coins + v_coins_earned,
+                focus_tomatoes = focus_tomatoes + 1,
+                focus_points = focus_points + v_xp_earned
+            WHERE id = v_user_id;
+        END IF;
 
     ELSE
         -- Estado: Abandonado o Interrumpido
@@ -3137,8 +3227,7 @@ BEGIN
         'today_focus_seconds', v_today_focus_seconds,
         'weekly_by_day', v_weekly_by_day,
         'monthly_by_day', v_monthly_by_day,
-        'annual_by_month', v_annual_by_month,
-        'streak_days', COALESCE(v_profile.streak_days, 0),
+        'streak_days', public.get_effective_streak(v_profile.last_focus_date, v_profile.streak_days, v_profile.active_days),
         'longest_streak', COALESCE(v_profile.longest_streak, 0),
         'total_pomodoros', COALESCE(v_profile.focus_tomatoes, 0),
         'total_focus_seconds', v_total_focus_seconds

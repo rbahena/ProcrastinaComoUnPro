@@ -2752,7 +2752,13 @@ export class Enfoque implements OnInit, OnDestroy {
       if (currentStatus === 'completed') {
         const isShared = this.coworkingMode() === 'comunitario';
         const sessionId = `session-${Date.now()}`;
-        this.membership.rewardCompletedSession(sessionId, isShared);
+        const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
+        const actualSeconds = currentStatus === 'completed'
+          ? plannedSeconds
+          : Math.max(0, plannedSeconds - Math.max(0, this.timeLeft()));
+        const dedicatedMins = Math.max(1, Math.round(actualSeconds / 60));
+
+        this.membership.rewardCompletedSession(sessionId, isShared, actualSeconds);
         
         // Daño al Boss por completar el Pomodoro en la Comunidad (únicamente el daño marcado en la ficha del avatar)
         if (isShared) {
@@ -2781,11 +2787,6 @@ export class Enfoque implements OnInit, OnDestroy {
 
         const targetIdeaId = this.associatedIdeaId();
         const currentObjective = this.activeObjective()?.trim() || 'Sesión de Enfoque';
-        const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
-        const actualSeconds = currentStatus === 'completed'
-          ? plannedSeconds
-          : Math.max(0, plannedSeconds - Math.max(0, this.timeLeft()));
-        const dedicatedMins = Math.max(1, Math.round(actualSeconds / 60));
 
         if (targetIdeaId) {
           // Acumular el tiempo dedicado en la nota/idea

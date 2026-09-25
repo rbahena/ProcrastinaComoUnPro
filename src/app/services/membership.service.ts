@@ -159,6 +159,7 @@ export class MembershipService {
 
   // Racha de días de enfoque
   streak = signal<number>(0);
+  lastFocusDate = signal<string>('');
 
   addFocusTomatoes(tomatoes: number) {
     this.focusTomatoes.update(t => t + tomatoes);
@@ -295,6 +296,7 @@ export class MembershipService {
         focusPoints: this.focusPoints(),
         focusTomatoes: this.focusTomatoes(),
         streak: this.streak(),
+        lastFocusDate: this.lastFocusDate(),
         goldMedals: this.goldMedals(),
         silverMedals: this.silverMedals(),
         bronzeMedals: this.bronzeMedals(),
@@ -450,6 +452,7 @@ export class MembershipService {
       this.focusPoints();
       this.focusTomatoes();
       this.streak();
+      this.lastFocusDate();
       this.goldMedals();
       this.silverMedals();
       this.bronzeMedals();
@@ -859,7 +862,7 @@ export class MembershipService {
   }
 
   // Intentar recompensar sesión completada (idempotente)
-  rewardCompletedSession(sessionId: string, isShared: boolean): { points: number; coins: number; tomatoes: number; isNew: boolean } {
+  rewardCompletedSession(sessionId: string, isShared: boolean, actualSeconds: number = 1500): { points: number; coins: number; tomatoes: number; isNew: boolean } {
     if (this.rewardedSessions.has(sessionId)) {
       return { points: 0, coins: 0, tomatoes: 0, isNew: false };
     }
@@ -879,8 +882,8 @@ export class MembershipService {
       this.addFocusPoints(pointsEarned);
     }
 
-    // Actualizar racha y progreso de Constancia de inmediato
-    this.updateStreakProgress();
+    // Actualizar racha diaria únicamente si cumple el requisito de al menos 25 minutos
+    this.recordPomodoroForStreak(actualSeconds);
     this.saveConsolidatedUserData();
 
     return { points: pointsEarned, coins: coinsEarned, tomatoes: tomatoesEarned, isNew: true };
@@ -965,8 +968,8 @@ export class MembershipService {
     // 6. Construcción (Castor) - Completar 3 pomodoros seguidos al mismo objetivo en un día.
     this.checkCastorProgress(objectiveText);
 
-    // 7. Constancia (Tortuga) - Racha de 7 días.
-    this.updateStreakProgress();
+    // 7. Constancia (Tortuga) - Racha de 7 días (sincronizada con la racha activa).
+    this.syncConstanciaQualityProgress(this.streak());
   }
 
   private updateQualityProgress(id: string, amount: number) {
@@ -1024,23 +1027,108 @@ export class MembershipService {
     }
   }
 
-  private getLocalDateKey(date: Date = new Date()): string {
+  getIsoDayOfWeek(date: Date): number {
+    const day = date.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+    return day === 0 ? 7 : day;
+  }
+
+  getLocalDateKey(date: Date = new Date()): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 
-  private isDateInList(dates: string[], date: Date): boolean {
-    const isoKey = this.getLocalDateKey(date);
-    const localeKey = date.toLocaleDateString();
-    return dates.includes(isoKey) || dates.includes(localeKey);
+  parseLocalDateKey(dateStr: string): Date | null {
+    if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return null;
+    const parts = dateStr.split('-').map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2], 0, 0, 0, 0);
   }
 
-  private updateStreakProgress() {
-    this.streak.update(s => s + 1);
+  /**
+   * Verifica si entre lastDateStr y targetDate se saltó algún día forzoso configurado en active_days.
+   * Si en los días estrictamente intermedios hubo al menos un día forzoso sin sesión, retorna true.
+   */
+  isStreakBroken(
+    lastDateStr: string | null | undefined,
+    targetDate: Date = new Date(),
+    activeDays: number[] = this.userActiveDays()
+  ): boolean {
+    if (!lastDateStr) return false;
+    const lastDate = this.parseLocalDateKey(lastDateStr);
+    if (!lastDate) return false;
 
-    const currentStreak = this.streak();
+    const targetMid = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 0, 0, 0, 0);
+    if (lastDate.getTime() >= targetMid.getTime()) {
+      return false;
+    }
+
+    const effectiveActiveDays = (activeDays && activeDays.length > 0) ? activeDays : [1, 2, 3, 4, 5];
+    const currentCheck = new Date(lastDate.getTime());
+    currentCheck.setDate(currentCheck.getDate() + 1);
+
+    while (currentCheck.getTime() < targetMid.getTime()) {
+      const isoDow = this.getIsoDayOfWeek(currentCheck);
+      if (effectiveActiveDays.includes(isoDow)) {
+        return true;
+      }
+      currentCheck.setDate(currentCheck.getDate() + 1);
+    }
+
+    return false;
+  }
+
+  /**
+   * Valida la integridad de la racha actual al iniciar o cargar perfil.
+   * Si venció algún día activo obligatorio sin actividad, setea la racha en 0.
+   */
+  validateStreakIntegrity(): void {
+    const lastDate = this.lastFocusDate();
+    if (!lastDate) return;
+
+    if (this.isStreakBroken(lastDate, new Date(), this.userActiveDays())) {
+      this.streak.set(0);
+      this.syncConstanciaQualityProgress(0);
+      this.saveConsolidatedUserData();
+    }
+  }
+
+  /**
+   * Registra un pomodoro para avanzar la racha diaria.
+   * Reglas:
+   * 1. Requiere al menos 25 minutos (1500 segundos).
+   * 2. Solo suma +1 por día calendario (mismo día no incrementa más de 1).
+   * 3. Si se rompió por días forzosos intermedios, reinicia en 1 hoy.
+   */
+  recordPomodoroForStreak(actualDurationSeconds: number): void {
+    if (actualDurationSeconds < 1500) {
+      return;
+    }
+
+    const todayStr = this.getLocalDateKey(new Date());
+    const lastDateStr = this.lastFocusDate();
+    const activeDays = this.userActiveDays();
+
+    let newStreak: number;
+
+    if (!lastDateStr) {
+      newStreak = 1;
+    } else if (lastDateStr === todayStr) {
+      newStreak = Math.max(1, this.streak());
+    } else if (this.isStreakBroken(lastDateStr, new Date(), activeDays)) {
+      newStreak = 1;
+    } else {
+      newStreak = this.streak() + 1;
+    }
+
+    this.streak.set(newStreak);
+    this.lastFocusDate.set(todayStr);
+
+    this.syncConstanciaQualityProgress(newStreak);
+    this.saveConsolidatedUserData();
+  }
+
+  private syncConstanciaQualityProgress(currentStreak: number): void {
     this.qualitiesCatalog.update(list => {
       return list.map(q => {
         if (q.id === 'constancia') {
@@ -1058,7 +1146,12 @@ export class MembershipService {
         return q;
       });
     });
-    this.saveConsolidatedUserData();
+  }
+
+  private isDateInList(dates: string[], date: Date): boolean {
+    const isoKey = this.getLocalDateKey(date);
+    const localeKey = date.toLocaleDateString();
+    return dates.includes(isoKey) || dates.includes(localeKey);
   }
 
   calculateStreak(email?: string): number {
@@ -1267,6 +1360,7 @@ export class MembershipService {
     this.userCountry.set(p.country ? cleanQuotedString(p.country) : '');
     this.userCountryCode.set(p.country_code ? p.country_code : '');
     if (p.active_days) this.userActiveDays.set(p.active_days);
+    if (p.last_focus_date) this.lastFocusDate.set(p.last_focus_date);
     if (p.language) {
       this.userLanguage.set(p.language);
     }
@@ -1277,8 +1371,15 @@ export class MembershipService {
     else if (p.focus_points !== undefined) this.focusPoints.set(p.focus_points);
     if (p.tomatoes !== undefined) this.focusTomatoes.set(p.tomatoes);
     else if (p.focus_tomatoes !== undefined) this.focusTomatoes.set(p.focus_tomatoes);
-    if (p.streak !== undefined) this.streak.set(p.streak);
-    else if (p.streak_days !== undefined) this.streak.set(p.streak_days);
+
+    const rawStreak = p.streak !== undefined ? p.streak : (p.streak_days !== undefined ? p.streak_days : this.streak());
+    if (p.last_focus_date && this.isStreakBroken(p.last_focus_date, new Date(), p.active_days || this.userActiveDays())) {
+      this.streak.set(0);
+      this.syncConstanciaQualityProgress(0);
+    } else {
+      this.streak.set(rawStreak);
+      this.syncConstanciaQualityProgress(rawStreak);
+    }
     if (p.gold_medals !== undefined) this.goldMedals.set(p.gold_medals);
     if (p.silver_medals !== undefined) this.silverMedals.set(p.silver_medals);
     if (p.bronze_medals !== undefined) this.bronzeMedals.set(p.bronze_medals);
@@ -1418,6 +1519,7 @@ export class MembershipService {
           if (bundle.gamification.focusPoints !== undefined) this.focusPoints.set(bundle.gamification.focusPoints);
           if (bundle.gamification.focusTomatoes !== undefined) this.focusTomatoes.set(bundle.gamification.focusTomatoes);
           if (bundle.gamification.streak !== undefined) this.streak.set(bundle.gamification.streak);
+          if (bundle.gamification.lastFocusDate !== undefined) this.lastFocusDate.set(bundle.gamification.lastFocusDate);
           if (bundle.gamification.goldMedals !== undefined) this.goldMedals.set(bundle.gamification.goldMedals);
           if (bundle.gamification.silverMedals !== undefined) this.silverMedals.set(bundle.gamification.silverMedals);
           if (bundle.gamification.bronzeMedals !== undefined) this.bronzeMedals.set(bundle.gamification.bronzeMedals);
@@ -1435,6 +1537,9 @@ export class MembershipService {
         if (bundle.capturedIdeas) {
           this.capturedIdeas.set(normalizeCapturedIdeas(bundle.capturedIdeas));
         }
+
+        // Validar si la racha sigue vigente o si venció algún día forzoso
+        this.validateStreakIntegrity();
       } catch (e) {
         console.warn('[MembershipService] Error parsing user bundle:', e);
       }
@@ -1466,6 +1571,7 @@ export class MembershipService {
     this.focusPoints.set(0);
     this.focusTomatoes.set(0);
     this.streak.set(0);
+    this.lastFocusDate.set('');
     this.goldMedals.set(0);
     this.silverMedals.set(0);
     this.bronzeMedals.set(0);

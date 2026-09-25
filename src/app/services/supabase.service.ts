@@ -334,6 +334,7 @@ export interface UserProfile {
   focus_tomatoes?: number;
   streak_days?: number;
   longest_streak?: number;
+  last_focus_date?: string;
   podium_wins?: number;
   gold_medals?: number;
   silver_medals?: number;
