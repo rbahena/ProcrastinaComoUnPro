@@ -79,6 +79,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'fusion',
+    loadComponent: () => import('./pages/fusion/fusion').then(m => m.Fusion),
+    canActivate: [authGuard]
+  },
+  {
     path: 'retos',
     redirectTo: 'bestiario',
     pathMatch: 'full'

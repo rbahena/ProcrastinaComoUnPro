@@ -34,6 +34,10 @@
       <span class="nav-dot"></span>
       Récords
     </a>
+    <a (click)="onNavClick($event, '/fusion')" [routerLink]="membership.isFocusActive() ? null : '/fusion'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
+      <span class="nav-dot"></span>
+      Fusión
+    </a>
   </div>
 
   <!-- INDICADORES GLOBALES (TOMATES, MONEDAS Y TEMA) -->

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { SupabaseService, FocusSessionData, IdeaPriority } from '../../services/supabase.service';
+import { FusionService } from '../../services/fusion.service';
 import { Navbar } from '../../components/navbar/navbar';
 import { BACKGROUND_SOUNDS, END_SESSION_SOUNDS, BackgroundSoundOption, EndSessionSoundOption } from './sounds.data';
 
@@ -84,6 +85,7 @@ export class Enfoque implements OnInit, OnDestroy {
   public supabaseService = inject(SupabaseService);
   public membership = inject(MembershipService);
   public bossService = inject(ComunidadBossService);
+  public fusionService = inject(FusionService);
   private router = inject(Router);
   currentSessionNonceId: string | null = null;
   isSettlingSession = signal<boolean>(false);
@@ -2789,12 +2791,20 @@ export class Enfoque implements OnInit, OnDestroy {
 
         this.membership.rewardCompletedSession(sessionId, isShared, actualSeconds, equippedAvatar);
         
-        // Daño al Boss por completar el Pomodoro en la Comunidad (únicamente el daño marcado en la ficha del avatar)
+        // Daño al Boss por completar el Pomodoro en la Comunidad (con bono de Fusión si aplica)
+        const fusionMultiplier = this.fusionService.fusionBossDamageMultiplier();
+        const fusionExtra = this.fusionService.fusionExtraCoins();
+        if (fusionExtra > 0) {
+          this.membership.proCoins.update(c => c + fusionExtra);
+        }
+        this.fusionService.onPomodoroCompleted();
+
         if (isShared) {
-          const damage = this.membership.getAvatarDamagePoints(equippedAvatar);
+          const baseDamage = this.membership.getAvatarDamagePoints(equippedAvatar);
+          const damage = Math.round(baseDamage * fusionMultiplier);
           this.bossService.dealDamage(damage);
           
-          const eventText = `🗡️ ${this.userName()} completó su Pomodoro e infligió ${damage} de daño al Boss.`;
+          const eventText = `🗡️ ${this.userName()} completó su Pomodoro e infligió ${damage} de daño al Boss${fusionMultiplier > 1 ? ' (¡Sinergia de Fusión!)' : ''}.`;
           this.addComunidadEvent(eventText, 'complete');
         }
         
