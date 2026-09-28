@@ -236,18 +236,18 @@
                   
                   <!-- Acciones para tareas pendientes -->
                   <ng-container *ngIf="!idea.is_completed">
-                    <!-- Botón Check Completar -->
-                    <button class="card-action-icon-btn check-action" 
-                            (click)="askComplete(idea)"
-                            title="Marcar como completada">
-                      <i class="fa-solid fa-check"></i>
-                    </button>
-
                     <!-- Enfocar en sala Pomodoro -->
                     <button class="card-action-icon-btn focus-action" 
                             (click)="convertToObjective(idea, i)"
                             title="Concentrarme en este objetivo">
                       <i class="fa-solid fa-crosshairs"></i>
+                    </button>
+
+                    <!-- Botón Check Completar -->
+                    <button class="card-action-icon-btn check-action" 
+                            (click)="askComplete(idea)"
+                            title="Marcar como completada">
+                      <i class="fa-solid fa-check"></i>
                     </button>
 
                     <!-- Editar nota -->
@@ -256,6 +256,9 @@
                             title="Editar nota">
                       <i class="fa-solid fa-pen"></i>
                     </button>
+
+                    <!-- División de botones (Aislar acción destructiva) -->
+                    <span class="card-actions-divider" aria-hidden="true"></span>
 
                     <!-- Eliminar nota -->
                     <button class="card-action-icon-btn delete-action" 
@@ -273,6 +276,9 @@
                             title="Reabrir tarea (regresar a pendientes)">
                       <i class="fa-solid fa-rotate-left"></i>
                     </button>
+
+                    <!-- División de botones -->
+                    <span class="card-actions-divider" aria-hidden="true"></span>
 
                     <!-- Eliminar nota -->
                     <button class="card-action-icon-btn delete-action" 

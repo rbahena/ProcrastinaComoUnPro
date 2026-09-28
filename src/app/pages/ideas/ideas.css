@@ -760,6 +760,16 @@
   }
 }
 
+.card-actions-divider {
+  width: 1px;
+  height: 14px;
+  background-color: var(--border, rgba(255, 255, 255, 0.15));
+  margin: 0 3px;
+  flex-shrink: 0;
+  display: inline-block;
+  opacity: 0.7;
+}
+
 .card-action-icon-btn {
   width: 28px;
   height: 28px;
