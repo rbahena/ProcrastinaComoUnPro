@@ -100,6 +100,7 @@
 .fleeting-input-panel.expanded {
   width: 380px;
   opacity: 1;
+  overflow: visible;
   pointer-events: auto;
   transform: translateX(0) scale(1);
 }

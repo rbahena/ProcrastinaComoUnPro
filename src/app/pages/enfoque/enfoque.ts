@@ -342,7 +342,6 @@ export class Enfoque implements OnInit, OnDestroy {
   energyLevel = signal<'low' | 'medium' | 'high'>('medium');
   showEnergyModal = signal<boolean>(false);
   showBatteryButtonInArena = signal<boolean>(this.membership.getFocusSetting('show-battery-button-in-arena', 'true') !== 'false');
-  isFreeExitChallenge = signal<boolean>(false);
   bodyDoublingCount = signal<number>(142);
   private bodyDoublingInterval: any = null;
 
@@ -358,7 +357,6 @@ export class Enfoque implements OnInit, OnDestroy {
 
   setEnergyLevel(level: 'low' | 'medium' | 'high') {
     this.energyLevel.set(level);
-    this.isFreeExitChallenge.set(false);
     if (this.arenaState() === 'setup' && !this.isBreak()) {
       let duration = 25;
       if (level === 'low') duration = 10;
@@ -372,14 +370,6 @@ export class Enfoque implements OnInit, OnDestroy {
       const msg = level === 'low' ? 'Modo de baja fricción activado. ¡Arrancamos paso a paso!' : level === 'medium' ? 'Ritmo clásico Pomodoro establecido. ¡A darlo todo!' : '¡Modo de alto rendimiento activado! Concentración total.';
       this.sendDesktopNotification(`🔋 Batería de Motivación: ${label}`, msg);
     }
-  }
-
-  startFreeExit5MinChallenge() {
-    this.isFreeExitChallenge.set(true);
-    this.focusDuration.set(5);
-    this.totalSessionTime.set(5 * 60);
-    this.timeLeft.set(5 * 60);
-    this.startFocusFlow(true);
   }
 
   addDistraction() {
@@ -423,7 +413,7 @@ export class Enfoque implements OnInit, OnDestroy {
   shortBreakDuration = this.breakDuration; // Alias para compatibilidad de plantillas
   longBreakInterval = signal(parseInt(this.membership.getFocusSetting('long-break-interval', '4'), 10));
   longBreakDuration = signal(parseInt(this.membership.getFocusSetting('long-break-duration', '15'), 10));
-  dailyAttempts = signal<{ status: 'completed' | 'abandoned' | 'interrupted', time: string }[]>(
+  dailyAttempts = signal<{ status: 'completed' | 'abandoned' | 'interrupted', time: string, durationSeconds?: number }[]>(
     (() => {
       const saved = localStorage.getItem('daily-attempts');
       if (!saved) return [];
@@ -444,9 +434,18 @@ export class Enfoque implements OnInit, OnDestroy {
     })()
   );
   completedPomodoros = computed(() => {
-    return this.dailyAttempts().filter(a => a.status === 'completed').length;
+    return this.dailyAttempts()
+      .filter(a => a.status === 'completed')
+      .reduce((acc, a) => {
+        const secs = a.durationSeconds !== undefined ? a.durationSeconds : 1500;
+        return acc + this.membership.calculateTomatoesForDuration(secs, true);
+      }, 0);
   });
   completedPomodorosArray = computed(() => Array(this.completedPomodoros()));
+
+  getTomatoesForDuration(minutes: number): number {
+    return this.membership.calculateTomatoesForDuration(minutes, false);
+  }
   limitedDailyAttempts = computed(() => {
     const attempts = this.dailyAttempts();
     if (attempts.length <= 8) {
@@ -1726,6 +1725,10 @@ export class Enfoque implements OnInit, OnDestroy {
   isObjectiveAssociated = computed(() => {
     return !!this.associatedIdeaId() && !!this.activeObjective()?.trim();
   });
+  hasCustomObjective = computed(() => {
+    const obj = this.activeObjective()?.trim();
+    return !!obj && obj !== 'Sesión de Enfoque';
+  });
 
   selectMethodology(method: 'sapo' | 'pareto' | 'normal') {
     this.activeMethodology.set(method);
@@ -2595,13 +2598,21 @@ export class Enfoque implements OnInit, OnDestroy {
           this.settleCurrentSession('interrupted', 'no');
           this.clearPersistedSession();
 
-          // Reiniciar pomodoro directamente al estado setup
+          // Reiniciar pomodoro directamente al estado setup y desvincular
           this.isBreak.set(false);
           this.totalSessionTime.set(this.focusDuration() * 60);
           this.timeLeft.set(this.focusDuration() * 60);
           this.arenaState.set('setup');
           this.emergencyPauseActive.set(false);
           this.objectiveCompleted.set(null);
+          this.activeObjective.set('');
+          this.objectiveInput.set('');
+          this.associatedIdeaId.set(null);
+          this.objectiveConfirmed.set(false);
+          localStorage.removeItem('activeObjectiveDraft');
+          localStorage.removeItem('activeObjectiveIdeaId');
+          localStorage.removeItem('focus-session-objective');
+          localStorage.removeItem('focus-session-idea-id');
           this.router.navigate(['/enfoque']);
 
           // Mostrar modal informativo de cancelación
@@ -2649,6 +2660,16 @@ export class Enfoque implements OnInit, OnDestroy {
     // Liquidar sesión en Supabase con estado abandoned preservando tarea e idea_id
     this.settleCurrentSession('abandoned', 'no', currentObjective, currentIdeaId);
     this.clearPersistedSession();
+
+    // Desvincular objetivo al abandonar la sesión
+    this.activeObjective.set('');
+    this.objectiveInput.set('');
+    this.associatedIdeaId.set(null);
+    this.objectiveConfirmed.set(false);
+    localStorage.removeItem('activeObjectiveDraft');
+    localStorage.removeItem('activeObjectiveIdeaId');
+    localStorage.removeItem('focus-session-objective');
+    localStorage.removeItem('focus-session-idea-id');
 
     // Penalización de monedas (ProCoins)
     this.membership.proCoins.update(coins => Math.max(0, coins - 50));
@@ -2749,7 +2770,13 @@ export class Enfoque implements OnInit, OnDestroy {
     if (currentStatus) {
       const now = new Date();
       const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-      const newAttempt = { status: currentStatus as 'completed' | 'abandoned' | 'interrupted', time: timeStr };
+      const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
+      const actualSeconds = currentStatus === 'completed'
+        ? plannedSeconds
+        : Math.max(0, plannedSeconds - Math.max(0, this.timeLeft()));
+      const dedicatedMins = Math.max(1, Math.round(actualSeconds / 60));
+
+      const newAttempt = { status: currentStatus as 'completed' | 'abandoned' | 'interrupted', time: timeStr, durationSeconds: actualSeconds };
       const updatedAttempts = [...this.dailyAttempts(), newAttempt];
       this.dailyAttempts.set(updatedAttempts);
       localStorage.setItem('daily-attempts', JSON.stringify(updatedAttempts));
@@ -2758,11 +2785,6 @@ export class Enfoque implements OnInit, OnDestroy {
       if (currentStatus === 'completed') {
         const isShared = this.coworkingMode() === 'comunitario';
         const sessionId = `session-${Date.now()}`;
-        const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
-        const actualSeconds = currentStatus === 'completed'
-          ? plannedSeconds
-          : Math.max(0, plannedSeconds - Math.max(0, this.timeLeft()));
-        const dedicatedMins = Math.max(1, Math.round(actualSeconds / 60));
 
         this.membership.rewardCompletedSession(sessionId, isShared, actualSeconds);
         
@@ -2777,8 +2799,9 @@ export class Enfoque implements OnInit, OnDestroy {
         }
         
         // Recompensa adicional por objetivo cumplido (Pregunta 2)
-        const objCompleted = this.objectiveCompleted() || 'yes';
-        if (objCompleted === 'yes' || objCompleted === 'progress') {
+        const hasObjective = this.hasCustomObjective();
+        const objCompleted = hasObjective ? (this.objectiveCompleted() || 'no') : 'no';
+        if (hasObjective && (objCompleted === 'yes' || objCompleted === 'progress')) {
           const objectiveId = `obj-${Date.now()}`;
           this.membership.rewardCompletedObjective(objectiveId);
         }
@@ -2802,7 +2825,7 @@ export class Enfoque implements OnInit, OnDestroy {
         // Liquidar e insertar la sesión inmutable en Supabase ANTES de resetear el estado local
         await this.settleCurrentSession(
           currentStatus as 'completed' | 'abandoned' | 'interrupted',
-          (this.objectiveCompleted() as any) || (currentStatus === 'completed' ? 'yes' : 'no'),
+          (this.objectiveCompleted() as any) || (currentStatus === 'completed' ? (objCompleted === 'yes' ? 'yes' : 'no') : 'no'),
           currentObjective,
           targetIdeaId
         );
@@ -2814,6 +2837,7 @@ export class Enfoque implements OnInit, OnDestroy {
           }
           // Limpiar el objetivo ya completado
           this.activeObjective.set('');
+          this.objectiveInput.set('');
           this.associatedIdeaId.set(null);
           this.objectiveConfirmed.set(false);
           localStorage.removeItem('activeObjectiveDraft');
@@ -2821,8 +2845,22 @@ export class Enfoque implements OnInit, OnDestroy {
           localStorage.removeItem('focus-session-objective');
           localStorage.removeItem('focus-session-idea-id');
           this.showToastFeedback('🎯 ¡Objetivo completado y archivado en tus victorias!', 'success');
-        } else if (targetIdeaId) {
-          this.showToastFeedback(`⏱️ Se registraron +${dedicatedMins}m dedicados a tu tarea en el baúl.`, 'info');
+        } else {
+          // Si el objetivo NO fue completado (no lo logró, avanzado o sin marcar), se desvincula en automático
+          this.activeObjective.set('');
+          this.objectiveInput.set('');
+          this.associatedIdeaId.set(null);
+          this.objectiveConfirmed.set(false);
+          localStorage.removeItem('activeObjectiveDraft');
+          localStorage.removeItem('activeObjectiveIdeaId');
+          localStorage.removeItem('focus-session-objective');
+          localStorage.removeItem('focus-session-idea-id');
+
+          if (targetIdeaId) {
+            this.showToastFeedback(`⏱️ Se registraron +${dedicatedMins}m en tu tarea. Objetivo desvinculado automáticamente.`, 'info');
+          } else if (currentObjective && currentObjective !== 'Sesión de Enfoque') {
+            this.showToastFeedback('Objetivo desvinculado automáticamente.', 'info');
+          }
         }
 
         // Bono de Coraje (Grit Bonus): Si empezó con baja energía y venció la desmotivación

@@ -1753,7 +1753,9 @@ CREATE OR REPLACE FUNCTION public.settle_focus_session(
     p_objective_completed VARCHAR,
     p_idea_id UUID DEFAULT NULL,
     p_log_learnings TEXT DEFAULT NULL,
-    p_distractions JSONB DEFAULT '[]'::jsonb
+    p_distractions JSONB DEFAULT '[]'::jsonb,
+    p_client_date DATE DEFAULT NULL,
+    p_client_timezone TEXT DEFAULT NULL
 )
 RETURNS JSON AS $$
 DECLARE
@@ -1770,9 +1772,12 @@ DECLARE
     v_is_critical BOOLEAN := FALSE;
     v_grit_bonus BOOLEAN := FALSE;
     v_new_session_id UUID;
-    v_today DATE := CURRENT_DATE;
+    v_tz TEXT := COALESCE(NULLIF(p_client_timezone, ''), 'UTC');
+    v_today DATE := COALESCE(p_client_date, (CURRENT_TIMESTAMP AT TIME ZONE v_tz)::date, CURRENT_DATE);
     v_new_streak INTEGER;
     v_new_longest_streak INTEGER;
+    v_actual_minutes INTEGER := 0;
+    v_tomatoes_earned INTEGER := 0;
 BEGIN
     -- 1. Validar autenticación
     IF v_user_id IS NULL THEN
@@ -1860,7 +1865,20 @@ BEGIN
             v_boss_damage := 5;
         END IF;
 
-        -- Cálculo de Racha (Streak) basado en active_days y mínimo 25 min (1500 segundos)
+        -- Cálculo de Racha (Streak) y Tomates según duración:
+        -- < 25 min: 0 tomates (sin racha)
+        -- 25 - 44 min: 1 tomate (suma racha diaria)
+        -- 45 - 69 min: 2 tomates (doble mérito por alta concentración)
+        -- >= 70 min: FLOOR((minutos + 5) / 25) tomates
+        v_actual_minutes := p_actual_seconds / 60;
+        IF v_actual_minutes >= 25 AND v_actual_minutes < 45 THEN
+            v_tomatoes_earned := 1;
+        ELSIF v_actual_minutes >= 45 THEN
+            v_tomatoes_earned := FLOOR((v_actual_minutes + 5) / 25)::INTEGER;
+        ELSE
+            v_tomatoes_earned := 0;
+        END IF;
+
         IF p_actual_seconds >= 1500 THEN
             IF v_user.last_focus_date IS NULL THEN
                 v_new_streak := 1;
@@ -1881,22 +1899,21 @@ BEGIN
             UPDATE public.profiles
             SET 
                 pro_coins = pro_coins + v_coins_earned,
-                focus_tomatoes = focus_tomatoes + 1,
+                focus_tomatoes = focus_tomatoes + v_tomatoes_earned,
                 focus_points = focus_points + v_xp_earned,
                 streak_days = v_new_streak,
                 longest_streak = v_new_longest_streak,
                 last_focus_date = v_today
             WHERE id = v_user_id;
         ELSE
-            -- Sesión completada en menos de 25 min:
-            -- Se otorgan tomates, monedas y XP correspondientes, pero NO actualiza/incrementa la racha diaria
+            -- Sesión completada en menos de 25 min (ej. retos rápidos de 5 o 10 min):
+            -- Se otorgan monedas y XP correspondientes, pero NO suma tomates ni actualiza/incrementa la racha diaria
             v_new_streak := public.get_effective_streak(v_user.last_focus_date, v_user.streak_days, v_user.active_days, v_today);
             v_new_longest_streak := COALESCE(v_user.longest_streak, 0);
 
             UPDATE public.profiles
             SET 
                 pro_coins = pro_coins + v_coins_earned,
-                focus_tomatoes = focus_tomatoes + 1,
                 focus_points = focus_points + v_xp_earned
             WHERE id = v_user_id;
         END IF;
@@ -3126,12 +3143,16 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 --   4. Mapa diario del mes actual para el calendario de constancia.
 --   5. Desglose mensual del año actual (12 meses).
 --   6. Racha activa, racha histórica máxima y total acumulado de pomodoros y horas.
-CREATE OR REPLACE FUNCTION public.get_user_focus_statistics()
+CREATE OR REPLACE FUNCTION public.get_user_focus_statistics(
+    p_client_timezone TEXT DEFAULT 'UTC',
+    p_client_date DATE DEFAULT NULL
+)
 RETURNS JSON AS $$
 DECLARE
     v_user_id UUID := auth.uid();
     v_profile RECORD;
-    v_today DATE := CURRENT_DATE;
+    v_tz TEXT := COALESCE(NULLIF(p_client_timezone, ''), 'UTC');
+    v_today DATE := COALESCE(p_client_date, (CURRENT_TIMESTAMP AT TIME ZONE v_tz)::date, CURRENT_DATE);
     v_today_attempts JSON;
     v_today_completed INTEGER := 0;
     v_today_focus_seconds INTEGER := 0;
@@ -3155,34 +3176,41 @@ BEGIN
     -- 2. Obtener datos de perfil
     SELECT * INTO v_profile FROM public.profiles WHERE id = v_user_id;
 
-    -- 3. Intentos de hoy
+    -- 3. Intentos de hoy (según zona horaria local del usuario)
     SELECT COALESCE(json_agg(json_build_object(
         'status', status::text,
-        'time', to_char(completed_at AT TIME ZONE 'UTC', 'HH24:MI'),
+        'time', to_char(completed_at AT TIME ZONE v_tz, 'HH24:MI'),
         'duration_seconds', actual_duration_seconds
     ) ORDER BY completed_at ASC), '[]'::json) INTO v_today_attempts
     FROM public.focus_sessions
-    WHERE user_id = v_user_id AND completed_at::date = v_today;
+    WHERE user_id = v_user_id AND (completed_at AT TIME ZONE v_tz)::date = v_today;
 
-    -- 4. Métricas completadas hoy
+    -- 4. Métricas completadas hoy (según zona horaria)
     SELECT 
         COUNT(*),
         COALESCE(SUM(actual_duration_seconds), 0)
     INTO v_today_completed, v_today_focus_seconds
     FROM public.focus_sessions
-    WHERE user_id = v_user_id AND status = 'completed' AND completed_at::date = v_today;
+    WHERE user_id = v_user_id AND status = 'completed' AND actual_duration_seconds >= 1500 AND (completed_at AT TIME ZONE v_tz)::date = v_today;
 
-    -- 5. Métricas de la semana actual (Lunes a Domingo)
+    -- Tiempo total enfocado hoy (incluyendo sesiones cortas)
+    SELECT COALESCE(SUM(actual_duration_seconds), 0)
+    INTO v_today_focus_seconds
+    FROM public.focus_sessions
+    WHERE user_id = v_user_id AND status = 'completed' AND (completed_at AT TIME ZONE v_tz)::date = v_today;
+
+    -- 5. Métricas de la semana actual (Lunes a Domingo según zona horaria - Pomodoros estándar >= 25 min)
     v_week_start := date_trunc('week', v_today)::date;
 
     FOR v_rec IN 
-        SELECT (completed_at::date - v_week_start) as day_offset, COUNT(*) as cnt
+        SELECT ((completed_at AT TIME ZONE v_tz)::date - v_week_start) as day_offset, COUNT(*) as cnt
         FROM public.focus_sessions
         WHERE user_id = v_user_id 
           AND status = 'completed' 
-          AND completed_at::date >= v_week_start 
-          AND completed_at::date < v_week_start + INTERVAL '7 days'
-        GROUP BY (completed_at::date - v_week_start)
+          AND actual_duration_seconds >= 1500
+          AND (completed_at AT TIME ZONE v_tz)::date >= v_week_start 
+          AND (completed_at AT TIME ZONE v_tz)::date < v_week_start + INTERVAL '7 days'
+        GROUP BY ((completed_at AT TIME ZONE v_tz)::date - v_week_start)
     LOOP
         v_day_idx := v_rec.day_offset + 1;
         IF v_day_idx >= 1 AND v_day_idx <= 7 THEN
@@ -3190,24 +3218,26 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- 6. Métricas del mes actual por día (1..31)
+    -- 6. Métricas del mes actual por día (1..31 según zona horaria - Pomodoros estándar >= 25 min)
     SELECT COALESCE(json_object_agg(day_num, cnt), '{}'::json) INTO v_monthly_by_day FROM (
-        SELECT EXTRACT(DAY FROM completed_at)::integer as day_num, COUNT(*) as cnt
+        SELECT EXTRACT(DAY FROM (completed_at AT TIME ZONE v_tz))::integer as day_num, COUNT(*) as cnt
         FROM public.focus_sessions
         WHERE user_id = v_user_id 
           AND status = 'completed' 
-          AND date_trunc('month', completed_at)::date = date_trunc('month', v_today)::date
-        GROUP BY EXTRACT(DAY FROM completed_at)::integer
+          AND actual_duration_seconds >= 1500
+          AND date_trunc('month', (completed_at AT TIME ZONE v_tz))::date = date_trunc('month', v_today)::date
+        GROUP BY EXTRACT(DAY FROM (completed_at AT TIME ZONE v_tz))::integer
     ) m;
 
-    -- 7. Métricas del año actual por mes (1..12)
+    -- 7. Métricas del año actual por mes (1..12 según zona horaria - Pomodoros estándar >= 25 min)
     FOR v_rec IN 
-        SELECT EXTRACT(MONTH FROM completed_at)::integer as month_num, COUNT(*) as cnt
+        SELECT EXTRACT(MONTH FROM (completed_at AT TIME ZONE v_tz))::integer as month_num, COUNT(*) as cnt
         FROM public.focus_sessions
         WHERE user_id = v_user_id 
           AND status = 'completed' 
-          AND EXTRACT(YEAR FROM completed_at) = EXTRACT(YEAR FROM v_today)
-        GROUP BY EXTRACT(MONTH FROM completed_at)::integer
+          AND actual_duration_seconds >= 1500
+          AND EXTRACT(YEAR FROM (completed_at AT TIME ZONE v_tz)) = EXTRACT(YEAR FROM v_today)
+        GROUP BY EXTRACT(MONTH FROM (completed_at AT TIME ZONE v_tz))::integer
     LOOP
         v_month_idx := v_rec.month_num;
         IF v_month_idx >= 1 AND v_month_idx <= 12 THEN
@@ -3220,6 +3250,7 @@ BEGIN
     FROM public.focus_sessions
     WHERE user_id = v_user_id AND status = 'completed';
 
+    -- 9. Retornar payload completo
     RETURN json_build_object(
         'success', TRUE,
         'today_attempts', v_today_attempts,
@@ -3227,13 +3258,101 @@ BEGIN
         'today_focus_seconds', v_today_focus_seconds,
         'weekly_by_day', v_weekly_by_day,
         'monthly_by_day', v_monthly_by_day,
-        'streak_days', public.get_effective_streak(v_profile.last_focus_date, v_profile.streak_days, v_profile.active_days),
+        'annual_by_month', v_annual_by_month,
+        'streak_days', COALESCE(v_profile.streak_days, 0),
         'longest_streak', COALESCE(v_profile.longest_streak, 0),
         'total_pomodoros', COALESCE(v_profile.focus_tomatoes, 0),
-        'total_focus_seconds', v_total_focus_seconds
+        'total_focus_seconds', v_total_focus_seconds,
+        'total_completed_objectives', (
+            SELECT COUNT(*) FROM public.focus_sessions 
+            WHERE user_id = v_user_id AND status = 'completed' AND objective_completed = 'yes'
+        ),
+        'today_completed_objectives', (
+            SELECT COUNT(*) FROM public.focus_sessions 
+            WHERE user_id = v_user_id AND status = 'completed' AND objective_completed = 'yes' AND (completed_at AT TIME ZONE v_tz)::date = v_today
+        )
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ------------------------------------------------------------------------------
+-- 10. PROCEDIMIENTO RPC PARA RECALCULAR RACHA HISTÓRICA
+-- ------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.recalculate_user_streak(
+    p_user_id UUID,
+    p_client_timezone TEXT DEFAULT 'UTC'
+)
+RETURNS JSON AS $$
+DECLARE
+    v_tz TEXT := COALESCE(NULLIF(p_client_timezone, ''), 'UTC');
+    v_active INTEGER[];
+    v_dates DATE[];
+    v_streak INTEGER := 0;
+    v_longest INTEGER := 0;
+    v_prev_date DATE := NULL;
+    v_cur_date DATE;
+    v_today DATE := (CURRENT_TIMESTAMP AT TIME ZONE v_tz)::date;
+BEGIN
+    SELECT COALESCE(active_days, ARRAY[1,2,3,4,5]) INTO v_active FROM public.profiles WHERE id = p_user_id;
+
+    -- Obtener fechas únicas en la zona horaria local donde completó >= 25 min (1500s)
+    SELECT ARRAY_AGG(d ORDER BY d ASC) INTO v_dates
+    FROM (
+        SELECT DISTINCT (completed_at AT TIME ZONE v_tz)::date as d
+        FROM public.focus_sessions
+        WHERE user_id = p_user_id 
+          AND status = 'completed' 
+          AND actual_duration_seconds >= 1500
+    ) sub;
+
+    IF v_dates IS NULL OR cardinality(v_dates) = 0 THEN
+        UPDATE public.profiles 
+        SET streak_days = 0, longest_streak = 0, last_focus_date = NULL 
+        WHERE id = p_user_id;
+        RETURN json_build_object('success', TRUE, 'streak_days', 0, 'longest_streak', 0);
+    END IF;
+
+    -- Calcular racha secuencialmente
+    FOR i IN 1..cardinality(v_dates) LOOP
+        v_cur_date := v_dates[i];
+        IF v_prev_date IS NULL THEN
+            v_streak := 1;
+        ELSIF public.check_is_streak_broken(v_prev_date, v_cur_date, v_active) THEN
+            v_streak := 1;
+        ELSE
+            v_streak := v_streak + 1;
+        END IF;
+
+        IF v_streak > v_longest THEN
+            v_longest := v_streak;
+        END IF;
+
+        v_prev_date := v_cur_date;
+    END LOOP;
+
+    -- Verificar si la racha sigue vigente respecto al día de hoy
+    IF public.check_is_streak_broken(v_prev_date, v_today, v_active) THEN
+        v_streak := 0;
+    END IF;
+
+    -- Actualizar perfil del usuario
+    UPDATE public.profiles
+    SET 
+        streak_days = v_streak,
+        longest_streak = GREATEST(COALESCE(longest_streak, 0), v_longest),
+        last_focus_date = v_prev_date
+    WHERE id = p_user_id;
+
+    RETURN json_build_object(
+        'success', TRUE,
+        'streak_days', v_streak,
+        'longest_streak', GREATEST(v_longest, (SELECT longest_streak FROM public.profiles WHERE id = p_user_id)),
+        'last_focus_date', v_prev_date
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 
 
 

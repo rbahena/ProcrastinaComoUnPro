@@ -117,7 +117,12 @@ export class Estadisticas implements OnInit, OnDestroy {
 
   // --- CÁLCULOS DEL DÍA (HOY) ---
   todayCompletedCount = computed(() => {
-    return this.dailyAttempts().filter(a => a.status === 'completed').length;
+    return this.dailyAttempts()
+      .filter(a => a.status === 'completed')
+      .reduce((sum, a) => {
+        const secs = a.duration_seconds !== undefined ? a.duration_seconds : 1500;
+        return sum + this.membership.calculateTomatoesForDuration(secs, true);
+      }, 0);
   });
 
   todayFocusMinutes = computed(() => {

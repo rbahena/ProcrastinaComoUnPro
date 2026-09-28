@@ -13,7 +13,8 @@
       <!-- Badge Premium (Sutil y COFU Pro) -->
       <button routerLink="/membresia" 
               class="premium-header-badge"
-              title="Ver detalles de Membresía">
+              data-tooltip="Ver detalles de Membresía"
+              data-tooltip-align="left">
         <i class="fa-solid fa-crown" style="color: var(--yellow);"></i>
         <span>PRO</span>
       </button>
@@ -34,7 +35,7 @@
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
           <span class="card-title-text" style="color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 2px 6px; border-radius: 4px;">En vivo</span>
-          <button routerLink="/enfoque" class="card-action-play" title="Ir a Concentración">
+          <button routerLink="/enfoque" class="card-action-play" data-tooltip="Ir a Concentración" data-tooltip-align="left">
             <i class="fa-solid fa-play"></i>
           </button>
         </div>
@@ -83,7 +84,7 @@
                 style="padding: 2px 6px; border-radius: 4px; font-weight: 700;">
             {{ bossService.activeBoss().status === 'defeated' ? 'Derrotado' : 'Activo' }}
           </span>
-          <button routerLink="/bestiario" class="card-action-play" title="Ver Bestiario de la Comunidad">
+          <button routerLink="/bestiario" class="card-action-play" data-tooltip="Ver Bestiario" data-tooltip-align="left">
             <i class="fa-solid fa-circle-info"></i>
           </button>
         </div>
@@ -106,7 +107,7 @@
             <div class="card-large-value" style="font-size: 20px !important;">
               {{ bossService.hpPercent() }}% HP
             </div>
-            <div class="card-sub-desc" style="font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="bossService.activeBoss().name">
+            <div class="card-sub-desc" style="font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [attr.data-tooltip]="bossService.activeBoss().name">
               {{ bossService.activeBoss().name }}
             </div>
           </div>
@@ -157,7 +158,7 @@
           <span class="card-title-text" style="color: var(--yellow); font-weight: 700;" *ngIf="membership.isPremium()">
             Top {{ 100 - percentageBeaten() }}%
           </span>
-          <button routerLink="/membresia" class="card-action-play" title="Ver Membresía">
+          <button routerLink="/membresia" class="card-action-play" data-tooltip="Ver Membresía" data-tooltip-align="left">
             <i class="fa-solid fa-crown"></i>
           </button>
         </div>
@@ -264,7 +265,7 @@
               <span style="width: 4px; height: 4px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
               EN VIVO
             </span>
-            <button routerLink="/enfoque" class="card-action-play" title="Iniciar Concentración">
+            <button routerLink="/enfoque" class="card-action-play" data-tooltip="Iniciar Concentración" data-tooltip-align="left">
               <i class="fa-solid fa-play"></i>
             </button>
           </div>
@@ -315,7 +316,7 @@
         <a routerLink="/enfoque" 
            class="coworking-btn" 
            style="width: 100%; justify-content: center; padding: 12px; font-size: 12px; text-decoration: none; box-sizing: border-box; text-align: center; border-radius: 10px; display: inline-flex;"
-           title="Iniciar concentración">
+           data-tooltip="Iniciar concentración">
           <span>Iniciar enfoque</span>
           <i class="fa-solid fa-yin-yang" style="font-size: 10px;"></i>
         </a>
@@ -465,7 +466,7 @@
               <p style="font-size: 10px; color: var(--muted); margin: 2px 0 0 0;">Top 10 en sesiones de concentración desde la creación de la plataforma</p>
             </div>
           </div>
-          <button routerLink="/fechas" class="card-action-play" title="Ver Estadísticas">
+          <button routerLink="/fechas" class="card-action-play" data-tooltip="Ver Estadísticas" data-tooltip-align="left">
             <i class="fa-solid fa-chart-simple"></i>
           </button>
         </div>
@@ -475,7 +476,7 @@
           
           <div *ngFor="let record of topHistoricalRecords(); let idx = index"
                class="historical-record-row"
-               [title]="record.isAssigned ? ('Ver perfil de ' + record.name) : 'Puesto disponible'"
+               [attr.data-tooltip]="record.isAssigned ? ('Ver perfil de ' + record.name) : 'Puesto disponible'"
                [style.opacity]="record.isAssigned ? '1' : '0.45'"
                style="padding: 4px 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -525,6 +526,8 @@
     
     <!-- Cerrar -->
     <button (click)="showPaywallModal.set(false)" 
+            data-tooltip="Cerrar ventana"
+            data-tooltip-align="left"
             style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 18px;">
       <i class="fa-solid fa-xmark"></i>
     </button>
@@ -594,6 +597,8 @@
     
     <!-- Cerrar -->
     <button (click)="cancelJoinRoom()" 
+            data-tooltip="Cerrar ventana"
+            data-tooltip-align="left"
             style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 18px;">
       <i class="fa-solid fa-xmark"></i>
     </button>
@@ -661,6 +666,8 @@
     
     <!-- Botón de Cerrar -->
     <button (click)="showAvatarZoomModal.set(false)" 
+            data-tooltip="Cerrar ventana"
+            data-tooltip-align="left"
             style="position: absolute; top: 12px; right: 12px; border: none; background: var(--bg3); color: var(--muted); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
             onmouseover="this.style.color='var(--text)';"
             onmouseout="this.style.color='var(--muted)';">

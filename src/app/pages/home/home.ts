@@ -273,9 +273,27 @@ export class Home implements OnInit, OnDestroy {
     }
   }
 
+  private isUserEligible(units: number, createdAt?: string): boolean {
+    if (units > 5) return true;
+    if (createdAt) {
+      const createdTime = new Date(createdAt).getTime();
+      if (!isNaN(createdTime)) {
+        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+        if (Date.now() - createdTime >= oneWeekMs) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   private processPodiumData(podiumUsers: CommunityLeaderboardUser[]) {
-    // Filtrar solo usuarios PREMIUM que tengan puntos o tomates registrados en BD
-    const activeUsers = (podiumUsers || []).filter(u => u.is_premium === true && ((u.focus_points || 0) > 0 || (u.focus_tomatoes || 0) > 0));
+    // Filtrar solo usuarios PREMIUM que tengan puntos o tomates registrados en BD y cumplan >5 unidades o >1 semana
+    const activeUsers = (podiumUsers || []).filter(u => 
+      u.is_premium === true && 
+      ((u.focus_points || 0) > 0 || (u.focus_tomatoes || 0) > 0) &&
+      (this.isUserEligible(Math.floor((u.focus_points || 0) / 40) || (u.focus_tomatoes || 0), u.created_at) || this.isUserEligible(u.focus_tomatoes || 0, u.created_at))
+    );
 
     if (activeUsers.length === 0) {
       this.topPodiumUsers.set([]);
@@ -344,8 +362,12 @@ export class Home implements OnInit, OnDestroy {
   private processHistoricalRecords(records: CommunityLeaderboardUser[]) {
     const list: HistoricalRecordItem[] = [];
 
-    // Solo usuarios con membresía PREMIUM compiten en el ranking histórico
-    const activeRecords = (records || []).filter(r => r.is_premium === true && (r.focus_tomatoes || 0) > 0);
+    // Solo usuarios con membresía PREMIUM compiten en el ranking histórico (>5 unidades o >1 semana)
+    const activeRecords = (records || []).filter(r => 
+      r.is_premium === true && 
+      (r.focus_tomatoes || 0) > 0 &&
+      this.isUserEligible(r.focus_tomatoes || 0, r.created_at)
+    );
 
     if (activeRecords.length > 0) {
       activeRecords.slice(0, 10).forEach((r, idx) => {

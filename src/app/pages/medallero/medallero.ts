@@ -198,7 +198,9 @@ export class Medallero implements OnInit, OnDestroy {
       isStreakAssigned = true;
     }
 
-    if (isPremium && ramStreak > 0 && ramStreak >= bestStreakVal) {
+    const ramCreatedAt = this.membership.userCreatedAt();
+
+    if (isPremium && ramStreak > 0 && this.isUserEligible(ramStreak, ramCreatedAt) && ramStreak >= bestStreakVal) {
       bestStreakVal = ramStreak;
       streakHolderName = ramName;
       streakHolderAvatar = ramAvatar;
@@ -224,7 +226,7 @@ export class Medallero implements OnInit, OnDestroy {
       isTomatoAssigned = true;
     }
 
-    if (isPremium && ramTomatoes > 0 && ramTomatoes >= bestTomatoesVal) {
+    if (isPremium && ramTomatoes > 0 && this.isUserEligible(ramTomatoes, ramCreatedAt) && ramTomatoes >= bestTomatoesVal) {
       bestTomatoesVal = ramTomatoes;
       tomatoHolderName = ramName;
       tomatoHolderAvatar = ramAvatar;
@@ -250,7 +252,7 @@ export class Medallero implements OnInit, OnDestroy {
       isCoinAssigned = true;
     }
 
-    if (isPremium && ramCoins > 0 && ramCoins >= bestCoinsVal) {
+    if (isPremium && ramCoins > 0 && this.isUserEligible(ramCoins, ramCreatedAt) && ramCoins >= bestCoinsVal) {
       bestCoinsVal = ramCoins;
       coinHolderName = ramName;
       coinHolderAvatar = ramAvatar;
@@ -276,7 +278,7 @@ export class Medallero implements OnInit, OnDestroy {
       isPodiumAssigned = true;
     }
 
-    if (isPremium && ramPodiumWins > 0 && ramPodiumWins >= bestPodiumsVal) {
+    if (isPremium && ramPodiumWins > 0 && this.isUserEligible(ramPodiumWins, ramCreatedAt) && ramPodiumWins >= bestPodiumsVal) {
       bestPodiumsVal = ramPodiumWins;
       podiumHolderName = ramName;
       podiumHolderAvatar = ramAvatar;
@@ -445,23 +447,40 @@ export class Medallero implements OnInit, OnDestroy {
     return this.membership.getSelectedAvatarName();
   }
 
+  isUserEligible(units: number, createdAt?: string): boolean {
+    if (units > 5) return true;
+    if (createdAt) {
+      const createdTime = new Date(createdAt).getTime();
+      if (!isNaN(createdTime)) {
+        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+        if (Date.now() - createdTime >= oneWeekMs) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   // 1. Más objetivos alcanzados
   rankingObjectives = computed<RankingPlayer[]>(() => {
     const ramName = this.membership.userName() || 'Guerrero';
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
     const ramPoints = this.membership.focusPoints();
     const ramObjCount = Math.floor(ramPoints / 40);
+    const ramCreatedAt = this.membership.userCreatedAt();
 
     const liveList = this.liveRankings().objectives;
-    const mapped: RawRankingPlayer[] = (liveList || []).map((p: any) => ({
-      name: p.username || 'Guerrero',
-      avatar: p.selected_avatar || 'gato',
-      objectives: p.focus_points ? Math.floor(p.focus_points / 40) : (p.focus_tomatoes || 0),
-      rankName: this.membership.getAvatarTitle(p.selected_avatar || 'gato') + ' del Foco',
-      isSelf: p.username === ramName
-    }));
+    const mapped: RawRankingPlayer[] = (liveList || [])
+      .filter((p: any) => this.isUserEligible(p.focus_points ? Math.floor(p.focus_points / 40) : (p.focus_tomatoes || 0), p.created_at))
+      .map((p: any) => ({
+        name: p.username || 'Guerrero',
+        avatar: p.selected_avatar || 'gato',
+        objectives: p.focus_points ? Math.floor(p.focus_points / 40) : (p.focus_tomatoes || 0),
+        rankName: this.membership.getAvatarTitle(p.selected_avatar || 'gato') + ' del Foco',
+        isSelf: p.username === ramName
+      }));
 
-    if (this.membership.isPremium() && ramPoints > 0 && !mapped.some(p => p.isSelf)) {
+    if (this.membership.isPremium() && this.isUserEligible(ramObjCount, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
       mapped.push({
         name: ramName,
         avatar: ramAvatar,
@@ -482,17 +501,20 @@ export class Medallero implements OnInit, OnDestroy {
     const ramName = this.membership.userName() || 'Guerrero';
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
     const ramTomatoes = this.membership.focusTomatoes();
+    const ramCreatedAt = this.membership.userCreatedAt();
 
     const liveList = this.liveRankings().pomodoros;
-    const mapped: RawRankingPlayer[] = (liveList || []).map((p: any) => ({
-      name: p.username || 'Guerrero',
-      avatar: p.selected_avatar || 'gato',
-      pomodoros: p.focus_tomatoes || 0,
-      title: this.membership.getAvatarTitle(p.selected_avatar || 'gato'),
-      isSelf: p.username === ramName
-    }));
+    const mapped: RawRankingPlayer[] = (liveList || [])
+      .filter((p: any) => this.isUserEligible(p.focus_tomatoes || 0, p.created_at))
+      .map((p: any) => ({
+        name: p.username || 'Guerrero',
+        avatar: p.selected_avatar || 'gato',
+        pomodoros: p.focus_tomatoes || 0,
+        title: this.membership.getAvatarTitle(p.selected_avatar || 'gato'),
+        isSelf: p.username === ramName
+      }));
 
-    if (this.membership.isPremium() && ramTomatoes > 0 && !mapped.some(p => p.isSelf)) {
+    if (this.membership.isPremium() && this.isUserEligible(ramTomatoes, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
       mapped.push({
         name: ramName,
         avatar: ramAvatar,
@@ -513,17 +535,20 @@ export class Medallero implements OnInit, OnDestroy {
     const ramStreak = this.membership.streak();
     const ramName = this.membership.userName() || 'Guerrero';
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
+    const ramCreatedAt = this.membership.userCreatedAt();
 
     const liveList = this.liveRankings().streaks;
-    const mapped: RawRankingPlayer[] = (liveList || []).map((p: any) => ({
-      name: p.username || 'Guerrero',
-      avatar: p.selected_avatar || 'gato',
-      streakCount: p.streak_count || p.streak_days || 0,
-      tag: 'Racha Activa',
-      isSelf: p.username === ramName
-    }));
+    const mapped: RawRankingPlayer[] = (liveList || [])
+      .filter((p: any) => this.isUserEligible(p.streak_count || p.streak_days || 0, p.created_at))
+      .map((p: any) => ({
+        name: p.username || 'Guerrero',
+        avatar: p.selected_avatar || 'gato',
+        streakCount: p.streak_count || p.streak_days || 0,
+        tag: 'Racha Activa',
+        isSelf: p.username === ramName
+      }));
 
-    if (this.membership.isPremium() && ramStreak > 0 && !mapped.some(p => p.isSelf)) {
+    if (this.membership.isPremium() && this.isUserEligible(ramStreak, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
       mapped.push({
         name: ramName,
         avatar: ramAvatar,
@@ -544,17 +569,20 @@ export class Medallero implements OnInit, OnDestroy {
     const ramDamage = this.bossService.userDamageDealt();
     const ramName = this.membership.userName() || 'Guerrero';
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
+    const ramCreatedAt = this.membership.userCreatedAt();
 
     const liveList = this.liveRankings().boss;
-    const mapped: RawRankingPlayer[] = (liveList || []).map((p: any) => ({
-      name: p.username || 'Guerrero',
-      avatar: p.selected_avatar || 'lobo',
-      damage: p.total_damage || 0,
-      label: 'Cazador de Jefes',
-      isSelf: p.username === ramName
-    }));
+    const mapped: RawRankingPlayer[] = (liveList || [])
+      .filter((p: any) => this.isUserEligible(p.total_damage || 0, p.created_at))
+      .map((p: any) => ({
+        name: p.username || 'Guerrero',
+        avatar: p.selected_avatar || 'lobo',
+        damage: p.total_damage || 0,
+        label: 'Cazador de Jefes',
+        isSelf: p.username === ramName
+      }));
 
-    if (this.membership.isPremium() && ramDamage > 0 && !mapped.some(p => p.isSelf)) {
+    if (this.membership.isPremium() && this.isUserEligible(ramDamage, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
       mapped.push({
         name: ramName,
         avatar: ramAvatar,

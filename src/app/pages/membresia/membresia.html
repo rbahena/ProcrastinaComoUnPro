@@ -3,7 +3,7 @@
   <!-- CABECERA -->
   <div class="page-header">
     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; width: 100%;">
-      <a routerLink="/home" class="back-link" style="align-self: flex-start;">
+      <a routerLink="/home" class="back-link" style="align-self: flex-start;" data-tooltip="Volver a Inicio" data-tooltip-align="right">
         <i class="fa-solid fa-arrow-left"></i>
         Volver a la Comunidad
       </a>
@@ -18,12 +18,14 @@
     <div class="plan-toggle">
       <button (click)="selectPlan(false)" 
               [class.active]="!isAnnual()" 
-              class="plan-btn">
+              class="plan-btn"
+              data-tooltip="Cambiar a facturación mensual">
         Facturación Mensual
       </button>
       <button (click)="selectPlan(true)" 
               [class.active]="isAnnual()" 
-              class="plan-btn">
+              class="plan-btn"
+              data-tooltip="Cambiar a facturación anual (Ahorra 33%)">
         Facturación Anual <span class="save-tag">Ahorra 33%</span>
       </button>
     </div>
@@ -58,7 +60,8 @@
                 <button (click)="membership.isPremium() ? togglePremium() : null" 
                         [disabled]="!membership.isPremium()"
                         class="plan-cta-btn free-tier-btn"
-                        [class.current-active]="!membership.isPremium()">
+                        [class.current-active]="!membership.isPremium()"
+                        data-tooltip="Plan Básico de por vida">
                   {{ !membership.isPremium() ? 'Tu Plan Actual' : 'Simular Gratuito' }}
                 </button>
               </div>
@@ -81,7 +84,8 @@
                 <!-- Botón de Acción Premium -->
                 <button (click)="togglePremium()" 
                         [class.active-premium]="membership.isPremium()"
-                        class="plan-cta-btn premium-tier-btn">
+                        class="plan-cta-btn premium-tier-btn"
+                        data-tooltip="Activar plan COFU Pro con todas las funciones">
                   <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-bolt'"></i>
                   <span>{{ membership.isPremium() ? 'Ya eres Pro (Volver a Gratis)' : 'Adquirir Pro ⚡' }}</span>
                 </button>

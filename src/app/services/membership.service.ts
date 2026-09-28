@@ -160,6 +160,7 @@ export class MembershipService {
   // Racha de días de enfoque
   streak = signal<number>(0);
   lastFocusDate = signal<string>('');
+  userCreatedAt = signal<string>('');
 
   addFocusTomatoes(tomatoes: number) {
     this.focusTomatoes.update(t => t + tomatoes);
@@ -861,6 +862,18 @@ export class MembershipService {
     this.proCoins.update(c => c + coins);
   }
 
+  // Calcular Tomates ganados según duración:
+  // < 25 min: 0 tomates
+  // 25 - 44 min: 1 tomate (estándar Pomodoro)
+  // 45 - 69 min: 2 tomates (alta motivación / sesión profunda)
+  // >= 70 min: Math.floor((minutos + 5) / 25) tomates
+  calculateTomatoesForDuration(secondsOrMinutes: number, isSeconds = true): number {
+    const minutes = isSeconds ? Math.floor(secondsOrMinutes / 60) : Math.floor(secondsOrMinutes);
+    if (minutes < 25) return 0;
+    if (minutes < 45) return 1;
+    return Math.floor((minutes + 5) / 25);
+  }
+
   // Intentar recompensar sesión completada (idempotente)
   rewardCompletedSession(sessionId: string, isShared: boolean, actualSeconds: number = 1500): { points: number; coins: number; tomatoes: number; isNew: boolean } {
     if (this.rewardedSessions.has(sessionId)) {
@@ -870,15 +883,20 @@ export class MembershipService {
     // Registrar sesión
     this.rewardedSessions.add(sessionId);
 
-    // Recompensa: 1 tomate y 1 moneda por periodo de concentración completado
-    const tomatoesEarned = 1;
-    const coinsEarned = 1;
-    this.addFocusTomatoes(tomatoesEarned);
-    this.addProCoins(coinsEarned);
+    // Recompensa de Tomates escalonada según duración
+    const tomatoesEarned = this.calculateTomatoesForDuration(actualSeconds, true);
+    const isFullPomodoro = tomatoesEarned > 0;
+    const coinsEarned = actualSeconds >= 300 ? 1 : 0;
+    if (tomatoesEarned > 0) {
+      this.addFocusTomatoes(tomatoesEarned);
+    }
+    if (coinsEarned > 0) {
+      this.addProCoins(coinsEarned);
+    }
 
     let pointsEarned = 0;
     if (this.isPremium()) {
-      pointsEarned = 10;
+      pointsEarned = isFullPomodoro ? Math.max(10, tomatoesEarned * 10) : Math.max(1, Math.round((actualSeconds / 1500) * 10));
       this.addFocusPoints(pointsEarned);
     }
 
@@ -1371,7 +1389,9 @@ export class MembershipService {
     else if (p.focus_points !== undefined) this.focusPoints.set(p.focus_points);
     if (p.tomatoes !== undefined) this.focusTomatoes.set(p.tomatoes);
     else if (p.focus_tomatoes !== undefined) this.focusTomatoes.set(p.focus_tomatoes);
+    if (p.created_at) this.userCreatedAt.set(p.created_at);
 
+    if (p.last_focus_date) this.lastFocusDate.set(p.last_focus_date);
     const rawStreak = p.streak !== undefined ? p.streak : (p.streak_days !== undefined ? p.streak_days : this.streak());
     if (p.last_focus_date && this.isStreakBroken(p.last_focus_date, new Date(), p.active_days || this.userActiveDays())) {
       this.streak.set(0);

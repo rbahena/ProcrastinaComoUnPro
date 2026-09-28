@@ -7,13 +7,13 @@
     <!-- HEADER -->
     <div class="ideas-header">
       <div class="header-left">
-        <div class="header-icon-wrapper" title="Baúl de notas y objetivos">
+        <div class="header-icon-wrapper" data-tooltip="Baúl de notas y objetivos">
           <i class="fa-solid fa-box-archive header-icon"></i>
         </div>
         <div class="header-text-group">
           <div class="title-with-badge">
             <h1 class="ideas-title">Mis Notas y Objetivos</h1>
-            <span class="count-badge" *ngIf="hasIdeas() && countPending() > 0" title="Notas y tareas pendientes">
+            <span class="count-badge" *ngIf="hasIdeas() && countPending() > 0" data-tooltip="Notas y tareas pendientes">
               {{ countPending() }}
             </span>
           </div>
@@ -25,7 +25,8 @@
       <div class="header-actions" *ngIf="hasIdeas()">
         <button class="clear-all-btn" 
                 (click)="clearAllIdeas()"
-                title="Vaciar baúl (eliminar todas las notas)">
+                data-tooltip="Vaciar baúl (eliminar todas las notas)"
+                data-tooltip-align="left">
           <i class="fa-solid fa-trash-can"></i>
         </button>
       </div>
@@ -37,12 +38,12 @@
 
       <!-- Selector de Prioridad para Nueva Nota (Solo Iconos Discretos) -->
       <div class="input-priority-row">
-        <div class="priority-choice-group" title="Nivel de prioridad">
+        <div class="priority-choice-group">
           <button type="button" 
                   class="priority-chip chip-alta" 
                   [class.is-selected]="selectedNewPriority() === 'alta'"
                   (click)="setNewPriority('alta')"
-                  title="Prioridad: Urgente">
+                  data-tooltip="Prioridad: Urgente">
             <span class="chip-icon">🔥</span>
           </button>
 
@@ -50,7 +51,7 @@
                   class="priority-chip chip-media" 
                   [class.is-selected]="selectedNewPriority() === 'media'"
                   (click)="setNewPriority('media')"
-                  title="Prioridad: Puede esperar">
+                  data-tooltip="Prioridad: Puede esperar">
             <span class="chip-icon">⏳</span>
           </button>
 
@@ -58,7 +59,7 @@
                   class="priority-chip chip-baja" 
                   [class.is-selected]="selectedNewPriority() === 'baja'"
                   (click)="setNewPriority('baja')"
-                  title="Prioridad: Aplazar">
+                  data-tooltip="Prioridad: Aplazar">
             <span class="chip-icon">💤</span>
           </button>
         </div>
@@ -67,7 +68,7 @@
       <!-- Campo de Entrada Principal -->
       <div class="input-main-row">
         <div class="input-field-wrapper">
-          <div class="input-prefix-icon" title="Captura rápida">
+          <div class="input-prefix-icon" data-tooltip="Captura rápida">
             <i class="fa-solid fa-bolt"></i>
           </div>
           <input type="text" 
@@ -76,7 +77,7 @@
                  (input)="onInputChange($event)"
                  (keydown.enter)="addIdea()"
                  class="quick-idea-input" />
-          <span class="input-shortcut-hint" *ngIf="newIdeaText().trim()" title="Presiona Enter para guardar">↵</span>
+          <span class="input-shortcut-hint" *ngIf="newIdeaText().trim()" data-tooltip="Presiona Enter para guardar">↵</span>
         </div>
 
         <button class="add-idea-btn" 
@@ -85,7 +86,8 @@
                 [class.btn-alta]="selectedNewPriority() === 'alta'"
                 [class.btn-media]="selectedNewPriority() === 'media'"
                 [class.btn-baja]="selectedNewPriority() === 'baja'"
-                title="Guardar nota u objetivo">
+                data-tooltip="Guardar (Enter)"
+                data-tooltip-align="left">
           <i class="fa-solid fa-plus"></i>
         </button>
       </div>
@@ -100,7 +102,7 @@
           <button class="filter-tab-btn" 
                   [class.active]="activeFilter() === 'all'"
                   (click)="setFilter('all')"
-                  title="Todas las notas">
+                  data-tooltip="Todas las notas">
             <i class="fa-solid fa-layer-group tab-icon"></i>
             <span class="tab-pill-count">{{ countAll() }}</span>
           </button>
@@ -108,7 +110,7 @@
           <button class="filter-tab-btn tab-alta" 
                   [class.active]="activeFilter() === 'alta'"
                   (click)="setFilter('alta')"
-                  title="Prioridad: Urgente">
+                  data-tooltip="Prioridad: Urgente">
             <span class="tab-icon">🔥</span>
             <span class="tab-pill-count count-alta">{{ countAlta() }}</span>
           </button>
@@ -116,7 +118,7 @@
           <button class="filter-tab-btn tab-media" 
                   [class.active]="activeFilter() === 'media'"
                   (click)="setFilter('media')"
-                  title="Prioridad: Puede esperar">
+                  data-tooltip="Prioridad: Puede esperar">
             <span class="tab-icon">⏳</span>
             <span class="tab-pill-count count-media">{{ countMedia() }}</span>
           </button>
@@ -124,7 +126,7 @@
           <button class="filter-tab-btn tab-baja" 
                   [class.active]="activeFilter() === 'baja'"
                   (click)="setFilter('baja')"
-                  title="Prioridad: Aplazar">
+                  data-tooltip="Prioridad: Aplazar">
             <span class="tab-icon">💤</span>
             <span class="tab-pill-count count-baja">{{ countBaja() }}</span>
           </button>
@@ -132,7 +134,7 @@
           <button class="filter-tab-btn tab-completed" 
                   [class.active]="activeFilter() === 'completed'"
                   (click)="setFilter('completed')"
-                  title="Tareas completadas">
+                  data-tooltip="Tareas completadas">
             <i class="fa-solid fa-circle-check tab-icon"></i>
             <span class="tab-pill-count count-completed">{{ countCompleted() }}</span>
           </button>
@@ -141,13 +143,12 @@
 
       <!-- Selector de Orden -->
       <div class="sort-controls">
-        <div class="custom-select-wrapper" title="Ordenar notas">
+        <div class="custom-select-wrapper" data-tooltip="Ordenar notas" data-tooltip-align="left">
           <i class="fa-solid fa-arrow-down-wide-short sort-icon-prefix"></i>
           <select id="ideas-sort-select" 
                   class="sort-select" 
                   [value]="activeSort()" 
-                  (change)="setSort($any($event.target).value)"
-                  title="Seleccionar criterio de orden">
+                  (change)="setSort($any($event.target).value)">
             <option value="priority">Por prioridad</option>
             <option value="newest">Más recientes</option>
             <option value="oldest">Más antiguos</option>
@@ -183,7 +184,7 @@
         <p class="empty-filter-desc">
           {{ activeFilter() === 'completed' ? 'Completa objetivos en la sala de concentración o márcalos como completados desde tu baúl.' : 'No tienes notas marcadas con la prioridad seleccionada.' }}
         </p>
-        <button class="reset-filter-btn" (click)="setFilter('all')" title="Mostrar todas las notas">
+        <button class="reset-filter-btn" (click)="setFilter('all')" data-tooltip="Mostrar todas las notas">
           <i class="fa-solid fa-rotate-left"></i>
         </button>
       </div>
@@ -213,20 +214,20 @@
                 <!-- Metadatos sutiles -->
                 <div class="meta-badges-group">
                   <!-- Icono de prioridad sutil -->
-                  <span class="mini-priority-tag" [title]="getPriorityTooltip(idea.priority)">
+                  <span class="mini-priority-tag" [attr.data-tooltip]="getPriorityTooltip(idea.priority)">
                     {{ getPriorityEmoji(idea.priority) }}
                   </span>
 
                   <!-- Tiempo dedicado (solo si > 0) -->
                   <span *ngIf="idea.dedicated_minutes && idea.dedicated_minutes > 0"
                         class="mini-time-tag"
-                        [title]="'Tiempo dedicado: ' + formatDedicatedTime(idea.dedicated_minutes)">
+                        [attr.data-tooltip]="'Tiempo dedicado: ' + formatDedicatedTime(idea.dedicated_minutes)">
                     <i class="fa-solid fa-hourglass-half"></i>
                     {{ formatDedicatedTime(idea.dedicated_minutes) }}
                   </span>
 
                   <!-- Fecha -->
-                  <span class="mini-date-tag" [title]="(idea.is_completed && idea.completed_at) ? ('Completada: ' + idea.completed_at) : (idea.created_at || '')">
+                  <span class="mini-date-tag" [attr.data-tooltip]="(idea.is_completed && idea.completed_at) ? ('Completada: ' + idea.completed_at) : (idea.created_at || '')">
                     {{ (idea.is_completed && idea.completed_at) ? formatDate(idea.completed_at) : formatDate(idea.created_at) }}
                   </span>
                 </div>
@@ -239,21 +240,21 @@
                     <!-- Enfocar en sala Pomodoro -->
                     <button class="card-action-icon-btn focus-action" 
                             (click)="convertToObjective(idea, i)"
-                            title="Concentrarme en este objetivo">
+                            data-tooltip="Concentrarme en este objetivo">
                       <i class="fa-solid fa-crosshairs"></i>
                     </button>
 
                     <!-- Botón Check Completar -->
                     <button class="card-action-icon-btn check-action" 
                             (click)="askComplete(idea)"
-                            title="Marcar como completada">
+                            data-tooltip="Marcar como completada">
                       <i class="fa-solid fa-check"></i>
                     </button>
 
                     <!-- Editar nota -->
                     <button class="card-action-icon-btn edit-action" 
                             (click)="startEditing(idea)"
-                            title="Editar nota">
+                            data-tooltip="Editar nota">
                       <i class="fa-solid fa-pen"></i>
                     </button>
 
@@ -263,7 +264,7 @@
                     <!-- Eliminar nota -->
                     <button class="card-action-icon-btn delete-action" 
                             (click)="askDelete(idea)"
-                            title="Eliminar">
+                            data-tooltip="Eliminar">
                       <i class="fa-solid fa-trash-can"></i>
                     </button>
                   </ng-container>
@@ -273,7 +274,7 @@
                     <!-- Reabrir tarea -->
                     <button class="card-action-icon-btn reactivate-action" 
                             (click)="reactivateIdea(idea)"
-                            title="Reabrir tarea (regresar a pendientes)">
+                            data-tooltip="Reabrir tarea (regresar a pendientes)">
                       <i class="fa-solid fa-rotate-left"></i>
                     </button>
 
@@ -283,7 +284,7 @@
                     <!-- Eliminar nota -->
                     <button class="card-action-icon-btn delete-action" 
                             (click)="askDelete(idea)"
-                            title="Eliminar registro">
+                            data-tooltip="Eliminar registro">
                       <i class="fa-solid fa-trash-can"></i>
                     </button>
                   </ng-container>
@@ -301,13 +302,13 @@
               <div class="confirm-actions-buttons">
                 <button class="action-btn success-confirm-btn" 
                         (click)="confirmComplete(idea)"
-                        title="Confirmar completado">
+                        data-tooltip="Confirmar completado">
                   <i class="fa-solid fa-check"></i>
                   <span>Completar</span>
                 </button>
                 <button class="action-btn cancel-btn" 
                         (click)="cancelComplete()"
-                        title="Cancelar">
+                        data-tooltip="Cancelar">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
               </div>
@@ -319,12 +320,12 @@
               <div class="delete-confirm-buttons">
                 <button class="action-btn danger-confirm-btn" 
                         (click)="confirmDelete(idea, i)"
-                        title="Confirmar eliminación permanente">
+                        data-tooltip="Confirmar eliminación permanente">
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
                 <button class="action-btn cancel-btn" 
                         (click)="cancelDelete()"
-                        title="Cancelar">
+                        data-tooltip="Cancelar">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
               </div>
@@ -335,7 +336,7 @@
           <ng-container *ngIf="editingIdeaId() === idea.id">
             <div class="inline-edit-container">
               <div class="inline-edit-header">
-                <span class="edit-badge" title="Modo de edición">
+                <span class="edit-badge" data-tooltip="Modo de edición">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </span>
                 
@@ -345,21 +346,21 @@
                           class="edit-p-chip p-alta" 
                           [class.active]="editingPriority() === 'alta'"
                           (click)="editingPriority.set('alta')"
-                          title="Prioridad: Urgente">
+                          data-tooltip="Prioridad: Urgente">
                     🔥
                   </button>
                   <button type="button" 
                           class="edit-p-chip p-media" 
                           [class.active]="editingPriority() === 'media'"
                           (click)="editingPriority.set('media')"
-                          title="Prioridad: Puede esperar">
+                          data-tooltip="Prioridad: Puede esperar">
                     ⏳
                   </button>
                   <button type="button" 
                           class="edit-p-chip p-baja" 
                           [class.active]="editingPriority() === 'baja'"
                           (click)="editingPriority.set('baja')"
-                          title="Prioridad: Aplazar">
+                          data-tooltip="Prioridad: Aplazar">
                     💤
                   </button>
                 </div>
@@ -376,14 +377,14 @@
               <div class="inline-edit-actions">
                 <button class="action-btn cancel-btn" 
                         (click)="cancelEditing()"
-                        title="Cancelar y descartar cambios">
+                        data-tooltip="Cancelar y descartar cambios">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
 
                 <button class="action-btn save-btn" 
                         (click)="saveEdit(idea)" 
                         [disabled]="!editingText().trim()"
-                        title="Guardar cambios">
+                        data-tooltip="Guardar cambios">
                   <i class="fa-solid fa-check"></i>
                 </button>
               </div>
@@ -398,12 +399,11 @@
         
         <!-- Selector de Registros por Página -->
         <div class="page-size-control">
-          <div class="page-size-select-wrapper" title="Registros por página">
+          <div class="page-size-select-wrapper" data-tooltip="Registros por página">
             <i class="fa-solid fa-list-ol page-size-icon"></i>
             <select class="page-size-select" 
                     [value]="pageSize()" 
-                    (change)="setPageSize($any($event.target).value)"
-                    title="Seleccionar registros por página">
+                    (change)="setPageSize($any($event.target).value)">
               <option *ngFor="let size of pageSizeOptions" [value]="size">
                 {{ size }} / pág
               </option>
@@ -418,7 +418,7 @@
           <button class="page-nav-btn prev-btn" 
                   [disabled]="currentPage() === 1" 
                   (click)="prevPage()"
-                  title="Página anterior">
+                  data-tooltip="Página anterior">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
 
@@ -428,7 +428,7 @@
                       class="page-number-btn" 
                       [class.active]="p === currentPage()" 
                       (click)="goToPage(p)"
-                      [title]="'Ir a la página ' + p">
+                      [attr.data-tooltip]="'Ir a la página ' + p">
                 {{ p }}
               </button>
               <span *ngIf="p === '...'" class="page-ellipsis">…</span>
@@ -438,7 +438,7 @@
           <button class="page-nav-btn next-btn" 
                   [disabled]="currentPage() === totalPages()" 
                   (click)="nextPage()"
-                  title="Página siguiente">
+                  data-tooltip="Página siguiente">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
         </div>

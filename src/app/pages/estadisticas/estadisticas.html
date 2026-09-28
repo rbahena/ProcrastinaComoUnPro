@@ -11,7 +11,7 @@
           <h1 class="page-title">Tu Avance de Enfoque</h1>
           <p class="page-subtitle">Un vistazo claro a tu constancia, hábitos y tiempo productivo.</p>
         </div>
-        <button (click)="openShareModal()" class="share-btn">
+        <button (click)="openShareModal()" class="share-btn" data-tooltip="Compartir Insignia en LinkedIn" data-tooltip-align="left">
           <i class="fa-brands fa-linkedin"></i>
           <span>Compartir Insignia</span>
         </button>
@@ -201,7 +201,7 @@
                  [class.level-1]="day.level === 1"
                  [class.level-2]="day.level === 2"
                  [class.level-3]="day.level === 3"
-                 [title]="day.dayNumber ? (day.dayNumber + ' ' + currentMonthName() + ': ' + day.pomodoros + ' pomodoros') : ''">
+                 [attr.data-tooltip]="day.dayNumber ? (day.dayNumber + ' ' + currentMonthName() + ': ' + day.pomodoros + ' pomodoros') : null">
               
               <span class="cal-day-num">{{ day.dayNumber }}</span>
 
@@ -295,7 +295,7 @@
 <!-- MODAL DE COMPARTIR EN LINKEDIN -->
 <div *ngIf="showShareModal()" class="modal-overlay">
   <div class="modal-box">
-    <button (click)="closeShareModal()" class="modal-close-btn">
+    <button (click)="closeShareModal()" class="modal-close-btn" data-tooltip="Cerrar ventana" data-tooltip-align="left">
       <i class="fa-solid fa-xmark"></i>
     </button>
 

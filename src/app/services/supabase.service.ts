@@ -191,6 +191,7 @@ export interface CommunityLeaderboardUser {
   gold_medals?: number;
   silver_medals?: number;
   bronze_medals?: number;
+  created_at?: string;
 }
 
 export interface CommunityHomeDashboardData {
@@ -222,6 +223,7 @@ export interface MedalleroRankingObjectivesItem {
   focus_tomatoes?: number;
   podium_wins?: number;
   streak_days?: number;
+  created_at?: string;
 }
 
 export interface MedalleroRankingPomodorosItem {
@@ -232,6 +234,7 @@ export interface MedalleroRankingPomodorosItem {
   focus_tomatoes: number;
   focus_points?: number;
   streak_days?: number;
+  created_at?: string;
 }
 
 export interface MedalleroRankingStreaksItem {
@@ -241,6 +244,7 @@ export interface MedalleroRankingStreaksItem {
   country_code: string;
   streak_count: number;
   streak_days?: number;
+  created_at?: string;
 }
 
 export interface MedalleroRankingBossItem {
@@ -249,6 +253,7 @@ export interface MedalleroRankingBossItem {
   selected_avatar: string;
   country_code: string;
   total_damage: number;
+  created_at?: string;
 }
 
 export interface MedalleroDashboardData {
@@ -790,6 +795,13 @@ export class SupabaseService {
     }
 
     try {
+      const clientTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const clientDate = `${year}-${month}-${day}`;
+
       const { data: rpcData, error } = await this.supabase.rpc('settle_focus_session', {
         p_nonce_id: data.nonce_id,
         p_avatar_id: data.avatar_id,
@@ -805,7 +817,9 @@ export class SupabaseService {
         p_objective_completed: data.objective_completed,
         p_idea_id: data.idea_id || null,
         p_log_learnings: logLearnings || null,
-        p_distractions: distractions
+        p_distractions: distractions,
+        p_client_date: clientDate,
+        p_client_timezone: clientTz
       });
 
       if (error) {
@@ -1536,6 +1550,20 @@ export class SupabaseService {
     }
   }
 
+  isEligibleForRankingCategory(units: number, createdAt?: string): boolean {
+    if (units > 5) return true;
+    if (createdAt) {
+      const createdTime = new Date(createdAt).getTime();
+      if (!isNaN(createdTime)) {
+        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+        if (Date.now() - createdTime >= oneWeekMs) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   // ==========================================
   // DASHBOARD DE LA COMUNIDAD (HOME)
   // ==========================================
@@ -1554,8 +1582,13 @@ export class SupabaseService {
             total_users: rpcData.total_users ?? 0,
             completed_today: rpcData.completed_today ?? 0,
             user_rank: rpcData.user_rank ?? 1,
-            podium: rpcData.podium ?? [],
-            top_records: rpcData.top_records ?? [],
+            podium: (rpcData.podium ?? []).filter((p: any) => 
+              this.isEligibleForRankingCategory(Math.floor((p.focus_points || 0) / 40) || (p.focus_tomatoes || 0), p.created_at) || 
+              this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)
+            ),
+            top_records: (rpcData.top_records ?? []).filter((p: any) => 
+              this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)
+            ),
             recent_avatars: rpcData.recent_avatars ?? []
           },
           error: null
@@ -1567,7 +1600,7 @@ export class SupabaseService {
       
       const { data: profiles, error: profilesError } = await this.supabase
         .from('profiles')
-        .select('id, username, selected_avatar, selected_theme, is_premium, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, updated_at')
+        .select('id, username, selected_avatar, selected_theme, is_premium, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, created_at, updated_at')
         .order('focus_points', { ascending: false });
 
       if (profilesError) {
@@ -1591,12 +1624,15 @@ export class SupabaseService {
         }
       }
 
-      // Podio: Top 3 usuarios PREMIUM con actividad
-      const podium = premiumProfiles.filter(p => (p.focus_points || 0) > 0 || (p.focus_tomatoes || 0) > 0).slice(0, 3);
+      // Podio: Top 3 usuarios PREMIUM con actividad que hayan superado 5 unidades o 1 semana
+      const podium = premiumProfiles.filter(p => 
+        this.isEligibleForRankingCategory(Math.floor((p.focus_points || 0) / 40) || (p.focus_tomatoes || 0), p.created_at) || 
+        this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)
+      ).slice(0, 3);
 
-      // Top récords: Top 10 usuarios PREMIUM por focus_tomatoes
+      // Top récords: Top 10 usuarios PREMIUM por focus_tomatoes (> 5 o 1 semana)
       const topRecords = [...premiumProfiles]
-        .filter(p => (p.focus_tomatoes || 0) > 0)
+        .filter(p => this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at))
         .sort((a, b) => (b.focus_tomatoes || 0) - (a.focus_tomatoes || 0))
         .slice(0, 10);
 
@@ -1649,10 +1685,10 @@ export class SupabaseService {
               most_podiums: rpcData.records?.most_podiums || null
             },
             rankings: {
-              objectives: rpcData.rankings?.objectives || [],
-              pomodoros: rpcData.rankings?.pomodoros || [],
-              streaks: rpcData.rankings?.streaks || [],
-              boss: rpcData.rankings?.boss || []
+              objectives: (rpcData.rankings?.objectives || []).filter((p: any) => this.isEligibleForRankingCategory(p.focus_points ? Math.floor(p.focus_points / 40) : (p.focus_tomatoes || 0), p.created_at)),
+              pomodoros: (rpcData.rankings?.pomodoros || []).filter((p: any) => this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)),
+              streaks: (rpcData.rankings?.streaks || []).filter((p: any) => this.isEligibleForRankingCategory(p.streak_count || p.streak_days || 0, p.created_at)),
+              boss: (rpcData.rankings?.boss || []).filter((p: any) => this.isEligibleForRankingCategory(p.total_damage || 0, p.created_at))
             }
           },
           error: null
@@ -1670,6 +1706,8 @@ export class SupabaseService {
 
       // Solo usuarios premium compiten por récords y rankings
       const allProfiles = (profiles || []).filter(p => p.is_premium === true);
+      const profilesMap = new Map<string, any>();
+      (profiles || []).forEach(p => profilesMap.set(p.id, p));
 
       // A. Récords
       const sortedByStreak = [...allProfiles].sort((a, b) => 
@@ -1692,8 +1730,9 @@ export class SupabaseService {
       );
       const topPodiums = sortedByPodiums[0];
 
-      // B. Rankings
+      // B. Rankings filtrados por > 5 unidades en cada categoría o más de 1 semana desde registro
       const objectives = [...allProfiles]
+        .filter(p => this.isEligibleForRankingCategory(Math.floor((p.focus_points || 0) / 40) || (p.focus_tomatoes || 0), p.created_at))
         .sort((a, b) => (b.focus_points || 0) - (a.focus_points || 0))
         .slice(0, 10)
         .map(p => ({
@@ -1704,10 +1743,12 @@ export class SupabaseService {
           focus_points: p.focus_points || 0,
           focus_tomatoes: p.focus_tomatoes || 0,
           podium_wins: p.podium_wins || 0,
-          streak_days: p.streak_days || 0
+          streak_days: p.streak_days || 0,
+          created_at: p.created_at
         }));
 
       const pomodoros = [...allProfiles]
+        .filter(p => this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at))
         .sort((a, b) => (b.focus_tomatoes || 0) - (a.focus_tomatoes || 0))
         .slice(0, 10)
         .map(p => ({
@@ -1717,10 +1758,12 @@ export class SupabaseService {
           country_code: (p.country_code || 'mx').toLowerCase(),
           focus_tomatoes: p.focus_tomatoes || 0,
           focus_points: p.focus_points || 0,
-          streak_days: p.streak_days || 0
+          streak_days: p.streak_days || 0,
+          created_at: p.created_at
         }));
 
       const streaks = [...allProfiles]
+        .filter(p => this.isEligibleForRankingCategory(Math.max(p.longest_streak || 0, p.streak_days || 0), p.created_at))
         .sort((a, b) => Math.max(b.longest_streak || 0, b.streak_days || 0) - Math.max(a.longest_streak || 0, a.streak_days || 0))
         .slice(0, 10)
         .map(p => ({
@@ -1729,7 +1772,8 @@ export class SupabaseService {
           selected_avatar: p.selected_avatar || 'gato',
           country_code: (p.country_code || 'mx').toLowerCase(),
           streak_count: Math.max(p.longest_streak || 0, p.streak_days || 0),
-          streak_days: p.streak_days || 0
+          streak_days: p.streak_days || 0,
+          created_at: p.created_at
         }));
 
       // C. Boss damage ranking
@@ -1755,6 +1799,14 @@ export class SupabaseService {
       });
 
       const bossRanking: MedalleroRankingBossItem[] = Array.from(bossDamageMap.values())
+        .map(b => {
+          const prof = profilesMap.get(b.id);
+          return {
+            ...b,
+            created_at: prof?.created_at
+          };
+        })
+        .filter(b => this.isEligibleForRankingCategory(b.total_damage, b.created_at))
         .sort((a, b) => b.total_damage - a.total_damage)
         .slice(0, 10)
         .map(b => ({
@@ -1762,7 +1814,8 @@ export class SupabaseService {
           username: b.username,
           selected_avatar: b.selected_avatar,
           country_code: 'mx',
-          total_damage: b.total_damage
+          total_damage: b.total_damage,
+          created_at: b.created_at
         }));
 
       return {
@@ -1829,8 +1882,18 @@ export class SupabaseService {
         return { data: null, error: 'No autenticado' };
       }
 
+      const clientTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const clientDate = `${year}-${month}-${day}`;
+
       // 1. Intentar llamar al RPC get_user_focus_statistics
-      const { data: rpcData, error: rpcError } = await this.supabase.rpc('get_user_focus_statistics');
+      const { data: rpcData, error: rpcError } = await this.supabase.rpc('get_user_focus_statistics', {
+        p_client_timezone: clientTz,
+        p_client_date: clientDate
+      });
       if (!rpcError && rpcData && rpcData.success) {
         return {
           data: {
@@ -1869,13 +1932,15 @@ export class SupabaseService {
       }
 
       const allSessions: FocusSessionData[] = sessions || [];
-      const now = new Date();
-      const todayISO = now.toISOString().split('T')[0];
 
-      // Hoy
+      // Hoy (filtrado por fecha local del cliente)
       const todaySessions = allSessions.filter(s => {
-        const dateStr = (s.completed_at || s.created_at || '').split('T')[0];
-        return dateStr === todayISO;
+        const d = new Date(s.completed_at || s.created_at || '');
+        const dYear = d.getFullYear();
+        const dMonth = String(d.getMonth() + 1).padStart(2, '0');
+        const dDay = String(d.getDate()).padStart(2, '0');
+        const dKey = `${dYear}-${dMonth}-${dDay}`;
+        return dKey === clientDate;
       });
 
       const todayAttempts: UserDailyAttempt[] = todaySessions.map(s => {
@@ -1897,11 +1962,9 @@ export class SupabaseService {
       const todayCompletedObjectives = todaySessions.filter(s => s.objective_completed === 'yes').length;
       const totalCompletedObjectives = allSessions.filter(s => s.objective_completed === 'yes').length;
 
-      // Semana actual (Lunes a Domingo)
+      // Semana actual (Lunes a Domingo según hora local)
       const dayOfWeek = (now.getDay() + 6) % 7; // 0=Lun ... 6=Dom
-      const monday = new Date(now);
-      monday.setDate(now.getDate() - dayOfWeek);
-      monday.setHours(0, 0, 0, 0);
+      const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek, 0, 0, 0, 0);
 
       const weeklyByDay = [0, 0, 0, 0, 0, 0, 0];
       const monthlyByDay: { [day: number]: number } = {};
@@ -1954,6 +2017,24 @@ export class SupabaseService {
       };
     } catch (e: any) {
       return { data: null, error: e.message || 'Error al obtener estadísticas de enfoque' };
+    }
+  }
+
+  // Recalcular racha histórica atómicamente en Supabase
+  async recalculateUserStreak(timezone?: string): Promise<{ success: boolean; result?: any; error?: string }> {
+    if (!this.isConfigured()) return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) return { success: false, error: 'No autenticado' };
+      const clientTz = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      const { data, error } = await this.supabase.rpc('recalculate_user_streak', {
+        p_user_id: user.id,
+        p_client_timezone: clientTz
+      });
+      if (error) return { success: false, error: error.message };
+      return { success: true, result: data };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error recalculando racha' };
     }
   }
 }

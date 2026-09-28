@@ -3,14 +3,14 @@
   <a (click)="onNavClick($event, '/home')" [routerLink]="membership.isFocusActive() ? null : '/home'" class="logo" [class.link-locked]="membership.isFocusActive()">
     <img class="logo-img" src="/assets/images/cofu_logo.jpg" alt="COFU Logo">
     <span class="logo-text">COFU</span>
-    <span *ngIf="membership.isFocusActive()" class="focus-lock-badge" title="Sesión de enfoque en curso: Navegación bloqueada hasta abandonar">
+    <span *ngIf="membership.isFocusActive()" class="focus-lock-badge" data-tooltip="Sesión de enfoque en curso: Navegación bloqueada hasta abandonar" data-tooltip-align="bottom">
       <i class="fa-solid fa-lock"></i>
       <span>ENFOQUE ACTIVO</span>
     </span>
   </a>
   
   <div class="nav" [class.nav-locked]="membership.isFocusActive()">
-    <a (click)="onNavClick($event, '/home')" [routerLink]="membership.isFocusActive() ? null : '/home'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()" title="Inicio"><span class="nav-dot"></span><i class="fa-solid fa-house"></i></a>
+    <a (click)="onNavClick($event, '/home')" [routerLink]="membership.isFocusActive() ? null : '/home'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()" data-tooltip="Inicio" data-tooltip-align="bottom"><span class="nav-dot"></span><i class="fa-solid fa-house"></i></a>
     <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
       <span class="nav-dot"></span>
       Concentrarme
@@ -22,7 +22,7 @@
     <a (click)="onNavClick($event, '/ideas')" [routerLink]="membership.isFocusActive() ? null : '/ideas'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
       Objetivos
-      <span *ngIf="membership.pendingCapturedIdeasCount() > 0" class="ideas-badge" title="Ideas y tareas pendientes">
+      <span *ngIf="membership.pendingCapturedIdeasCount() > 0" class="ideas-badge" data-tooltip="Ideas y tareas pendientes" data-tooltip-align="bottom">
         {{ membership.pendingCapturedIdeasCount() }}
       </span>
     </a>
@@ -69,7 +69,8 @@
          class="navbar-avatar-wrapper"
          [class.avatar-locked]="membership.isFocusActive()"
          [style.--avatar-color]="membership.getAvatarColorById(membership.selectedAvatar())"
-         [title]="membership.isFocusActive() ? 'Sesión de enfoque en curso' : 'Menú de perfil'">
+         [attr.data-tooltip]="membership.isFocusActive() ? 'Sesión de enfoque en curso' : 'Menú de perfil'"
+         data-tooltip-align="bottom-left">
       <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" class="navbar-avatar-img">
       </div>
       <div *ngIf="membership.isFocusActive()" class="avatar-lock-mini-icon">
@@ -120,7 +121,7 @@
     </div>
     <span class="nav-locked-toast-text">{{ lockedToastMessage() }}</span>
   </div>
-  <button class="nav-locked-toast-close" (click)="showLockedToast.set(false); $event.stopPropagation();" aria-label="Cerrar aviso" title="Cerrar aviso">
+  <button class="nav-locked-toast-close" (click)="showLockedToast.set(false); $event.stopPropagation();" aria-label="Cerrar aviso" data-tooltip="Cerrar aviso" data-tooltip-align="left">
     <i class="fa-solid fa-xmark"></i>
   </button>
 </div>

@@ -5929,46 +5929,61 @@
               <!-- MODAL DE CIERRE DOPAMÍNICO (CENTRALIZADO EN LA PANTALLA) -->
               <div *ngIf="arenaState() === 'summary'" class="summary-modal-backdrop">
                 <div class="summary-modal">
-                  <div class="summary-header">
-                    <span class="summary-header-label">Cierre Dopamínico</span>
-                    <h3 class="summary-question">¿Lograste completar tu objetivo?</h3>
-                    <p *ngIf="activeObjective() && activeObjective().trim()" class="summary-objective-text">
-                      "{{ activeObjective() }}"
-                    </p> 
-                  </div>
+                  
+                  <!-- CASO 1: CON OBJETIVO LIGADO -->
+                  <ng-container *ngIf="hasCustomObjective()">
+                    <div class="summary-header">
+                      <span class="summary-header-label">Cierre Dopamínico</span>
+                      <h3 class="summary-question">¿Lograste completar tu objetivo?</h3>
+                      <p class="summary-objective-text">
+                        "{{ activeObjective() }}"
+                      </p> 
+                    </div>
 
-                  <!-- Opciones de objetivo side-by-side (Tabs Horizontales) -->
-                  <div class="summary-options-container">
-                    <!-- Opción 1: Sí, por completo -->
-                    <button type="button"
-                            (click)="objectiveCompleted.set('yes')"
-                            [class.selected]="objectiveCompleted() === 'yes'"
-                            class="summary-choice-btn choice-yes">
-                      <i class="fa-solid fa-circle-check"></i>
-                      <span>Completado</span>
-                    </button>
+                    <!-- Opciones de objetivo side-by-side (Tabs Horizontales) -->
+                    <div class="summary-options-container">
+                      <!-- Opción 1: Sí, por completo -->
+                      <button type="button"
+                              (click)="objectiveCompleted.set('yes')"
+                              [class.selected]="objectiveCompleted() === 'yes'"
+                              class="summary-choice-btn choice-yes">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Completado</span>
+                      </button>
 
-                    <!-- Opción 2: Avancé bastante -->
-                    <button type="button"
-                            (click)="objectiveCompleted.set('progress')"
-                            [class.selected]="objectiveCompleted() === 'progress'"
-                            class="summary-choice-btn choice-progress">
-                      <i class="fa-solid fa-hourglass-half"></i>
-                      <span>Avanzado</span>
-                    </button>
+                      <!-- Opción 2: Avancé bastante -->
+                      <button type="button"
+                              (click)="objectiveCompleted.set('progress')"
+                              [class.selected]="objectiveCompleted() === 'progress'"
+                              class="summary-choice-btn choice-progress">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                        <span>Avanzado</span>
+                      </button>
 
-                    <!-- Opción 3: No lo logré -->
-                    <button type="button"
-                            (click)="objectiveCompleted.set('no')"
-                            [class.selected]="objectiveCompleted() === 'no'"
-                            class="summary-choice-btn choice-no">
-                      <i class="fa-solid fa-circle-xmark"></i>
-                      <span>No lo logré</span>
-                    </button>
-                  </div>
+                      <!-- Opción 3: No lo logré -->
+                      <button type="button"
+                              (click)="objectiveCompleted.set('no')"
+                              [class.selected]="objectiveCompleted() === 'no'"
+                              class="summary-choice-btn choice-no">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        <span>No lo logré</span>
+                      </button>
+                    </div>
+                  </ng-container>
+
+                  <!-- CASO 2: SIN OBJETIVO LIGADO (SOLO DESCANSO Y SALIR) -->
+                  <ng-container *ngIf="!hasCustomObjective()">
+                    <div class="summary-header">
+                      <span class="summary-header-label">Cierre Dopamínico</span>
+                      <h3 class="summary-question">¡Bloque completado con éxito!</h3>
+                      <p class="summary-objective-text" style="font-style: normal; color: var(--muted); max-width: none;">
+                        Has completado tu tiempo de enfoque.
+                      </p>
+                    </div>
+                  </ng-container>
 
                   <!-- Sección de Siguiente Actividad (Siempre visible para iniciar inmediatamente) -->
-                  <div class="summary-next-steps-container">
+                  <div class="summary-next-steps-container" [style.border-top]="hasCustomObjective() ? '1px solid var(--border)' : 'none'" [style.padding-top]="hasCustomObjective() ? '12px' : '4px'">
                     <span class="summary-section-title">Elige tu siguiente paso para iniciar:</span>
                     
                     <div class="summary-next-steps-wrapper">
@@ -6049,41 +6064,19 @@
           </div>
         </div>
 
-        <!-- Opciones de Batería -->
+        <!-- Opciones de Batería (3 Niveles: 10 min, 25 min, 45 min) -->
         <div class="energy-options-list">
-          <!-- Opción 1: Baja (10 min) - La Llama / Fogata -->
+          <!-- Opción 1: Baja (10 min) - GIF Gohan SSJ2 -->
           <button (click)="setEnergyLevel('low'); showEnergyModal.set(false)"
                   type="button"
                   class="energy-option-btn"
                   [style.background]="energyLevel() === 'low' ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255, 255, 255, 0.03)'"
                   [style.borderColor]="energyLevel() === 'low' ? '#ef4444' : 'rgba(255, 255, 255, 0.1)'">
             
-            <!-- Ilustración Animada de Fondo: La Llama / Fogata y Brasas -->
-            <div class="energy-card-backdrop energy-art-fire">
-              <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="energy-svg-art">
-                <defs>
-                  <radialGradient id="fireGlow10m" cx="70%" cy="60%" r="60%">
-                    <stop offset="0%" stop-color="#ff7a00" stop-opacity="0.45"/>
-                    <stop offset="60%" stop-color="#ef4444" stop-opacity="0.15"/>
-                    <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
-                  </radialGradient>
-                  <linearGradient id="flameGrad10m" x1="0" y1="1" x2="0" y2="0">
-                    <stop offset="0%" stop-color="#ef4444"/>
-                    <stop offset="50%" stop-color="#f97316"/>
-                    <stop offset="100%" stop-color="#fef08a"/>
-                  </linearGradient>
-                </defs>
-                <circle cx="115" cy="65" r="50" fill="url(#fireGlow10m)" class="anim-glow-pulse" />
-                <path d="M92 92 L138 68" stroke="#78350f" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
-                <path d="M92 68 L138 92" stroke="#451a03" stroke-width="4.5" stroke-linecap="round" opacity="0.7"/>
-                <path class="anim-flame-outer" d="M115 28 C125 45 138 55 135 76 C132 92 118 96 115 96 C106 96 95 90 95 76 C95 56 108 45 115 28 Z" fill="url(#flameGrad10m)" opacity="0.85"/>
-                <path class="anim-flame-inner" d="M115 46 C121 57 127 65 125 78 C123 88 116 90 115 90 C110 90 104 86 104 78 C104 65 111 57 115 46 Z" fill="#fef08a" opacity="0.95"/>
-                <circle cx="118" cy="40" r="2.2" fill="#fde047" class="anim-ember e1" />
-                <circle cx="106" cy="34" r="1.6" fill="#fb923c" class="anim-ember e2" />
-                <circle cx="126" cy="24" r="1.8" fill="#fef08a" class="anim-ember e3" />
-                <circle cx="112" cy="18" r="1.4" fill="#f97316" class="anim-ember e4" />
-                <circle cx="132" cy="48" r="1.2" fill="#fef08a" class="anim-ember e5" />
-              </svg>
+            <!-- Ilustración Animada de Fondo: GIF Gohan SSJ2 con Fundido Cinematográfico -->
+            <div class="energy-card-backdrop energy-art-gif-container">
+              <img src="assets/images/themes/Gohan_SSJ2.gif" alt="Gohan SSJ2" class="energy-dragon-gif energy-gohan-gif" />
+              <div class="energy-gif-electric-overlay"></div>
             </div>
 
             <div class="energy-option-content">
@@ -6091,13 +6084,13 @@
                 <span class="energy-option-dot" style="background: #ef4444; box-shadow: 0 0 8px #ef4444; margin-top: 5px;"></span>
                 <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
                   <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
-                    ¿Poca motivación? <strong>Arranque suave · 10 min</strong>
+                    ¿Poca motivación? <strong>Inicia con · 10 min</strong>
                   </span>
                   <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
-                    Construye tracción y vence la fricción inicial.
+                    ¡Explota tu potencial!
                   </span>
                   <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
-                    🪙 +2 monedas · Este tiempo no cuenta como Pomodoro
+                    🪙 +2 monedas · No suma Tomates ni Racha
                   </span>
                 </div>
               </div>
@@ -6154,8 +6147,8 @@
                   <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
                     El bloque estándar de enfoque y balance.
                   </span>
-                  <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
-                    🪙 Recompensas según tu avatar
+                  <span style="font-size: clamp(10px, 2.2vw, 11px); color: #fde047; font-weight: 700; margin-top: 1px;">
+                    🍅 +1 Tomate · Racha Diaria · 🪙 Recompensas
                   </span>
                 </div>
               </div>
@@ -6212,8 +6205,8 @@
                   <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
                     Inmersión total sin interrupciones.
                   </span>
-                  <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
-                    🪙 Recompensas según tu avatar
+                  <span style="font-size: clamp(10px, 2.2vw, 11px); color: #6ee7b7; font-weight: 800; margin-top: 1px;">
+                    🍅🍅 +2 Tomates · Racha Diaria · 🪙 Recompensas
                   </span>
                 </div>
               </div>
@@ -6221,37 +6214,6 @@
             </div>
           </button>
         </div>
-
-        <!-- Reto de 5 min micro-bloque: Despierta tu Dragón & Explota tu Potencial (Romper la inercia) -->
-        <button (click)="startFreeExit5MinChallenge(); showEnergyModal.set(false)"
-                type="button"
-                class="energy-challenge-btn"
-                title="¡Explota tu potencial! Arranca con solo 5 minutos para romper la inercia">
-          
-          <!-- Ilustración Animada de Fondo: GIF Gohan SSJ2 con Fundido Cinematográfico -->
-          <div class="energy-card-backdrop energy-art-gif-container">
-            <img src="assets/images/themes/Gohan_SSJ2.gif" alt="Gohan SSJ2" class="energy-dragon-gif energy-gohan-gif" />
-            <div class="energy-gif-electric-overlay"></div>
-          </div>
-
-          <div class="energy-challenge-content">
-            <div style="display: flex; align-items: flex-start; gap: 10px;">
-              <span style="font-size: 1.3em; line-height: 1.2; filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));">🔥</span>
-              <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
-                <span style="font-size: clamp(12.5px, 2.8vw, 14px); font-weight: 800; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.95);">
-                  ¡Explota tu potencial!
-                </span>
-                <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.92); font-weight: 500; text-shadow: 0 2px 6px rgba(0,0,0,0.95);">
-                  Arranca con solo <strong style="color: #fbbf24;">5 min</strong> para romper la inercia.
-                </span>
-                <span style="font-size: clamp(10px, 2.2vw, 11px); color: #cbd5e1; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,0.95);">
-                  🪙 +1 moneda · Sin presión
-                </span>
-              </div>
-            </div>
-            <i class="fa-solid fa-chevron-right" style="color: #f59e0b; font-size: 13px; flex-shrink: 0; align-self: center; filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.7));"></i>
-          </div>
-        </button>
 
       </div>
     </div>
@@ -6713,6 +6675,26 @@
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Alerta informativa: Regla de Tomates (Pomodoros >= 25 min) -->
+            <div *ngIf="focusDuration() < 25" style="display: flex; align-items: flex-start; gap: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 10px; padding: 10px 14px; margin-top: 4px;">
+              <i class="fa-solid fa-triangle-exclamation" style="color: #f87171; font-size: 14px; margin-top: 2px; flex-shrink: 0;"></i>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 12px; font-weight: 800; color: #fca5a5;">
+                  Sesión corta (&lt; 25 min): No suma Tomates ni Racha
+                </span>
+                <span style="font-size: 11.5px; color: #cbd5e1; line-height: 1.4;">
+                  Tu tiempo de concentración se guardará íntegro en estadísticas y total acumulado, pero los bloques menores a <strong>25 min</strong> no otorgan <strong>Tomates (🍅)</strong> ni incrementan tu <strong>racha diaria</strong>.
+                </span>
+              </div>
+            </div>
+
+            <div *ngIf="focusDuration() >= 25" style="display: flex; align-items: center; gap: 10px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 10px; padding: 9px 14px; margin-top: 4px;">
+              <span style="font-size: 15px; flex-shrink: 0;">🍅</span>
+              <span style="font-size: 11.5px; color: #cbd5e1; line-height: 1.4;">
+                <strong style="color: #6ee7b7;">Bloque de concentración ({{ focusDuration() }} min):</strong> Otorga <strong style="color: #fff;">{{ getTomatoesForDuration(focusDuration()) }} {{ getTomatoesForDuration(focusDuration()) === 1 ? 'Tomate (🍅)' : 'Tomates (🍅)' }}</strong> y cuenta para tu racha diaria al completarlo.
+              </span>
             </div>
           </div>
 
