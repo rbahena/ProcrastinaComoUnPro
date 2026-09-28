@@ -39,6 +39,15 @@ export interface ComunidadAvatar {
   hasEvolution?: boolean;
 }
 
+export interface AvatarCategoryGroup {
+  type: string;
+  name: string;
+  badge: string;
+  icon: string;
+  color: string;
+  avatars: ComunidadAvatar[];
+}
+
 interface CountryOption {
   name: string;
   code: string;
@@ -149,7 +158,7 @@ interface CountryOption {
                       <strong class="active-days-value">{{ membership.getActiveDaysSummary() }}</strong>
                     </span>
 
-                    <span class="last-focus-date-chip" [title]="membership.lastFocusDate() ? ('Fecha de último pomodoro: ' + formatLastFocusDate(membership.lastFocusDate())) : 'Aún no has completado un pomodoro de 25 min'">
+                    <span class="last-focus-date-chip" [title]="membership.lastFocusDate() ? ('Fecha de último pomodoro: ' + formatLastFocusDate(membership.lastFocusDate())) : 'Sin pomodoros aún'">
                       <i class="fa-regular fa-clock"></i>
                       <span>{{ getFormattedLastFocusText() }}</span>
                     </span>
@@ -235,61 +244,69 @@ interface CountryOption {
               </div>
             </div>
 
-            <!-- GRID DE CARTAS DE AVATARES -->
-            <div class="avatars-grid-container">
-              <div 
-                *ngFor="let avatar of visibleAvatars()"
-                (click)="selectAvatar(avatar)"
-                class="vertical-hero-card"
-                [class.is-active]="inspectedAvatar().id === avatar.id"
-                [class.is-equipped]="membership.selectedAvatar() === avatar.id"
-                [class.is-locked]="!avatar.isUnlocked"
-                [style.--card-theme]="avatar.color"
-              >
-                <!-- AURA DE FONDO -->
-                <div class="hero-card-glow" [style.background]="'radial-gradient(circle at 50% 30%, ' + avatar.color + '55 0%, transparent 75%)'"></div>
-                
-                <!-- BADGES SUPERIORES -->
-                <div class="hero-card-top-badges">
-                  <span class="card-tier-pill" [class]="'tier-' + avatar.tier.toLowerCase()">
-                    ★ {{ avatar.tier }}
-                  </span>
-                  <span class="card-evo-badge" *ngIf="avatar.hasEvolution">🧬 EVO</span>
-                  
-                  <span class="card-state-pill" *ngIf="membership.selectedAvatar() === avatar.id" title="Activo">
-                    <i class="fa-solid fa-shield-check"></i>
-                  </span>
-                  <span class="card-state-pill is-lock" *ngIf="!avatar.isUnlocked" title="Bloqueado">
-                    <i class="fa-solid fa-lock"></i>
-                  </span>
+            <!-- GRID DE CARTAS DE AVATARES CON SEPARADOR POR CATEGORÍA -->
+            <div class="avatars-catalog-scrollable">
+              <div *ngFor="let group of groupedAvatars()" class="avatar-category-section">
+                <!-- CABECERA DIFERENCIADORA DE CATEGORÍA -->
+                <div class="avatar-category-divider">
+                  <div class="category-divider-line"></div>
+                  <div class="category-divider-badge" [style.--group-color]="group.color">
+                    <i [class]="group.icon"></i>
+                    <span class="category-divider-title">{{ group.name }}</span>
+                    <span class="category-divider-count">({{ group.avatars.length }})</span>
+                  </div>
+                  <div class="category-divider-line"></div>
                 </div>
 
-                <!-- SPRITE DEL PERSONAJE DENTRO DE LA CARTA (EN B&N Y CON CANDADO SI ESTÁ BLOQUEADO) -->
-                <div class="hero-card-artwork-frame">
-                  <div [class]="'avatar-sprite hero-card-sprite sprite-' + avatar.id" [class.is-locked-sprite]="!avatar.isUnlocked"></div>
-                  <div *ngIf="!avatar.isUnlocked" class="hero-card-locked-overlay">
-                    <div class="locked-watermark-container">
-                      <i class="fa-solid fa-lock"></i>
+                <!-- GRID DE CARTAS DE LA CATEGORÍA -->
+                <div class="avatars-grid-container">
+                  <div 
+                    *ngFor="let avatar of group.avatars"
+                    (click)="selectAvatar(avatar)"
+                    class="vertical-hero-card"
+                    [class.is-active]="inspectedAvatar().id === avatar.id"
+                    [class.is-equipped]="membership.selectedAvatar() === avatar.id"
+                    [class.is-locked]="!avatar.isUnlocked"
+                    [style.--card-theme]="avatar.color"
+                  >
+                    <!-- AURA DE FONDO -->
+                    <div class="hero-card-glow" [style.background]="'radial-gradient(circle at 50% 30%, ' + avatar.color + '55 0%, transparent 75%)'"></div>
+                    
+                    <!-- BADGES SUPERIORES -->
+                    <div class="hero-card-top-badges">
+                      <span class="card-tier-pill" [class]="'tier-' + avatar.tier.toLowerCase()">
+                        ★ {{ avatar.tier }}
+                      </span>
+                      <span class="card-evo-badge" *ngIf="avatar.hasEvolution">🧬 EVO</span>
+                      
+                      <span class="card-state-pill" *ngIf="membership.selectedAvatar() === avatar.id" title="Activo">
+                        <i class="fa-solid fa-shield-check"></i>
+                      </span>
                     </div>
+
+                    <!-- SPRITE DEL PERSONAJE DENTRO DE LA CARTA (EN B&N / SIN COLOR) -->
+                    <div class="hero-card-artwork-frame">
+                      <div [class]="'avatar-sprite hero-card-sprite sprite-' + avatar.id" [class.is-locked-sprite]="!avatar.isUnlocked"></div>
+                    </div>
+
+                    <!-- OVERLAY INFERIOR CON NOMBRE Y STATUS -->
+                    <div class="hero-card-footer-glass">
+                      <h4 class="hero-card-name">{{ avatar.name }}</h4>
+                      
+                      <div class="hero-card-status-strip">
+                        <span *ngIf="membership.selectedAvatar() === avatar.id" class="status-active">ACTIVO EN PERFIL</span>
+                        <span *ngIf="membership.selectedAvatar() !== avatar.id && avatar.isUnlocked" class="status-squad">EN TU ESCUADRA</span>
+                        <span *ngIf="!avatar.isUnlocked" class="status-locked">BLOQUEADO</span>
+                      </div>
+                    </div>
+
+                    <!-- INDICADOR SELECCIONADO -->
+                    <div class="active-card-indicator" *ngIf="inspectedAvatar().id === avatar.id">
+                      <div class="indicator-glow-dot"></div>
+                    </div>
+
                   </div>
                 </div>
-
-                <!-- OVERLAY INFERIOR CON NOMBRE Y STATUS -->
-                <div class="hero-card-footer-glass">
-                  <h4 class="hero-card-name">{{ avatar.name }}</h4>
-                  
-                  <div class="hero-card-status-strip">
-                    <span *ngIf="membership.selectedAvatar() === avatar.id" class="status-active">ACTIVO EN PERFIL</span>
-                    <span *ngIf="membership.selectedAvatar() !== avatar.id && avatar.isUnlocked" class="status-squad">EN TU ESCUADRA</span>
-                    <span *ngIf="!avatar.isUnlocked" class="status-locked">BLOQUEADO</span>
-                  </div>
-                </div>
-
-                <!-- INDICADOR SELECCIONADO -->
-                <div class="active-card-indicator" *ngIf="inspectedAvatar().id === avatar.id">
-                  <div class="indicator-glow-dot"></div>
-                </div>
-
               </div>
             </div>
 
@@ -326,17 +343,14 @@ interface CountryOption {
                 <!-- AVATAR PORTRAIT GIGANTE DESTACADO EN EL DETALLE CON HOVER ZOOM -->
                 <div class="hero-showcase-wrapper">
                   <div class="hero-portrait-frame" 
-                       (mousemove)="onPortraitMouseMove($event)"
-                       (mouseleave)="onPortraitMouseLeave()"
+                       (mousemove)="inspectedAvatar().isUnlocked ? onPortraitMouseMove($event) : null"
+                       (mouseleave)="inspectedAvatar().isUnlocked ? onPortraitMouseLeave() : null"
                        [class.is-locked-dock]="!inspectedAvatar().isUnlocked"
                        [style.border-color]="inspectedAvatar().isUnlocked ? inspectedAvatar().color : 'rgba(255,255,255,0.18)'"
                        [style.box-shadow]="'0 18px 44px rgba(0, 0, 0, 0.7), 0 0 40px ' + (inspectedAvatar().isUnlocked ? inspectedAvatar().color : '#64748b') + '55'">
                     <div [class]="'avatar-sprite hero-portrait-sprite sprite-' + inspectedAvatar().id" 
                          [style.transform-origin]="portraitZoomOrigin()"
                          [class.is-locked-sprite]="!inspectedAvatar().isUnlocked"></div>
-                    <div *ngIf="!inspectedAvatar().isUnlocked" class="hero-portrait-locked-overlay">
-                      <i class="fa-solid fa-lock"></i>
-                    </div>
                   </div>
                 </div>
 
@@ -351,7 +365,64 @@ interface CountryOption {
                 </div>
               </div>
 
-              <!-- 2. MÉTRICAS DE ENFOQUE Y COMBATE -->
+              <!-- 2. SECCIÓN: ¿CÓMO CONSIGO ESTE AVATAR? -->
+              <div class="how-to-get-section">
+                <div class="how-to-get-header">
+                  <div class="how-to-get-title-group">
+                    <i class="fa-solid fa-circle-question text-cyan"></i>
+                    <span class="how-to-get-heading">¿Cómo consigo este avatar?</span>
+                  </div>
+                </div>
+
+                <div class="how-to-get-card" [class.is-card-unlocked]="inspectedAvatar().isUnlocked">
+                  <div class="how-to-get-body">
+                    <div class="how-to-get-header-line">
+                      <i [class]="getHowToGetIcon(inspectedAvatar())" [style.color]="inspectedAvatar().color || 'var(--accent, #00f2fe)'"></i>
+                      <span class="how-to-get-type-tag">{{ getHowToGetMethodTag(inspectedAvatar()) }}</span>
+                    </div>
+                    <div class="how-to-get-main-title">{{ getHowToGetTitle(inspectedAvatar()) }}</div>
+                    <p class="how-to-get-text">{{ getHowToGetDescription(inspectedAvatar()) }}</p>
+
+                    <!-- Barra de progreso si es de cualidad y está bloqueado -->
+                    <div *ngIf="inspectedAvatar().qualityId && !inspectedAvatar().isUnlocked" class="how-to-get-progress-wrap">
+                      <div class="how-to-get-progress-labels">
+                        <span>Progreso hacia el desbloqueo</span>
+                        <strong>{{ getUnlockProgressCurrent(inspectedAvatar()) }} / {{ getUnlockProgressTotal(inspectedAvatar()) }}</strong>
+                      </div>
+                      <div class="how-to-get-progress-track">
+                        <div 
+                          class="how-to-get-progress-bar"
+                          [style.width.%]="getUnlockPercent(inspectedAvatar())"
+                          [style.background]="inspectedAvatar().color || 'var(--accent, #00f2fe)'"
+                        ></div>
+                      </div>
+                    </div>
+
+                    <!-- Indicador de monedas si es de tienda y está bloqueado -->
+                    <div *ngIf="!inspectedAvatar().isUnlocked && !inspectedAvatar().qualityId && inspectedAvatar().cost > 0" class="how-to-get-coins-summary">
+                      <div class="coins-summary-chip">
+                        <i class="fa-solid fa-coins text-yellow"></i>
+                        <span>Precio: <strong>{{ inspectedAvatar().cost }} Pro Coins</strong></span>
+                      </div>
+                      <div 
+                        class="coins-summary-balance"
+                        [class.has-enough]="membership.proCoins() >= inspectedAvatar().cost"
+                      >
+                        <i [class]="membership.proCoins() >= inspectedAvatar().cost ? 'fa-solid fa-circle-check text-green' : 'fa-solid fa-circle-xmark text-red'"></i>
+                        <span>Tu balance: {{ membership.proCoins() }} 🪙 {{ membership.proCoins() >= inspectedAvatar().cost ? '(¡Puedes canjearlo!)' : '(Insuficiente)' }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Banner si ya está desbloqueado -->
+                    <div *ngIf="inspectedAvatar().isUnlocked" class="how-to-get-unlocked-banner">
+                      <i class="fa-solid fa-circle-check text-green"></i>
+                      <span>¡Ya tienes este guardián en tu colección! Puedes elegirlo cuando quieras.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. MÉTRICAS DE ENFOQUE Y COMBATE -->
               <div class="detail-section">
                 <div class="section-title-bar">
                   <span class="section-title">Rendimiento por Sesión</span>
@@ -399,7 +470,7 @@ interface CountryOption {
                 </div>
               </div>
 
-              <!-- 3. HABILIDADES Y ESTRATEGIA -->
+              <!-- 4. HABILIDADES Y ESTRATEGIA -->
               <div class="detail-section">
                 <div class="section-title-bar">
                   <span class="section-title">Habilidades y Técnicas</span>
@@ -427,21 +498,6 @@ interface CountryOption {
                 </div>
               </div>
 
-              <!-- 4. REQUISITO DE DESBLOQUEO (SI ESTÁ BLOQUEADO) -->
-              <div class="clean-unlock-notice" *ngIf="!inspectedAvatar().isUnlocked">
-                <div class="unlock-notice-icon">
-                  <i [class]="inspectedAvatar().qualityId ? 'fa-solid fa-scroll' : 'fa-solid fa-store'"></i>
-                </div>
-                <div class="unlock-notice-info">
-                  <div class="unlock-notice-title">
-                    {{ inspectedAvatar().qualityId ? 'Cualidad Requerida: ' + (inspectedAvatar().displayName || inspectedAvatar().qualityName) : 'Desbloqueo en Tienda' }}
-                  </div>
-                  <div class="unlock-notice-desc">
-                    {{ inspectedAvatar().displayReq || ('Canjea este guardián por ' + inspectedAvatar().cost + ' Pro Coins 🪙') }}
-                  </div>
-                </div>
-              </div>
-
               <!-- 5. ACCIONES PRINCIPALES -->
               <div class="detail-actions-dock">
                 <button 
@@ -457,7 +513,7 @@ interface CountryOption {
                   (click)="equipAvatar(inspectedAvatar())" 
                   class="btn-clean-cta is-equip-btn"
                 >
-                  <i class="fa-solid fa-paw"></i> Equipar a {{ inspectedAvatar().name }}
+                  <i class="fa-solid fa-paw"></i> Elegir a {{ inspectedAvatar().name }}
                   <i class="fa-solid fa-arrow-right"></i>
                 </button>
 
@@ -1202,23 +1258,79 @@ interface CountryOption {
       box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
     }
 
-    /* CONTENEDOR DE LA CUADRÍCULA */
+    /* CONTENEDOR CON SCROLL DE CATEGORÍAS */
+    .avatars-catalog-scrollable {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      max-height: 720px;
+      overflow-y: auto;
+      padding: 4px 6px 12px 2px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+    .avatars-catalog-scrollable::-webkit-scrollbar {
+      width: 4px;
+    }
+    .avatars-catalog-scrollable::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 10px;
+    }
+
+    .avatar-category-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .avatar-category-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0 2px;
+      user-select: none;
+    }
+    .category-divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    }
+    .category-divider-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 3px 12px;
+      background: rgba(15, 20, 32, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      color: var(--group-color, #fff);
+      text-transform: uppercase;
+      font-family: 'Space Grotesk', sans-serif;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+    }
+    .category-divider-badge i {
+      font-size: 11px;
+      color: var(--group-color, var(--accent));
+    }
+    .category-divider-title {
+      color: #f1f5f9;
+    }
+    .category-divider-count {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    /* CONTENEDOR DE LA CUADRÍCULA DE CADA CATEGORÍA */
     .avatars-grid-container {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
       gap: 10px;
-      max-height: 720px;
-      overflow-y: auto;
-      padding: 4px 4px 12px 2px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
-    }
-    .avatars-grid-container::-webkit-scrollbar {
-      width: 4px;
-    }
-    .avatars-grid-container::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.18);
-      border-radius: 10px;
+      padding: 2px 2px 4px 2px;
     }
 
     /* TARJETA VERTICAL HERO DENTRO DE LA CUADRÍCULA */
@@ -1257,48 +1369,13 @@ interface CountryOption {
       border-color: rgba(255, 255, 255, 0.2);
     }
     .avatar-sprite.is-locked-sprite {
-      opacity: 0.85;
+      opacity: 0.9;
+      filter: grayscale(100%);
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
     .vertical-hero-card:hover .avatar-sprite.is-locked-sprite {
       opacity: 1;
       transform: scale(1.06);
-    }
-
-    .hero-card-locked-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 3;
-    }
-    .locked-watermark-container {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: radial-gradient(circle at center, rgba(15, 20, 32, 0.85) 0%, rgba(8, 11, 18, 0.95) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
-      transition: transform 0.3s ease, border-color 0.3s ease;
-    }
-    .vertical-hero-card:hover .locked-watermark-container {
-      transform: scale(1.15);
-      border-color: rgba(255, 255, 255, 0.45);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
-    }
-    .locked-watermark-container i {
-      font-size: 9px;
-      color: rgba(255, 255, 255, 0.8);
-      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
-      transition: color 0.3s ease;
-    }
-    .vertical-hero-card:hover .locked-watermark-container i {
-      color: #ffffff;
     }
 
     .hero-card-glow {
@@ -1582,24 +1659,20 @@ interface CountryOption {
       transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
       transform-origin: center center;
     }
-    .hero-portrait-frame:hover .hero-portrait-sprite {
-      transform: scale(1.4);
+    .hero-portrait-frame.is-locked-dock {
+      cursor: default;
+      background: radial-gradient(circle at center, rgba(16, 22, 36, 0.95) 0%, #080b12 100%);
     }
-    .hero-portrait-locked-overlay {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: radial-gradient(circle at center, rgba(15, 20, 32, 0.95) 0%, rgba(8, 11, 18, 0.98) 100%);
-      border: 2.5px solid rgba(255, 255, 255, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      font-size: 20px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.9);
+    .hero-portrait-frame.is-locked-dock:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    .hero-portrait-frame.is-locked-dock:hover .hero-portrait-sprite {
+      transform: none !important;
+    }
+    .hero-portrait-frame.is-locked-dock .hero-portrait-sprite {
+      filter: grayscale(100%) brightness(0.8) contrast(1.1);
+      opacity: 0.88;
+      transform: none;
     }
 
     .hero-identity-body {
@@ -1805,37 +1878,165 @@ interface CountryOption {
       margin: 0;
     }
 
-    /* 4. REQUISITO DE DESBLOQUEO */
-    .clean-unlock-notice {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .unlock-notice-icon {
-      font-size: 16px;
-      color: #fbbf24;
-      flex-shrink: 0;
-    }
-    .unlock-notice-info {
+    /* 4. SECCIÓN: ¿CÓMO CONSIGO ESTE AVATAR? */
+    .how-to-get-section {
       display: flex;
       flex-direction: column;
-      gap: 1px;
+      gap: 8px;
     }
-    .unlock-notice-title {
-      font-size: 11px;
+    .how-to-get-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2px;
+    }
+    .how-to-get-title-group {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .how-to-get-title-group i {
+      font-size: 13px;
+    }
+    .how-to-get-heading {
+      font-size: 11.5px;
+      font-weight: 850;
+      color: #f1f5f9;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .how-to-get-status-badge {
+      font-size: 9px;
+      font-weight: 850;
+      padding: 2.5px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .how-to-get-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.25s ease;
+    }
+    .how-to-get-card:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.035);
+    }
+    .how-to-get-body {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+    .how-to-get-header-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .how-to-get-header-line i {
+      font-size: 10px;
+    }
+    .how-to-get-type-tag {
+      font-size: 8.5px;
       font-weight: 800;
-      color: #fbbf24;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 1.5px 6px;
+      border-radius: 4px;
       text-transform: uppercase;
       letter-spacing: 0.3px;
     }
-    .unlock-notice-desc {
+    .how-to-get-main-title {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .how-to-get-text {
       font-size: 11px;
-      color: #cbd5e1;
-      line-height: 1.35;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin: 0;
+    }
+    .how-to-get-progress-wrap {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .how-to-get-progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9.5px;
+      color: #94a3b8;
+    }
+    .how-to-get-progress-labels strong {
+      color: #f1f5f9;
+      font-weight: 800;
+    }
+    .how-to-get-progress-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .how-to-get-progress-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+    .how-to-get-coins-summary {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+    }
+    .coins-summary-chip {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 700;
+    }
+    .coins-summary-balance {
+      font-size: 10px;
+      color: #94a3b8;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+    }
+    .coins-summary-balance.has-enough {
+      color: #34d399;
+    }
+    .how-to-get-unlocked-banner {
+      margin-top: 4px;
+      font-size: 10.5px;
+      color: #34d399;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
     }
 
     /* 5. BOTÓN DE ACCIÓN */
@@ -2232,7 +2433,7 @@ export class Cualidades implements OnInit {
 
     if (dynamicCatalog && dynamicCatalog.length > 0) {
       dynamicList = dynamicCatalog
-        .filter(item => item.category === 'avatar')
+        .filter(item => item.category === 'avatar' && item.id !== 'tortuga_evolved')
         .map(item => {
           const type: 'inicial' | 'cualidad' | 'especial' | 'legendario' = 
             item.is_initial ? 'inicial' :
@@ -2267,7 +2468,7 @@ export class Cualidades implements OnInit {
             qualityId: item.required_quality_id || null,
             qualityName: item.quality_name?.[lang] || item.quality_name?.['es'] || undefined,
             qualityReq: item.quality_req?.[lang] || item.quality_req?.['es'] || undefined,
-            unlockTotal: item.required_quality_id === 'constancia' ? (item.id === 'tortuga_phase3' ? 75 : (item.id === 'tortuga_evolved' ? 30 : 7)) :
+            unlockTotal: item.required_quality_id === 'constancia' ? (item.id === 'tortuga_phase3' ? 75 : 7) :
                          (item.required_quality_id === 'disciplina' ? 15 : 5),
             hasEvolution: item.has_evolution
           };
@@ -2285,7 +2486,7 @@ export class Cualidades implements OnInit {
         const total = item.unlockTotal || quality.unlockTotal || 0;
         let progress = quality.unlockProgress || 0;
 
-        if (item.id === 'tortuga_evolved' || item.id === 'tortuga_phase3') {
+        if (item.id === 'tortuga_phase3') {
           progress = this.membership.getTotalCompletedPomodoros();
         }
 
@@ -2347,6 +2548,31 @@ export class Cualidades implements OnInit {
     return list.filter(a => a.type === cat);
   });
 
+  groupedAvatars = computed<AvatarCategoryGroup[]>(() => {
+    const cat = this.selectedCategory();
+    const all = this.allAvatars();
+    const pool = cat === 'desbloqueados' ? all.filter(a => a.isUnlocked) : (cat === 'todos' ? all : all.filter(a => a.type === cat));
+
+    const categoryMeta: { type: string; name: string; badge: string; icon: string; color: string }[] = [
+      { type: 'inicial', name: 'Comunes (Iniciales)', badge: 'Comunes', icon: 'fa-solid fa-shield-cat', color: '#94a3b8' },
+      { type: 'cualidad', name: 'Retos de Cualidad', badge: 'Retos', icon: 'fa-solid fa-award', color: '#10b981' },
+      { type: 'especial', name: 'Cazadores Especiales', badge: 'Cazadores', icon: 'fa-solid fa-paw', color: '#f59e0b' },
+      { type: 'legendario', name: 'Guardianes Legendarios', badge: 'Legendarios', icon: 'fa-solid fa-dragon', color: '#fbbf24' }
+    ];
+
+    const groups: AvatarCategoryGroup[] = [];
+    for (const meta of categoryMeta) {
+      const groupAvatars = pool.filter(a => a.type === meta.type);
+      if (groupAvatars.length > 0) {
+        groups.push({
+          ...meta,
+          avatars: groupAvatars
+        });
+      }
+    }
+    return groups;
+  });
+
   userLevel = computed(() => {
     const pomodoros = this.membership.focusTomatoes();
     return Math.floor(pomodoros / 4) + 1;
@@ -2398,7 +2624,7 @@ export class Cualidades implements OnInit {
   equipAvatar(avatar: ComunidadAvatar) {
     if (avatar.isUnlocked) {
       this.membership.equipAvatar(avatar.id);
-      this.showToast(`¡${avatar.name} equipado como tu guardián activo!`);
+      this.showToast(`¡Has elegido a ${avatar.name} como tu guardián activo!`);
     }
   }
 
@@ -2416,6 +2642,74 @@ export class Cualidades implements OnInit {
     return Math.round((this.getUnlockedAvatarsCount() / total) * 100);
   }
 
+  getHowToGetIcon(avatar?: ComunidadAvatar): string {
+    if (!avatar || !avatar.id) return 'fa-solid fa-circle-question';
+    if (avatar.type === 'inicial') return 'fa-solid fa-gift';
+    if (avatar.qualityId) return 'fa-solid fa-award';
+    if (avatar.type === 'legendario') return 'fa-solid fa-crown';
+    return 'fa-solid fa-coins';
+  }
+
+  getHowToGetMethodTag(avatar?: ComunidadAvatar): string {
+    if (!avatar || !avatar.id) return 'Requisito de Obtención';
+    if (avatar.type === 'inicial') return 'Avatar Inicial Gratuito';
+    if (avatar.qualityId) {
+      const qName = avatar.displayName || avatar.qualityName || (avatar.quality?.name) || 'Cualidad';
+      return `Reto de Cualidad: ${qName}`;
+    }
+    if (avatar.type === 'legendario') return 'Guardián Legendario';
+    return 'Tienda de Recompensas';
+  }
+
+  getHowToGetTitle(avatar?: ComunidadAvatar): string {
+    if (!avatar || !avatar.id) return 'Obtención del Guardián';
+    if (avatar.type === 'inicial') return 'Disponible desde el inicio';
+    if (avatar.qualityId) {
+      const qName = avatar.displayName || avatar.qualityName || (avatar.quality?.name) || 'Cualidad';
+      return `Demuestra la cualidad de ${qName}`;
+    }
+    if (avatar.cost > 0) return `Canje por ${avatar.cost} Pro Coins 🪙`;
+    return 'Recompensa de Productividad';
+  }
+
+  getHowToGetDescription(avatar?: ComunidadAvatar): string {
+    if (!avatar || !avatar.id) return '';
+    if (avatar.type === 'inicial') {
+      return 'Este guardián se te otorga automáticamente al unirte a la comunidad. ¡Está desbloqueado y listo para acompañarte!';
+    }
+    if (avatar.qualityId) {
+      if (avatar.displayReq) return avatar.displayReq;
+      if (avatar.quality?.unlockRequirement) return avatar.quality.unlockRequirement;
+      const qName = avatar.displayName || avatar.qualityName || 'cualidad';
+      return `Completa sesiones de enfoque continuas para demostrar tu ${qName} y desbloquear este guardián.`;
+    }
+    if (avatar.cost > 0) {
+      return `Acumula Pro Coins completando bloques Pomodoro de 25 minutos sin pausas ni distracciones. ¡Canjéalo cuando alcances las monedas requeridas!`;
+    }
+    return 'Completa tus metas de productividad diaria para desbloquear este avatar.';
+  }
+
+  getUnlockProgressCurrent(avatar?: ComunidadAvatar): number {
+    if (!avatar || !avatar.qualityId) return 0;
+    if (avatar.id === 'tortuga_phase3') {
+      return this.membership.getTotalCompletedPomodoros();
+    }
+    return avatar.quality?.unlockProgress || 0;
+  }
+
+  getUnlockProgressTotal(avatar?: ComunidadAvatar): number {
+    if (!avatar) return 1;
+    return avatar.unlockTotal || avatar.quality?.unlockTotal || 1;
+  }
+
+  getUnlockPercent(avatar?: ComunidadAvatar): number {
+    if (!avatar) return 0;
+    const total = this.getUnlockProgressTotal(avatar);
+    if (!total || total <= 0) return 0;
+    const cur = this.getUnlockProgressCurrent(avatar);
+    return Math.min(100, Math.max(0, Math.round((cur / total) * 100)));
+  }
+
   getCountryFlag(countryName: string): string {
     const raw = (countryName || '').trim();
     if (!raw) return '📍';
@@ -2429,7 +2723,7 @@ export class Cualidades implements OnInit {
 
   getFormattedLastFocusText(): string {
     const raw = this.membership.lastFocusDate();
-    if (!raw) return 'Sin pomodoros de 25 min';
+    if (!raw) return 'Sin pomodoros aún';
     
     const today = this.membership.getLocalDateKey(new Date());
     if (raw === today) return 'Último pomodoro realizado: Hoy';

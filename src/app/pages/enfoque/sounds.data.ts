@@ -80,6 +80,7 @@ export const BACKGROUND_SOUNDS: BackgroundSoundOption[] = [
 ];
 
 export const END_SESSION_SOUNDS: EndSessionSoundOption[] = [
+  { id: 'off', name: 'Silencio (Sin alarma)', file: '', icon: 'fa-volume-xmark' },
   { id: 'tone', name: 'Tone', file: 'f62b45bc.mp3', icon: 'fa-music' },
   { id: 'digital_watch', name: 'Digital Watch', file: 'be75f155.mp3', icon: 'fa-stopwatch' },
   { id: 'analog_alarm_clock', name: 'Analog Alarm Clock', file: '0f034826.mp3', icon: 'fa-clock' },

@@ -264,15 +264,15 @@ export class Enfoque implements OnInit, OnDestroy {
 
   // Alerta de Fin de Sesión Pomodoro
   endSessionSound = signal<string>(
-    this.membership.getFocusSetting('focus-end-sound', 'tone')
+    this.membership.getFocusSetting('focus-end-sound', 'off')
   );
 
   // Alerta de Fin de Descanso
   breakSoundEnabled = signal<boolean>(
-    this.membership.getFocusSetting('focus-break-sound-enabled', 'true') !== 'false'
+    this.membership.getFocusSetting('focus-break-sound-enabled', 'false') === 'true'
   );
   breakEndSound = signal<string>(
-    this.membership.getFocusSetting('focus-break-sound', 'electronic_chime')
+    this.membership.getFocusSetting('focus-break-sound', 'off')
   );
 
   // Sonido de fondo para Descanso Largo
@@ -280,7 +280,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.membership.getFocusSetting('focus-long-break-bg-sound', 'off')
   );
   longBreakEndSound = signal<string>(
-    this.membership.getFocusSetting('focus-long-break-sound', 'electronic_chime')
+    this.membership.getFocusSetting('focus-long-break-sound', 'off')
   );
 
   // Custom Select Dropdown UI States
@@ -478,7 +478,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   manuallyAbandoned = signal(false);
   interruptedByPause = signal(false);
-  soundEnabled = signal(true);  
+  soundEnabled = signal(this.membership.getFocusSetting('sound-enabled', 'false') === 'true');  
   soundType = signal<'zen' | 'digital' | 'chime'>('zen'); 
   coworkingMode = signal<'solo' | 'comunitario'>('comunitario');
   activeBackground = signal<FocusBackgroundType>(
@@ -2047,7 +2047,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.membership.getFocusSetting('motivation-notification-enabled', 'true') !== 'false'
   );
   abandonSoundEnabled = signal<boolean>(
-    this.membership.getFocusSetting('abandon-sound-enabled', 'true') !== 'false'
+    this.membership.getFocusSetting('abandon-sound-enabled', 'false') === 'true'
   );
 
   // Aliases and helpers for notifications settings UI
@@ -3645,13 +3645,14 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   previewAlarmSound(soundId: string) {
+    if (this.currentEndAudio) {
+      this.currentEndAudio.pause();
+      this.currentEndAudio = null;
+    }
+    if (!soundId || soundId === 'off') return;
     const sound = this.endSessionSoundsList.find(s => s.id === soundId);
-    if (!sound) return;
+    if (!sound || !sound.file) return;
     try {
-      if (this.currentEndAudio) {
-        this.currentEndAudio.pause();
-        this.currentEndAudio = null;
-      }
       const audio = new Audio('assets/sounds/' + sound.file);
       audio.volume = 1.0;
       audio.play().catch(e => console.warn('Preview alarm error:', e));
@@ -3959,6 +3960,60 @@ export class Enfoque implements OnInit, OnDestroy {
       this.totalSessionTime.set(duration * 60);
       this.timeLeft.set(duration * 60);
     }
+  }
+
+  resetDefaultFocusSettings() {
+    this.stopTimerLoop();
+    this.stopBackgroundSound();
+
+    // 1. Tiempos y Ciclos: 25 min pomodoro, 5 min descanso, 15 min descanso largo, 4 ciclos
+    this.focusDuration.set(25);
+    this.breakDuration.set(5);
+    this.longBreakDuration.set(15);
+    this.longBreakInterval.set(4);
+
+    // 2. Sin audio para nada (Silencio)
+    this.backgroundSound.set('off');
+    this.breakBackgroundSound.set('off');
+    this.longBreakBackgroundSound.set('off');
+    this.endSessionSound.set('off');
+    this.breakEndSound.set('off');
+    this.longBreakEndSound.set('off');
+    this.soundEnabled.set(false);
+    this.breakSoundEnabled.set(false);
+    this.abandonSoundEnabled.set(false);
+
+    // 3. Acceso rápido a batería activo
+    this.showBatteryButtonInArena.set(true);
+
+    // 4. Guardar configuración persistente
+    this.membership.setFocusSetting('focus-duration', '25');
+    this.membership.setFocusSetting('break-duration', '5');
+    this.membership.setFocusSetting('long-break-duration', '15');
+    this.membership.setFocusSetting('long-break-interval', '4');
+    this.membership.setFocusSetting('focus-bg-sound', 'off');
+    this.membership.setFocusSetting('focus-break-bg-sound', 'off');
+    this.membership.setFocusSetting('focus-long-break-bg-sound', 'off');
+    this.membership.setFocusSetting('focus-end-sound', 'off');
+    this.membership.setFocusSetting('focus-break-sound', 'off');
+    this.membership.setFocusSetting('focus-long-break-sound', 'off');
+    this.membership.setFocusSetting('sound-enabled', 'false');
+    this.membership.setFocusSetting('focus-break-sound-enabled', 'false');
+    this.membership.setFocusSetting('abandon-sound-enabled', 'false');
+    this.membership.setFocusSetting('show-battery-button-in-arena', 'true');
+
+    // 5. Aplicar al temporizador en vivo
+    if (!this.isBreak()) {
+      this.totalSessionTime.set(25 * 60);
+      this.timeLeft.set(25 * 60);
+    } else {
+      const isLongBreak = this.completedPomodoros() > 0 && (this.completedPomodoros() % 4 === 0);
+      const duration = isLongBreak ? 15 : 5;
+      this.totalSessionTime.set(duration * 60);
+      this.timeLeft.set(duration * 60);
+    }
+
+    this.showToastFeedback('Configuración restablecida: 25 min enfoque, 5 min descanso, 15 min descanso largo, 4 ciclos, sin audio y batería activa.', 'success');
   }
 
   updateFocusDuration(val: number | string) {

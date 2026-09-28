@@ -212,7 +212,7 @@ export class MembershipService {
 
   // Catálogo completo de avatares disponibles (generado dinámicamente desde Supabase)
   avatarsCatalog = computed<AvatarItem[]>(() => {
-    const items = this.catalogItems().filter(i => i.category === 'avatar');
+    const items = this.catalogItems().filter(i => i.category === 'avatar' && i.id !== 'tortuga_evolved');
     const unlocked = this.unlockedAvatars();
     const lang = this.userLanguage();
 
@@ -357,10 +357,10 @@ export class MembershipService {
       break_background_sound: this.getFocusSetting('focus-break-bg-sound', 'off'),
       long_break_background_sound: this.getFocusSetting('focus-long-break-bg-sound', 'off'),
       background_volume: parseFloat(this.getFocusSetting('focus-bg-volume', '1.0')),
-      end_session_sound: this.getFocusSetting('focus-end-sound', 'tone'),
-      break_sound_enabled: this.getFocusSetting('focus-break-sound-enabled', 'true') !== 'false',
-      break_end_sound: this.getFocusSetting('focus-break-sound', 'electronic_chime'),
-      long_break_end_sound: this.getFocusSetting('focus-long-break-sound', 'electronic_chime'),
+      end_session_sound: this.getFocusSetting('focus-end-sound', 'off'),
+      break_sound_enabled: this.getFocusSetting('focus-break-sound-enabled', 'false') === 'true',
+      break_end_sound: this.getFocusSetting('focus-break-sound', 'off'),
+      long_break_end_sound: this.getFocusSetting('focus-long-break-sound', 'off'),
       focus_duration: parseInt(this.getFocusSetting('focus-duration', '25'), 10),
       break_duration: parseInt(this.getFocusSetting('break-duration', '5'), 10),
       long_break_interval: parseInt(this.getFocusSetting('long-break-interval', '4'), 10),
@@ -371,7 +371,7 @@ export class MembershipService {
       break_notification_enabled: this.getFocusSetting('break-notification-enabled', 'true') !== 'false',
       long_break_notification_enabled: this.getFocusSetting('long-break-notification-enabled', 'true') !== 'false',
       motivation_notification_enabled: this.getFocusSetting('motivation-notification-enabled', 'true') !== 'false',
-      abandon_sound_enabled: this.getFocusSetting('abandon-sound-enabled', 'true') !== 'false',
+      abandon_sound_enabled: this.getFocusSetting('abandon-sound-enabled', 'false') === 'true',
       show_battery_button_in_arena: this.getFocusSetting('show-battery-button-in-arena', 'true') !== 'false'
     };
 
