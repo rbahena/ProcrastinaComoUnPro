@@ -130,13 +130,13 @@
       
       <!-- FOOTER: ¿Cómo funciona? -->
       <div style="border-top: 1px dashed var(--border); padding-top: 6px; display: flex; align-items: center; justify-content: center; width: 100%; font-size: 9.5px;">
-        <a routerLink="/retos" 
-           style="display: flex; align-items: center; gap: 4px; font-weight: 750; color: var(--muted); text-decoration: none; cursor: pointer; transition: color 0.2s;"
+        <button (click)="toggleGuide()" 
+           style="background: transparent; border: none; display: flex; align-items: center; gap: 4px; font-weight: 750; color: var(--muted); text-decoration: none; cursor: pointer; transition: color 0.2s; font-size: 9.5px; padding: 0; font-family: inherit;"
            onmouseover="this.style.color='var(--accent)';"
            onmouseout="this.style.color='var(--muted)';">
           <span>¿Cómo funciona?</span>
           <i class="fa-solid fa-circle-question" style="font-size: 10px;"></i>
-        </a>
+        </button>
       </div>
 
       <!-- Icono flotante decorativo -->
@@ -730,5 +730,98 @@
             onmouseout="this.style.transform='translateY(0)';">
       Entendido
     </button>
+  </div>
+</div>
+
+<!-- MODAL DE INSTRUCCIONES (GUÍA DE COMBATE) -->
+<div *ngIf="showGuide()" 
+     (click)="toggleGuide()" 
+     style="position: fixed; inset: 0; background: rgba(5, 5, 8, 0.85); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn 0.25s ease;">
+  
+  <!-- Ventana Modal -->
+  <div (click)="$event.stopPropagation()" 
+       style="background: #0d0d12; border: 2px solid rgba(255,255,255,0.06); border-radius: 16px; max-width: 860px; width: 100%; box-shadow: 0 0 40px rgba(99, 102, 241, 0.15); display: flex; flex-direction: column; overflow: hidden; animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+    
+    <!-- Header del Modal -->
+    <div style="padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
+      <h3 style="margin: 0; font-size: 18px; font-weight: 900; text-transform: uppercase; color: #fff; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-circle-question" style="color: var(--accent);"></i>
+        Manual de Combate: ¿Cómo Vencer?
+      </h3>
+      <button (click)="toggleGuide()" 
+              style="background: transparent; border: none; color: var(--muted); font-size: 24px; cursor: pointer; line-height: 1; transition: color 0.2s;"
+              onmouseover="this.style.color='#fff'"
+              onmouseout="this.style.color='var(--muted)'">&times;</button>
+    </div>
+
+    <!-- Contenido del Modal (Diseño de 2 columnas) -->
+    <div style="padding: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; max-height: 65vh; overflow-y: auto;">
+      
+      <!-- Paso 1 -->
+      <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+        <div class="combat-guide-num step-1">1</div>
+        <div>
+          <h4 class="combat-guide-title">Elige tu Avatar</h4>
+          <p class="combat-guide-desc">Selecciona tu avatar de ataque. Cada uno posee cualidades, multiplicadores y daños únicos contra el jefe.</p>
+        </div>
+      </div>
+
+      <!-- Paso 2 -->
+      <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+        <div class="combat-guide-num step-2">2</div>
+        <div>
+          <h4 class="combat-guide-title">Enfócate</h4>
+          <p class="combat-guide-desc">En la sección de concentrarme verás al jefe activo. Únete a la comunidad de enfoque para dañarlo.</p>
+        </div>
+      </div>
+
+      <!-- Paso 3 -->
+      <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+        <div class="combat-guide-num step-3">3</div>
+        <div>
+          <h4 class="combat-guide-title">Usa Debilidades</h4>
+          <p class="combat-guide-desc">Ciertos avatares tienen ventajas de daño adicionales sobre jefes específicos según su estilo y naturaleza.</p>
+        </div>
+      </div>
+
+      <!-- Paso 4 -->
+      <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+        <div class="combat-guide-num step-4">4</div>
+        <div>
+          <h4 class="combat-guide-title">Gana Recompensas</h4>
+          <p class="combat-guide-desc">Al derrotar al jefe, todo guerrero que haya participado en el daño recibirá un botín en Pro Coins.</p>
+        </div>
+      </div>
+
+      <!-- Paso 5 -->
+      <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+        <div class="combat-guide-num step-5">5</div>
+        <div>
+          <h4 class="combat-guide-title">Siguiente Desafío</h4>
+          <p class="combat-guide-desc">Vencer al jefe purifica el templo actual, desbloqueando automáticamente el acceso al siguiente gran enemigo.</p>
+        </div>
+      </div>
+
+      <!-- Paso 6 -->
+      <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+        <div class="combat-guide-num step-6">6</div>
+        <div>
+          <h4 class="combat-guide-title">Evita la Retirada</h4>
+          <p class="combat-guide-desc">Si abandonas o interrumpes tu sesión de enfoque, el jefe absorberá tus puntos de vida y sanará su salud.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer del Modal -->
+    <div style="padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end; background: rgba(0,0,0,0.15);">
+      <button (click)="toggleGuide()" 
+              style="background: var(--accent); border: none; color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.2s;"
+              onmouseover="this.style.filter='brightness(1.1)';"
+              onmouseout="this.style.filter='none';">
+        Entendido, ¡a luchar!
+      </button>
+    </div>
+
   </div>
 </div>

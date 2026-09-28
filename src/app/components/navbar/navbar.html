@@ -10,7 +10,7 @@
   </a>
   
   <div class="nav" [class.nav-locked]="membership.isFocusActive()">
-    <a (click)="onNavClick($event, '/home')" [routerLink]="membership.isFocusActive() ? null : '/home'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()" data-tooltip="Inicio" data-tooltip-align="bottom"><span class="nav-dot"></span><i class="fa-solid fa-house"></i></a>
+    <a (click)="onNavClick($event, '/home')" [routerLink]="membership.isFocusActive() ? null : '/home'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()"><span class="nav-dot"></span><i class="fa-solid fa-house"></i></a>
     <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
       <span class="nav-dot"></span>
       Concentrarme

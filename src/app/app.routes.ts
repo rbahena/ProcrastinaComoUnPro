@@ -79,6 +79,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'retos',
+    redirectTo: 'bestiario',
+    pathMatch: 'full'
+  },
+  {
     path: '**',
     redirectTo: 'landing'
   }

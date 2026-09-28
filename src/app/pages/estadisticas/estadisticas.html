@@ -20,12 +20,30 @@
 
     <!-- 5 TARJETAS PRINCIPALES (VISTAZO RÁPIDO Y ESPACIOSO) -->
     <div class="kpi-grid">
-      <!-- 1. Hoy -->
+      <!-- 1. Hoy (1 Tomate Vector) -->
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Hoy</span>
-          <div class="kpi-icon blue">
-            <i class="fa-solid fa-calendar-day"></i>
+          <div class="kpi-icon tomato-single" title="Pomodoros completados hoy">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="tomSingleGrad" cx="35%" cy="30%" r="70%">
+                  <stop offset="0%" stop-color="#ff7675" />
+                  <stop offset="45%" stop-color="#ef4444" />
+                  <stop offset="100%" stop-color="#b91c1c" />
+                </radialGradient>
+                <linearGradient id="leafGradSingle" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#4ade80" />
+                  <stop offset="100%" stop-color="#16a34a" />
+                </linearGradient>
+              </defs>
+              <path d="M12 21.5C6.8 21.5 3 17.5 3 13C3 8.8 6.5 7 12 7C17.5 7 21 8.8 21 13C21 17.5 17.2 21.5 12 21.5Z" fill="url(#tomSingleGrad)" />
+              <ellipse cx="8" cy="11.5" rx="2.2" ry="1.4" transform="rotate(-30 8 11.5)" fill="#ffffff" fill-opacity="0.38" />
+              <path d="M12 2.5C12 4.5 11.8 5.8 12 6.8" stroke="#15803d" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M12 6.8C10.5 5 8 5.4 7 6.4C8.5 7.4 10.5 7.6 12 6.8Z" fill="url(#leafGradSingle)" />
+              <path d="M12 6.8C13.5 5 16 5.4 17 6.4C15.5 7.4 13.5 7.6 12 6.8Z" fill="url(#leafGradSingle)" />
+              <path d="M12 6.8C11.5 8.2 12 9.2 12 9.2C12.5 8.5 12.8 7.8 12 6.8Z" fill="#15803d" />
+            </svg>
           </div>
         </div>
         <div class="kpi-body">
@@ -39,12 +57,30 @@
         </div>
       </div>
 
-      <!-- 2. Esta Semana -->
+      <!-- 2. Esta Semana (1 Tomate Vector) -->
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Esta Semana</span>
-          <div class="kpi-icon gold">
-            <i class="fa-solid fa-calendar-week"></i>
+          <div class="kpi-icon tomato-single" title="Pomodoros completados esta semana">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="tomWeekGrad" cx="35%" cy="30%" r="70%">
+                  <stop offset="0%" stop-color="#ff7675" />
+                  <stop offset="45%" stop-color="#ef4444" />
+                  <stop offset="100%" stop-color="#b91c1c" />
+                </radialGradient>
+                <linearGradient id="leafGradWeek" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#4ade80" />
+                  <stop offset="100%" stop-color="#16a34a" />
+                </linearGradient>
+              </defs>
+              <path d="M12 21.5C6.8 21.5 3 17.5 3 13C3 8.8 6.5 7 12 7C17.5 7 21 8.8 21 13C21 17.5 17.2 21.5 12 21.5Z" fill="url(#tomWeekGrad)" />
+              <ellipse cx="8" cy="11.5" rx="2.2" ry="1.4" transform="rotate(-30 8 11.5)" fill="#ffffff" fill-opacity="0.38" />
+              <path d="M12 2.5C12 4.5 11.8 5.8 12 6.8" stroke="#15803d" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M12 6.8C10.5 5 8 5.4 7 6.4C8.5 7.4 10.5 7.6 12 6.8Z" fill="url(#leafGradWeek)" />
+              <path d="M12 6.8C13.5 5 16 5.4 17 6.4C15.5 7.4 13.5 7.6 12 6.8Z" fill="url(#leafGradWeek)" />
+              <path d="M12 6.8C11.5 8.2 12 9.2 12 9.2C12.5 8.5 12.8 7.8 12 6.8Z" fill="#15803d" />
+            </svg>
           </div>
         </div>
         <div class="kpi-body">
@@ -58,31 +94,62 @@
         </div>
       </div>
 
-      <!-- 3. Racha Activa -->
+      <!-- 3. Racha Activa (Flama Fuego Vector) -->
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Racha Activa</span>
-          <div class="kpi-icon green">
-            <i class="fa-solid fa-fire"></i>
+          <div class="kpi-icon fire-flame" title="Racha activa de días consecutivos">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="flameOuterGrad" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#ffb74d" />
+                  <stop offset="35%" stop-color="#ff5722" />
+                  <stop offset="100%" stop-color="#d32f2f" />
+                </linearGradient>
+                <linearGradient id="flameInnerGrad" x1="12" y1="10" x2="12" y2="21" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#fff9c4" />
+                  <stop offset="40%" stop-color="#ffca28" />
+                  <stop offset="100%" stop-color="#ff7043" />
+                </linearGradient>
+              </defs>
+              <path d="M12 2C11.5 5.5 9.5 7.5 8 9.5C6 12 5 14.5 5 17C5 20.8 8.1 22 12 22C15.9 22 19 20.8 19 17C19 13.5 16.8 10.8 15.5 8C14.2 10.5 13 11.5 12 11.5C11 11.5 10 10.5 10.5 8.5C11 6.5 12 4 12 2Z" fill="url(#flameOuterGrad)" />
+              <path d="M12 11C11.2 12.8 10 14 9 15.5C8.2 16.8 8 18 8 19C8 20.7 9.8 21.5 12 21.5C14.2 21.5 16 20.7 16 19C16 17.5 14.8 16 14 14.5C13.2 15.5 12.8 16 12.2 16C11.8 16 11.5 15.5 11.8 14.5C12 13.5 12.5 12 12 11Z" fill="url(#flameInnerGrad)" />
+            </svg>
           </div>
         </div>
         <div class="kpi-body">
-          <span class="kpi-number">{{ longestStreak }}</span>
+          <span class="kpi-number">{{ userStreak() || longestStreak }}</span>
           <span class="kpi-unit">días</span>
         </div>
         <div class="kpi-footer">
           <span class="kpi-pill flame">
-            <i class="fa-solid fa-bolt"></i> Récord: {{ longestStreak }}d
+            <i class="fa-solid fa-fire-flame-curved"></i> Récord: {{ longestStreak }}d
           </span>
         </div>
       </div>
 
-      <!-- 4. Objetivos Conquistados -->
+      <!-- 4. Objetivos Conquistados (Diana con Color Púrpura/Cian) -->
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Objetivos</span>
-          <div class="kpi-icon cyan">
-            <i class="fa-solid fa-bullseye"></i>
+          <div class="kpi-icon target-objective" title="Objetivos de enfoque cumplidos">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="targetOuterGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#c084fc" />
+                  <stop offset="100%" stop-color="#7c3aed" />
+                </linearGradient>
+                <linearGradient id="targetInnerGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="100%" stop-color="#0284c7" />
+                </linearGradient>
+              </defs>
+              <circle cx="12" cy="12" r="9.5" stroke="url(#targetOuterGrad)" stroke-width="2.2" />
+              <circle cx="12" cy="12" r="6" stroke="rgba(255,255,255,0.3)" stroke-width="1.4" />
+              <circle cx="12" cy="12" r="3.2" fill="url(#targetInnerGrad)" />
+              <circle cx="12" cy="12" r="1.2" fill="#ffffff" />
+              <path d="M12 1.5V4M12 20V22.5M1.5 12H4M20 12H22.5" stroke="url(#targetOuterGrad)" stroke-width="1.8" stroke-linecap="round" opacity="0.8" />
+            </svg>
           </div>
         </div>
         <div class="kpi-body">
@@ -96,17 +163,50 @@
         </div>
       </div>
 
-      <!-- 5. Total Acumulado -->
+      <!-- 5. Total Acumulado (2 Tomates Vector) -->
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Total Histórico</span>
-          <div class="kpi-icon purple">
-            <i class="fa-solid fa-hourglass-end"></i>
+          <div class="kpi-icon tomato-double" title="Total histórico de pomodoros acumulados">
+            <svg viewBox="0 0 28 24" width="26" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="tomHistDbl1" cx="35%" cy="30%" r="70%">
+                  <stop offset="0%" stop-color="#ff7b72" />
+                  <stop offset="50%" stop-color="#ea3939" />
+                  <stop offset="100%" stop-color="#a81616" />
+                </radialGradient>
+                <radialGradient id="tomHistDbl2" cx="35%" cy="30%" r="70%">
+                  <stop offset="0%" stop-color="#ff8f70" />
+                  <stop offset="50%" stop-color="#f04a38" />
+                  <stop offset="100%" stop-color="#b91c1c" />
+                </radialGradient>
+                <linearGradient id="leafGradHistDbl" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#4ade80" />
+                  <stop offset="100%" stop-color="#15803d" />
+                </linearGradient>
+              </defs>
+              <!-- Back Tomato (Left) -->
+              <g opacity="0.95">
+                <path d="M9 20C5 20 2 16.8 2 13.2C2 9.8 4.8 8.4 9 8.4C13.2 8.4 16 9.8 16 13.2C16 16.8 13 20 9 20Z" fill="url(#tomHistDbl1)" />
+                <ellipse cx="6" cy="12" rx="1.6" ry="1" transform="rotate(-30 6 12)" fill="#ffffff" fill-opacity="0.32" />
+                <path d="M9 4.8C9 6.2 8.8 7.4 9 8.4" stroke="#15803d" stroke-width="1.4" stroke-linecap="round" />
+                <path d="M9 8.4C8 7 6 7.4 5 8C6.2 8.8 7.8 9 9 8.4Z" fill="url(#leafGradHistDbl)" />
+                <path d="M9 8.4C10 7 12 7.4 13 8C11.8 8.8 10.2 9 9 8.4Z" fill="url(#leafGradHistDbl)" />
+              </g>
+              <!-- Front Tomato (Right) -->
+              <g filter="drop-shadow(-1px 0px 2px rgba(0,0,0,0.35))">
+                <path d="M18.5 22C14.2 22 11 18.6 11 14.8C11 11.2 14 9.6 18.5 9.6C23 9.6 26 11.2 26 14.8C26 18.6 22.8 22 18.5 22Z" fill="url(#tomHistDbl2)" />
+                <ellipse cx="15.5" cy="13.5" rx="1.8" ry="1.1" transform="rotate(-30 15.5 13.5)" fill="#ffffff" fill-opacity="0.4" />
+                <path d="M18.5 5.5C18.5 7 18.3 8.5 18.5 9.6" stroke="#15803d" stroke-width="1.5" stroke-linecap="round" />
+                <path d="M18.5 9.6C17.2 8 15 8.4 14 9.2C15.2 10 17 10.2 18.5 9.6Z" fill="url(#leafGradHistDbl)" />
+                <path d="M18.5 9.6C19.8 8 22 8.4 23 9.2C21.8 10 20 10.2 18.5 9.6Z" fill="url(#leafGradHistDbl)" />
+              </g>
+            </svg>
           </div>
         </div>
         <div class="kpi-body">
           <span class="kpi-number">{{ annualTotal() }}</span>
-          <span class="kpi-unit">sesiones</span>
+          <span class="kpi-unit">pomodoros</span>
         </div>
         <div class="kpi-footer">
           <span class="kpi-pill">

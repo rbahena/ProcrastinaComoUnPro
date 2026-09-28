@@ -2785,12 +2785,12 @@ export class Enfoque implements OnInit, OnDestroy {
       if (currentStatus === 'completed') {
         const isShared = this.coworkingMode() === 'comunitario';
         const sessionId = `session-${Date.now()}`;
+        const equippedAvatar = this.membership.selectedAvatar() || 'gato';
 
-        this.membership.rewardCompletedSession(sessionId, isShared, actualSeconds);
+        this.membership.rewardCompletedSession(sessionId, isShared, actualSeconds, equippedAvatar);
         
         // Daño al Boss por completar el Pomodoro en la Comunidad (únicamente el daño marcado en la ficha del avatar)
         if (isShared) {
-          const equippedAvatar = this.membership.selectedAvatar() || 'gato';
           const damage = this.membership.getAvatarDamagePoints(equippedAvatar);
           this.bossService.dealDamage(damage);
           

@@ -59,6 +59,11 @@ export class Home implements OnInit, OnDestroy {
   liveCompletedObjectivesToday = signal<number>(0);
   liveUserRank = signal<number>(1);
   totalCommunityUsers = signal<number>(1);
+  showGuide = signal<boolean>(false);
+
+  toggleGuide() {
+    this.showGuide.update(v => !v);
+  }
 
   // Realtime
   private realtimeChannel: any = null;

@@ -1811,10 +1811,16 @@ BEGIN
 
     -- 5. Lógica de Liquidación según Estado
     IF p_status = 'completed' THEN
-        -- Anti-Exploit de tiempo: mínimo 120 segundos para otorgar recompensas
-        IF p_actual_seconds >= 120 THEN
-            -- Recompensa estándar por pomodoro completado: 1 tomate y 1 moneda
-            v_coins_earned := 1;
+        -- Anti-Exploit de tiempo: mínimo 60 segundos para otorgar recompensas
+        IF p_actual_seconds >= 60 THEN
+            -- Monedas ganadas:
+            -- < 25 min (< 1500 seg): Fijas 2 monedas independiente del avatar
+            -- >= 25 min (>= 1500 seg): Monedas configuradas en el avatar seleccionado (coins_per_pomodoro)
+            IF p_actual_seconds < 1500 THEN
+                v_coins_earned := 2;
+            ELSE
+                v_coins_earned := COALESCE(v_avatar.coins_per_pomodoro, 10);
+            END IF;
             
             -- Daño base al Boss escalado
             v_boss_damage := ROUND(v_avatar.boss_damage_points * v_time_factor);

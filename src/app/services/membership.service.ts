@@ -875,7 +875,7 @@ export class MembershipService {
   }
 
   // Intentar recompensar sesión completada (idempotente)
-  rewardCompletedSession(sessionId: string, isShared: boolean, actualSeconds: number = 1500): { points: number; coins: number; tomatoes: number; isNew: boolean } {
+  rewardCompletedSession(sessionId: string, isShared: boolean, actualSeconds: number = 1500, avatarId?: string): { points: number; coins: number; tomatoes: number; isNew: boolean } {
     if (this.rewardedSessions.has(sessionId)) {
       return { points: 0, coins: 0, tomatoes: 0, isNew: false };
     }
@@ -886,7 +886,15 @@ export class MembershipService {
     // Recompensa de Tomates escalonada según duración
     const tomatoesEarned = this.calculateTomatoesForDuration(actualSeconds, true);
     const isFullPomodoro = tomatoesEarned > 0;
-    const coinsEarned = actualSeconds >= 300 ? 1 : 0;
+
+    // Recompensa de Monedas (ProCoins):
+    // < 25 min (1500 seg): Fijas 2 monedas independiente del avatar (mínimo 60 seg)
+    // >= 25 min (1500 seg): Monedas configuradas en el avatar seleccionado (coins_per_pomodoro)
+    const equippedAvatar = avatarId || this.selectedAvatar() || 'gato';
+    const coinsEarned = actualSeconds < 1500
+      ? (actualSeconds >= 60 ? 2 : 0)
+      : this.getAvatarCoinsPerPomodoro(equippedAvatar);
+
     if (tomatoesEarned > 0) {
       this.addFocusTomatoes(tomatoesEarned);
     }

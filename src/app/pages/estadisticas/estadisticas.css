@@ -131,22 +131,49 @@
 }
 
 .kpi-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
   flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.kpi-icon.blue { background: rgba(0, 242, 254, 0.12); color: var(--accent); }
-.kpi-icon.gold { background: rgba(245, 158, 11, 0.12); color: var(--yellow); }
-.kpi-icon.green { background: rgba(16, 185, 129, 0.12); color: var(--green); }
-.kpi-icon.purple { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
-.kpi-icon.cyan { background: rgba(6, 182, 212, 0.12); color: #06b6d4; }
-.kpi-icon.emerald { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.kpi-card:hover .kpi-icon {
+  transform: scale(1.08);
+}
+
+.kpi-icon.tomato-single {
+  background: radial-gradient(circle at 35% 35%, rgba(239, 68, 68, 0.22) 0%, rgba(185, 28, 28, 0.1) 100%);
+  border: 1.5px solid rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.25);
+}
+
+.kpi-icon.tomato-double {
+  background: radial-gradient(circle at 35% 35%, rgba(249, 115, 22, 0.22) 0%, rgba(194, 65, 12, 0.1) 100%);
+  border: 1.5px solid rgba(249, 115, 22, 0.35);
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.25);
+}
+
+.kpi-icon.fire-flame {
+  background: radial-gradient(circle at 50% 60%, rgba(255, 87, 34, 0.25) 0%, rgba(220, 38, 38, 0.1) 100%);
+  border: 1.5px solid rgba(255, 87, 34, 0.4);
+  box-shadow: 0 0 16px rgba(255, 87, 34, 0.35);
+}
+
+.kpi-icon.target-objective {
+  background: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.25) 0%, rgba(126, 34, 206, 0.1) 100%);
+  border: 1.5px solid rgba(168, 85, 247, 0.38);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.3);
+}
+
+.kpi-icon.tomato-history {
+  background: radial-gradient(circle at 35% 35%, rgba(225, 29, 72, 0.25) 0%, rgba(159, 18, 57, 0.12) 100%);
+  border: 1.5px solid rgba(225, 29, 72, 0.38);
+  box-shadow: 0 0 14px rgba(225, 29, 72, 0.28);
+}
 
 .kpi-body {
   display: flex;
