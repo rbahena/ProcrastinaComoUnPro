@@ -273,33 +273,7 @@ export class Medallero implements OnInit, OnDestroy {
       isCoinAssigned = true;
     }
 
-    // 4. PODIOS CONQUISTADOS
-    let podiumHolderName = 'En disputa';
-    let podiumHolderAvatar = '';
-    let podiumHolderFlag = '';
-    let bestPodiumsVal = 0;
-    let podiumDate = 'Sin registro';
-    let isPodiumAssigned = false;
-
-    if (rec.mostPodiums && (rec.mostPodiums.podiums ?? 0) > 0) {
-      podiumHolderName = rec.mostPodiums.holder || 'Guerrero';
-      podiumHolderAvatar = rec.mostPodiums.avatar || '';
-      podiumHolderFlag = rec.mostPodiums.flag || 'mx';
-      bestPodiumsVal = rec.mostPodiums.podiums || 0;
-      podiumDate = 'Histórico';
-      isPodiumAssigned = true;
-    }
-
-    if (isPremium && ramPodiumWins > 0 && this.isUserEligible(ramPodiumWins, ramCreatedAt) && ramPodiumWins >= bestPodiumsVal) {
-      bestPodiumsVal = ramPodiumWins;
-      podiumHolderName = ramName;
-      podiumHolderAvatar = ramAvatar;
-      podiumHolderFlag = 'mx';
-      podiumDate = 'Hoy';
-      isPodiumAssigned = true;
-    }
-
-    // 5. MVP DEL JEFE EN TURNO (DAÑO TOTAL AL JEFE ACTIVO)
+    // 4. MVP DEL JEFE EN TURNO (DAÑO TOTAL AL JEFE ACTIVO)
     const ramDamage = this.bossService.userDamageDealt();
     let bossMvpName = 'En disputa';
     let bossMvpAvatar = '';
@@ -382,25 +356,6 @@ export class Medallero implements OnInit, OnDestroy {
         color: '#fbbf24',
         bgGlow: 'rgba(251, 191, 36, 0.12)',
         isAssigned: isCoinAssigned
-      },
-      {
-        title: 'Podios Conquistados',
-        description: 'Total acumulado de primeros lugares obtenidos en los podios semanales de la Comunidad.',
-        motivation: '¡La gloria pertenece a quienes perseveran! Has conquistado la cima y demostrado estar a la altura de los grandes.',
-        value: bestPodiumsVal > 0 ? `${bestPodiumsVal.toLocaleString()} podios` : 'Disponible',
-        holder: podiumHolderName,
-        avatar: podiumHolderAvatar,
-        flag: podiumHolderFlag,
-        socials: isPodiumAssigned ? [
-          { icon: 'fa-github', platform: 'GitHub', link: 'https://github.com' },
-          { icon: 'fa-linkedin', platform: 'LinkedIn', link: 'https://linkedin.com' },
-          { icon: 'fa-x-twitter', platform: 'Twitter', link: 'https://x.com' }
-        ] : [],
-        date: podiumDate,
-        icon: 'fa-trophy',
-        color: '#f59e0b',
-        bgGlow: 'rgba(245, 158, 11, 0.12)',
-        isAssigned: isPodiumAssigned
       },
       {
         title: 'MVP del Jefe en Turno',
@@ -755,11 +710,7 @@ export class Medallero implements OnInit, OnDestroy {
         sourceList = this.rankingCoins();
         unitLabel = 'Coins';
         break;
-      case 3: // Podios Conquistados
-        sourceList = this.rankingPodiums();
-        unitLabel = 'podios';
-        break;
-      case 4: // MVP del Jefe en Turno
+      case 3: // MVP del Jefe en Turno
         sourceList = this.rankingBoss();
         unitLabel = 'HP';
         break;
@@ -775,7 +726,6 @@ export class Medallero implements OnInit, OnDestroy {
         idx === 0 ? (player.streakCount || 0) :
         idx === 1 ? (player.pomodoros || 0) :
         idx === 2 ? (player.coins || 0) :
-        idx === 3 ? (player.podiums || 0) :
         (player.damage || 0)
       ) : 0;
 
