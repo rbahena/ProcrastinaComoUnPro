@@ -145,83 +145,94 @@
       </div>
     </div>
 
-    <!-- CARD 3: Ranking Global / Tu Desempeño -->
-    <div class="metric-card-premium card-user-rank" style="--card-accent: var(--yellow); margin: 0; min-height: 155px; display: flex; flex-direction: column; justify-content: space-between;">
+    <!-- CARD 3: Desempeño de Hoy (Ranking por Tomates - 2 arriba, tú, 2 abajo) -->
+    <div class="metric-card-premium card-user-rank" style="--card-accent: var(--yellow); margin: 0; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
       
       <!-- CABECERA -->
       <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
         <div style="display: flex; align-items: center; gap: 6px;">
-          <i class="fa-solid fa-trophy" style="font-size: 10px; color: var(--yellow);"></i>
+          <i class="fa-solid fa-apple-whole" style="font-size: 10px; color: var(--yellow);"></i>
           <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Desempeño de Hoy</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="card-title-text" style="color: var(--yellow); font-weight: 700;" *ngIf="membership.isPremium()">
-            Top {{ 100 - percentageBeaten() }}%
+          <span class="card-title-text" style="color: var(--yellow); font-weight: 700;">
+            Puesto #{{ rankingPosition() }}
           </span>
-          <button routerLink="/membresia" class="card-action-play" data-tooltip="Ver Membresía" data-tooltip-align="left">
-            <i class="fa-solid fa-crown"></i>
+          <button routerLink="/fechas" class="card-action-play" data-tooltip="Ver Estadísticas y Rankings" data-tooltip-align="left">
+            <i class="fa-solid fa-chart-simple"></i>
           </button>
         </div>
       </div>
 
-      <!-- VISTA GRATUITA -->
-      <div *ngIf="!membership.isPremium()" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; flex: 1; justify-content: center;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <!-- Posición Actual (Solo Candado) -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
-            <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;">
-              <i class="fa-solid fa-lock" style="font-size: 16px; color: var(--yellow);"></i>
+      <!-- CONTENIDO CENTRAL: LADDER 2 ARRIBA, TÚ, 2 ABAJO -->
+      <div style="display: flex; flex-direction: column; gap: 3px; flex: 1; justify-content: center; margin: 6px 0;">
+        
+        <div *ngIf="rankNeighbors().length > 0" class="rank-ladder-mini-container">
+          <div *ngFor="let item of rankNeighbors()"
+               class="rank-ladder-mini-row custom-tooltip-host"
+               [class.is-self]="item.is_current_user"
+               [attr.data-tooltip]="item.is_current_user ? '¡Tu puesto actual (#' + item.rank + ') con ' + item.focus_tomatoes + ' tomates!' : (item.username + ' • #' + item.rank + ' con ' + item.focus_tomatoes + ' 🍅')">
+            
+            <!-- Posición # -->
+            <span class="ladder-rank-tag" 
+                  [class.tag-gold]="item.rank === 1" 
+                  [class.tag-silver]="item.rank === 2" 
+                  [class.tag-bronze]="item.rank === 3" 
+                  [class.tag-self]="item.is_current_user">
+              #{{ item.rank }}
+            </span>
+
+            <!-- Avatar -->
+            <div class="avatar-sprite ladder-mini-avatar"
+                 [class]="'sprite-' + item.selected_avatar"
+                 [style.background-color]="membership.getAvatarColorById(item.selected_avatar)"
+                 (click)="zoomAvatar(item.selected_avatar, item.username, getAvatarTitle(item.selected_avatar), membership.getAvatarColorById(item.selected_avatar), item.podium_wins || 0)">
+            </div>
+
+            <!-- Nombre de Usuario -->
+            <div class="ladder-mini-name">
+              <span class="ladder-name-text" [style.color]="item.is_current_user ? 'var(--yellow)' : 'var(--text)'">
+                {{ item.username }}
+              </span>
+              <span *ngIf="item.is_current_user" class="ladder-you-pill">TÚ</span>
+            </div>
+
+            <!-- Total de Tomates -->
+            <div class="ladder-mini-tomatoes">
+              <span style="font-weight: 800;" [style.color]="item.is_current_user ? 'var(--yellow)' : 'var(--text)'">
+                🍅 {{ item.focus_tomatoes }}
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Fallback si aún no hay datos cargados -->
+        <div *ngIf="rankNeighbors().length === 0" class="rank-ladder-mini-container">
+          <div class="rank-ladder-mini-row is-self">
+            <span class="ladder-rank-tag tag-self">#{{ rankingPosition() }}</span>
+            <div class="avatar-sprite ladder-mini-avatar"
+                 [class]="'sprite-' + selectedAvatar()"
+                 [style.background-color]="getSelectedAvatarColor()">
+            </div>
+            <div class="ladder-mini-name">
+              <span class="ladder-name-text" style="color: var(--yellow);">{{ userName() }}</span>
+              <span class="ladder-you-pill">TÚ</span>
+            </div>
+            <div class="ladder-mini-tomatoes">
+              <span style="font-weight: 800; color: var(--yellow);">🍅 {{ membership.focusTomatoes() }}</span>
             </div>
           </div>
-
-          <!-- Rendimiento -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Rendimiento</span>
-            <span class="card-large-value" style="font-size: 16px !important; margin-top: 4px; color: var(--text); display: flex; align-items: center; gap: 4px;">
-              🍅 {{ membership.focusTomatoes() }}
-            </span>
-          </div>
-        </div>
-        
-        <!-- Mensaje explícito de que no cuenta en la competencia -->
-        <div style="font-size: 10px; color: #fbbf24; background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 6px 8px; line-height: 1.35; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px;">
-          <i class="fa-solid fa-triangle-exclamation" style="font-size: 11px; flex-shrink: 0; color: #f59e0b;"></i>
-          <span>Tu tiempo <strong>no cuenta en la competencia</strong> comunitaria sin suscripción Premium.</span>
         </div>
 
-        <button routerLink="/membresia" class="pro-unlock-rank-btn" style="margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-          <i class="fa-solid fa-lock-open" style="font-size: 11px;"></i>
-          <span>Activar Puesto Oficial con Pro</span>
-        </button>
       </div>
 
-      <!-- VISTA PREMIUM -->
-      <div *ngIf="membership.isPremium()" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px; flex: 1; justify-content: center;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <!-- Posición Actual -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Posición</span>
-            <div style="display: flex; align-items: center; gap: 4px;">
-              <span class="card-large-value" style="font-size: 22px !important; margin-top: 0;">#{{ rankingPosition() }}</span>
-            </div>
-          </div>
-
-          <!-- Recompensa Monedas -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Bonus Potencial</span>
-            <span style="font-size: 15px; font-weight: 800; color: var(--yellow); margin-top: 4px; display: flex; align-items: center; gap: 4px;">
-              <i class="fa-solid fa-coins" style="font-size: 11px;"></i> +{{ potentialReward() }}
-            </span>
-          </div>
-        </div>
-
-        <div style="font-size: 11px; color: var(--muted); text-align: center; border-top: 1px solid var(--border); padding-top: 8px; width: 100%;">
-          Has superado al **{{ percentageBeaten() }}%** de la comunidad hoy.
-        </div>
-
-        <!-- Indicador de Sincronización en Vivo -->
-        <div style="font-size: 9.5px; color: var(--muted); text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px; opacity: 0.7; border-top: 1px dashed var(--border); padding-top: 6px; width: 100%;">
+      <!-- FOOTER: Sincronización y superación de la comunidad -->
+      <div style="border-top: 1px dashed var(--border); padding-top: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%; font-size: 9.5px;">
+        <span style="color: var(--muted); font-size: 9px; font-weight: 600;">
+          Superas al <strong style="color: var(--yellow);">{{ percentageBeaten() }}%</strong> hoy
+        </span>
+        <div style="font-size: 9px; color: var(--muted); display: flex; align-items: center; gap: 4px; opacity: 0.85;">
           <span class="pulse-green-dot" style="width: 4px; height: 4px; box-shadow: 0 0 4px var(--green);"></span>
           <span>En vivo • {{ lastUpdated() }}</span>
         </div>
@@ -229,7 +240,7 @@
 
       <!-- Icono flotante decorativo -->
       <div class="card-float-icon">
-        <i class="fa-solid fa-trophy"></i>
+        <i class="fa-solid fa-apple-whole"></i>
       </div>
     </div>
 
@@ -329,11 +340,11 @@
 
     </div>
 
-    <!-- COLUMNA 2: PODIO DE LÍDERES (TOP 5) -->
-    <div class="dashboard-sidebar-column">
+    <!-- COLUMNA 2: PODIO DE LÍDERES EXPANDIDO (TOP 3 + 4º Y 5º LUGAR) -->
+    <div class="dashboard-podio-column">
       
-      <!-- CARD: PODIO DE LÍDERES (TOP 5) -->
-      <div class="podio-card" style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
+      <!-- CARD: PODIO DE LÍDERES EXPANDIDO -->
+      <div class="podio-card podio-card-expanded" style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
         
         <!-- Cabecera -->
         <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; z-index: 10;">
@@ -342,85 +353,152 @@
             <div>
               <div style="display: flex; align-items: center; gap: 6px;">
                 <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Podio Semanal</h4>
-                <span style="font-size: 9px; font-weight: 800; color: #ffd700; background: rgba(255, 215, 0, 0.12); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 4px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.5px;">Top Semanal ⚡</span>
+                <span style="font-size: 9px; font-weight: 800; color: #ffd700; background: rgba(255, 215, 0, 0.12); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 4px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.5px;">Honor & Disciplina ⚡</span>
+                <span class="flashy-help-badge" 
+                      data-tooltip="¿Cómo subir al Podio? Suma puntos de productividad por tiempo enfocado, +20 pts por objetivo cumplido, daño al Boss y -20 pts por abandonar. ¡Premia la disciplina real!">
+                  <i class="fa-solid fa-circle-question"></i>
+                </span>
               </div>
-              <p style="font-size: 10.5px; color: var(--muted); margin: 2px 0 0 0;">Top 3 en sesiones de concentración esta semana</p>
+              <p style="font-size: 10.5px; color: var(--muted); margin: 2px 0 0 0;">Top disciplina: tiempo enfocado, tareas cumplidas y cero abandonos</p>
             </div>
           </div>
-          <!-- <button routerLink="/medallero" class="card-action-play" title="Ver Hazañas y Medallero">
-            <i class="fa-solid fa-award"></i>
-          </button> -->
+          <button routerLink="/fechas" class="card-action-play" data-tooltip="Ver Estadísticas y Rankings" data-tooltip-align="left">
+            <i class="fa-solid fa-chart-simple"></i>
+          </button>
         </div>
 
-        <!-- Podio (Vista en Hilera Dinámica con Ganadores Reales) -->
-        <div *ngIf="hasPodiumWinners()" style="display: flex; align-items: flex-end; justify-content: center; gap: 14px; height: 180px; margin-top: 10px; padding-bottom: 5px;">
+        <!-- CONTENIDO DIVIDIDO EN DOS MITADES (TOP 3 + 4º/5º LUGAR) -->
+        <div *ngIf="hasPodiumWinners()" class="podio-expanded-grid">
           
-          <!-- 2º Puesto (Izquierda) -->
-          <div class="podio-column second-place custom-tooltip-host" 
-               [attr.data-tooltip]="!rankingData()[0]?.isAssigned ? 'Puesto en disputa disponible' : (rankingData()[0].name + ' consiguió ' + rankingData()[0].value)">
-            <!-- Avatar o Placeholder -->
-            <div class="podio-avatar-wrapper">
-              <div *ngIf="rankingData()[0]?.isAssigned"
-                   class="podio-avatar avatar-sprite"
-                   [class]="'sprite-' + rankingData()[0].avatar" 
-                   [style.background-color]="rankingData()[0].color"
-                   style="cursor: zoom-in;"
-                   (click)="zoomAvatar(rankingData()[0].avatar, rankingData()[0].name, getAvatarTitle(rankingData()[0].avatar), rankingData()[0].color, rankingData()[0].wins)">
+          <!-- MITAD IZQUIERDA: TOP 3 PODIO (2º, 1º, 3º) -->
+          <div class="podio-top3-section">
+            <div class="podio-top3-header">
+              <span class="podio-section-title"><i class="fa-solid fa-crown" style="color: var(--yellow);"></i> Los Coronados</span>
+            </div>
+            
+            <div class="podio-columns-row">
+              <!-- 2º Puesto (Izquierda) -->
+              <div class="podio-column second-place custom-tooltip-host" 
+                   [attr.data-tooltip]="!rankingData()[0]?.isAssigned ? 'Puesto en disputa disponible' : (rankingData()[0].name + ' consiguió ' + rankingData()[0].value + ' (' + (rankingData()[0].details || '') + ')')">
+                <div class="podio-avatar-wrapper">
+                  <div *ngIf="rankingData()[0]?.isAssigned"
+                       class="podio-avatar avatar-sprite"
+                       [class]="'sprite-' + rankingData()[0].avatar" 
+                       [style.background-color]="rankingData()[0].color"
+                       style="cursor: zoom-in;"
+                       (click)="zoomAvatar(rankingData()[0].avatar, rankingData()[0].name, getAvatarTitle(rankingData()[0].avatar), rankingData()[0].color, rankingData()[0].wins)">
+                  </div>
+                  <div *ngIf="!rankingData()[0]?.isAssigned"
+                       style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);">
+                    <i class="fa-solid fa-lock" style="font-size: 13px; opacity: 0.5;"></i>
+                  </div>
+                </div>
+                <span class="podio-user-name">{{ rankingData()[0].name }}</span>
+                <span class="podio-user-points">{{ rankingData()[0].value }}</span>
+                <span *ngIf="rankingData()[0]?.isAssigned && rankingData()[0].details" class="podio-user-breakdown">{{ rankingData()[0].details }}</span>
+                <div class="podio-bar">2º</div>
               </div>
-              <div *ngIf="!rankingData()[0]?.isAssigned"
-                   style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);">
-                <i class="fa-solid fa-lock" style="font-size: 13px; opacity: 0.5;"></i>
+
+              <!-- 1º Puesto (Centro) -->
+              <div class="podio-column first-place custom-tooltip-host" 
+                   style="transform: scale(1.05);"
+                   [attr.data-tooltip]="!rankingData()[1]?.isAssigned ? 'Puesto en disputa disponible' : (rankingData()[1].name + ' lidera con ' + rankingData()[1].value + ' (' + (rankingData()[1].details || '') + ')')">
+                <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 14px; margin-bottom: 4px; filter: drop-shadow(0 0 4px rgba(255,215,0,0.5));"></i>
+                <div class="podio-avatar-wrapper">
+                  <div *ngIf="rankingData()[1]?.isAssigned"
+                       class="podio-avatar avatar-sprite"
+                       [class]="'sprite-' + rankingData()[1].avatar" 
+                       [style.background-color]="rankingData()[1].color"
+                       style="cursor: zoom-in;"
+                       (click)="zoomAvatar(rankingData()[1].avatar, rankingData()[1].name, getAvatarTitle(rankingData()[1].avatar), rankingData()[1].color, rankingData()[1].wins)">
+                  </div>
+                  <div *ngIf="!rankingData()[1]?.isAssigned"
+                       style="width: 48px; height: 48px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);">
+                    <i class="fa-solid fa-lock" style="font-size: 15px; opacity: 0.5;"></i>
+                  </div>
+                </div>
+                <span class="podio-user-name" style="font-weight: 800; font-size: 12.5px;">{{ rankingData()[1].name }}</span>
+                <span class="podio-user-points" style="color: var(--yellow); font-weight: 800;">{{ rankingData()[1].value }}</span>
+                <span *ngIf="rankingData()[1]?.isAssigned && rankingData()[1].details" class="podio-user-breakdown" style="color: var(--yellow); opacity: 0.9;">{{ rankingData()[1].details }}</span>
+                <div class="podio-bar">1º</div>
+              </div>
+
+              <!-- 3º Puesto (Derecha) -->
+              <div class="podio-column third-place custom-tooltip-host" 
+                   [attr.data-tooltip]="!rankingData()[2]?.isAssigned ? 'Puesto en disputa disponible' : (rankingData()[2].name + ' consiguió ' + rankingData()[2].value + ' (' + (rankingData()[2].details || '') + ')')">
+                <div class="podio-avatar-wrapper">
+                  <div *ngIf="rankingData()[2]?.isAssigned"
+                       class="podio-avatar avatar-sprite"
+                       [class]="'sprite-' + rankingData()[2].avatar" 
+                       [style.background-color]="rankingData()[2].color"
+                       style="cursor: zoom-in;"
+                       (click)="zoomAvatar(rankingData()[2].avatar, rankingData()[2].name, getAvatarTitle(rankingData()[2].avatar), rankingData()[2].color, rankingData()[2].wins)">
+                  </div>
+                  <div *ngIf="!rankingData()[2]?.isAssigned"
+                       style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);">
+                    <i class="fa-solid fa-lock" style="font-size: 13px; opacity: 0.5;"></i>
+                  </div>
+                </div>
+                <span class="podio-user-name">{{ rankingData()[2].name }}</span>
+                <span class="podio-user-points">{{ rankingData()[2].value }}</span>
+                <span *ngIf="rankingData()[2]?.isAssigned && rankingData()[2].details" class="podio-user-breakdown">{{ rankingData()[2].details }}</span>
+                <div class="podio-bar">3º</div>
               </div>
             </div>
-            <span style="font-size: 11.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[0].name }}</span>
-            <span style="font-size: 10px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[0].value }}</span>
-            <div class="podio-bar">2º</div>
           </div>
 
-          <!-- 1º Puesto (Centro) -->
-          <div class="podio-column first-place custom-tooltip-host" 
-               style="transform: scale(1.05);"
-               [attr.data-tooltip]="!rankingData()[1]?.isAssigned ? 'Puesto en disputa disponible' : (rankingData()[1].name + ' lidera con ' + rankingData()[1].value)">
-            <i class="fa-solid fa-crown" style="color: #ffd700; font-size: 14px; margin-bottom: 4px; filter: drop-shadow(0 0 4px rgba(255,215,0,0.5));"></i>
-            <!-- Avatar o Placeholder -->
-            <div class="podio-avatar-wrapper">
-              <div *ngIf="rankingData()[1]?.isAssigned"
-                   class="podio-avatar avatar-sprite"
-                   [class]="'sprite-' + rankingData()[1].avatar" 
-                   [style.background-color]="rankingData()[1].color"
-                   style="cursor: zoom-in;"
-                   (click)="zoomAvatar(rankingData()[1].avatar, rankingData()[1].name, getAvatarTitle(rankingData()[1].avatar), rankingData()[1].color, rankingData()[1].wins)">
+          <!-- MITAD DERECHA: SIGUIENTES 2 LUGARES (4º Y 5º PUESTO) -->
+          <div class="podio-runners-section">
+            <div class="runners-up-header">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-bolt" style="color: var(--accent); font-size: 11px;"></i>
+                <span style="font-size: 11px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.6px;">En Persecución</span>
               </div>
-              <div *ngIf="!rankingData()[1]?.isAssigned"
-                   style="width: 48px; height: 48px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);">
-                <i class="fa-solid fa-lock" style="font-size: 15px; opacity: 0.5;"></i>
-              </div>
+              <span style="font-size: 9px; font-weight: 700; color: var(--muted); background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border); border-radius: 10px; padding: 2px 7px;">4º y 5º Lugar</span>
             </div>
-            <span style="font-size: 12.5px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[1].name }}</span>
-            <span style="font-size: 11px; color: var(--yellow); font-weight: 800; margin-bottom: 6px;">{{ rankingData()[1].value }}</span>
-            <div class="podio-bar">1º</div>
-          </div>
 
-          <!-- 3º Puesto (Derecha) -->
-          <div class="podio-column third-place custom-tooltip-host" 
-               [attr.data-tooltip]="!rankingData()[2]?.isAssigned ? 'Puesto en disputa disponible' : (rankingData()[2].name + ' consiguió ' + rankingData()[2].value)">
-            <!-- Avatar o Placeholder -->
-            <div class="podio-avatar-wrapper">
-              <div *ngIf="rankingData()[2]?.isAssigned"
-                   class="podio-avatar avatar-sprite"
-                   [class]="'sprite-' + rankingData()[2].avatar" 
-                   [style.background-color]="rankingData()[2].color"
-                   style="cursor: zoom-in;"
-                   (click)="zoomAvatar(rankingData()[2].avatar, rankingData()[2].name, getAvatarTitle(rankingData()[2].avatar), rankingData()[2].color, rankingData()[2].wins)">
-              </div>
-              <div *ngIf="!rankingData()[2]?.isAssigned"
-                   style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);">
-                <i class="fa-solid fa-lock" style="font-size: 13px; opacity: 0.5;"></i>
+            <div class="runners-up-list">
+              <div *ngFor="let runner of topRunnersUp()" 
+                   class="runner-up-card custom-tooltip-host"
+                   [class.unassigned]="!runner.isAssigned"
+                   [attr.data-tooltip]="!runner.isAssigned ? 'Puesto en disputa disponible' : (runner.name + ' tiene ' + runner.value + ' (' + (runner.details || '') + ')')">
+                
+                <!-- Badge de Posición (4º / 5º) -->
+                <div class="runner-rank-badge" [class.rank-4]="runner.position === 4" [class.rank-5]="runner.position === 5">
+                  {{ runner.place }}
+                </div>
+
+                <!-- Avatar o Placeholder -->
+                <div class="runner-avatar-wrapper">
+                  <div *ngIf="runner.isAssigned"
+                       class="avatar-sprite runner-avatar"
+                       [class]="'sprite-' + runner.avatar"
+                       [style.background-color]="runner.color"
+                       style="cursor: zoom-in;"
+                       (click)="zoomAvatar(runner.avatar, runner.name, getAvatarTitle(runner.avatar), runner.color, runner.wins)">
+                  </div>
+                  <div *ngIf="!runner.isAssigned" class="runner-avatar-placeholder">
+                    <i class="fa-solid fa-lock"></i>
+                  </div>
+                </div>
+
+                <!-- Info del Usuario -->
+                <div class="runner-info">
+                  <div class="runner-name-row">
+                    <span class="runner-name">{{ runner.name }}</span>
+                    <span *ngIf="runner.isAssigned && runner.wins > 0" class="runner-wins" [attr.data-tooltip]="runner.wins + ' podios ganados'">
+                      🏆 {{ runner.wins }}
+                    </span>
+                  </div>
+                  <span class="runner-details">{{ runner.isAssigned ? (runner.details || '0 🍅 • 0 🎯 • 0 🚫') : 'Disponible para reclamar' }}</span>
+                </div>
+
+                <!-- Puntos de Productividad -->
+                <div class="runner-score-badge">
+                  <span class="runner-score-value">{{ runner.value }}</span>
+                </div>
               </div>
             </div>
-            <span style="font-size: 11.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center;">{{ rankingData()[2].name }}</span>
-            <span style="font-size: 10px; color: var(--muted); margin-bottom: 6px; font-weight: 600;">{{ rankingData()[2].value }}</span>
-            <div class="podio-bar">3º</div>
           </div>
 
         </div>
@@ -432,7 +510,7 @@
           </div>
           <div style="display: flex; flex-direction: column; gap: 3px;">
             <span style="font-size: 12.5px; font-weight: 800; color: var(--text); letter-spacing: 0.3px;">Podio Pendiente de Ganar</span>
-            <span style="font-size: 10.5px; color: var(--muted); max-width: 240px; line-height: 1.35;">Aún no hay líderes coronados esta semana. ¡Completa sesiones de concentración para subir al podio!</span>
+            <span style="font-size: 10.5px; color: var(--muted); max-width: 320px; line-height: 1.35;">Aún no hay líderes coronados esta semana. ¡Completa sesiones de concentración para subir al podio!</span>
           </div>
           <button routerLink="/enfoque" style="width: auto; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); color: var(--yellow); cursor: pointer; transition: all 0.2s;">
             <i class="fa-solid fa-play" style="font-size: 9px;"></i>
@@ -443,75 +521,6 @@
         <!-- Icono flotante decorativo -->
         <div class="card-float-icon">
           <i class="fa-solid fa-yin-yang"></i>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- COLUMNA 3: RÉCORDS DE LA COMUNIDAD (TOP 10 POMODOROS) -->
-    <div class="dashboard-sidebar-column">
-      
-      <!-- CARD: RÉCORDS DE LA COMUNIDAD (TOP 10 POMODOROS) -->
-      <div class="top-pomodoros-card" style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
-        
-        <!-- Cabecera -->
-        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; z-index: 10;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-fire" style="color: var(--green); font-size: 14px;"></i>
-            <div>
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Récord Histórico</h4>
-                <span style="font-size: 9px; font-weight: 800; color: var(--green); background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 4px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.5px;">Histórico 🏛️</span>
-              </div>
-              <p style="font-size: 10px; color: var(--muted); margin: 2px 0 0 0;">Top 10 en sesiones de concentración desde la creación de la plataforma</p>
-            </div>
-          </div>
-          <button routerLink="/fechas" class="card-action-play" data-tooltip="Ver Estadísticas" data-tooltip-align="left">
-            <i class="fa-solid fa-chart-simple"></i>
-          </button>
-        </div>
-
-        <!-- Listado Dinámico desde Base de Datos (Top 10) -->
-        <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 8px; flex: 1; justify-content: flex-start; z-index: 2;">
-          
-          <div *ngFor="let record of topHistoricalRecords(); let idx = index"
-               class="historical-record-row"
-               [attr.data-tooltip]="record.isAssigned ? ('Ver perfil de ' + record.name) : 'Puesto disponible'"
-               [style.opacity]="record.isAssigned ? '1' : '0.45'"
-               style="padding: 4px 8px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 10px; font-weight: 800; width: 14px; text-align: center;"
-                    [style.color]="record.isAssigned ? (idx === 0 ? 'var(--yellow)' : (idx === 1 ? '#cbd5e1' : (idx === 2 ? '#f59e0b' : 'var(--muted)'))) : 'var(--muted)'">
-                {{ record.rank }}
-              </span>
-              <!-- Avatar sólo si está asignado; candado/placeholder si no está asignado -->
-              <div *ngIf="record.isAssigned"
-                   class="avatar-sprite" 
-                   [class]="'sprite-' + record.avatar"
-                   [style.background-color]="record.color" 
-                   style="width: 18px; height: 18px; border-radius: 50%; cursor: zoom-in;"
-                   (click)="zoomAvatar(record.avatar, record.name, getAvatarTitle(record.avatar), record.color, record.wins)">
-              </div>
-              <div *ngIf="!record.isAssigned"
-                   style="width: 18px; height: 18px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted);">
-                <i class="fa-solid fa-lock" style="font-size: 8px; opacity: 0.5;"></i>
-              </div>
-              <span style="font-size: 10.5px; font-weight: 700;"
-                    [style.color]="record.isAssigned ? 'var(--text)' : 'var(--muted)'">
-                {{ record.name }}
-              </span>
-            </div>
-            <span style="font-size: 10px; font-weight: 800; display: flex; align-items: center; gap: 3px;"
-                  [style.color]="record.isAssigned ? 'var(--green)' : 'var(--muted)'">
-              🍅 {{ record.isAssigned ? record.tomatoes : 0 }}
-            </span>
-          </div>
-
-        </div>
-
-        <!-- Icono flotante decorativo -->
-        <div class="card-float-icon">
-          <i class="fa-solid fa-apple-whole"></i>
         </div>
       </div>
 

@@ -157,13 +157,63 @@ export class MembershipService {
   // Tomates de enfoque (1 por sesión de concentración)
   focusTomatoes = signal<number>(0);
 
+  // Objetivos completados y sesiones abandonadas (Métricas de Calidad y Disciplina)
+  completedObjectives = signal<number>(0);
+  abandonedSessions = signal<number>(0);
+
+  // Score y Puntos de Disciplina Semanales (Se reinicia cada Lunes a las 00:00)
+  weeklyHonorPoints = signal<number>(0);
+  lastWeekStart = signal<string>('');
+
+  // Tasa de Efectividad / Disciplina (0% - 100%)
+  effectivenessRate = computed<number>(() => {
+    const totalSessions = this.focusTomatoes();
+    const abandons = this.abandonedSessions();
+    const totalAttempts = totalSessions + abandons;
+    if (totalAttempts === 0) return 100;
+    const rate = Math.round((totalSessions / totalAttempts) * 100);
+    return Math.max(0, Math.min(100, rate));
+  });
+
   // Racha de días de enfoque
   streak = signal<number>(0);
   lastFocusDate = signal<string>('');
   userCreatedAt = signal<string>('');
 
+  getCurrentMondayString(): string {
+    const d = new Date();
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d);
+    monday.setDate(diff);
+    return monday.toISOString().split('T')[0];
+  }
+
+  validateWeeklyPointsIntegrity() {
+    const currentMonday = this.getCurrentMondayString();
+    if (this.lastWeekStart() && this.lastWeekStart() !== currentMonday) {
+      this.weeklyHonorPoints.set(0);
+      this.lastWeekStart.set(currentMonday);
+    } else if (!this.lastWeekStart()) {
+      this.lastWeekStart.set(currentMonday);
+    }
+  }
+
+  addWeeklyHonorPoints(points: number) {
+    this.validateWeeklyPointsIntegrity();
+    this.weeklyHonorPoints.update(p => Math.max(0, p + points));
+  }
+
   addFocusTomatoes(tomatoes: number) {
     this.focusTomatoes.update(t => t + tomatoes);
+  }
+
+  addCompletedObjective() {
+    this.completedObjectives.update(c => c + 1);
+  }
+
+  addAbandonedSession() {
+    this.abandonedSessions.update(a => a + 1);
   }
 
   // Cosméticos desbloqueados (Solo los 6 iniciales por defecto)
@@ -296,6 +346,10 @@ export class MembershipService {
         proCoins: this.proCoins(),
         focusPoints: this.focusPoints(),
         focusTomatoes: this.focusTomatoes(),
+        completedObjectives: this.completedObjectives(),
+        abandonedSessions: this.abandonedSessions(),
+        weeklyHonorPoints: this.weeklyHonorPoints(),
+        lastWeekStart: this.lastWeekStart(),
         streak: this.streak(),
         lastFocusDate: this.lastFocusDate(),
         goldMedals: this.goldMedals(),
@@ -452,6 +506,10 @@ export class MembershipService {
       this.proCoins();
       this.focusPoints();
       this.focusTomatoes();
+      this.completedObjectives();
+      this.abandonedSessions();
+      this.weeklyHonorPoints();
+      this.lastWeekStart();
       this.streak();
       this.lastFocusDate();
       this.goldMedals();
@@ -908,6 +966,10 @@ export class MembershipService {
       this.addFocusPoints(pointsEarned);
     }
 
+    // Sumar minutos al score semanal de honor
+    const weeklyMinutes = Math.floor(actualSeconds / 60);
+    this.addWeeklyHonorPoints(weeklyMinutes);
+
     // Actualizar racha diaria únicamente si cumple el requisito de al menos 25 minutos
     this.recordPomodoroForStreak(actualSeconds);
     this.saveConsolidatedUserData();
@@ -976,6 +1038,8 @@ export class MembershipService {
     }
 
     this.rewardedSessions.add(key);
+    this.completedObjectives.update(n => n + 1);
+    this.addWeeklyHonorPoints(20);
 
     // Monedas por objetivo completado
     const coinsEarned = 0;
@@ -1426,6 +1490,8 @@ export class MembershipService {
     else if (p.focus_points !== undefined) this.focusPoints.set(p.focus_points);
     if (p.tomatoes !== undefined) this.focusTomatoes.set(p.tomatoes);
     else if (p.focus_tomatoes !== undefined) this.focusTomatoes.set(p.focus_tomatoes);
+    if (p.completed_objectives !== undefined) this.completedObjectives.set(p.completed_objectives);
+    if (p.abandoned_sessions !== undefined) this.abandonedSessions.set(p.abandoned_sessions);
     if (p.created_at) this.userCreatedAt.set(p.created_at);
 
     if (p.last_focus_date) this.lastFocusDate.set(p.last_focus_date);
@@ -1575,6 +1641,10 @@ export class MembershipService {
           if (bundle.gamification.proCoins !== undefined) this.proCoins.set(bundle.gamification.proCoins);
           if (bundle.gamification.focusPoints !== undefined) this.focusPoints.set(bundle.gamification.focusPoints);
           if (bundle.gamification.focusTomatoes !== undefined) this.focusTomatoes.set(bundle.gamification.focusTomatoes);
+          if (bundle.gamification.completedObjectives !== undefined) this.completedObjectives.set(bundle.gamification.completedObjectives);
+          if (bundle.gamification.abandonedSessions !== undefined) this.abandonedSessions.set(bundle.gamification.abandonedSessions);
+          if (bundle.gamification.weeklyHonorPoints !== undefined) this.weeklyHonorPoints.set(bundle.gamification.weeklyHonorPoints);
+          if (bundle.gamification.lastWeekStart !== undefined) this.lastWeekStart.set(bundle.gamification.lastWeekStart);
           if (bundle.gamification.streak !== undefined) this.streak.set(bundle.gamification.streak);
           if (bundle.gamification.lastFocusDate !== undefined) this.lastFocusDate.set(bundle.gamification.lastFocusDate);
           if (bundle.gamification.goldMedals !== undefined) this.goldMedals.set(bundle.gamification.goldMedals);
@@ -1582,6 +1652,9 @@ export class MembershipService {
           if (bundle.gamification.bronzeMedals !== undefined) this.bronzeMedals.set(bundle.gamification.bronzeMedals);
           if (bundle.gamification.podiumWins !== undefined) this.podiumWins.set(bundle.gamification.podiumWins);
           if (bundle.gamification.rewardedSessions) this.rewardedSessions = new Set(bundle.gamification.rewardedSessions);
+
+          // Verificar si cambió la semana para resetear los puntos semanales
+          this.validateWeeklyPointsIntegrity();
         }
         if (bundle.inventory) {
           if (bundle.inventory.unlockedAvatars) this.unlockedAvatars.set(bundle.inventory.unlockedAvatars);
@@ -1627,6 +1700,10 @@ export class MembershipService {
     this.proCoins.set(0);
     this.focusPoints.set(0);
     this.focusTomatoes.set(0);
+    this.completedObjectives.set(0);
+    this.abandonedSessions.set(0);
+    this.weeklyHonorPoints.set(0);
+    this.lastWeekStart.set(this.getCurrentMondayString());
     this.streak.set(0);
     this.lastFocusDate.set('');
     this.goldMedals.set(0);

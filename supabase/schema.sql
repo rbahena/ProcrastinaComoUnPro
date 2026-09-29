@@ -149,6 +149,10 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     focus_points BIGINT DEFAULT 0 CHECK (focus_points >= 0),
     -- focus_tomatoes: Total histórico de pomodoros completados con éxito.
     focus_tomatoes INTEGER DEFAULT 0 CHECK (focus_tomatoes >= 0),
+    -- completed_objectives: Total histórico de objetivos y tareas completadas exitosamente.
+    completed_objectives INTEGER DEFAULT 0 CHECK (completed_objectives >= 0),
+    -- abandoned_sessions: Total de sesiones canceladas o abandonadas antes de concluir el tiempo.
+    abandoned_sessions INTEGER DEFAULT 0 CHECK (abandoned_sessions >= 0),
     -- streak_days: Racha de días consecutivos completando metas de enfoque.
     streak_days INTEGER DEFAULT 0 CHECK (streak_days >= 0),
     -- longest_streak: Récord personal de racha más larga alcanzada.
@@ -1905,12 +1909,13 @@ BEGIN
 
             v_new_longest_streak := GREATEST(COALESCE(v_user.longest_streak, 0), v_new_streak);
 
-            -- Actualizar perfil con ganancias y racha
+            -- Actualizar perfil con ganancias, racha y objetivos
             UPDATE public.profiles
             SET 
                 pro_coins = pro_coins + v_coins_earned,
                 focus_tomatoes = focus_tomatoes + v_tomatoes_earned,
                 focus_points = focus_points + v_xp_earned,
+                completed_objectives = completed_objectives + CASE WHEN p_objective_completed = 'yes' THEN 1 ELSE 0 END,
                 streak_days = v_new_streak,
                 longest_streak = v_new_longest_streak,
                 last_focus_date = v_today
@@ -1924,7 +1929,8 @@ BEGIN
             UPDATE public.profiles
             SET 
                 pro_coins = pro_coins + v_coins_earned,
-                focus_points = focus_points + v_xp_earned
+                focus_points = focus_points + v_xp_earned,
+                completed_objectives = completed_objectives + CASE WHEN p_objective_completed = 'yes' THEN 1 ELSE 0 END
             WHERE id = v_user_id;
         END IF;
 
@@ -1944,7 +1950,8 @@ BEGIN
         UPDATE public.profiles
         SET 
             pro_coins = GREATEST(0, pro_coins - v_coins_penalized),
-            focus_points = CASE WHEN is_premium THEN GREATEST(0, focus_points - 50) ELSE focus_points END
+            focus_points = CASE WHEN is_premium THEN GREATEST(0, focus_points - 50) ELSE focus_points END,
+            abandoned_sessions = abandoned_sessions + 1
         WHERE id = v_user_id;
     END IF;
 
@@ -2904,6 +2911,7 @@ DECLARE
     v_total_users INTEGER := 0;
     v_today_sessions INTEGER := 0;
     v_user_rank INTEGER := 1;
+    v_rank_neighbors JSON := '[]'::json;
     v_podium JSON;
     v_top_records JSON;
     v_recent_avatars JSON;
@@ -2916,10 +2924,10 @@ BEGIN
     FROM public.focus_sessions 
     WHERE status = 'completed' AND completed_at >= CURRENT_DATE;
 
-    -- 3. Calcular posición exacta del usuario en el ranking global
+    -- 3. Calcular posición exacta del usuario en el ranking por TOMATES
     IF v_user_id IS NOT NULL THEN
         SELECT rank INTO v_user_rank FROM (
-            SELECT id, ROW_NUMBER() OVER (ORDER BY focus_points DESC, focus_tomatoes DESC, created_at ASC) as rank
+            SELECT id, ROW_NUMBER() OVER (ORDER BY focus_tomatoes DESC, focus_points DESC, created_at ASC) as rank
             FROM public.profiles
         ) ranks
         WHERE id = v_user_id;
@@ -2929,13 +2937,69 @@ BEGIN
         END IF;
     END IF;
 
-    -- 4. Podio Semanal: Top 3 usuarios PREMIUM por puntos de enfoque (solo con actividad registrada)
+    -- 3b. Obtener vecinos en el ranking (2 puestos arriba, tú, 2 puestos abajo)
+    SELECT COALESCE(json_agg(n), '[]'::json) INTO v_rank_neighbors FROM (
+        WITH ranked_profiles AS (
+            SELECT 
+                id, 
+                username, 
+                selected_avatar, 
+                selected_theme, 
+                focus_tomatoes, 
+                streak_days, 
+                podium_wins, 
+                is_premium,
+                (id = v_user_id) AS is_current_user,
+                ROW_NUMBER() OVER (ORDER BY focus_tomatoes DESC, focus_points DESC, created_at ASC) as rank
+            FROM public.profiles
+        )
+        SELECT *
+        FROM ranked_profiles
+        WHERE rank BETWEEN GREATEST(1, COALESCE(v_user_rank, 1) - 2) AND (COALESCE(v_user_rank, 1) + 2)
+        ORDER BY rank ASC
+    ) n;
+
+    -- 4. Podio Semanal: Top 5 usuarios PREMIUM por Score de Honor y Disciplina Semanal (Calculado de Lunes a Domingo)
     SELECT COALESCE(json_agg(p), '[]'::json) INTO v_podium FROM (
-        SELECT id, username, selected_avatar, selected_theme, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, is_premium
-        FROM public.profiles
-        WHERE is_premium = TRUE AND (focus_points > 0 OR focus_tomatoes > 0)
-        ORDER BY focus_points DESC, focus_tomatoes DESC, created_at ASC
-        LIMIT 3
+        SELECT 
+            p.id, 
+            p.username, 
+            p.selected_avatar, 
+            p.selected_theme, 
+            p.focus_points, 
+            p.focus_tomatoes, 
+            p.completed_objectives,
+            p.abandoned_sessions,
+            p.streak_days, 
+            p.podium_wins, 
+            p.gold_medals, 
+            p.silver_medals, 
+            p.bronze_medals, 
+            p.is_premium,
+            p.created_at,
+            COALESCE(
+                SUM(
+                    CASE 
+                        WHEN s.status = 'completed' THEN ROUND(s.actual_duration_seconds / 60)
+                        WHEN s.status = 'abandoned' THEN -20
+                        ELSE 0 
+                    END
+                    + CASE WHEN s.objective_completed = 'yes' THEN 20 ELSE 0 END
+                    + ROUND(COALESCE(s.boss_damage_dealt, 0) / 10)
+                ), 
+                (p.focus_tomatoes * 25 + COALESCE(p.completed_objectives, 0) * 20 - COALESCE(p.abandoned_sessions, 0) * 20)
+            ) AS weekly_score,
+            COALESCE(COUNT(s.id) FILTER (WHERE s.status = 'completed'), p.focus_tomatoes) AS weekly_sessions,
+            COALESCE(COUNT(s.id) FILTER (WHERE s.objective_completed = 'yes'), COALESCE(p.completed_objectives, 0)) AS weekly_objectives,
+            COALESCE(COUNT(s.id) FILTER (WHERE s.status = 'abandoned'), COALESCE(p.abandoned_sessions, 0)) AS weekly_abandons
+        FROM public.profiles p
+        LEFT JOIN public.focus_sessions s 
+            ON s.user_id = p.id 
+            AND s.created_at >= DATE_TRUNC('week', CURRENT_DATE)
+        WHERE p.is_premium = TRUE AND (p.focus_points > 0 OR p.focus_tomatoes > 0)
+        GROUP BY p.id
+        ORDER BY weekly_score DESC, p.focus_points DESC, p.focus_tomatoes DESC, p.created_at ASC
+        LIMIT 5
     ) p;
 
     -- 5. Récords Históricos: Top 10 maestros PREMIUM del pomodoro
@@ -2960,6 +3024,7 @@ BEGIN
         'total_users', v_total_users,
         'completed_today', v_today_sessions,
         'user_rank', COALESCE(v_user_rank, 1),
+        'rank_neighbors', v_rank_neighbors,
         'podium', v_podium,
         'top_records', v_top_records,
         'recent_avatars', v_recent_avatars

@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
-import { SupabaseService, CommunityLeaderboardUser } from '../../services/supabase.service';
+import { SupabaseService, CommunityLeaderboardUser, RankNeighborItem } from '../../services/supabase.service';
 import { Navbar } from '../../components/navbar/navbar';
 
 export interface PodiumDisplayItem {
@@ -12,6 +12,8 @@ export interface PodiumDisplayItem {
   avatar: string;
   color: string;
   value: string;
+  details?: string;
+  score?: number;
   place: string;
   wins: number;
   isAssigned?: boolean;
@@ -72,8 +74,14 @@ export class Home implements OnInit, OnDestroy {
   // Compañeros en vivo para avatar stack (inicia vacío y se llena con datos reales)
   liveCommunityUsers = signal<CommunityCompanionItem[]>([]);
 
+  // Vecinos en el ranking de tomates (2 arriba, tú, 2 abajo)
+  rankNeighbors = signal<RankNeighborItem[]>([]);
+
   // Podio Semanal (Top 3 real en orden [2º, 1º, 3º] para la UI)
   topPodiumUsers = signal<PodiumDisplayItem[]>([]);
+
+  // Siguientes 2 Lugares (4º y 5º puesto)
+  topRunnersUp = signal<PodiumDisplayItem[]>([]);
 
   // Récords Históricos (Top 5 real por Pomodoros)
   topHistoricalRecords = signal<HistoricalRecordItem[]>([]);
@@ -94,16 +102,10 @@ export class Home implements OnInit, OnDestroy {
   });
 
   rankingPosition = computed(() => {
-    if (!this.membership.isPremium()) {
-      return Math.max(1, this.totalCommunityUsers());
-    }
     return Math.max(1, this.liveUserRank());
   });
 
   percentageBeaten = computed(() => {
-    if (!this.membership.isPremium()) {
-      return 0;
-    }
     const total = Math.max(1, this.totalCommunityUsers());
     const pos = this.rankingPosition();
     if (total <= 1) return 100;
@@ -260,10 +262,25 @@ export class Home implements OnInit, OnDestroy {
       this.animateCounter(this.liveFocusedUsersCount, realUsersCount);
       this.animateCounter(this.liveCompletedObjectivesToday, realObjectivesToday);
 
-      // 2. Ranking real del usuario
+      // 2. Ranking real del usuario por tomates
       this.liveUserRank.set(data.user_rank || 1);
 
-      // 3. Podio Semanal (Top 3 real de base de datos)
+      // 2b. Vecinos en el ranking de tomates (2 arriba, tú, 2 abajo)
+      if (data.rank_neighbors && data.rank_neighbors.length > 0) {
+        this.rankNeighbors.set(data.rank_neighbors);
+      } else {
+        this.rankNeighbors.set([{
+          id: 'me',
+          username: this.userName(),
+          selected_avatar: this.selectedAvatar(),
+          focus_tomatoes: this.membership.focusTomatoes(),
+          rank: this.liveUserRank(),
+          is_current_user: true,
+          is_premium: this.membership.isPremium()
+        }]);
+      }
+
+      // 3. Podio Semanal (Top 5 real de base de datos)
       this.processPodiumData(data.podium || []);
 
       // 4. Récords Históricos (Top 5 real de base de datos)
@@ -292,76 +309,78 @@ export class Home implements OnInit, OnDestroy {
     return false;
   }
 
+  private formatPodiumUser(u: CommunityLeaderboardUser, position: number, place: string): PodiumDisplayItem {
+    const score = u.weekly_score !== undefined 
+      ? u.weekly_score 
+      : (((u.focus_tomatoes || 0) * 25) + ((u.completed_objectives || 0) * 20) - ((u.abandoned_sessions || 0) * 20));
+    
+    const sessions = u.weekly_sessions !== undefined ? u.weekly_sessions : (u.focus_tomatoes || 0);
+    const objectives = u.weekly_objectives !== undefined ? u.weekly_objectives : (u.completed_objectives || 0);
+    const abandons = u.weekly_abandons !== undefined ? u.weekly_abandons : (u.abandoned_sessions || 0);
+
+    return {
+      position,
+      name: u.username || 'Guerrero',
+      avatar: u.selected_avatar || 'gato',
+      color: this.membership.getAvatarColorById(u.selected_avatar || 'gato'),
+      value: `${Math.max(0, score).toLocaleString()} pts`,
+      details: `${sessions} 🍅 • ${objectives} 🎯 • ${abandons} 🚫`,
+      score: Math.max(0, score),
+      place,
+      wins: u.podium_wins || 0,
+      isAssigned: true
+    };
+  }
+
+  private getUnassignedPodiumItem(position: number, place: string): PodiumDisplayItem {
+    return {
+      position,
+      name: 'En disputa',
+      avatar: '',
+      color: 'rgba(255, 255, 255, 0.05)',
+      value: 'Disponible',
+      details: '0 🍅 • 0 🎯 • 0 🚫',
+      score: 0,
+      place,
+      wins: 0,
+      isAssigned: false
+    };
+  }
+
   private processPodiumData(podiumUsers: CommunityLeaderboardUser[]) {
-    // Filtrar solo usuarios PREMIUM que tengan puntos o tomates registrados en BD y cumplan >5 unidades o >1 semana
+    // Filtrar solo usuarios PREMIUM que tengan puntos, score o tomates registrados en BD y cumplan >5 unidades o >1 semana
     const activeUsers = (podiumUsers || []).filter(u => 
       u.is_premium === true && 
-      ((u.focus_points || 0) > 0 || (u.focus_tomatoes || 0) > 0) &&
+      ((u.weekly_score || 0) > 0 || (u.focus_points || 0) > 0 || (u.focus_tomatoes || 0) > 0) &&
       (this.isUserEligible(Math.floor((u.focus_points || 0) / 40) || (u.focus_tomatoes || 0), u.created_at) || this.isUserEligible(u.focus_tomatoes || 0, u.created_at))
     );
 
     if (activeUsers.length === 0) {
       this.topPodiumUsers.set([]);
+      this.topRunnersUp.set([
+        this.getUnassignedPodiumItem(4, '4º'),
+        this.getUnassignedPodiumItem(5, '5º')
+      ]);
       return;
     }
 
     const firstUser = activeUsers[0];
     const secondUser = activeUsers[1];
     const thirdUser = activeUsers[2];
+    const fourthUser = activeUsers[3];
+    const fifthUser = activeUsers[4];
 
-    const first: PodiumDisplayItem = {
-      position: 1,
-      name: firstUser.username || 'Guerrero',
-      avatar: firstUser.selected_avatar || 'gato',
-      color: this.membership.getAvatarColorById(firstUser.selected_avatar || 'gato'),
-      value: (firstUser.focus_points || 0) > 0 ? `${(firstUser.focus_points || 0).toLocaleString()} puntos` : `${firstUser.focus_tomatoes || 0} 🍅`,
-      place: '1º',
-      wins: firstUser.podium_wins || 0,
-      isAssigned: true
-    };
-
-    const second: PodiumDisplayItem = secondUser ? {
-      position: 2,
-      name: secondUser.username || 'Guerrero',
-      avatar: secondUser.selected_avatar || 'gato',
-      color: this.membership.getAvatarColorById(secondUser.selected_avatar || 'gato'),
-      value: (secondUser.focus_points || 0) > 0 ? `${(secondUser.focus_points || 0).toLocaleString()} puntos` : `${secondUser.focus_tomatoes || 0} 🍅`,
-      place: '2º',
-      wins: secondUser.podium_wins || 0,
-      isAssigned: true
-    } : {
-      position: 2,
-      name: 'En disputa',
-      avatar: '',
-      color: 'rgba(255, 255, 255, 0.05)',
-      value: 'Disponible',
-      place: '2º',
-      wins: 0,
-      isAssigned: false
-    };
-
-    const third: PodiumDisplayItem = thirdUser ? {
-      position: 3,
-      name: thirdUser.username || 'Guerrero',
-      avatar: thirdUser.selected_avatar || 'gato',
-      color: this.membership.getAvatarColorById(thirdUser.selected_avatar || 'gato'),
-      value: (thirdUser.focus_points || 0) > 0 ? `${(thirdUser.focus_points || 0).toLocaleString()} puntos` : `${thirdUser.focus_tomatoes || 0} 🍅`,
-      place: '3º',
-      wins: thirdUser.podium_wins || 0,
-      isAssigned: true
-    } : {
-      position: 3,
-      name: 'En disputa',
-      avatar: '',
-      color: 'rgba(255, 255, 255, 0.05)',
-      value: 'Disponible',
-      place: '3º',
-      wins: 0,
-      isAssigned: false
-    };
+    const first: PodiumDisplayItem = this.formatPodiumUser(firstUser, 1, '1º');
+    const second: PodiumDisplayItem = secondUser ? this.formatPodiumUser(secondUser, 2, '2º') : this.getUnassignedPodiumItem(2, '2º');
+    const third: PodiumDisplayItem = thirdUser ? this.formatPodiumUser(thirdUser, 3, '3º') : this.getUnassignedPodiumItem(3, '3º');
 
     // Formato requerido para la UI: [2º (izquierda), 1º (centro), 3º (derecha)]
     this.topPodiumUsers.set([second, first, third]);
+
+    // Siguientes 2 lugares (4º y 5º)
+    const fourth: PodiumDisplayItem = fourthUser ? this.formatPodiumUser(fourthUser, 4, '4º') : this.getUnassignedPodiumItem(4, '4º');
+    const fifth: PodiumDisplayItem = fifthUser ? this.formatPodiumUser(fifthUser, 5, '5º') : this.getUnassignedPodiumItem(5, '5º');
+    this.topRunnersUp.set([fourth, fifth]);
   }
 
   private processHistoricalRecords(records: CommunityLeaderboardUser[]) {

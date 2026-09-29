@@ -414,10 +414,6 @@ interface CountryOption {
                     </div>
 
                     <!-- Banner si ya está desbloqueado -->
-                    <div *ngIf="inspectedAvatar().isUnlocked" class="how-to-get-unlocked-banner">
-                      <i class="fa-solid fa-circle-check text-green"></i>
-                      <span>¡Ya tienes este guardián en tu colección! Puedes elegirlo cuando quieras.</span>
-                    </div>
                   </div>
                 </div>
               </div>

@@ -2795,6 +2795,8 @@ export class Enfoque implements OnInit, OnDestroy {
 
     // 4. Deducir monedas en el cliente de inmediato con piso en 0
     this.membership.proCoins.update(coins => Math.max(0, coins - penaltyCoins));
+    this.membership.addAbandonedSession();
+    this.membership.addWeeklyHonorPoints(-20);
     this.membership.saveConsolidatedUserData();
 
     // 5. Resetear completamente la pantalla y el temporizador al estado 'setup'
@@ -2919,6 +2921,7 @@ export class Enfoque implements OnInit, OnDestroy {
           if (this.membership.isPremium()) {
             const damage = this.membership.getAvatarDamagePoints(equippedAvatar);
             this.bossService.dealDamage(damage);
+            this.membership.addWeeklyHonorPoints(Math.round(damage / 10));
             
             const eventText = `🗡️ ${this.userName()} completó su Pomodoro e infligió ${damage} de daño al Boss.`;
             this.addComunidadEvent(eventText, 'complete');

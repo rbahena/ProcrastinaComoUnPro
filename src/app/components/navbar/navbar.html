@@ -40,15 +40,31 @@
   <div class="global-currency-header">
     <!-- Tomates -->
     <div class="header-currency-badge tomato-badge" 
-         data-tooltip="Tomates de Enfoque: Se gana 1 tomate por cada Pomodoro completado."
+         data-tooltip="Pomodoros completados"
          data-tooltip-align="bottom">
       <i style="font-style: normal; display: inline-block; font-size: 11px;">🍅</i>
       <span>×{{ membership.focusTomatoes() }}</span>
     </div>
 
+    <!-- Objetivos Cumplidos -->
+    <div class="header-currency-badge objectives-badge" 
+         data-tooltip="Objetivos cumplidos"
+         data-tooltip-align="bottom">
+      <i style="font-style: normal; display: inline-block; font-size: 11px;">🎯</i>
+      <span>×{{ membership.completedObjectives() }}</span>
+    </div>
+
+    <!-- Puntos de Productividad -->
+    <div class="header-currency-badge honor-badge" 
+         data-tooltip="Puntos de productividad"
+         data-tooltip-align="bottom">
+      <i class="fa-solid fa-bolt"></i>
+      <span>{{ membership.weeklyHonorPoints() }} pts</span>
+    </div>
+
     <!-- Pro Coins -->
     <div class="header-currency-badge pro-coins-badge" 
-         data-tooltip="Pro Coins: Recompensas de concentración. Cada avatar aporta más o menos según su nivel."
+         data-tooltip="Pro Coins acumuladas"
          data-tooltip-align="bottom">
       <i class="fa-solid fa-coins"></i>
       <span>×{{ membership.proCoins() }}</span>
@@ -56,7 +72,7 @@
 
     <!-- Racha de Enfoque -->
     <div class="header-currency-badge streak-badge" 
-         data-tooltip="Racha de Enfoque: Días consecutivos enfocándote. ¡No dejes que se apague la llama!"
+         data-tooltip="Días de racha activa"
          data-tooltip-align="bottom-left">
       <i class="fa-solid fa-fire"></i>
       <span>{{ membership.streak() }}</span>
@@ -82,11 +98,16 @@
     <div *ngIf="membership.avatarMenuOpen() && !membership.isFocusActive()"
          class="navbar-dropdown-panel"
          (click)="$event.stopPropagation()">
-      <div style="padding: 6px 12px; display: flex; flex-direction: column; gap: 2px; user-select: none;">
+      <div style="padding: 6px 12px; display: flex; flex-direction: column; gap: 4px; user-select: none;">
         <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">{{ membership.userName() }}</span>
-        <span style="font-size: 9.5px; font-weight: 600; color: var(--muted); letter-spacing: 0.3px;">
-          Plan {{ membership.isPremium() ? 'Pro' : 'Básico' }}
-        </span>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+          <span style="font-size: 9.5px; font-weight: 600; color: var(--muted); letter-spacing: 0.3px;">
+            Plan {{ membership.isPremium() ? 'Pro 👑' : 'Básico' }}
+          </span>
+          <span style="font-size: 9px; font-weight: 700; color: var(--green); background: rgba(16,185,129,0.1); padding: 1px 4px; border-radius: 4px;">
+            🛡️ {{ membership.effectivenessRate() }}%
+          </span>
+        </div>
       </div>
       <div style="height: 1px; background: var(--border); margin: 4px 6px;"></div>
       <a routerLink="/cualidades" (click)="membership.closeAvatarMenu()" class="dropdown-item-link">

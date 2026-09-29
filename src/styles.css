@@ -1807,6 +1807,36 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   transform: scale(1.15) rotate(15deg); /* Micro-interacción: rotación ligera */
 }
 
+/* Badge de Objetivos */
+.header-currency-badge.objectives-badge {
+  color: #38bdf8; /* Azul cyan vibrante */
+  border-color: rgba(56, 189, 248, 0.2);
+  background: rgba(56, 189, 248, 0.02);
+}
+.header-currency-badge.objectives-badge:hover {
+  background: rgba(56, 189, 248, 0.06);
+  border-color: rgba(56, 189, 248, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Badge de Puntos de Productividad Real Semanales */
+.header-currency-badge.honor-badge {
+  color: #10b981; /* Verde esmeralda neón llamativo */
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.05);
+  font-weight: 800;
+}
+.header-currency-badge.honor-badge:hover {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.65);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+.header-currency-badge.honor-badge:hover i {
+  transform: scale(1.25);
+  filter: drop-shadow(0 0 6px #10b981);
+}
+
 /* Badge de Racha */
 .header-currency-badge.streak-badge {
   color: #ff6b00; /* Naranja fuego llamativo */
@@ -2671,6 +2701,20 @@ body.theme-light .header-currency-badge.pro-coins-badge {
   background: #fffbeb !important;
   border-color: #fde68a !important;
   color: #d97706 !important;
+}
+
+body.mode-light .header-currency-badge.objectives-badge,
+body.theme-light .header-currency-badge.objectives-badge {
+  background: #f0f9ff !important;
+  border-color: #bae6fd !important;
+  color: #0284c7 !important;
+}
+
+body.mode-light .header-currency-badge.honor-badge,
+body.theme-light .header-currency-badge.honor-badge {
+  background: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #059669 !important;
 }
 
 body.mode-light .header-currency-badge.streak-badge,

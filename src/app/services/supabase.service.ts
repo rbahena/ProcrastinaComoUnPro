@@ -186,6 +186,12 @@ export interface CommunityLeaderboardUser {
   is_premium?: boolean;
   focus_points?: number;
   focus_tomatoes?: number;
+  completed_objectives?: number;
+  abandoned_sessions?: number;
+  weekly_score?: number;
+  weekly_sessions?: number;
+  weekly_objectives?: number;
+  weekly_abandons?: number;
   streak_days?: number;
   podium_wins?: number;
   gold_medals?: number;
@@ -194,10 +200,23 @@ export interface CommunityLeaderboardUser {
   created_at?: string;
 }
 
+export interface RankNeighborItem {
+  id: string;
+  username: string;
+  selected_avatar: string;
+  selected_theme?: string;
+  focus_tomatoes: number;
+  rank: number;
+  is_current_user: boolean;
+  is_premium?: boolean;
+  podium_wins?: number;
+}
+
 export interface CommunityHomeDashboardData {
   total_users: number;
   completed_today: number;
   user_rank: number;
+  rank_neighbors?: RankNeighborItem[];
   podium: CommunityLeaderboardUser[];
   top_records: CommunityLeaderboardUser[];
   recent_avatars: CommunityLeaderboardUser[];
@@ -1605,6 +1624,7 @@ export class SupabaseService {
             total_users: rpcData.total_users ?? 0,
             completed_today: rpcData.completed_today ?? 0,
             user_rank: rpcData.user_rank ?? 1,
+            rank_neighbors: rpcData.rank_neighbors ?? [],
             podium: (rpcData.podium ?? []).filter((p: any) => 
               this.isEligibleForRankingCategory(Math.floor((p.focus_points || 0) / 40) || (p.focus_tomatoes || 0), p.created_at) || 
               this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)
@@ -1623,35 +1643,70 @@ export class SupabaseService {
       
       const { data: profiles, error: profilesError } = await this.supabase
         .from('profiles')
-        .select('id, username, selected_avatar, selected_theme, is_premium, focus_points, focus_tomatoes, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, created_at, updated_at')
-        .order('focus_points', { ascending: false });
+        .select('id, username, selected_avatar, selected_theme, is_premium, focus_points, focus_tomatoes, completed_objectives, abandoned_sessions, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, created_at, updated_at')
+        .order('focus_tomatoes', { ascending: false });
 
       if (profilesError) {
         return { data: null, error: profilesError.message };
       }
 
-      const allProfiles: CommunityLeaderboardUser[] = profiles || [];
+      const allProfiles: CommunityLeaderboardUser[] = (profiles || []).map(p => {
+        const score = ((p.focus_tomatoes || 0) * 25) + ((p.completed_objectives || 0) * 20) - ((p.abandoned_sessions || 0) * 20);
+        return {
+          ...p,
+          weekly_score: Math.max(0, score),
+          weekly_sessions: p.focus_tomatoes || 0,
+          weekly_objectives: p.completed_objectives || 0,
+          weekly_abandons: p.abandoned_sessions || 0
+        };
+      });
       const totalUsers = allProfiles.length;
 
       // Filtrar únicamente perfiles con membresía Premium para el Podio y Récords
       const premiumProfiles = allProfiles.filter(p => p.is_premium === true);
 
-      // Calcular user_rank (solo entre usuarios premium si el usuario es premium)
+      // Calcular user_rank basado estrictamente en focus_tomatoes
+      const rankedByTomatoes = [...allProfiles].sort((a, b) => 
+        ((b.focus_tomatoes || 0) - (a.focus_tomatoes || 0)) || 
+        ((b.focus_points || 0) - (a.focus_points || 0))
+      );
+
       let userRank = 1;
       if (currentUser) {
-        const foundIdx = premiumProfiles.findIndex(p => p.id === currentUser.id);
+        const foundIdx = rankedByTomatoes.findIndex(p => p.id === currentUser.id);
         if (foundIdx !== -1) {
           userRank = foundIdx + 1;
         } else {
-          userRank = totalUsers;
+          userRank = rankedByTomatoes.length || 1;
         }
       }
 
-      // Podio: Top 3 usuarios PREMIUM con actividad que hayan superado 5 unidades o 1 semana
-      const podium = premiumProfiles.filter(p => 
-        this.isEligibleForRankingCategory(Math.floor((p.focus_points || 0) / 40) || (p.focus_tomatoes || 0), p.created_at) || 
-        this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)
-      ).slice(0, 3);
+      // Vecinos en el ranking: 2 puestos arriba, tú, 2 puestos abajo
+      const startIdx = Math.max(0, userRank - 3);
+      const endIdx = Math.min(rankedByTomatoes.length, userRank + 2);
+      const rankNeighbors: RankNeighborItem[] = rankedByTomatoes.slice(startIdx, endIdx).map((p, idx) => {
+        const actualRank = startIdx + idx + 1;
+        return {
+          id: p.id,
+          username: p.username || 'Guerrero',
+          selected_avatar: p.selected_avatar || 'gato',
+          selected_theme: p.selected_theme,
+          focus_tomatoes: p.focus_tomatoes || 0,
+          rank: actualRank,
+          is_current_user: currentUser ? p.id === currentUser.id : actualRank === userRank,
+          is_premium: p.is_premium,
+          podium_wins: p.podium_wins || 0
+        };
+      });
+
+      // Podio: Top 5 usuarios PREMIUM por Weekly Score (> 5 unidades o 1 semana)
+      const podium = [...premiumProfiles]
+        .filter(p => 
+          this.isEligibleForRankingCategory(Math.floor((p.focus_points || 0) / 40) || (p.focus_tomatoes || 0), p.created_at) || 
+          this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)
+        )
+        .sort((a, b) => ((b.weekly_score ?? 0) - (a.weekly_score ?? 0)) || ((b.focus_points || 0) - (a.focus_points || 0)))
+        .slice(0, 5);
 
       // Top récords: Top 10 usuarios PREMIUM por focus_tomatoes (> 5 o 1 semana)
       const topRecords = [...premiumProfiles]
@@ -1675,6 +1730,7 @@ export class SupabaseService {
           total_users: totalUsers,
           completed_today: completedToday || 0,
           user_rank: userRank,
+          rank_neighbors: rankNeighbors,
           podium,
           top_records: topRecords,
           recent_avatars: recentAvatars
