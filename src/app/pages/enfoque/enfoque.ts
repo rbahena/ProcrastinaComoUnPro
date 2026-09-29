@@ -1750,6 +1750,7 @@ export class Enfoque implements OnInit, OnDestroy {
     localStorage.removeItem('activeObjectiveIdeaId');
     localStorage.removeItem('focus-session-objective');
     localStorage.removeItem('focus-session-idea-id');
+    this.broadcastPresence();
     this.showToastFeedback('Objetivo desasociado.', 'info');
   }
 
@@ -1789,49 +1790,75 @@ export class Enfoque implements OnInit, OnDestroy {
   partnerStatus = signal<'focused' | 'left'>('focused');
 
   // Templo de Enfoque Comunitario
+  // Templo de Enfoque Comunitario Real (Supabase Realtime Presence)
   comunidadUsers = signal<any[]>([]);
   comunidadViewStyle = signal<'cards' | 'desks' | 'floating'>('cards');
   comunidadViewOptions: ('cards' | 'desks' | 'floating')[] = ['cards', 'desks', 'floating'];
   comunidadEvents = signal<any[]>([]);
   userActiveReaction = signal<string>('');
-  globalFocusedCount = signal<number>(74);
+  globalFocusedCount = signal<number>(1);
   communityInterval: any = null;
   comunidadPanelExpanded = signal<boolean>(false);
-  hideMyObjectiveInCommunity = signal<boolean>(true);
+  hideMyObjectiveInCommunity = signal<boolean>(false);
+  showConsoleOnboardingHint = signal<boolean>(true);
+  consoleHintTimeout: any = null;
+  comunidadSearchQuery = signal<string>('');
+  comunidadFilter = signal<'all' | 'focused' | 'break'>('all');
+  maxVisibleCommunityUsers = signal<number>(10);
 
-  private initialComunidadUsers = [
-    { name: 'Ana', avatar: 'lobo', status: 'focused', mission: 'Refactorizando el dashboard en Angular', timeLeft: 1200, percentage: 40 },
-    { name: 'Ramiro', avatar: 'zorro', status: 'focused', mission: 'Escribiendo post sobre procrastinación', timeLeft: 600, percentage: 80 },
-    { name: 'Sofía', avatar: 'aguila', status: 'focused', mission: 'Diseñando pantallas en Figma', timeLeft: 1500, percentage: 20 },
-    { name: 'Carlos', avatar: 'panda', status: 'break', mission: 'Pausa activa y estiramientos', timeLeft: 180, percentage: 40 },
-    { name: 'Mateo', avatar: 'hamster', status: 'focused', mission: 'Optimizando consultas SQL pesadas', timeLeft: 900, percentage: 50 },
-    { name: 'Valentina', avatar: 'buho', status: 'focused', mission: 'Preparando presentación de negocio', timeLeft: 300, percentage: 90 },
-    { name: 'Lucas', avatar: 'rana', status: 'idle', mission: 'Planeando tareas de la semana', timeLeft: 0, percentage: 100 },
-    { name: 'Clara', avatar: 'tortuga', status: 'focused', mission: 'Resolviendo bugs de renderizado CSS', timeLeft: 1350, percentage: 30 },
-    { name: 'Esteban', avatar: 'abeja', status: 'focused', mission: 'Escribiendo pruebas unitarias con Vitest', timeLeft: 720, percentage: 60 },
-    { name: 'Laura', avatar: 'castor', status: 'break', mission: 'Tomando café e hidratación', timeLeft: 240, percentage: 20 }
-  ];
+  totalCommunityUsersCount = computed(() => {
+    return (this.coworkingMode() === 'solo' ? 0 : this.comunidadUsers().length) + 1;
+  });
 
-  private namesPool = ['Sofía', 'Alejandro', 'Valeria', 'Daniel', 'Mariana', 'Santiago', 'Camila', 'Mateo', 'Gabriela', 'Sebastián', 'Isabella', 'Nicolás', 'Lucía', 'Diego', 'Victoria', 'Felipe', 'Emma', 'Samuel', 'Elena', 'Tomás'];
-  
-  private missionsPool = [
-    'Refactorizando componentes en Angular',
-    'Escribiendo documentación técnica',
-    'Optimizando base de datos PostgreSQL',
-    'Estudiando algoritmos de búsqueda',
-    'Diseñando wireframes en Figma',
-    'Depurando fugas de memoria en JS',
-    'Desarrollando API REST con Express',
-    'Corrigiendo errores de linting',
-    'Maquetando layouts con Flexbox',
-    'Preparando presentación ejecutiva',
-    'Investigando arquitectura limpia',
-    'Configurando Webpack y Vite',
-    'Escribiendo pruebas de integración',
-    'Revisando Pull Requests en GitHub',
-    'Analizando métricas de rendimiento',
-    'Redactando post de blog técnico'
-  ];
+  totalLiveWarriorsCount = computed(() => {
+    const liveOthers = this.comunidadUsers().filter(u => u.is_live && u.status !== 'idle').length;
+    const isMeLive = this.arenaState() === 'active' && this.timerRunning();
+    return liveOthers + (isMeLive ? 1 : 0);
+  });
+
+  visibleComunidadUsers = computed(() => {
+    let list = this.comunidadUsers();
+    const query = this.comunidadSearchQuery().toLowerCase().trim();
+    const filter = this.comunidadFilter();
+
+    if (query) {
+      list = list.filter(u => 
+        (u.name && u.name.toLowerCase().includes(query)) ||
+        (u.mission && u.mission.toLowerCase().includes(query))
+      );
+    }
+
+    if (filter === 'focused') {
+      list = list.filter(u => u.status === 'focused');
+    } else if (filter === 'break') {
+      list = list.filter(u => u.status === 'break' || u.status === 'paused');
+    }
+
+    // Ordenar con prioridad inteligente: Focused (4) -> Break (3) -> Paused (2) -> Idle (1)
+    const sorted = [...list].sort((a, b) => {
+      const score = (u: any) => {
+        if (u.status === 'focused') return 4;
+        if (u.status === 'break') return 3;
+        if (u.status === 'paused') return 2;
+        return 1;
+      };
+      const scoreDiff = score(b) - score(a);
+      if (scoreDiff !== 0) return scoreDiff;
+      return (b.timeLeft || 0) - (a.timeLeft || 0);
+    });
+
+    return sorted.slice(0, this.maxVisibleCommunityUsers());
+  });
+
+  hiddenComunidadUsersCount = computed(() => {
+    const total = this.comunidadUsers().length;
+    const visible = this.visibleComunidadUsers().length;
+    return Math.max(0, total - visible);
+  });
+
+  presenceClientId: string = 'client-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+  private communityPresenceChannel: any = null;
+  private dbRegisteredProfiles: any[] = [];
 
   // Modal de Mensaje de Apoyo
   showSupportMessageModal = signal(false);
@@ -1910,6 +1937,7 @@ export class Enfoque implements OnInit, OnDestroy {
     localStorage.setItem('focus-session-objective', text);
 
     this.objectiveConfirmed.set(true);
+    this.broadcastPresence();
     this.showToastFeedback('🎯 Objetivo asociado a tu sesión y guardado en Mis Ideas.', 'success');
   }
 
@@ -2529,10 +2557,16 @@ export class Enfoque implements OnInit, OnDestroy {
   ngOnInit() {
     this.requestNotificationPermission();
     this.membership.syncProfileFromSupabase();
-    this.initializeComunidadUsers();
+    this.initializeRealComunidadUsers();
+    this.setupPresenceChannel();
     this.communityInterval = setInterval(() => {
       this.tickCommunity();
-    }, 4000);
+    }, 1000);
+
+    // Parpadeo de bienvenida y etiqueta temporal de la consola durante los primeros 6 segundos
+    this.consoleHintTimeout = setTimeout(() => {
+      this.showConsoleOnboardingHint.set(false);
+    }, 6000);
 
     // Fluctación orgánica de Body Doubling en silencio
     this.bodyDoublingInterval = setInterval(() => {
@@ -2618,6 +2652,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.arenaState.set('countdown');
     this.countdownValue.set(5);
     this.updateLiveTabTitle();
+    this.broadcastPresence();
 
     // Sonido sutil de preparación
     this.playTone(220, 'sine', 0.1, 0.15);
@@ -2664,6 +2699,7 @@ export class Enfoque implements OnInit, OnDestroy {
       const limitSeconds = 120; // 2 minutos para todos
       this.emergencyTimeLeft.set(limitSeconds);
       this.updateLiveTabTitle();
+      this.broadcastPresence();
 
       this.emergencyTimer = setInterval(() => {
         if (this.emergencyTimeLeft() > 0) {
@@ -2724,6 +2760,7 @@ export class Enfoque implements OnInit, OnDestroy {
           localStorage.removeItem('focus-session-objective');
           localStorage.removeItem('focus-session-idea-id');
           this.router.navigate(['/enfoque']);
+          this.broadcastPresence();
 
           // Mostrar modal informativo de cancelación
           this.showInterruptedModal.set(true);
@@ -2812,6 +2849,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.sessionEndingStatus.set('abandoned');
     this.manuallyAbandoned.set(false);
     this.objectiveCompleted.set(null);
+    this.broadcastPresence();
 
     // 6. Registrar intento diario
     const now = new Date();
@@ -3041,6 +3079,7 @@ export class Enfoque implements OnInit, OnDestroy {
       this.totalSessionTime.set(this.focusDuration() * 60);
       this.timeLeft.set(this.focusDuration() * 60);
       this.arenaState.set('setup');
+      this.broadcastPresence();
     }
 
     this.objectiveCompleted.set(null);
@@ -3054,6 +3093,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.totalSessionTime.set(this.focusDuration() * 60);
     this.timeLeft.set(this.focusDuration() * 60);
     this.membership.isFocusActive.set(false);
+    this.broadcastPresence();
   }
 
   // Verificación si el cronómetro actual tiene habilitada la función de arrastre
@@ -3155,6 +3195,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.totalSessionTime.set(this.focusDuration() * 60);
     this.timeLeft.set(this.focusDuration() * 60);
     this.arenaState.set('setup');
+    this.broadcastPresence();
   }
 
   // Auxiliares de navegación sidebar
@@ -4042,10 +4083,15 @@ export class Enfoque implements OnInit, OnDestroy {
     this.stopEmergencyTimer();
     this.stopBackgroundSound();
     if (this.previewSoundTimeout) clearTimeout(this.previewSoundTimeout);
+    if (this.consoleHintTimeout) clearTimeout(this.consoleHintTimeout);
     if (this.countdownTimer) clearInterval(this.countdownTimer);
     if (this.communityInterval) clearInterval(this.communityInterval);
     if (this.bodyDoublingInterval) clearInterval(this.bodyDoublingInterval);
     if (this.toastTimeout) clearTimeout(this.toastTimeout);
+    if (this.communityPresenceChannel && this.supabaseService.isConfigured()) {
+      this.supabaseService.client.removeChannel(this.communityPresenceChannel);
+      this.communityPresenceChannel = null;
+    }
 
     // Limpieza de escuchas de inactividad Zen
     document.removeEventListener('mousemove', this.onActivityFn);
@@ -4684,6 +4730,7 @@ export class Enfoque implements OnInit, OnDestroy {
     if (!fromRestore) {
       this.persistSessionState();
     }
+    this.broadcastPresence();
 
     if (!this.isBreak()) {
       if (this.backgroundSound() !== 'off' && !this.emergencyPauseActive()) {
@@ -4712,11 +4759,6 @@ export class Enfoque implements OnInit, OnDestroy {
         this.timeLeft.set(remaining);
         this.updateLiveTabTitle();
 
-        // Simulación en tiempo real del Templo Comunitario
-        if (this.coworkingMode() === 'comunitario' && remaining > 0) {
-          this.partnerSessionTicks.update(ticks => ticks + 1);
-        }
-
         if (remaining <= 0) {
           this.handleTimerCompleted();
         }
@@ -4742,6 +4784,7 @@ export class Enfoque implements OnInit, OnDestroy {
       this.pomodoroTimer = null;
     }
     this.stopBackgroundSound();
+    this.broadcastPresence();
   }
 
   private stopEmergencyTimer() {
@@ -4942,109 +4985,252 @@ export class Enfoque implements OnInit, OnDestroy {
     this.showToast('👥 Modo Comunidad activado (combate Boss y guerreros en vivo).', 'info');
   }
 
-  initializeComunidadUsers() {
-    const seeded = this.initialComunidadUsers.map((u, index) => ({
-      ...u,
-      x: Math.floor(Math.random() * 75) + 10,
-      y: Math.floor(Math.random() * 65) + 15,
-      desk: index + 1,
-      reaction: ''
-    }));
-    this.comunidadUsers.set(seeded);
-    // Generar un par de eventos iniciales
-    this.addComunidadEvent('⚔️ El Comunidad de Concentración está activo.', 'join');
-    this.addComunidadEvent('👥 Hay 10 guerreros trabajando en la sala.', 'join');
-  }
-
-  addComunidadEvent(text: string, type: 'join' | 'complete' | 'break' | 'reaction') {
-    const current = this.comunidadEvents();
-    const newEvent = { id: Date.now() + Math.random(), text, type };
-    this.comunidadEvents.set([newEvent, ...current].slice(0, 8));
-  }
-
-  formatTime(seconds: number): string {
-    const min = Math.floor(seconds / 60);
-    const sec = seconds % 60;
-    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-  }
-
-  getRandomMission(): string {
-    return this.missionsPool[Math.floor(Math.random() * this.missionsPool.length)];
-  }
-
-  simulateUserJoining() {
-    const currentNames = this.comunidadUsers().map(u => u.name);
-    const availableNames = this.namesPool.filter(n => !currentNames.includes(n));
-    if (availableNames.length === 0) return;
-    
-    const name = availableNames[Math.floor(Math.random() * availableNames.length)];
-    const avatars = ['lobo', 'zorro', 'buho', 'panda', 'tortuga', 'abeja', 'castor', 'hamster', 'rana', 'sloth'];
-    const avatar = avatars[Math.floor(Math.random() * avatars.length)];
-    const mission = this.getRandomMission();
-    
-    const takenDesks = this.comunidadUsers().map(u => u.desk);
-    let desk = 1;
-    for (let i = 1; i <= 12; i++) {
-      if (!takenDesks.includes(i)) {
-        desk = i;
-        break;
-      }
+  async initializeRealComunidadUsers() {
+    if (!this.supabaseService.isConfigured()) {
+      this.comunidadUsers.set([]);
+      return;
     }
 
-    const newUser = {
-      name,
-      avatar,
-      status: 'focused' as const,
-      mission,
-      timeLeft: 1500,
-      percentage: 0,
-      x: Math.floor(Math.random() * 75) + 10,
-      y: Math.floor(Math.random() * 65) + 15,
-      desk,
-      reaction: ''
-    };
+    try {
+      const currentUserId = this.supabaseService.currentUser()?.id;
+      const { data, error } = await this.supabaseService.client
+        .from('profiles')
+        .select('id, username, selected_avatar, focus_tomatoes, is_premium, last_focus_date')
+        .order('last_focus_date', { ascending: false, nullsFirst: false })
+        .limit(20);
 
-    this.comunidadUsers.update(users => [...users, newUser]);
-    this.addComunidadEvent(`👥 ${name} se unió al Templo de Enfoque.`, 'join');
-  }
-
-  simulateUserLeaving() {
-    const users = this.comunidadUsers();
-    if (users.length <= 4) return;
-    const candidates = users.filter(u => u.status === 'idle' || u.status === 'break');
-    const target = candidates.length > 0 
-      ? candidates[Math.floor(Math.random() * candidates.length)]
-      : users[Math.floor(Math.random() * users.length)];
-      
-    this.comunidadUsers.update(list => list.filter(u => u.name !== target.name));
-    this.addComunidadEvent(`👋 ${target.name} salió del Templo.`, 'break');
-  }
-
-  simulateIncomingReaction() {
-    const activeUsers = this.comunidadUsers().filter(u => u.status === 'focused');
-    if (activeUsers.length === 0) return;
-    
-    const sender = activeUsers[Math.floor(Math.random() * activeUsers.length)];
-    const emojis = ['💪', '🔥', '👏', '🧠'];
-    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-    
-    this.userActiveReaction.set(emoji);
-    this.addComunidadEvent(`¡${sender.name} te envió energía! ${emoji}`, 'reaction');
-    
-    if (this.arenaState() !== 'active') {
-      this.showToast(`¡${sender.name} te envió apoyo! ${emoji}`, 'info');
-    }
-    
-    setTimeout(() => {
-      if (this.userActiveReaction() === emoji) {
-        this.userActiveReaction.set('');
+      if (!error && data) {
+        this.dbRegisteredProfiles = data.filter(p => {
+          if (currentUserId && p.id === currentUserId) return false;
+          return true;
+        });
+        
+        // Lista inicial a partir de los perfiles reales registrados
+        const initialList = this.dbRegisteredProfiles.map((prof, idx) => ({
+          id: prof.id,
+          userId: prof.id,
+          name: prof.username || 'Guerrero',
+          avatar: prof.selected_avatar || 'gato',
+          status: 'idle' as const,
+          mission: 'En el campamento',
+          timeLeft: 0,
+          percentage: 0,
+          target_end_time: null,
+          total_duration: 1500,
+          desk: idx + 1,
+          is_live: false,
+          reaction: ''
+        }));
+        this.comunidadUsers.set(initialList);
       }
-    }, 3000);
+    } catch (e) {
+      console.warn('[Error loading real community profiles]', e);
+    }
+  }
+
+  private setupPresenceChannel() {
+    if (!this.supabaseService.isConfigured()) return;
+
+    this.communityPresenceChannel = this.supabaseService.client.channel('community_focus_room', {
+      config: {
+        presence: {
+          key: this.presenceClientId
+        }
+      }
+    });
+
+    this.communityPresenceChannel
+      .on('presence', { event: 'sync' }, () => {
+        const presenceState = this.communityPresenceChannel.presenceState();
+        this.handlePresenceSync(presenceState);
+      })
+      .on('presence', { event: 'join' }, ({ key, newPresences }: any) => {
+        if (newPresences && newPresences.length > 0) {
+          const p = newPresences[0];
+          if (p.client_id !== this.presenceClientId && p.name) {
+            this.addComunidadEvent(`👥 ${p.name} se unió a la sala.`, 'join');
+          }
+        }
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }: any) => {
+        if (leftPresences && leftPresences.length > 0) {
+          const p = leftPresences[0];
+          if (p.client_id !== this.presenceClientId && p.name) {
+            this.addComunidadEvent(`👋 ${p.name} salió de la sala.`, 'break');
+          }
+        }
+      })
+      .on('broadcast', { event: 'reaction' }, ({ payload }: any) => {
+        if (payload && payload.to === this.userName()) {
+          this.userActiveReaction.set(payload.emoji);
+          this.addComunidadEvent(`¡${payload.from} te envió energía! ${payload.emoji}`, 'reaction');
+          if (this.arenaState() !== 'active') {
+            this.showToast(`¡${payload.from} te envió apoyo! ${payload.emoji}`, 'info');
+          }
+          setTimeout(() => {
+            if (this.userActiveReaction() === payload.emoji) {
+              this.userActiveReaction.set('');
+            }
+          }, 3000);
+        }
+      })
+      .subscribe(async (status: string) => {
+        if (status === 'SUBSCRIBED') {
+          await this.broadcastPresence();
+        }
+      });
+  }
+
+  private handlePresenceSync(presenceState: any) {
+    const liveUsersMap = new Map<string, any>();
+    const now = Date.now();
+
+    Object.keys(presenceState).forEach(key => {
+      if (key === this.presenceClientId) return;
+
+      const presences = presenceState[key];
+      if (Array.isArray(presences) && presences.length > 0) {
+        const p = presences[presences.length - 1];
+        if (p.client_id === this.presenceClientId) return;
+
+        const uid = p.client_id || p.user_id || key;
+        const targetEndTime = Number(p.target_end_time);
+        let remaining = 0;
+        let pct = 0;
+
+        if (targetEndTime && !isNaN(targetEndTime) && p.status === 'focused') {
+          remaining = Math.max(0, Math.floor((targetEndTime - now) / 1000));
+          const total = Number(p.total_duration) || 1500;
+          pct = Math.min(100, Math.floor(((total - remaining) / total) * 100));
+        } else if (targetEndTime && !isNaN(targetEndTime) && (p.status === 'break' || p.status === 'paused')) {
+          remaining = Math.max(0, Math.floor((targetEndTime - now) / 1000));
+        }
+
+        liveUsersMap.set(uid, {
+          id: uid,
+          userId: p.user_id || uid,
+          name: p.name || 'Guerrero',
+          avatar: p.avatar || 'gato',
+          status: p.status || 'idle',
+          mission: p.mission || (p.status === 'paused' ? '⏸️ En pausa de emergencia' : (p.status === 'break' ? 'Pausa de descanso' : (p.status === 'focused' ? 'Enfoque Activo' : 'En el campamento'))),
+          timeLeft: remaining,
+          percentage: pct,
+          target_end_time: targetEndTime || null,
+          total_duration: Number(p.total_duration) || 1500,
+          is_live: p.status !== 'idle',
+          reaction: ''
+        });
+      }
+    });
+
+    const liveUsersList = Array.from(liveUsersMap.values());
+    const currentUserId = this.supabaseService.currentUser()?.id;
+
+    // Obtener lista de IDs y nombres de usuarios actualmente en vivo para no duplicarlos
+    const liveUserIds = new Set(liveUsersList.map(u => u.userId));
+    const liveNames = new Set(liveUsersList.map(u => u.name.toLowerCase()));
+
+    const dbUsersList: any[] = [];
+    this.dbRegisteredProfiles.forEach((prof, idx) => {
+      // Omitir mi propio perfil en la lista de otros guerreros
+      if (currentUserId && prof.id === currentUserId) return;
+      // Si el usuario ya está conectado en vivo, no mostrarlo duplicado como inactivo
+      if (liveUserIds.has(prof.id)) return;
+      if (prof.username && liveNames.has(prof.username.toLowerCase())) return;
+
+      dbUsersList.push({
+        id: prof.id,
+        userId: prof.id,
+        name: prof.username || 'Guerrero',
+        avatar: prof.selected_avatar || 'gato',
+        status: 'idle' as const,
+        mission: 'En el campamento',
+        timeLeft: 0,
+        percentage: 0,
+        target_end_time: null,
+        total_duration: 1500,
+        desk: idx + 1,
+        is_live: false,
+        reaction: ''
+      });
+    });
+
+    const combined = [...liveUsersList, ...dbUsersList];
+    this.comunidadUsers.set(combined);
+    this.globalFocusedCount.set(Math.max(1, liveUsersList.filter(u => u.status === 'focused').length + ((this.arenaState() === 'active' || this.arenaState() === 'countdown') && !this.isBreak() && !this.emergencyPauseActive() ? 1 : 0)));
+  }
+
+  async broadcastPresence() {
+    if (!this.communityPresenceChannel || !this.supabaseService.isConfigured()) return;
+    const user = this.supabaseService.currentUser();
+    const isPaused = this.emergencyPauseActive();
+    const isFocusing = !isPaused && !this.isBreak() && (this.arenaState() === 'active' || this.arenaState() === 'countdown' || this.timerRunning());
+    const isBreaking = !isPaused && this.isBreak() && (this.arenaState() === 'active' || this.arenaState() === 'countdown' || this.timerRunning());
+    
+    let status: 'focused' | 'break' | 'paused' | 'idle' = 'idle';
+    let targetEnd: number | null = null;
+    let mission = 'En el campamento';
+
+    if (isPaused) {
+      status = 'paused';
+      targetEnd = Date.now() + (this.emergencyTimeLeft() * 1000);
+      mission = '⏸️ En pausa de emergencia';
+    } else if (isFocusing) {
+      status = 'focused';
+      targetEnd = Date.now() + (this.timeLeft() * 1000);
+      mission = this.hideMyObjectiveInCommunity()
+        ? 'Enfoque Activo'
+        : (this.activeObjective()?.trim() || 'Enfoque Activo');
+    } else if (isBreaking) {
+      status = 'break';
+      targetEnd = Date.now() + (this.timeLeft() * 1000);
+      mission = 'Pausa de descanso';
+    } else {
+      status = 'idle';
+      targetEnd = null;
+      mission = (this.activeObjective()?.trim() && !this.hideMyObjectiveInCommunity())
+        ? this.activeObjective().trim()
+        : 'En el campamento';
+    }
+
+    try {
+      await this.communityPresenceChannel.track({
+        client_id: this.presenceClientId,
+        user_id: user?.id || this.presenceClientId,
+        name: this.userName() || 'Guerrero',
+        avatar: this.membership.selectedAvatar() || 'gato',
+        status,
+        target_end_time: targetEnd,
+        total_duration: isPaused ? 120 : (this.totalSessionTime() || (this.focusDuration() * 60) || 1500),
+        mission,
+        is_private: this.hideMyObjectiveInCommunity(),
+        updated_at: Date.now()
+      });
+    } catch (e) {
+      console.warn('[Presence Track Error]', e);
+    }
+  }
+
+  toggleHideMyObjective(val: boolean) {
+    this.hideMyObjectiveInCommunity.set(val);
+    this.broadcastPresence();
   }
 
   sendSupportToUser(userName: string, emoji: string) {
     this.addComunidadEvent(`Le enviaste ${emoji} a ${userName}`, 'reaction');
     
+    if (this.communityPresenceChannel && this.supabaseService.isConfigured()) {
+      this.communityPresenceChannel.send({
+        type: 'broadcast',
+        event: 'reaction',
+        payload: {
+          from: this.userName(),
+          to: userName,
+          emoji
+        }
+      });
+    }
+
     const updated = this.comunidadUsers().map(u => {
       if (u.name === userName) {
         return { ...u, reaction: emoji };
@@ -5062,113 +5248,39 @@ export class Enfoque implements OnInit, OnDestroy {
       });
       this.comunidadUsers.set(reset);
     }, 3000);
+  }
 
-    setTimeout(() => {
-      const user = this.comunidadUsers().find(u => u.name === userName);
-      if (user) {
-        const replyEmoji = '💖';
-        const updatedWithReply = this.comunidadUsers().map(u => {
-          if (u.name === userName) {
-            return { ...u, reaction: replyEmoji };
-          }
-          return u;
-        });
-        this.comunidadUsers.set(updatedWithReply);
-        
-        this.addComunidadEvent(`¡${userName} te agradece el apoyo! 💖`, 'reaction');
+  addComunidadEvent(text: string, type: 'join' | 'complete' | 'break' | 'reaction') {
+    const current = this.comunidadEvents();
+    const newEvent = { id: Date.now() + Math.random(), text, type };
+    this.comunidadEvents.set([newEvent, ...current].slice(0, 8));
+  }
 
-        setTimeout(() => {
-          const finalReset = this.comunidadUsers().map(u => {
-            if (u.name === userName && u.reaction === replyEmoji) {
-              return { ...u, reaction: '' };
-            }
-            return u;
-          });
-          this.comunidadUsers.set(finalReset);
-        }, 3000);
-      }
-    }, 2000);
+  formatTime(seconds: number): string {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   }
 
   tickCommunity() {
-    // Daño continuo del resto de usuarios en el Comunidad al Boss
-    if (this.coworkingMode() === 'comunitario' && this.arenaState() === 'active' && !this.isBreak()) {
-      const activePartners = this.comunidadUsers().filter(u => u.status === 'focused');
-      const activePartnersCount = activePartners.length;
-      // Cada compañero inflige 4 de daño (1 por segundo durante 4 segundos)
-      this.bossService.tickContinuousDamage(activePartnersCount * 4);
-
-      // Simular eventos de combate detallados con iconos específicos (incluyendo poder premium)
-      if (activePartnersCount > 0 && Math.random() < 0.65) {
-        const luckyPartner = activePartners[Math.floor(Math.random() * activePartnersCount)];
-        const suffix = ['bah11', 'dev23', 'boss99', 'pro', 'ninja', 'app', '77', '12', 'focus', 'zen'][Math.floor(Math.random() * 10)];
-        const username = luckyPartner.name.toLowerCase() + '.' + suffix;
-        
-        const eventRand = Math.random();
-        if (eventRand < 0.35) {
-          // 1.- atacó al jefe con puntos (Espada)
-          const damagePoints = Math.floor(Math.random() * 80) + 15; // 15 a 95 DMG
-          this.bossService.addLog(`⚔️ ${username} atacó al jefe con ${damagePoints} puntos`);
-        } else if (eventRand < 0.5) {
-          // 4.- Poder Premium (Rayo) - Atacó severamente
-          const damagePoints = Math.floor(Math.random() * 200) + 200; // 200 a 400 DMG (daño severo)
-          this.bossService.addLog(`⚡ ${username} atacó severamente con ${damagePoints} puntos`);
-        } else if (eventRand < 0.75) {
-          // 2.- abandonó, jefe gana +puntos puntos (Gota)
-          const healPoints = Math.floor(Math.random() * 120) + 80;
-          this.bossService.addLog(`🩸 ${username} abandonó, jefe gana +${healPoints} puntos`);
-        } else {
-          // 3.- interrumpe, jefe gana +puntos puntos (Advertencia)
-          const healPoints = Math.floor(Math.random() * 60) + 40;
-          this.bossService.addLog(`⚠️ ${username} interrumpe, jefe gana +${healPoints} puntos`);
-        }
-      }
-    }
-
+    const now = Date.now();
     const updatedUsers = this.comunidadUsers().map(u => {
-      if (u.status === 'focused') {
-        const newTime = Math.max(0, u.timeLeft - 4);
-        const total = 1500;
-        const pct = Math.floor((1 - (newTime / total)) * 100);
-        
-        if (newTime === 0) {
-          setTimeout(() => {
-            this.addComunidadEvent(`🎉 ¡${u.name} completó su pomodoro de enfoque!`, 'complete');
-            this.globalFocusedCount.update(c => Math.max(10, c - 1));
-          }, 0);
-          return {
-            ...u,
-            status: 'break' as const,
-            timeLeft: 300,
-            percentage: 0
-          };
-        }
+      const targetEnd = Number(u.target_end_time);
+      if (targetEnd && !isNaN(targetEnd) && u.status === 'focused') {
+        const newTime = Math.max(0, Math.floor((targetEnd - now) / 1000));
+        const total = Number(u.total_duration) || 1500;
+        const pct = Math.min(100, Math.floor(((total - newTime) / total) * 100));
         return {
           ...u,
           timeLeft: newTime,
           percentage: pct
         };
-      } else if (u.status === 'break') {
-        const newTime = Math.max(0, u.timeLeft - 4);
-        const total = 300;
-        const pct = Math.floor((1 - (newTime / total)) * 100);
-        
-        if (newTime === 0) {
-          setTimeout(() => {
-            this.addComunidadEvent(`☕ ¡${u.name} terminó su descanso y está listo para enfocar!`, 'join');
-          }, 0);
-          return {
-            ...u,
-            status: 'focused' as const,
-            timeLeft: 1500,
-            percentage: 0,
-            mission: this.getRandomMission()
-          };
-        }
+      } else if (targetEnd && !isNaN(targetEnd) && (u.status === 'break' || u.status === 'paused')) {
+        const newTime = Math.max(0, Math.floor((targetEnd - now) / 1000));
         return {
           ...u,
           timeLeft: newTime,
-          percentage: pct
+          percentage: 0
         };
       }
       return u;
@@ -5176,44 +5288,13 @@ export class Enfoque implements OnInit, OnDestroy {
 
     this.comunidadUsers.set(updatedUsers);
 
-    const idleCount = this.comunidadUsers().filter(u => u.status === 'idle').length;
-    if (idleCount > 0 && Math.random() < 0.2) {
-      const idles = this.comunidadUsers().filter(u => u.status === 'idle');
-      const lucky = idles[Math.floor(Math.random() * idles.length)];
-      const updated = this.comunidadUsers().map(u => {
-        if (u.name === lucky.name) {
-          const mission = this.getRandomMission();
-          setTimeout(() => {
-            this.addComunidadEvent(`⚔️ ${u.name} inició su misión: "${mission}"`, 'join');
-          }, 0);
-          return {
-            ...u,
-            status: 'focused' as const,
-            timeLeft: 1500,
-            percentage: 0,
-            mission
-          };
-        }
-        return u;
-      });
-      this.comunidadUsers.set(updated);
-    }
-
-    if (Math.random() < 0.4) {
-      const change = Math.random() < 0.5 ? 1 : -1;
-      this.globalFocusedCount.update(c => Math.max(10, Math.min(150, c + change)));
-    }
-
-    if (this.comunidadUsers().length < 12 && Math.random() < 0.15) {
-      this.simulateUserJoining();
-    }
-
-    if (this.comunidadUsers().length > 6 && Math.random() < 0.08) {
-      this.simulateUserLeaving();
-    }
-
-    if (this.arenaState() === 'active' && this.coworkingMode() === 'comunitario' && Math.random() < 0.1) {
-      this.simulateIncomingReaction();
+    // Daño continuo del resto de usuarios en el Comunidad al Boss (Solo usuarios en vivo y enfocados)
+    if (this.coworkingMode() === 'comunitario' && this.arenaState() === 'active' && !this.isBreak() && !this.emergencyPauseActive()) {
+      const activePartners = this.comunidadUsers().filter(u => u.status === 'focused' && u.is_live);
+      const activePartnersCount = activePartners.length;
+      if (activePartnersCount > 0) {
+        this.bossService.tickContinuousDamage(activePartnersCount * 4);
+      }
     }
   }
 

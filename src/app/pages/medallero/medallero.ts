@@ -379,6 +379,17 @@ export class Medallero implements OnInit, OnDestroy {
     ];
   });
 
+  private reloadDebounceTimeout: any = null;
+
+  private triggerRealtimeReload() {
+    if (this.reloadDebounceTimeout) {
+      clearTimeout(this.reloadDebounceTimeout);
+    }
+    this.reloadDebounceTimeout = setTimeout(() => {
+      this.loadMedalleroFromSupabase();
+    }, 250);
+  }
+
   ngOnInit() {
     this.loadMedalleroFromSupabase();
 
@@ -386,16 +397,22 @@ export class Medallero implements OnInit, OnDestroy {
       this.realtimeChannel = this.supabaseService.client
         .channel('public:profiles_medallero')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-          this.loadMedalleroFromSupabase();
+          this.triggerRealtimeReload();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'focus_sessions' }, () => {
+          this.triggerRealtimeReload();
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'community_boss_attacks' }, () => {
-          this.loadMedalleroFromSupabase();
+          this.triggerRealtimeReload();
         })
         .subscribe();
     }
   }
 
   ngOnDestroy() {
+    if (this.reloadDebounceTimeout) {
+      clearTimeout(this.reloadDebounceTimeout);
+    }
     if (this.realtimeChannel && this.supabaseService.isConfigured()) {
       this.supabaseService.client.removeChannel(this.realtimeChannel);
     }

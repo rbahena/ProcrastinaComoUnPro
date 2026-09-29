@@ -203,21 +203,35 @@ export class Home implements OnInit, OnDestroy {
     this.lastUpdated.set(timeStr);
   }
 
+  private reloadDebounceTimeout: any = null;
+
+  private triggerRealtimeReload() {
+    if (this.reloadDebounceTimeout) {
+      clearTimeout(this.reloadDebounceTimeout);
+    }
+    this.reloadDebounceTimeout = setTimeout(() => {
+      this.loadDashboardFromSupabase();
+    }, 250);
+  }
+
   ngOnInit() {
     this.updateLastUpdatedTime();
 
     // 1. Cargar datos del dashboard desde Supabase
     this.loadDashboardFromSupabase();
 
-    // 2. Suscribirse a cambios en tiempo real en la tabla profiles y focus_sessions
+    // 2. Suscribirse a cambios en tiempo real en la tabla profiles, focus_sessions y boss
     if (this.supabaseService.isConfigured()) {
       this.realtimeChannel = this.supabaseService.client
         .channel('public:profiles_home_dashboard')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-          this.loadDashboardFromSupabase();
+          this.triggerRealtimeReload();
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'focus_sessions' }, () => {
-          this.loadDashboardFromSupabase();
+          this.triggerRealtimeReload();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'community_boss_attacks' }, () => {
+          this.triggerRealtimeReload();
         })
         .subscribe();
     }
@@ -225,6 +239,9 @@ export class Home implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopTimerLoop();
+    if (this.reloadDebounceTimeout) {
+      clearTimeout(this.reloadDebounceTimeout);
+    }
     if (this.realtimeChannel && this.supabaseService.isConfigured()) {
       this.supabaseService.client.removeChannel(this.realtimeChannel);
     }
