@@ -257,6 +257,25 @@ export interface MedalleroRankingBossItem {
   created_at?: string;
 }
 
+export interface MedalleroRankingCoinsItem {
+  id: string;
+  username: string;
+  selected_avatar: string;
+  country_code: string;
+  pro_coins: number;
+  created_at?: string;
+}
+
+export interface MedalleroRankingPodiumsItem {
+  id: string;
+  username: string;
+  selected_avatar: string;
+  country_code: string;
+  podium_wins: number;
+  gold_medals?: number;
+  created_at?: string;
+}
+
 export interface MedalleroDashboardData {
   records: {
     best_streak: MedalleroBrokenRecordHolder | null;
@@ -270,6 +289,8 @@ export interface MedalleroDashboardData {
     pomodoros: MedalleroRankingPomodorosItem[];
     streaks: MedalleroRankingStreaksItem[];
     boss: MedalleroRankingBossItem[];
+    coins?: MedalleroRankingCoinsItem[];
+    podiums?: MedalleroRankingPodiumsItem[];
   };
 }
 
@@ -1699,7 +1720,9 @@ export class SupabaseService {
               objectives: (rpcData.rankings?.objectives || []).filter((p: any) => this.isEligibleForRankingCategory(p.focus_points ? Math.floor(p.focus_points / 40) : (p.focus_tomatoes || 0), p.created_at)),
               pomodoros: (rpcData.rankings?.pomodoros || []).filter((p: any) => this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)),
               streaks: (rpcData.rankings?.streaks || []).filter((p: any) => this.isEligibleForRankingCategory(p.streak_count || p.streak_days || 0, p.created_at)),
-              boss: (rpcData.rankings?.boss || []).filter((p: any) => this.isEligibleForRankingCategory(p.total_damage || 0, p.created_at))
+              boss: (rpcData.rankings?.boss || []).filter((p: any) => this.isEligibleForRankingCategory(p.total_damage || 0, p.created_at)),
+              coins: (rpcData.rankings?.coins || []).filter((p: any) => this.isEligibleForRankingCategory(p.pro_coins || p.coins || 0, p.created_at)),
+              podiums: (rpcData.rankings?.podiums || []).filter((p: any) => this.isEligibleForRankingCategory(p.podium_wins || p.podiums || 0, p.created_at))
             }
           },
           error: null
@@ -1784,6 +1807,33 @@ export class SupabaseService {
           country_code: (p.country_code || 'mx').toLowerCase(),
           streak_count: Math.max(p.longest_streak || 0, p.streak_days || 0),
           streak_days: p.streak_days || 0,
+          created_at: p.created_at
+        }));
+
+      const coins = [...allProfiles]
+        .filter(p => this.isEligibleForRankingCategory(p.pro_coins || 0, p.created_at))
+        .sort((a, b) => (b.pro_coins || 0) - (a.pro_coins || 0))
+        .slice(0, 10)
+        .map(p => ({
+          id: p.id,
+          username: p.username || 'Guerrero',
+          selected_avatar: p.selected_avatar || 'gato',
+          country_code: (p.country_code || 'mx').toLowerCase(),
+          pro_coins: p.pro_coins || 0,
+          created_at: p.created_at
+        }));
+
+      const podiums = [...allProfiles]
+        .filter(p => this.isEligibleForRankingCategory(p.podium_wins || p.gold_medals || 0, p.created_at))
+        .sort((a, b) => (b.podium_wins || 0) - (a.podium_wins || 0) || (b.gold_medals || 0) - (a.gold_medals || 0))
+        .slice(0, 10)
+        .map(p => ({
+          id: p.id,
+          username: p.username || 'Guerrero',
+          selected_avatar: p.selected_avatar || 'gato',
+          country_code: (p.country_code || 'mx').toLowerCase(),
+          podium_wins: p.podium_wins || 0,
+          gold_medals: p.gold_medals || 0,
           created_at: p.created_at
         }));
 
@@ -1875,7 +1925,9 @@ export class SupabaseService {
             objectives,
             pomodoros,
             streaks,
-            boss: bossRanking
+            boss: bossRanking,
+            coins,
+            podiums
           }
         },
         error: null

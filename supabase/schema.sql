@@ -3017,6 +3017,8 @@ DECLARE
     v_ranking_pomodoros JSON;
     v_ranking_streaks JSON;
     v_ranking_boss JSON;
+    v_ranking_coins JSON;
+    v_ranking_podiums JSON;
 BEGIN
     -- 1. Récord Histórico: Mejor Racha (Exclusivo Premium)
     SELECT json_build_object(
@@ -3116,6 +3118,26 @@ BEGIN
         LIMIT 10
     ) b;
 
+    -- 9. Ranking por Pro Coins (El Magnate de Focus - Top 10 Exclusivo Premium)
+    SELECT COALESCE(json_agg(c), '[]'::json) INTO v_ranking_coins FROM (
+        SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
+               pro_coins
+        FROM public.profiles
+        WHERE is_premium = TRUE AND pro_coins > 0
+        ORDER BY pro_coins DESC, created_at ASC
+        LIMIT 10
+    ) c;
+
+    -- 10. Ranking por Podios Conquistados (Top 10 Exclusivo Premium)
+    SELECT COALESCE(json_agg(p_rank), '[]'::json) INTO v_ranking_podiums FROM (
+        SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
+               podium_wins, gold_medals
+        FROM public.profiles
+        WHERE is_premium = TRUE AND (podium_wins > 0 OR gold_medals > 0)
+        ORDER BY podium_wins DESC, gold_medals DESC, created_at ASC
+        LIMIT 10
+    ) p_rank;
+
     RETURN json_build_object(
         'success', TRUE,
         'records', json_build_object(
@@ -3128,7 +3150,9 @@ BEGIN
             'objectives', v_ranking_objectives,
             'pomodoros', v_ranking_pomodoros,
             'streaks', v_ranking_streaks,
-            'boss', v_ranking_boss
+            'boss', v_ranking_boss,
+            'coins', v_ranking_coins,
+            'podiums', v_ranking_podiums
         )
     );
 END;

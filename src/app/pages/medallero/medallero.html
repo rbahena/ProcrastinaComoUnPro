@@ -81,6 +81,12 @@
                 </div>
 
                 <div class="card-front-banner">
+                  <!-- Píldora 1er Lugar -->
+                  <div class="card-champion-pill">
+                    <i class="fa-solid fa-crown"></i>
+                    <span>1er Lugar</span>
+                  </div>
+
                   <h4 class="card-holder-name" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
                     <span>{{ record.holder }}</span>
                     <img *ngIf="record.isAssigned && record.flag" 
@@ -111,9 +117,14 @@
 
                 <div>
                   <div class="card-back-header">
-                    <span class="card-back-title" [style.color]="record.color">
-                      {{ record.title }}
-                    </span>
+                    <div style="display: flex; flex-direction: column; gap: 2px; text-align: left;">
+                      <div class="card-back-champion-tag">
+                        <i class="fa-solid fa-trophy"></i> 1er Lugar
+                      </div>
+                      <span class="card-back-title" [style.color]="record.color">
+                        {{ record.title }}
+                      </span>
+                    </div>
                     <i [class]="'fa-solid ' + record.icon" 
                        class="card-back-icon" 
                        [class.animate-header-fire]="record.icon === 'fa-fire'"
@@ -193,6 +204,88 @@
               class="slider-dot" 
               [class.active]="i === activeCardIndex()"
               (click)="setCard(i)"></span>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SECCIÓN: SIGUIENTES LUGARES EN DISPUTA (PUESTOS 2º AL 5º)                 -->
+      <!-- ========================================================================= -->
+      <div class="runners-up-section" [style.--cat-color]="currentRecordInfo().color" [style.--cat-glow-bg]="currentRecordInfo().bgGlow">
+        
+        <!-- Header de la sección de próximos lugares -->
+        <div class="runners-up-header">
+          <div class="runners-up-badge-pill" [style.color]="currentRecordInfo().color" [style.borderColor]="currentRecordInfo().color">
+            <i [class]="'fa-solid ' + currentRecordInfo().icon"></i>
+            <span>{{ currentRecordInfo().title }}</span>
+          </div>
+          <h3 class="runners-up-heading">Siguientes Lugares en Disputa</h3>
+        </div>
+
+        <!-- LISTA DE LOS SIGUIENTES 4 LUGARES (2º, 3º, 4º y 5º) -->
+        <div class="runners-up-list">
+          <div *ngFor="let runner of currentCategoryRunnersUp()" 
+               class="runner-list-row"
+               [class.is-assigned]="runner.isAssigned"
+               [class.is-self]="runner.isSelf"
+               [class.rank-silver]="runner.rank === 2"
+               [class.rank-bronze]="runner.rank === 3"
+               [class.rank-iron]="runner.rank >= 4">
+            
+            <!-- Posición / Rank -->
+            <div class="runner-row-rank">
+              <span class="runner-rank-badge"
+                    [class.r2]="runner.rank === 2"
+                    [class.r3]="runner.rank === 3"
+                    [class.r-iron]="runner.rank >= 4">
+                {{ runner.rank }}º
+              </span>
+            </div>
+
+            <!-- Avatar -->
+            <div class="runner-row-avatar">
+              <div *ngIf="runner.isAssigned && runner.avatar" 
+                   [class]="'avatar-sprite sprite-' + runner.avatar"
+                   class="runner-avatar-sprite-sm"></div>
+              
+              <div *ngIf="!runner.isAssigned || !runner.avatar" class="runner-avatar-empty-sm">
+                <i [class]="'fa-solid ' + currentRecordInfo().icon" [style.color]="currentRecordInfo().color"></i>
+              </div>
+            </div>
+
+            <!-- Usuario & Título -->
+            <div class="runner-row-user">
+              <div class="runner-name-line">
+                <strong class="runner-user-name" [title]="runner.name">{{ runner.name }}</strong>
+                <span *ngIf="runner.isSelf" class="runner-self-badge">
+                  <i class="fa-solid fa-user-check"></i> TÚ
+                </span>
+                <span *ngIf="!runner.isAssigned" class="runner-vacant-badge">
+                  <i class="fa-solid fa-lock-open"></i> Vacante
+                </span>
+              </div>
+              <span class="runner-user-tag">
+                {{ runner.tag || runner.title || runner.rankName || runner.label || (runner.isAssigned ? 'Aspirante de Honor' : 'Puesto libre para conquistar') }}
+              </span>
+            </div>
+
+            <!-- Condecoración / Puesto -->
+            <div class="runner-row-tier">
+              <span class="runner-tier-tag tier-silver" *ngIf="runner.rank === 2">🥈 Plata</span>
+              <span class="runner-tier-tag tier-bronze" *ngIf="runner.rank === 3">🥉 Bronce</span>
+              <span class="runner-tier-tag tier-iron" *ngIf="runner.rank === 4">🎖️ 4º Puesto</span>
+              <span class="runner-tier-tag tier-iron" *ngIf="runner.rank === 5">🎖️ 5º Puesto</span>
+            </div>
+
+            <!-- Métrica Registrada -->
+            <div class="runner-row-metric">
+              <span class="runner-metric-label">Marca</span>
+              <span class="runner-metric-val" [style.color]="runner.isAssigned ? currentRecordInfo().color : 'var(--muted)'">
+                {{ runner.formattedValue }}
+              </span>
+            </div>
+
+          </div>
+        </div>
+
       </div>
 
     </div>

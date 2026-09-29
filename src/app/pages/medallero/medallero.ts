@@ -28,12 +28,16 @@ export interface RankingPlayer {
   objectives?: number;
   pomodoros?: number;
   streakCount?: number;
+  coins?: number;
+  podiums?: number;
   damage?: number;
+  formattedValue?: string;
   rankName?: string;
   title?: string;
   tag?: string;
   label?: string;
   isSelf?: boolean;
+  isAssigned?: boolean;
 }
 
 interface RawRankingPlayer {
@@ -42,6 +46,8 @@ interface RawRankingPlayer {
   objectives?: number;
   pomodoros?: number;
   streakCount?: number;
+  coins?: number;
+  podiums?: number;
   damage?: number;
   rankName?: string;
   title?: string;
@@ -165,11 +171,15 @@ export class Medallero implements OnInit, OnDestroy {
     pomodoros: any[];
     streaks: any[];
     boss: any[];
+    coins: any[];
+    podiums: any[];
   }>({
     objectives: [],
     pomodoros: [],
     streaks: [],
-    boss: []
+    boss: [],
+    coins: [],
+    podiums: []
   });
 
   brokenRecords = computed<BrokenRecordCard[]>(() => {
@@ -458,7 +468,9 @@ export class Medallero implements OnInit, OnDestroy {
           objectives: data.rankings.objectives || [],
           pomodoros: data.rankings.pomodoros || [],
           streaks: data.rankings.streaks || [],
-          boss: data.rankings.boss || []
+          boss: data.rankings.boss || [],
+          coins: data.rankings.coins || [],
+          podiums: data.rankings.podiums || []
         });
       }
     } catch (e) {
@@ -647,6 +659,147 @@ export class Medallero implements OnInit, OnDestroy {
       ...p,
       rank: idx + 1
     }));
+  });
+
+  // 5. Ranking por Pro Coins (El Magnate de Focus)
+  rankingCoins = computed<RankingPlayer[]>(() => {
+    const ramName = this.membership.userName() || 'Guerrero';
+    const ramAvatar = this.membership.selectedAvatar() || 'gato';
+    const ramCoins = this.membership.proCoins();
+    const ramCreatedAt = this.membership.userCreatedAt();
+
+    const liveList = this.liveRankings().coins;
+    const mapped: RawRankingPlayer[] = (liveList || [])
+      .filter((p: any) => this.isUserEligible(p.pro_coins || p.coins || 0, p.created_at))
+      .map((p: any) => ({
+        name: p.username || 'Guerrero',
+        avatar: p.selected_avatar || 'gato',
+        coins: p.pro_coins || p.coins || 0,
+        tag: 'Magnate del Foco',
+        isSelf: p.username === ramName
+      }));
+
+    if (this.membership.isPremium() && this.isUserEligible(ramCoins, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
+      mapped.push({
+        name: ramName,
+        avatar: ramAvatar,
+        coins: ramCoins,
+        tag: 'Magnate del Foco',
+        isSelf: true
+      });
+    }
+
+    return mapped.sort((a, b) => (b.coins || 0) - (a.coins || 0)).slice(0, 10).map((p, idx) => ({
+      ...p,
+      rank: idx + 1
+    }));
+  });
+
+  // 6. Ranking por Podios Conquistados
+  rankingPodiums = computed<RankingPlayer[]>(() => {
+    const ramName = this.membership.userName() || 'Guerrero';
+    const ramAvatar = this.membership.selectedAvatar() || 'gato';
+    const ramPodiums = this.membership.podiumWins();
+    const ramCreatedAt = this.membership.userCreatedAt();
+
+    const liveList = this.liveRankings().podiums;
+    const mapped: RawRankingPlayer[] = (liveList || [])
+      .filter((p: any) => this.isUserEligible(p.podium_wins || p.podiums || 0, p.created_at))
+      .map((p: any) => ({
+        name: p.username || 'Guerrero',
+        avatar: p.selected_avatar || 'gato',
+        podiums: p.podium_wins || p.podiums || 0,
+        tag: 'Campeón Semanal',
+        isSelf: p.username === ramName
+      }));
+
+    if (this.membership.isPremium() && this.isUserEligible(ramPodiums, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
+      mapped.push({
+        name: ramName,
+        avatar: ramAvatar,
+        podiums: ramPodiums,
+        tag: 'Campeón Semanal',
+        isSelf: true
+      });
+    }
+
+    return mapped.sort((a, b) => (b.podiums || 0) - (a.podiums || 0)).slice(0, 10).map((p, idx) => ({
+      ...p,
+      rank: idx + 1
+    }));
+  });
+
+  // Información del récord activo seleccionado en el carrusel
+  currentRecordInfo = computed<BrokenRecordCard>(() => {
+    const list = this.brokenRecords();
+    const idx = this.activeCardIndex();
+    return list[idx] || list[0];
+  });
+
+  // Siguientes 4 lugares (Puestos 2º, 3º, 4º y 5º) de la categoría activa
+  currentCategoryRunnersUp = computed<RankingPlayer[]>(() => {
+    const idx = this.activeCardIndex();
+    let sourceList: RankingPlayer[] = [];
+    let unitLabel = '';
+
+    switch (idx) {
+      case 0: // Mejor Racha
+        sourceList = this.rankingStreaks();
+        unitLabel = 'días';
+        break;
+      case 1: // Sesiones de Concentración
+        sourceList = this.rankingPomodoros();
+        unitLabel = 'sesiones';
+        break;
+      case 2: // El Magnate de Focus
+        sourceList = this.rankingCoins();
+        unitLabel = 'Coins';
+        break;
+      case 3: // Podios Conquistados
+        sourceList = this.rankingPodiums();
+        unitLabel = 'podios';
+        break;
+      case 4: // MVP del Jefe en Turno
+        sourceList = this.rankingBoss();
+        unitLabel = 'HP';
+        break;
+      default:
+        sourceList = this.rankingStreaks();
+        unitLabel = 'días';
+    }
+
+    const runnersUp: RankingPlayer[] = [];
+    for (let place = 2; place <= 5; place++) {
+      const player = sourceList[place - 1];
+      const valNum = player ? (
+        idx === 0 ? (player.streakCount || 0) :
+        idx === 1 ? (player.pomodoros || 0) :
+        idx === 2 ? (player.coins || 0) :
+        idx === 3 ? (player.podiums || 0) :
+        (player.damage || 0)
+      ) : 0;
+
+      if (player && valNum > 0) {
+        runnersUp.push({
+          ...player,
+          rank: place,
+          formattedValue: `${valNum.toLocaleString()} ${unitLabel}`,
+          isAssigned: true
+        });
+      } else {
+        runnersUp.push({
+          rank: place,
+          name: 'Disponible',
+          avatar: '',
+          formattedValue: 'Disponible',
+          isAssigned: false,
+          isSelf: false,
+          tag: 'Puesto vacante'
+        });
+      }
+    }
+
+    return runnersUp;
   });
 
   getPodiumUser(place: 1 | 2 | 3): { name: string; avatar: string; value: string; isSelf: boolean } {
