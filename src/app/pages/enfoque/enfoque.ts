@@ -1856,7 +1856,14 @@ export class Enfoque implements OnInit, OnDestroy {
   isConsolePinned = signal(false);
   showAbandonConfirmModal = signal(false);
   showInterruptedModal = signal(false);
-  bossHealAmount = computed(() => Math.round(this.bossService.activeBoss().maxHp * 0.02));
+  currentAvatarPausePenalty = computed(() => {
+    const avatarId = this.membership.selectedAvatar() || 'gato';
+    return this.membership.getAvatarPausePenalty(avatarId);
+  });
+  bossHealAmount = computed(() => {
+    const avatarId = this.membership.selectedAvatar() || 'gato';
+    return this.membership.getAvatarHealPoints(avatarId);
+  });
   objectiveConfirmed = signal(false);
 
   async confirmObjective() {
@@ -2717,8 +2724,18 @@ export class Enfoque implements OnInit, OnDestroy {
           // Mostrar modal informativo de cancelación
           this.showInterruptedModal.set(true);
           this.playAbandonmentSadSound();
+          const penaltyCoinsInterrupted = this.currentAvatarPausePenalty();
           const healHpInterrupted = this.bossHealAmount();
-          this.showToast(`⚠️ Sesión cancelada por inactividad (-50 ProCoins). El Jefe recuperó +${healHpInterrupted} HP.`, 'danger');
+          this.membership.proCoins.update(coins => Math.max(0, coins - penaltyCoinsInterrupted));
+          this.membership.saveConsolidatedUserData();
+
+          if (this.membership.isPremium() && this.coworkingMode() === 'comunitario') {
+            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -50 XP). El Jefe recuperó +${healHpInterrupted} HP.`, 'danger');
+          } else if (this.membership.isPremium()) {
+            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -50 XP).`, 'danger');
+          } else {
+            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins).`, 'danger');
+          }
 
           // Notificación de escritorio y alerta de pestaña
           this.sendDesktopNotification(
@@ -2740,7 +2757,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   // Confirmación de Abandono (Ejecuta la penalización y reinicia el Pomodoro)
-  confirmAbandon() {
+  async confirmAbandon() {
     this.stopTitleFlashing();
     this.showAbandonConfirmModal.set(false);
     this.membership.isFocusActive.set(false);
@@ -2756,11 +2773,13 @@ export class Enfoque implements OnInit, OnDestroy {
       this.membership.addDedicatedTimeToIdea(currentIdeaId, actualMins);
     }
 
-    // Liquidar sesión en Supabase con estado abandoned preservando tarea e idea_id
-    this.settleCurrentSession('abandoned', 'no', currentObjective, currentIdeaId);
+    // 1. Detener temporizadores y sonidos de inmediato
+    this.stopTimerLoop();
+    this.stopEmergencyTimer();
+    this.stopBackgroundSound();
     this.clearPersistedSession();
 
-    // Desvincular objetivo al abandonar la sesión
+    // 2. Desvincular objetivo al abandonar
     this.activeObjective.set('');
     this.objectiveInput.set('');
     this.associatedIdeaId.set(null);
@@ -2770,40 +2789,56 @@ export class Enfoque implements OnInit, OnDestroy {
     localStorage.removeItem('focus-session-objective');
     localStorage.removeItem('focus-session-idea-id');
 
-    // Penalización de monedas (ProCoins)
-    this.membership.proCoins.update(coins => Math.max(0, coins - 50));
+    // 3. Obtener penalización y curación según el avatar equipado
+    const penaltyCoins = this.currentAvatarPausePenalty();
+    const healHp = this.bossHealAmount();
 
-    this.stopTimerLoop();
-    this.stopEmergencyTimer();
-    this.stopBackgroundSound();
+    // 4. Deducir monedas en el cliente de inmediato con piso en 0
+    this.membership.proCoins.update(coins => Math.max(0, coins - penaltyCoins));
+    this.membership.saveConsolidatedUserData();
+
+    // 5. Resetear completamente la pantalla y el temporizador al estado 'setup'
+    this.isBreak.set(false);
+    this.totalSessionTime.set(this.focusDuration() * 60);
+    this.timeLeft.set(this.focusDuration() * 60);
+    this.arenaState.set('setup');
+    this.emergencyPauseActive.set(false);
     this.sessionEndingStatus.set('abandoned');
-    this.manuallyAbandoned.set(true);
-    this.objectiveCompleted.set('no');
+    this.manuallyAbandoned.set(false);
+    this.objectiveCompleted.set(null);
 
-    // Registrar intento diario
+    // 6. Registrar intento diario
     const now = new Date();
     const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    const newAttempt = { status: 'abandoned' as const, time: timeStr };
+    const newAttempt = { status: 'abandoned' as const, time: timeStr, durationSeconds: actualSeconds };
     const updatedAttempts = [...this.dailyAttempts(), newAttempt];
     this.dailyAttempts.set(updatedAttempts);
     localStorage.setItem('daily-attempts', JSON.stringify(updatedAttempts));
 
+    // 7. Reproducir sonido triste de abandono
+    this.playAbandonmentSadSound();
+
+    // 8. Efectos y notificaciones según tipo de cuenta
     if (this.membership.isPremium()) {
       // Castigo de -50 XP por abandonar (exclusivo Premium)
       this.membership.addFocusPoints(-50);
       // Cura al jefe por abandono en comunidad (solo usuarios Premium afectan al jefe)
       if (this.coworkingMode() === 'comunitario') {
         this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
-        const healHp = this.bossHealAmount();
         this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} ha abandonado la sesión de enfoque. ¡El Oni recuperó +${healHp} HP!`, 'reaction');
+        this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins, -50 XP). El Jefe de la Comunidad recuperó +${healHp} HP.`, 'danger');
+      } else {
+        this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins, -50 XP).`, 'danger');
       }
-      const healHp = this.bossHealAmount();
-      this.showToast(`💔 Has abandonado la sesión (-50 ProCoins, -50 XP). El Jefe de la Comunidad recuperó +${healHp} HP.`, 'danger');
     } else {
       // Planes básicos pierden monedas pero no afectan al jefe de la comunidad
-      this.showToast(`💔 Has abandonado la sesión (-50 ProCoins).`, 'danger');
+      this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins).`, 'danger');
     }
-    this.router.navigate(['/enfoque']);
+
+    // 9. Liquidar en Supabase en segundo plano
+    this.settleCurrentSession('abandoned', 'no', currentObjective, currentIdeaId).catch(err => {
+      console.warn('[Supabase Settle Abandon Error]', err);
+    });
   }
 
   simulateCompletion() {

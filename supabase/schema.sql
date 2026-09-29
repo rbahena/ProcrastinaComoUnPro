@@ -1930,27 +1930,22 @@ BEGIN
 
     ELSE
         -- Estado: Abandonado o Interrumpido
-        -- Regla Anti-Exploit: Periodo de Gracia de 120 segundos
-        IF p_actual_seconds < 120 THEN
-            v_coins_penalized := 0;
+        -- Penalización calculada según el avatar del snapshot (aplica a todos los usuarios)
+        v_coins_penalized := COALESCE(v_avatar.pause_penalty_coins, 10);
+
+        -- Curación al Boss: solo usuarios Premium en sala comunitaria afectan al Jefe
+        IF v_user.is_premium AND p_coworking_mode = 'comunitario' THEN
+            v_boss_heal := COALESCE(v_avatar.boss_heal_points, 10);
+        ELSE
             v_boss_heal := 0;
-            -- Penalización calculada según el avatar del snapshot (aplica a todos los usuarios)
-            v_coins_penalized := v_avatar.pause_penalty_coins + 15;
-
-            -- Curación al Boss: solo usuarios Premium en sala comunitaria afectan al Jefe
-            IF v_user.is_premium AND p_coworking_mode = 'comunitario' THEN
-                v_boss_heal := v_avatar.boss_heal_points + 20;
-            ELSE
-                v_boss_heal := 0;
-            END IF;
-
-            -- Regla Floor 0: La billetera jamás queda en números negativos
-            UPDATE public.profiles
-            SET 
-                pro_coins = GREATEST(0, pro_coins - v_coins_penalized),
-                focus_points = CASE WHEN is_premium THEN GREATEST(0, focus_points - 50) ELSE focus_points END
-            WHERE id = v_user_id;
         END IF;
+
+        -- Regla Floor 0: La billetera jamás queda en números negativos
+        UPDATE public.profiles
+        SET 
+            pro_coins = GREATEST(0, pro_coins - v_coins_penalized),
+            focus_points = CASE WHEN is_premium THEN GREATEST(0, focus_points - 50) ELSE focus_points END
+        WHERE id = v_user_id;
     END IF;
 
     -- 6. Insertar registro de sesión inmutable

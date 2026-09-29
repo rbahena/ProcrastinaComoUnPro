@@ -915,28 +915,57 @@ export class MembershipService {
     return { points: pointsEarned, coins: coinsEarned, tomatoes: tomatoesEarned, isNew: true };
   }
 
+  private readonly AVATAR_FALLBACK_STATS: Record<string, { pausePenalty: number; bossHeal: number; bossDamage: number; coinsPerPomodoro: number }> = {
+    gato: { pausePenalty: 10, bossHeal: 10, bossDamage: 20, coinsPerPomodoro: 10 },
+    perro: { pausePenalty: 10, bossHeal: 10, bossDamage: 20, coinsPerPomodoro: 10 },
+    conejo: { pausePenalty: 10, bossHeal: 10, bossDamage: 20, coinsPerPomodoro: 10 },
+    loro: { pausePenalty: 10, bossHeal: 10, bossDamage: 20, coinsPerPomodoro: 10 },
+    hamster: { pausePenalty: 10, bossHeal: 10, bossDamage: 20, coinsPerPomodoro: 10 },
+    raton: { pausePenalty: 10, bossHeal: 10, bossDamage: 20, coinsPerPomodoro: 10 },
+    tortuga: { pausePenalty: 7, bossHeal: 14, bossDamage: 36, coinsPerPomodoro: 18 },
+    tortuga_evolved: { pausePenalty: 10, bossHeal: 20, bossDamage: 52, coinsPerPomodoro: 26 },
+    tortuga_phase3: { pausePenalty: 18, bossHeal: 35, bossDamage: 95, coinsPerPomodoro: 45 },
+    hormiga: { pausePenalty: 7, bossHeal: 14, bossDamage: 36, coinsPerPomodoro: 18 },
+    buho: { pausePenalty: 7, bossHeal: 14, bossDamage: 36, coinsPerPomodoro: 18 },
+    rana: { pausePenalty: 7, bossHeal: 14, bossDamage: 36, coinsPerPomodoro: 18 },
+    aguila: { pausePenalty: 7, bossHeal: 14, bossDamage: 36, coinsPerPomodoro: 18 },
+    abeja: { pausePenalty: 7, bossHeal: 14, bossDamage: 36, coinsPerPomodoro: 18 },
+    castor: { pausePenalty: 7, bossHeal: 14, bossDamage: 36, coinsPerPomodoro: 18 },
+    zorro: { pausePenalty: 9, bossHeal: 18, bossDamage: 44, coinsPerPomodoro: 22 },
+    lince: { pausePenalty: 11, bossHeal: 22, bossDamage: 52, coinsPerPomodoro: 26 },
+    panda: { pausePenalty: 8, bossHeal: 16, bossDamage: 48, coinsPerPomodoro: 24 },
+    oso: { pausePenalty: 12, bossHeal: 24, bossDamage: 56, coinsPerPomodoro: 28 },
+    elefante: { pausePenalty: 14, bossHeal: 26, bossDamage: 60, coinsPerPomodoro: 30 },
+    leon: { pausePenalty: 15, bossHeal: 28, bossDamage: 64, coinsPerPomodoro: 32 },
+    tigre: { pausePenalty: 16, bossHeal: 30, bossDamage: 70, coinsPerPomodoro: 35 },
+    lobo: { pausePenalty: 18, bossHeal: 32, bossDamage: 76, coinsPerPomodoro: 38 },
+    dragon: { pausePenalty: 35, bossHeal: 60, bossDamage: 130, coinsPerPomodoro: 60 },
+    fenix: { pausePenalty: 30, bossHeal: 50, bossDamage: 120, coinsPerPomodoro: 55 },
+    grifo: { pausePenalty: 32, bossHeal: 55, bossDamage: 125, coinsPerPomodoro: 58 },
+  };
+
   // Puntos de daño al Boss de la Comunidad aportados por el avatar (100% dinámico desde Supabase)
   getAvatarDamagePoints(avatarId: string): number {
     const item = this.catalogItems().find(i => i.id === avatarId);
-    return item?.boss_damage_points ?? 20;
+    return item?.boss_damage_points ?? this.AVATAR_FALLBACK_STATS[avatarId]?.bossDamage ?? 20;
   }
 
   // Puntos de curación del Boss por distracción/abandono según el avatar (100% dinámico desde Supabase)
   getAvatarHealPoints(avatarId: string): number {
     const item = this.catalogItems().find(i => i.id === avatarId);
-    return item?.boss_heal_points ?? 10;
+    return item?.boss_heal_points ?? this.AVATAR_FALLBACK_STATS[avatarId]?.bossHeal ?? 10;
   }
 
   // Monedas aportadas por cada avatar al completar un pomodoro (100% dinámico desde Supabase)
   getAvatarCoinsPerPomodoro(avatarId: string): number {
     const item = this.catalogItems().find(i => i.id === avatarId);
-    return item?.coins_per_pomodoro ?? 10;
+    return item?.coins_per_pomodoro ?? this.AVATAR_FALLBACK_STATS[avatarId]?.coinsPerPomodoro ?? 10;
   }
 
   // Penalización de monedas por pausa/abandono (100% dinámico desde Supabase)
   getAvatarPausePenalty(avatarId: string): number {
     const item = this.catalogItems().find(i => i.id === avatarId);
-    return item?.pause_penalty_coins ?? 5;
+    return item?.pause_penalty_coins ?? this.AVATAR_FALLBACK_STATS[avatarId]?.pausePenalty ?? 10;
   }
 
   // Intentar recompensar objetivo terminado (idempotente)
