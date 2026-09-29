@@ -896,7 +896,7 @@
 }
 
 .podio-column.first-place .podio-bar {
-  height: 80px;
+  height: 68px;
   background: linear-gradient(to top, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.25) 100%);
   border-color: rgba(212, 175, 55, 0.3);
   color: #ffd700;
@@ -904,7 +904,7 @@
 }
 
 .podio-column.second-place .podio-bar {
-  height: 55px;
+  height: 48px;
   background: linear-gradient(to top, rgba(192, 192, 192, 0.03) 0%, rgba(192, 192, 192, 0.15) 100%);
   border-color: rgba(192, 192, 192, 0.2);
   color: #c0c0c0;
@@ -912,7 +912,7 @@
 }
 
 .podio-column.third-place .podio-bar {
-  height: 35px;
+  height: 32px;
   background: linear-gradient(to top, rgba(205, 127, 50, 0.02) 0%, rgba(205, 127, 50, 0.15) 100%);
   border-color: rgba(205, 127, 50, 0.2);
   color: #cd7f32;
@@ -1180,19 +1180,28 @@
 .podio-top3-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 4px;
+  justify-content: space-between;
+  padding: 0 4px 6px 4px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+  margin-bottom: 8px;
 }
 
 .podio-section-title {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--yellow);
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  letter-spacing: 0.6px;
+}
+
+.podio-top3-badge {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--yellow);
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 10px;
+  padding: 2px 7px;
 }
 
 .podio-columns-row {
@@ -1200,8 +1209,20 @@
   align-items: flex-end;
   justify-content: center;
   gap: 12px;
-  height: 175px;
+  min-height: 175px;
   padding-bottom: 4px;
+  padding-top: 10px;
+}
+
+.podio-crown-badge {
+  color: #ffd700;
+  font-size: 13px;
+  margin-bottom: 3px;
+  filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .podio-user-name {

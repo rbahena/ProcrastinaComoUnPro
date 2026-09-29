@@ -2396,7 +2396,11 @@ export class Enfoque implements OnInit, OnDestroy {
     if (!this.isBreak()) {
       // 🍅 Fin del Pomodoro (Sesión de concentración completada)
       this.sessionEndingStatus.set('completed');
-      this.objectiveCompleted.set(null);
+      if (this.hasCustomObjective()) {
+        this.objectiveCompleted.set('yes');
+      } else {
+        this.objectiveCompleted.set(null);
+      }
       this.arenaState.set('summary');
       this.playFocusAlarm(); // Alarma sonora de Pomodoro
       this.triggerCelebration();
@@ -2933,7 +2937,7 @@ export class Enfoque implements OnInit, OnDestroy {
         
         // Recompensa adicional por objetivo cumplido (Pregunta 2)
         const hasObjective = this.hasCustomObjective();
-        const objCompleted = hasObjective ? (this.objectiveCompleted() || 'no') : 'no';
+        const objCompleted = hasObjective ? (this.objectiveCompleted() || 'yes') : 'no';
         if (hasObjective && (objCompleted === 'yes' || objCompleted === 'progress')) {
           const objectiveId = `obj-${Date.now()}`;
           this.membership.rewardCompletedObjective(objectiveId);
@@ -2958,7 +2962,7 @@ export class Enfoque implements OnInit, OnDestroy {
         // Liquidar e insertar la sesión inmutable en Supabase ANTES de resetear el estado local
         await this.settleCurrentSession(
           currentStatus as 'completed' | 'abandoned' | 'interrupted',
-          (this.objectiveCompleted() as any) || (currentStatus === 'completed' ? (objCompleted === 'yes' ? 'yes' : 'no') : 'no'),
+          objCompleted as any,
           currentObjective,
           targetIdeaId
         );

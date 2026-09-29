@@ -466,17 +466,7 @@ export class Medallero implements OnInit, OnDestroy {
   }
 
   isUserEligible(units: number, createdAt?: string): boolean {
-    if (units > 5) return true;
-    if (createdAt) {
-      const createdTime = new Date(createdAt).getTime();
-      if (!isNaN(createdTime)) {
-        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
-        if (Date.now() - createdTime >= oneWeekMs) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return units > 0;
   }
 
   // 1. Más objetivos alcanzados
@@ -494,6 +484,8 @@ export class Medallero implements OnInit, OnDestroy {
         name: p.username || 'Guerrero',
         avatar: p.selected_avatar || 'gato',
         objectives: p.focus_points ? Math.floor(p.focus_points / 40) : (p.focus_tomatoes || 0),
+        pomodoros: p.focus_tomatoes || 0,
+        streakCount: p.streak_days || 0,
         rankName: this.membership.getAvatarTitle(p.selected_avatar || 'gato') + ' del Foco',
         isSelf: p.username === ramName
       }));
@@ -503,12 +495,18 @@ export class Medallero implements OnInit, OnDestroy {
         name: ramName,
         avatar: ramAvatar,
         objectives: ramObjCount,
+        pomodoros: this.membership.focusTomatoes(),
+        streakCount: this.membership.streak(),
         rankName: this.membership.getAvatarTitle(ramAvatar) + ' del Foco',
         isSelf: true
       });
     }
 
-    return mapped.sort((a, b) => (b.objectives || 0) - (a.objectives || 0)).slice(0, 10).map((p, idx) => ({
+    return mapped.sort((a, b) => 
+      ((b.objectives || 0) - (a.objectives || 0)) ||
+      ((b.pomodoros || 0) - (a.pomodoros || 0)) ||
+      ((b.streakCount || 0) - (a.streakCount || 0))
+    ).slice(0, 10).map((p, idx) => ({
       ...p,
       rank: idx + 1
     }));
@@ -528,6 +526,8 @@ export class Medallero implements OnInit, OnDestroy {
         name: p.username || 'Guerrero',
         avatar: p.selected_avatar || 'gato',
         pomodoros: p.focus_tomatoes || 0,
+        streakCount: p.streak_days || 0,
+        objectives: p.focus_points ? Math.floor(p.focus_points / 40) : 0,
         title: this.membership.getAvatarTitle(p.selected_avatar || 'gato'),
         isSelf: p.username === ramName
       }));
@@ -537,12 +537,18 @@ export class Medallero implements OnInit, OnDestroy {
         name: ramName,
         avatar: ramAvatar,
         pomodoros: ramTomatoes,
+        streakCount: this.membership.streak(),
+        objectives: Math.floor(this.membership.focusPoints() / 40),
         title: 'Guerrero del Pomodoro',
         isSelf: true
       });
     }
 
-    return mapped.sort((a, b) => (b.pomodoros || 0) - (a.pomodoros || 0)).slice(0, 10).map((p, idx) => ({
+    return mapped.sort((a, b) => 
+      ((b.pomodoros || 0) - (a.pomodoros || 0)) ||
+      ((b.streakCount || 0) - (a.streakCount || 0)) ||
+      ((b.objectives || 0) - (a.objectives || 0))
+    ).slice(0, 10).map((p, idx) => ({
       ...p,
       rank: idx + 1
     }));
@@ -562,6 +568,8 @@ export class Medallero implements OnInit, OnDestroy {
         name: p.username || 'Guerrero',
         avatar: p.selected_avatar || 'gato',
         streakCount: p.streak_count || p.streak_days || 0,
+        pomodoros: p.focus_tomatoes || 0,
+        objectives: p.focus_points ? Math.floor(p.focus_points / 40) : 0,
         tag: 'Racha Activa',
         isSelf: p.username === ramName
       }));
@@ -571,12 +579,18 @@ export class Medallero implements OnInit, OnDestroy {
         name: ramName,
         avatar: ramAvatar,
         streakCount: ramStreak,
+        pomodoros: this.membership.focusTomatoes(),
+        objectives: Math.floor(this.membership.focusPoints() / 40),
         tag: 'Racha Activa',
         isSelf: true
       });
     }
 
-    return mapped.sort((a, b) => (b.streakCount || 0) - (a.streakCount || 0)).slice(0, 10).map((p, idx) => ({
+    return mapped.sort((a, b) => 
+      ((b.streakCount || 0) - (a.streakCount || 0)) ||
+      ((b.pomodoros || 0) - (a.pomodoros || 0)) ||
+      ((b.objectives || 0) - (a.objectives || 0))
+    ).slice(0, 10).map((p, idx) => ({
       ...p,
       rank: idx + 1
     }));
@@ -596,6 +610,7 @@ export class Medallero implements OnInit, OnDestroy {
         name: p.username || 'Guerrero',
         avatar: p.selected_avatar || 'lobo',
         damage: p.total_damage || 0,
+        pomodoros: p.focus_tomatoes || 0,
         label: 'Cazador de Jefes',
         isSelf: p.username === ramName
       }));
@@ -605,12 +620,16 @@ export class Medallero implements OnInit, OnDestroy {
         name: ramName,
         avatar: ramAvatar,
         damage: ramDamage,
+        pomodoros: this.membership.focusTomatoes(),
         label: 'Guerrero Activo',
         isSelf: true
       });
     }
 
-    return mapped.sort((a, b) => (b.damage || 0) - (a.damage || 0)).slice(0, 10).map((p, idx) => ({
+    return mapped.sort((a, b) => 
+      ((b.damage || 0) - (a.damage || 0)) ||
+      ((b.pomodoros || 0) - (a.pomodoros || 0))
+    ).slice(0, 10).map((p, idx) => ({
       ...p,
       rank: idx + 1
     }));
@@ -630,6 +649,7 @@ export class Medallero implements OnInit, OnDestroy {
         name: p.username || 'Guerrero',
         avatar: p.selected_avatar || 'gato',
         coins: p.pro_coins || p.coins || 0,
+        pomodoros: p.focus_tomatoes || 0,
         tag: 'Magnate del Foco',
         isSelf: p.username === ramName
       }));
@@ -639,12 +659,16 @@ export class Medallero implements OnInit, OnDestroy {
         name: ramName,
         avatar: ramAvatar,
         coins: ramCoins,
+        pomodoros: this.membership.focusTomatoes(),
         tag: 'Magnate del Foco',
         isSelf: true
       });
     }
 
-    return mapped.sort((a, b) => (b.coins || 0) - (a.coins || 0)).slice(0, 10).map((p, idx) => ({
+    return mapped.sort((a, b) => 
+      ((b.coins || 0) - (a.coins || 0)) ||
+      ((b.pomodoros || 0) - (a.pomodoros || 0))
+    ).slice(0, 10).map((p, idx) => ({
       ...p,
       rank: idx + 1
     }));
@@ -664,6 +688,7 @@ export class Medallero implements OnInit, OnDestroy {
         name: p.username || 'Guerrero',
         avatar: p.selected_avatar || 'gato',
         podiums: p.podium_wins || p.podiums || 0,
+        pomodoros: p.focus_tomatoes || 0,
         tag: 'Campeón Semanal',
         isSelf: p.username === ramName
       }));
@@ -673,12 +698,16 @@ export class Medallero implements OnInit, OnDestroy {
         name: ramName,
         avatar: ramAvatar,
         podiums: ramPodiums,
+        pomodoros: this.membership.focusTomatoes(),
         tag: 'Campeón Semanal',
         isSelf: true
       });
     }
 
-    return mapped.sort((a, b) => (b.podiums || 0) - (a.podiums || 0)).slice(0, 10).map((p, idx) => ({
+    return mapped.sort((a, b) => 
+      ((b.podiums || 0) - (a.podiums || 0)) ||
+      ((b.pomodoros || 0) - (a.pomodoros || 0))
+    ).slice(0, 10).map((p, idx) => ({
       ...p,
       rank: idx + 1
     }));

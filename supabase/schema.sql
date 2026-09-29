@@ -2989,9 +2989,18 @@ BEGIN
                 ), 
                 (p.focus_tomatoes * 25 + COALESCE(p.completed_objectives, 0) * 20 - COALESCE(p.abandoned_sessions, 0) * 20)
             ) AS weekly_score,
-            COALESCE(COUNT(s.id) FILTER (WHERE s.status = 'completed'), p.focus_tomatoes) AS weekly_sessions,
-            COALESCE(COUNT(s.id) FILTER (WHERE s.objective_completed = 'yes'), COALESCE(p.completed_objectives, 0)) AS weekly_objectives,
-            COALESCE(COUNT(s.id) FILTER (WHERE s.status = 'abandoned'), COALESCE(p.abandoned_sessions, 0)) AS weekly_abandons
+            CASE 
+                WHEN COUNT(s.id) > 0 THEN COUNT(s.id) FILTER (WHERE s.status = 'completed')
+                ELSE p.focus_tomatoes 
+            END AS weekly_sessions,
+            CASE 
+                WHEN COUNT(s.id) > 0 THEN COUNT(s.id) FILTER (WHERE s.objective_completed = 'yes')
+                ELSE COALESCE(p.completed_objectives, 0)
+            END AS weekly_objectives,
+            CASE 
+                WHEN COUNT(s.id) > 0 THEN COUNT(s.id) FILTER (WHERE s.status = 'abandoned')
+                ELSE COALESCE(p.abandoned_sessions, 0)
+            END AS weekly_abandons
         FROM public.profiles p
         LEFT JOIN public.focus_sessions s 
             ON s.user_id = p.id 
@@ -3095,7 +3104,7 @@ BEGIN
     ) INTO v_best_streak
     FROM public.profiles
     WHERE is_premium = TRUE AND GREATEST(longest_streak, streak_days) > 0
-    ORDER BY GREATEST(longest_streak, streak_days) DESC, created_at ASC
+    ORDER BY GREATEST(longest_streak, streak_days) DESC, focus_tomatoes DESC, focus_points DESC, created_at ASC
     LIMIT 1;
 
     -- 2. Récord Histórico: Más Sesiones de Concentración (Pomodoros) (Exclusivo Premium)
@@ -3108,7 +3117,7 @@ BEGIN
     ) INTO v_most_tomatoes
     FROM public.profiles
     WHERE is_premium = TRUE AND focus_tomatoes > 0
-    ORDER BY focus_tomatoes DESC, created_at ASC
+    ORDER BY focus_tomatoes DESC, streak_days DESC, focus_points DESC, created_at ASC
     LIMIT 1;
 
     -- 3. Récord Histórico: El Magnate de Focus (Pro Coins) (Exclusivo Premium)
@@ -3121,7 +3130,7 @@ BEGIN
     ) INTO v_most_coins
     FROM public.profiles
     WHERE is_premium = TRUE AND pro_coins > 0
-    ORDER BY pro_coins DESC, created_at ASC
+    ORDER BY pro_coins DESC, focus_tomatoes DESC, created_at ASC
     LIMIT 1;
 
     -- 4. Récord Histórico: Podios Conquistados (Exclusivo Premium)
@@ -3134,7 +3143,7 @@ BEGIN
     ) INTO v_most_podiums
     FROM public.profiles
     WHERE is_premium = TRUE AND (podium_wins > 0 OR gold_medals > 0)
-    ORDER BY podium_wins DESC, gold_medals DESC, created_at ASC
+    ORDER BY podium_wins DESC, gold_medals DESC, focus_tomatoes DESC, created_at ASC
     LIMIT 1;
 
     -- 5. Ranking por Puntos de Enfoque y Objetivos (Top 10 Exclusivo Premium)
@@ -3143,7 +3152,7 @@ BEGIN
                focus_points, focus_tomatoes, podium_wins, streak_days
         FROM public.profiles
         WHERE is_premium = TRUE AND focus_points > 0
-        ORDER BY focus_points DESC, created_at ASC
+        ORDER BY focus_points DESC, focus_tomatoes DESC, streak_days DESC, created_at ASC
         LIMIT 10
     ) r;
 
@@ -3153,17 +3162,17 @@ BEGIN
                focus_tomatoes, focus_points, streak_days
         FROM public.profiles
         WHERE is_premium = TRUE AND focus_tomatoes > 0
-        ORDER BY focus_tomatoes DESC, created_at ASC
+        ORDER BY focus_tomatoes DESC, streak_days DESC, focus_points DESC, created_at ASC
         LIMIT 10
     ) r;
 
     -- 7. Ranking por Rachas Consecutivas (Top 10 Exclusivo Premium)
     SELECT COALESCE(json_agg(r), '[]'::json) INTO v_ranking_streaks FROM (
         SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
-               GREATEST(longest_streak, streak_days) as streak_count, streak_days
+               GREATEST(longest_streak, streak_days) as streak_count, streak_days, focus_tomatoes, focus_points
         FROM public.profiles
         WHERE is_premium = TRUE AND GREATEST(longest_streak, streak_days) > 0
-        ORDER BY GREATEST(longest_streak, streak_days) DESC, streak_days DESC, created_at ASC
+        ORDER BY GREATEST(longest_streak, streak_days) DESC, focus_tomatoes DESC, focus_points DESC, created_at ASC
         LIMIT 10
     ) r;
 
@@ -3174,32 +3183,33 @@ BEGIN
             COALESCE(p.username, ba.user_name) as username,
             COALESCE(p.selected_avatar, ba.user_avatar, 'lobo') as selected_avatar,
             COALESCE(LOWER(p.country_code), 'mx') as country_code,
-            SUM(ba.damage_dealt)::BIGINT as total_damage
+            SUM(ba.damage_dealt)::BIGINT as total_damage,
+            COALESCE(p.focus_tomatoes, 0) as focus_tomatoes
         FROM public.community_boss_attacks ba
         LEFT JOIN public.profiles p ON p.id = ba.user_id
         WHERE ba.damage_dealt > 0 AND (p.is_premium = TRUE OR p.is_premium IS NULL)
-        GROUP BY p.id, p.username, p.selected_avatar, p.country_code, ba.user_name, ba.user_avatar
-        ORDER BY total_damage DESC
+        GROUP BY p.id, p.username, p.selected_avatar, p.country_code, p.focus_tomatoes, ba.user_name, ba.user_avatar
+        ORDER BY total_damage DESC, focus_tomatoes DESC
         LIMIT 10
     ) b;
 
     -- 9. Ranking por Pro Coins (El Magnate de Focus - Top 10 Exclusivo Premium)
     SELECT COALESCE(json_agg(c), '[]'::json) INTO v_ranking_coins FROM (
         SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
-               pro_coins
+               pro_coins, focus_tomatoes
         FROM public.profiles
         WHERE is_premium = TRUE AND pro_coins > 0
-        ORDER BY pro_coins DESC, created_at ASC
+        ORDER BY pro_coins DESC, focus_tomatoes DESC, created_at ASC
         LIMIT 10
     ) c;
 
     -- 10. Ranking por Podios Conquistados (Top 10 Exclusivo Premium)
     SELECT COALESCE(json_agg(p_rank), '[]'::json) INTO v_ranking_podiums FROM (
         SELECT id, username, selected_avatar, COALESCE(LOWER(country_code), 'mx') as country_code,
-               podium_wins, gold_medals
+               podium_wins, gold_medals, focus_tomatoes
         FROM public.profiles
         WHERE is_premium = TRUE AND (podium_wins > 0 OR gold_medals > 0)
-        ORDER BY podium_wins DESC, gold_medals DESC, created_at ASC
+        ORDER BY podium_wins DESC, gold_medals DESC, focus_tomatoes DESC, created_at ASC
         LIMIT 10
     ) p_rank;
 

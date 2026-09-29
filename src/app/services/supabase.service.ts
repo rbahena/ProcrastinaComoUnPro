@@ -1593,17 +1593,7 @@ export class SupabaseService {
   }
 
   isEligibleForRankingCategory(units: number, createdAt?: string): boolean {
-    if (units > 5) return true;
-    if (createdAt) {
-      const createdTime = new Date(createdAt).getTime();
-      if (!isNaN(createdTime)) {
-        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
-        if (Date.now() - createdTime >= oneWeekMs) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return units > 0;
   }
 
   // ==========================================
