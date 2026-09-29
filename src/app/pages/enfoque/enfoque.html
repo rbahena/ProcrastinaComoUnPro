@@ -4,7 +4,7 @@
     <app-navbar></app-navbar>
 
     <!-- Fondo de Pantalla Zen Dinámico (Imágenes / Videos Lofi HD en Bucle Invisible) - Se oculta completamente durante la cuenta regresiva -->
-    <div *ngIf="useFairyBackground() && arenaState() !== 'countdown' && timerStyle() !== 'airplane' && timerStyle() !== 'lighthouse' && timerStyle() !== 'titanic'"
+    <div *ngIf="useFairyBackground() && arenaState() !== 'countdown' && timerStyle() !== 'airplane' && timerStyle() !== 'lighthouse' && timerStyle() !== 'titanic' && timerStyle() !== 'lantern'"
          class="zen-bg-container"
          [class.bg-space-cosmos]="activeBackground() === 'lofi_space_cosmos'"
          [class.bg-titanic-midnight]="activeBackground() === 'lofi_titanic_ocean'"
@@ -1105,6 +1105,77 @@
       <div class="airplane-backdrop-tarmac"></div>
     </div>
 
+    <!-- Fondo Panorámico Responsivo de Borde a Borde para Modo Farol Encantado (faro_col.jpeg) -->
+    <div *ngIf="timerStyle() === 'lantern' && arenaState() !== 'countdown'"
+         class="lantern-fullscreen-backdrop">
+      
+      <!-- Fondo Atmosférico de Pantalla Completa (100vw × 100vh) -->
+      <div class="lantern-backdrop-atmosphere"></div>
+
+      <!-- Halos Concéntricos Panorámicos, Hiedra de Techo y Luciérnagas Flotantes -->
+      <svg class="lantern-fullscreen-sky-svg" viewBox="0 0 1920 1080" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;">
+        <defs>
+          <filter id="screenFireflyGlow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
+          <linearGradient id="ceilingIvyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#064e3b" />
+            <stop offset="50%" stop-color="#15803d" />
+            <stop offset="100%" stop-color="#4ade80" />
+          </linearGradient>
+        </defs>
+
+        <!-- Hiedra Colgante desde el Techo / Barra de Navegación (Esquinas Superiores) -->
+        <g class="ceiling-ivy-layer" opacity="0.85">
+          <!-- Esquina Superior Izquierda -->
+          <path d="M 0,0 Q 80,45 140,20 Q 200,60 260,15 Q 320,70 380,25" fill="none" stroke="#16a34a" stroke-width="3" />
+          <path d="M 60,10 Q 50,70 70,110" fill="none" stroke="#22c55e" stroke-width="2" class="ivy-tendril-sway-1" />
+          <circle cx="70" cy="115" r="7" fill="url(#ceilingIvyGrad)" />
+          <path d="M 120,15 Q 140,85 125,140" fill="none" stroke="#22c55e" stroke-width="2.2" class="ivy-tendril-sway-2" />
+          <circle cx="125" cy="146" r="8" fill="url(#ceilingIvyGrad)" />
+          <path d="M 220,18 Q 210,95 235,155" fill="none" stroke="#22c55e" stroke-width="2" class="ivy-tendril-sway-1" />
+          <circle cx="235" cy="162" r="7.5" fill="url(#ceilingIvyGrad)" />
+
+          <!-- Esquina Superior Derecha -->
+          <path d="M 1920,0 Q 1840,45 1780,20 Q 1720,60 1660,15 Q 1600,70 1540,25" fill="none" stroke="#16a34a" stroke-width="3" />
+          <path d="M 1860,10 Q 1870,70 1850,110" fill="none" stroke="#22c55e" stroke-width="2" class="ivy-tendril-sway-2" />
+          <circle cx="1850" cy="115" r="7" fill="url(#ceilingIvyGrad)" />
+          <path d="M 1800,15 Q 1780,85 1795,140" fill="none" stroke="#22c55e" stroke-width="2.2" class="ivy-tendril-sway-1" />
+          <circle cx="1795" cy="146" r="8" fill="url(#ceilingIvyGrad)" />
+          <path d="M 1700,18 Q 1710,95 1685,155" fill="none" stroke="#22c55e" stroke-width="2" class="ivy-tendril-sway-2" />
+          <circle cx="1685" cy="162" r="7.5" fill="url(#ceilingIvyGrad)" />
+        </g>
+
+        <!-- Enjambre de Luciérnagas / Chispas mágicas por toda la pantalla -->
+        <g class="fireflies-layer">
+          <circle cx="220" cy="180" r="2.8" fill="#67e8f9" class="firefly-blink-1" filter="url(#screenFireflyGlow)" />
+          <circle cx="380" cy="340" r="2.2" fill="#fef08a" class="firefly-blink-2" filter="url(#screenFireflyGlow)" />
+          <circle cx="520" cy="140" r="2.5" fill="#a7f3d0" class="firefly-blink-3" filter="url(#screenFireflyGlow)" />
+          <circle cx="680" cy="280" r="2.0" fill="#fde047" class="firefly-blink-4" filter="url(#screenFireflyGlow)" />
+          <circle cx="1240" cy="220" r="2.6" fill="#67e8f9" class="firefly-blink-5" filter="url(#screenFireflyGlow)" />
+          <circle cx="1400" cy="160" r="2.4" fill="#a7f3d0" class="firefly-blink-1" filter="url(#screenFireflyGlow)" />
+          <circle cx="1560" cy="310" r="2.2" fill="#fef08a" class="firefly-blink-2" filter="url(#screenFireflyGlow)" />
+          <circle cx="1720" cy="190" r="2.7" fill="#67e8f9" class="firefly-blink-3" filter="url(#screenFireflyGlow)" />
+          
+          <circle cx="160" cy="520" r="3.0" fill="#a7f3d0" class="firefly-blink-4" filter="url(#screenFireflyGlow)" />
+          <circle cx="420" cy="680" r="2.4" fill="#fde047" class="firefly-blink-5" filter="url(#screenFireflyGlow)" />
+          <circle cx="1500" cy="620" r="2.8" fill="#67e8f9" class="firefly-blink-1" filter="url(#screenFireflyGlow)" />
+          <circle cx="1780" cy="560" r="2.5" fill="#a7f3d0" class="firefly-blink-2" filter="url(#screenFireflyGlow)" />
+
+          <circle cx="300" cy="820" r="2.2" fill="#fef08a" class="firefly-blink-3" />
+          <circle cx="820" cy="780" r="2.5" fill="#67e8f9" class="firefly-blink-4" />
+          <circle cx="1100" cy="790" r="2.6" fill="#a7f3d0" class="firefly-blink-5" />
+          <circle cx="1620" cy="850" r="2.2" fill="#fde047" class="firefly-blink-1" />
+        </g>
+      </svg>
+
+    </div>
+
     <!-- MAIN WORKSPACE DE LA CONFIGURACIÓN -->
     <div class="main custom-scrollbar" style="display: flex; flex-direction: column; position: relative; z-index: 1; flex: 1;">
 
@@ -1558,7 +1629,7 @@
         
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 260px; width: 100%; position: relative;">
           <!-- Fondo decorativo con auras suaves (solo en modos no cinematográficos) -->
-          <div *ngIf="timerStyle() !== 'lighthouse' && timerStyle() !== 'titanic'" style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
+          <div *ngIf="timerStyle() !== 'lighthouse' && timerStyle() !== 'titanic' && timerStyle() !== 'lantern'" style="position: absolute; width: 320px; height: 320px; background: var(--accent); opacity: 0.04; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 1;"></div>
 
           <!-- Cabecera de Estado Sutil -->
           <div *ngIf="arenaState() !== 'setup' && (arenaState() === 'countdown' || emergencyPauseActive() || isBreak())" 
@@ -5794,6 +5865,557 @@
                 </div>
               </ng-container>
 
+              <!-- CASO 14: Farol Colgante Encantado (faro_col.jpeg) con Cadena, Hiedra con Zarcillos, Luz Cálida y Mariposas -->
+              <ng-container *ngIf="timerStyle() === 'lantern'">
+                <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
+                     class="lantern-container enchanted-lantern-timer"
+                     style="position: relative; width: min(480px, 94vw); height: clamp(400px, min(60vh, 530px), 530px); aspect-ratio: 500 / 540; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; margin: 0 auto; user-select: none; overflow: visible;">
+                  
+                  <svg viewBox="0 0 500 540" style="width: 100%; height: 100%; overflow: visible; z-index: 4;">
+                    <defs>
+                      <!-- 1. HOJA DE HIEDRA DE 3 LÓBULOS EXACTA DE faro_col.jpeg (Con Borde Menta/Lima Iluminado) -->
+                      <g id="faroIvyLeaf">
+                        <!-- Cuerpo verde bosque profundo -->
+                        <path d="M 0,-18 C -7,-12 -16,-13 -18,-4 C -20,4 -12,10 -8,10 C -12,16 -6,22 0,23 C 6,22 12,16 8,10 C 12,10 20,4 18,-4 C 16,-13 7,-12 0,-18 Z" 
+                              fill="#166534" stroke="#0f3f22" stroke-width="0.9" />
+                        <!-- Borde iluminado verde menta claro en el flanco exterior (faro_col.jpeg) -->
+                        <path d="M 0,-18 C -7,-12 -16,-13 -18,-4 C -20,4 -12,10 -8,10 C -12,16 -6,22 0,23" 
+                              fill="none" stroke="#86efac" stroke-width="2.4" stroke-linecap="round" />
+                        <!-- Nervadura central -->
+                        <line x1="0" y1="18" x2="0" y2="-12" stroke="#4ade80" stroke-width="1.3" stroke-linecap="round" opacity="0.85" />
+                      </g>
+
+                      <!-- Gradiente Hojas de Hiedra de Bosque Natural -->
+                      <linearGradient id="faroLeafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#16a34a" />
+                        <stop offset="40%" stop-color="#15803d" />
+                        <stop offset="80%" stop-color="#166534" />
+                        <stop offset="100%" stop-color="#14532d" />
+                      </linearGradient>
+
+                      <!-- 2. HALO OSCURO CIRCULAR ALREDEDOR DE LA LÁMPARA (faro_col.jpeg) -->
+                      <radialGradient id="faroDarkOrbitHalo" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#0f2432" stop-opacity="0.95" />
+                        <stop offset="60%" stop-color="#0b1b26" stop-opacity="0.82" />
+                        <stop offset="85%" stop-color="#07121a" stop-opacity="0.42" />
+                        <stop offset="100%" stop-color="#07121a" stop-opacity="0" />
+                      </radialGradient>
+
+                      <!-- 3. LUZ CÁLIDA Y DIFUSA DEL CRISTAL (faro_col.jpeg: Tono Crema, Mantequilla y Oro Pastel) -->
+                      <radialGradient id="faroGlassGradient" cx="50%" cy="48%" r="62%">
+                        <stop offset="0%" stop-color="#ffffff" />
+                        <stop offset="20%" stop-color="#fffef0" />
+                        <stop offset="45%" stop-color="#fef9c3" />
+                        <stop offset="72%" stop-color="#fef08a" />
+                        <stop offset="90%" stop-color="#fde047" />
+                        <stop offset="100%" stop-color="#f59e0b" />
+                      </radialGradient>
+
+                      <!-- 1. Halo Ambiental de Noche Totalmente Difuso (Sin bordes duros) -->
+                      <radialGradient id="faroSoftAmbientHalo" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#224659" stop-opacity="0.95" />
+                        <stop offset="25%" stop-color="#193746" stop-opacity="0.80" />
+                        <stop offset="50%" stop-color="#122733" stop-opacity="0.55" />
+                        <stop offset="75%" stop-color="#0a171f" stop-opacity="0.25" />
+                        <stop offset="100%" stop-color="#010508" stop-opacity="0" />
+                      </radialGradient>
+
+                      <!-- 2. Aureola de Luz Dorada Cálida Radiante Difusa (Luz que irradia en la noche) -->
+                      <radialGradient id="faroRadiantLightDiffusion" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.95" />
+                        <stop offset="22%" stop-color="#fef9c3" stop-opacity="0.80" />
+                        <stop offset="45%" stop-color="#fef08a" stop-opacity="0.55" />
+                        <stop offset="70%" stop-color="#f59e0b" stop-opacity="0.25" />
+                        <stop offset="88%" stop-color="#ea580c" stop-opacity="0.08" />
+                        <stop offset="100%" stop-color="#ea580c" stop-opacity="0" />
+                      </radialGradient>
+
+                      <!-- 3. Resplandor Concentrado en el Núcleo del Foco (faro_col.jpeg) -->
+                      <radialGradient id="faroBulbCoreGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+                        <stop offset="25%" stop-color="#fffbeb" stop-opacity="0.95" />
+                        <stop offset="55%" stop-color="#fef08a" stop-opacity="0.70" />
+                        <stop offset="80%" stop-color="#f59e0b" stop-opacity="0.30" />
+                        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0" />
+                      </radialGradient>
+
+                      <!-- Filtro Suave y Limpio para la Bombilla Frosted (Sin bordes rectangulares) -->
+                      <filter id="faroBulbCleanGlow" x="-100%" y="-100%" width="300%" height="300%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur1" />
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur2" />
+                        <feMerge>
+                          <feMergeNode in="blur2" />
+                          <feMergeNode in="blur1" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <!-- Sombra Sutil Natural para Polillas Nocturnas (Sin brillo fluorescente) -->
+                      <filter id="mothSubtleShadow" x="-30%" y="-30%" width="160%" height="160%">
+                        <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.5" />
+                      </filter>
+
+                      <!-- Filtro Resplandor Suave y Cálido para Luciérnagas -->
+                      <filter id="fireflySoftGlow" x="-100%" y="-100%" width="300%" height="300%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur1" />
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur2" />
+                        <feMerge>
+                          <feMergeNode in="blur2" />
+                          <feMergeNode in="blur1" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      <!-- Gradiente Cobre Terracota Oscuro Sólido (faro_col.jpeg) -->
+                      <linearGradient id="faroCopperTerracotta" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#7c2d12" />
+                        <stop offset="35%" stop-color="#9a3412" />
+                        <stop offset="65%" stop-color="#7c2d12" />
+                        <stop offset="100%" stop-color="#451a03" />
+                      </linearGradient>
+
+                      <!-- Gradiente Eslabones de Cadena de Cobre Forjado Oscuro Mate -->
+                      <linearGradient id="faroChainGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#5c200c" />
+                        <stop offset="40%" stop-color="#6e260e" />
+                        <stop offset="70%" stop-color="#5c200c" />
+                        <stop offset="100%" stop-color="#3b1407" />
+                      </linearGradient>
+
+                      <!-- ===== PALETAS OPACAS Y MATES PARA POLILLAS / MARIPOSAS NOCTURNAS ===== -->
+                      <!-- Paleta 1: Pizarra Ceniza y Grafito Mate -->
+                      <linearGradient id="mothSlateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#64748b" />
+                        <stop offset="40%" stop-color="#475569" />
+                        <stop offset="75%" stop-color="#334155" />
+                        <stop offset="100%" stop-color="#1e293b" />
+                      </linearGradient>
+                      <linearGradient id="mothSlateAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#94a3b8" />
+                        <stop offset="50%" stop-color="#64748b" />
+                        <stop offset="100%" stop-color="#334155" />
+                      </linearGradient>
+
+                      <!-- Paleta 2: Corteza Terrosa, Taupe y Café Opaco -->
+                      <linearGradient id="mothBarkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#78716c" />
+                        <stop offset="40%" stop-color="#57534e" />
+                        <stop offset="75%" stop-color="#44403c" />
+                        <stop offset="100%" stop-color="#292524" />
+                      </linearGradient>
+                      <linearGradient id="mothBarkAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#a8a29e" />
+                        <stop offset="50%" stop-color="#78716c" />
+                        <stop offset="100%" stop-color="#44403c" />
+                      </linearGradient>
+
+                      <!-- Paleta 3: Malva Polvoriento y Ciruela Mate Apagado -->
+                      <linearGradient id="mothMauveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#6b5b75" />
+                        <stop offset="40%" stop-color="#54445c" />
+                        <stop offset="75%" stop-color="#3e3045" />
+                        <stop offset="100%" stop-color="#281e2d" />
+                      </linearGradient>
+                      <linearGradient id="mothMauveAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#9c89a7" />
+                        <stop offset="50%" stop-color="#705c7c" />
+                        <stop offset="100%" stop-color="#403048" />
+                      </linearGradient>
+
+                      <!-- Paleta 4: Oliva Seco Mate y Musgo Nocturno -->
+                      <linearGradient id="mothOliveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#5c6755" />
+                        <stop offset="40%" stop-color="#44503e" />
+                        <stop offset="75%" stop-color="#303b2b" />
+                        <stop offset="100%" stop-color="#1e251b" />
+                      </linearGradient>
+                      <linearGradient id="mothOliveAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#84947c" />
+                        <stop offset="50%" stop-color="#5f6e57" />
+                        <stop offset="100%" stop-color="#344130" />
+                      </linearGradient>
+                    </defs>
+
+                    <!-- CUERPO PRINCIPAL DEL FAROL COLGADO DESDE LA CADENA AL TECHO (NAVBAR y = 0) -->
+                    <g class="lantern-sway-assembly" style="transform-origin: 250px 0px;">
+                      
+                      <!-- ================= CADENA DE COBRE COLGANTE (y = 0 a 160) ================= -->
+                      <g class="lantern-chain-group">
+                        <!-- Eslabón 1 (Vertical - emerge del navbar) -->
+                        <rect x="244" y="0" width="12" height="26" rx="6" fill="none" stroke="url(#faroChainGrad)" stroke-width="4" />
+                        <!-- Eslabón 2 (Horizontal) -->
+                        <ellipse cx="250" cy="24" rx="4.5" ry="9.5" fill="url(#faroChainGrad)" stroke="#451a03" stroke-width="1.2" />
+                        <!-- Eslabón 3 (Vertical) -->
+                        <rect x="244" y="28" width="12" height="26" rx="6" fill="none" stroke="url(#faroChainGrad)" stroke-width="4" />
+                        <!-- Eslabón 4 (Horizontal) -->
+                        <ellipse cx="250" cy="52" rx="4.5" ry="9.5" fill="url(#faroChainGrad)" stroke="#451a03" stroke-width="1.2" />
+                        <!-- Eslabón 5 (Vertical) -->
+                        <rect x="244" y="56" width="12" height="26" rx="6" fill="none" stroke="url(#faroChainGrad)" stroke-width="4" />
+                        <!-- Eslabón 6 (Horizontal) -->
+                        <ellipse cx="250" cy="80" rx="4.5" ry="9.5" fill="url(#faroChainGrad)" stroke="#451a03" stroke-width="1.2" />
+                        <!-- Eslabón 7 (Vertical) -->
+                        <rect x="244" y="84" width="12" height="26" rx="6" fill="none" stroke="url(#faroChainGrad)" stroke-width="4" />
+                        <!-- Eslabón 8 (Horizontal) -->
+                        <ellipse cx="250" cy="108" rx="4.5" ry="9.5" fill="url(#faroChainGrad)" stroke="#451a03" stroke-width="1.2" />
+                        <!-- Eslabón 9 (Vertical) -->
+                        <rect x="244" y="112" width="12" height="26" rx="6" fill="none" stroke="url(#faroChainGrad)" stroke-width="4" />
+                        <!-- Eslabón 10 (Horizontal) -->
+                        <ellipse cx="250" cy="136" rx="4.5" ry="9.5" fill="url(#faroChainGrad)" stroke="#451a03" stroke-width="1.2" />
+                        <!-- Eslabón 11 (Vertical conecta al remate del farol) -->
+                        <rect x="244" y="138" width="12" height="20" rx="6" fill="none" stroke="url(#faroChainGrad)" stroke-width="4" />
+                      </g>
+
+                      <!-- ================= HIEDRA, RAMAS Y HOJAS EN LA CADENA (faro_col.jpeg) ================= -->
+                      <g class="faro-ivy-assembly">
+                        <!-- Tallo Principal Sinuoso en S que se Enrosca en la Cadena (faro_col.jpeg) -->
+                        <path d="M 226,0 
+                                 C 216,14 224,28 240,24 
+                                 C 256,20 272,32 270,52 
+                                 C 268,72 238,72 228,88 
+                                 C 218,104 235,116 256,120 
+                                 C 278,124 286,140 272,156 
+                                 C 258,170 236,162 238,172" 
+                              fill="none" stroke="#16a34a" stroke-width="3.4" stroke-linecap="round" />
+
+                        <!-- 1. Rama Ondulada Vertical / Squiggly Tendril Superior Izquierdo (faro_col.jpeg) -->
+                        <path d="M 216,20 Q 206,28 215,36 Q 206,44 215,52 Q 207,60 214,68" 
+                              fill="none" stroke="#22c55e" stroke-width="2.4" stroke-linecap="round" class="ivy-tendril-sway-1" />
+                        <!-- Hoja 1: Superior Izquierda en la punta de la rama (faro_col.jpeg) -->
+                        <use href="#faroIvyLeaf" transform="translate(208, 16) rotate(-35) scale(1.15)" class="ivy-leaf-flutter-1" />
+                        <!-- Hoja 2: Superior Derecha brotando de la rama (faro_col.jpeg) -->
+                        <use href="#faroIvyLeaf" transform="translate(285, 52) rotate(35) scale(1.15)" class="ivy-leaf-flutter-2" />
+                        <!-- Hoja 3: Lateral en la rama izquierda -->
+                        <use href="#faroIvyLeaf" transform="translate(204, 38) rotate(-65) scale(0.95)" class="ivy-leaf-flutter-1" />
+                        <!-- Hoja 4: Pequeña brotando al centro de la cadena -->
+                        <use href="#faroIvyLeaf" transform="translate(236, 32) rotate(15) scale(0.8)" class="ivy-leaf-flutter-2" />
+
+                        <!-- Nódulo Medio-Superior (Hojas 5 y 6) -->
+                        <use href="#faroIvyLeaf" transform="translate(228, 58) rotate(-35) scale(0.95)" class="ivy-leaf-flutter-1" />
+                        <use href="#faroIvyLeaf" transform="translate(274, 56) rotate(45) scale(0.9)" class="ivy-leaf-flutter-2" />
+
+                        <!-- 2. Gran Rama en Espiral / Swirl Curly Central Izquierdo (faro_col.jpeg @-swirl) -->
+                        <path d="M 230,76 C 206,64 192,84 204,104 C 218,118 238,104 230,90 C 225,80 213,84 217,94" 
+                              fill="none" stroke="#22c55e" stroke-width="2.6" stroke-linecap="round" class="ivy-tendril-sway-2" />
+                        <!-- Hoja 7: En la curva superior del espiral (faro_col.jpeg) -->
+                        <use href="#faroIvyLeaf" transform="translate(210, 80) rotate(-55) scale(1.0)" class="ivy-leaf-flutter-2" />
+                        <!-- Hoja 8: En la punta interior del rizo -->
+                        <use href="#faroIvyLeaf" transform="translate(218, 96) rotate(-110) scale(0.85)" class="ivy-leaf-flutter-1" />
+                        <!-- Hoja 9: Central Izquierda Principal bajo el espiral (faro_col.jpeg) -->
+                        <use href="#faroIvyLeaf" transform="translate(218, 148) rotate(-70) scale(1.15)" class="ivy-leaf-flutter-1" />
+                        <!-- Hoja 10: Central Derecha colgando de la rama (faro_col.jpeg) -->
+                        <use href="#faroIvyLeaf" transform="translate(298, 114) rotate(75) scale(1.1)" class="ivy-leaf-flutter-2" />
+                        <!-- Hoja 11: Centro de la cadena -->
+                        <use href="#faroIvyLeaf" transform="translate(245, 92) rotate(20) scale(0.85)" class="ivy-leaf-flutter-2" />
+
+                        <!-- 3. Rama Ondulada Horizontal Derecha (faro_col.jpeg ~-wave) -->
+                        <path d="M 264,120 Q 282,128 296,120 Q 310,112 324,120" 
+                              fill="none" stroke="#22c55e" stroke-width="2.4" stroke-linecap="round" class="ivy-tendril-sway-1" />
+                        <!-- Hoja 12: Inicio de la onda derecha -->
+                        <use href="#faroIvyLeaf" transform="translate(276, 118) rotate(30) scale(0.95)" class="ivy-leaf-flutter-1" />
+                        <!-- Hoja 13: Cresta de la onda derecha -->
+                        <use href="#faroIvyLeaf" transform="translate(306, 114) rotate(65) scale(0.9)" class="ivy-leaf-flutter-2" />
+                        <!-- Hoja 14: Extremo de la onda derecha -->
+                        <use href="#faroIvyLeaf" transform="translate(324, 122) rotate(80) scale(0.85)" class="ivy-leaf-flutter-1" />
+                        <!-- Hoja 15: Inferior Derecha en la rama (faro_col.jpeg) -->
+                        <use href="#faroIvyLeaf" transform="translate(296, 182) rotate(45) scale(1.15)" class="ivy-leaf-flutter-2" />
+                        <!-- Hoja 16: Contraparte Izquierda -->
+                        <use href="#faroIvyLeaf" transform="translate(225, 136) rotate(-55) scale(0.95)" class="ivy-leaf-flutter-1" />
+
+                        <!-- 4. Rama en Espiral Inferior Izquierda sobre la Cúpula del Farol (faro_col.jpeg) -->
+                        <path d="M 242,164 C 224,154 212,172 222,184 C 234,192 246,180 240,168 C 235,160 224,166 226,174" 
+                              fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" class="ivy-tendril-sway-2" />
+                        <!-- Hoja 17: Sobre el espiral de la cúpula izquierda (faro_col.jpeg) -->
+                        <use href="#faroIvyLeaf" transform="translate(228, 198) rotate(-80) scale(1.1)" class="ivy-leaf-flutter-2" />
+                        <!-- Hoja 18: Descansando en el techo del farol derecho (faro_col.jpeg) -->
+                        <use href="#faroIvyLeaf" transform="translate(296, 168) rotate(40) scale(1.1)" class="ivy-leaf-flutter-1" />
+                        <!-- Hoja 19: Caída hacia el alero izquierdo -->
+                        <use href="#faroIvyLeaf" transform="translate(195, 195) rotate(-30) scale(0.95)" class="ivy-leaf-flutter-2" />
+                        <!-- Hoja 20: Caída hacia el alero derecho -->
+                        <use href="#faroIvyLeaf" transform="translate(308, 195) rotate(35) scale(0.95)" class="ivy-leaf-flutter-1" />
+                      </g>
+
+                      <!-- ================= 0. RESPLANDOR Y DIFUSIÓN DE LUZ CIRCULAR DE FONDO (faro_col.jpeg) ================= -->
+                      <g class="lantern-circular-backdrop" pointer-events="none">
+                        <!-- Halo de Noche Azulada Difusa (Sin bordes duros) -->
+                        <circle cx="250" cy="305" r="160" fill="url(#faroSoftAmbientHalo)" />
+                        <!-- Aureola de Luz Dorada Cálida que Emana del Farol (Suave y Difusa) -->
+                        <circle cx="250" cy="305" r="115" fill="url(#faroRadiantLightDiffusion)" class="lantern-flame-glow" />
+                      </g>
+
+                      <!-- ================= ESTRUCTURA DEL FAROL TERRACOTA (faro_col.jpeg) ================= -->
+                      <!-- Remate Esférico Superior -->
+                      <circle cx="250" cy="162" r="13" fill="url(#faroCopperTerracotta)" stroke="#451a03" stroke-width="2" />
+                      <!-- Cuello de Fijación -->
+                      <rect x="238" y="172" width="24" height="8" rx="2" fill="url(#faroCopperTerracotta)" stroke="#451a03" stroke-width="1.2" />
+
+                      <!-- Cúpula / Techo Cónico de Cobre Terracota (faro_col.jpeg) -->
+                      <path d="M 165,225 C 190,175 310,175 335,225 Z" 
+                            fill="url(#faroCopperTerracotta)" stroke="#451a03" stroke-width="2.5" />
+
+                      <!-- Cornisa / Eaves Ancha con Bordes Redondeados (faro_col.jpeg) -->
+                      <rect x="150" y="222" width="200" height="15" rx="7.5" fill="url(#faroCopperTerracotta)" stroke="#451a03" stroke-width="2" />
+
+                      <!-- ================= CUERPO DE CRISTAL E ILUMINACIÓN (faro_col.jpeg) ================= -->
+                      <!-- Cristal del Farol (Tono Oro/Mantequilla Pastel) -->
+                      <polygon points="168,237 332,237 308,375 192,375" fill="url(#faroGlassGradient)" />
+
+                      <!-- Resplandor Dorado Circular Interno del Foco -->
+                      <circle cx="250" cy="285" r="62" fill="url(#faroBulbCoreGlow)" class="lantern-flame-glow" />
+
+                      <!-- Foco / Bombilla Frosted Visible en el Centro con Resplandor Suave y Redondeado (faro_col.jpeg) -->
+                      <g class="lantern-flame-glow" filter="url(#faroBulbCleanGlow)">
+                        <!-- Bombilla Incandescente Frosted Ovalada como en faro_col.jpeg -->
+                        <path d="M 236,262 C 236,242 264,242 264,262 C 264,284 256,312 250,318 C 244,312 236,284 236,262 Z" 
+                              fill="#fffef2" opacity="0.96" />
+                        <!-- Núcleo Incandescente Ultrabrillante Blanco -->
+                        <ellipse cx="250" cy="268" rx="7" ry="12" fill="#ffffff" />
+                        <circle cx="250" cy="264" r="4.5" fill="#ffffff" />
+                      </g>
+
+                      <!-- Reflejos Biselados en el Cristal -->
+                      <polygon points="172,240 184,240 200,372 195,372" fill="#ffffff" opacity="0.28" />
+                      <polygon points="316,240 328,240 305,372 299,372" fill="#ffffff" opacity="0.18" />
+
+                      <!-- Montante Vertical Central de Cobre (Separa los dos cristales como en faro_col.jpeg) -->
+                      <line x1="250" y1="237" x2="250" y2="375" stroke="#9a3412" stroke-width="4.5" />
+                      <line x1="250" y1="237" x2="250" y2="375" stroke="#ea580c" stroke-width="2.5" />
+                      <line x1="250" y1="237" x2="250" y2="375" stroke="#fed7aa" stroke-width="1.0" />
+
+                      <!-- Montantes Laterales -->
+                      <line x1="168" y1="237" x2="192" y2="375" stroke="#7c2d12" stroke-width="3.5" />
+                      <line x1="332" y1="237" x2="308" y2="375" stroke="#7c2d12" stroke-width="3.5" />
+
+                      <!-- ================= BASE INFERIOR DEL FAROL (faro_col.jpeg) ================= -->
+                      <!-- Repisa Base -->
+                      <rect x="180" y="373" width="140" height="13" rx="6.5" fill="#f97316" stroke="#7c2d12" stroke-width="2" />
+                      <!-- Copa Invertida Inferior -->
+                      <path d="M 188,386 C 206,420 294,420 312,386 Z" fill="url(#faroCopperTerracotta)" stroke="#7c2d12" stroke-width="2" />
+                      <!-- Remate Esférico Inferior -->
+                      <circle cx="250" cy="428" r="9" fill="#ea580c" stroke="#7c2d12" stroke-width="1.8" />
+                      <circle cx="248" cy="425" r="3.2" fill="#fed7aa" opacity="0.85" />
+                    </g>
+
+                    <!-- ================= 6 POLILLAS / MARIPOSAS NOCTURNAS EN TONOS OPACOS Y MATES ================= -->
+                    <!-- Mariposa 1: Pizarra Ceniza & Grafito Mate (Órbita Circular Amplia) -->
+                    <g class="butterfly-orbit-1">
+                      <g class="butterfly-wing-flap-fast" filter="url(#mothSubtleShadow)">
+                        <!-- Antenas Plumosas Naturales -->
+                        <path d="M -1,-1 Q -4,-8 -6,-9 M 1,-1 Q 4,-8 6,-9" stroke="#64748b" stroke-width="0.8" fill="none" opacity="0.75" />
+                        <!-- Alas Superiores e Inferiores en Pizarra Opaca -->
+                        <path d="M 0,0 C -16,-18 -22,-4 -14,8 C -10,12 0,2 0,0 Z" fill="url(#mothSlateGrad)" />
+                        <path d="M 0,2 C -12,6 -14,16 -6,16 C -2,16 0,6 0,2 Z" fill="url(#mothSlateAccent)" />
+                        <path d="M 0,0 C 16,-18 22,-4 14,8 C 10,12 0,2 0,0 Z" fill="url(#mothSlateGrad)" />
+                        <path d="M 0,2 C 12,6 14,16 6,16 C 2,16 0,6 0,2 Z" fill="url(#mothSlateAccent)" />
+                        <!-- Nervaduras y Marcas Naturales Mate -->
+                        <path d="M 0,0 C -16,-18 -22,-4 -14,8 M 0,0 C 16,-18 22,-4 14,8" stroke="#475569" stroke-width="0.9" fill="none" opacity="0.8" />
+                        <circle cx="-11" cy="-4" r="0.8" fill="#1e293b" opacity="0.5" />
+                        <circle cx="11" cy="-4" r="0.8" fill="#1e293b" opacity="0.5" />
+                        <!-- Cuerpo Terciopelo Pizarra -->
+                        <ellipse cx="0" cy="4" rx="1.5" ry="6" fill="#1e293b" stroke="#334155" stroke-width="0.5" />
+                      </g>
+                    </g>
+
+                    <!-- Mariposa 2: Corteza Terrosa & Taupe Opaco (Órbita Elíptica) -->
+                    <g class="butterfly-orbit-2">
+                      <g class="butterfly-wing-flap-medium" filter="url(#mothSubtleShadow)">
+                        <!-- Antenas -->
+                        <path d="M -1,-1 Q -5,-9 -7,-10 M 1,-1 Q 5,-9 7,-10" stroke="#78716c" stroke-width="0.8" fill="none" opacity="0.75" />
+                        <!-- Alas -->
+                        <path d="M 0,0 C -18,-20 -24,-5 -16,10 C -12,14 0,3 0,0 Z" fill="url(#mothBarkGrad)" />
+                        <path d="M 0,3 C -14,7 -16,18 -7,18 C -2,18 0,7 0,3 Z" fill="url(#mothBarkAccent)" />
+                        <path d="M 0,0 C 18,-20 24,-5 16,10 C 12,14 0,3 0,0 Z" fill="url(#mothBarkGrad)" />
+                        <path d="M 0,3 C 14,7 16,18 7,18 C 2,18 0,7 0,3 Z" fill="url(#mothBarkAccent)" />
+                        <!-- Nervaduras y Manchas Terrosas -->
+                        <path d="M 0,0 C -18,-20 -24,-5 -16,10 M 0,0 C 18,-20 24,-5 16,10" stroke="#57534e" stroke-width="1.0" fill="none" opacity="0.8" />
+                        <circle cx="-13" cy="-5" r="1.0" fill="#292524" opacity="0.5" />
+                        <circle cx="13" cy="-5" r="1.0" fill="#292524" opacity="0.5" />
+                        <!-- Cuerpo -->
+                        <ellipse cx="0" cy="5" rx="1.8" ry="7" fill="#292524" stroke="#44403c" stroke-width="0.5" />
+                      </g>
+                    </g>
+
+                    <!-- Mariposa 3: Malva Polvoriento & Ciruela Mate (Órbita Rápida Interna) -->
+                    <g class="butterfly-orbit-3">
+                      <g class="butterfly-wing-flap-fast" filter="url(#mothSubtleShadow)">
+                        <!-- Antenas -->
+                        <path d="M -1,-1 Q -4,-7 -5,-8 M 1,-1 Q 4,-7 5,-8" stroke="#705c7c" stroke-width="0.7" fill="none" opacity="0.75" />
+                        <!-- Alas -->
+                        <path d="M 0,0 C -14,-16 -18,-3 -12,7 C -8,10 0,2 0,0 Z" fill="url(#mothMauveGrad)" />
+                        <path d="M 0,2 C -10,5 -12,14 -5,14 C -1,14 0,5 0,2 Z" fill="url(#mothMauveAccent)" />
+                        <path d="M 0,0 C 14,-16 18,-3 12,7 C 8,10 0,2 0,0 Z" fill="url(#mothMauveGrad)" />
+                        <path d="M 0,2 C 10,5 12,14 5,14 C 1,14 0,5 0,2 Z" fill="url(#mothMauveAccent)" />
+                        <!-- Nervaduras -->
+                        <path d="M 0,0 C -14,-16 -18,-3 -12,7 M 0,0 C 14,-16 18,-3 12,7" stroke="#54445c" stroke-width="0.9" fill="none" opacity="0.8" />
+                        <!-- Cuerpo -->
+                        <ellipse cx="0" cy="3" rx="1.2" ry="5" fill="#281e2d" stroke="#3e3045" stroke-width="0.5" />
+                      </g>
+                    </g>
+
+                    <!-- Mariposa 4: Oliva Seco Mate & Musgo Nocturno (Órbita en Ocho Flotante) -->
+                    <g class="butterfly-orbit-4">
+                      <g class="butterfly-wing-flap-gentle" filter="url(#mothSubtleShadow)">
+                        <!-- Antenas -->
+                        <path d="M -1,-1 Q -4,-8 -6,-9 M 1,-1 Q 4,-8 6,-9" stroke="#5f6e57" stroke-width="0.8" fill="none" opacity="0.75" />
+                        <!-- Alas -->
+                        <path d="M 0,0 C -15,-17 -20,-4 -13,8 C -9,11 0,2 0,0 Z" fill="url(#mothOliveGrad)" />
+                        <path d="M 0,2 C -11,6 -13,15 -6,15 C -1,15 0,6 0,2 Z" fill="url(#mothOliveAccent)" />
+                        <path d="M 0,0 C 15,-17 20,-4 13,8 C 9,11 0,2 0,0 Z" fill="url(#mothOliveGrad)" />
+                        <path d="M 0,2 C 11,6 13,15 6,15 C 1,15 0,6 0,2 Z" fill="url(#mothOliveAccent)" />
+                        <!-- Nervaduras y Manchas -->
+                        <path d="M 0,0 C -15,-17 -20,-4 -13,8 M 0,0 C 15,-17 20,-4 13,8" stroke="#44503e" stroke-width="0.9" fill="none" opacity="0.8" />
+                        <circle cx="-10" cy="-3" r="0.8" fill="#1e251b" opacity="0.5" />
+                        <circle cx="10" cy="-3" r="0.8" fill="#1e251b" opacity="0.5" />
+                        <!-- Cuerpo -->
+                        <ellipse cx="0" cy="4" rx="1.4" ry="5.5" fill="#1e251b" stroke="#303b2b" stroke-width="0.5" />
+                      </g>
+                    </g>
+
+                    <!-- Mariposa 5: Pizarra & Taupe Mate (Órbita Diagonal) -->
+                    <g class="butterfly-orbit-5">
+                      <g class="butterfly-wing-flap-medium" filter="url(#mothSubtleShadow)">
+                        <!-- Antenas -->
+                        <path d="M -1,-1 Q -4,-8 -6,-9 M 1,-1 Q 4,-8 6,-9" stroke="#64748b" stroke-width="0.8" fill="none" opacity="0.75" />
+                        <!-- Alas -->
+                        <path d="M 0,0 C -16,-18 -22,-4 -14,8 C -10,12 0,2 0,0 Z" fill="url(#mothSlateGrad)" />
+                        <path d="M 0,2 C -12,6 -14,16 -6,16 C -2,16 0,6 0,2 Z" fill="url(#mothBarkAccent)" />
+                        <path d="M 0,0 C 16,-18 22,-4 14,8 C 10,12 0,2 0,0 Z" fill="url(#mothSlateGrad)" />
+                        <path d="M 0,2 C 12,6 14,16 6,16 C 2,16 0,6 0,2 Z" fill="url(#mothBarkAccent)" />
+                        <!-- Nervaduras -->
+                        <path d="M 0,0 C -16,-18 -22,-4 -14,8 M 0,0 C 16,-18 22,-4 14,8" stroke="#475569" stroke-width="0.9" fill="none" opacity="0.8" />
+                        <!-- Cuerpo -->
+                        <ellipse cx="0" cy="4" rx="1.5" ry="6" fill="#1e293b" stroke="#334155" stroke-width="0.5" />
+                      </g>
+                    </g>
+
+                    <!-- Mariposa 6: Corteza & Ciruela Mate (Órbita Baja Ondulante) -->
+                    <g class="butterfly-orbit-6">
+                      <g class="butterfly-wing-flap-fast" filter="url(#mothSubtleShadow)">
+                        <!-- Antenas -->
+                        <path d="M -1,-1 Q -3,-7 -5,-8 M 1,-1 Q 3,-7 5,-8" stroke="#78716c" stroke-width="0.7" fill="none" opacity="0.75" />
+                        <!-- Alas -->
+                        <path d="M 0,0 C -13,-15 -17,-3 -11,7 C -7,9 0,2 0,0 Z" fill="url(#mothBarkGrad)" />
+                        <path d="M 0,2 C -9,5 -11,13 -5,13 C -1,13 0,5 0,2 Z" fill="url(#mothMauveAccent)" />
+                        <path d="M 0,0 C 13,-15 17,-3 11,7 C 7,9 0,2 0,0 Z" fill="url(#mothBarkGrad)" />
+                        <path d="M 0,2 C 9,5 11,13 5,13 C 1,13 0,5 0,2 Z" fill="url(#mothMauveAccent)" />
+                        <!-- Nervaduras -->
+                        <path d="M 0,0 C -13,-15 -17,-3 -11,7 M 0,0 C 13,-15 17,-3 11,7" stroke="#57534e" stroke-width="0.9" fill="none" opacity="0.8" />
+                        <!-- Cuerpo -->
+                        <ellipse cx="0" cy="3" rx="1.2" ry="4.5" fill="#292524" stroke="#44403c" stroke-width="0.5" />
+                      </g>
+                    </g>
+
+                    <!-- ================= MOSQUITOS Y JEJENES ZUMBANDO CERCA DE LA LUZ ================= -->
+                    <g class="mosquito-swarm">
+                      <!-- Mosquito 1: Vuelo errático superior -->
+                      <g class="mosquito-buzz-1">
+                        <ellipse cx="-1.2" cy="-0.4" rx="1.8" ry="0.6" fill="#e2e8f0" opacity="0.6" class="mosquito-wing-flap" />
+                        <ellipse cx="1.2" cy="-0.4" rx="1.8" ry="0.6" fill="#e2e8f0" opacity="0.6" class="mosquito-wing-flap" />
+                        <ellipse cx="0" cy="0" rx="0.7" ry="1.4" fill="#0f172a" />
+                      </g>
+                      <!-- Mosquito 2: Zig-zag central -->
+                      <g class="mosquito-buzz-2">
+                        <ellipse cx="-1.1" cy="-0.4" rx="1.6" ry="0.5" fill="#cbd5e1" opacity="0.55" class="mosquito-wing-flap" />
+                        <ellipse cx="1.1" cy="-0.4" rx="1.6" ry="0.5" fill="#cbd5e1" opacity="0.55" class="mosquito-wing-flap" />
+                        <ellipse cx="0" cy="0" rx="0.6" ry="1.2" fill="#1e293b" />
+                      </g>
+                      <!-- Mosquito 3: Bucle lateral derecho -->
+                      <g class="mosquito-buzz-3">
+                        <ellipse cx="-1.3" cy="-0.5" rx="1.9" ry="0.6" fill="#e2e8f0" opacity="0.6" class="mosquito-wing-flap" />
+                        <ellipse cx="1.3" cy="-0.5" rx="1.9" ry="0.6" fill="#e2e8f0" opacity="0.6" class="mosquito-wing-flap" />
+                        <ellipse cx="0" cy="0" rx="0.8" ry="1.5" fill="#020617" />
+                      </g>
+                      <!-- Mosquito 4: Zumbido rápido bajo el alero -->
+                      <g class="mosquito-buzz-4">
+                        <ellipse cx="-1.0" cy="-0.3" rx="1.5" ry="0.5" fill="#cbd5e1" opacity="0.5" class="mosquito-wing-flap" />
+                        <ellipse cx="1.0" cy="-0.3" rx="1.5" ry="0.5" fill="#cbd5e1" opacity="0.5" class="mosquito-wing-flap" />
+                        <ellipse cx="0" cy="0" rx="0.6" ry="1.1" fill="#0f172a" />
+                      </g>
+                      <!-- Mosquito 5: Vuelo rasante en la base -->
+                      <g class="mosquito-buzz-5">
+                        <ellipse cx="-1.2" cy="-0.4" rx="1.7" ry="0.6" fill="#e2e8f0" opacity="0.6" class="mosquito-wing-flap" />
+                        <ellipse cx="1.2" cy="-0.4" rx="1.7" ry="0.6" fill="#e2e8f0" opacity="0.6" class="mosquito-wing-flap" />
+                        <ellipse cx="0" cy="0" rx="0.7" ry="1.3" fill="#1e293b" />
+                      </g>
+                      <!-- Mosquito 6: Espiral lateral izquierdo -->
+                      <g class="mosquito-buzz-6">
+                        <ellipse cx="-1.1" cy="-0.4" rx="1.6" ry="0.5" fill="#cbd5e1" opacity="0.55" class="mosquito-wing-flap" />
+                        <ellipse cx="1.1" cy="-0.4" rx="1.6" ry="0.5" fill="#cbd5e1" opacity="0.55" class="mosquito-wing-flap" />
+                        <ellipse cx="0" cy="0" rx="0.6" ry="1.2" fill="#020617" />
+                      </g>
+                    </g>
+
+                    <!-- ================= LUCIÉRNAGAS CÁLIDAS FLOTANTES (SOLO ALREDEDOR DEL FAROL) ================= -->
+                    <g class="fireflies-layer">
+                      <!-- Luciérnaga 1: Flanco superior izquierdo del cristal -->
+                      <g class="firefly-pulse-1" transform="translate(155, 275)">
+                        <circle cx="0" cy="0" r="8.5" fill="#fef08a" opacity="0.3" filter="url(#fireflySoftGlow)" />
+                        <circle cx="0" cy="0" r="3.2" fill="#fde047" opacity="0.85" />
+                        <circle cx="0" cy="0" r="1.4" fill="#ffffff" />
+                        <ellipse cx="-0.8" cy="0.6" rx="0.7" ry="1.1" fill="#1c1917" opacity="0.7" />
+                      </g>
+
+                      <!-- Luciérnaga 2: Flanco superior derecho del cristal -->
+                      <g class="firefly-pulse-2" transform="translate(345, 285)">
+                        <circle cx="0" cy="0" r="8" fill="#fef08a" opacity="0.28" filter="url(#fireflySoftGlow)" />
+                        <circle cx="0" cy="0" r="3" fill="#fde047" opacity="0.85" />
+                        <circle cx="0" cy="0" r="1.3" fill="#ffffff" />
+                        <ellipse cx="0.8" cy="0.5" rx="0.6" ry="1.0" fill="#1c1917" opacity="0.7" />
+                      </g>
+
+                      <!-- Luciérnaga 3: Flanco medio-izquierdo del farol -->
+                      <g class="firefly-pulse-3" transform="translate(145, 345)">
+                        <circle cx="0" cy="0" r="9" fill="#fef08a" opacity="0.3" filter="url(#fireflySoftGlow)" />
+                        <circle cx="0" cy="0" r="3.5" fill="#fde047" opacity="0.85" />
+                        <circle cx="0" cy="0" r="1.5" fill="#ffffff" />
+                        <ellipse cx="-0.9" cy="0.6" rx="0.7" ry="1.2" fill="#1c1917" opacity="0.7" />
+                      </g>
+
+                      <!-- Luciérnaga 4: Flanco medio-derecho del farol -->
+                      <g class="firefly-pulse-4" transform="translate(365, 335)">
+                        <circle cx="0" cy="0" r="9" fill="#fef08a" opacity="0.3" filter="url(#fireflySoftGlow)" />
+                        <circle cx="0" cy="0" r="3.5" fill="#fde047" opacity="0.85" />
+                        <circle cx="0" cy="0" r="1.5" fill="#ffffff" />
+                        <ellipse cx="0.8" cy="0.6" rx="0.7" ry="1.1" fill="#1c1917" opacity="0.7" />
+                      </g>
+
+                      <!-- Luciérnaga 5: Flotando en el flanco inferior izquierdo de la base -->
+                      <g class="firefly-pulse-5" transform="translate(165, 410)">
+                        <circle cx="0" cy="0" r="8.5" fill="#fef08a" opacity="0.28" filter="url(#fireflySoftGlow)" />
+                        <circle cx="0" cy="0" r="3.2" fill="#fde047" opacity="0.85" />
+                        <circle cx="0" cy="0" r="1.4" fill="#ffffff" />
+                        <ellipse cx="-0.8" cy="0.5" rx="0.6" ry="1.0" fill="#1c1917" opacity="0.7" />
+                      </g>
+
+                      <!-- Luciérnaga 6: Flotando en el flanco inferior derecho de la base -->
+                      <g class="firefly-pulse-6" transform="translate(335, 420)">
+                        <circle cx="0" cy="0" r="9" fill="#fef08a" opacity="0.3" filter="url(#fireflySoftGlow)" />
+                        <circle cx="0" cy="0" r="3.5" fill="#fde047" opacity="0.85" />
+                        <circle cx="0" cy="0" r="1.5" fill="#ffffff" />
+                        <ellipse cx="0.8" cy="0.6" rx="0.7" ry="1.1" fill="#1c1917" opacity="0.7" />
+                      </g>
+
+                      <!-- Luciérnaga 7: Flotando bajo el remate inferior del farol -->
+                      <g class="firefly-pulse-7" transform="translate(250, 465)">
+                        <circle cx="0" cy="0" r="8" fill="#fef08a" opacity="0.25" filter="url(#fireflySoftGlow)" />
+                        <circle cx="0" cy="0" r="3" fill="#fde047" opacity="0.8" />
+                        <circle cx="0" cy="0" r="1.3" fill="#ffffff" />
+                        <ellipse cx="-0.7" cy="0.5" rx="0.6" ry="1.0" fill="#1c1917" opacity="0.7" />
+                      </g>
+                    </g>
+
+                  </svg>
+
+                  <!-- Contador visual sutil del Farol Encantado -->
+                  <div class="subtle-timer-pill"
+                       style="position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none; user-select: none; white-space: nowrap;">
+                    <span style="display: inline-flex; align-items: center; gap: 7px; padding: 5px 18px; background: rgba(7, 19, 30, 0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 999px; font-family: 'Space Grotesk', monospace; font-size: 14px; font-weight: 850; color: #fbbf24; letter-spacing: 1px; box-shadow: 0 6px 22px rgba(0,0,0,0.7), 0 0 16px rgba(245, 158, 11, 0.35); text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);">
+                      <i class="fa-solid fa-lightbulb" style="font-size: 11px; color: #fde047;"></i>
+                      {{ timeString() }}
+                    </span>
+                  </div>
+
+                </div>
+              </ng-container>
 
             </div>
 
@@ -7805,6 +8427,49 @@
                   </div>
                 </div>
                 <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'airplane' ? 'var(--accent)' : 'var(--muted)'">Aterrizaje</span>
+              </div>
+
+              <!-- 4.4 Farol Encantado (faro_col.jpeg) -->
+              <div class="timer-thumb-card" (click)="setTimerStyle('lantern')">
+                <div class="timer-thumb-wrapper"
+                     style="width: 100%; aspect-ratio: 16/10; border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; position: relative; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: radial-gradient(circle at center, rgba(180, 83, 9, 0.45) 0%, rgba(7, 19, 30, 0.98) 100%); display: flex; align-items: center; justify-content: center;"
+                     [style.borderColor]="timerStyle() === 'lantern' ? 'var(--accent)' : 'var(--border)'"
+                     [style.boxShadow]="timerStyle() === 'lantern' ? '0 0 14px rgba(245, 158, 11, 0.4)' : '0 4px 10px rgba(0,0,0,0.3)'">
+                  
+                  <svg viewBox="0 0 54 36" style="width: 80%; height: 80%;">
+                    <!-- Cadena y Farol Miniatura -->
+                    <line x1="27" y1="0" x2="27" y2="10" stroke="#ea580c" stroke-width="1.8" stroke-linecap="round" />
+                    <!-- Hoja Hiedra Mini -->
+                    <path d="M 27,4 Q 22,2 24,7 Z" fill="#22c55e" />
+                    <path d="M 27,7 Q 31,5 30,10 Z" fill="#22c55e" />
+                    <!-- Techo Farol -->
+                    <path d="M 18,14 C 21,10 25,9 27,9 C 29,9 33,10 36,14 Z" fill="#ea580c" />
+                    <rect x="16" y="13" width="22" height="2" rx="1" fill="#f97316" />
+                    <!-- Cristal Farol Radiante -->
+                    <polygon points="19,15 35,15 32,27 22,27" fill="#fef08a" style="filter: drop-shadow(0 0 4px #ea580c);" />
+                    <circle cx="27" cy="20" r="3.5" fill="#ffffff" />
+                    <!-- Base Farol -->
+                    <rect x="21" y="27" width="12" height="2" fill="#ea580c" />
+                    <!-- Mariposas Turquesa Mini -->
+                    <g transform="translate(42, 14) scale(0.55)">
+                      <circle cx="-3" cy="-3" r="3" fill="#38bdf8" />
+                      <circle cx="3" cy="-3" r="3" fill="#38bdf8" />
+                    </g>
+                    <g transform="translate(12, 18) scale(0.45)">
+                      <circle cx="-3" cy="-3" r="3" fill="#67e8f9" />
+                      <circle cx="3" cy="-3" r="3" fill="#67e8f9" />
+                    </g>
+                    <!-- Hojas Verdes Base -->
+                    <path d="M 0,36 C 6,28 14,26 20,36 Z" fill="#065f46" />
+                    <path d="M 34,36 C 40,26 48,28 54,36 Z" fill="#065f46" />
+                  </svg>
+
+                  <div *ngIf="timerStyle() === 'lantern'"
+                       style="position: absolute; top: 4px; right: 4px; background: var(--accent); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;">
+                    <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
+                  </div>
+                </div>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'lantern' ? 'var(--accent)' : 'var(--muted)'">Farol Encantado</span>
               </div>
 
             </div>

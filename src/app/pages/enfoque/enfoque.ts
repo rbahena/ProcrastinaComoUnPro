@@ -65,7 +65,8 @@ export type FocusTimerStyle =
   | 'moon' 
   | 'titanic' 
   | 'lighthouse' 
-  | 'airplane';
+  | 'airplane'
+  | 'lantern';
 
 @Component({
   selector: 'app-enfoque',
@@ -78,7 +79,8 @@ export type FocusTimerStyle =
     '[class.timer-titanic-mode]': 'timerStyle() === "titanic"',
     '[class.timer-lighthouse-mode]': 'timerStyle() === "lighthouse"',
     '[class.timer-airplane-mode]': 'timerStyle() === "airplane"',
-    '[class.timer-orbital-mode]': 'isOrbitalTimer()'
+    '[class.timer-orbital-mode]': 'isOrbitalTimer()',
+    '[class.timer-lantern-mode]': 'timerStyle() === "lantern"'
   }
 })
 export class Enfoque implements OnInit, OnDestroy {
@@ -1626,9 +1628,9 @@ export class Enfoque implements OnInit, OnDestroy {
   private onActivityFn = () => this.onUserActivity();
   private onMouseLeaveFn = () => this.onMouseLeaveWindow();
 
-  // Estilo del Temporizador (Clásico Digital por defecto vs Fuego Premium vs Órbita Solar vs Titanic vs El Faro vs Avión en Pista)
-  timerStyle = signal<'digital' | 'fire' | 'hourglass' | 'ice' | 'battery' | 'ring' | 'line' | 'solar' | 'satellite' | 'moon' | 'titanic' | 'lighthouse' | 'airplane'>(
-    (this.membership.getFocusSetting('focus-timer-style', 'digital') as any) || 'digital'
+  // Estilo del Temporizador (Clásico Digital por defecto vs Fuego Premium vs Órbita Solar vs Titanic vs El Faro vs Avión en Pista vs Farol Encantado)
+  timerStyle = signal<FocusTimerStyle>(
+    (this.membership.getFocusSetting('focus-timer-style', 'digital') as FocusTimerStyle) || 'digital'
   );
 
   // Porcentaje de tiempo restante

@@ -153,11 +153,13 @@ html {
   width: 100%;
 }
 
-/* Prevenir scroll vertical exclusivamente en los modos Barco (Titanic) y El Faro */
+/* Prevenir scroll vertical exclusivamente en los modos panorámicos Barco (Titanic), El Faro y Farol Encantado */
 html:has(app-enfoque.timer-titanic-mode),
 body:has(app-enfoque.timer-titanic-mode),
 html:has(app-enfoque.timer-lighthouse-mode),
-body:has(app-enfoque.timer-lighthouse-mode) {
+body:has(app-enfoque.timer-lighthouse-mode),
+html:has(app-enfoque.timer-lantern-mode),
+body:has(app-enfoque.timer-lantern-mode) {
   overflow: hidden !important;
   height: 100vh !important;
   max-height: 100vh !important;
