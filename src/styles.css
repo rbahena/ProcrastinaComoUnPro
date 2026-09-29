@@ -2198,6 +2198,9 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 .animate-icon-trophy {
   animation: pulse-trophy 3s infinite ease-in-out;
 }
+.animate-icon-boss {
+  animation: pulse-boss-threat 3.5s infinite ease-in-out;
+}
 
 @keyframes flicker-flame {
   0% { transform: scale(0.96) rotate(-2deg); opacity: 0.03; }
@@ -2220,6 +2223,11 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   50% { transform: scale(1.06) rotate(2deg); opacity: 0.05; }
 }
 
+@keyframes pulse-boss-threat {
+  0%, 100% { transform: scale(0.97) rotate(0deg); opacity: 0.03; }
+  50% { transform: scale(1.08) rotate(3deg); opacity: 0.06; }
+}
+
 /* ===== CARD BACK HEADER ICON ANIMATIONS ===== */
 .animate-header-fire {
   animation: flicker-flame-small 2.5s infinite alternate ease-in-out;
@@ -2235,6 +2243,10 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 }
 .animate-header-trophy {
   animation: pulse-trophy-small 3s infinite ease-in-out;
+  transform-origin: center center;
+}
+.animate-header-boss {
+  animation: pulse-boss-threat-small 3.5s infinite ease-in-out;
   transform-origin: center center;
 }
 
@@ -2257,6 +2269,11 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
 @keyframes pulse-trophy-small {
   0%, 100% { transform: scale(0.97); }
   50% { transform: scale(1.06) rotate(3deg); }
+}
+
+@keyframes pulse-boss-threat-small {
+  0%, 100% { transform: scale(0.95); }
+  50% { transform: scale(1.1) rotate(4deg); }
 }
 
 /* ===== COMPACT RESPONSIVE COMBAT GUIDE ===== */

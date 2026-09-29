@@ -2584,8 +2584,7 @@
               <ng-container *ngIf="timerStyle() === 'solar'">
                 <!-- Órbita Solar interactiva fija (Oculto en cuenta regresiva o interrupción) -->
                 <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
-                     class="solar-container"
-                     style="position: relative; width: 330px; height: 330px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto;">
+                     class="solar-container orbital-space-timer">
                   
                   <!-- SVG del Sistema Sol y Tierra (Órbita Ampliada a Radio 148) -->
                   <svg viewBox="0 0 390 390" style="width: 100%; height: 100%; overflow: hidden; z-index: 4;">
@@ -2780,10 +2779,9 @@
                   </svg>
 
                   <!-- Contador visual sutil de la Órbita Solar -->
-                  <div class="subtle-timer-pill"
-                       style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 15; pointer-events: none; user-select: none;">
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; background: rgba(18, 12, 6, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(245, 158, 11, 0.28); border-radius: 20px; font-family: 'Space Grotesk', monospace; font-size: 13px; font-weight: 800; color: #fbbf24; letter-spacing: 1px; box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(245, 158, 11, 0.2); text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);">
-                      <i class="fa-solid fa-sun" style="font-size: 10px; color: #fef08a;"></i>
+                  <div class="subtle-timer-pill">
+                    <span style="display: inline-flex; align-items: center; gap: 7px; padding: 5px 18px; background: rgba(18, 12, 6, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 999px; font-family: 'Space Grotesk', monospace; font-size: 14px; font-weight: 850; color: #fbbf24; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(0,0,0,0.5), 0 0 14px rgba(245, 158, 11, 0.25); text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);">
+                      <i class="fa-solid fa-sun" style="font-size: 11px; color: #fef08a;"></i>
                       {{ timeString() }}
                     </span>
                   </div>
@@ -2794,8 +2792,7 @@
               <!-- CASO 9: Satélite Orbital (Satélite y Tierra Ultra Detallada) -->
               <ng-container *ngIf="timerStyle() === 'satellite'">
                 <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
-                     class="satellite-container"
-                     style="position: relative; width: 330px; height: 330px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto;">
+                     class="satellite-container orbital-space-timer">
                   
                   <!-- SVG del Sistema Satélite y Tierra Orgánica Estilizada (Lienzo 400x400, Centro 200, 200) -->
                   <svg viewBox="0 0 400 400" style="width: 100%; height: 100%; overflow: hidden; z-index: 4;">
@@ -3168,10 +3165,9 @@
                   </svg>
 
                   <!-- Contador visual sutil del Satélite Orbital -->
-                  <div class="subtle-timer-pill"
-                       style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 15; pointer-events: none; user-select: none;">
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; background: rgba(6, 14, 24, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(56, 189, 248, 0.28); border-radius: 20px; font-family: 'Space Grotesk', monospace; font-size: 13px; font-weight: 800; color: #38bdf8; letter-spacing: 1px; box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(56, 189, 248, 0.2); text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);">
-                      <i class="fa-solid fa-satellite" style="font-size: 10px; color: #7dd3fc;"></i>
+                  <div class="subtle-timer-pill">
+                    <span style="display: inline-flex; align-items: center; gap: 7px; padding: 5px 18px; background: rgba(6, 14, 24, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 999px; font-family: 'Space Grotesk', monospace; font-size: 14px; font-weight: 850; color: #38bdf8; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(0,0,0,0.5), 0 0 14px rgba(56, 189, 248, 0.25); text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);">
+                      <i class="fa-solid fa-satellite" style="font-size: 11px; color: #7dd3fc;"></i>
                       {{ timeString() }}
                     </span>
                   </div>
@@ -3182,8 +3178,7 @@
               <!-- CASO 10: Órbita Lunar (Tierra Ultra Detallada y Sombreado Dinámico por la Luna) -->
               <ng-container *ngIf="timerStyle() === 'moon'">
                 <div *ngIf="arenaState() !== 'countdown' && !emergencyPauseActive()"
-                     class="moon-container"
-                     style="position: relative; width: 330px; height: 330px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto;">
+                     class="moon-container orbital-space-timer">
                   
                   <!-- SVG del Sistema Tierra y Luna con Sombreado Dinámico Lunar (Lienzo 400x400, Centro 200, 200) -->
                   <svg viewBox="0 0 400 400" style="width: 100%; height: 100%; overflow: hidden; z-index: 4;">
@@ -3550,10 +3545,9 @@
                   </svg>
 
                   <!-- Contador visual sutil de la Órbita Lunar -->
-                  <div class="subtle-timer-pill"
-                       style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 15; pointer-events: none; user-select: none;">
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; background: rgba(12, 16, 24, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(241, 245, 249, 0.28); border-radius: 20px; font-family: 'Space Grotesk', monospace; font-size: 13px; font-weight: 800; color: #f1f5f9; letter-spacing: 1px; box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(241, 245, 249, 0.2); text-shadow: 0 0 10px rgba(241, 245, 249, 0.5);">
-                      <i class="fa-solid fa-moon" style="font-size: 10px; color: #cbd5e1;"></i>
+                  <div class="subtle-timer-pill">
+                    <span style="display: inline-flex; align-items: center; gap: 7px; padding: 5px 18px; background: rgba(12, 16, 24, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(241, 245, 249, 0.35); border-radius: 999px; font-family: 'Space Grotesk', monospace; font-size: 14px; font-weight: 850; color: #f1f5f9; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(0,0,0,0.5), 0 0 14px rgba(241, 245, 249, 0.25); text-shadow: 0 0 10px rgba(241, 245, 249, 0.5);">
+                      <i class="fa-solid fa-moon" style="font-size: 11px; color: #cbd5e1;"></i>
                       {{ timeString() }}
                     </span>
                   </div>
@@ -6084,10 +6078,10 @@
                 <span class="energy-option-dot" style="background: #ef4444; box-shadow: 0 0 8px #ef4444; margin-top: 5px;"></span>
                 <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
                   <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
-                    ¿Poca motivación? <strong>Inicia con · 10 min</strong>
+                    ¡Explota tu potencial! <strong>Inicia con · 10 min</strong>
                   </span>
                   <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
-                    ¡Explota tu potencial!
+                    Solo necesitas un pequeño impulso para arrancar.
                   </span>
                   <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
                     🪙 +2 monedas · No suma Tomates ni Racha
@@ -6597,16 +6591,27 @@
               <!-- 1. Duración -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
                 <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Duración</span>
-                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 3px 6px;">
+                <div class="duration-stepper-container">
                   <button type="button" 
                           (click)="focusDuration.set(focusDuration() > 1 ? focusDuration() - 1 : 1); applyTimeSettings()"
-                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;"
                           onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
                           onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">-</button>
-                  <span style="font-size: 13px; font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ focusDuration() }} min</span>
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 2px; flex: 1; min-width: 0;">
+                    <input type="number" 
+                           min="1" 
+                           max="180" 
+                           [ngModel]="focusDuration()" 
+                           (ngModelChange)="updateFocusDuration($event)"
+                           (blur)="onFocusDurationBlur()"
+                           class="custom-duration-input"
+                           style="width: 34px; font-size: 13px;"
+                           title="Ingresa directamente los minutos con el teclado">
+                    <span style="font-size: 11.5px; font-weight: 750; color: var(--muted); font-family: 'Space Grotesk', monospace; user-select: none;">min</span>
+                  </div>
                   <button type="button" 
-                          (click)="focusDuration.set(focusDuration() < 120 ? focusDuration() + 1 : 120); applyTimeSettings()"
-                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                          (click)="focusDuration.set(focusDuration() < 180 ? focusDuration() + 1 : 180); applyTimeSettings()"
+                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;"
                           onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
                           onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">+</button>
                 </div>
@@ -6719,17 +6724,28 @@
               <!-- 1. Duración -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
                 <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Duración</span>
-                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 3px 6px;">
+                <div class="duration-stepper-container">
                   <button type="button" 
                           (click)="breakDuration.set(breakDuration() > 1 ? breakDuration() - 1 : 1); applyTimeSettings()"
-                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
-                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#10b981';"
                           onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">-</button>
-                  <span style="font-size: 13px; font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ breakDuration() }} min</span>
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 2px; flex: 1; min-width: 0;">
+                    <input type="number" 
+                           min="1" 
+                           max="60" 
+                           [ngModel]="breakDuration()" 
+                           (ngModelChange)="updateBreakDuration($event)"
+                           (blur)="onBreakDurationBlur()"
+                           class="custom-duration-input"
+                           style="width: 32px; font-size: 13px;"
+                           title="Ingresa directamente los minutos con el teclado">
+                    <span style="font-size: 11.5px; font-weight: 750; color: var(--muted); font-family: 'Space Grotesk', monospace; user-select: none;">min</span>
+                  </div>
                   <button type="button" 
                           (click)="breakDuration.set(breakDuration() < 60 ? breakDuration() + 1 : 60); applyTimeSettings()"
-                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
-                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          style="background: transparent; border: none; color: var(--text); width: 28px; height: 28px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#10b981';"
                           onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">+</button>
                 </div>
               </div>
@@ -6820,17 +6836,28 @@
               <!-- 1. Duración -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
                 <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Duración</span>
-                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 3px 6px;">
+                <div class="duration-stepper-container">
                   <button type="button" 
-                          (click)="longBreakDuration.set(longBreakDuration() > 5 ? longBreakDuration() - 5 : 5); applyTimeSettings()"
-                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
-                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          (click)="longBreakDuration.set(longBreakDuration() > 1 ? longBreakDuration() - 1 : 1); applyTimeSettings()"
+                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#a855f7';"
                           onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">-</button>
-                  <span style="font-size: 12px; font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ longBreakDuration() }} min</span>
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 2px; flex: 1; min-width: 0;">
+                    <input type="number" 
+                           min="1" 
+                           max="120" 
+                           [ngModel]="longBreakDuration()" 
+                           (ngModelChange)="updateLongBreakDuration($event)"
+                           (blur)="onLongBreakDurationBlur()"
+                           class="custom-duration-input"
+                           style="width: 30px; font-size: 12px;"
+                           title="Ingresa directamente los minutos con el teclado">
+                    <span style="font-size: 10.5px; font-weight: 750; color: var(--muted); font-family: 'Space Grotesk', monospace; user-select: none;">min</span>
+                  </div>
                   <button type="button" 
-                          (click)="longBreakDuration.set(longBreakDuration() < 120 ? longBreakDuration() + 5 : 120); applyTimeSettings()"
-                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
-                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          (click)="longBreakDuration.set(longBreakDuration() < 120 ? longBreakDuration() + 1 : 120); applyTimeSettings()"
+                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#a855f7';"
                           onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">+</button>
                 </div>
               </div>
@@ -6838,17 +6865,28 @@
               <!-- 2. Cada cuántos ciclos -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
                 <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Ciclos</span>
-                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 10px; padding: 3px 6px;">
+                <div class="duration-stepper-container">
                   <button type="button" 
                           (click)="longBreakInterval.set(longBreakInterval() > 1 ? longBreakInterval() - 1 : 1)"
-                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
-                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#a855f7';"
                           onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">-</button>
-                  <span style="font-size: 12px; font-weight: 800; color: #fff; font-family: 'Space Grotesk', monospace;">{{ longBreakInterval() }} ciclos</span>
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 2px; flex: 1; min-width: 0;">
+                    <input type="number" 
+                           min="1" 
+                           max="24" 
+                           [ngModel]="longBreakInterval()" 
+                           (ngModelChange)="updateLongBreakInterval($event)"
+                           (blur)="onLongBreakIntervalBlur()"
+                           class="custom-duration-input"
+                           style="width: 24px; font-size: 12px;"
+                           title="Ingresa directamente el número de ciclos con el teclado">
+                    <span style="font-size: 10px; font-weight: 750; color: var(--muted); font-family: 'Space Grotesk', monospace; user-select: none;">ciclos</span>
+                  </div>
                   <button type="button" 
-                          (click)="longBreakInterval.set(longBreakInterval() < 12 ? longBreakInterval() + 1 : 12)"
-                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
-                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--accent)';"
+                          (click)="longBreakInterval.set(longBreakInterval() < 24 ? longBreakInterval() + 1 : 24)"
+                          style="background: transparent; border: none; color: var(--text); width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
+                          onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#a855f7';"
                           onmouseout="this.style.background='transparent'; this.style.color='var(--text)';">+</button>
                 </div>
               </div>
@@ -6978,15 +7016,21 @@
                   <i class="fa-solid fa-bell" [class.fa-shake]="notificationsEnabled()"></i>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 3px;">
-                  <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                     <span style="font-size: 14px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
                       Notificaciones de Escritorio
                     </span>
                     <span *ngIf="notificationsEnabled() && notificationPermission() === 'granted'" style="font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.35);">
                       <i class="fa-solid fa-circle-check"></i> Permitidas
                     </span>
+                    <span *ngIf="notificationPermission() === 'default'" style="font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.35);">
+                      <i class="fa-solid fa-clock"></i> Permiso Pendiente
+                    </span>
                     <span *ngIf="notificationPermission() === 'denied'" style="font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: rgba(239,68,68,0.18); color: #f87171; border: 1px solid rgba(239,68,68,0.35);">
                       <i class="fa-solid fa-triangle-exclamation"></i> Bloqueadas en navegador
+                    </span>
+                    <span *ngIf="notificationPermission() === 'unsupported'" style="font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid rgba(255,255,255,0.1);">
+                      <i class="fa-solid fa-ban"></i> No Soportado
                     </span>
                   </div>
                   <span style="font-size: 11.5px; color: var(--muted); opacity: 0.9;">
@@ -7003,7 +7047,7 @@
                         style="border: 1.5px solid var(--accent); background: rgba(245, 158, 11, 0.12); color: var(--accent); padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
                         onmouseover="this.style.background='rgba(245, 158, 11, 0.25)'"
                         onmouseout="this.style.background='rgba(245, 158, 11, 0.12)'">
-                  Solicitar Permiso
+                  <i class="fa-solid fa-key" style="margin-right: 4px;"></i> Solicitar Permiso
                 </button>
 
                 <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; margin: 0;">
@@ -7015,6 +7059,48 @@
                   </span>
                 </label>
               </div>
+            </div>
+
+            <!-- Banner Informativo: Permiso Pendiente -->
+            <div *ngIf="notificationPermission() === 'default'" 
+                 style="background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 10px; font-size: 11.5px; color: #fde68a;">
+                <i class="fa-solid fa-bell-ring" style="font-size: 15px; color: var(--accent);"></i>
+                <span>El navegador requiere que confirmes el permiso para emitir avisos en tu pantalla.</span>
+              </div>
+              <button type="button" 
+                      (click)="requestNotificationPermission(true)" 
+                      style="background: var(--accent); color: #000; font-weight: 800; font-size: 11px; padding: 6px 14px; border-radius: 8px; border: none; cursor: pointer; white-space: nowrap; transition: transform 0.2s;"
+                      onmouseover="this.style.transform='scale(1.03)'"
+                      onmouseout="this.style.transform='scale(1)'">
+                <i class="fa-solid fa-hand-pointer" style="margin-right: 4px;"></i> Permitir Notificaciones
+              </button>
+            </div>
+
+            <!-- Banner Informativo: Permiso Denegado / Bloqueado -->
+            <div *ngIf="notificationPermission() === 'denied'" 
+                 style="background: rgba(239, 68, 68, 0.08); border: 1px dashed rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; font-size: 11.5px; color: #fca5a5;">
+              <i class="fa-solid fa-circle-exclamation" style="font-size: 15px; margin-top: 2px; color: #ef4444; flex-shrink: 0;"></i>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <strong style="color: #fff;">Las notificaciones están bloqueadas en tu navegador</strong>
+                <span>Para activarlas: Haz clic en el icono del candado o ajustes del sitio <strong>🔒</strong> a la izquierda de la barra de direcciones de tu navegador, cambia <em>Notificaciones</em> a <strong>Permitir</strong> y vuelve a esta ventana.</span>
+              </div>
+            </div>
+
+            <!-- Banner de Estado OK + Botón de Prueba Rápida -->
+            <div *ngIf="notificationPermission() === 'granted' && notificationsEnabled()" 
+                 style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: #a7f3d0;">
+                <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
+                <span>Notificaciones activas. Recibirás avisos flotantes aunque cambies de ventana o aplicación.</span>
+              </div>
+              <button type="button" 
+                      (click)="testFocusNotification()" 
+                      style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 800; font-size: 11px; padding: 5px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s;"
+                      onmouseover="this.style.background='rgba(16, 185, 129, 0.28)'"
+                      onmouseout="this.style.background='rgba(16, 185, 129, 0.15)'">
+                <i class="fa-solid fa-paper-plane"></i> Probar Notificación
+              </button>
             </div>
 
           </div>
@@ -7198,6 +7284,12 @@
                       [style.transform]="tabFlashingEnabled() ? 'translateX(19px)' : 'translateX(0px)'"></span>
               </span>
             </label>
+          </div>
+
+          <!-- Tip Informativo del Sistema Operativo -->
+          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--muted);">
+            <i class="fa-brands fa-windows" style="font-size: 14px; color: #60a5fa; flex-shrink: 0;"></i>
+            <span><strong>Tip para Windows / macOS:</strong> Si tienes activo "No molestar" o "Asistente de concentración", las notificaciones flotantes se archivan silenciosamente en tu centro de actividades.</span>
           </div>
 
         </div>

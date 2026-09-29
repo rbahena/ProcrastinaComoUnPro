@@ -106,6 +106,7 @@
                     [class.animate-icon-tomato]="record.icon === 'fa-apple-whole'"
                     [class.animate-icon-coins]="record.icon === 'fa-coins'"
                     [class.animate-icon-trophy]="record.icon === 'fa-trophy'"
+                    [class.animate-icon-boss]="record.icon === 'fa-skull-crossbones'"
                     style="position: absolute; right: -10px; bottom: -10px; font-size: 90px; opacity: 0.04; pointer-events: none; color: #fff; transform-origin: bottom right;"></i>
 
                 <div>
@@ -119,6 +120,7 @@
                        [class.animate-header-tomato]="record.icon === 'fa-apple-whole'"
                        [class.animate-header-coins]="record.icon === 'fa-coins'"
                        [class.animate-header-trophy]="record.icon === 'fa-trophy'"
+                       [class.animate-header-boss]="record.icon === 'fa-skull-crossbones'"
                        [style.color]="record.color"></i>
                   </div>
                   
@@ -515,12 +517,12 @@
           <div class="intro-box-text">
             <h3>¿Qué son los Broken Records y cómo se rompe una marca histórica?</h3>
             <p>
-              El <strong>Salón de la Fama</strong> conmemora las 4 marcas más altas alcanzadas por cualquier usuario en la historia de COFU. Romper un récord inmortaliza tu nombre y tu avatar ante toda la comunidad.
+              El <strong>Salón de la Fama</strong> conmemora las 5 marcas más altas alcanzadas por cualquier usuario en la historia de COFU. Romper un récord inmortaliza tu nombre y tu avatar ante toda la comunidad.
             </p>
           </div>
         </div>
 
-        <!-- LAS 4 CORONAS HISTÓRICAS -->
+        <!-- LAS 5 CORONAS HISTÓRICAS -->
         <div class="records-four-cards-grid">
           
           <div class="record-meaning-card r-streak">
@@ -568,6 +570,18 @@
             <div class="rm-rule">
               <span>¿Cómo romperlo?</span>
               <strong>Conquistar más podios de 1º lugar</strong>
+            </div>
+          </div>
+
+          <div class="record-meaning-card r-boss">
+            <div class="rm-head">
+              <i class="fa-solid fa-skull-crossbones text-red"></i>
+              <h4>MVP del Jefe en Turno</h4>
+            </div>
+            <p class="rm-desc">Mayor cantidad de daño total asestado al Jefe de la Comunidad activo mediante sesiones de enfoque.</p>
+            <div class="rm-rule">
+              <span>¿Cómo romperlo?</span>
+              <strong>Superar el daño del máximo atacante</strong>
             </div>
           </div>
 

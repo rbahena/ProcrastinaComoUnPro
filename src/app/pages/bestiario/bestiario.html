@@ -19,13 +19,9 @@
       <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
         <!-- Botón ¿Cómo Vencer? -->
         <button (click)="toggleGuide()" 
-                [style.background]="showGuide() ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.02)'"
-                [style.borderColor]="showGuide() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-                [style.color]="showGuide() ? 'var(--accent)' : 'var(--muted)'"
-                style="border: 1.5px solid; padding: 8px 16px; border-radius: 12px; font-weight: 800; font-size: 11.5px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;"
-                onmouseover="this.style.filter='brightness(1.2)';"
-                onmouseout="this.style.filter='none';">
-          <i class="fa-solid fa-circle-question"></i>
+                class="btn-como-vencer"
+                title="Abre la Guía Táctica y Manual de Combate contra los Jefes">
+          <i class="fa-solid fa-circle-question icon-guide"></i>
           <span>¿Cómo Vencer?</span>
         </button>
       </div>

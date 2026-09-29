@@ -211,6 +211,7 @@ export interface MedalleroBrokenRecordHolder {
   tomatoes?: number;
   coins?: number;
   podiums?: number;
+  damage?: number;
   user_id?: string;
 }
 
@@ -262,6 +263,7 @@ export interface MedalleroDashboardData {
     most_tomatoes: MedalleroBrokenRecordHolder | null;
     most_coins: MedalleroBrokenRecordHolder | null;
     most_podiums: MedalleroBrokenRecordHolder | null;
+    boss_mvp?: MedalleroBrokenRecordHolder | null;
   };
   rankings: {
     objectives: MedalleroRankingObjectivesItem[];
@@ -1676,13 +1678,22 @@ export class SupabaseService {
       // 1. Intentar llamar al RPC get_medallero_records_dashboard
       const { data: rpcData, error: rpcError } = await this.supabase.rpc('get_medallero_records_dashboard');
       if (!rpcError && rpcData && rpcData.success) {
+        const rpcBossMvp = rpcData.records?.boss_mvp || (rpcData.rankings?.boss?.[0] ? {
+          holder: rpcData.rankings.boss[0].username || 'Guerrero',
+          avatar: rpcData.rankings.boss[0].selected_avatar || 'lobo',
+          flag: (rpcData.rankings.boss[0].country_code || 'mx').toLowerCase(),
+          damage: rpcData.rankings.boss[0].total_damage || 0,
+          user_id: rpcData.rankings.boss[0].id
+        } : null);
+
         return {
           data: {
             records: {
               best_streak: rpcData.records?.best_streak || null,
               most_tomatoes: rpcData.records?.most_tomatoes || null,
               most_coins: rpcData.records?.most_coins || null,
-              most_podiums: rpcData.records?.most_podiums || null
+              most_podiums: rpcData.records?.most_podiums || null,
+              boss_mvp: rpcBossMvp
             },
             rankings: {
               objectives: (rpcData.rankings?.objectives || []).filter((p: any) => this.isEligibleForRankingCategory(p.focus_points ? Math.floor(p.focus_points / 40) : (p.focus_tomatoes || 0), p.created_at)),
@@ -1818,6 +1829,15 @@ export class SupabaseService {
           created_at: b.created_at
         }));
 
+      const topBossDamage = bossRanking[0];
+      const fallbackBossMvp = topBossDamage ? {
+        holder: topBossDamage.username || 'Guerrero',
+        avatar: topBossDamage.selected_avatar || 'lobo',
+        flag: (topBossDamage.country_code || 'mx').toLowerCase(),
+        damage: topBossDamage.total_damage || 0,
+        user_id: topBossDamage.id
+      } : null;
+
       return {
         data: {
           records: {
@@ -1848,7 +1868,8 @@ export class SupabaseService {
               flag: (topPodiums.country_code || 'cl').toLowerCase(),
               podiums: topPodiums.podium_wins || 0,
               user_id: topPodiums.id
-            } : null
+            } : null,
+            boss_mvp: fallbackBossMvp
           },
           rankings: {
             objectives,

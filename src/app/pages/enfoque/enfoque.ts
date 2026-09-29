@@ -77,7 +77,8 @@ export type FocusTimerStyle =
     '[class.zen-inactive]': 'isInactive()',
     '[class.timer-titanic-mode]': 'timerStyle() === "titanic"',
     '[class.timer-lighthouse-mode]': 'timerStyle() === "lighthouse"',
-    '[class.timer-airplane-mode]': 'timerStyle() === "airplane"'
+    '[class.timer-airplane-mode]': 'timerStyle() === "airplane"',
+    '[class.timer-orbital-mode]': 'isOrbitalTimer()'
   }
 })
 export class Enfoque implements OnInit, OnDestroy {
@@ -2028,9 +2029,15 @@ export class Enfoque implements OnInit, OnDestroy {
   // ==========================================
   // NOTIFICACIONES DE ESCRITORIO & ALERTAS DE PESTAÑA (B & C)
   // ==========================================
+  // NOTIFICACIONES DE ESCRITORIO & ALERTAS DE PESTAÑA (B & C)
+  // ==========================================
   private titleFlashingInterval: any = null;
   private originalDocumentTitle = 'COFU - Procrastina Como un Pro';
-  notificationPermission = signal<string>('default');
+  notificationPermission = signal<string>(
+    typeof window !== 'undefined' && 'Notification' in window
+      ? Notification.permission
+      : 'unsupported'
+  );
   notificationsEnabled = signal<boolean>(
     this.membership.getFocusSetting('desktop-notifications-enabled', 'true') !== 'false'
   );
@@ -2117,7 +2124,11 @@ export class Enfoque implements OnInit, OnDestroy {
     this.notificationsEnabled.set(enabled);
     this.membership.setFocusSetting('desktop-notifications-enabled', String(enabled));
     if (enabled) {
-      this.requestNotificationPermission(true);
+      if (this.notificationPermission() !== 'granted') {
+        this.requestNotificationPermission(true);
+      } else {
+        this.showToastFeedback('🔔 Notificaciones de escritorio activadas.', 'success');
+      }
     } else {
       this.showToastFeedback('🔕 Notificaciones de escritorio desactivadas.', 'info');
     }
@@ -2148,97 +2159,205 @@ export class Enfoque implements OnInit, OnDestroy {
     this.membership.setFocusSetting('motivation-notification-enabled', String(enabled));
   }
 
-  testFocusNotification() {
-    this.sendDesktopNotification(
+  async testFocusNotification() {
+    if (this.notificationPermission() !== 'granted') {
+      const perm = await this.requestNotificationPermission(false);
+      if (perm !== 'granted') {
+        if (perm === 'denied') {
+          this.showToastFeedback('⚠️ Notificaciones bloqueadas en el navegador. Haz clic en 🔒 en la URL para permitirlas.', 'info');
+        } else {
+          this.showToastFeedback('⚠️ Debes permitir las notificaciones en tu navegador.', 'info');
+        }
+        return;
+      }
+    }
+    const sent = await this.dispatchNotification(
       '🍅 ¡Pomodoro Completado! (Prueba)',
       '¡Excelente trabajo! Has completado tu bloque de concentración.'
     );
-    this.showToastFeedback('🔔 Notificación de prueba de enfoque enviada.', 'success');
+    if (sent) {
+      this.showToastFeedback('🔔 Notificación de prueba enviada al escritorio.', 'success');
+    } else {
+      this.showToastFeedback('⚠️ No se pudo mostrar la notificación. Revisa la configuración de Windows/Navegador.', 'info');
+    }
   }
 
-  testBreakNotification() {
-    this.sendDesktopNotification(
+  async testBreakNotification() {
+    if (this.notificationPermission() !== 'granted') {
+      const perm = await this.requestNotificationPermission(false);
+      if (perm !== 'granted') {
+        if (perm === 'denied') {
+          this.showToastFeedback('⚠️ Notificaciones bloqueadas en el navegador. Haz clic en 🔒 en la URL para permitirlas.', 'info');
+        } else {
+          this.showToastFeedback('⚠️ Debes permitir las notificaciones en tu navegador.', 'info');
+        }
+        return;
+      }
+    }
+    const sent = await this.dispatchNotification(
       '☕ ¡Descanso Breve Finalizado! (Prueba)',
       'Tu energía está recargada. Es hora de volver al bloque de concentración.'
     );
-    this.showToastFeedback('🔔 Notificación de prueba de descanso breve enviada.', 'success');
+    if (sent) {
+      this.showToastFeedback('🔔 Notificación de prueba de descanso breve enviada.', 'success');
+    } else {
+      this.showToastFeedback('⚠️ No se pudo mostrar la notificación. Revisa la configuración de Windows/Navegador.', 'info');
+    }
   }
 
-  testLongBreakNotification() {
-    this.sendDesktopNotification(
+  async testLongBreakNotification() {
+    if (this.notificationPermission() !== 'granted') {
+      const perm = await this.requestNotificationPermission(false);
+      if (perm !== 'granted') {
+        if (perm === 'denied') {
+          this.showToastFeedback('⚠️ Notificaciones bloqueadas en el navegador. Haz clic en 🔒 en la URL para permitirlas.', 'info');
+        } else {
+          this.showToastFeedback('⚠️ Debes permitir las notificaciones en tu navegador.', 'info');
+        }
+        return;
+      }
+    }
+    const sent = await this.dispatchNotification(
       '🌴 ¡Descanso Largo Finalizado! (Prueba)',
       'Tu pausa extendida ha concluido. ¡Energía al 100% para continuar!'
     );
-    this.showToastFeedback('🔔 Notificación de prueba de descanso largo enviada.', 'success');
+    if (sent) {
+      this.showToastFeedback('🔔 Notificación de prueba de descanso largo enviada.', 'success');
+    } else {
+      this.showToastFeedback('⚠️ No se pudo mostrar la notificación. Revisa la configuración de Windows/Navegador.', 'info');
+    }
   }
 
-  testMotivationNotification() {
+  async testMotivationNotification() {
+    if (this.notificationPermission() !== 'granted') {
+      const perm = await this.requestNotificationPermission(false);
+      if (perm !== 'granted') {
+        if (perm === 'denied') {
+          this.showToastFeedback('⚠️ Notificaciones bloqueadas en el navegador. Haz clic en 🔒 en la URL para permitirlas.', 'info');
+        } else {
+          this.showToastFeedback('⚠️ Debes permitir las notificaciones en tu navegador.', 'info');
+        }
+        return;
+      }
+    }
     const list = this.motivationsList();
     const mot = list.length > 0 ? list[Math.floor(Math.random() * list.length)] : null;
     const text = mot ? `"${mot.text}" — ${mot.userName || 'Comunidad'}` : '¡Tu disciplina de hoy es tu éxito de mañana!';
-    this.sendDesktopNotification(
+    const sent = await this.dispatchNotification(
       '🔋 Batería de Motivación (Prueba)',
       text
     );
-    this.showToastFeedback('⚡ Notificación de prueba de motivación enviada.', 'success');
+    if (sent) {
+      this.showToastFeedback('⚡ Notificación de prueba de motivación enviada.', 'success');
+    } else {
+      this.showToastFeedback('⚠️ No se pudo mostrar la notificación. Revisa la configuración de Windows/Navegador.', 'info');
+    }
   }
 
-  requestNotificationPermission(showTestNotif: boolean = false) {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      try {
-        const current = Notification.permission;
-        this.notificationPermission.set(current);
-
-        if (current === 'default') {
-          const handleResult = (perm: NotificationPermission) => {
-            this.notificationPermission.set(perm);
-            if (perm === 'granted') {
-              this.showToastFeedback('🔔 ¡Notificaciones de escritorio activadas!', 'success');
-              if (showTestNotif) {
-                this.sendDesktopNotification(
-                  '🔔 Notificaciones Activadas - COFU',
-                  '¡Excelente! Recibirás avisos en tu pantalla cuando termine cada Pomodoro y descanso.'
-                );
-              }
-            } else if (perm === 'denied') {
-              this.showToastFeedback('⚠️ Notificaciones bloqueadas en el navegador.', 'info');
-            }
-          };
-
-          try {
-            const promise = Notification.requestPermission(handleResult);
-            if (promise && typeof promise.then === 'function') {
-              promise.then(handleResult).catch(err => {
-                console.warn('Error en promise de requestPermission:', err);
-              });
-            }
-          } catch(e) {
-            console.warn('Error llamando requestPermission:', e);
-          }
-        } else if (current === 'granted') {
-          this.notificationPermission.set('granted');
-          if (showTestNotif) {
-            this.sendDesktopNotification(
-              '🔔 Prueba de Notificación COFU',
-              '¡Las notificaciones de escritorio funcionan correctamente!'
-            );
-            this.showToastFeedback('🔔 Notificación de prueba enviada al escritorio.', 'success');
-          }
-        } else if (current === 'denied') {
-          this.notificationPermission.set('denied');
-          if (showTestNotif) {
-            this.showToastFeedback(
-              '⚠️ Las notificaciones están bloqueadas. Haz clic en el icono 🔒 en la barra de tu navegador para permitirlas.',
-              'info'
-            );
-          }
-        }
-      } catch(e) {
-        console.warn('Error en requestNotificationPermission:', e);
-      }
-    } else {
+  async requestNotificationPermission(showFeedback: boolean = false): Promise<NotificationPermission | 'unsupported'> {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
       this.notificationPermission.set('unsupported');
+      if (showFeedback) {
+        this.showToastFeedback('⚠️ Este navegador no soporta notificaciones de escritorio.', 'info');
+      }
+      return 'unsupported';
     }
+
+    try {
+      let perm: NotificationPermission = Notification.permission;
+      if (perm === 'default') {
+        try {
+          perm = await Notification.requestPermission();
+        } catch {
+          perm = await new Promise<NotificationPermission>((resolve) => {
+            Notification.requestPermission((p) => resolve(p));
+          });
+        }
+      }
+      this.notificationPermission.set(perm);
+
+      if (perm === 'granted') {
+        if (showFeedback) {
+          this.showToastFeedback('🔔 ¡Notificaciones de escritorio activadas!', 'success');
+          await this.dispatchNotification(
+            '🔔 Notificaciones Activadas - COFU',
+            '¡Excelente! Recibirás avisos en tu pantalla cuando termine cada Pomodoro y descanso.'
+          );
+        }
+      } else if (perm === 'denied') {
+        if (showFeedback) {
+          this.showToastFeedback(
+            '⚠️ Notificaciones bloqueadas. Haz clic en el icono 🔒 en la barra de direcciones para permitirlas.',
+            'info'
+          );
+        }
+      }
+      return perm;
+    } catch (e) {
+      console.warn('Error en requestNotificationPermission:', e);
+      const current = typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'unsupported';
+      this.notificationPermission.set(current);
+      return current;
+    }
+  }
+
+  async dispatchNotification(title: string, body: string, icon?: string): Promise<boolean> {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      return false;
+    }
+
+    const iconUrl = icon || (window.location.origin ? `${window.location.origin}/cofu_logo.jpg` : 'cofu_logo.jpg');
+
+    // Método 1: Constructor estándar Notification
+    try {
+      const notif = new Notification(title, {
+        body,
+        icon: iconUrl,
+        badge: iconUrl,
+        silent: false
+      });
+
+      notif.onclick = () => {
+        try {
+          window.focus();
+        } catch (e) {}
+        notif.close();
+      };
+      return true;
+    } catch (e1) {
+      console.warn('Fallo creación Notification estándar:', e1);
+    }
+
+    // Método 2: Constructor simple de Notification
+    try {
+      const simpleNotif = new Notification(title, { body });
+      simpleNotif.onclick = () => {
+        try { window.focus(); } catch (err) {}
+        simpleNotif.close();
+      };
+      return true;
+    } catch (e2) {
+      console.warn('Fallo creación Notification simple:', e2);
+    }
+
+    // Método 3: Fallback Service Worker Registration (si está disponible)
+    if ('serviceWorker' in navigator) {
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) {
+          await reg.showNotification(title, {
+            body,
+            icon: iconUrl,
+            badge: iconUrl
+          });
+          return true;
+        }
+      } catch (e3) {
+        console.warn('Fallo ServiceWorker showNotification:', e3);
+      }
+    }
+
+    return false;
   }
 
   sendDesktopNotification(title: string, body: string, icon?: string) {
@@ -2252,40 +2371,11 @@ export class Enfoque implements OnInit, OnDestroy {
     }
 
     if (Notification.permission !== 'granted') {
-      console.warn('No se puede enviar notificación porque el permiso actual es:', Notification.permission);
       this.notificationPermission.set(Notification.permission);
       return;
     }
 
-    const iconUrl = icon || (window.location.origin ? `${window.location.origin}/cofu_logo.jpg` : 'cofu_logo.jpg');
-
-    try {
-      const notif = new Notification(title, {
-        body,
-        icon: iconUrl,
-        badge: iconUrl,
-        requireInteraction: true,
-        silent: false
-      });
-
-      notif.onclick = () => {
-        try {
-          window.focus();
-        } catch (e) {}
-        notif.close();
-      };
-    } catch (e) {
-      console.warn('Error al instanciar Notification con opciones avanzadas, intentando formato estándar:', e);
-      try {
-        const simpleNotif = new Notification(title, { body });
-        simpleNotif.onclick = () => {
-          try { window.focus(); } catch(err) {}
-          simpleNotif.close();
-        };
-      } catch (err) {
-        console.error('Fallo total al crear Notification:', err);
-      }
-    }
+    this.dispatchNotification(title, body, icon);
   }
 
   handleTimerCompleted() {
@@ -2384,12 +2474,20 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.titleFlashingInterval) {
       this.stopTitleFlashing();
     }
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      this.notificationPermission.set(Notification.permission);
+    }
   }
 
   @HostListener('document:visibilitychange')
   onVisibilityChangeAlert() {
-    if (typeof document !== 'undefined' && !document.hidden && this.titleFlashingInterval) {
-      this.stopTitleFlashing();
+    if (typeof document !== 'undefined' && !document.hidden) {
+      if (this.titleFlashingInterval) {
+        this.stopTitleFlashing();
+      }
+      if ('Notification' in window) {
+        this.notificationPermission.set(Notification.permission);
+      }
     }
   }
 
@@ -4054,28 +4152,68 @@ export class Enfoque implements OnInit, OnDestroy {
     this.showToastFeedback('Configuración restablecida: 25 min enfoque, 5 min descanso, 15 min descanso largo, 4 ciclos, sin audio y batería activa.', 'success');
   }
 
-  updateFocusDuration(val: number | string) {
-    const num = Math.min(180, Math.max(1, parseInt(String(val), 10) || 25));
+  updateFocusDuration(val: number | string | null) {
+    if (val === null || val === undefined || val === '') return;
+    const parsed = parseInt(String(val), 10);
+    if (isNaN(parsed) || parsed <= 0) return;
+    const num = Math.min(180, Math.max(1, parsed));
     this.focusDuration.set(num);
     this.applyTimeSettings();
   }
 
-  updateBreakDuration(val: number | string) {
-    const num = Math.min(60, Math.max(1, parseInt(String(val), 10) || 5));
+  onFocusDurationBlur() {
+    if (!this.focusDuration() || this.focusDuration() < 1) {
+      this.focusDuration.set(25);
+      this.applyTimeSettings();
+    }
+  }
+
+  updateBreakDuration(val: number | string | null) {
+    if (val === null || val === undefined || val === '') return;
+    const parsed = parseInt(String(val), 10);
+    if (isNaN(parsed) || parsed <= 0) return;
+    const num = Math.min(60, Math.max(1, parsed));
     this.breakDuration.set(num);
     this.applyTimeSettings();
   }
 
-  updateLongBreakDuration(val: number | string) {
-    const num = Math.min(120, Math.max(1, parseInt(String(val), 10) || 15));
+  onBreakDurationBlur() {
+    if (!this.breakDuration() || this.breakDuration() < 1) {
+      this.breakDuration.set(5);
+      this.applyTimeSettings();
+    }
+  }
+
+  updateLongBreakDuration(val: number | string | null) {
+    if (val === null || val === undefined || val === '') return;
+    const parsed = parseInt(String(val), 10);
+    if (isNaN(parsed) || parsed <= 0) return;
+    const num = Math.min(120, Math.max(1, parsed));
     this.longBreakDuration.set(num);
     this.applyTimeSettings();
   }
 
-  updateLongBreakInterval(val: number | string) {
-    const num = Math.min(24, Math.max(1, parseInt(String(val), 10) || 4));
+  onLongBreakDurationBlur() {
+    if (!this.longBreakDuration() || this.longBreakDuration() < 1) {
+      this.longBreakDuration.set(15);
+      this.applyTimeSettings();
+    }
+  }
+
+  updateLongBreakInterval(val: number | string | null) {
+    if (val === null || val === undefined || val === '') return;
+    const parsed = parseInt(String(val), 10);
+    if (isNaN(parsed) || parsed <= 0) return;
+    const num = Math.min(24, Math.max(1, parsed));
     this.longBreakInterval.set(num);
     this.applyTimeSettings();
+  }
+
+  onLongBreakIntervalBlur() {
+    if (!this.longBreakInterval() || this.longBreakInterval() < 1) {
+      this.longBreakInterval.set(4);
+      this.applyTimeSettings();
+    }
   }
 
   // Setter auxiliar de tipo de sonido

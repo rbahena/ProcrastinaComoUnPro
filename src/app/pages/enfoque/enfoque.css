@@ -2522,14 +2522,134 @@
   }
 }
 
-/* ===== ÓRBITA SOLAR (SOL Y TIERRA) PREMIUM STYLE ===== */
-.solar-container {
+/* ===== ÓRBITA SOLAR, SATÉLITE Y LUNAR (COSMOS) PREMIUM STYLE ===== */
+.orbital-space-timer,
+.solar-container,
+.satellite-container,
+.moon-container {
+  position: relative;
+  width: clamp(370px, min(49vh, 500px), 500px) !important;
+  height: clamp(370px, min(49vh, 500px), 500px) !important;
+  max-width: min(92vw, 520px) !important;
+  max-height: min(51vh, 520px) !important;
+  aspect-ratio: 1 / 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto !important;
   user-select: none !important;
-  transition: filter 0.3s ease;
+  transition: transform 0.3s ease, filter 0.3s ease;
 }
 
 .solar-container:hover {
-  filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.25));
+  filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.35));
+}
+
+.satellite-container:hover {
+  filter: drop-shadow(0 0 22px rgba(56, 189, 248, 0.35));
+}
+
+.moon-container:hover {
+  filter: drop-shadow(0 0 22px rgba(241, 245, 249, 0.35));
+}
+
+@media (min-width: 1400px) and (min-height: 800px) {
+  .orbital-space-timer,
+  .solar-container,
+  .satellite-container,
+  .moon-container {
+    width: clamp(450px, 54vh, 560px) !important;
+    height: clamp(450px, 54vh, 560px) !important;
+    max-width: 560px !important;
+    max-height: 560px !important;
+  }
+}
+
+@media (min-width: 1800px) and (min-height: 900px) {
+  .orbital-space-timer,
+  .solar-container,
+  .satellite-container,
+  .moon-container {
+    width: clamp(520px, 58vh, 640px) !important;
+    height: clamp(520px, 58vh, 640px) !important;
+    max-width: 640px !important;
+    max-height: 640px !important;
+  }
+}
+
+@media (max-height: 740px) {
+  .orbital-space-timer,
+  .solar-container,
+  .satellite-container,
+  .moon-container {
+    width: clamp(290px, 44vh, 360px) !important;
+    height: clamp(290px, 44vh, 360px) !important;
+  }
+}
+
+/* Layout Orbital sin Scroll y Separación de Píldora del Cronómetro */
+:host.timer-orbital-mode .focus-arena-wrapper {
+  min-height: unset !important;
+  max-height: calc(100vh - 64px) !important;
+  overflow: hidden !important;
+  padding: 0px 16px !important;
+}
+
+:host.timer-orbital-mode .focus-column-center.timer-column {
+  margin-top: clamp(4px, 1.2vh, 16px) !important;
+}
+
+@media (min-width: 1400px) {
+  :host.timer-orbital-mode .focus-column-center.timer-column {
+    margin-top: clamp(8px, 1.8vh, 22px) !important;
+  }
+}
+
+@media (min-width: 1800px) {
+  :host.timer-orbital-mode .focus-column-center.timer-column {
+    margin-top: clamp(12px, 2.2vh, 28px) !important;
+  }
+}
+
+/* Píldora del contador fuera del radio de la órbita (Evita superposición con cuerpos celestes) */
+.orbital-space-timer .subtle-timer-pill {
+  position: absolute !important;
+  bottom: -32px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 20 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  white-space: nowrap !important;
+}
+
+.orbital-space-timer .subtle-timer-pill span {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding: 5px 18px !important;
+  border-radius: 999px !important;
+  font-size: 14px !important;
+  font-weight: 850 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 16px rgba(255, 255, 255, 0.1) !important;
+}
+
+:host.timer-orbital-mode .action-buttons-container {
+  margin-top: clamp(34px, 4.5vh, 46px) !important;
+  margin-bottom: clamp(6px, 1vh, 14px) !important;
+}
+
+@media (min-width: 1400px) {
+  :host.timer-orbital-mode .action-buttons-container {
+    margin-top: clamp(38px, 5vh, 50px) !important;
+  }
+}
+
+@media (min-width: 1800px) {
+  :host.timer-orbital-mode .action-buttons-container {
+    margin-top: clamp(42px, 5.5vh, 56px) !important;
+  }
 }
 
 /* Pulsación y Rotación Solar */
@@ -5221,4 +5341,41 @@
     transform: scale(1.35);
     filter: drop-shadow(0 0 5px #ff1744) drop-shadow(0 0 9px #fff9c4);
   }
+}
+
+/* ===== CUSTOM DURATION STEPPER INPUTS (CONFIG MODAL) ===== */
+.custom-duration-input::-webkit-outer-spin-button,
+.custom-duration-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.custom-duration-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-weight: 800;
+  font-family: 'Space Grotesk', monospace;
+  text-align: right;
+  padding: 0;
+  margin: 0;
+}
+.custom-duration-input:focus {
+  color: var(--accent);
+}
+.duration-stepper-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 2px 4px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.duration-stepper-container:focus-within {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.25);
 }

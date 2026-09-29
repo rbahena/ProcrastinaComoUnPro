@@ -151,11 +151,13 @@ export class Medallero implements OnInit, OnDestroy {
     mostTomatoes: MedalleroBrokenRecordHolder | null;
     mostCoins: MedalleroBrokenRecordHolder | null;
     mostPodiums: MedalleroBrokenRecordHolder | null;
+    bossMvp: MedalleroBrokenRecordHolder | null;
   }>({
     bestStreak: null,
     mostTomatoes: null,
     mostCoins: null,
-    mostPodiums: null
+    mostPodiums: null,
+    bossMvp: null
   });
 
   liveRankings = signal<{
@@ -287,6 +289,33 @@ export class Medallero implements OnInit, OnDestroy {
       isPodiumAssigned = true;
     }
 
+    // 5. MVP DEL JEFE EN TURNO (DAÑO TOTAL AL JEFE ACTIVO)
+    const ramDamage = this.bossService.userDamageDealt();
+    let bossMvpName = 'En disputa';
+    let bossMvpAvatar = '';
+    let bossMvpFlag = '';
+    let bestBossDamageVal = 0;
+    let bossMvpDate = 'Sin registro';
+    let isBossMvpAssigned = false;
+
+    if (rec.bossMvp && (rec.bossMvp.damage ?? 0) > 0) {
+      bossMvpName = rec.bossMvp.holder || 'Guerrero';
+      bossMvpAvatar = rec.bossMvp.avatar || 'lobo';
+      bossMvpFlag = rec.bossMvp.flag || 'mx';
+      bestBossDamageVal = rec.bossMvp.damage || 0;
+      bossMvpDate = 'Jefe Activo';
+      isBossMvpAssigned = true;
+    }
+
+    if (isPremium && ramDamage > 0 && this.isUserEligible(ramDamage, ramCreatedAt) && ramDamage >= bestBossDamageVal) {
+      bestBossDamageVal = ramDamage;
+      bossMvpName = ramName;
+      bossMvpAvatar = ramAvatar;
+      bossMvpFlag = 'mx';
+      bossMvpDate = 'Hoy';
+      isBossMvpAssigned = true;
+    }
+
     return [
       {
         title: 'Mejor Racha',
@@ -362,6 +391,25 @@ export class Medallero implements OnInit, OnDestroy {
         color: '#f59e0b',
         bgGlow: 'rgba(245, 158, 11, 0.12)',
         isAssigned: isPodiumAssigned
+      },
+      {
+        title: 'MVP del Jefe en Turno',
+        description: 'Mayor cantidad de daño total infligido al Jefe de la Comunidad activo mediante sesiones de enfoque exitosas.',
+        motivation: '¡El terror de la procrastinación! Tu constancia y ataque implacable lideran el asalto de toda la comunidad.',
+        value: bestBossDamageVal > 0 ? `${bestBossDamageVal.toLocaleString()} HP` : 'Disponible',
+        holder: bossMvpName,
+        avatar: bossMvpAvatar,
+        flag: bossMvpFlag,
+        socials: isBossMvpAssigned ? [
+          { icon: 'fa-github', platform: 'GitHub', link: 'https://github.com' },
+          { icon: 'fa-linkedin', platform: 'LinkedIn', link: 'https://linkedin.com' },
+          { icon: 'fa-twitch', platform: 'Twitch', link: 'https://twitch.tv' }
+        ] : [],
+        date: bossMvpDate,
+        icon: 'fa-skull-crossbones',
+        color: '#ef4444',
+        bgGlow: 'rgba(239, 68, 68, 0.14)',
+        isAssigned: isBossMvpAssigned
       }
     ];
   });
@@ -400,7 +448,8 @@ export class Medallero implements OnInit, OnDestroy {
           bestStreak: data.records.best_streak,
           mostTomatoes: data.records.most_tomatoes,
           mostCoins: data.records.most_coins,
-          mostPodiums: data.records.most_podiums
+          mostPodiums: data.records.most_podiums,
+          bossMvp: data.records.boss_mvp || null
         });
       }
 
@@ -418,11 +467,13 @@ export class Medallero implements OnInit, OnDestroy {
   }
 
   prevCard() {
-    this.activeCardIndex.update(i => i > 0 ? i - 1 : 3);
+    const maxIdx = this.brokenRecords().length - 1;
+    this.activeCardIndex.update(i => i > 0 ? i - 1 : Math.max(0, maxIdx));
   }
 
   nextCard() {
-    this.activeCardIndex.update(i => i < 3 ? i + 1 : 0);
+    const maxIdx = this.brokenRecords().length - 1;
+    this.activeCardIndex.update(i => i < maxIdx ? i + 1 : 0);
   }
 
   setCard(idx: number) {

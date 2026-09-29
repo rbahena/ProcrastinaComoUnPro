@@ -57,3 +57,57 @@
   box-shadow: 0 0 25px rgba(239, 68, 68, 0.85) !important;
   border-color: rgba(239, 68, 68, 0.65) !important;
 }
+
+/* Botón ¿Cómo Vencer? (Sobrio, Elegante con 5 Parpadeos Pausados al Entrar) */
+.btn-como-vencer {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.92) 0%, rgba(15, 23, 42, 0.96) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f1f5f9 !important;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 750;
+  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s ease;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(8px);
+  animation: gentleEntryPulse 1.1s ease-in-out 0.3s 5;
+}
+
+@keyframes gentleEntryPulse {
+  0%, 100% {
+    transform: scale(1);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.92) 0%, rgba(15, 23, 42, 0.96) 100%);
+  }
+  50% {
+    transform: scale(1.06);
+    border-color: rgba(56, 189, 248, 0.7);
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.35), 0 4px 14px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, rgba(51, 65, 85, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+  }
+}
+
+.btn-como-vencer:hover {
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.95) 0%, rgba(30, 41, 59, 0.98) 100%);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+}
+
+.btn-como-vencer .icon-guide {
+  font-size: 13.5px;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+
+.btn-como-vencer:hover .icon-guide {
+  color: #38bdf8;
+}
