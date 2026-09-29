@@ -2686,12 +2686,11 @@ export class Enfoque implements OnInit, OnDestroy {
 
           if (this.membership.isPremium()) {
             this.membership.addFocusPoints(-50);
-          }
-
-          // Cura al jefe por agotarse la interrupción en comunidad
-          if (this.coworkingMode() === 'comunitario') {
-            this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
-            this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} se distrajo por demasiado tiempo. ¡El Oni recupera fuerzas!`, 'reaction');
+            // Cura al jefe por agotarse la interrupción en comunidad (solo cuentas Premium afectan al jefe)
+            if (this.coworkingMode() === 'comunitario') {
+              this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
+              this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} se distrajo por demasiado tiempo. ¡El Oni recupera fuerzas!`, 'reaction');
+            }
           }
 
           // Liquidar sesión en Supabase y limpiar persistencia
@@ -2790,29 +2789,20 @@ export class Enfoque implements OnInit, OnDestroy {
     localStorage.setItem('daily-attempts', JSON.stringify(updatedAttempts));
 
     if (this.membership.isPremium()) {
-      // Castigo de -50 XP por abandonar
+      // Castigo de -50 XP por abandonar (exclusivo Premium)
       this.membership.addFocusPoints(-50);
+      // Cura al jefe por abandono en comunidad (solo usuarios Premium afectan al jefe)
+      if (this.coworkingMode() === 'comunitario') {
+        this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
+        const healHp = this.bossHealAmount();
+        this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} ha abandonado la sesión de enfoque. ¡El Oni recuperó +${healHp} HP!`, 'reaction');
+      }
+      const healHp = this.bossHealAmount();
+      this.showToast(`💔 Has abandonado la sesión (-50 ProCoins, -50 XP). El Jefe de la Comunidad recuperó +${healHp} HP.`, 'danger');
+    } else {
+      // Planes básicos pierden monedas pero no afectan al jefe de la comunidad
+      this.showToast(`💔 Has abandonado la sesión (-50 ProCoins).`, 'danger');
     }
-
-    // Cura al jefe por abandono en comunidad
-    this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
-    const healHp = this.bossHealAmount();
-    if (this.coworkingMode() === 'comunitario') {
-      this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} ha abandonado la sesión de enfoque. ¡El Oni recuperó +${healHp} HP!`, 'reaction');
-    }
-
-    // Reiniciar pomodoro directamente al estado setup
-    this.isBreak.set(false);
-    this.totalSessionTime.set(this.focusDuration() * 60);
-    this.timeLeft.set(this.focusDuration() * 60);
-    this.arenaState.set('setup');
-    this.objectiveCompleted.set(null);
-
-    // Reproducir sonido triste / deprimente al abandonar la sesión
-    this.playAbandonmentSadSound();
-
-    // Notificación toast en la parte inferior informando de cuánto ayudó al jefe
-    this.showToast(`💔 Has abandonado la sesión (-50 ProCoins). El Jefe de la Comunidad recuperó +${healHp} HP.`, 'danger');
     this.router.navigate(['/enfoque']);
   }
 
@@ -2889,13 +2879,18 @@ export class Enfoque implements OnInit, OnDestroy {
 
         this.membership.rewardCompletedSession(sessionId, isShared, actualSeconds, equippedAvatar);
         
-        // Daño al Boss por completar el Pomodoro en la Comunidad (únicamente el daño marcado en la ficha del avatar)
+        // Daño al Boss por completar el Pomodoro en la Comunidad (únicamente usuarios Premium pueden infligir daño)
         if (isShared) {
-          const damage = this.membership.getAvatarDamagePoints(equippedAvatar);
-          this.bossService.dealDamage(damage);
-          
-          const eventText = `🗡️ ${this.userName()} completó su Pomodoro e infligió ${damage} de daño al Boss.`;
-          this.addComunidadEvent(eventText, 'complete');
+          if (this.membership.isPremium()) {
+            const damage = this.membership.getAvatarDamagePoints(equippedAvatar);
+            this.bossService.dealDamage(damage);
+            
+            const eventText = `🗡️ ${this.userName()} completó su Pomodoro e infligió ${damage} de daño al Boss.`;
+            this.addComunidadEvent(eventText, 'complete');
+          } else {
+            const eventText = `🍅 ${this.userName()} completó su sesión de enfoque.`;
+            this.addComunidadEvent(eventText, 'complete');
+          }
         }
         
         // Recompensa adicional por objetivo cumplido (Pregunta 2)

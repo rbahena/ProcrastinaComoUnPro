@@ -385,10 +385,11 @@ flowchart TD
 | **Acceso a Pomodoro e Inicios Rápidos (5/10/25/45m)** | ✅ Sí | ✅ Sí |
 | **Generación de Pro Coins** | ✅ 100% Normal | ✅ 100% Normal |
 | **Generación de Puntos de Experiencia (XP)** | ❌ 0 XP | ✅ +10 XP por sesión / +30 XP por objetivo / +50 XP coraje |
-| **Multiplicador de Daño al Boss Comunitario** | 1.00x Base | **1.25x (+25% Daño Extra)** |
+| **Combate con el Boss Comunitario** | ❌ **0 Daño (No afecta al Boss ni aporta)** | ✅ **100% Daño Base + Multiplicadores (1.25x Pro)** |
+| **Penalización por Abandono** | ⚠️ **Pierde Pro Coins** (según avatar / -50) | ⚠️ **Pierde Pro Coins, -50 XP y cura al Boss** |
 | **Temas Visuales de Interfaz** | Solo Samurái | **Samurái, Cyberpunk, Aurora y Zen** |
 | **Regalo de Bienvenida** | 0 XP / 0 Coins | **+200 XP de Honor y +100 Pro Coins** |
-| **Medallero y Palmarés Competitivo** | ✅ Sí | ✅ Sí (Con insignia dorada Pro) |
+| **Medallero y Palmarés Competitivo Oficial** | Solo visualización | ✅ **Clasificación Oficial y Podios** |
 
 ---
 

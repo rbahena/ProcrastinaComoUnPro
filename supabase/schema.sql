@@ -1822,23 +1822,32 @@ BEGIN
                 v_coins_earned := COALESCE(v_avatar.coins_per_pomodoro, 10);
             END IF;
             
-            -- Daño base al Boss escalado
-            v_boss_damage := ROUND(v_avatar.boss_damage_points * v_time_factor);
+            -- Daño al Boss (exclusivo para usuarios con Membresía Pro)
+            IF v_user.is_premium THEN
+                v_boss_damage := ROUND(v_avatar.boss_damage_points * v_time_factor);
 
-            -- Pasiva Táctica: Metodología Sapo / Rana (Golpe Crítico)
-            IF p_methodology = 'sapo' AND (p_objective_completed = 'yes' OR p_objective_completed = 'progress') THEN
-                v_is_critical := TRUE;
-                v_boss_damage := GREATEST(v_boss_damage, 300);
-            END IF;
+                -- Pasiva Táctica: Metodología Sapo / Rana (Golpe Crítico)
+                IF p_methodology = 'sapo' AND (p_objective_completed = 'yes' OR p_objective_completed = 'progress') THEN
+                    v_is_critical := TRUE;
+                    v_boss_damage := GREATEST(v_boss_damage, 300);
+                END IF;
 
-            -- Pasiva Táctica: Metodología Pareto 80/20 (Búho / Enfoque Estratégico)
-            IF p_methodology = 'pareto' THEN
-                v_boss_damage := v_boss_damage * 2;
-            END IF;
+                -- Pasiva Táctica: Metodología Pareto 80/20 (Búho / Enfoque Estratégico)
+                IF p_methodology = 'pareto' THEN
+                    v_boss_damage := v_boss_damage * 2;
+                END IF;
 
-            -- Pasiva Táctica: Coworking Comunitario (Abeja / Apoyo de Enjambre)
-            IF p_coworking_mode = 'comunitario' THEN
-                v_boss_damage := v_boss_damage + 20;
+                -- Pasiva Táctica: Coworking Comunitario (Abeja / Apoyo de Enjambre)
+                IF p_coworking_mode = 'comunitario' THEN
+                    v_boss_damage := v_boss_damage + 20;
+                END IF;
+
+                -- Pasiva Táctica: Cero Pausas (Sombra / Lince / Aethel)
+                IF p_pause_count = 0 THEN
+                    v_boss_damage := ROUND(v_boss_damage * 1.15);
+                END IF;
+            ELSE
+                v_boss_damage := 0;
             END IF;
 
             -- Pasiva Táctica: Bono de Coraje (Baja energía vencida)
@@ -1847,11 +1856,6 @@ BEGIN
                 IF v_user.is_premium THEN
                     v_xp_earned := v_xp_earned + 50;
                 END IF;
-            END IF;
-
-            -- Pasiva Táctica: Cero Pausas (Sombra / Lince / Aethel)
-            IF p_pause_count = 0 THEN
-                v_boss_damage := ROUND(v_boss_damage * 1.15);
             END IF;
 
             -- Bono de Objetivo Cumplido
@@ -1930,10 +1934,15 @@ BEGIN
         IF p_actual_seconds < 120 THEN
             v_coins_penalized := 0;
             v_boss_heal := 0;
-        ELSE
-            -- Penalización calculada según el avatar del snapshot
+            -- Penalización calculada según el avatar del snapshot (aplica a todos los usuarios)
             v_coins_penalized := v_avatar.pause_penalty_coins + 15;
-            v_boss_heal := v_avatar.boss_heal_points + 20;
+
+            -- Curación al Boss: solo usuarios Premium en sala comunitaria afectan al Jefe
+            IF v_user.is_premium AND p_coworking_mode = 'comunitario' THEN
+                v_boss_heal := v_avatar.boss_heal_points + 20;
+            ELSE
+                v_boss_heal := 0;
+            END IF;
 
             -- Regla Floor 0: La billetera jamás queda en números negativos
             UPDATE public.profiles
@@ -2267,11 +2276,20 @@ RETURNS JSON AS $$
 DECLARE
     v_user_id UUID := auth.uid();
     v_boss RECORD;
+    v_is_premium BOOLEAN := FALSE;
     v_new_hp INTEGER;
     v_is_defeated BOOLEAN := FALSE;
     v_message TEXT;
     v_event_type boss_event_type_enum := 'attack';
 BEGIN
+    -- Validar si el usuario autenticado tiene membresía Pro (solo Pro inflige daño)
+    IF v_user_id IS NOT NULL THEN
+        SELECT is_premium INTO v_is_premium FROM public.profiles WHERE id = v_user_id;
+        IF NOT COALESCE(v_is_premium, FALSE) THEN
+            RETURN json_build_object('success', FALSE, 'error', 'Solo usuarios con Membresía Pro pueden infligir daño al Jefe de la Comunidad');
+        END IF;
+    END IF;
+
     -- 1. Obtener y bloquear la fila del Boss para cálculo concurrente exacto
     SELECT * INTO v_boss FROM public.community_bosses WHERE id = p_boss_id FOR UPDATE;
     IF NOT FOUND THEN
@@ -2352,11 +2370,19 @@ RETURNS JSON AS $$
 DECLARE
     v_user_id UUID := auth.uid();
     v_boss RECORD;
+    v_is_premium BOOLEAN := FALSE;
     v_heal_amount INTEGER;
     v_new_hp INTEGER;
     v_new_shield INTEGER;
     v_message TEXT;
 BEGIN
+    -- Validar si el usuario autenticado tiene membresía Pro (cuentas básicas no afectan al boss)
+    IF v_user_id IS NOT NULL THEN
+        SELECT is_premium INTO v_is_premium FROM public.profiles WHERE id = v_user_id;
+        IF NOT COALESCE(v_is_premium, FALSE) THEN
+            RETURN json_build_object('success', FALSE, 'error', 'Los usuarios básicos no afectan al Jefe de la Comunidad');
+        END IF;
+    END IF;
     -- 1. Obtener y bloquear la fila del Boss
     SELECT * INTO v_boss FROM public.community_bosses WHERE id = p_boss_id FOR UPDATE;
     IF NOT FOUND THEN

@@ -160,8 +160,12 @@ export class ComunidadBossService {
     }));
   }
 
-  // Infligir daño directo al Jefe (exactamente el daño de la ficha del avatar)
+  // Infligir daño directo al Jefe (exclusivo para planes Premium)
   dealDamage(amount: number) {
+    if (!this.membership.isPremium()) {
+      return; // Los planes básicos no pueden afectar al jefe ni aportar daño
+    }
+
     const finalAmount = amount;
 
     // Incrementar daño total del usuario
@@ -199,8 +203,12 @@ export class ComunidadBossService {
     this.saveState();
   }
 
-  // Curación del jefe por distracción o abandono del usuario
+  // Curación del jefe por distracción o abandono del usuario (exclusivo de planes Premium en comunidad)
   healBoss(playerName: string) {
+    if (!this.membership.isPremium()) {
+      return; // Los planes básicos no afectan al jefe
+    }
+
     if (this.supabaseService.isConfigured()) {
       this.supabaseService.healBossFromDistraction(
         this.activeBoss().type,
