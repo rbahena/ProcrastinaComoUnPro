@@ -9182,10 +9182,6 @@
                 </span>
                 <span *ngIf="emergencyPauseActive()" style="font-size: 7.5px; font-weight: 800; color: #f87171; background: rgba(239, 68, 68, 0.15); padding: 0 3px; border-radius: 3px; text-transform: uppercase;">Pausado</span>
               </div>
-              <span *ngIf="hideMyObjectiveInCommunity()" 
-                    style="font-size: 8px; font-weight: 800; color: var(--muted); background: rgba(255,255,255,0.05); padding: 1px 4px; border-radius: 3px; display: inline-flex; align-items: center; gap: 3px;">
-                <i class="fa-solid fa-lock" style="font-size: 7px;"></i> Privada
-              </span>
             </div>
             <span style="font-size: var(--modal-text-size); font-weight: 700; margin-top: 1px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"
                   [style.color]="emergencyPauseActive() ? '#f87171' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'var(--muted)'))">
@@ -9229,17 +9225,19 @@
                       [style.boxShadow]="p.status === 'paused' ? '0 0 5px #ef4444' : '0 0 5px #10b981'"></span>
               </div>
               <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
-                <div style="display: flex; align-items: center; gap: 4px;">
-                  <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ p.name }}</span>
-                  <span *ngIf="p.is_live && p.status !== 'idle'" style="font-size: 7.5px; font-weight: 800; padding: 0 3px; border-radius: 3px; text-transform: uppercase;"
-                        [style.color]="p.status === 'paused' ? '#f87171' : '#10b981'"
-                        [style.background]="p.status === 'paused' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)'">
-                    {{ p.status === 'paused' ? 'Pausado' : 'En vivo' }}
-                  </span>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
+                  <div style="display: flex; align-items: center; gap: 4px; overflow: hidden;">
+                    <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ p.name }}</span>
+                    <span *ngIf="p.is_live && p.status !== 'idle'" style="font-size: 7.5px; font-weight: 800; padding: 0 3px; border-radius: 3px; text-transform: uppercase;"
+                          [style.color]="p.status === 'paused' ? '#f87171' : '#10b981'"
+                          [style.background]="p.status === 'paused' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)'">
+                      {{ p.status === 'paused' ? 'Pausado' : 'En vivo' }}
+                    </span>
+                  </div>
                 </div>
                 <span style="font-size: var(--modal-text-size); color: var(--muted); line-height: 1.3; font-weight: 500; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"
                       [title]="p.mission">
-                  <span *ngIf="p.status === 'focused' && p.mission && p.mission !== 'Enfoque Activo' && !p.mission.startsWith('🎯')">🎯 </span>{{ p.status === 'focused' ? (p.mission || 'Enfoque Activo') : (p.status === 'paused' ? '⏸️ En pausa de emergencia' : (p.status === 'break' ? 'Pausa de descanso' : 'En el campamento')) }}
+                  <span *ngIf="p.mission && p.mission !== 'Enfoque Activo' && p.mission !== 'En el campamento' && p.mission !== 'Pausa de descanso' && !p.mission.startsWith('⏸️') && !p.mission.startsWith('🎯')">🎯 </span>{{ p.mission }}
                 </span>
               </div>
             </div>

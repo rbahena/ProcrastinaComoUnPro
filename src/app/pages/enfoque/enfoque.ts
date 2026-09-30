@@ -1799,7 +1799,9 @@ export class Enfoque implements OnInit, OnDestroy {
   globalFocusedCount = signal<number>(1);
   communityInterval: any = null;
   comunidadPanelExpanded = signal<boolean>(false);
-  hideMyObjectiveInCommunity = signal<boolean>(false);
+  hideMyObjectiveInCommunity = signal<boolean>(
+    this.membership.getFocusSetting('hide-objective-in-community', 'false') === 'true'
+  );
   showConsoleOnboardingHint = signal<boolean>(true);
   consoleHintTimeout: any = null;
   comunidadSearchQuery = signal<string>('');
@@ -1812,7 +1814,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   totalLiveWarriorsCount = computed(() => {
     const liveOthers = this.comunidadUsers().filter(u => u.is_live && u.status !== 'idle').length;
-    const isMeLive = this.arenaState() === 'active' && this.timerRunning();
+    const isMeLive = (this.arenaState() === 'active' || this.arenaState() === 'countdown') && !this.isBreak();
     return liveOthers + (isMeLive ? 1 : 0);
   });
 
@@ -2430,6 +2432,7 @@ export class Enfoque implements OnInit, OnDestroy {
         this.objectiveCompleted.set(null);
       }
       this.arenaState.set('summary');
+      this.broadcastPresence();
       this.playFocusAlarm(); // Alarma sonora de Pomodoro
       this.triggerCelebration();
 
@@ -2463,6 +2466,7 @@ export class Enfoque implements OnInit, OnDestroy {
       this.totalSessionTime.set(this.focusDuration() * 60);
       this.timeLeft.set(this.focusDuration() * 60);
       this.arenaState.set('setup');
+      this.broadcastPresence();
 
       if (isLong) {
         this.playLongBreakAlarm();
@@ -2690,15 +2694,18 @@ export class Enfoque implements OnInit, OnDestroy {
       // Reanudar
       this.stopEmergencyTimer();
       this.emergencyPauseActive.set(false);
+      this.addComunidadEvent(`⚡ ¡${this.userName() || 'Guerrero'} reanudó su sesión de enfoque!`, 'join');
       this.startTimerLoop();
     } else {
       // Activar interrupción
-      this.stopTimerLoop();
       this.emergencyPauseActive.set(true);
+      this.stopEmergencyTimer();
+      this.stopTimerLoop();
       
       const limitSeconds = 120; // 2 minutos para todos
       this.emergencyTimeLeft.set(limitSeconds);
       this.updateLiveTabTitle();
+      this.addComunidadEvent(`⏸️ ${this.userName() || 'Guerrero'} pausó su sesión (2 min máx).`, 'break');
       this.broadcastPresence();
 
       this.emergencyTimer = setInterval(() => {
@@ -2719,9 +2726,6 @@ export class Enfoque implements OnInit, OnDestroy {
           
           this.sessionEndingStatus.set('interrupted');
           this.interruptedByPause.set(true);
-          
-          // Penalización de monedas (ProCoins)
-          this.membership.proCoins.update(coins => Math.max(0, coins - 50));
 
           // Registrar intento diario
           const now = new Date();
@@ -2731,6 +2735,10 @@ export class Enfoque implements OnInit, OnDestroy {
           this.dailyAttempts.set(updatedAttempts);
           localStorage.setItem('daily-attempts', JSON.stringify(updatedAttempts));
 
+          const penaltyCoinsInterrupted = this.currentAvatarPausePenalty();
+          const healHpInterrupted = this.bossHealAmount();
+          this.membership.proCoins.update(coins => Math.max(0, coins - penaltyCoinsInterrupted));
+
           if (this.membership.isPremium()) {
             this.membership.addFocusPoints(-50);
             // Cura al jefe por agotarse la interrupción en comunidad (solo cuentas Premium afectan al jefe)
@@ -2739,6 +2747,8 @@ export class Enfoque implements OnInit, OnDestroy {
               this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} se distrajo por demasiado tiempo. ¡El Oni recupera fuerzas!`, 'reaction');
             }
           }
+
+          this.membership.saveConsolidatedUserData();
 
           // Liquidar sesión en Supabase y limpiar persistencia
           this.settleCurrentSession('interrupted', 'no');
@@ -2759,16 +2769,11 @@ export class Enfoque implements OnInit, OnDestroy {
           localStorage.removeItem('activeObjectiveIdeaId');
           localStorage.removeItem('focus-session-objective');
           localStorage.removeItem('focus-session-idea-id');
-          this.router.navigate(['/enfoque']);
           this.broadcastPresence();
 
           // Mostrar modal informativo de cancelación
           this.showInterruptedModal.set(true);
           this.playAbandonmentSadSound();
-          const penaltyCoinsInterrupted = this.currentAvatarPausePenalty();
-          const healHpInterrupted = this.bossHealAmount();
-          this.membership.proCoins.update(coins => Math.max(0, coins - penaltyCoinsInterrupted));
-          this.membership.saveConsolidatedUserData();
 
           if (this.membership.isPremium() && this.coworkingMode() === 'comunitario') {
             this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -50 XP). El Jefe recuperó +${healHpInterrupted} HP.`, 'danger');
@@ -4784,7 +4789,6 @@ export class Enfoque implements OnInit, OnDestroy {
       this.pomodoroTimer = null;
     }
     this.stopBackgroundSound();
-    this.broadcastPresence();
   }
 
   private stopEmergencyTimer() {
@@ -5098,10 +5102,14 @@ export class Enfoque implements OnInit, OnDestroy {
         let remaining = 0;
         let pct = 0;
 
+        const total = Number(p.total_duration) || 1500;
         if (targetEndTime && !isNaN(targetEndTime) && p.status === 'focused') {
-          remaining = Math.max(0, Math.floor((targetEndTime - now) / 1000));
-          const total = Number(p.total_duration) || 1500;
+          const rawRemaining = Math.max(0, Math.floor((targetEndTime - now) / 1000));
+          remaining = Math.min(total, rawRemaining);
           pct = Math.min(100, Math.floor(((total - remaining) / total) * 100));
+        } else if (p.status === 'focused') {
+          remaining = total;
+          pct = 0;
         } else if (targetEndTime && !isNaN(targetEndTime) && (p.status === 'break' || p.status === 'paused')) {
           remaining = Math.max(0, Math.floor((targetEndTime - now) / 1000));
         }
@@ -5112,11 +5120,12 @@ export class Enfoque implements OnInit, OnDestroy {
           name: p.name || 'Guerrero',
           avatar: p.avatar || 'gato',
           status: p.status || 'idle',
-          mission: p.mission || (p.status === 'paused' ? '⏸️ En pausa de emergencia' : (p.status === 'break' ? 'Pausa de descanso' : (p.status === 'focused' ? 'Enfoque Activo' : 'En el campamento'))),
+          mission: p.is_private ? (p.status === 'focused' ? 'Enfoque Activo' : (p.status === 'paused' ? '⏸️ En pausa de emergencia' : (p.status === 'break' ? 'Pausa de descanso' : 'En el campamento'))) : (p.mission || (p.status === 'paused' ? '⏸️ En pausa de emergencia' : (p.status === 'break' ? 'Pausa de descanso' : (p.status === 'focused' ? 'Enfoque Activo' : 'En el campamento')))),
+          is_private: !!p.is_private,
           timeLeft: remaining,
           percentage: pct,
           target_end_time: targetEndTime || null,
-          total_duration: Number(p.total_duration) || 1500,
+          total_duration: total,
           is_live: p.status !== 'idle',
           reaction: ''
         });
@@ -5177,13 +5186,15 @@ export class Enfoque implements OnInit, OnDestroy {
       mission = '⏸️ En pausa de emergencia';
     } else if (isFocusing) {
       status = 'focused';
-      targetEnd = Date.now() + (this.timeLeft() * 1000);
+      const countdownExtra = this.arenaState() === 'countdown' ? Math.max(0, this.countdownValue()) : 0;
+      targetEnd = Date.now() + ((countdownExtra + this.timeLeft()) * 1000);
       mission = this.hideMyObjectiveInCommunity()
         ? 'Enfoque Activo'
         : (this.activeObjective()?.trim() || 'Enfoque Activo');
     } else if (isBreaking) {
       status = 'break';
-      targetEnd = Date.now() + (this.timeLeft() * 1000);
+      const countdownExtra = this.arenaState() === 'countdown' ? Math.max(0, this.countdownValue()) : 0;
+      targetEnd = Date.now() + ((countdownExtra + this.timeLeft()) * 1000);
       mission = 'Pausa de descanso';
     } else {
       status = 'idle';
@@ -5213,6 +5224,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   toggleHideMyObjective(val: boolean) {
     this.hideMyObjectiveInCommunity.set(val);
+    this.membership.setFocusSetting('hide-objective-in-community', String(val));
     this.broadcastPresence();
   }
 
@@ -5266,14 +5278,21 @@ export class Enfoque implements OnInit, OnDestroy {
     const now = Date.now();
     const updatedUsers = this.comunidadUsers().map(u => {
       const targetEnd = Number(u.target_end_time);
+      const total = Number(u.total_duration) || 1500;
       if (targetEnd && !isNaN(targetEnd) && u.status === 'focused') {
-        const newTime = Math.max(0, Math.floor((targetEnd - now) / 1000));
-        const total = Number(u.total_duration) || 1500;
+        const rawRemaining = Math.max(0, Math.floor((targetEnd - now) / 1000));
+        const newTime = Math.min(total, rawRemaining);
         const pct = Math.min(100, Math.floor(((total - newTime) / total) * 100));
         return {
           ...u,
           timeLeft: newTime,
           percentage: pct
+        };
+      } else if (u.status === 'focused' && (!targetEnd || isNaN(targetEnd))) {
+        return {
+          ...u,
+          timeLeft: total,
+          percentage: 0
         };
       } else if (targetEnd && !isNaN(targetEnd) && (u.status === 'break' || u.status === 'paused')) {
         const newTime = Math.max(0, Math.floor((targetEnd - now) / 1000));
