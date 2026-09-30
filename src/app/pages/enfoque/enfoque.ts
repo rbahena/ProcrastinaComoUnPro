@@ -19,6 +19,7 @@ export interface MotivationItem {
   likes: number;
   isUser?: boolean;
   likedByMe?: boolean;
+  isNewArrival?: boolean;
 }
 
 export type BackgroundSoundType = string;
@@ -1336,143 +1337,23 @@ export class Enfoque implements OnInit, OnDestroy {
   });
   private toastTimeout: any = null;
 
-  private initialMotivations: MotivationItem[] = [
-    {
-      id: 'mot-3',
-      userName: 'Mateo',
-      avatar: 'hamster',
-      text: 'La paz mental de irme a dormir sabiendo que no pospuse lo importante por distracciones tontas.',
-      category: 'disciplina',
-      timestamp: 'Hoy, 10:02',
-      createdAt: Date.now() - 1000 * 60 * 5,
-      likes: 35,
-      isUser: false,
-      likedByMe: false
-    },
-    {
-      id: 'mot-1',
-      userName: 'Sofía',
-      avatar: 'aguila',
-      text: 'Demostrarme a mí misma que soy capaz de terminar proyectos difíciles sin rendirme a la mitad.',
-      category: 'disciplina',
-      timestamp: 'Hoy, 09:15',
-      createdAt: Date.now() - 1000 * 60 * 25,
-      likes: 42,
-      isUser: false,
-      likedByMe: false
-    },
-    {
-      id: 'mot-2',
-      userName: 'Ramiro',
-      avatar: 'gato',
-      text: 'Darle una mejor calidad de vida a mi familia y construir algo de lo que me sienta verdaderamente orgulloso.',
-      category: 'familia',
-      timestamp: 'Hoy, 08:40',
-      createdAt: Date.now() - 1000 * 60 * 55,
-      likes: 58,
-      isUser: false,
-      likedByMe: true
-    },
-    {
-      id: 'mot-6',
-      userName: 'Ana',
-      avatar: 'lobo',
-      text: 'La increíble sensación de victoria cuando marcas esa tarea que llevabas semanas postergando.',
-      category: 'pasion',
-      timestamp: 'Ayer',
-      createdAt: Date.now() - 1000 * 60 * 60 * 18,
-      likes: 61,
-      isUser: false,
-      likedByMe: true
-    },
-    {
-      id: 'mot-5',
-      userName: 'Carlos',
-      avatar: 'panda',
-      text: 'Cada bloque de enfoque de 25 minutos me acerca un paso más a lanzar mi propia aplicación.',
-      category: 'metas',
-      timestamp: 'Ayer',
-      createdAt: Date.now() - 1000 * 60 * 60 * 22,
-      likes: 48,
-      isUser: false,
-      likedByMe: false
-    },
-    {
-      id: 'mot-4',
-      userName: 'Valentina',
-      avatar: 'buho',
-      text: 'Aprender algo nuevo cada día y convertirme en una experta en lo que me apasiona.',
-      category: 'crecimiento',
-      timestamp: 'Ayer',
-      createdAt: Date.now() - 1000 * 60 * 60 * 26,
-      likes: 29,
-      isUser: false,
-      likedByMe: false
-    },
-    {
-      id: 'mot-8',
-      userName: 'Clara',
-      avatar: 'tortuga',
-      text: 'Pasos pequeños pero constantes. No necesito ser la más rápida, solo necesito no detenerme.',
-      category: 'crecimiento',
-      timestamp: 'Hace 2 días',
-      createdAt: Date.now() - 1000 * 60 * 60 * 48,
-      likes: 53,
-      isUser: false,
-      likedByMe: false
-    },
-    {
-      id: 'mot-7',
-      userName: 'Lucas',
-      avatar: 'rana',
-      text: 'Vencer la resistencia inicial de los primeros 5 minutos. Sé que después de eso, todo fluye solo.',
-      category: 'disciplina',
-      timestamp: 'Hace 2 días',
-      createdAt: Date.now() - 1000 * 60 * 60 * 52,
-      likes: 27,
-      isUser: false,
-      likedByMe: false
-    },
-    {
-      id: 'mot-9',
-      userName: 'Esteban',
-      avatar: 'abeja',
-      text: 'Construir hábitos sólidos hoy para que mi futuro yo no tenga que sufrir por falta de disciplina.',
-      category: 'metas',
-      timestamp: 'Hace 3 días',
-      createdAt: Date.now() - 1000 * 60 * 60 * 72,
-      likes: 39,
-      isUser: false,
-      likedByMe: false
-    }
-  ];
+  private initialMotivations: MotivationItem[] = [];
 
   motivationsList = signal<MotivationItem[]>(this.loadMotivations());
+  private motivationsChannel: any = null;
 
+  // Muestra siempre el Top 10 con más corazones, asegurando que las frases nuevas en tiempo real se muestren inmediatamente
   filteredMotivations = computed(() => {
-    const filter = this.motivationFilter();
     const list = this.motivationsList();
-
-    let result: MotivationItem[];
-    if (filter === 'all') {
-      result = list;
-    } else if (filter === 'mine') {
-      result = list.filter(m => m.isUser);
-    } else if (filter === 'popular') {
-      // Pestaña Más Populares: ordenar prioritariamente por corazones
-      return [...list].sort((a, b) => b.likes - a.likes || (b.createdAt || 0) - (a.createdAt || 0));
-    } else {
-      result = list.filter(m => m.category === filter);
+    const sorted = [...list].sort((a, b) => (b.likes - a.likes) || ((b.createdAt || 0) - (a.createdAt || 0)));
+    const top10 = sorted.slice(0, 10);
+    
+    // Si hay algún mensaje recién llegado en tiempo real (isNewArrival) fuera del top 10, colocarlo al inicio para visualización instantánea
+    const newArrivalsNotInTop = sorted.filter(m => m.isNewArrival && !top10.some(t => t.id === m.id));
+    if (newArrivalsNotInTop.length > 0) {
+      return [...newArrivalsNotInTop, ...top10].slice(0, 10);
     }
-
-    // Ordenar por fecha (recién publicados primero) y luego por corazones
-    return [...result].sort((a, b) => {
-      const timeDiff = (b.createdAt || 0) - (a.createdAt || 0);
-      if (timeDiff !== 0) {
-        return timeDiff;
-      }
-      return b.likes - a.likes;
-    });
+    return top10;
   });
 
   myMotivationsCount = computed(() => {
@@ -1489,16 +1370,175 @@ export class Enfoque implements OnInit, OnDestroy {
       const userMots: MotivationItem[] = savedUserMotivations ? JSON.parse(savedUserMotivations) : [];
       const savedLikedIds: string[] = JSON.parse(localStorage.getItem('user-liked-motivations') || '[]');
       
-      const community = this.initialMotivations.map(m => ({
+      const all = userMots.map(m => ({
         ...m,
         likedByMe: savedLikedIds.includes(m.id) || m.likedByMe
       }));
 
-      const all = [...userMots, ...community];
-      return all.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0) || b.likes - a.likes);
+      return all.sort((a, b) => b.likes - a.likes || (b.createdAt || 0) - (a.createdAt || 0));
     } catch (e) {
-      return [...this.initialMotivations].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0) || b.likes - a.likes);
+      return [];
     }
+  }
+
+  async loadMotivationsFromSupabase() {
+    if (!this.supabaseService.isConfigured()) return;
+    try {
+      const { motivations, error } = await this.supabaseService.getCommunityMotivations(30);
+      if (!error && motivations) {
+        const savedLikedIds: string[] = JSON.parse(localStorage.getItem('user-liked-motivations') || '[]');
+        const currentUserId = this.supabaseService.currentUser()?.id;
+        const currentUserName = this.userName();
+        const currentLocalList = this.motivationsList();
+
+        const mapped: MotivationItem[] = motivations.map(m => {
+          const isUser = (currentUserId && m.user_id === currentUserId) || (currentUserName && m.user_name === currentUserName);
+          const existingLocal = currentLocalList.find(loc => loc.id === m.id);
+          return {
+            id: m.id,
+            userName: m.user_name || 'Guerrero',
+            avatar: m.avatar || 'gato',
+            text: m.text,
+            category: m.category || 'metas',
+            timestamp: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Reciente',
+            createdAt: m.created_at ? new Date(m.created_at).getTime() : Date.now(),
+            likes: m.likes ?? 1,
+            isUser: !!isUser,
+            likedByMe: savedLikedIds.includes(m.id) || !!existingLocal?.likedByMe,
+            isNewArrival: existingLocal?.isNewArrival
+          };
+        });
+
+        // Conservar elementos locales optimistas pendientes
+        const pendingLocals = currentLocalList.filter(loc => loc.id.startsWith('user-mot-') && !mapped.some(m => m.text === loc.text));
+
+        this.motivationsList.set([...pendingLocals, ...mapped].sort((a, b) => b.likes - a.likes || (b.createdAt || 0) - (a.createdAt || 0)));
+      }
+    } catch (e) {
+      console.warn('[Supabase Motivations Load Error]', e);
+    }
+  }
+
+  setupMotivationsRealtime() {
+    if (!this.supabaseService.isConfigured()) return;
+
+    if (this.motivationsChannel) {
+      try {
+        this.supabaseService.client.removeChannel(this.motivationsChannel);
+      } catch (e) {}
+    }
+
+    this.motivationsChannel = this.supabaseService.client
+      .channel('public:community_motivations_feed')
+      // 1. Inserción en tiempo real vía Postgres Changes
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'community_motivations' }, (payload: any) => {
+        const newRow = payload?.new;
+        if (newRow && newRow['id']) {
+          this.handleIncomingMotivation(newRow);
+        }
+      })
+      // 2. Actualización de likes vía Postgres Changes
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'community_motivations' }, (payload: any) => {
+        const newRow = payload?.new;
+        if (newRow && newRow['id']) {
+          this.handleUpdatedMotivation(newRow);
+        }
+      })
+      // 3. Eliminación vía Postgres Changes
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'community_motivations' }, (payload: any) => {
+        const oldRow = payload?.old;
+        if (oldRow && oldRow['id']) {
+          this.handleDeletedMotivation(oldRow['id']);
+        }
+      })
+      // 4. Difusión Directa Instantánea (Broadcast WebSocket < 50ms)
+      .on('broadcast', { event: 'new_motivation' }, ({ payload }: any) => {
+        if (payload && payload.id) {
+          this.handleIncomingMotivation(payload);
+        }
+      })
+      .on('broadcast', { event: 'like_motivation' }, ({ payload }: any) => {
+        if (payload && payload.id) {
+          this.handleUpdatedMotivation(payload);
+        }
+      })
+      .on('broadcast', { event: 'delete_motivation' }, ({ payload }: any) => {
+        if (payload && payload.id) {
+          this.handleDeletedMotivation(payload.id);
+        }
+      })
+      .subscribe();
+  }
+
+  handleIncomingMotivation(row: any) {
+    const currentUserId = this.supabaseService.currentUser()?.id;
+    const currentUserName = this.userName();
+    const isUser = Boolean((currentUserId && row.user_id === currentUserId) || (currentUserName && row.user_name === currentUserName));
+    
+    const savedLikedIds: string[] = JSON.parse(localStorage.getItem('user-liked-motivations') || '[]');
+    const likedByMe: boolean = Boolean(savedLikedIds.includes(row.id) || (isUser && row.likes > 0));
+
+    const newArrival: MotivationItem = {
+      id: row.id,
+      userName: row.user_name || 'Guerrero',
+      avatar: row.avatar || 'gato',
+      text: row.text,
+      category: row.category || 'metas',
+      timestamp: row.created_at ? new Date(row.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Justo ahora',
+      createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+      likes: row.likes ?? 1,
+      isUser: isUser,
+      likedByMe: likedByMe,
+      isNewArrival: true
+    };
+
+    this.motivationsList.update(list => {
+      const existingIdx = list.findIndex(m => m.id === row.id || (m.isUser && isUser && m.text === row.text && Math.abs((m.createdAt || 0) - (newArrival.createdAt || 0)) < 25000));
+      if (existingIdx !== -1) {
+        const copy = [...list];
+        copy[existingIdx] = { 
+          ...copy[existingIdx], 
+          id: row.id, 
+          likes: Math.max(copy[existingIdx].likes, row.likes ?? 1),
+          isNewArrival: true
+        };
+        return copy;
+      }
+      return [newArrival, ...list];
+    });
+
+    // Notificación emergente si es de otro guerrero conectado
+    if (!isUser) {
+      const author = row.user_name || 'Un Guerrero';
+      const shortText = row.text.length > 35 ? row.text.substring(0, 35) + '...' : row.text;
+      this.showToastFeedback(`💬 ${author}: "${shortText}"`, 'info');
+      this.addComunidadEvent(`💬 ${author} compartió una frase en el muro`, 'reaction');
+    }
+
+    // Retirar estado de nuevo tras 4.5 segundos
+    setTimeout(() => {
+      this.motivationsList.update(list => list.map(m => (m.id === row.id || m.text === row.text) ? { ...m, isNewArrival: false } : m));
+    }, 4500);
+  }
+
+  handleUpdatedMotivation(row: any) {
+    this.motivationsList.update(list => {
+      return list.map(m => {
+        if (m.id === row.id) {
+          return {
+            ...m,
+            likes: row.likes !== undefined ? row.likes : m.likes,
+            text: row.text || m.text,
+            category: row.category || m.category
+          };
+        }
+        return m;
+      });
+    });
+  }
+
+  handleDeletedMotivation(id: string) {
+    this.motivationsList.update(list => list.filter(m => m.id !== id));
   }
 
   saveCustomMotivations() {
@@ -1515,16 +1555,17 @@ export class Enfoque implements OnInit, OnDestroy {
     } catch (e) {}
   }
 
-  addMotivation() {
+  async addMotivation() {
     const text = this.newMotivationText().trim();
     if (!text) return;
 
     const user = this.userName() || 'Tú';
     const avatar = this.selectedAvatar() || 'gato';
     const category = this.newMotivationCategory();
+    const tempId = 'user-mot-' + Date.now();
 
     const newMot: MotivationItem = {
-      id: 'user-mot-' + Date.now(),
+      id: tempId,
       userName: user,
       avatar: avatar,
       text: text,
@@ -1533,32 +1574,106 @@ export class Enfoque implements OnInit, OnDestroy {
       createdAt: Date.now(),
       likes: 1,
       isUser: true,
-      likedByMe: true
+      likedByMe: true,
+      isNewArrival: true
     };
 
+    // 1. Inserción optimista en el cliente actual
     this.motivationsList.update(list => [newMot, ...list]);
     this.newMotivationText.set('');
     this.saveCustomMotivations();
     this.saveLikedMotivations();
 
     this.showToastFeedback('✨ ¡Tu motivación ha sido publicada en el muro!', 'success');
+
+    // 2. Difusión Broadcast instantánea a todos los clientes conectados (< 50ms)
+    if (this.motivationsChannel) {
+      try {
+        this.motivationsChannel.send({
+          type: 'broadcast',
+          event: 'new_motivation',
+          payload: {
+            id: tempId,
+            user_name: user,
+            avatar: avatar,
+            text: text,
+            category: category,
+            likes: 1,
+            created_at: new Date().toISOString()
+          }
+        });
+      } catch (e) {}
+    }
+
+    // 3. Persistir en Supabase
+    if (this.supabaseService.isConfigured()) {
+      try {
+        const res = await this.supabaseService.createCommunityMotivation({
+          id: tempId,
+          text,
+          user_name: user,
+          avatar,
+          category,
+          likes: 1
+        });
+        if (res.data && res.data.id) {
+          const finalId = res.data.id;
+          this.motivationsList.update(list => list.map(m => m.id === tempId ? { ...m, id: finalId } : m));
+          this.saveCustomMotivations();
+
+          if (this.motivationsChannel && finalId !== tempId) {
+            try {
+              this.motivationsChannel.send({
+                type: 'broadcast',
+                event: 'like_motivation',
+                payload: { id: finalId, likes: 1 }
+              });
+            } catch (e) {}
+          }
+        }
+      } catch (err) {
+        console.warn('[Supabase Create Motivation Error]', err);
+      }
+    }
+
+    setTimeout(() => {
+      this.motivationsList.update(list => list.map(m => (m.id === tempId || m.text === text) ? { ...m, isNewArrival: false } : m));
+    }, 4500);
   }
 
-  deleteMotivation(id: string) {
+  async deleteMotivation(id: string) {
     this.motivationsList.update(list => list.filter(m => m.id !== id));
     this.saveCustomMotivations();
     this.showToastFeedback('🗑️ Motivación eliminada', 'info');
+
+    if (this.motivationsChannel) {
+      try {
+        this.motivationsChannel.send({
+          type: 'broadcast',
+          event: 'delete_motivation',
+          payload: { id }
+        });
+      } catch (e) {}
+    }
+
+    if (this.supabaseService.isConfigured() && !id.startsWith('init-')) {
+      this.supabaseService.deleteCommunityMotivation(id).catch(err => {
+        console.warn('[Supabase Delete Motivation Error]', err);
+      });
+    }
   }
 
-  toggleLikeMotivation(item: MotivationItem) {
+  async toggleLikeMotivation(item: MotivationItem) {
+    let updatedLikes = item.likes;
     this.motivationsList.update(list => {
       return list.map(m => {
         if (m.id === item.id) {
           const liked = !m.likedByMe;
+          updatedLikes = liked ? m.likes + 1 : Math.max(0, m.likes - 1);
           return {
             ...m,
             likedByMe: liked,
-            likes: liked ? m.likes + 1 : Math.max(0, m.likes - 1)
+            likes: updatedLikes
           };
         }
         return m;
@@ -1568,11 +1683,22 @@ export class Enfoque implements OnInit, OnDestroy {
     if (!item.likedByMe) {
       this.showToastFeedback('❤️ ¡Te inspira esta motivación!', 'like');
     }
-  }
 
-  setMotivationAsObjective(text: string) {
-    this.objectiveInput.set(text);
-    this.confirmObjective();
+    if (this.motivationsChannel) {
+      try {
+        this.motivationsChannel.send({
+          type: 'broadcast',
+          event: 'like_motivation',
+          payload: { id: item.id, likes: updatedLikes }
+        });
+      } catch (e) {}
+    }
+
+    if (this.supabaseService.isConfigured() && !item.id.startsWith('init-')) {
+      this.supabaseService.likeCommunityMotivation(item.id, updatedLikes).catch(err => {
+        console.warn('[Supabase Like Motivation Error]', err);
+      });
+    }
   }
 
   pinMotivationAsMantra(text: string) {
@@ -1892,6 +2018,14 @@ export class Enfoque implements OnInit, OnDestroy {
   bossHealAmount = computed(() => {
     const avatarId = this.membership.selectedAvatar() || 'gato';
     return this.membership.getAvatarHealPoints(avatarId);
+  });
+  currentAvatarCoins = computed(() => {
+    const avatarId = this.membership.selectedAvatar() || 'gato';
+    return this.membership.getAvatarCoinsPerPomodoro(avatarId);
+  });
+  currentAvatarDamage = computed(() => {
+    const avatarId = this.membership.selectedAvatar() || 'gato';
+    return this.membership.getAvatarDamagePoints(avatarId);
   });
   objectiveConfirmed = signal(false);
 
@@ -2563,6 +2697,8 @@ export class Enfoque implements OnInit, OnDestroy {
     this.membership.syncProfileFromSupabase();
     this.initializeRealComunidadUsers();
     this.setupPresenceChannel();
+    this.loadMotivationsFromSupabase();
+    this.setupMotivationsRealtime();
     this.communityInterval = setInterval(() => {
       this.tickCommunity();
     }, 1000);
@@ -2737,14 +2873,15 @@ export class Enfoque implements OnInit, OnDestroy {
 
           const penaltyCoinsInterrupted = this.currentAvatarPausePenalty();
           const healHpInterrupted = this.bossHealAmount();
+          const currentBossName = this.bossService.activeBoss().name || 'El Jefe';
           this.membership.proCoins.update(coins => Math.max(0, coins - penaltyCoinsInterrupted));
 
           if (this.membership.isPremium()) {
             this.membership.addFocusPoints(-50);
             // Cura al jefe por agotarse la interrupción en comunidad (solo cuentas Premium afectan al jefe)
             if (this.coworkingMode() === 'comunitario') {
-              this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
-              this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} se distrajo por demasiado tiempo. ¡El Oni recupera fuerzas!`, 'reaction');
+              this.bossService.healBoss(this.userName() || 'Guerrero Anónimo', healHpInterrupted);
+              this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} excedió el tiempo de pausa (-${penaltyCoinsInterrupted} ProCoins). ${currentBossName} recuperó +${healHpInterrupted} HP.`, 'reaction');
             }
           }
 
@@ -2776,7 +2913,7 @@ export class Enfoque implements OnInit, OnDestroy {
           this.playAbandonmentSadSound();
 
           if (this.membership.isPremium() && this.coworkingMode() === 'comunitario') {
-            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -50 XP). El Jefe recuperó +${healHpInterrupted} HP.`, 'danger');
+            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -50 XP). ${currentBossName} recuperó +${healHpInterrupted} HP.`, 'danger');
           } else if (this.membership.isPremium()) {
             this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -50 XP).`, 'danger');
           } else {
@@ -2868,14 +3005,15 @@ export class Enfoque implements OnInit, OnDestroy {
     this.playAbandonmentSadSound();
 
     // 8. Efectos y notificaciones según tipo de cuenta
+    const bossName = this.bossService.activeBoss().name || 'El Jefe';
     if (this.membership.isPremium()) {
       // Castigo de -50 XP por abandonar (exclusivo Premium)
       this.membership.addFocusPoints(-50);
       // Cura al jefe por abandono en comunidad (solo usuarios Premium afectan al jefe)
       if (this.coworkingMode() === 'comunitario') {
-        this.bossService.healBoss(this.userName() || 'Guerrero Anónimo');
-        this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} ha abandonado la sesión de enfoque. ¡El Oni recuperó +${healHp} HP!`, 'reaction');
-        this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins, -50 XP). El Jefe de la Comunidad recuperó +${healHp} HP.`, 'danger');
+        this.bossService.healBoss(this.userName() || 'Guerrero Anónimo', healHp);
+        this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} abandonó su sesión (-${penaltyCoins} ProCoins). ${bossName} recuperó +${healHp} HP.`, 'reaction');
+        this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins, -50 XP). ${bossName} recuperó +${healHp} HP.`, 'danger');
       } else {
         this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins, -50 XP).`, 'danger');
       }
@@ -2961,7 +3099,9 @@ export class Enfoque implements OnInit, OnDestroy {
         const sessionId = `session-${Date.now()}`;
         const equippedAvatar = this.membership.selectedAvatar() || 'gato';
 
-        this.membership.rewardCompletedSession(sessionId, isShared, actualSeconds, equippedAvatar);
+        const reward = this.membership.rewardCompletedSession(sessionId, isShared, actualSeconds, equippedAvatar);
+        const coinsEarned = reward.coins;
+        const tomatoesEarned = reward.tomatoes;
         
         // Daño al Boss por completar el Pomodoro en la Comunidad (únicamente usuarios Premium pueden infligir daño)
         if (isShared) {
@@ -2970,12 +3110,16 @@ export class Enfoque implements OnInit, OnDestroy {
             this.bossService.dealDamage(damage);
             this.membership.addWeeklyHonorPoints(Math.round(damage / 10));
             
-            const eventText = `🗡️ ${this.userName()} completó su Pomodoro e infligió ${damage} de daño al Boss.`;
+            const eventText = `🗡️ ${this.userName()} completó su Pomodoro (+${coinsEarned} ProCoins) e infligió ${damage} DMG al Boss.`;
             this.addComunidadEvent(eventText, 'complete');
+            this.showToastFeedback(`🎉 ¡Pomodoro completado! Ganaste +${coinsEarned} ProCoins (+${tomatoesEarned} 🍅) e infligiste ${damage} DMG al Boss.`, 'success');
           } else {
-            const eventText = `🍅 ${this.userName()} completó su sesión de enfoque.`;
+            const eventText = `🍅 ${this.userName()} completó su sesión de enfoque (+${coinsEarned} ProCoins).`;
             this.addComunidadEvent(eventText, 'complete');
+            this.showToastFeedback(`🎉 ¡Sesión completada! Ganaste +${coinsEarned} ProCoins (+${tomatoesEarned} 🍅).`, 'success');
           }
+        } else {
+          this.showToastFeedback(`🎉 ¡Pomodoro completado! Ganaste +${coinsEarned} ProCoins (+${tomatoesEarned} 🍅).`, 'success');
         }
         
         // Recompensa adicional por objetivo cumplido (Pregunta 2)
@@ -4096,6 +4240,12 @@ export class Enfoque implements OnInit, OnDestroy {
     if (this.communityPresenceChannel && this.supabaseService.isConfigured()) {
       this.supabaseService.client.removeChannel(this.communityPresenceChannel);
       this.communityPresenceChannel = null;
+    }
+    if (this.motivationsChannel && this.supabaseService.isConfigured()) {
+      try {
+        this.supabaseService.client.removeChannel(this.motivationsChannel);
+        this.motivationsChannel = null;
+      } catch (e) {}
     }
 
     // Limpieza de escuchas de inactividad Zen

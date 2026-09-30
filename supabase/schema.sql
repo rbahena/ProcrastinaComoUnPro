@@ -3480,9 +3480,49 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
+-- ==============================================================================
+-- 💬 PASO 8: MURO DE MOTIVACIÓN COMUNITARIO
+-- ==============================================================================
+-- [TIPO DE OBJETO: TABLA (TABLE)]
+-- ¿Para qué sirve? Almacena los mensajes de motivación compartidos por los usuarios en la consola comunitaria.
+CREATE TABLE IF NOT EXISTS public.community_motivations (
+    id TEXT PRIMARY KEY DEFAULT ('mot-' || gen_random_uuid()::text),
+    user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    user_name TEXT NOT NULL,
+    avatar TEXT NOT NULL DEFAULT 'gato',
+    text TEXT NOT NULL,
+    category TEXT DEFAULT 'metas',
+    likes INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
+-- Índice para consultas ultrarrápidas del Top 10 con más likes
+CREATE INDEX IF NOT EXISTS idx_community_motivations_likes ON public.community_motivations(likes DESC, created_at DESC);
 
+-- Habilitar RLS (Seguridad a Nivel de Fila)
+ALTER TABLE public.community_motivations ENABLE ROW LEVEL SECURITY;
 
+-- Políticas de Seguridad RLS
+DO $$ BEGIN
+    CREATE POLICY "Permitir lectura publica de motivaciones" 
+    ON public.community_motivations FOR SELECT 
+    USING (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
+DO $$ BEGIN
+    CREATE POLICY "Permitir crear motivaciones" 
+    ON public.community_motivations FOR INSERT 
+    WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
+DO $$ BEGIN
+    CREATE POLICY "Permitir actualizar likes de motivaciones" 
+    ON public.community_motivations FOR UPDATE 
+    USING (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
+DO $$ BEGIN
+    CREATE POLICY "Permitir eliminar mi propia motivacion" 
+    ON public.community_motivations FOR DELETE 
+    USING (auth.uid() = user_id OR user_id IS NULL);
+EXCEPTION WHEN duplicate_object THEN null; END $$;

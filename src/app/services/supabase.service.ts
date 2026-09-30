@@ -1098,6 +1098,111 @@ export class SupabaseService {
   }
 
   // ==========================================
+  // MURO DE MOTIVACIÓN COMUNITARIO & SUPABASE
+  // ==========================================
+
+  async getCommunityMotivations(limit: number = 30): Promise<{ motivations: any[]; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { motivations: [], error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+    try {
+      const { data, error } = await this.supabase
+        .from('community_motivations')
+        .select('*')
+        .order('likes', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        return { motivations: [], error: error.message };
+      }
+      return { motivations: data || [], error: null };
+    } catch (e: any) {
+      return { motivations: [], error: e.message || 'Error al obtener motivaciones' };
+    }
+  }
+
+  async createCommunityMotivation(motivation: {
+    id?: string;
+    text: string;
+    user_name: string;
+    avatar: string;
+    category?: string;
+    likes?: number;
+  }): Promise<{ success: boolean; data?: any; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+    try {
+      const user = this.currentUser();
+      const payload: any = {
+        text: motivation.text,
+        user_name: motivation.user_name,
+        avatar: motivation.avatar,
+        category: motivation.category || 'metas',
+        likes: motivation.likes || 1,
+        created_at: new Date().toISOString()
+      };
+      if (user?.id) {
+        payload.user_id = user.id;
+      }
+      if (motivation.id) {
+        payload.id = motivation.id;
+      }
+
+      const { data, error } = await this.supabase
+        .from('community_motivations')
+        .insert([payload])
+        .select()
+        .single();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: true, data };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  async likeCommunityMotivation(motivationId: string, newLikesCount: number): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+    try {
+      const { error } = await this.supabase
+        .from('community_motivations')
+        .update({ likes: newLikesCount })
+        .eq('id', motivationId);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  async deleteCommunityMotivation(motivationId: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+    try {
+      const { error } = await this.supabase
+        .from('community_motivations')
+        .delete()
+        .eq('id', motivationId);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  // ==========================================
   // ARENA TEMPORAL, CORTAFUEGOS & BAÚL DE IDEAS
   // ==========================================
 

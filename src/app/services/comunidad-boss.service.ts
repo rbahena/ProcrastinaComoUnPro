@@ -30,9 +30,7 @@ export class ComunidadBossService {
   maxComunidadShield = 1000;
 
   // Logs de eventos en tiempo real de la Comunidad
-  bossLogs = signal<string[]>([
-    '⚔️ ¡La Comunidad de Concentración está activa!'
-  ]);
+  bossLogs = signal<string[]>([]);
 
   // Daño acumulado infligido por el usuario
   userDamageDealt = signal<number>(0);
@@ -204,10 +202,13 @@ export class ComunidadBossService {
   }
 
   // Curación del jefe por distracción o abandono del usuario (exclusivo de planes Premium en comunidad)
-  healBoss(playerName: string) {
+  healBoss(playerName: string, customHealAmount?: number) {
     if (!this.membership.isPremium()) {
       return; // Los planes básicos no afectan al jefe
     }
+
+    const equippedAvatar = this.membership.selectedAvatar() || 'gato';
+    const healAmount = customHealAmount ?? this.membership.getAvatarHealPoints(equippedAvatar);
 
     if (this.supabaseService.isConfigured()) {
       this.supabaseService.healBossFromDistraction(
@@ -219,7 +220,6 @@ export class ComunidadBossService {
     this.activeBoss.update(boss => {
       if (boss.status === 'defeated') return boss;
 
-      const healAmount = Math.round(boss.maxHp * 0.02); // 2% curación
       const newHp = Math.min(boss.maxHp, boss.currentHp + healAmount);
 
       this.addLog(`🩸 El jefe recuperó +${healAmount} HP debido a la distracción de ${playerName}.`);
