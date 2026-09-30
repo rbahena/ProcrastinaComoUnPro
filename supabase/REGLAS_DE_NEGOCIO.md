@@ -309,14 +309,11 @@ graph TD
 * **Ruptura de Racha:** Si transcurre un día pactado como activo sin registrar al menos 1 pomodoro completado (a las 23:59 hrs), la racha se reinicia a 1 en su siguiente sesión exitosa.
 * **Bono de Racha (Genbu):** Otorga **+5% de daño al Boss por cada día de racha** acumulado (hasta un tope de +50% de daño permanente).
 
-### 🥇 9.4 Podio Semanal y Recompensas del Medallero
-Los domingos a las 23:59 hrs se liquida la liga semanal comunitaria:
-* 🥇 **1er Lugar (Oro):** +100 Pro Coins, +1 Victoria de Podio, +1 Medalla de Oro.
-* 🥈 **2do Lugar (Plata):** +70 Pro Coins, +1 Victoria de Podio, +1 Medalla de Plata.
-* 🥉 **3er Lugar (Bronce):** +70 Pro Coins, +1 Victoria de Podio, +1 Medalla de Bronce.
-* 🎖️ **Top 4 al 10:** +50 Pro Coins de honor militar.
-* 👥 **Participantes activos:** +20 Pro Coins de constancia.
-* **Criterio de Desempate:** En caso de igualdad de puntos/pomodoros, califica quien registre menor tasa de pausas y mayor daño en combates de Boss.
+### 🥇 9.4 Podio de Honor y Disciplina en Tiempo Real
+El **Podio de Honor** en la pantalla de inicio opera como un ranking continuo en tiempo real basado en el total acumulado de **`profiles.focus_points`**:
+* 🥇 **Puntaje Persistente y Acumulado:** Cada sesión de enfoque finalizada incrementa de forma atómica y permanente los `focus_points` del perfil (+XP base, +bono de objetivo cumplido, daño al Boss y penalización por abandonos).
+* ⚡ **Reactividad Instantánea:** Supabase Realtime sincroniza automáticamente los cambios de puntos al terminar una sesión de enfoque, actualizando la posición y puntaje exacto del guerrero en el podio.
+* 🎖️ **Criterio de Ordenación y Desempate:** Se ordena por `focus_points DESC`, desempatando por `focus_tomatoes DESC` y fecha de antigüedad en la comunidad (`created_at ASC`).
 
 ### 👑 9.5 Récords Históricos de la Comunidad (Broken Records / Salón de la Fama)
 * **¿Cómo calificar para romper un récord?:** Superar o igualar la marca histórica más alta registrada por cualquier usuario en la base de datos de la plataforma.

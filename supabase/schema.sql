@@ -177,6 +177,11 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
+-- Índices de alto rendimiento para el Podio de Honor y Tablas de Clasificación
+CREATE INDEX IF NOT EXISTS idx_profiles_focus_points ON public.profiles(focus_points DESC);
+CREATE INDEX IF NOT EXISTS idx_profiles_ranking_focus_points ON public.profiles(is_premium, focus_points DESC, focus_tomatoes DESC);
+CREATE INDEX IF NOT EXISTS idx_profiles_ranking_focus_tomatoes ON public.profiles(is_premium, focus_tomatoes DESC, focus_points DESC);
+
 
 -- ------------------------------------------------------------------------------
 -- 4. FUNCIONES Y TRIGGERS PARA AUDITORÍA
@@ -1857,21 +1862,19 @@ BEGIN
             -- Pasiva Táctica: Bono de Coraje (Baja energía vencida)
             IF p_energy_level = 'low' THEN
                 v_grit_bonus := TRUE;
-                IF v_user.is_premium THEN
-                    v_xp_earned := v_xp_earned + 50;
-                END IF;
+                v_xp_earned := v_xp_earned + 50;
             END IF;
 
-            -- Bono de Objetivo Cumplido
+            -- Bono de Objetivo Cumplido (+20 XP persistente)
             IF p_objective_completed = 'yes' THEN
-                IF v_user.is_premium THEN
-                    v_xp_earned := v_xp_earned + 30;
-                END IF;
+                v_xp_earned := v_xp_earned + 20;
             END IF;
 
-            -- XP base de enfoque
-            IF v_user.is_premium THEN
-                v_xp_earned := v_xp_earned + 10;
+            -- XP base de enfoque (1 XP por minuto de concentración, mínimo 10, 25 para pomodoros estándar)
+            IF p_actual_seconds >= 1500 THEN
+                v_xp_earned := v_xp_earned + GREATEST(25, (p_actual_seconds / 60)::INTEGER);
+            ELSE
+                v_xp_earned := v_xp_earned + GREATEST(1, (p_actual_seconds / 60)::INTEGER);
             END IF;
         ELSE
             -- Sesión completada en menos de 2 minutos: sin monedas (prevención de granja)
@@ -1950,7 +1953,7 @@ BEGIN
         UPDATE public.profiles
         SET 
             pro_coins = GREATEST(0, pro_coins - v_coins_penalized),
-            focus_points = CASE WHEN is_premium THEN GREATEST(0, focus_points - 50) ELSE focus_points END,
+            focus_points = GREATEST(0, focus_points - 20),
             abandoned_sessions = abandoned_sessions + 1
         WHERE id = v_user_id;
     END IF;
@@ -2924,16 +2927,16 @@ BEGIN
     FROM public.focus_sessions 
     WHERE status = 'completed' AND completed_at >= CURRENT_DATE;
 
-    -- 3. Calcular posición exacta del usuario en el ranking por TOMATES
+    -- 3. Calcular posición exacta del usuario en el ranking por TOMATES (Usuarios Premium compiten arriba, Básicos al fondo)
     IF v_user_id IS NOT NULL THEN
         SELECT rank INTO v_user_rank FROM (
-            SELECT id, ROW_NUMBER() OVER (ORDER BY focus_tomatoes DESC, focus_points DESC, created_at ASC) as rank
+            SELECT id, ROW_NUMBER() OVER (ORDER BY is_premium DESC, focus_tomatoes DESC, focus_points DESC, created_at ASC) as rank
             FROM public.profiles
         ) ranks
         WHERE id = v_user_id;
         
         IF v_user_rank IS NULL THEN
-            v_user_rank := 1;
+            v_user_rank := v_total_users;
         END IF;
     END IF;
 
@@ -2950,16 +2953,16 @@ BEGIN
                 podium_wins, 
                 is_premium,
                 (id = v_user_id) AS is_current_user,
-                ROW_NUMBER() OVER (ORDER BY focus_tomatoes DESC, focus_points DESC, created_at ASC) as rank
+                ROW_NUMBER() OVER (ORDER BY is_premium DESC, focus_tomatoes DESC, focus_points DESC, created_at ASC) as rank
             FROM public.profiles
         )
         SELECT *
         FROM ranked_profiles
-        WHERE rank BETWEEN GREATEST(1, COALESCE(v_user_rank, 1) - 2) AND (COALESCE(v_user_rank, 1) + 2)
+        WHERE rank BETWEEN GREATEST(1, COALESCE(v_user_rank, v_total_users) - 2) AND (COALESCE(v_user_rank, v_total_users) + 2)
         ORDER BY rank ASC
     ) n;
 
-    -- 4. Podio Semanal: Top 5 usuarios PREMIUM por Score de Honor y Disciplina Semanal (Calculado de Lunes a Domingo)
+    -- 4. Podio de Honor y Disciplina: Top 5 usuarios PREMIUM por Puntos de Enfoque Históricos (focus_points)
     SELECT COALESCE(json_agg(p), '[]'::json) INTO v_podium FROM (
         SELECT 
             p.id, 
@@ -2977,37 +2980,13 @@ BEGIN
             p.bronze_medals, 
             p.is_premium,
             p.created_at,
-            COALESCE(
-                SUM(
-                    CASE 
-                        WHEN s.status = 'completed' THEN ROUND(s.actual_duration_seconds / 60)
-                        WHEN s.status = 'abandoned' THEN -20
-                        ELSE 0 
-                    END
-                    + CASE WHEN s.objective_completed = 'yes' THEN 20 ELSE 0 END
-                    + ROUND(COALESCE(s.boss_damage_dealt, 0) / 10)
-                ), 
-                (p.focus_tomatoes * 25 + COALESCE(p.completed_objectives, 0) * 20 - COALESCE(p.abandoned_sessions, 0) * 20)
-            ) AS weekly_score,
-            CASE 
-                WHEN COUNT(s.id) > 0 THEN COUNT(s.id) FILTER (WHERE s.status = 'completed')
-                ELSE p.focus_tomatoes 
-            END AS weekly_sessions,
-            CASE 
-                WHEN COUNT(s.id) > 0 THEN COUNT(s.id) FILTER (WHERE s.objective_completed = 'yes')
-                ELSE COALESCE(p.completed_objectives, 0)
-            END AS weekly_objectives,
-            CASE 
-                WHEN COUNT(s.id) > 0 THEN COUNT(s.id) FILTER (WHERE s.status = 'abandoned')
-                ELSE COALESCE(p.abandoned_sessions, 0)
-            END AS weekly_abandons
+            p.focus_points AS weekly_score,
+            p.focus_tomatoes AS weekly_sessions,
+            COALESCE(p.completed_objectives, 0) AS weekly_objectives,
+            COALESCE(p.abandoned_sessions, 0) AS weekly_abandons
         FROM public.profiles p
-        LEFT JOIN public.focus_sessions s 
-            ON s.user_id = p.id 
-            AND s.created_at >= DATE_TRUNC('week', CURRENT_DATE)
         WHERE p.is_premium = TRUE AND (p.focus_points > 0 OR p.focus_tomatoes > 0)
-        GROUP BY p.id
-        ORDER BY weekly_score DESC, p.focus_points DESC, p.focus_tomatoes DESC, p.created_at ASC
+        ORDER BY p.focus_points DESC, p.focus_tomatoes DESC, p.created_at ASC
         LIMIT 5
     ) p;
 

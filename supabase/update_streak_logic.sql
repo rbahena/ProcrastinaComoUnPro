@@ -168,9 +168,7 @@ BEGIN
 
             IF p_energy_level = 'low' THEN
                 v_grit_bonus := TRUE;
-                IF v_user.is_premium THEN
-                    v_xp_earned := v_xp_earned + 50;
-                END IF;
+                v_xp_earned := v_xp_earned + 50;
             END IF;
 
             IF p_pause_count = 0 THEN
@@ -178,13 +176,14 @@ BEGIN
             END IF;
 
             IF p_objective_completed = 'yes' THEN
-                IF v_user.is_premium THEN
-                    v_xp_earned := v_xp_earned + 30;
-                END IF;
+                v_xp_earned := v_xp_earned + 20;
             END IF;
 
-            IF v_user.is_premium THEN
-                v_xp_earned := v_xp_earned + 10;
+            -- XP base de enfoque (1 XP por minuto de concentración, mínimo 10, 25 para pomodoros estándar)
+            IF p_actual_seconds >= 1500 THEN
+                v_xp_earned := v_xp_earned + GREATEST(25, (p_actual_seconds / 60)::INTEGER);
+            ELSE
+                v_xp_earned := v_xp_earned + GREATEST(1, (p_actual_seconds / 60)::INTEGER);
             END IF;
         ELSE
             v_coins_earned := 0;
@@ -226,6 +225,7 @@ BEGIN
                 pro_coins = pro_coins + v_coins_earned,
                 focus_tomatoes = focus_tomatoes + v_tomatoes_earned,
                 focus_points = focus_points + v_xp_earned,
+                completed_objectives = completed_objectives + CASE WHEN p_objective_completed = 'yes' THEN 1 ELSE 0 END,
                 streak_days = v_new_streak,
                 longest_streak = v_new_longest_streak,
                 last_focus_date = v_today
@@ -237,7 +237,8 @@ BEGIN
             UPDATE public.profiles
             SET 
                 pro_coins = pro_coins + v_coins_earned,
-                focus_points = focus_points + v_xp_earned
+                focus_points = focus_points + v_xp_earned,
+                completed_objectives = completed_objectives + CASE WHEN p_objective_completed = 'yes' THEN 1 ELSE 0 END
             WHERE id = v_user_id;
         END IF;
 
@@ -253,7 +254,8 @@ BEGIN
             UPDATE public.profiles
             SET 
                 pro_coins = GREATEST(0, pro_coins - v_coins_penalized),
-                focus_points = CASE WHEN is_premium THEN GREATEST(0, focus_points - 50) ELSE focus_points END
+                focus_points = GREATEST(0, focus_points - 20),
+                abandoned_sessions = abandoned_sessions + 1
             WHERE id = v_user_id;
         END IF;
     END IF;

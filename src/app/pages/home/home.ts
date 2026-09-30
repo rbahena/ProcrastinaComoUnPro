@@ -77,7 +77,7 @@ export class Home implements OnInit, OnDestroy {
   // Vecinos en el ranking de tomates (2 arriba, tú, 2 abajo)
   rankNeighbors = signal<RankNeighborItem[]>([]);
 
-  // Podio Semanal (Top 3 real en orden [2º, 1º, 3º] para la UI)
+  // Podio de Honor (Top 3 histórico real en orden [2º, 1º, 3º] para la UI en vivo)
   topPodiumUsers = signal<PodiumDisplayItem[]>([]);
 
   // Siguientes 2 Lugares (4º y 5º puesto)
@@ -102,10 +102,16 @@ export class Home implements OnInit, OnDestroy {
   });
 
   rankingPosition = computed(() => {
+    if (!this.membership.isPremium()) {
+      return Math.max(1, this.totalCommunityUsers());
+    }
     return Math.max(1, this.liveUserRank());
   });
 
   percentageBeaten = computed(() => {
+    if (!this.membership.isPremium()) {
+      return 0;
+    }
     const total = Math.max(1, this.totalCommunityUsers());
     const pos = this.rankingPosition();
     if (total <= 1) return 100;
@@ -279,25 +285,51 @@ export class Home implements OnInit, OnDestroy {
       this.animateCounter(this.liveFocusedUsersCount, realUsersCount);
       this.animateCounter(this.liveCompletedObjectivesToday, realObjectivesToday);
 
-      // 2. Ranking real del usuario por tomates
-      this.liveUserRank.set(data.user_rank || 1);
+      // 2. Ranking real del usuario por tomates (si es básico va estrictamente al último puesto)
+      const userRank = !this.membership.isPremium() 
+        ? realUsersCount 
+        : (data.user_rank || 1);
+      this.liveUserRank.set(userRank);
 
       // 2b. Vecinos en el ranking de tomates (2 arriba, tú, 2 abajo)
       if (data.rank_neighbors && data.rank_neighbors.length > 0) {
-        this.rankNeighbors.set(data.rank_neighbors);
+        if (!this.membership.isPremium()) {
+          // Filtrar miembros para mostrar los que compiten arriba y colocar al usuario básico estrictamente al final absoluto
+          const otherMembers = data.rank_neighbors
+            .filter((n: RankNeighborItem) => !n.is_current_user)
+            .slice(0, 3);
+          
+          const selfItem: RankNeighborItem = {
+            id: 'me',
+            username: this.userName(),
+            selected_avatar: this.selectedAvatar(),
+            selected_theme: this.membership.selectedTheme(),
+            focus_tomatoes: this.membership.focusTomatoes(),
+            rank: realUsersCount,
+            is_current_user: true,
+            is_premium: false,
+            podium_wins: this.membership.podiumWins()
+          };
+
+          this.rankNeighbors.set([...otherMembers, selfItem]);
+        } else {
+          this.rankNeighbors.set(data.rank_neighbors);
+        }
       } else {
         this.rankNeighbors.set([{
           id: 'me',
           username: this.userName(),
           selected_avatar: this.selectedAvatar(),
+          selected_theme: this.membership.selectedTheme(),
           focus_tomatoes: this.membership.focusTomatoes(),
-          rank: this.liveUserRank(),
+          rank: userRank,
           is_current_user: true,
-          is_premium: this.membership.isPremium()
+          is_premium: this.membership.isPremium(),
+          podium_wins: this.membership.podiumWins()
         }]);
       }
 
-      // 3. Podio Semanal (Top 5 real de base de datos)
+      // 3. Podio de Honor y Disciplina (Top 5 real e histórico de base de datos)
       this.processPodiumData(data.podium || []);
 
       // 4. Récords Históricos (Top 5 real de base de datos)
@@ -317,22 +349,23 @@ export class Home implements OnInit, OnDestroy {
   }
 
   private formatPodiumUser(u: CommunityLeaderboardUser, position: number, place: string): PodiumDisplayItem {
-    const score = u.weekly_score !== undefined 
-      ? u.weekly_score 
-      : (((u.focus_tomatoes || 0) * 25) + ((u.completed_objectives || 0) * 20) - ((u.abandoned_sessions || 0) * 20));
+    const rawScore = (u.focus_points !== undefined && u.focus_points !== null)
+      ? u.focus_points
+      : (u.weekly_score !== undefined ? u.weekly_score : (((u.focus_tomatoes || 0) * 25) + ((u.completed_objectives || 0) * 20) - ((u.abandoned_sessions || 0) * 20)));
     
-    const sessions = u.weekly_sessions !== undefined ? u.weekly_sessions : (u.focus_tomatoes || 0);
-    const objectives = u.weekly_objectives !== undefined ? u.weekly_objectives : (u.completed_objectives || 0);
-    const abandons = u.weekly_abandons !== undefined ? u.weekly_abandons : (u.abandoned_sessions || 0);
+    const score = Math.max(0, rawScore);
+    const sessions = u.focus_tomatoes !== undefined ? u.focus_tomatoes : (u.weekly_sessions || 0);
+    const objectives = u.completed_objectives !== undefined ? u.completed_objectives : (u.weekly_objectives || 0);
+    const abandons = u.abandoned_sessions !== undefined ? u.abandoned_sessions : (u.weekly_abandons || 0);
 
     return {
       position,
       name: u.username || 'Guerrero',
       avatar: u.selected_avatar || 'gato',
       color: this.membership.getAvatarColorById(u.selected_avatar || 'gato'),
-      value: `${Math.max(0, score).toLocaleString()} pts`,
+      value: `${score.toLocaleString()} pts`,
       details: `${sessions} 🍅 • ${objectives} 🎯 • ${abandons} 🚫`,
-      score: Math.max(0, score),
+      score,
       place,
       wins: u.podium_wins || 0,
       isAssigned: true
@@ -355,12 +388,18 @@ export class Home implements OnInit, OnDestroy {
   }
 
   private processPodiumData(podiumUsers: CommunityLeaderboardUser[]) {
-    // Filtrar solo usuarios PREMIUM que tengan puntos, score o tomates registrados en BD y cumplan >5 unidades o >1 semana
-    const activeUsers = (podiumUsers || []).filter(u => 
-      u.is_premium === true && 
-      ((u.weekly_score || 0) > 0 || (u.focus_points || 0) > 0 || (u.focus_tomatoes || 0) > 0) &&
-      (this.isUserEligible(Math.floor((u.focus_points || 0) / 40) || (u.focus_tomatoes || 0), u.created_at) || this.isUserEligible(u.focus_tomatoes || 0, u.created_at))
-    );
+    // Filtrar solo usuarios PREMIUM que tengan puntos o tomates registrados en BD y cumplan >5 unidades o >1 semana
+    const activeUsers = (podiumUsers || [])
+      .filter(u => 
+        u.is_premium === true && 
+        ((u.focus_points || 0) > 0 || (u.weekly_score || 0) > 0 || (u.focus_tomatoes || 0) > 0) &&
+        (this.isUserEligible(Math.floor((u.focus_points || 0) / 40) || (u.focus_tomatoes || 0), u.created_at) || this.isUserEligible(u.focus_tomatoes || 0, u.created_at))
+      )
+      .sort((a, b) => {
+        const scoreA = (a.focus_points !== undefined && a.focus_points !== null) ? a.focus_points : (a.weekly_score ?? 0);
+        const scoreB = (b.focus_points !== undefined && b.focus_points !== null) ? b.focus_points : (b.weekly_score ?? 0);
+        return (scoreB - scoreA) || ((b.focus_tomatoes || 0) - (a.focus_tomatoes || 0));
+      });
 
     if (activeUsers.length === 0) {
       this.topPodiumUsers.set([]);

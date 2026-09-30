@@ -206,14 +206,17 @@ export class MembershipService {
 
   addFocusTomatoes(tomatoes: number) {
     this.focusTomatoes.update(t => t + tomatoes);
+    this.queueGamificationSync();
   }
 
   addCompletedObjective() {
     this.completedObjectives.update(c => c + 1);
+    this.queueGamificationSync();
   }
 
   addAbandonedSession() {
     this.abandonedSessions.update(a => a + 1);
+    this.queueGamificationSync();
   }
 
   // Cosméticos desbloqueados (Solo los 6 iniciales por defecto)
@@ -437,6 +440,40 @@ export class MembershipService {
       });
     } catch (e) {
       console.warn('[MembershipService] Error sincronizando preferencias de enfoque con Supabase:', e);
+    }
+  }
+
+  private gamificationSyncTimeout: any = null;
+
+  queueGamificationSync() {
+    if (!this.supabaseService.isConfigured()) return;
+    const user = this.supabaseService.currentUser();
+    if (!user) return;
+
+    if (this.gamificationSyncTimeout) {
+      clearTimeout(this.gamificationSyncTimeout);
+    }
+    this.gamificationSyncTimeout = setTimeout(async () => {
+      await this.syncGamificationToSupabase();
+    }, 600);
+  }
+
+  async syncGamificationToSupabase() {
+    if (!this.supabaseService.isConfigured()) return;
+    const user = this.supabaseService.currentUser();
+    if (!user) return;
+
+    try {
+      await this.supabaseService.updateProfile(user.id, {
+        focus_points: this.focusPoints(),
+        pro_coins: this.proCoins(),
+        focus_tomatoes: this.focusTomatoes(),
+        completed_objectives: this.completedObjectives(),
+        abandoned_sessions: this.abandonedSessions(),
+        streak_days: this.streak()
+      });
+    } catch (e) {
+      console.warn('[MembershipService] Error sincronizando estadísticas de gamificación con Supabase:', e);
     }
   }
 
@@ -910,14 +947,19 @@ export class MembershipService {
     }
   }
 
-  // Sumar puntos de enfoque
+  // Sumar puntos de enfoque (XP persistente de ranking)
   addFocusPoints(pts: number) {
     this.focusPoints.update(p => Math.max(0, p + pts));
+    this.weeklyHonorPoints.update(p => Math.max(0, p + pts));
+    this.saveConsolidatedUserData();
+    this.queueGamificationSync();
   }
 
   // Sumar pro coins
   addProCoins(coins: number) {
     this.proCoins.update(c => c + coins);
+    this.saveConsolidatedUserData();
+    this.queueGamificationSync();
   }
 
   // Calcular Tomates ganados según duración:
@@ -960,19 +1002,17 @@ export class MembershipService {
       this.addProCoins(coinsEarned);
     }
 
-    let pointsEarned = 0;
-    if (this.isPremium()) {
-      pointsEarned = isFullPomodoro ? Math.max(10, tomatoesEarned * 10) : Math.max(1, Math.round((actualSeconds / 1500) * 10));
-      this.addFocusPoints(pointsEarned);
-    }
-
-    // Sumar minutos al score semanal de honor
-    const weeklyMinutes = Math.floor(actualSeconds / 60);
-    this.addWeeklyHonorPoints(weeklyMinutes);
+    // Puntos de enfoque (XP acumulativo y persistente):
+    // >= 25 min (1 tomate): 25 pts por tomate
+    // < 25 min: 1 pt por minuto completado
+    const actualMinutes = Math.floor(actualSeconds / 60);
+    const pointsEarned = isFullPomodoro ? Math.max(25, tomatoesEarned * 25) : Math.max(1, actualMinutes);
+    this.addFocusPoints(pointsEarned);
 
     // Actualizar racha diaria únicamente si cumple el requisito de al menos 25 minutos
     this.recordPomodoroForStreak(actualSeconds);
     this.saveConsolidatedUserData();
+    this.queueGamificationSync();
 
     return { points: pointsEarned, coins: coinsEarned, tomatoes: tomatoesEarned, isNew: true };
   }
@@ -1039,19 +1079,14 @@ export class MembershipService {
 
     this.rewardedSessions.add(key);
     this.completedObjectives.update(n => n + 1);
-    this.addWeeklyHonorPoints(20);
 
-    // Monedas por objetivo completado
-    const coinsEarned = 0;
-
-    let pointsEarned = 0;
-    if (this.isPremium()) {
-      pointsEarned = 30;
-      this.addFocusPoints(pointsEarned);
-    }
+    // Recompensa persistente de +20 XP por objetivo completado
+    const pointsEarned = 20;
+    this.addFocusPoints(pointsEarned);
 
     this.saveConsolidatedUserData();
-    return { points: pointsEarned, coins: coinsEarned, isNew: true };
+    this.queueGamificationSync();
+    return { points: pointsEarned, coins: 0, isNew: true };
   }
 
   // Seguimiento de retos y progreso de cualidades
@@ -1484,15 +1519,45 @@ export class MembershipService {
       this.userLanguage.set(p.language);
     }
     if (p.is_premium !== undefined) this.isPremium.set(p.is_premium);
-    if (p.coins !== undefined) this.proCoins.set(p.coins);
-    else if (p.pro_coins !== undefined) this.proCoins.set(p.pro_coins);
-    if (p.points !== undefined) this.focusPoints.set(p.points);
-    else if (p.focus_points !== undefined) this.focusPoints.set(p.focus_points);
-    if (p.tomatoes !== undefined) this.focusTomatoes.set(p.tomatoes);
-    else if (p.focus_tomatoes !== undefined) this.focusTomatoes.set(p.focus_tomatoes);
-    if (p.completed_objectives !== undefined) this.completedObjectives.set(p.completed_objectives);
-    if (p.abandoned_sessions !== undefined) this.abandonedSessions.set(p.abandoned_sessions);
+
+    // Sincronización bidireccional y auto-curación de monedas
+    const serverCoins = Number(p.pro_coins ?? p.coins ?? 0);
+    const localCoins = this.proCoins();
+    const finalCoins = Math.max(serverCoins, localCoins);
+    this.proCoins.set(finalCoins);
+
+    // Sincronización y auto-curación de Puntos de Enfoque (focus_points)
+    const serverPoints = Number(p.focus_points ?? p.points ?? 0);
+    const localPoints = this.focusPoints();
+    const localHonor = this.weeklyHonorPoints();
+    const finalPoints = Math.max(serverPoints, localPoints, localHonor);
+    this.focusPoints.set(finalPoints);
+    this.weeklyHonorPoints.set(finalPoints);
+
+    // Sincronización de Tomates (focus_tomatoes)
+    const serverTomatoes = Number(p.focus_tomatoes ?? p.tomatoes ?? 0);
+    const localTomatoes = this.focusTomatoes();
+    const finalTomatoes = Math.max(serverTomatoes, localTomatoes);
+    this.focusTomatoes.set(finalTomatoes);
+
+    // Objetivos completados
+    const serverObjectives = Number(p.completed_objectives ?? 0);
+    const localObjectives = this.completedObjectives();
+    const finalObjectives = Math.max(serverObjectives, localObjectives);
+    this.completedObjectives.set(finalObjectives);
+
+    // Sesiones abandonadas
+    const serverAbandons = Number(p.abandoned_sessions ?? 0);
+    const localAbandons = this.abandonedSessions();
+    const finalAbandons = Math.max(serverAbandons, localAbandons);
+    this.abandonedSessions.set(finalAbandons);
+
     if (p.created_at) this.userCreatedAt.set(p.created_at);
+
+    // Si los progresos locales son mayores a los del servidor, persistir inmediatamente en Supabase
+    if (finalPoints > serverPoints || finalCoins > serverCoins || finalTomatoes > serverTomatoes || finalObjectives > serverObjectives) {
+      this.queueGamificationSync();
+    }
 
     if (p.last_focus_date) this.lastFocusDate.set(p.last_focus_date);
     const rawStreak = p.streak !== undefined ? p.streak : (p.streak_days !== undefined ? p.streak_days : this.streak());
@@ -1644,6 +1709,15 @@ export class MembershipService {
           if (bundle.gamification.completedObjectives !== undefined) this.completedObjectives.set(bundle.gamification.completedObjectives);
           if (bundle.gamification.abandonedSessions !== undefined) this.abandonedSessions.set(bundle.gamification.abandonedSessions);
           if (bundle.gamification.weeklyHonorPoints !== undefined) this.weeklyHonorPoints.set(bundle.gamification.weeklyHonorPoints);
+
+          // Si focusPoints es 0 pero tenía puntos acumulados en weeklyHonorPoints, recuperar
+          if (this.focusPoints() === 0 && this.weeklyHonorPoints() > 0) {
+            this.focusPoints.set(this.weeklyHonorPoints());
+            this.queueGamificationSync();
+          } else if (this.weeklyHonorPoints() === 0 && this.focusPoints() > 0) {
+            this.weeklyHonorPoints.set(this.focusPoints());
+          }
+
           if (bundle.gamification.lastWeekStart !== undefined) this.lastWeekStart.set(bundle.gamification.lastWeekStart);
           if (bundle.gamification.streak !== undefined) this.streak.set(bundle.gamification.streak);
           if (bundle.gamification.lastFocusDate !== undefined) this.lastFocusDate.set(bundle.gamification.lastFocusDate);

@@ -379,6 +379,8 @@ export interface UserProfile {
   pro_coins?: number;
   focus_points?: number;
   focus_tomatoes?: number;
+  completed_objectives?: number;
+  abandoned_sessions?: number;
   streak_days?: number;
   longest_streak?: number;
   last_focus_date?: string;
@@ -1746,7 +1748,7 @@ export class SupabaseService {
       }
 
       const allProfiles: CommunityLeaderboardUser[] = (profiles || []).map(p => {
-        const score = ((p.focus_tomatoes || 0) * 25) + ((p.completed_objectives || 0) * 20) - ((p.abandoned_sessions || 0) * 20);
+        const score = (p.focus_points !== undefined && p.focus_points !== null) ? p.focus_points : (((p.focus_tomatoes || 0) * 25) + ((p.completed_objectives || 0) * 20) - ((p.abandoned_sessions || 0) * 20));
         return {
           ...p,
           weekly_score: Math.max(0, score),
@@ -1760,8 +1762,9 @@ export class SupabaseService {
       // Filtrar únicamente perfiles con membresía Premium para el Podio y Récords
       const premiumProfiles = allProfiles.filter(p => p.is_premium === true);
 
-      // Calcular user_rank basado estrictamente en focus_tomatoes
+      // Calcular user_rank: usuarios Premium compiten arriba, usuarios Básicos van al fondo
       const rankedByTomatoes = [...allProfiles].sort((a, b) => 
+        (Number(b.is_premium ?? false) - Number(a.is_premium ?? false)) ||
         ((b.focus_tomatoes || 0) - (a.focus_tomatoes || 0)) || 
         ((b.focus_points || 0) - (a.focus_points || 0))
       );
@@ -1794,13 +1797,13 @@ export class SupabaseService {
         };
       });
 
-      // Podio: Top 5 usuarios PREMIUM por Weekly Score (> 5 unidades o 1 semana)
+      // Podio: Top 5 usuarios PREMIUM por focus_points (> 5 unidades o 1 semana)
       const podium = [...premiumProfiles]
         .filter(p => 
           this.isEligibleForRankingCategory(Math.floor((p.focus_points || 0) / 40) || (p.focus_tomatoes || 0), p.created_at) || 
           this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)
         )
-        .sort((a, b) => ((b.weekly_score ?? 0) - (a.weekly_score ?? 0)) || ((b.focus_points || 0) - (a.focus_points || 0)))
+        .sort((a, b) => ((b.focus_points ?? 0) - (a.focus_points ?? 0)) || ((b.focus_tomatoes || 0) - (a.focus_tomatoes || 0)))
         .slice(0, 5);
 
       // Top récords: Top 10 usuarios PREMIUM por focus_tomatoes (> 5 o 1 semana)

@@ -155,8 +155,12 @@
           <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Desempeño de Hoy</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="card-title-text" style="color: var(--yellow); font-weight: 700;">
+          <span *ngIf="membership.isPremium()" class="card-title-text" style="color: var(--yellow); font-weight: 700;">
             Puesto #{{ rankingPosition() }}
+          </span>
+          <span *ngIf="!membership.isPremium()" class="card-title-text custom-tooltip-host" style="color: var(--muted); font-weight: 700; font-size: 9.5px; display: flex; align-items: center; gap: 4px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); padding: 1.5px 6px; border-radius: 4px;" [attr.data-tooltip]="'Plan Básico: Tu enfoque suma para tu registro personal (# ' + rankingPosition() + '). La competencia oficial del ranking está reservada para miembros Premium.'">
+            <i class="fa-solid fa-crown" style="font-size: 8.5px; color: var(--yellow); opacity: 0.75;"></i>
+            #{{ rankingPosition() }} • Plan Básico
           </span>
           <button routerLink="/fechas" class="card-action-play" data-tooltip="Ver Estadísticas y Rankings" data-tooltip-align="left">
             <i class="fa-solid fa-chart-simple"></i>
@@ -168,59 +172,89 @@
       <div style="display: flex; flex-direction: column; gap: 3px; flex: 1; justify-content: center; margin: 6px 0;">
         
         <div *ngIf="rankNeighbors().length > 0" class="rank-ladder-mini-container">
-          <div *ngFor="let item of rankNeighbors()"
-               class="rank-ladder-mini-row custom-tooltip-host"
-               [class.is-self]="item.is_current_user"
-               [attr.data-tooltip]="item.is_current_user ? '¡Tu puesto actual (#' + item.rank + ') con ' + item.focus_tomatoes + ' tomates!' : (item.username + ' • #' + item.rank + ' con ' + item.focus_tomatoes + ' 🍅')">
-            
-            <!-- Posición # -->
-            <span class="ladder-rank-tag" 
-                  [class.tag-gold]="item.rank === 1" 
-                  [class.tag-silver]="item.rank === 2" 
-                  [class.tag-bronze]="item.rank === 3" 
-                  [class.tag-self]="item.is_current_user">
-              #{{ item.rank }}
-            </span>
-
-            <!-- Avatar -->
-            <div class="avatar-sprite ladder-mini-avatar"
-                 [class]="'sprite-' + item.selected_avatar"
-                 [style.background-color]="membership.getAvatarColorById(item.selected_avatar)"
-                 (click)="zoomAvatar(item.selected_avatar, item.username, getAvatarTitle(item.selected_avatar), membership.getAvatarColorById(item.selected_avatar), item.podium_wins || 0)">
-            </div>
-
-            <!-- Nombre de Usuario -->
-            <div class="ladder-mini-name">
-              <span class="ladder-name-text" [style.color]="item.is_current_user ? 'var(--yellow)' : 'var(--text)'">
-                {{ item.username }}
+          <ng-container *ngFor="let item of rankNeighbors()">
+            <!-- LÍNEA DIVISORIA NARANJA PARA USUARIOS DEL PLAN BÁSICO -->
+            <div *ngIf="item.is_current_user && !membership.isPremium()" 
+                 style="display: flex; align-items: center; gap: 6px; margin: 4px 0 2px 0; width: 100%;">
+              <div style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #f97316 40%, #ea580c);"></div>
+              <span style="font-size: 7.5px; font-weight: 800; color: #f97316; text-transform: uppercase; letter-spacing: 0.4px; display: flex; align-items: center; gap: 3.5px; white-space: nowrap;">
+                <i class="fa-solid fa-crown" style="font-size: 6.5px;"></i>
+                Para entrar en la competencia debes ser Premium
               </span>
-              <span *ngIf="item.is_current_user" class="ladder-you-pill">TÚ</span>
+              <div style="flex: 1; height: 1px; background: linear-gradient(90deg, #ea580c, #f97316 60%, transparent);"></div>
             </div>
 
-            <!-- Total de Tomates -->
-            <div class="ladder-mini-tomatoes">
-              <span style="font-weight: 800;" [style.color]="item.is_current_user ? 'var(--yellow)' : 'var(--text)'">
-                🍅 {{ item.focus_tomatoes }}
+            <div class="rank-ladder-mini-row custom-tooltip-host"
+                 [class.is-self]="item.is_current_user"
+                 [style.background]="(item.is_current_user && !membership.isPremium()) ? 'rgba(249, 115, 22, 0.05)' : ''"
+                 [style.border-color]="(item.is_current_user && !membership.isPremium()) ? 'rgba(249, 115, 22, 0.25)' : ''"
+                 [attr.data-tooltip]="item.is_current_user ? (!membership.isPremium() ? '¡Gran esfuerzo con tus ' + item.focus_tomatoes + ' tomates! Para entrar a la competencia oficial y subir puestos en el ranking se requiere Plan Premium. ¡Haz clic para unirte!' : '¡Tu puesto actual (#' + item.rank + ') con ' + item.focus_tomatoes + ' tomates!') : (item.username + ' • #' + item.rank + ' con ' + item.focus_tomatoes + ' 🍅')">
+              
+              <!-- Posición # -->
+              <span class="ladder-rank-tag" 
+                    [class.tag-gold]="item.rank === 1 && item.is_premium !== false" 
+                    [class.tag-silver]="item.rank === 2 && item.is_premium !== false" 
+                    [class.tag-bronze]="item.rank === 3 && item.is_premium !== false" 
+                    [class.tag-self]="item.is_current_user"
+                    [style.color]="(item.is_current_user && !membership.isPremium()) ? '#f97316' : ''">
+                #{{ item.rank }}
               </span>
-            </div>
 
-          </div>
+              <!-- Avatar -->
+              <div class="avatar-sprite ladder-mini-avatar"
+                   [class]="'sprite-' + item.selected_avatar"
+                   [style.background-color]="membership.getAvatarColorById(item.selected_avatar)"
+                   (click)="zoomAvatar(item.selected_avatar, item.username, getAvatarTitle(item.selected_avatar), membership.getAvatarColorById(item.selected_avatar), item.podium_wins || 0)">
+              </div>
+
+              <!-- Nombre de Usuario -->
+              <div class="ladder-mini-name">
+                <span class="ladder-name-text" [style.color]="item.is_current_user ? (membership.isPremium() ? 'var(--yellow)' : '#f97316') : 'var(--text)'">
+                  {{ item.username }}
+                </span>
+                <span *ngIf="item.is_current_user && membership.isPremium()" class="ladder-you-pill">TÚ</span>
+                <span *ngIf="item.is_current_user && !membership.isPremium()" class="ladder-you-pill" style="background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.4); color: #f97316; font-size: 7.5px; padding: 1px 5px;">TÚ • BÁSICO</span>
+              </div>
+
+              <!-- Total de Tomates -->
+              <div class="ladder-mini-tomatoes">
+                <span style="font-weight: 800;" [style.color]="item.is_current_user ? (membership.isPremium() ? 'var(--yellow)' : '#f97316') : 'var(--text)'">
+                  🍅 {{ item.focus_tomatoes }}
+                </span>
+              </div>
+
+            </div>
+          </ng-container>
         </div>
 
         <!-- Fallback si aún no hay datos cargados -->
         <div *ngIf="rankNeighbors().length === 0" class="rank-ladder-mini-container">
-          <div class="rank-ladder-mini-row is-self">
-            <span class="ladder-rank-tag tag-self">#{{ rankingPosition() }}</span>
+          <!-- Línea divisoria naranja si es básico -->
+          <div *ngIf="!membership.isPremium()" 
+               style="display: flex; align-items: center; gap: 6px; margin: 2px 0 3px 0; width: 100%;">
+            <div style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #f97316 40%, #ea580c);"></div>
+            <span style="font-size: 7.5px; font-weight: 800; color: #f97316; text-transform: uppercase; letter-spacing: 0.4px; display: flex; align-items: center; gap: 3.5px; white-space: nowrap;">
+              <i class="fa-solid fa-crown" style="font-size: 6.5px;"></i>
+              Para entrar en la competencia debes ser Premium
+            </span>
+            <div style="flex: 1; height: 1px; background: linear-gradient(90deg, #ea580c, #f97316 60%, transparent);"></div>
+          </div>
+
+          <div class="rank-ladder-mini-row is-self"
+               [style.background]="!membership.isPremium() ? 'rgba(249, 115, 22, 0.05)' : ''"
+               [style.border-color]="!membership.isPremium() ? 'rgba(249, 115, 22, 0.25)' : ''">
+            <span class="ladder-rank-tag tag-self" [style.color]="!membership.isPremium() ? '#f97316' : ''">#{{ rankingPosition() }}</span>
             <div class="avatar-sprite ladder-mini-avatar"
                  [class]="'sprite-' + selectedAvatar()"
                  [style.background-color]="getSelectedAvatarColor()">
             </div>
             <div class="ladder-mini-name">
-              <span class="ladder-name-text" style="color: var(--yellow);">{{ userName() }}</span>
-              <span class="ladder-you-pill">TÚ</span>
+              <span class="ladder-name-text" [style.color]="membership.isPremium() ? 'var(--yellow)' : '#f97316'">{{ userName() }}</span>
+              <span *ngIf="membership.isPremium()" class="ladder-you-pill">TÚ</span>
+              <span *ngIf="!membership.isPremium()" class="ladder-you-pill" style="background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.4); color: #f97316; font-size: 7.5px; padding: 1px 5px;">TÚ • BÁSICO</span>
             </div>
             <div class="ladder-mini-tomatoes">
-              <span style="font-weight: 800; color: var(--yellow);">🍅 {{ membership.focusTomatoes() }}</span>
+              <span style="font-weight: 800;" [style.color]="membership.isPremium() ? 'var(--yellow)' : '#f97316'">🍅 {{ membership.focusTomatoes() }}</span>
             </div>
           </div>
         </div>
@@ -229,9 +263,22 @@
 
       <!-- FOOTER: Sincronización y superación de la comunidad -->
       <div style="border-top: 1px dashed var(--border); padding-top: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%; font-size: 9.5px;">
-        <span style="color: var(--muted); font-size: 9px; font-weight: 600;">
+        <span *ngIf="membership.isPremium()" style="color: var(--muted); font-size: 9px; font-weight: 600;">
           Superas al <strong style="color: var(--yellow);">{{ percentageBeaten() }}%</strong> hoy
         </span>
+        <div *ngIf="!membership.isPremium()" style="display: flex; align-items: center; gap: 5px;">
+          <span style="color: var(--muted); font-size: 9px; font-weight: 500;">Modo personal •</span>
+          <a routerLink="/membresia" 
+             class="custom-tooltip-host"
+             data-tooltip="Desbloquea la competencia oficial, torneos y clasificaciones con Pro"
+             style="color: var(--yellow); font-size: 9px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 3.5px; transition: all 0.2s; cursor: pointer;"
+             onmouseover="this.style.textDecoration='underline';"
+             onmouseout="this.style.textDecoration='none';">
+            <i class="fa-solid fa-crown" style="font-size: 8px;"></i>
+            <span>Entrar a la competencia</span>
+            <i class="fa-solid fa-arrow-right" style="font-size: 7.5px; opacity: 0.85;"></i>
+          </a>
+        </div>
         <div style="font-size: 9px; color: var(--muted); display: flex; align-items: center; gap: 4px; opacity: 0.85;">
           <span class="pulse-green-dot" style="width: 4px; height: 4px; box-shadow: 0 0 4px var(--green);"></span>
           <span>En vivo • {{ lastUpdated() }}</span>
@@ -351,15 +398,23 @@
           <div style="display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-trophy" style="color: var(--yellow); font-size: 14px;"></i>
             <div>
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Podio Semanal</h4>
-                <span style="font-size: 9px; font-weight: 800; color: #ffd700; background: rgba(255, 215, 0, 0.12); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 4px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.5px;">Honor & Disciplina ⚡</span>
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Podio de Honor</h4>
+                <span style="font-size: 9px; font-weight: 800; color: #22c55e; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 4px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.5px;">EN VIVO ⚡</span>
+                <a *ngIf="!membership.isPremium()" 
+                   routerLink="/membresia"
+                   class="custom-tooltip-host"
+                   data-tooltip="El Podio de Honor premia a los miembros más disciplinados. ¡Pasa a Premium para participar y clasificar en el ranking!"
+                   style="font-size: 9px; font-weight: 800; color: #f97316; background: rgba(249, 115, 22, 0.12); border: 1px solid rgba(249, 115, 22, 0.35); border-radius: 4px; padding: 1px 6px; text-transform: uppercase; letter-spacing: 0.4px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; transition: all 0.2s;">
+                  <i class="fa-solid fa-crown" style="font-size: 7.5px;"></i>
+                  <span>Para participar sé Premium</span>
+                </a>
                 <span class="flashy-help-badge" 
-                      data-tooltip="¿Cómo subir al Podio? Suma puntos de productividad por tiempo enfocado, +20 pts por objetivo cumplido, daño al Boss y -20 pts por abandonar. ¡Premia la disciplina real!">
+                      data-tooltip="¿Cómo subir al Podio? Puntos históricos acumulados en tiempo real por tiempo enfocado, +20 pts por objetivo cumplido, daño al Boss y -20 pts por abandonar. ¡Premia la disciplina real!">
                   <i class="fa-solid fa-circle-question"></i>
                 </span>
               </div>
-              <p style="font-size: 10.5px; color: var(--muted); margin: 2px 0 0 0;">Top disciplina: tiempo enfocado, tareas cumplidas y cero abandonos</p>
+              <p style="font-size: 10.5px; color: var(--muted); margin: 2px 0 0 0;">Top histórico en tiempo real: tiempo enfocado, tareas cumplidas y disciplina</p>
             </div>
           </div>
           <button routerLink="/fechas" class="card-action-play" data-tooltip="Ver Estadísticas y Rankings" data-tooltip-align="left">
@@ -377,7 +432,7 @@
                 <i class="fa-solid fa-crown" style="color: var(--yellow); font-size: 11px;"></i>
                 <span class="podio-section-title">Los Coronados</span>
               </div>
-              <span class="podio-top3-badge">Top 3 Semanal</span>
+              <span class="podio-top3-badge">Top 3 en Vivo</span>
             </div>
             
             <div class="podio-columns-row">
