@@ -3471,7 +3471,7 @@ CREATE TABLE IF NOT EXISTS public.community_motivations (
     avatar TEXT NOT NULL DEFAULT 'gato',
     text TEXT NOT NULL,
     category TEXT DEFAULT 'metas',
-    likes INTEGER NOT NULL DEFAULT 1,
+    likes INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -3505,3 +3505,91 @@ DO $$ BEGIN
     ON public.community_motivations FOR DELETE 
     USING (auth.uid() = user_id OR user_id IS NULL);
 EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+-- ==============================================================================
+-- 💬 TABLA DE LIKES / ME MOTIVA COMUNITARIOS (MULTI-DISPOSITIVO Y SIN DUPLICADOS)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.community_motivation_likes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    motivation_id TEXT NOT NULL REFERENCES public.community_motivations(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT unique_motivation_user_like UNIQUE (motivation_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_motivation_likes_motivation ON public.community_motivation_likes(motivation_id);
+CREATE INDEX IF NOT EXISTS idx_motivation_likes_user ON public.community_motivation_likes(user_id);
+
+ALTER TABLE public.community_motivation_likes ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+    CREATE POLICY "Permitir lectura publica de likes" 
+    ON public.community_motivation_likes FOR SELECT 
+    USING (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Permitir dar like autenticado" 
+    ON public.community_motivation_likes FOR INSERT 
+    WITH CHECK (auth.uid() = user_id);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Permitir remover mi propio like" 
+    ON public.community_motivation_likes FOR DELETE 
+    USING (auth.uid() = user_id);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+-- RPC para alternar Like de forma atómica (Toggle Like)
+CREATE OR REPLACE FUNCTION public.toggle_motivation_like(
+    p_motivation_id TEXT
+)
+RETURNS JSON AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_liked BOOLEAN;
+    v_total_likes INTEGER;
+BEGIN
+    IF v_user_id IS NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
+    END IF;
+
+    -- Verificar si ya existe el like
+    IF EXISTS (
+        SELECT 1 FROM public.community_motivation_likes
+        WHERE motivation_id = p_motivation_id AND user_id = v_user_id
+    ) THEN
+        -- Quitar like
+        DELETE FROM public.community_motivation_likes
+        WHERE motivation_id = p_motivation_id AND user_id = v_user_id;
+        v_liked := FALSE;
+    ELSE
+        -- Dar like
+        INSERT INTO public.community_motivation_likes (motivation_id, user_id)
+        VALUES (p_motivation_id, v_user_id)
+        ON CONFLICT (motivation_id, user_id) DO NOTHING;
+        v_liked := TRUE;
+    END IF;
+
+    -- Recalcular total real de likes
+    SELECT COUNT(*)::INTEGER INTO v_total_likes
+    FROM public.community_motivation_likes
+    WHERE motivation_id = p_motivation_id;
+
+    -- Actualizar contador en community_motivations
+    UPDATE public.community_motivations
+    SET likes = v_total_likes
+    WHERE id = p_motivation_id;
+
+    RETURN json_build_object(
+        'success', TRUE,
+        'motivation_id', p_motivation_id,
+        'liked', v_liked,
+        'likes_count', v_total_likes
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Eliminar trigger de like inicial automático (los mensajes surgen con 0 likes)
+DROP TRIGGER IF EXISTS trg_new_community_motivation ON public.community_motivations;
+DROP FUNCTION IF EXISTS public.handle_new_community_motivation();

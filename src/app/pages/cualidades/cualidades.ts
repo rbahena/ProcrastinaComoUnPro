@@ -172,6 +172,11 @@ interface CountryOption {
                     <span class="tele-num">{{ membership.focusTomatoes() }}</span>
                   </div>
 
+                  <div class="tele-pill objective-pill" [class.is-zero]="membership.completedObjectives() === 0" data-tooltip="Total histórico de objetivos cumplidos">
+                    <span class="tele-icon">🎯</span>
+                    <span class="tele-num">{{ membership.completedObjectives() }}</span>
+                  </div>
+
                   <div class="tele-pill trophy-pill gold-pill" [class.is-zero]="membership.goldMedals() === 0" data-tooltip="Trofeos de oro ganados">
                     <span class="tele-icon"><i class="fa-solid fa-trophy"></i></span>
                     <span class="tele-num">{{ membership.goldMedals() }}</span>
@@ -1018,6 +1023,7 @@ interface CountryOption {
       line-height: 1;
     }
     .tomato-pill .tele-num { color: #f87171; }
+    .objective-pill .tele-num { color: #38bdf8; }
     .coin-pill .tele-icon i { color: #fbbf24; }
     .coin-pill .tele-num { color: #fbbf24; }
     .streak-pill .tele-icon i { color: #f97316; }

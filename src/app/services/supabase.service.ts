@@ -1108,6 +1108,7 @@ export class SupabaseService {
       return { motivations: [], error: 'SUPABASE_NOT_CONFIGURED' };
     }
     try {
+      const user = this.currentUser();
       const { data, error } = await this.supabase
         .from('community_motivations')
         .select('*')
@@ -1117,7 +1118,30 @@ export class SupabaseService {
       if (error) {
         return { motivations: [], error: error.message };
       }
-      return { motivations: data || [], error: null };
+
+      // Obtener los likes reales del usuario autenticado si existen
+      let userLikedIds: string[] = [];
+      if (user?.id) {
+        try {
+          const { data: likesData } = await this.supabase
+            .from('community_motivation_likes')
+            .select('motivation_id')
+            .eq('user_id', user.id);
+          
+          if (likesData) {
+            userLikedIds = likesData.map((l: any) => l.motivation_id);
+          }
+        } catch (e) {
+          // Si la tabla de likes no existe aún en Supabase, continuar suavemente
+        }
+      }
+
+      const formatted = (data || []).map((m: any) => ({
+        ...m,
+        liked_by_me: userLikedIds.includes(m.id)
+      }));
+
+      return { motivations: formatted, error: null };
     } catch (e: any) {
       return { motivations: [], error: e.message || 'Error al obtener motivaciones' };
     }
@@ -1141,7 +1165,7 @@ export class SupabaseService {
         user_name: motivation.user_name,
         avatar: motivation.avatar,
         category: motivation.category || 'metas',
-        likes: motivation.likes || 1,
+        likes: motivation.likes ?? 0,
         created_at: new Date().toISOString()
       };
       if (user?.id) {
@@ -1160,7 +1184,88 @@ export class SupabaseService {
       if (error) {
         return { success: false, error: error.message };
       }
+
       return { success: true, data };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  async toggleCommunityMotivationLike(motivationId: string): Promise<{ success: boolean; liked?: boolean; likes_count?: number; error?: string }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+    try {
+      const user = this.currentUser();
+      if (!user) {
+        return { success: false, error: 'AUTH_REQUIRED' };
+      }
+
+      // 1. Intentar ejecutar el RPC atómico toggle_motivation_like
+      const { data, error } = await this.supabase.rpc('toggle_motivation_like', {
+        p_motivation_id: motivationId
+      });
+
+      if (!error && data && data.success) {
+        return { success: true, liked: data.liked, likes_count: data.likes_count };
+      }
+
+      // 2. Fallback seguro si la función RPC aún no se ha ejecutado en Supabase SQL Editor
+      let isLiked = false;
+      let finalLikes = 0;
+
+      try {
+        const { data: existingLike, error: selectErr } = await this.supabase
+          .from('community_motivation_likes')
+          .select('id')
+          .eq('motivation_id', motivationId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!selectErr) {
+          if (existingLike) {
+            await this.supabase
+              .from('community_motivation_likes')
+              .delete()
+              .eq('motivation_id', motivationId)
+              .eq('user_id', user.id);
+            isLiked = false;
+          } else {
+            await this.supabase
+              .from('community_motivation_likes')
+              .insert([{ motivation_id: motivationId, user_id: user.id }]);
+            isLiked = true;
+          }
+
+          // Recalcular conteo exacto de likes
+          const { count } = await this.supabase
+            .from('community_motivation_likes')
+            .select('*', { count: 'exact', head: true })
+            .eq('motivation_id', motivationId);
+
+          finalLikes = count ?? 0;
+        } else {
+          // Si la tabla aún no existe, fallback directo sobre community_motivations
+          const { data: mot } = await this.supabase
+            .from('community_motivations')
+            .select('likes')
+            .eq('id', motivationId)
+            .single();
+          isLiked = true;
+          finalLikes = (mot?.likes ?? 0) + 1;
+        }
+      } catch (err) {
+        // Fallback básico
+        isLiked = true;
+        finalLikes = 1;
+      }
+
+      await this.supabase
+        .from('community_motivations')
+        .update({ likes: finalLikes })
+        .eq('id', motivationId);
+
+      return { success: true, liked: isLiked, likes_count: finalLikes };
     } catch (e: any) {
       return { success: false, error: e.message };
     }

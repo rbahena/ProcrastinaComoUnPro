@@ -64,6 +64,9 @@ TRUNCATE TABLE public.profiles CASCADE;
 -- I. Perfiles de Usuario (Preferencias de Enfoque, Monedas, Rachas, etc.)
 TRUNCATE TABLE public.community_motivations CASCADE;
 
+TRUNCATE TABLE public.community_motivations_likes CASCADE;
+
+
 
 -- ==============================================================================
 -- 2. RESTABLECER SALUD Y ESCUDO DE LOS JEFES COMUNITARIOS

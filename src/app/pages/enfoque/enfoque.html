@@ -9378,7 +9378,7 @@
         </div>
 
         <!-- Texto de la motivación -->
-        <p style="margin: 0; font-size: var(--modal-subtext-size); color: rgba(255,255,255,0.9); line-height: 1.35; font-style: italic;">
+        <p style="margin: 0; font-size: 11px; font-family: 'Roboto', 'Plus Jakarta Sans', sans-serif; font-weight: 500; color: rgba(255,255,255,0.92); line-height: 1.4; letter-spacing: 0.2px;">
           "{{ mot.text }}"
         </p>
 
@@ -9389,9 +9389,9 @@
                   [style.background]="mot.likedByMe ? 'rgba(239, 68, 68, 0.16)' : 'rgba(255, 255, 255, 0.03)'"
                   [style.borderColor]="mot.likedByMe ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.08)'"
                   [style.color]="mot.likedByMe ? '#f87171' : 'var(--muted)'"
-                  [title]="mot.likedByMe ? 'Te motivó este mensaje (clic para quitar)' : 'Indicar que te motivó este mensaje'">
+                  [attr.data-tooltip]="mot.likedByMe ? 'Me motivó' : 'Me motiva'"
+                  data-tooltip-align="left">
             <i [class]="mot.likedByMe ? 'fa-solid fa-heart' : 'fa-regular fa-heart'" [style.color]="mot.likedByMe ? '#ef4444' : 'inherit'"></i>
-            <span>{{ mot.likedByMe ? 'Me motivó' : 'Me motiva' }}</span>
             <span style="font-weight: 800; margin-left: 2px;" [style.color]="mot.likedByMe ? '#fff' : 'inherit'">{{ mot.likes }}</span>
           </button>
         </div>

@@ -1394,6 +1394,7 @@ export class Enfoque implements OnInit, OnDestroy {
         const mapped: MotivationItem[] = motivations.map(m => {
           const isUser = (currentUserId && m.user_id === currentUserId) || (currentUserName && m.user_name === currentUserName);
           const existingLocal = currentLocalList.find(loc => loc.id === m.id);
+          const likedByMe = m.liked_by_me !== undefined ? m.liked_by_me : (savedLikedIds.includes(m.id) || !!existingLocal?.likedByMe);
           return {
             id: m.id,
             userName: m.user_name || 'Guerrero',
@@ -1402,9 +1403,9 @@ export class Enfoque implements OnInit, OnDestroy {
             category: m.category || 'metas',
             timestamp: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Reciente',
             createdAt: m.created_at ? new Date(m.created_at).getTime() : Date.now(),
-            likes: m.likes ?? 1,
+            likes: m.likes ?? 0,
             isUser: !!isUser,
-            likedByMe: savedLikedIds.includes(m.id) || !!existingLocal?.likedByMe,
+            likedByMe: !!likedByMe,
             isNewArrival: existingLocal?.isNewArrival
           };
         });
@@ -1413,6 +1414,7 @@ export class Enfoque implements OnInit, OnDestroy {
         const pendingLocals = currentLocalList.filter(loc => loc.id.startsWith('user-mot-') && !mapped.some(m => m.text === loc.text));
 
         this.motivationsList.set([...pendingLocals, ...mapped].sort((a, b) => b.likes - a.likes || (b.createdAt || 0) - (a.createdAt || 0)));
+        this.saveLikedMotivations();
       }
     } catch (e) {
       console.warn('[Supabase Motivations Load Error]', e);
@@ -1476,7 +1478,7 @@ export class Enfoque implements OnInit, OnDestroy {
     const isUser = Boolean((currentUserId && row.user_id === currentUserId) || (currentUserName && row.user_name === currentUserName));
     
     const savedLikedIds: string[] = JSON.parse(localStorage.getItem('user-liked-motivations') || '[]');
-    const likedByMe: boolean = Boolean(savedLikedIds.includes(row.id) || (isUser && row.likes > 0));
+    const likedByMe: boolean = Boolean(savedLikedIds.includes(row.id));
 
     const newArrival: MotivationItem = {
       id: row.id,
@@ -1486,7 +1488,7 @@ export class Enfoque implements OnInit, OnDestroy {
       category: row.category || 'metas',
       timestamp: row.created_at ? new Date(row.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Justo ahora',
       createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
-      likes: row.likes ?? 1,
+      likes: row.likes ?? 0,
       isUser: isUser,
       likedByMe: likedByMe,
       isNewArrival: true
@@ -1499,7 +1501,7 @@ export class Enfoque implements OnInit, OnDestroy {
         copy[existingIdx] = { 
           ...copy[existingIdx], 
           id: row.id, 
-          likes: Math.max(copy[existingIdx].likes, row.likes ?? 1),
+          likes: row.likes !== undefined ? row.likes : copy[existingIdx].likes,
           isNewArrival: true
         };
         return copy;
@@ -1572,9 +1574,9 @@ export class Enfoque implements OnInit, OnDestroy {
       category: category,
       timestamp: 'Justo ahora',
       createdAt: Date.now(),
-      likes: 1,
+      likes: 0,
       isUser: true,
-      likedByMe: true,
+      likedByMe: false,
       isNewArrival: true
     };
 
@@ -1582,7 +1584,6 @@ export class Enfoque implements OnInit, OnDestroy {
     this.motivationsList.update(list => [newMot, ...list]);
     this.newMotivationText.set('');
     this.saveCustomMotivations();
-    this.saveLikedMotivations();
 
     this.showToastFeedback('✨ ¡Tu motivación ha sido publicada en el muro!', 'success');
 
@@ -1598,7 +1599,7 @@ export class Enfoque implements OnInit, OnDestroy {
             avatar: avatar,
             text: text,
             category: category,
-            likes: 1,
+            likes: 0,
             created_at: new Date().toISOString()
           }
         });
@@ -1614,7 +1615,7 @@ export class Enfoque implements OnInit, OnDestroy {
           user_name: user,
           avatar,
           category,
-          likes: 1
+          likes: 0
         });
         if (res.data && res.data.id) {
           const finalId = res.data.id;
@@ -1626,7 +1627,7 @@ export class Enfoque implements OnInit, OnDestroy {
               this.motivationsChannel.send({
                 type: 'broadcast',
                 event: 'like_motivation',
-                payload: { id: finalId, likes: 1 }
+                payload: { id: finalId, likes: 0 }
               });
             } catch (e) {}
           }
@@ -1664,23 +1665,26 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   async toggleLikeMotivation(item: MotivationItem) {
-    let updatedLikes = item.likes;
+    const wasLiked = !!item.likedByMe;
+    const optimisticLiked = !wasLiked;
+    const optimisticLikes = optimisticLiked ? item.likes + 1 : Math.max(0, item.likes - 1);
+
+    // Actualización reactiva optimista instantánea
     this.motivationsList.update(list => {
       return list.map(m => {
         if (m.id === item.id) {
-          const liked = !m.likedByMe;
-          updatedLikes = liked ? m.likes + 1 : Math.max(0, m.likes - 1);
           return {
             ...m,
-            likedByMe: liked,
-            likes: updatedLikes
+            likedByMe: optimisticLiked,
+            likes: optimisticLikes
           };
         }
         return m;
       });
     });
     this.saveLikedMotivations();
-    if (!item.likedByMe) {
+
+    if (optimisticLiked) {
       this.showToastFeedback('❤️ ¡Te inspira esta motivación!', 'like');
     }
 
@@ -1689,15 +1693,34 @@ export class Enfoque implements OnInit, OnDestroy {
         this.motivationsChannel.send({
           type: 'broadcast',
           event: 'like_motivation',
-          payload: { id: item.id, likes: updatedLikes }
+          payload: { id: item.id, likes: optimisticLikes }
         });
       } catch (e) {}
     }
 
     if (this.supabaseService.isConfigured() && !item.id.startsWith('init-')) {
-      this.supabaseService.likeCommunityMotivation(item.id, updatedLikes).catch(err => {
+      try {
+        const res = await this.supabaseService.toggleCommunityMotivationLike(item.id);
+        if (res.success) {
+          if (res.likes_count !== undefined || res.liked !== undefined) {
+            this.motivationsList.update(list => {
+              return list.map(m => {
+                if (m.id === item.id) {
+                  return {
+                    ...m,
+                    likes: res.likes_count ?? m.likes,
+                    likedByMe: res.liked ?? m.likedByMe
+                  };
+                }
+                return m;
+              });
+            });
+            this.saveLikedMotivations();
+          }
+        }
+      } catch (err) {
         console.warn('[Supabase Like Motivation Error]', err);
-      });
+      }
     }
   }
 
