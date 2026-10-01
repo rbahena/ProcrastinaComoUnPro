@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { SupabaseService, FocusSessionData, IdeaPriority } from '../../services/supabase.service';
+import { NotificationService } from '../../services/notification.service';
 import { Navbar } from '../../components/navbar/navbar';
 import { BACKGROUND_SOUNDS, END_SESSION_SOUNDS, BackgroundSoundOption, EndSessionSoundOption } from './sounds.data';
 
@@ -88,6 +89,7 @@ export class Enfoque implements OnInit, OnDestroy {
   public supabaseService = inject(SupabaseService);
   public membership = inject(MembershipService);
   public bossService = inject(ComunidadBossService);
+  public notificationService = inject(NotificationService);
   private router = inject(Router);
   currentSessionNonceId: string | null = null;
   isSettlingSession = signal<boolean>(false);
@@ -1524,9 +1526,14 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   handleUpdatedMotivation(row: any) {
+    let targetMot: MotivationItem | undefined;
+    let oldLikes = 0;
+
     this.motivationsList.update(list => {
       return list.map(m => {
         if (m.id === row.id) {
+          targetMot = m;
+          oldLikes = m.likes;
           return {
             ...m,
             likes: row.likes !== undefined ? row.likes : m.likes,
@@ -1537,6 +1544,11 @@ export class Enfoque implements OnInit, OnDestroy {
         return m;
       });
     });
+
+    // Si la motivación es del usuario y recibió un corazón, notificar
+    if (targetMot && targetMot.isUser && row.likes !== undefined && row.likes > oldLikes) {
+      this.notificationService.notifyMotivationHeart(targetMot.text, undefined, row.likes);
+    }
   }
 
   handleDeletedMotivation(id: string) {
@@ -1686,6 +1698,9 @@ export class Enfoque implements OnInit, OnDestroy {
 
     if (optimisticLiked) {
       this.showToastFeedback('❤️ ¡Te inspira esta motivación!', 'like');
+      if (item.isUser) {
+        this.notificationService.notifyMotivationHeart(item.text, 'Un compañero', optimisticLikes);
+      }
     }
 
     if (this.motivationsChannel) {

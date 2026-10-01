@@ -71,6 +71,114 @@
     </div>
   </div>
   
+  <!-- CONTENEDOR DE CAMPANA DE NOTIFICACIONES -->
+  <div class="navbar-notification-container" style="position: relative; z-index: 1010; margin-right: 12px;">
+    <button type="button"
+            (click)="onBellToggle($event)"
+            class="navbar-bell-btn"
+            [class.has-unread]="notificationService.hasUnread()"
+            [class.is-muted]="notificationService.isPaused()"
+            [attr.data-tooltip]="notificationService.isPaused() ? 'Notificaciones pausadas (Silencio)' : (notificationService.hasUnread() ? (notificationService.unreadCount() + ' notificaciones nuevas') : 'Notificaciones')"
+            data-tooltip-align="bottom-left"
+            aria-label="Abrir notificaciones">
+      <i [class]="notificationService.isPaused() ? 'fa-solid fa-bell-slash' : 'fa-solid fa-bell'"></i>
+      <span *ngIf="notificationService.hasUnread()" class="bell-unread-dot">
+        {{ notificationService.unreadCount() > 9 ? '9+' : notificationService.unreadCount() }}
+      </span>
+    </button>
+
+    <!-- Panel Desplegable de Notificaciones -->
+    <div *ngIf="notificationService.isOpen()"
+         class="navbar-notifications-panel"
+         (click)="$event.stopPropagation()">
+      <!-- Cabecera del Panel -->
+      <div class="notif-panel-header">
+        <div class="notif-panel-title-wrap">
+          <i [class]="notificationService.isPaused() ? 'fa-solid fa-bell-slash notif-panel-bell-icon is-muted' : 'fa-solid fa-bell notif-panel-bell-icon'"></i>
+          <span class="notif-panel-title">Notificaciones</span>
+          <span *ngIf="notificationService.hasUnread()" class="notif-unread-count-pill">
+            {{ notificationService.unreadCount() }} nuevas
+          </span>
+        </div>
+        <div class="notif-panel-actions">
+          <!-- Botón rápido de Pausa / Activar con emisión de sonido al reanudar -->
+          <button type="button"
+                  (click)="notificationService.togglePaused($event)"
+                  class="notif-pause-toggle-btn"
+                  [class.is-paused]="notificationService.isPaused()"
+                  [attr.data-tooltip]="notificationService.isPaused() ? 'Reanudar notificaciones y sonido' : 'Pausar notificaciones (Silencio)'"
+                  data-tooltip-align="bottom">
+            <i [class]="notificationService.isPaused() ? 'fa-solid fa-bell-slash' : 'fa-solid fa-volume-high'"></i>
+            <span>{{ notificationService.isPaused() ? 'Pausadas' : 'Activas' }}</span>
+          </button>
+
+          <button *ngIf="notificationService.hasUnread()"
+                  (click)="notificationService.markAllAsRead()"
+                  class="notif-action-btn"
+                  title="Marcar todas como leídas">
+            <i class="fa-solid fa-check-double"></i>
+          </button>
+          <button *ngIf="notificationService.notifications().length > 0"
+                  (click)="notificationService.clearAll()"
+                  class="notif-action-btn notif-clear-btn"
+                  title="Limpiar todas las notificaciones">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de Notificaciones -->
+      <div class="notif-panel-body">
+        <!-- Estado Vacío -->
+        <div *ngIf="notificationService.notifications().length === 0" class="notif-empty-state">
+          <div class="notif-empty-icon">
+            <i class="fa-regular fa-bell-slash"></i>
+          </div>
+          <span class="notif-empty-title">Todo en calma</span>
+          <span class="notif-empty-desc">No hay notificaciones pendientes. Tu mente está despejada para enfocarte.</span>
+        </div>
+
+        <!-- Items de Notificación -->
+        <div *ngFor="let notif of notificationService.notifications()"
+             (click)="onNotificationClick(notif)"
+             class="notif-card-item"
+             [class.notif-unread]="!notif.isRead">
+          <!-- Icono tipo badge -->
+          <div class="notif-item-icon-wrap" 
+               [style.color]="notif.iconColor" 
+               [style.background]="notif.iconBg">
+            <i [class]="notif.icon"></i>
+          </div>
+
+          <!-- Contenido central -->
+          <div class="notif-item-content">
+            <div class="notif-item-header">
+              <span class="notif-item-title">{{ notif.title }}</span>
+              <span class="notif-item-time">{{ notificationService.formatTimeAgo(notif.createdAt) }}</span>
+            </div>
+            <p class="notif-item-message">{{ notif.message }}</p>
+          </div>
+
+          <!-- Acciones laterales (punto de no leído + botón eliminar) -->
+          <div class="notif-item-actions" (click)="$event.stopPropagation()">
+            <span *ngIf="!notif.isRead" class="notif-item-unread-dot" title="No leído"></span>
+            <button class="notif-item-delete-btn" 
+                    (click)="notificationService.removeNotification(notif.id, $event)"
+                    title="Eliminar notificación">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie del Panel -->
+      <div class="notif-panel-footer">
+        <i class="fa-solid fa-shield-heart" style="color: var(--accent); font-size: 11px;"></i>
+        <span>Filosofía de Ruido Cero: solo avisos esenciales.</span>
+      </div>
+    </div>
+  </div>
+
   <!-- CONTENEDOR DE PERFIL CON MENU DESPLEGABLE -->
   <div style="position: relative; z-index: 1010;">
     <div (click)="onAvatarMenuToggle($event)" 

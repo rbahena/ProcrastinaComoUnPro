@@ -1,6 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { MembershipService } from './membership.service';
 import { SupabaseService } from './supabase.service';
+import { NotificationService } from './notification.service';
 
 export interface ComunidadBoss {
   name: string;
@@ -16,6 +17,7 @@ export interface ComunidadBoss {
 export class ComunidadBossService {
   private membership = inject(MembershipService);
   private supabaseService = inject(SupabaseService);
+  private notificationService = inject(NotificationService);
 
   // State signals - sincronizados 100% con Supabase
   activeBoss = signal<ComunidadBoss>({
@@ -190,6 +192,7 @@ export class ComunidadBossService {
         this.addLog(`🏆 ¡VICTORIA! La comunidad ha derrotado a ${boss.name}.`);
         this.addLog(`💰 Recompensa otorgada: +150 Pro Coins a todos los participantes.`);
         this.membership.proCoins.update(c => c + 150);
+        this.notificationService.notifyBossDefeated(boss.name, 150);
         return { ...boss, currentHp: 0, status: 'defeated' };
       } else {
         const text = `⚔️ Has infligido ${finalAmount} de daño con tu Pomodoro.`;
@@ -253,6 +256,7 @@ export class ComunidadBossService {
       if (newHp <= 0) {
         this.addLog(`🏆 ¡VICTORIA! La comunidad unida derrotó a ${boss.name}.`);
         this.membership.proCoins.update(c => c + 150);
+        this.notificationService.notifyBossDefeated(boss.name, 150);
         return { ...boss, currentHp: 0, status: 'defeated' };
       }
 
