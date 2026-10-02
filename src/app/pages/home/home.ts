@@ -179,6 +179,10 @@ export class Home implements OnInit, OnDestroy {
     this.userName = this.membership.userName;
     this.selectedAvatar = this.membership.selectedAvatar;
     this.sidebarCollapsed = this.membership.sidebarCollapsed;
+
+    const initialDur = parseInt(this.membership.getFocusSetting('focus-duration', '25'), 10) || 25;
+    this.totalSessionTime.set(initialDur * 60);
+    this.timeLeft.set(initialDur * 60);
   }
 
   toggleSidebar() {
@@ -534,13 +538,15 @@ export class Home implements OnInit, OnDestroy {
   selectMode(mode: 'focus' | 'break') {
     this.stopTimerLoop();
     if (mode === 'focus') {
+      const dur = parseInt(this.membership.getFocusSetting('focus-duration', '25'), 10) || 25;
       this.isBreak.set(false);
-      this.totalSessionTime.set(25 * 60);
-      this.timeLeft.set(25 * 60);
+      this.totalSessionTime.set(dur * 60);
+      this.timeLeft.set(dur * 60);
     } else {
+      const brk = parseInt(this.membership.getFocusSetting('break-duration', '5'), 10) || 5;
       this.isBreak.set(true);
-      this.totalSessionTime.set(5 * 60);
-      this.timeLeft.set(5 * 60);
+      this.totalSessionTime.set(brk * 60);
+      this.timeLeft.set(brk * 60);
     }
   }
 

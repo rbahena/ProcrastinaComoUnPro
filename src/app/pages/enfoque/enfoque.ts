@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit, OnDestroy, WritableSignal, inject, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, signal, computed, effect, OnInit, OnDestroy, WritableSignal, inject, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -124,19 +124,36 @@ export class Enfoque implements OnInit, OnDestroy {
       this.activeBackground.set(savedBg);
     }
 
-    // Configuración de pomodoro y descanso del usuario
-    const savedDuration = this.membership.getFocusSetting('focus-duration', '25');
-    if (!savedDuration || savedDuration === '1') {
-      this.focusDuration.set(25);
-      this.totalSessionTime.set(25 * 60);
-      this.timeLeft.set(25 * 60);
-      this.membership.setFocusSetting('focus-duration', '25');
-    }
-    const savedBreak = this.membership.getFocusSetting('break-duration', '5');
-    if (!savedBreak || savedBreak === '1') {
-      this.breakDuration.set(5);
-      this.membership.setFocusSetting('break-duration', '5');
-    }
+    // Sincronización reactiva de pomodoro y descanso con las preferencias del usuario
+    effect(() => {
+      const prefs = this.membership.focusPreferences();
+      if (!prefs) return;
+      const dur = parseInt(this.membership.getFocusSetting('focus-duration', '25'), 10) || 25;
+      const brk = parseInt(this.membership.getFocusSetting('break-duration', '5'), 10) || 5;
+      const lBrk = parseInt(this.membership.getFocusSetting('long-break-duration', '15'), 10) || 15;
+      const lInt = parseInt(this.membership.getFocusSetting('long-break-interval', '4'), 10) || 4;
+
+      this.focusDuration.set(dur);
+      this.breakDuration.set(brk);
+      this.longBreakDuration.set(lBrk);
+      this.longBreakInterval.set(lInt);
+
+      // Si estamos en modo preparación (setup) y no hay sesión activa corriendo en storage, actualizar el reloj
+      if (this.arenaState() === 'setup') {
+        const hasRunningTarget = typeof window !== 'undefined' && !!localStorage.getItem('focus-session-target-end');
+        if (!hasRunningTarget) {
+          if (!this.isBreak()) {
+            this.totalSessionTime.set(dur * 60);
+            this.timeLeft.set(dur * 60);
+          } else {
+            const isLong = this.completedPomodoros() > 0 && (this.completedPomodoros() % lInt === 0);
+            const breakMins = isLong ? lBrk : brk;
+            this.totalSessionTime.set(breakMins * 60);
+            this.timeLeft.set(breakMins * 60);
+          }
+        }
+      }
+    });
   }
 
   // Acompañante de sesión compartida
@@ -1932,9 +1949,9 @@ export class Enfoque implements OnInit, OnDestroy {
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
   }
 
-  // Lógica del Temporizador (25 minutos = 1500 segundos)
-  timeLeft = signal(25 * 60);
-  totalSessionTime = signal(25 * 60);
+  // Lógica del Temporizador
+  timeLeft = signal((parseInt(this.membership.getFocusSetting('focus-duration', '25'), 10) || 25) * 60);
+  totalSessionTime = signal((parseInt(this.membership.getFocusSetting('focus-duration', '25'), 10) || 25) * 60);
   timerRunning = signal(false);
   isBreak = signal(false);
   private pomodoroTimer: any = null;
@@ -3404,17 +3421,9 @@ export class Enfoque implements OnInit, OnDestroy {
     return avatar ? avatar.color : '#ff007f';
   }
 
-  // Cambiar tema global
+  // Cambiar tema global y persistir en Supabase
   changeTheme(theme: 'samurai' | 'cyberpunk' | 'aurora' | 'zen') {
-    this.currentTheme.set(theme);
-    localStorage.setItem('procrastina-theme', theme);
-    const body = document.body;
-    body.classList.forEach(className => {
-      if (className.startsWith('theme-')) {
-        body.classList.remove(className);
-      }
-    });
-    body.classList.add(`theme-${theme}`);
+    this.membership.setTheme(theme);
   }
 
   // Generadores de Ruido (Web Audio API)

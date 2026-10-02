@@ -884,7 +884,15 @@ export class MembershipService {
   }
 
   // Persistencia en Supabase (profiles table)
-  async saveSupabaseProfile(username: string, avatarId: string, country?: string, countryCode?: string, profession?: string, activeDays?: number[]): Promise<{ success: boolean; error?: string }> {
+  async saveSupabaseProfile(
+    username: string, 
+    avatarId: string, 
+    country?: string, 
+    countryCode?: string, 
+    profession?: string, 
+    activeDays?: number[],
+    theme?: 'samurai' | 'cyberpunk' | 'aurora' | 'zen'
+  ): Promise<{ success: boolean; error?: string }> {
     const cleanProf = profession !== undefined ? cleanQuotedString(profession) : undefined;
     
     // Si Supabase está configurado y hay usuario activo, guardar en base de datos real
@@ -896,6 +904,7 @@ export class MembershipService {
           selected_avatar: avatarId,
           onboarding_completed: true
         };
+        if (theme) updates.selected_theme = theme;
         if (country) updates.country = country;
         if (countryCode) updates.country_code = countryCode;
         if (cleanProf !== undefined) updates.profession = cleanProf;
@@ -910,12 +919,14 @@ export class MembershipService {
 
     this.userName.set(username);
     this.selectedAvatar.set(avatarId as any);
+    if (theme) this.selectedTheme.set(theme);
     if (country) this.userCountry.set(country);
     if (countryCode) this.userCountryCode.set(countryCode);
     if (cleanProf !== undefined) this.userProfession.set(cleanProf);
     if (activeDays !== undefined) this.userActiveDays.set(activeDays);
     this.onboardingCompleted.set(true);
     this.saveConsolidatedUserData();
+    this.applyGlobalTheme();
 
     return { success: true };
   }
@@ -923,15 +934,6 @@ export class MembershipService {
   // Activar/desactivar Premium
   async setPremium(premium: boolean) {
     this.isPremium.set(premium);
-
-    if (premium) {
-      // Regalo de bienvenida solo para cuentas completamente nuevas sin actividad
-      if (this.focusPoints() === 0 && this.proCoins() === 0) {
-        this.addFocusPoints(200);
-        this.addProCoins(100);
-      }
-    }
-
     this.saveConsolidatedUserData();
 
     // Sincronizar estado en Supabase profiles si está conectado
@@ -1337,6 +1339,14 @@ export class MembershipService {
 
     this.proCoins.update(c => c - cost);
     this.unlockedThemes.update(list => [...list, theme]);
+
+    if (this.supabaseService.isConfigured()) {
+      this.supabaseService.buyCatalogItem(theme).then(res => {
+        if (res.remainingCoins !== undefined) {
+          this.proCoins.set(res.remainingCoins);
+        }
+      });
+    }
     return true;
   }
 
@@ -1373,6 +1383,28 @@ export class MembershipService {
   // Fijar modo de tema explícito
   setThemeMode(mode: 'dark' | 'light') {
     this.themeMode.set(mode);
+  }
+
+  // Fijar y persistir tema visual en Supabase y localmente
+  async setTheme(theme: 'samurai' | 'cyberpunk' | 'aurora' | 'zen'): Promise<boolean> {
+    this.selectedTheme.set(theme);
+    this.saveConsolidatedUserData();
+    this.applyGlobalTheme();
+
+    if (this.supabaseService.isConfigured()) {
+      try {
+        const user = this.supabaseService.currentUser() || await this.supabaseService.getCurrentUser();
+        if (user) {
+          const { error } = await this.supabaseService.updateProfile(user.id, { selected_theme: theme });
+          if (error) {
+            console.error('[MembershipService] Error persistiendo tema en Supabase:', error);
+          }
+        }
+      } catch (e) {
+        console.warn('[MembershipService] Error sincronizando tema con Supabase:', e);
+      }
+    }
+    return true;
   }
 
   // Registrar un nuevo usuario (EXCLUSIVAMENTE EN SUPABASE)
@@ -1437,6 +1469,7 @@ export class MembershipService {
     }
 
     if (user) {
+      this.resetAllSignals();
       localStorage.setItem('procrastina-current-user-email', emailLower);
       this.loadUserData(emailLower);
       // Cargar perfil desde Supabase
@@ -1488,6 +1521,7 @@ export class MembershipService {
     localStorage.removeItem('procrastina-current-user-email');
     localStorage.removeItem('procrastina-just-registered');
     this.cleanupLegacyLocalStorageKeys();
+    this.resetAllSignals();
     this.closeAvatarMenu();
     this.router.navigate(['/login']);
   }
@@ -1507,6 +1541,8 @@ export class MembershipService {
 
   // Aplicar datos del perfil de Supabase a las señales
   applySupabaseProfile(p: any) {
+    if (!p) return;
+
     if (p.username) this.userName.set(p.username);
     if (p.selected_avatar) this.selectedAvatar.set(p.selected_avatar);
     if (p.selected_theme) this.selectedTheme.set(p.selected_theme);
@@ -1520,44 +1556,24 @@ export class MembershipService {
     }
     if (p.is_premium !== undefined) this.isPremium.set(p.is_premium);
 
-    // Sincronización bidireccional y auto-curación de monedas
+    // Supabase es la única fuente de verdad estricta para los valores de gamificación
     const serverCoins = Number(p.pro_coins ?? p.coins ?? 0);
-    const localCoins = this.proCoins();
-    const finalCoins = Math.max(serverCoins, localCoins);
-    this.proCoins.set(finalCoins);
+    this.proCoins.set(serverCoins);
 
-    // Sincronización y auto-curación de Puntos de Enfoque (focus_points)
     const serverPoints = Number(p.focus_points ?? p.points ?? 0);
-    const localPoints = this.focusPoints();
-    const localHonor = this.weeklyHonorPoints();
-    const finalPoints = Math.max(serverPoints, localPoints, localHonor);
-    this.focusPoints.set(finalPoints);
-    this.weeklyHonorPoints.set(finalPoints);
+    this.focusPoints.set(serverPoints);
+    this.weeklyHonorPoints.set(serverPoints);
 
-    // Sincronización de Tomates (focus_tomatoes)
     const serverTomatoes = Number(p.focus_tomatoes ?? p.tomatoes ?? 0);
-    const localTomatoes = this.focusTomatoes();
-    const finalTomatoes = Math.max(serverTomatoes, localTomatoes);
-    this.focusTomatoes.set(finalTomatoes);
+    this.focusTomatoes.set(serverTomatoes);
 
-    // Objetivos completados
     const serverObjectives = Number(p.completed_objectives ?? 0);
-    const localObjectives = this.completedObjectives();
-    const finalObjectives = Math.max(serverObjectives, localObjectives);
-    this.completedObjectives.set(finalObjectives);
+    this.completedObjectives.set(serverObjectives);
 
-    // Sesiones abandonadas
     const serverAbandons = Number(p.abandoned_sessions ?? 0);
-    const localAbandons = this.abandonedSessions();
-    const finalAbandons = Math.max(serverAbandons, localAbandons);
-    this.abandonedSessions.set(finalAbandons);
+    this.abandonedSessions.set(serverAbandons);
 
     if (p.created_at) this.userCreatedAt.set(p.created_at);
-
-    // Si los progresos locales son mayores a los del servidor, persistir inmediatamente en Supabase
-    if (finalPoints > serverPoints || finalCoins > serverCoins || finalTomatoes > serverTomatoes || finalObjectives > serverObjectives) {
-      this.queueGamificationSync();
-    }
 
     if (p.last_focus_date) this.lastFocusDate.set(p.last_focus_date);
     const rawStreak = p.streak !== undefined ? p.streak : (p.streak_days !== undefined ? p.streak_days : this.streak());
@@ -1710,14 +1726,6 @@ export class MembershipService {
           if (bundle.gamification.abandonedSessions !== undefined) this.abandonedSessions.set(bundle.gamification.abandonedSessions);
           if (bundle.gamification.weeklyHonorPoints !== undefined) this.weeklyHonorPoints.set(bundle.gamification.weeklyHonorPoints);
 
-          // Si focusPoints es 0 pero tenía puntos acumulados en weeklyHonorPoints, recuperar
-          if (this.focusPoints() === 0 && this.weeklyHonorPoints() > 0) {
-            this.focusPoints.set(this.weeklyHonorPoints());
-            this.queueGamificationSync();
-          } else if (this.weeklyHonorPoints() === 0 && this.focusPoints() > 0) {
-            this.weeklyHonorPoints.set(this.focusPoints());
-          }
-
           if (bundle.gamification.lastWeekStart !== undefined) this.lastWeekStart.set(bundle.gamification.lastWeekStart);
           if (bundle.gamification.streak !== undefined) this.streak.set(bundle.gamification.streak);
           if (bundle.gamification.lastFocusDate !== undefined) this.lastFocusDate.set(bundle.gamification.lastFocusDate);
@@ -1755,15 +1763,12 @@ export class MembershipService {
     this.cleanupLegacyLocalStorageKeys();
   }
 
-  // Restablecer cuenta para nuevo registro desde cero
-  resetNewUserAccount() {
-    const email = this.getCurrentUserEmail();
-    if (!email) return;
-
+  // Reiniciar todas las señales en memoria para evitar contaminación cruzada entre sesiones
+  resetAllSignals() {
     this.unlockedAvatars.set([...INITIAL_AVATARS_LIST]);
     this.unlockedThemes.set(['samurai']);
     this.unlockedTimers.set(['digital']);
-    this.userName.set(email.split('@')[0]);
+    this.userName.set('Guerrero');
     this.selectedAvatar.set('gato');
     this.selectedTheme.set('samurai');
     this.themeMode.set('dark');
@@ -1799,7 +1804,15 @@ export class MembershipService {
       { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
       { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: false, unlockProgress: 0, unlockTotal: 3 }
     ]);
+  }
 
+  // Restablecer cuenta para nuevo registro desde cero
+  resetNewUserAccount() {
+    const email = this.getCurrentUserEmail();
+    this.resetAllSignals();
+    if (email) {
+      this.userName.set(email.split('@')[0]);
+    }
     this.saveConsolidatedUserData();
     this.applyGlobalTheme();
     this.cleanupLegacyLocalStorageKeys();

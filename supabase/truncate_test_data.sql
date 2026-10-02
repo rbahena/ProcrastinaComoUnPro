@@ -64,7 +64,7 @@ TRUNCATE TABLE public.profiles CASCADE;
 -- I. Perfiles de Usuario (Preferencias de Enfoque, Monedas, Rachas, etc.)
 TRUNCATE TABLE public.community_motivations CASCADE;
 
-TRUNCATE TABLE public.community_motivations_likes CASCADE;
+TRUNCATE TABLE public.community_motivation_likes CASCADE;
 
 
 
