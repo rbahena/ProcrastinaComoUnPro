@@ -569,7 +569,8 @@ body.window-scrolled .sidebar {
 }
 
 .nav-item.item-locked,
-.logo.link-locked {
+.logo.link-locked,
+.navbar-bell-btn.item-locked {
   opacity: 0.45;
   cursor: not-allowed !important;
   position: relative;
@@ -577,7 +578,8 @@ body.window-scrolled .sidebar {
 }
 
 .nav-item.item-locked:hover,
-.logo.link-locked:hover {
+.logo.link-locked:hover,
+.navbar-bell-btn.item-locked:hover {
   opacity: 0.65;
   background: rgba(239, 68, 68, 0.06) !important;
 }

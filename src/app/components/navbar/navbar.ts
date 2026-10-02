@@ -47,6 +47,12 @@ export class Navbar {
   }
 
   onBellToggle(event: Event) {
+    if (this.membership.isFocusActive()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.triggerLockedFeedback();
+      return;
+    }
     this.membership.closeAvatarMenu();
     this.notificationService.togglePanel(event);
   }

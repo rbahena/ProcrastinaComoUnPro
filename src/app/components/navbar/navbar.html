@@ -76,9 +76,10 @@
     <button type="button"
             (click)="onBellToggle($event)"
             class="navbar-bell-btn"
+            [class.item-locked]="membership.isFocusActive()"
             [class.has-unread]="notificationService.hasUnread()"
             [class.is-muted]="notificationService.isPaused()"
-            [attr.data-tooltip]="notificationService.isPaused() ? 'Notificaciones pausadas (Silencio)' : (notificationService.hasUnread() ? (notificationService.unreadCount() + ' notificaciones nuevas') : 'Notificaciones')"
+            [attr.data-tooltip]="membership.isFocusActive() ? 'Notificaciones bloqueadas durante el enfoque activo' : (notificationService.isPaused() ? 'Notificaciones pausadas (Silencio)' : (notificationService.hasUnread() ? (notificationService.unreadCount() + ' notificaciones nuevas') : 'Notificaciones'))"
             data-tooltip-align="bottom-left"
             aria-label="Abrir notificaciones">
       <i [class]="notificationService.isPaused() ? 'fa-solid fa-bell-slash' : 'fa-solid fa-bell'"></i>

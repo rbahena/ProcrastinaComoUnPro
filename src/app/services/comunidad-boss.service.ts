@@ -127,18 +127,20 @@ export class ComunidadBossService {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'community_bosses' }, (payload: any) => {
         if (payload.new) {
           const row = payload.new;
-          const bossName = typeof row.name === 'object' ? (row.name.es || 'Jefe de la Comunidad') : (row.name || 'Jefe de la Comunidad');
-          this.activeBoss.set({
-            name: bossName,
-            maxHp: row.max_hp,
-            currentHp: row.current_hp,
-            type: row.boss_type || 'siren',
-            status: row.status
-          });
-          if (row.community_shield !== undefined) {
-            this.comunidadShield.set(row.community_shield);
+          if (row.is_current_active || row.id === this.activeBoss().type || row.boss_type === this.activeBoss().type) {
+            const bossName = typeof row.name === 'object' ? (row.name.es || 'Jefe de la Comunidad') : (row.name || 'Jefe de la Comunidad');
+            this.activeBoss.set({
+              name: bossName,
+              maxHp: row.max_hp,
+              currentHp: row.current_hp,
+              type: row.boss_type || row.id || 'siren',
+              status: row.status
+            });
+            if (row.community_shield !== undefined) {
+              this.comunidadShield.set(row.community_shield);
+            }
+            this.saveState();
           }
-          this.saveState();
         }
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'community_boss_attacks' }, (payload: any) => {
@@ -178,10 +180,21 @@ export class ComunidadBossService {
         finalAmount,
         false,
         this.membership.userName() || 'Guerrero'
-      ).catch(err => console.warn('[Supabase Boss Damage Error]', err));
+      ).then(res => {
+        if (res.success && res.result) {
+          const r = res.result;
+          if (r.current_hp !== undefined) {
+            this.activeBoss.update(boss => ({
+              ...boss,
+              currentHp: r.current_hp,
+              status: r.is_defeated ? 'defeated' : 'active'
+            }));
+          }
+        }
+      }).catch(err => console.warn('[Supabase Boss Damage Error]', err));
     }
 
-    // Actualizar estado local inmediato
+    // Actualizar estado local inmediato (optimista)
     this.activeBoss.update(boss => {
       if (boss.status === 'defeated') return boss;
 
@@ -243,26 +256,9 @@ export class ComunidadBossService {
     this.saveState();
   }
 
-  // Daño continuo colectivo
-  tickContinuousDamage(activeUsers: number) {
-    if (activeUsers <= 0) return;
-
-    this.activeBoss.update(boss => {
-      if (boss.status === 'defeated') return boss;
-
-      const totalDamage = activeUsers;
-      const newHp = Math.max(0, boss.currentHp - totalDamage);
-
-      if (newHp <= 0) {
-        this.addLog(`🏆 ¡VICTORIA! La comunidad unida derrotó a ${boss.name}.`);
-        this.membership.proCoins.update(c => c + 150);
-        this.notificationService.notifyBossDefeated(boss.name, 150);
-        return { ...boss, currentHp: 0, status: 'defeated' };
-      }
-
-      return { ...boss, currentHp: newHp };
-    });
-    this.saveState();
+  // Daño continuo colectivo deshabilitado para evitar daño fantasma
+  tickContinuousDamage(_activeUsers: number) {
+    // Daño continuo deshabilitado: el daño al jefe solo ocurre cuando un usuario real completa un Pomodoro
   }
 
   addLog(text: string) {

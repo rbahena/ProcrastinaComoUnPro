@@ -1528,11 +1528,9 @@ export class Enfoque implements OnInit, OnDestroy {
       return [newArrival, ...list];
     });
 
-    // Notificación emergente si es de otro guerrero conectado
+    // Las nuevas motivaciones de otros usuarios se agregan silenciosamente al muro sin interrumpir con popups
     if (!isUser) {
       const author = row.user_name || 'Un Guerrero';
-      const shortText = row.text.length > 35 ? row.text.substring(0, 35) + '...' : row.text;
-      this.showToastFeedback(`💬 ${author}: "${shortText}"`, 'info');
       this.addComunidadEvent(`💬 ${author} compartió una frase en el muro`, 'reaction');
     }
 
@@ -1587,6 +1585,11 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   async addMotivation() {
+    if (!this.membership.isPremium()) {
+      this.showPaywallModal.set(true);
+      return;
+    }
+
     const text = this.newMotivationText().trim();
     if (!text) return;
 
@@ -5503,15 +5506,6 @@ export class Enfoque implements OnInit, OnDestroy {
     });
 
     this.comunidadUsers.set(updatedUsers);
-
-    // Daño continuo del resto de usuarios en el Comunidad al Boss (Solo usuarios en vivo y enfocados)
-    if (this.coworkingMode() === 'comunitario' && this.arenaState() === 'active' && !this.isBreak() && !this.emergencyPauseActive()) {
-      const activePartners = this.comunidadUsers().filter(u => u.status === 'focused' && u.is_live);
-      const activePartnersCount = activePartners.length;
-      if (activePartnersCount > 0) {
-        this.bossService.tickContinuousDamage(activePartnersCount * 4);
-      }
-    }
   }
 
   showToast(msg: string, type: 'info' | 'warning' | 'success' | 'danger' = 'info') {
@@ -5530,46 +5524,6 @@ export class Enfoque implements OnInit, OnDestroy {
   triggerDemoAttack(event?: Event) {
     if (event) {
       event.stopPropagation();
-    }
-    const names = ['ramiro', 'sofia', 'carlos', 'mateo', 'lucas', 'ana', 'jose', 'elena', 'diego', 'julia'];
-    const suffixes = ['bah11', 'dev23', 'boss99', 'pro', 'ninja', 'app', '77', '12', 'focus', 'zen'];
-    const name = names[Math.floor(Math.random() * names.length)];
-    const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-    const username = `${name}.${suffix}`;
-    
-    const eventRand = Math.random();
-    if (eventRand < 0.35) {
-      // 1.- atacó al jefe con puntos (Espada)
-      const damagePoints = Math.floor(Math.random() * 80) + 15; // De 15 a 95 DMG
-      this.bossService.activeBoss.update(boss => {
-        const nextHp = Math.max(0, boss.currentHp - damagePoints);
-        return { ...boss, currentHp: nextHp, status: nextHp === 0 ? 'defeated' : 'active' };
-      });
-      this.bossService.addLog(`⚔️ ${username} atacó al jefe con ${damagePoints} puntos`);
-    } else if (eventRand < 0.5) {
-      // 4.- Premium Power Attack (Rayo)
-      const damagePoints = Math.floor(Math.random() * 200) + 200; // De 200 a 400 DMG
-      this.bossService.activeBoss.update(boss => {
-        const nextHp = Math.max(0, boss.currentHp - damagePoints);
-        return { ...boss, currentHp: nextHp, status: nextHp === 0 ? 'defeated' : 'active' };
-      });
-      this.bossService.addLog(`⚡ ${username} atacó severamente con ${damagePoints} puntos`);
-    } else if (eventRand < 0.75) {
-      // 2.- abandonó, jefe gana +puntos puntos (Gota)
-      const healPoints = Math.floor(Math.random() * 120) + 80;
-      this.bossService.activeBoss.update(boss => {
-        const nextHp = Math.min(boss.maxHp, boss.currentHp + healPoints);
-        return { ...boss, currentHp: nextHp };
-      });
-      this.bossService.addLog(`🩸 ${username} abandonó, jefe gana +${healPoints} puntos`);
-    } else {
-      // 3.- interrumpe, jefe gana +puntos puntos (Advertencia)
-      const healPoints = Math.floor(Math.random() * 60) + 40;
-      this.bossService.activeBoss.update(boss => {
-        const nextHp = Math.min(boss.maxHp, boss.currentHp + healPoints);
-        return { ...boss, currentHp: nextHp };
-      });
-      this.bossService.addLog(`⚠️ ${username} interrumpe, jefe gana +${healPoints} puntos`);
     }
   }
 
