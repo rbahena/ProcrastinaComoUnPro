@@ -168,7 +168,6 @@ BEGIN
 
             IF p_energy_level = 'low' THEN
                 v_grit_bonus := TRUE;
-                v_xp_earned := v_xp_earned + 50;
             END IF;
 
             IF p_pause_count = 0 THEN
@@ -179,12 +178,8 @@ BEGIN
                 v_xp_earned := v_xp_earned + 20;
             END IF;
 
-            -- XP base de enfoque (1 XP por minuto de concentración, mínimo 10, 25 para pomodoros estándar)
-            IF p_actual_seconds >= 1500 THEN
-                v_xp_earned := v_xp_earned + GREATEST(25, (p_actual_seconds / 60)::INTEGER);
-            ELSE
-                v_xp_earned := v_xp_earned + GREATEST(1, (p_actual_seconds / 60)::INTEGER);
-            END IF;
+            -- XP base de enfoque: 1 XP por cada minuto completado
+            v_xp_earned := v_xp_earned + GREATEST(1, (p_actual_seconds / 60)::INTEGER);
         ELSE
             v_coins_earned := 0;
             v_boss_damage := 5;

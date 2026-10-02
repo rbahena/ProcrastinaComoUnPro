@@ -128,42 +128,7 @@
         </div>
       </div>
 
-      <!-- 4. Objetivos Conquistados (Diana con Color Púrpura/Cian) -->
-      <div class="kpi-card">
-        <div class="kpi-top">
-          <span class="kpi-label">Objetivos</span>
-          <div class="kpi-icon target-objective" title="Objetivos de enfoque cumplidos">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="targetOuterGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#c084fc" />
-                  <stop offset="100%" stop-color="#7c3aed" />
-                </linearGradient>
-                <linearGradient id="targetInnerGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#38bdf8" />
-                  <stop offset="100%" stop-color="#0284c7" />
-                </linearGradient>
-              </defs>
-              <circle cx="12" cy="12" r="9.5" stroke="url(#targetOuterGrad)" stroke-width="2.2" />
-              <circle cx="12" cy="12" r="6" stroke="rgba(255,255,255,0.3)" stroke-width="1.4" />
-              <circle cx="12" cy="12" r="3.2" fill="url(#targetInnerGrad)" />
-              <circle cx="12" cy="12" r="1.2" fill="#ffffff" />
-              <path d="M12 1.5V4M12 20V22.5M1.5 12H4M20 12H22.5" stroke="url(#targetOuterGrad)" stroke-width="1.8" stroke-linecap="round" opacity="0.8" />
-            </svg>
-          </div>
-        </div>
-        <div class="kpi-body">
-          <span class="kpi-number">{{ totalCompletedObjectives() }}</span>
-          <span class="kpi-unit">logrados</span>
-        </div>
-        <div class="kpi-footer">
-          <span class="kpi-pill success">
-            <i class="fa-solid fa-circle-check"></i> {{ objectiveCompletionRate() }}% éxito
-          </span>
-        </div>
-      </div>
-
-      <!-- 5. Total Acumulado (2 Tomates Vector) -->
+      <!-- 4. Total Acumulado (2 Tomates Vector) -->
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Total Histórico</span>
@@ -382,6 +347,389 @@
         <strong style="color: var(--yellow);">{{ annualTotal() }} pomodoros ({{ totalFocusHours() }} horas)</strong>
       </div>
     </div>
+
+    <!-- SECCIÓN PRINCIPAL: ANALÍTICA Y MEDICIÓN DE OBJETIVOS -->
+    <section class="objectives-workspace-section">
+      
+      <!-- Encabezado de la Sección y Pestañas Estadísticas -->
+      <div class="objectives-header-card">
+        <div class="objectives-title-group">
+          <div class="obj-badge-icon">
+            <i class="fa-solid fa-bullseye"></i>
+          </div>
+          <div>
+            <h2 class="section-title">Analítica y Medición de Objetivos</h2>
+            <p class="section-subtitle">
+              Métricas cuantitativas de cumplimiento, efectividad por metodología, rendimiento semanal y mapa de calor de logros.
+            </p>
+          </div>
+        </div>
+
+        <!-- Pestañas de Navegación Analítica -->
+        <div class="objectives-tabs-nav" role="tablist">
+          <button type="button" 
+                  class="obj-tab-btn" 
+                  [class.active]="activeObjectivesTab() === 'overview'"
+                  (click)="setObjectivesTab('overview')">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Panel General de Metas</span>
+          </button>
+          
+          <button type="button" 
+                  class="obj-tab-btn" 
+                  [class.active]="activeObjectivesTab() === 'calendar'"
+                  (click)="setObjectivesTab('calendar')">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span>Mapa de Calor & Calendario</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 1: PANEL GENERAL DE METAS (MÉTRICAS, GRÁFICO SEMANAL Y METODOLOGÍAS) -->
+      <div *ngIf="activeObjectivesTab() === 'overview'" class="obj-tab-content overview-view">
+        
+        <!-- 4 Tarjetas Claras de Tiempo y Rendimiento en Objetivos -->
+        <div class="metrics-kpis-row">
+          <!-- 1. Tiempo Total en Objetivos -->
+          <div class="metric-stat-card">
+            <div class="metric-icon-wrap focus-glow">
+              <i class="fa-solid fa-hourglass-half"></i>
+            </div>
+            <div class="metric-data">
+              <span class="metric-value">{{ totalObjectivesTimeFormatted() }}</span>
+              <span class="metric-title">Tiempo Total en Objetivos</span>
+              <span class="metric-sub">{{ totalObjectivesTimeHours() }} horas de enfoque acumuladas</span>
+            </div>
+          </div>
+
+          <!-- 2. Tiempo Dedicado Hoy -->
+          <div class="metric-stat-card">
+            <div class="metric-icon-wrap active-days-glow">
+              <i class="fa-solid fa-calendar-day"></i>
+            </div>
+            <div class="metric-data">
+              <span class="metric-value">{{ todayObjectivesTimeFormatted() }}</span>
+              <span class="metric-title">Tiempo Dedicado Hoy</span>
+              <span class="metric-sub">{{ todayCompletedObjectives() }} objetivos logrados hoy</span>
+            </div>
+          </div>
+
+          <!-- 3. Tiempo Promedio por Meta -->
+          <div class="metric-stat-card">
+            <div class="metric-icon-wrap speed-glow">
+              <i class="fa-solid fa-stopwatch"></i>
+            </div>
+            <div class="metric-data">
+              <span class="metric-value">{{ averageMinutesPerObjective() }} min</span>
+              <span class="metric-title">Duración Promedio por Meta</span>
+              <span class="metric-sub">Tiempo medio para resolver un objetivo</span>
+            </div>
+          </div>
+
+          <!-- 4. Total de Metas y Tasa de Éxito -->
+          <div class="metric-stat-card">
+            <div class="metric-icon-wrap success-glow">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="metric-data">
+              <span class="metric-value">{{ totalCompletedObjectives() }} metas</span>
+              <span class="metric-title">Metas Conquistadas</span>
+              <span class="metric-sub">{{ objectiveCompletionRate() }}% de tasa de éxito global</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 Gráficos Estadísticos: Gráfica Semanal y Desglose por Metodología -->
+        <div class="charts-grid obj-analytics-grid">
+          
+          <!-- Panel A: Gráfico Semanal de Cumplimiento de Metas -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div class="panel-title-row">
+                <i class="fa-solid fa-chart-column" style="color: var(--accent);"></i>
+                <h3>Objetivos Cumplidos Esta Semana</h3>
+              </div>
+              <span class="panel-subtitle">Metas conquistadas día por día (Lun - Dom)</span>
+            </div>
+
+            <div class="chart-box">
+              <svg viewBox="0 0 500 200" width="100%" height="100%">
+                <line x1="30" y1="40" x2="470" y2="40" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3" />
+                <line x1="30" y1="95" x2="470" y2="95" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3" />
+                <line x1="30" y1="150" x2="470" y2="150" stroke="rgba(255,255,255,0.08)" />
+
+                <g *ngFor="let val of weeklyObjectivesData(); let i = index">
+                  <rect [attr.x]="48 + i * 60" 
+                        [attr.y]="150 - (val / weeklyObjectivesMax() * 105)" 
+                        width="34" 
+                        [attr.height]="val / weeklyObjectivesMax() * 105" 
+                        [attr.fill]="val > 0 ? (i === 6 ? 'var(--yellow)' : '#10b981') : 'rgba(255,255,255,0.05)'" 
+                        rx="6"
+                        class="chart-bar" />
+
+                  <text *ngIf="val > 0"
+                        [attr.x]="65 + i * 60" 
+                        [attr.y]="142 - (val / weeklyObjectivesMax() * 105)" 
+                        text-anchor="middle" 
+                        fill="var(--text)" 
+                        font-size="12" 
+                        font-weight="800">
+                    {{ val }}
+                  </text>
+
+                  <text [attr.x]="65 + i * 60" 
+                        y="172" 
+                        text-anchor="middle" 
+                        [attr.fill]="i === 6 ? 'var(--yellow)' : 'var(--muted)'" 
+                        font-size="11" 
+                        [attr.font-weight]="i === 6 ? '900' : '600'">
+                    {{ weeklyLabels[i] }}
+                  </text>
+                </g>
+              </svg>
+            </div>
+
+            <div class="panel-footer-stat">
+              <span>Tiempo total en metas esta semana:</span>
+              <strong style="color: #10b981;">{{ weeklyObjectivesTimeFormatted() }} ({{ weeklyObjectivesTotal() }} objetivos)</strong>
+            </div>
+          </div>
+
+          <!-- Panel B: Distribución por Metodología y Nivel de Energía -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div class="panel-title-row">
+                <i class="fa-solid fa-layer-group" style="color: var(--yellow);"></i>
+                <h3>Rendimiento por Metodología</h3>
+              </div>
+              <span class="panel-subtitle">Proporción de efectividad según la técnica empleada</span>
+            </div>
+
+            <div class="methodologies-bars-list">
+              <!-- Sapo -->
+              <div class="method-bar-row">
+                <div class="method-bar-labels">
+                  <span class="method-name">🐸 Metodología Sapo (Tareas Críticas)</span>
+                  <span class="method-count"><strong>{{ sapoObjectivesCount() }}</strong> logrados ({{ sapoPercent() }}%)</span>
+                </div>
+                <div class="method-progress-track">
+                  <div class="method-progress-fill fill-sapo" [style.width.%]="sapoPercent()"></div>
+                </div>
+              </div>
+
+              <!-- Pareto -->
+              <div class="method-bar-row">
+                <div class="method-bar-labels">
+                  <span class="method-name">🦉 Principio Pareto (80/20 Estratégico)</span>
+                  <span class="method-count"><strong>{{ paretoObjectivesCount() }}</strong> logrados ({{ paretoPercent() }}%)</span>
+                </div>
+                <div class="method-progress-track">
+                  <div class="method-progress-fill fill-pareto" [style.width.%]="paretoPercent()"></div>
+                </div>
+              </div>
+
+              <!-- Normal -->
+              <div class="method-bar-row">
+                <div class="method-bar-labels">
+                  <span class="method-name">🎯 Enfoque Normal / Estándar</span>
+                  <span class="method-count"><strong>{{ normalObjectivesCount() }}</strong> logrados ({{ normalPercent() }}%)</span>
+                </div>
+                <div class="method-progress-track">
+                  <div class="method-progress-fill fill-normal" [style.width.%]="normalPercent()"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mini desglose de energía -->
+            <div class="energy-matrix-box">
+              <span class="energy-matrix-title"><i class="fa-solid fa-bolt"></i> Rendimiento por Nivel de Energía:</span>
+              <div class="energy-bars-group">
+                <div class="energy-pill-stat high" title="Alta energía al resolver metas">
+                  <span class="energy-label">Alta</span>
+                  <span class="energy-val">{{ energyHighPercent() }}%</span>
+                </div>
+                <div class="energy-pill-stat medium" title="Energía media al resolver metas">
+                  <span class="energy-label">Media</span>
+                  <span class="energy-val">{{ energyMediumPercent() }}%</span>
+                </div>
+                <div class="energy-pill-stat low" title="Baja energía al resolver metas">
+                  <span class="energy-label">Baja</span>
+                  <span class="energy-val">{{ energyLowPercent() }}%</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TAB 2: MAPA DE CALOR & CALENDARIO DE METAS -->
+      <div *ngIf="activeObjectivesTab() === 'calendar'" class="obj-tab-content calendar-view">
+        
+        <!-- 4 KPIs del Mes Seleccionado en el Calendario -->
+        <div class="metrics-kpis-row">
+          <div class="metric-stat-card">
+            <div class="metric-icon-wrap month-goals-glow">
+              <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <div class="metric-data">
+              <span class="metric-value">{{ monthlyGoalsTotal() }} metas</span>
+              <span class="metric-title">Metas en {{ objectivesCalendarMonthName() }}</span>
+              <span class="metric-sub">Total acumulado en el mes</span>
+            </div>
+          </div>
+
+          <div class="metric-stat-card">
+            <div class="metric-icon-wrap focus-glow">
+              <i class="fa-solid fa-hourglass-half"></i>
+            </div>
+            <div class="metric-data">
+              <span class="metric-value">{{ (monthlyGoalsTotal() * 25 / 60).toFixed(1) }} h</span>
+              <span class="metric-title">Tiempo en el Mes</span>
+              <span class="metric-sub">Horas dedicadas a metas</span>
+            </div>
+          </div>
+
+          <div class="metric-stat-card">
+            <div class="metric-icon-wrap active-days-glow">
+              <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div class="metric-data">
+              <span class="metric-value">{{ monthlyActiveDaysCount() }} días</span>
+              <span class="metric-title">Días con Logros</span>
+              <span class="metric-sub">Jornadas con al menos 1 objetivo</span>
+            </div>
+          </div>
+
+          <div class="metric-stat-card">
+            <div class="metric-icon-wrap avg-goals-glow">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div class="metric-data">
+              <span class="metric-value">{{ monthlyAvgPerActiveDay() }}</span>
+              <span class="metric-title">Promedio / Día Activo</span>
+              <span class="metric-sub">Ritmo de metas por día productivo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid: Mapa de Calor Mensual + Panel Inspector Estadístico -->
+        <div class="obj-calendar-layout">
+          
+          <!-- Columna Izquierda: Mapa de Calor del Mes (Heatmap) -->
+          <div class="obj-cal-main-card">
+            <div class="obj-cal-nav-bar">
+              <div class="month-title-wrap">
+                <i class="fa-solid fa-calendar-days" style="color: var(--accent);"></i>
+                <h3 class="obj-month-title">{{ objectivesCalendarMonthName() }}</h3>
+              </div>
+              <div class="cal-nav-buttons">
+                <button type="button" class="cal-arrow-btn" (click)="prevObjCalendarMonth()" title="Mes anterior">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button type="button" class="cal-today-btn" (click)="resetObjCalendarToToday()" title="Ir a hoy">
+                  Hoy
+                </button>
+                <button type="button" class="cal-arrow-btn" (click)="nextObjCalendarMonth()" title="Mes siguiente">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="obj-cal-table">
+              <div class="obj-cal-weekdays">
+                <span *ngFor="let label of calendarWeekdays">{{ label }}</span>
+              </div>
+
+              <div class="obj-cal-grid">
+                <div *ngFor="let day of objectivesCalendarDays()" 
+                     class="obj-cal-cell"
+                     [class.offset]="day.dayNumber === null"
+                     [class.today]="day.isToday"
+                     [class.future]="day.isFuture"
+                     [class.has-goals]="day.completedCount > 0"
+                     [class.level-1]="day.completedCount === 1"
+                     [class.level-2]="day.completedCount >= 2 && day.completedCount < 4"
+                     [class.level-3]="day.completedCount >= 4"
+                     [class.selected]="day.isSelected"
+                     (click)="selectCalendarDay(day)">
+                  
+                  <span class="cell-day-number">{{ day.dayNumber }}</span>
+
+                  <div class="cell-goals-badge" *ngIf="day.completedCount > 0" [title]="day.completedCount + ' objetivo(s) completado(s)'">
+                    <span>{{ day.completedCount }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="obj-cal-legend">
+              <span class="legend-label">Densidad de metas:</span>
+              <div class="legend-scale-row">
+                <div class="legend-item"><span class="legend-box level-0"></span> 0</div>
+                <div class="legend-item"><span class="legend-box level-1"></span> 1 meta</div>
+                <div class="legend-item"><span class="legend-box level-2"></span> 2-3 metas</div>
+                <div class="legend-item"><span class="legend-box level-3"></span> 4+ metas</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Columna Derecha: Inspector Estadístico del Día Seleccionado -->
+          <div class="obj-day-inspector-card">
+            <div class="inspector-header">
+              <div class="inspector-title-row">
+                <i class="fa-solid fa-chart-simple" style="color: var(--yellow);"></i>
+                <h4>Estadística del Día</h4>
+              </div>
+              <span class="inspector-count-tag" *ngIf="selectedDayStats()">
+                {{ selectedDayStats()?.dateKey || 'Día actual' }}
+              </span>
+            </div>
+
+            <div class="inspector-body" *ngIf="selectedDayStats() as dStat">
+              <div class="day-stat-big-card">
+                <span class="day-stat-number">{{ dStat.completedCount }}</span>
+                <span class="day-stat-label">Objetivos Conquistados</span>
+              </div>
+
+              <div class="day-stat-metrics-list">
+                <div class="day-metric-item">
+                  <span class="label"><i class="fa-solid fa-clock"></i> Tiempo Invertido:</span>
+                  <strong class="val">{{ dStat.completedCount * 25 }} min</strong>
+                </div>
+
+                <div class="day-metric-item">
+                  <span class="label"><i class="fa-solid fa-bolt"></i> Puntos de Enfoque:</span>
+                  <strong class="val text-yellow">+{{ dStat.completedCount * 25 }} XP</strong>
+                </div>
+
+                <div class="day-metric-item">
+                  <span class="label"><i class="fa-solid fa-percent"></i> Aporte al Mes:</span>
+                  <strong class="val">{{ monthlyGoalsTotal() > 0 ? (dStat.completedCount / monthlyGoalsTotal() * 100).toFixed(0) : '0' }}%</strong>
+                </div>
+              </div>
+
+              <div class="day-stat-summary-box">
+                <i class="fa-solid fa-circle-info"></i>
+                <p *ngIf="dStat.completedCount > 0">
+                  En esta fecha se consolidaron <strong>{{ dStat.completedCount }}</strong> metas de enfoque sostenido, manteniendo la inercia productiva.
+                </p>
+                <p *ngIf="dStat.completedCount === 0">
+                  No se registraron objetivos completados en esta fecha. Selecciona un día iluminado en el mapa de calor para ver sus métricas.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
 
     <!-- FOOTER SIMPLE Y ELEGANTE -->
     <footer class="stats-simple-footer">

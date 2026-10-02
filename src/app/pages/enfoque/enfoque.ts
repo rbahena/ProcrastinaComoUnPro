@@ -3245,16 +3245,9 @@ export class Enfoque implements OnInit, OnDestroy {
           }
         }
 
-        // Bono de Coraje (Grit Bonus): Si empezó con baja energía y venció la desmotivación
-        if (this.energyLevel() === 'low') {
-          if (this.membership.isPremium()) {
-            this.membership.addFocusPoints(50);
-          }
-          this.showToastFeedback('🛡️ ¡Bono de Coraje (+50 XP)! Venciste la desmotivación.', 'success');
-        }
       } else if (currentStatus === 'abandoned' && this.membership.isPremium()) {
-        // Castigo de -50 XP por abandonar
-        this.membership.addFocusPoints(-50);
+        // Castigo de -20 XP por abandonar
+        this.membership.addFocusPoints(-20);
         await this.settleCurrentSession(
           'abandoned',
           'no',

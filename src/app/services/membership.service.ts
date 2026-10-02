@@ -1005,10 +1005,9 @@ export class MembershipService {
     }
 
     // Puntos de enfoque (XP acumulativo y persistente):
-    // >= 25 min (1 tomate): 25 pts por tomate
-    // < 25 min: 1 pt por minuto completado
+    // Regla general: 1 punto de enfoque por cada minuto completado
     const actualMinutes = Math.floor(actualSeconds / 60);
-    const pointsEarned = isFullPomodoro ? Math.max(25, tomatoesEarned * 25) : Math.max(1, actualMinutes);
+    const pointsEarned = Math.max(1, actualMinutes);
     this.addFocusPoints(pointsEarned);
 
     // Actualizar racha diaria únicamente si cumple el requisito de al menos 25 minutos

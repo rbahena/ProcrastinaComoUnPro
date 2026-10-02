@@ -1859,10 +1859,9 @@ BEGIN
                 v_boss_damage := 0;
             END IF;
 
-            -- Pasiva Táctica: Bono de Coraje (Baja energía vencida)
+            -- Pasiva Táctica: Bono de Coraje (desactivado temporalmente)
             IF p_energy_level = 'low' THEN
                 v_grit_bonus := TRUE;
-                v_xp_earned := v_xp_earned + 50;
             END IF;
 
             -- Bono de Objetivo Cumplido (+20 XP persistente)
@@ -1870,12 +1869,8 @@ BEGIN
                 v_xp_earned := v_xp_earned + 20;
             END IF;
 
-            -- XP base de enfoque (1 XP por minuto de concentración, mínimo 10, 25 para pomodoros estándar)
-            IF p_actual_seconds >= 1500 THEN
-                v_xp_earned := v_xp_earned + GREATEST(25, (p_actual_seconds / 60)::INTEGER);
-            ELSE
-                v_xp_earned := v_xp_earned + GREATEST(1, (p_actual_seconds / 60)::INTEGER);
-            END IF;
+            -- XP base de enfoque: 1 XP por cada minuto completado
+            v_xp_earned := v_xp_earned + GREATEST(1, (p_actual_seconds / 60)::INTEGER);
         ELSE
             -- Sesión completada en menos de 2 minutos: sin monedas (prevención de granja)
             v_coins_earned := 0;

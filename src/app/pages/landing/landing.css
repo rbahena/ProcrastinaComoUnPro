@@ -1893,3 +1893,477 @@
   z-index: 1;
   overflow: hidden;
 }
+
+/* ==========================================================================
+   MYSTERIOUS GUARDIANS & EVOLUTION SECTION STYLES
+   ========================================================================== */
+
+.guardians-mystery-section {
+  position: relative;
+  padding: 130px 0;
+  background: radial-gradient(circle at 50% 30%, rgba(13, 18, 45, 0.9) 0%, #050811 100%);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.guardians-mystery-section::before {
+  content: '';
+  position: absolute;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 350px;
+  background: radial-gradient(ellipse, rgba(0, 242, 254, 0.08) 0%, rgba(139, 92, 246, 0.04) 50%, transparent 75%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.guardians-mystery-header {
+  text-align: center;
+  max-width: 740px;
+  margin: 0 auto 60px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mystery-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 242, 254, 0.08);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+}
+
+.guardians-mystery-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.15;
+  letter-spacing: -0.8px;
+  margin: 0 0 16px 0;
+}
+
+.gradient-text-mystery {
+  background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.guardians-mystery-subtitle {
+  font-size: 15.5px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.guardians-mystery-subtitle strong {
+  color: var(--text);
+}
+
+/* 5-Columns Clean Avatar Cards Grid */
+.mystery-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
+  margin-top: 36px;
+  margin-bottom: 40px;
+}
+
+.mystery-guardian-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(16, 21, 46, 0.9) 0%, rgba(7, 10, 22, 0.96) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.mystery-guardian-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* Hover stage borders */
+.mystery-guardian-card.stage-emerald:hover {
+  border-color: rgba(46, 213, 115, 0.5);
+  box-shadow: 0 20px 50px rgba(46, 213, 115, 0.18);
+}
+
+.mystery-guardian-card.stage-crimson:hover {
+  border-color: rgba(255, 71, 87, 0.5);
+  box-shadow: 0 20px 50px rgba(255, 71, 87, 0.18);
+}
+
+.mystery-guardian-card.stage-amber:hover {
+  border-color: rgba(255, 159, 67, 0.5);
+  box-shadow: 0 20px 50px rgba(255, 159, 67, 0.18);
+}
+
+.mystery-guardian-card.stage-violet:hover {
+  border-color: rgba(0, 242, 254, 0.5);
+  box-shadow: 0 20px 50px rgba(0, 242, 254, 0.22);
+}
+
+.mystery-guardian-card.stage-mint:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 20px 50px rgba(16, 185, 129, 0.18);
+}
+
+/* Full Width Image Container */
+.avatar-card-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 215px;
+  overflow: hidden;
+  background: #080c1a;
+}
+
+.avatar-card-image-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65px;
+  background: linear-gradient(to bottom, transparent 0%, rgba(16, 21, 46, 0.98) 100%);
+  pointer-events: none;
+}
+
+.landing-avatar-full-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.45s cubic-bezier(0.2, 0, 0.2, 1);
+  display: block;
+}
+
+.mystery-guardian-card:hover .landing-avatar-full-img {
+  transform: scale(1.08);
+}
+
+/* Floating Category Badge over Image */
+.avatar-card-floating-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  background: rgba(8, 11, 24, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.avatar-card-floating-badge.tag-emerald {
+  color: #2ed573;
+  border-color: rgba(46, 213, 115, 0.4);
+}
+
+.avatar-card-floating-badge.tag-crimson {
+  color: #ff4757;
+  border-color: rgba(255, 71, 87, 0.4);
+}
+
+.avatar-card-floating-badge.tag-amber {
+  color: #ff9f43;
+  border-color: rgba(255, 159, 67, 0.45);
+}
+
+.avatar-card-floating-badge.tag-violet {
+  color: #00f2fe;
+  border-color: rgba(0, 242, 254, 0.4);
+}
+
+.avatar-card-floating-badge.tag-mint {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* Card Body Content */
+.mystery-card-body {
+  padding: 16px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-align: left;
+}
+
+.mystery-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.3px;
+}
+
+.mystery-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 14px 0;
+  flex: 1;
+}
+
+/* 3-Phases Mystery Evolution Box */
+.avatar-phases-box {
+  margin-top: auto;
+  background: rgba(8, 12, 26, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phases-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phases-title {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.phases-title i {
+  color: var(--accent);
+  font-size: 9px;
+}
+
+.phases-status-tag {
+  font-size: 8.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.phases-status-tag.tag-emerald {
+  color: #2ed573;
+  border-color: rgba(46, 213, 115, 0.3);
+  background: rgba(46, 213, 115, 0.08);
+}
+
+.phases-status-tag.tag-crimson {
+  color: #ff4757;
+  border-color: rgba(255, 71, 87, 0.3);
+  background: rgba(255, 71, 87, 0.08);
+}
+
+.phases-status-tag.tag-amber {
+  color: #ff9f43;
+  border-color: rgba(255, 159, 67, 0.35);
+  background: rgba(255, 159, 67, 0.08);
+}
+
+.phases-status-tag.tag-violet {
+  color: #00f2fe;
+  border-color: rgba(0, 242, 254, 0.3);
+  background: rgba(0, 242, 254, 0.08);
+}
+
+.phases-status-tag.tag-mint {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.phases-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.phase-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  text-align: center;
+}
+
+.phase-orb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  transition: all 0.3s ease;
+}
+
+/* Active orbs */
+.phase-orb.active-emerald {
+  background: rgba(46, 213, 115, 0.15);
+  border: 1.5px solid #2ed573;
+  color: #2ed573;
+  box-shadow: 0 0 10px rgba(46, 213, 115, 0.4);
+}
+
+.phase-orb.active-crimson {
+  background: rgba(255, 71, 87, 0.15);
+  border: 1.5px solid #ff4757;
+  color: #ff4757;
+  box-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
+}
+
+.phase-orb.active-amber {
+  background: rgba(255, 159, 67, 0.15);
+  border: 1.5px solid #ff9f43;
+  color: #ff9f43;
+  box-shadow: 0 0 10px rgba(255, 159, 67, 0.4);
+}
+
+.phase-orb.active-violet {
+  background: rgba(0, 242, 254, 0.15);
+  border: 1.5px solid #00f2fe;
+  color: #00f2fe;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+}
+
+.phase-orb.active-mint {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1.5px solid #10b981;
+  color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+/* Locked orbs (Mysterious) */
+.phase-orb.locked {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+.phase-orb.locked-titan {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(0, 242, 254, 0.08));
+  border: 1px dashed rgba(139, 92, 246, 0.45);
+  color: #c084fc;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.2);
+}
+
+/* Connectors */
+.phase-connector {
+  height: 2px;
+  flex: 0.8;
+  background: rgba(255, 255, 255, 0.08);
+  margin-top: -14px;
+}
+
+.phase-connector.active-emerald {
+  background: linear-gradient(90deg, #2ed573, rgba(255, 255, 255, 0.15));
+}
+
+.phase-connector.active-crimson {
+  background: linear-gradient(90deg, #ff4757, rgba(255, 255, 255, 0.15));
+}
+
+.phase-connector.active-amber {
+  background: linear-gradient(90deg, #ff9f43, rgba(255, 255, 255, 0.15));
+}
+
+.phase-connector.active-violet {
+  background: linear-gradient(90deg, #00f2fe, rgba(255, 255, 255, 0.15));
+}
+
+.phase-connector.active-mint {
+  background: linear-gradient(90deg, #10b981, rgba(255, 255, 255, 0.15));
+}
+
+.phase-name {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.phase-state {
+  font-size: 7.5px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.2px;
+  line-height: 1;
+}
+
+.phase-state.state-unlocked {
+  color: #2ed573;
+  font-weight: 700;
+}
+
+.phase-state.state-titan {
+  color: #c084fc;
+  font-weight: 700;
+}
+
+/* Responsive Media Queries for Avatares Section */
+@media (max-width: 1200px) {
+  .mystery-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 860px) {
+  .mystery-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .guardians-mystery-section {
+    padding: 80px 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .mystery-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+
