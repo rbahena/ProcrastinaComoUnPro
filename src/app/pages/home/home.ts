@@ -35,6 +35,8 @@ export interface CommunityCompanionItem {
   avatar: string;
   color: string;
   wins: number;
+  status?: 'focused' | 'break' | 'paused' | 'abandoned' | 'idle';
+  mission?: string;
 }
 
 @Component({
@@ -67,11 +69,21 @@ export class Home implements OnInit, OnDestroy {
     this.showGuide.update(v => !v);
   }
 
-  // Realtime
+  // Realtime & Presence
   private realtimeChannel: any = null;
+  private communityPresenceChannel: any = null;
+  private presenceClientId = 'home-' + Math.random().toString(36).substring(2, 9);
+  private lastPresenceState: any = null;
+  private rawRecentAvatars: CommunityLeaderboardUser[] = [];
   lastUpdated = signal('');
 
-  // Compañeros en vivo para avatar stack (inicia vacío y se llena con datos reales)
+  // Compañeros clasificados: En Pomodoro vs En Campamento
+  livePomodoroUsers = signal<CommunityCompanionItem[]>([]);
+  livePomodoroUsersCount = signal<number>(1);
+  liveCampUsers = signal<CommunityCompanionItem[]>([]);
+  liveCampUsersCount = signal<number>(1);
+
+  // Compañeros en vivo generales (fallback/legado)
   liveCommunityUsers = signal<CommunityCompanionItem[]>([]);
 
   // Vecinos en el ranking de tomates (2 arriba, tú, 2 abajo)
@@ -94,6 +106,26 @@ export class Home implements OnInit, OnDestroy {
     const list = this.topPodiumUsers();
     if (!list || list.length < 3) return false;
     return list.some(u => u.name !== 'En disputa' && u.name !== 'Disponible' && (u.value && u.value !== '0 puntos' && u.value !== 'Disponible'));
+  });
+
+  displayPomodoroCount = computed(() => {
+    const count = this.livePomodoroUsersCount();
+    return count > 20 ? '+20' : count.toString();
+  });
+
+  displayCampCount = computed(() => {
+    const count = this.liveCampUsersCount();
+    return count > 20 ? '+20' : count.toString();
+  });
+
+  featuredPomodoroCompanionName = computed(() => {
+    const list = this.livePomodoroUsers();
+    return list.length > 0 ? list[0].name : this.userName();
+  });
+
+  featuredCampCompanionName = computed(() => {
+    const list = this.liveCampUsers();
+    return list.length > 0 ? list[0].name : this.userName();
   });
 
   featuredCompanionName = computed(() => {
@@ -244,6 +276,22 @@ export class Home implements OnInit, OnDestroy {
           this.triggerRealtimeReload();
         })
         .subscribe();
+
+      // 3. Suscribirse al canal de presencia de la comunidad para clasificar Pomodoros vs Campamento
+      this.communityPresenceChannel = this.supabaseService.client.channel('community_focus_room', {
+        config: {
+          presence: {
+            key: this.presenceClientId
+          }
+        }
+      });
+
+      this.communityPresenceChannel
+        .on('presence', { event: 'sync' }, () => {
+          const state = this.communityPresenceChannel.presenceState();
+          this.handlePresenceSync(state);
+        })
+        .subscribe();
     }
   }
 
@@ -254,6 +302,9 @@ export class Home implements OnInit, OnDestroy {
     }
     if (this.realtimeChannel && this.supabaseService.isConfigured()) {
       this.supabaseService.client.removeChannel(this.realtimeChannel);
+    }
+    if (this.communityPresenceChannel && this.supabaseService.isConfigured()) {
+      this.supabaseService.client.removeChannel(this.communityPresenceChannel);
     }
   }
 
@@ -474,30 +525,88 @@ export class Home implements OnInit, OnDestroy {
     this.topHistoricalRecords.set(list);
   }
 
-  private processRecentAvatars(recent: CommunityLeaderboardUser[]) {
-    const list: CommunityCompanionItem[] = [];
+  private handlePresenceSync(presenceState: any) {
+    this.lastPresenceState = presenceState;
+    this.updateCompanionsLists();
+  }
 
-    if (recent && recent.length > 0) {
-      recent.forEach(u => {
-        list.push({
-          id: u.id,
-          name: u.username || 'Guerrero',
-          avatar: u.selected_avatar || 'gato',
-          color: this.membership.getAvatarColorById(u.selected_avatar || 'gato'),
-          wins: u.podium_wins || 0
-        });
-      });
+  private processRecentAvatars(recent: CommunityLeaderboardUser[]) {
+    this.rawRecentAvatars = recent || [];
+    this.updateCompanionsLists();
+  }
+
+  private updateCompanionsLists() {
+    const livePomodoro: CommunityCompanionItem[] = [];
+    const liveCamp: CommunityCompanionItem[] = [];
+    const seenIds = new Set<string>();
+    const seenNames = new Set<string>();
+
+    const isSelfInPomodoro = this.membership.isFocusActive() || (this.timerRunning() && !this.isBreak());
+    const selfItem: CommunityCompanionItem = {
+      id: 'self',
+      name: this.userName() || 'Tú',
+      avatar: this.selectedAvatar() || 'gato',
+      color: this.getSelectedAvatarColor(),
+      wins: this.membership.podiumWins(),
+      status: isSelfInPomodoro ? 'focused' : 'idle',
+      mission: isSelfInPomodoro ? 'Enfoque Activo' : 'En el campamento'
+    };
+
+    if (isSelfInPomodoro) {
+      livePomodoro.push(selfItem);
     } else {
-      list.push({
-        id: 'self',
-        name: this.userName(),
-        avatar: this.selectedAvatar(),
-        color: this.getSelectedAvatarColor(),
-        wins: this.membership.podiumWins()
+      liveCamp.push(selfItem);
+    }
+    seenNames.add((this.userName() || '').toLowerCase());
+    if (this.supabaseService.currentUser()?.id) {
+      seenIds.add(this.supabaseService.currentUser()!.id);
+    }
+
+    // 1. Procesar presencias EXCLUSIVAMENTE de usuarios actualmente conectados en vivo
+    if (this.lastPresenceState) {
+      Object.keys(this.lastPresenceState).forEach(key => {
+        if (key === this.presenceClientId) return;
+        const presences = this.lastPresenceState[key];
+        if (Array.isArray(presences) && presences.length > 0) {
+          const p = presences[presences.length - 1];
+          if (p.client_id === this.presenceClientId) return;
+          const uid = p.user_id || p.client_id || key;
+          if (seenIds.has(uid)) return;
+          const name = p.name || 'Guerrero';
+          if (seenNames.has(name.toLowerCase())) return;
+
+          seenIds.add(uid);
+          seenNames.add(name.toLowerCase());
+
+          const companion: CommunityCompanionItem = {
+            id: uid,
+            name,
+            avatar: p.avatar || 'gato',
+            color: this.membership.getAvatarColorById(p.avatar || 'gato'),
+            wins: 0,
+            status: p.status || 'idle',
+            mission: p.mission || (p.status === 'focused' ? 'Enfoque Activo' : 'En el campamento')
+          };
+
+          if (p.status === 'focused') {
+            livePomodoro.push(companion);
+          } else {
+            liveCamp.push(companion);
+          }
+        }
       });
     }
 
-    this.liveCommunityUsers.set(list);
+    this.livePomodoroUsers.set(livePomodoro);
+    this.liveCampUsers.set(liveCamp);
+    this.liveCommunityUsers.set([...livePomodoro, ...liveCamp]);
+
+    const targetPomodoroCount = isSelfInPomodoro ? livePomodoro.length : (livePomodoro.length);
+    const targetCampCount = liveCamp.length;
+
+    this.animateCounter(this.livePomodoroUsersCount, targetPomodoroCount);
+    this.animateCounter(this.liveCampUsersCount, targetCampCount);
+    this.animateCounter(this.liveFocusedUsersCount, targetPomodoroCount);
   }
 
   private animateCounter(targetSignal: WritableSignal<number>, targetValue: number, duration: number = 1200) {
@@ -533,6 +642,7 @@ export class Home implements OnInit, OnDestroy {
   resetTimer() {
     this.stopTimerLoop();
     this.timeLeft.set(this.totalSessionTime());
+    this.updateCompanionsLists();
   }
 
   selectMode(mode: 'focus' | 'break') {
@@ -548,6 +658,7 @@ export class Home implements OnInit, OnDestroy {
       this.totalSessionTime.set(brk * 60);
       this.timeLeft.set(brk * 60);
     }
+    this.updateCompanionsLists();
   }
 
   requestNotificationPermission() {
@@ -578,6 +689,7 @@ export class Home implements OnInit, OnDestroy {
 
   private startTimerLoop() {
     this.timerRunning.set(true);
+    this.updateCompanionsLists();
     this.pomodoroTimer = setInterval(() => {
       if (this.timeLeft() > 0) {
         this.timeLeft.update(t => t - 1);
@@ -618,6 +730,7 @@ export class Home implements OnInit, OnDestroy {
 
   private stopTimerLoop() {
     this.timerRunning.set(false);
+    this.updateCompanionsLists();
     if (this.pomodoroTimer) {
       clearInterval(this.pomodoroTimer);
       this.pomodoroTimer = null;

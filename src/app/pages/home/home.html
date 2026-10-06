@@ -24,7 +24,7 @@
   <!-- ROW 1: MÉTRICAS SUPERIORES (3 COLUMNAS) -->
   <div class="metrics-top-row">
     
-    <!-- CARD 1: Personas Enfocadas -->
+    <!-- CARD 1: Personas en Pomodoro (Ahora mismo) -->
     <div class="metric-card-premium card-focused-now" style="--card-accent: var(--green); margin: 0; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
       
       <!-- CABECERA -->
@@ -34,7 +34,10 @@
           <span class="card-title-text" style="color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Ahora mismo</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="card-title-text" style="color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 2px 6px; border-radius: 4px;">En vivo</span>
+          <span class="card-title-text" style="color: var(--green); font-weight: 700; background: rgba(16, 185, 129, 0.08); padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-stopwatch" style="font-size: 8px;"></i>
+            En Pomodoro
+          </span>
           <button routerLink="/enfoque" class="card-action-play" data-tooltip="Ir a Concentración" data-tooltip-align="left">
             <i class="fa-solid fa-play"></i>
           </button>
@@ -42,29 +45,38 @@
       </div>
       
       <!-- CONTENIDO CENTRAL -->
-      <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: center; margin: 12px 0;">
+      <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: center; margin: 12px 0;"
+           [attr.data-tooltip]="livePomodoroUsersCount() > 20 ? ('Total exacto: ' + livePomodoroUsersCount() + ' personas en Pomodoro') : null">
         <div class="card-large-value">
-          {{ liveFocusedUsersCount() }} {{ liveFocusedUsersCount() === 1 ? 'persona' : 'personas' }}
+          {{ displayPomodoroCount() }} {{ livePomodoroUsersCount() === 1 ? 'persona' : 'personas' }}
         </div>
-        <div class="card-sub-desc">{{ liveFocusedUsersCount() === 1 ? 'está trabajando.' : (liveFocusedUsersCount() === 0 ? 'conectadas ahora.' : 'están trabajando.') }}</div>
+        <div class="card-sub-desc">
+          {{ livePomodoroUsersCount() === 0 ? 'sin sesiones activas ahora.' : (livePomodoroUsersCount() > 20 ? '20 personas y más en sesión activa ahora.' : (livePomodoroUsersCount() === 1 ? 'en Pomodoro activo ahora.' : 'en Pomodoro activo ahora.')) }}
+        </div>
       </div>
       
-      <!-- FOOTER: Avatares en Vivo -->
+      <!-- FOOTER: Avatares en Pomodoro -->
       <div class="avatar-stack-container" style="border-top: 1px dashed var(--border); padding-top: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-        <div class="avatar-stack-list">
-          <div *ngFor="let user of liveCommunityUsers().slice(0, 5)"
+        <div class="avatar-stack-list" *ngIf="livePomodoroUsers().length > 0; else noPomodoroAvatars">
+          <div *ngFor="let user of livePomodoroUsers().slice(0, 5)"
                class="avatar-stack-item avatar-sprite"
                [class]="'sprite-' + user.avatar"
+               [style.border-color]="'var(--green)'"
                (click)="zoomAvatar(user.avatar, user.name, getAvatarTitle(user.avatar), user.color, user.wins)">
-            <span class="avatar-tooltip">{{ user.name }}</span>
+            <span class="avatar-tooltip">{{ user.name }} (En Pomodoro)</span>
           </div>
         </div>
-        <span class="card-title-text" style="color: var(--muted); font-weight: 500; font-size: 8.5px;">en directo</span>
+        <ng-template #noPomodoroAvatars>
+          <span style="color: var(--muted); font-size: 10px; font-weight: 500; font-style: italic;">
+            Sin sesiones en curso
+          </span>
+        </ng-template>
+        <span class="card-title-text" style="color: var(--green); font-weight: 600; font-size: 8.5px;">en concentración</span>
       </div>
 
       <!-- Icono flotante decorativo -->
       <div class="card-float-icon">
-        <i class="fa-solid fa-tower-broadcast"></i>
+        <i class="fa-solid fa-stopwatch"></i>
       </div>
     </div>
 
@@ -296,32 +308,32 @@
   <!-- ROW 2: CONTENEDOR INFERIOR EN TRES COLUMNAS IGUALES -->
   <div class="dashboard-grid" style="margin-top: 24px;">
     
-    <!-- COLUMNA 1: TEMPLO DE ENFOQUE COLECTIVO -->
+    <!-- COLUMNA 1: TEMPLO DE ENFOQUE COLECTIVO / EL CAMPAMENTO -->
     <div class="dashboard-main-column">
       
-      <!-- CARD: TEMPLO DE ENFOQUE COLECTIVO (COMUNIDAD) -->
+      <!-- CARD: TEMPLO DE ENFOQUE COLECTIVO (COMUNIDAD / EL CAMPAMENTO) -->
       <div class="coworking-card" style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
         
         <!-- Cabecera -->
         <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; z-index: 10;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-graduation-cap" style="color: var(--accent); font-size: 14px;"></i>
+            <i class="fa-solid fa-campground" style="color: var(--accent); font-size: 14px;"></i>
             <div>
               <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
                 Comunidad
                 <span class="flashy-help-badge" 
-                      data-tooltip="La Comunidad es un templo de estudio colectivo. Al entrar, te sincronizas con decenas de guerreros enfocados en tiempo real bajo la misma atmósfera Zen.">
+                      data-tooltip="El Campamento es el punto de encuentro de la comunidad. Aquí se congregan los guerreros listos para iniciar sesiones de enfoque sincronizado bajo la atmósfera Zen.">
                   <i class="fa-solid fa-circle-question"></i>
                 </span>
               </h4>
-              <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Trabaja en sincronía y vence a la procrastinación en grupo.</p>
+              <p style="font-size: 11px; color: var(--muted); margin: 2px 0 0 0;">Guerreros en el campamento base listos para sincronizar.</p>
             </div>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <!-- Indicador en vivo -->
-            <span style="font-size: 9px; color: var(--green); font-weight: 800; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px;">
-              <span style="width: 4px; height: 4px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulseGreen 1.5s infinite;"></span>
-              EN VIVO
+            <!-- Indicador en campamento -->
+            <span style="font-size: 9px; color: var(--accent); font-weight: 800; background: rgba(217,43,43,0.08); border: 1px solid rgba(217,43,43,0.2); padding: 2px 6px; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px;">
+              <i class="fa-solid fa-campground" style="font-size: 8px;"></i>
+              CAMPAMENTO
             </span>
             <button routerLink="/enfoque" class="card-action-play" data-tooltip="Iniciar Concentración" data-tooltip-align="left">
               <i class="fa-solid fa-play"></i>
@@ -334,9 +346,10 @@
           
           <!-- Grid de Métricas de la Comunidad -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div class="home-stat-box" style="background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;">
-              <span style="font-size: 18px; font-weight: 900; color: var(--accent);">{{ liveFocusedUsersCount() }}</span>
-              <span style="font-size: 9.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px;">Guerreros Activos</span>
+            <div class="home-stat-box" style="background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;"
+                 [attr.data-tooltip]="liveCampUsersCount() > 20 ? ('Total exacto: ' + liveCampUsersCount() + ' guerreros en el campamento') : null">
+              <span style="font-size: 18px; font-weight: 900; color: var(--accent);">{{ displayCampCount() }}</span>
+              <span style="font-size: 9.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px;">En Campamento</span>
             </div>
             <div class="home-stat-box" style="background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;">
               <span style="font-size: 18px; font-weight: 900; color: var(--yellow);">{{ liveCompletedObjectivesToday() }}</span>
@@ -344,26 +357,33 @@
             </div>
           </div>
 
-          <!-- Preview de Compañeros (Avatar Stack y Texto descriptivo) -->
+          <!-- Preview de Compañeros en el Campamento -->
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 6px;">
-            <span style="font-size: 11px; color: var(--muted); font-weight: 500;" *ngIf="liveFocusedUsersCount() > 1">
-              Enfócate con <strong style="color: var(--text);">{{ featuredCompanionName() }}</strong> y <strong style="color: var(--accent);">+{{ liveFocusedUsersCount() - 1 }}</strong> compañeros en vivo
+            <span style="font-size: 11px; color: var(--muted); font-weight: 500;" *ngIf="liveCampUsersCount() > 20">
+              En el campamento con <strong style="color: var(--text);">{{ featuredCampCompanionName() }}</strong> y <strong style="color: var(--accent);">más de 20 compañeros</strong> listos
             </span>
-            <span style="font-size: 11px; color: var(--muted); font-weight: 500;" *ngIf="liveFocusedUsersCount() <= 1">
-              Sesión activa para ti. ¡Sé el primero en liderar la jornada hoy!
+            <span style="font-size: 11px; color: var(--muted); font-weight: 500;" *ngIf="liveCampUsersCount() > 1 && liveCampUsersCount() <= 20">
+              En el campamento con <strong style="color: var(--text);">{{ featuredCampCompanionName() }}</strong> y <strong style="color: var(--accent);">+{{ liveCampUsersCount() - 1 }}</strong> guerreros
+            </span>
+            <span style="font-size: 11px; color: var(--muted); font-weight: 500;" *ngIf="liveCampUsersCount() === 1">
+              Estás en el campamento base listo para sincronizar.
+            </span>
+            <span style="font-size: 11px; color: var(--muted); font-weight: 500;" *ngIf="liveCampUsersCount() === 0">
+              El campamento está listo para ti. ¡Únete y lidera la jornada!
             </span>
             
-            <!-- Stack de Avatares -->
-            <div style="display: flex; align-items: center; position: relative; height: 24px; width: 68px; flex-shrink: 0; margin-left: 8px;">
-              <div *ngFor="let user of liveCommunityUsers().slice(0, 2); let idx = index"
+            <!-- Stack de Avatares del Campamento -->
+            <div style="display: flex; align-items: center; position: relative; height: 24px; width: 68px; flex-shrink: 0; margin-left: 8px;" *ngIf="liveCampUsers().length > 0">
+              <div *ngFor="let user of liveCampUsers().slice(0, 2); let idx = index"
                    class="avatar-sprite"
                    [class]="'sprite-' + user.avatar"
                    [style.left.px]="idx * 14"
                    [style.z-index]="3 - idx"
-                   style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; background-size: cover; background-position: center;"></div>
-              <div *ngIf="liveFocusedUsersCount() > 2"
+                   style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; background-size: cover; background-position: center;"
+                   (click)="zoomAvatar(user.avatar, user.name, getAvatarTitle(user.avatar), user.color, user.wins)"></div>
+              <div *ngIf="liveCampUsersCount() > 2"
                    style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 28px; z-index: 1; background: var(--accent); color: #000; font-size: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center;">
-                +{{ liveFocusedUsersCount() - 2 }}
+                {{ liveCampUsersCount() > 20 ? '+18' : ('+' + (liveCampUsersCount() - 2)) }}
               </div>
             </div>
           </div>
@@ -381,7 +401,7 @@
 
         <!-- Icono flotante decorativo -->
         <div class="card-float-icon">
-          <i class="fa-solid fa-yin-yang"></i>
+          <i class="fa-solid fa-campground"></i>
         </div>
       </div>
 

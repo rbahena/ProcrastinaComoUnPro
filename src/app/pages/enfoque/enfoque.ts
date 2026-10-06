@@ -1968,6 +1968,40 @@ export class Enfoque implements OnInit, OnDestroy {
   emergencyTimeLeft = signal(120); // 2 minutos en segundos
   private emergencyTimer: any = null;
 
+  // Lógica de Abandono (Aura Roja de 30s de enfriamiento en comunidad)
+  recentlyAbandoned = signal(false);
+  abandonCooldownTimeLeft = signal(30);
+  private abandonCooldownTimer: any = null;
+
+  startAbandonedCooldown() {
+    this.clearAbandonedCooldown(false);
+    this.recentlyAbandoned.set(true);
+    this.abandonCooldownTimeLeft.set(30);
+    this.broadcastPresence();
+
+    this.abandonCooldownTimer = setInterval(() => {
+      if (this.abandonCooldownTimeLeft() > 1) {
+        this.abandonCooldownTimeLeft.update(t => t - 1);
+      } else {
+        this.clearAbandonedCooldown();
+      }
+    }, 1000);
+  }
+
+  clearAbandonedCooldown(broadcast: boolean = true) {
+    if (this.abandonCooldownTimer) {
+      clearInterval(this.abandonCooldownTimer);
+      this.abandonCooldownTimer = null;
+    }
+    if (this.recentlyAbandoned()) {
+      this.recentlyAbandoned.set(false);
+      this.abandonCooldownTimeLeft.set(0);
+      if (broadcast) {
+        this.broadcastPresence();
+      }
+    }
+  }
+
   // Datos del Co-worker asignado (Compatibilidad)
   partnerName = signal('');
   partnerAvatar = signal('');
@@ -2017,15 +2051,16 @@ export class Enfoque implements OnInit, OnDestroy {
     if (filter === 'focused') {
       list = list.filter(u => u.status === 'focused');
     } else if (filter === 'break') {
-      list = list.filter(u => u.status === 'break' || u.status === 'paused');
+      list = list.filter(u => u.status === 'break' || u.status === 'paused' || u.status === 'abandoned');
     }
 
-    // Ordenar con prioridad inteligente: Focused (4) -> Break (3) -> Paused (2) -> Idle (1)
+    // Ordenar con prioridad inteligente: Focused (5) -> Break (4) -> Paused (3) -> Abandoned (2) -> Idle (1)
     const sorted = [...list].sort((a, b) => {
       const score = (u: any) => {
-        if (u.status === 'focused') return 4;
-        if (u.status === 'break') return 3;
-        if (u.status === 'paused') return 2;
+        if (u.status === 'focused') return 5;
+        if (u.status === 'break') return 4;
+        if (u.status === 'paused') return 3;
+        if (u.status === 'abandoned') return 2;
         return 1;
       };
       const scoreDiff = score(b) - score(a);
@@ -2819,6 +2854,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.stopTitleFlashing();
     this.showSupportMessageModal.set(false);
     this.manuallyAbandoned.set(false);
+    this.clearAbandonedCooldown(false);
     this.interruptedByPause.set(false);
     this.objectiveCompleted.set(null);
     this.stopTimerLoop();
@@ -3049,7 +3085,7 @@ export class Enfoque implements OnInit, OnDestroy {
     this.sessionEndingStatus.set('abandoned');
     this.manuallyAbandoned.set(false);
     this.objectiveCompleted.set(null);
-    this.broadcastPresence();
+    this.startAbandonedCooldown();
 
     // 6. Registrar intento diario
     const now = new Date();
@@ -4273,6 +4309,7 @@ export class Enfoque implements OnInit, OnDestroy {
     }
     this.stopTimerLoop();
     this.stopEmergencyTimer();
+    this.clearAbandonedCooldown(false);
     this.stopBackgroundSound();
     if (this.previewSoundTimeout) clearTimeout(this.previewSoundTimeout);
     if (this.consoleHintTimeout) clearTimeout(this.consoleHintTimeout);
@@ -4365,6 +4402,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   applyTimeSettings() {
     this.stopTimerLoop();
+    this.clearAbandonedCooldown(false);
     this.membership.setFocusSetting('focus-duration', String(this.focusDuration()));
     this.membership.setFocusSetting('break-duration', String(this.breakDuration()));
     this.membership.setFocusSetting('long-break-interval', String(this.longBreakInterval()));
@@ -4917,6 +4955,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   private startTimerLoop(fromRestore: boolean = false) {
+    this.clearAbandonedCooldown(false);
     this.timerRunning.set(true);
     this.startSmoothAnimationLoop();
     if (!this.isBreak()) {
@@ -5313,7 +5352,7 @@ export class Enfoque implements OnInit, OnDestroy {
           name: p.name || 'Guerrero',
           avatar: p.avatar || 'gato',
           status: p.status || 'idle',
-          mission: p.is_private ? (p.status === 'focused' ? 'Enfoque Activo' : (p.status === 'paused' ? '⏸️ En pausa de emergencia' : (p.status === 'break' ? 'Pausa de descanso' : 'En el campamento'))) : (p.mission || (p.status === 'paused' ? '⏸️ En pausa de emergencia' : (p.status === 'break' ? 'Pausa de descanso' : (p.status === 'focused' ? 'Enfoque Activo' : 'En el campamento')))),
+          mission: p.is_private ? (p.status === 'focused' ? 'Enfoque Activo' : (p.status === 'paused' ? 'En pausa de emergencia' : (p.status === 'abandoned' ? 'Sesión interrumpida' : (p.status === 'break' ? 'Pausa de descanso' : 'En el campamento')))) : (p.mission || (p.status === 'paused' ? 'En pausa de emergencia' : (p.status === 'abandoned' ? 'Sesión interrumpida' : (p.status === 'break' ? 'Pausa de descanso' : (p.status === 'focused' ? 'Enfoque Activo' : 'En el campamento'))))),
           is_private: !!p.is_private,
           timeLeft: remaining,
           percentage: pct,
@@ -5366,17 +5405,22 @@ export class Enfoque implements OnInit, OnDestroy {
     if (!this.communityPresenceChannel || !this.supabaseService.isConfigured()) return;
     const user = this.supabaseService.currentUser();
     const isPaused = this.emergencyPauseActive();
-    const isFocusing = !isPaused && !this.isBreak() && (this.arenaState() === 'active' || this.arenaState() === 'countdown' || this.timerRunning());
-    const isBreaking = !isPaused && this.isBreak() && (this.arenaState() === 'active' || this.arenaState() === 'countdown' || this.timerRunning());
+    const isAbandoned = this.recentlyAbandoned();
+    const isFocusing = !isPaused && !isAbandoned && !this.isBreak() && (this.arenaState() === 'active' || this.arenaState() === 'countdown' || this.timerRunning());
+    const isBreaking = !isPaused && !isAbandoned && this.isBreak() && (this.arenaState() === 'active' || this.arenaState() === 'countdown' || this.timerRunning());
     
-    let status: 'focused' | 'break' | 'paused' | 'idle' = 'idle';
+    let status: 'focused' | 'break' | 'paused' | 'abandoned' | 'idle' = 'idle';
     let targetEnd: number | null = null;
     let mission = 'En el campamento';
 
     if (isPaused) {
       status = 'paused';
       targetEnd = Date.now() + (this.emergencyTimeLeft() * 1000);
-      mission = '⏸️ En pausa de emergencia';
+      mission = 'En pausa de emergencia';
+    } else if (isAbandoned) {
+      status = 'abandoned';
+      targetEnd = null;
+      mission = 'Sesión interrumpida';
     } else if (isFocusing) {
       status = 'focused';
       const countdownExtra = this.arenaState() === 'countdown' ? Math.max(0, this.countdownValue()) : 0;
@@ -5405,7 +5449,7 @@ export class Enfoque implements OnInit, OnDestroy {
         avatar: this.membership.selectedAvatar() || 'gato',
         status,
         target_end_time: targetEnd,
-        total_duration: isPaused ? 120 : (this.totalSessionTime() || (this.focusDuration() * 60) || 1500),
+        total_duration: isPaused ? 120 : (isAbandoned ? 30 : (this.totalSessionTime() || (this.focusDuration() * 60) || 1500)),
         mission,
         is_private: this.hideMyObjectiveInCommunity(),
         updated_at: Date.now()
@@ -5481,14 +5525,24 @@ export class Enfoque implements OnInit, OnDestroy {
           timeLeft: newTime,
           percentage: pct
         };
-      } else if (u.status === 'focused' && (!targetEnd || isNaN(targetEnd))) {
+      } else if (u.status === 'focused') {
+        const newTime = Math.max(0, (u.timeLeft > 0 ? u.timeLeft : total) - 1);
+        const pct = Math.min(100, Math.floor(((total - newTime) / total) * 100));
         return {
           ...u,
-          timeLeft: total,
-          percentage: 0
+          timeLeft: newTime,
+          percentage: pct
         };
       } else if (targetEnd && !isNaN(targetEnd) && (u.status === 'break' || u.status === 'paused')) {
         const newTime = Math.max(0, Math.floor((targetEnd - now) / 1000));
+        return {
+          ...u,
+          timeLeft: newTime,
+          percentage: 0
+        };
+      } else if (u.status === 'break' || u.status === 'paused') {
+        const fallbackTotal = u.status === 'paused' ? 120 : 300;
+        const newTime = Math.max(0, (u.timeLeft > 0 ? u.timeLeft : fallbackTotal) - 1);
         return {
           ...u,
           timeLeft: newTime,

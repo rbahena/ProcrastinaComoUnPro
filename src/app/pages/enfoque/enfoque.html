@@ -9204,35 +9204,37 @@
       <div class="no-scrollbar" style="display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto;">
         <!-- Tu Ficha -->
         <div style="padding: 6px 10px; display: flex; align-items: center; gap: 10px; border-radius: 10px; border: 1px solid;"
-             [style.borderColor]="emergencyPauseActive() ? '#ef4444' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'rgba(255,255,255,0.06)'))"
-             [style.background]="emergencyPauseActive() ? 'rgba(239, 68, 68, 0.12)' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'rgba(16, 185, 129, 0.08)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255,255,255,0.02)'))">
+             [style.borderColor]="recentlyAbandoned() ? '#ef4444' : (emergencyPauseActive() ? '#f59e0b' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'rgba(255,255,255,0.06)')))"
+             [style.background]="recentlyAbandoned() ? 'rgba(239, 68, 68, 0.12)' : (emergencyPauseActive() ? 'rgba(245, 158, 11, 0.12)' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'rgba(16, 185, 129, 0.08)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255,255,255,0.02)')))">
           <div style="position: relative; flex-shrink: 0;">
             <div [class]="'avatar-sprite sprite-' + membership.selectedAvatar()" 
                  style="width: 38px; height: 38px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid;"
-                 [style.borderColor]="emergencyPauseActive() ? '#ef4444' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'var(--muted)'))"></div>
-            <span *ngIf="(arenaState() === 'active' || arenaState() === 'countdown') && !emergencyPauseActive()" style="position: absolute; bottom: 0px; right: 0px; width: 10px; height: 10px; border-radius: 50%; background: #10b981; border: 2px solid #000; box-shadow: 0 0 5px #10b981;"></span>
-            <span *ngIf="emergencyPauseActive()" style="position: absolute; bottom: 0px; right: 0px; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; border: 2px solid #000; box-shadow: 0 0 5px #ef4444;"></span>
+                 [style.borderColor]="recentlyAbandoned() ? '#ef4444' : (emergencyPauseActive() ? '#f59e0b' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'var(--muted)')))"
+                 [style.boxShadow]="recentlyAbandoned() ? '0 0 10px rgba(239, 68, 68, 0.45)' : (emergencyPauseActive() ? '0 0 10px rgba(245, 158, 11, 0.4)' : 'none')"></div>
+            <span *ngIf="(arenaState() === 'active' || arenaState() === 'countdown') && !emergencyPauseActive() && !recentlyAbandoned()" style="position: absolute; bottom: 0px; right: 0px; width: 10px; height: 10px; border-radius: 50%; background: #10b981; border: 2px solid #000; box-shadow: 0 0 5px #10b981;"></span>
+            <span *ngIf="emergencyPauseActive()" style="position: absolute; bottom: 0px; right: 0px; width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; border: 2px solid #000; box-shadow: 0 0 5px #f59e0b;"></span>
+            <span *ngIf="recentlyAbandoned()" style="position: absolute; bottom: 0px; right: 0px; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; border: 2px solid #000; box-shadow: 0 0 5px #ef4444;"></span>
           </div>
           <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; text-align: left;">
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
               <div style="display: flex; align-items: center; gap: 4px;">
                 <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text);">Tú ({{ userName() }})</span>
                 <span style="font-size: 7.5px; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 0 3px; border-radius: 3px; text-transform: uppercase;">Tú</span>
-                <span *ngIf="(arenaState() === 'active' || arenaState() === 'countdown') && !emergencyPauseActive()" 
+                <span *ngIf="(arenaState() === 'active' || arenaState() === 'countdown') && !emergencyPauseActive() && !recentlyAbandoned()" 
                       style="font-size: 7.5px; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 0 3px; border-radius: 3px; text-transform: uppercase;">
                   En vivo
                 </span>
-                <span *ngIf="emergencyPauseActive()" style="font-size: 7.5px; font-weight: 800; color: #f87171; background: rgba(239, 68, 68, 0.15); padding: 0 3px; border-radius: 3px; text-transform: uppercase;">Pausado</span>
+                <span *ngIf="emergencyPauseActive()" style="font-size: 7.5px; font-weight: 800; color: #f59e0b; background: rgba(245, 158, 11, 0.15); padding: 0 3px; border-radius: 3px; text-transform: uppercase;">Pausado</span>
               </div>
             </div>
             <span style="font-size: var(--modal-text-size); font-weight: 700; margin-top: 1px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"
-                  [style.color]="emergencyPauseActive() ? '#f87171' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'var(--muted)'))">
-              {{ emergencyPauseActive() ? '⏸️ En pausa de emergencia' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'Pausa de descanso' : ((arenaState() === 'active' || arenaState() === 'countdown') ? (hideMyObjectiveInCommunity() ? 'Enfoque Activo' : ((activeObjective() && activeObjective().trim()) ? '🎯 ' + activeObjective().trim() : 'Enfoque Activo')) : ((activeObjective() && activeObjective().trim()) ? '🎯 ' + activeObjective().trim() : 'En el campamento'))) }}
+                  [style.color]="recentlyAbandoned() ? '#f87171' : (emergencyPauseActive() ? '#f59e0b' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'var(--muted)')))">
+              {{ recentlyAbandoned() ? 'Sesión interrumpida' : (emergencyPauseActive() ? 'En pausa de emergencia' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'Pausa de descanso' : ((arenaState() === 'active' || arenaState() === 'countdown') ? (hideMyObjectiveInCommunity() ? 'Enfoque Activo' : ((activeObjective() && activeObjective().trim()) ? '🎯 ' + activeObjective().trim() : 'Enfoque Activo')) : ((activeObjective() && activeObjective().trim()) ? '🎯 ' + activeObjective().trim() : 'En el campamento')))) }}
             </span>
           </div>
           <span style="font-size: var(--modal-header-size); font-weight: 800; font-family: monospace; flex-shrink: 0;"
-                [style.color]="emergencyPauseActive() ? '#ef4444' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'var(--muted)'))">
-            {{ emergencyPauseActive() ? '⏸️ ' + emergencyTimeString() : timeString() }}
+                [style.color]="recentlyAbandoned() ? '#ef4444' : (emergencyPauseActive() ? '#f59e0b' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'var(--muted)')))">
+            {{ recentlyAbandoned() ? '💔 Abandonó' : (emergencyPauseActive() ? emergencyTimeString() : timeString()) }}
           </span>
         </div>
 
@@ -9252,40 +9254,41 @@
             No se encontraron guerreros con "{{ comunidadSearchQuery() }}"
           </div>
 
-          <!-- Top 10 Guerreros Ordenados por Prioridad (Enfocados > Descanso > Pausa > Inactivos) -->
+          <!-- Top 10 Guerreros Ordenados por Prioridad (Enfocados > Descanso > Pausa > Abandonó > Inactivos) -->
           <div *ngFor="let p of visibleComunidadUsers()" 
                style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 10px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; text-align: left;"
-               [style.borderColor]="p.is_live ? (p.status === 'focused' ? 'rgba(99, 102, 241, 0.3)' : (p.status === 'paused' ? 'rgba(239, 68, 68, 0.35)' : (p.status === 'break' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255,255,255,0.04)'))) : 'rgba(255,255,255,0.03)'">
+               [style.borderColor]="p.is_live ? (p.status === 'focused' ? 'rgba(99, 102, 241, 0.3)' : (p.status === 'abandoned' ? 'rgba(239, 68, 68, 0.45)' : (p.status === 'paused' ? 'rgba(245, 158, 11, 0.35)' : (p.status === 'break' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255,255,255,0.04)')))) : 'rgba(255,255,255,0.03)'">
             <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; flex: 1; padding-right: 6px;">
               <div style="position: relative; flex-shrink: 0;">
                 <div [class]="'avatar-sprite sprite-' + p.avatar" 
-                     style="width: 38px; height: 38px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid;"
-                     [style.borderColor]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'paused' ? '#ef4444' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)'))">
+                     style="width: 38px; height: 38px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid; transition: all 0.3s ease;"
+                     [style.borderColor]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'abandoned' ? '#ef4444' : (p.status === 'paused' ? '#f59e0b' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')))"
+                     [style.boxShadow]="p.status === 'abandoned' ? '0 0 10px rgba(239, 68, 68, 0.45)' : (p.status === 'paused' ? '0 0 10px rgba(245, 158, 11, 0.35)' : 'none')">
                 </div>
                 <span *ngIf="p.is_live && p.status !== 'idle'" style="position: absolute; bottom: 0px; right: 0px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #000;"
-                      [style.background]="p.status === 'paused' ? '#ef4444' : '#10b981'"
-                      [style.boxShadow]="p.status === 'paused' ? '0 0 5px #ef4444' : '0 0 5px #10b981'"></span>
+                      [style.background]="p.status === 'abandoned' ? '#ef4444' : (p.status === 'paused' ? '#f59e0b' : '#10b981')"
+                      [style.boxShadow]="p.status === 'abandoned' ? '0 0 5px #ef4444' : (p.status === 'paused' ? '0 0 5px #f59e0b' : '0 0 5px #10b981')"></span>
               </div>
               <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
                   <div style="display: flex; align-items: center; gap: 4px; overflow: hidden;">
                     <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ p.name }}</span>
-                    <span *ngIf="p.is_live && p.status !== 'idle'" style="font-size: 7.5px; font-weight: 800; padding: 0 3px; border-radius: 3px; text-transform: uppercase;"
-                          [style.color]="p.status === 'paused' ? '#f87171' : '#10b981'"
-                          [style.background]="p.status === 'paused' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)'">
+                    <span *ngIf="p.is_live && p.status !== 'idle' && p.status !== 'abandoned'" style="font-size: 7.5px; font-weight: 800; padding: 0 3px; border-radius: 3px; text-transform: uppercase;"
+                          [style.color]="p.status === 'paused' ? '#f59e0b' : '#10b981'"
+                          [style.background]="p.status === 'paused' ? 'rgba(245, 158, 11, 0.16)' : 'rgba(16, 185, 129, 0.12)'">
                       {{ p.status === 'paused' ? 'Pausado' : 'En vivo' }}
                     </span>
                   </div>
                 </div>
                 <span style="font-size: var(--modal-text-size); color: var(--muted); line-height: 1.3; font-weight: 500; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"
                       [title]="p.mission">
-                  <span *ngIf="p.mission && p.mission !== 'Enfoque Activo' && p.mission !== 'En el campamento' && p.mission !== 'Pausa de descanso' && !p.mission.startsWith('⏸️') && !p.mission.startsWith('🎯')">🎯 </span>{{ p.mission }}
+                  <span *ngIf="p.mission && p.mission !== 'Enfoque Activo' && p.mission !== 'En el campamento' && p.mission !== 'Pausa de descanso' && p.mission !== 'En pausa de emergencia' && p.mission !== 'Sesión interrumpida' && !p.mission.startsWith('⏸️') && !p.mission.startsWith('💔') && !p.mission.startsWith('🎯')">🎯 </span>{{ p.mission }}
                 </span>
               </div>
             </div>
             <span style="font-size: var(--modal-header-size); font-weight: 800; font-family: monospace; flex-shrink: 0;"
-                  [style.color]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'paused' ? '#ef4444' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)'))">
-              {{ p.status === 'focused' ? formatTime(p.timeLeft) : (p.status === 'paused' ? (p.timeLeft > 0 ? '⏸️ ' + formatTime(p.timeLeft) : '⏸️ Pausa') : (p.status === 'break' ? (p.timeLeft > 0 ? formatTime(p.timeLeft) : '☕ 5:00') : '💤 Inactivo')) }}
+                  [style.color]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'abandoned' ? '#ef4444' : (p.status === 'paused' ? '#f59e0b' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')))">
+              {{ p.status === 'focused' ? formatTime(p.timeLeft) : (p.status === 'abandoned' ? '💔 Abandonó' : (p.status === 'paused' ? (p.timeLeft > 0 ? formatTime(p.timeLeft) : 'Pausa') : (p.status === 'break' ? (p.timeLeft > 0 ? formatTime(p.timeLeft) : '☕ 5:00') : '💤 Inactivo'))) }}
             </span>
           </div>
 
