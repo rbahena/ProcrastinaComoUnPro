@@ -286,7 +286,7 @@ CREATE TRIGGER on_auth_user_created
 
 
 -- ------------------------------------------------------------------------------
--- 6. SEGURIDAD Y PERMISOS: RLS EN PERFILES - PENDIENTE POR APLICAR
+-- 6. SEGURIDAD Y PERMISOS: RLS Y PROTECCIÓN DE COLUMNAS EN PERFILES
 -- ------------------------------------------------------------------------------
 
 -- [TIPO DE OBJETO: DIRECTIVA DE SEGURIDAD (ROW LEVEL SECURITY - RLS)]
@@ -310,6 +310,28 @@ DROP POLICY IF EXISTS "Los usuarios solo pueden actualizar su propio perfil" ON 
 CREATE POLICY "Los usuarios solo pueden actualizar su propio perfil"
     ON public.profiles FOR UPDATE
     USING (auth.uid() = id);
+
+-- [TIPO DE OBJETO: FUNCIÓN Y TRIGGER DE PROTECCIÓN DE COLUMNAS SENSIBLES]
+-- ¿Qué es? Trigger que intercepta modificaciones en profiles para evitar manipulación de columnas administrativas.
+-- ¿Para qué sirve? Si un usuario autenticado intenta alterar campos de facturación (is_premium, stripe_customer_id),
+-- el trigger preserva los valores originales. Solo el rol service_role (webhooks/backend) puede actualizarlos.
+CREATE OR REPLACE FUNCTION public.check_profile_column_permissions()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF auth.role() = 'authenticated' THEN
+        NEW.is_premium := OLD.is_premium;
+        NEW.premium_until := OLD.premium_until;
+        NEW.stripe_customer_id := OLD.stripe_customer_id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS tr_protect_profile_columns ON public.profiles;
+CREATE TRIGGER tr_protect_profile_columns
+    BEFORE UPDATE ON public.profiles
+    FOR EACH ROW
+    EXECUTE FUNCTION public.check_profile_column_permissions();
 
 
 -- ------------------------------------------------------------------------------
