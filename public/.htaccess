@@ -1,0 +1,98 @@
+# ==============================================================================
+# 🛡️ PROCRASTINA COMO UN PRO (COFU) - CONFIGURACIÓN PARA HOSTINGER (APACHE/LITESPEED)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. FORZAR HTTPS Y REDIRECCIÓN SEGURA
+# ------------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# 2. REGLAS DE REESCRITURA PARA ANGULAR SPA (EVITAR ERROR 404 AL RECARGAR)
+# ------------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Si el archivo o directorio solicitado existe físicamente en el servidor, servirlo
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Si no existe (ej. /enfoque, /medallero, /ideas, /login), redirigir a index.html
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# 3. CABECERAS DE SEGURIDAD HTTP
+# ------------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  # Evita que el sitio sea incrustado en iframes de terceros (Anti-Clickjacking)
+  Header always set X-Frame-Options "DENY"
+
+  # Impide que el navegador intente adivinar el tipo MIME (Anti-MIME Sniffing)
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Protege la privacidad del usuario en enlaces externos
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Filtro XSS para navegadores antiguos
+  Header always set X-XSS-Protection "1; mode=block"
+
+  # Política de permisos del navegador (bloquea hardware no utilizado)
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+  # Forzar transporte seguro estricto (HSTS)
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# 4. COMPRESIÓN GZIP / DEFLATE PARA CARGA ULTRA-RÁPIDA
+# ------------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html
+  AddOutputFilterByType DEFLATE text/plain
+  AddOutputFilterByType DEFLATE text/xml
+  AddOutputFilterByType DEFLATE text/css
+  AddOutputFilterByType DEFLATE text/javascript
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE application/x-javascript
+  AddOutputFilterByType DEFLATE application/json
+  AddOutputFilterByType DEFLATE application/xml
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# 5. CONTROL DE CACHÉ DE ARCHIVOS ESTÁTICOS
+# ------------------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 2 days"
+
+  # HTML - Siempre fresco para recibir nuevas versiones
+  ExpiresByType text/html "access plus 0 seconds"
+
+  # JavaScript y CSS con hashes únicos generados por Angular
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType application/x-javascript "access plus 1 year"
+
+  # Imágenes, Iconos y Fuentes
+  ExpiresByType image/jpg "access plus 1 month"
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/gif "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+
+  # Audios y Videos
+  ExpiresByType audio/mpeg "access plus 1 month"
+  ExpiresByType audio/mp4 "access plus 1 month"
+  ExpiresByType video/mp4 "access plus 1 month"
+</IfModule>

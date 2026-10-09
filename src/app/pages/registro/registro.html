@@ -68,8 +68,11 @@
         }
       </button>
 
-      <p class="terms-disclaimer" style="text-align: center; font-size: 11px; margin-top: 14px; line-height: 1.4; color: var(--muted);">
-        Al registrarte, confirmas que aceptas nuestros Términos de Servicio y la Política de Privacidad.
+      <p class="terms-disclaimer" style="text-align: center; font-size: 11px; margin-top: 14px; line-height: 1.5; color: var(--muted);">
+        Al registrarte, confirmas que aceptas nuestros 
+        <a href="javascript:void(0)" (click)="legalService.open('terms')" style="color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 600;">Términos de Servicio</a> 
+        y la 
+        <a href="javascript:void(0)" (click)="legalService.open('privacy')" style="color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 600;">Política de Privacidad</a>.
       </p>
     </form>
 

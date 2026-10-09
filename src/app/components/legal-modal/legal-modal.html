@@ -1,0 +1,140 @@
+<div class="legal-overlay" *ngIf="legalService.activeModal()" (click)="close()">
+  <div class="legal-modal-card" (click)="$event.stopPropagation()">
+    
+    <!-- Encabezado del Modal -->
+    <div class="legal-modal-header">
+      <div class="header-branding">
+        <div class="legal-icon-badge">
+          <i class="fa-solid fa-scale-balanced" *ngIf="legalService.activeModal() === 'terms'"></i>
+          <i class="fa-solid fa-shield-halved" *ngIf="legalService.activeModal() === 'privacy'"></i>
+        </div>
+        <div>
+          <h2 class="legal-title">Centro Legal y Políticas</h2>
+          <span class="legal-subtitle">COFU (Procrastina Como Un Pro) • Actualizado 2026</span>
+        </div>
+      </div>
+      <button type="button" class="close-btn" (click)="close()" aria-label="Cerrar ventana">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Pestañas de Navegación -->
+    <div class="legal-tabs">
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="legalService.activeModal() === 'terms'" 
+        (click)="setTab('terms')">
+        <i class="fa-solid fa-file-contract"></i>
+        <span>Términos de Servicio</span>
+      </button>
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="legalService.activeModal() === 'privacy'" 
+        (click)="setTab('privacy')">
+        <i class="fa-solid fa-user-shield"></i>
+        <span>Política de Privacidad</span>
+      </button>
+    </div>
+
+    <!-- Contenido Scrollable -->
+    <div class="legal-modal-body">
+      
+      <!-- TAB 1: TÉRMINOS Y CONDICIONES -->
+      <div *ngIf="legalService.activeModal() === 'terms'" class="legal-text-content">
+        <h3>1. Aceptación de los Términos</h3>
+        <p>
+          Al registrarte, acceder o utilizar la plataforma <strong>COFU (Procrastina Como Un Pro)</strong>, aceptas cumplir y quedar vinculado por los presentes Términos y Condiciones de Servicio. Si no estás de acuerdo con alguna parte de estos términos, debes abstenerte de utilizar la aplicación.
+        </p>
+
+        <h3>2. Naturaleza y Finalidad del Servicio</h3>
+        <p>
+          COFU es una plataforma digital de productividad, gestión del tiempo y técnica Pomodoro gamificada mediante mecánicas de RPG, avatares y batallas comunitarias de concentración.
+        </p>
+        <p class="callout-note">
+          <strong>Aviso Importante:</strong> COFU es una herramienta de organización personal y motivación. No constituye, sustituye ni debe interpretarse como terapia psicológica, médica o tratamiento psiquiátrico para trastornos del déficit de atención o salud mental.
+        </p>
+
+        <h3>3. Cuentas de Usuario y Conducta</h3>
+        <ul>
+          <li><strong>Registro Seguro:</strong> Eres responsable de mantener la confidencialidad de tus credenciales de acceso y de toda actividad realizada desde tu cuenta.</li>
+          <li><strong>Juego Limpio (Fair Play):</strong> Queda estrictamente prohibido el uso de bots, emuladores de clics, scripts automatizados o manipulación de peticiones HTTP para alterar monedas virtuales (ProCoins), experiencia (XP) o posición en el podio. Nos reservamos el derecho de suspender cuentas que vulneren el juego limpio.</li>
+          <li><strong>Comunidad y Respeto:</strong> No se tolerará contenido ofensivo, discriminatorio o inapropiado en nombres de usuario ni en las notas compartidas en las salas de enfoque.</li>
+        </ul>
+
+        <h3>4. Suscripción y Membresía Pro (Pagos y Renovaciones)</h3>
+        <ul>
+          <li><strong>Planes Disponibles:</strong> COFU ofrece acceso básico gratuito y planes de suscripción Pro (mensual o anual) que desbloquean avatares legendarios, daño en batallas de raid y personalización estética avanzada.</li>
+          <li><strong>Facturación y Procesamiento Seguro:</strong> Los pagos son procesados de forma cifrada a través de pasarelas de pago certificadas de estándar PCI-DSS (Stripe). COFU no recopila ni almacena números de tarjeta bancaria.</li>
+          <li><strong>Cancelación:</strong> Puedes cancelar tu suscripción Pro en cualquier momento desde tu panel de membresía. Mantendrás el acceso a los beneficios Pro hasta el final del periodo de facturación pagado.</li>
+        </ul>
+
+        <h3>5. Propiedad Intelectual</h3>
+        <p>
+          Todo el contenido de COFU —incluyendo ilustraciones de avatares, efectos sonoros, algoritmos de liquidación, interfaz visual, textos de lore, código fuente y la marca comercial— es propiedad exclusiva de sus creadores y está protegido por las leyes internacionales de derechos de autor y propiedad intelectual.
+        </p>
+
+        <h3>6. Modificaciones de los Términos</h3>
+        <p>
+          Nos reservamos el derecho de actualizar estos términos en cualquier momento para reflejar mejoras operativas, balances de gamificación o requerimientos legales. Notificaremos cambios sustanciales a través de la plataforma.
+        </p>
+      </div>
+
+      <!-- TAB 2: POLÍTICA DE PRIVACIDAD -->
+      <div *ngIf="legalService.activeModal() === 'privacy'" class="legal-text-content">
+        <h3>1. Responsable del Tratamiento de Datos</h3>
+        <p>
+          En <strong>COFU (Procrastina Como Un Pro)</strong> valoramos y respetamos tu privacidad. Esta política detalla de forma clara cómo recopilamos, utilizamos y protegemos tu información personal de conformidad con los principios de transparencia y el Reglamento General de Protección de Datos (RGPD).
+        </p>
+
+        <h3>2. Datos que Recopilamos</h3>
+        <ul>
+          <li><strong>Datos de Identidad y Contacto:</strong> Correo electrónico y nombre de usuario público. Si eliges iniciar sesión con Google OAuth, recopilamos tu nombre público y correo validado.</li>
+          <li><strong>Preferencias de Perfil:</strong> País de residencia (opcional), avatar seleccionado, tema de interfaz equipado y horario de días activos.</li>
+          <li><strong>Telemetría de Productividad:</strong> Número de pomodoros completados, minutos de concentración, rachas de estudio consecutivas, notas breves de bitácora y tareas capturadas.</li>
+          <li><strong>Datos de Facturación:</strong> Identificador de cliente generado por Stripe (nunca tu número de tarjeta ni CVC).</li>
+        </ul>
+
+        <h3>3. Finalidad del Uso de la Información</h3>
+        <p>Tus datos son utilizados exclusivamente para:</p>
+        <ul>
+          <li>Autenticar tu sesión y proteger tu cuenta contra accesos no autorizados.</li>
+          <li>Guardar y sincronizar tu progreso de juego, ProCoins y estadísticas en todos tus dispositivos.</li>
+          <li>Calcular posiciones en el podio semanal y el combate colaborativo contra el Jefe de la Comunidad.</li>
+          <li>Procesar el estado de tu membresía Pro.</li>
+        </ul>
+
+        <h3>4. Seguridad y Alojamiento de Datos (Supabase)</h3>
+        <p>
+          Toda la información se almacena en bases de datos PostgreSQL alojadas en <strong>Supabase</strong>, protegidas mediante:
+        </p>
+        <ul>
+          <li>Cifrado SSL/TLS de 256 bits para todas las transmisiones de datos.</li>
+          <li><strong>Row Level Security (RLS):</strong> Directivas a nivel de base de datos que garantizan que solo tú puedes leer y modificar tus notas privadas, sesiones y configuraciones.</li>
+        </ul>
+
+        <h3>5. Cookies y Almacenamiento Local</h3>
+        <p>
+          COFU no utiliza cookies de rastreo publicitario de terceros. Empleamos únicamente <code>localStorage</code> y <code>sessionStorage</code> en tu navegador para fines estrictamente funcionales (mantener tu sesión activa, recordar tu volumen de audio y preferencias del temporizador).
+        </p>
+
+        <h3>6. Tus Derechos (Acceso, Rectificación y Eliminación)</h3>
+        <p>
+          Tienes derecho a acceder a tus datos, modificarlos desde el panel de perfil o solicitar la eliminación definitiva de tu cuenta y todos sus registros asociados contactando a nuestro soporte técnico.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Pie del Modal -->
+    <div class="legal-modal-footer">
+      <span class="footer-hint">Al usar la aplicación aceptas estos acuerdos de uso.</span>
+      <button type="button" class="btn-agree" (click)="close()">
+        <span>Entendido y de acuerdo</span>
+        <i class="fa-solid fa-check"></i>
+      </button>
+    </div>
+
+  </div>
+</div>

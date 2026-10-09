@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
+import { LegalService } from '../../services/legal.service';
 
 @Component({
   selector: 'app-registro',
@@ -13,7 +14,11 @@ export class Registro {
   isLoading = signal(false);
   showPassword = signal(false);
 
-  constructor(private router: Router, private membership: MembershipService) {}
+  constructor(
+    private router: Router, 
+    private membership: MembershipService,
+    public legalService: LegalService
+  ) {}
 
   togglePasswordVisibility() {
     this.showPassword.update(show => !show);

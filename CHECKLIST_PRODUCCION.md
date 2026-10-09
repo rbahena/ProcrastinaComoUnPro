@@ -70,25 +70,11 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
 
 ## 4. Hosting, Dominio y Redirecciones SPA
 
-- [ ] **Reglas de Reescritura / Redirección SPA**:
-  - Para evitar error 404 al recargar rutas como `/enfoque`, `/medallero`, `/ideas` o `/login`:
-    - **Vercel** (`vercel.json`):
-      ```json
-      {
-        "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-      }
-      ```
-    - **Netlify** (`public/_redirects`):
-      ```text
-      /*    /index.html   200
-      ```
-    - **Firebase Hosting** (`firebase.json`):
-      ```json
-      "rewrites": [{ "source": "**", "destination": "/index.html" }]
-      ```
+- [x] **Reglas de Reescritura / Redirección SPA**:
+  - [x] Configurado archivo `.htaccess` en `public/` para **Hostinger (Apache/LiteSpeed)** con redirección automática de todas las rutas (`/enfoque`, `/medallero`, `/ideas`, `/login`) hacia `index.html` para evitar error 404.
 - [ ] **Dominio Personalizado y Certificado SSL**:
-  - [ ] Configurar registros DNS (tipo A / CNAME) en tu proveedor de dominio (Cloudflare, Namecheap, GoDaddy).
-  - [ ] Activar HTTPS forzado y HSTS.
+  - [ ] Configurar dominio en el panel de Hostinger y activar SSL gratuito (Let's Encrypt).
+  - [x] Reglas de forzado HTTPS y HSTS incluidas en `.htaccess`.
 
 ---
 
@@ -109,15 +95,20 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
 
 ## 6. Seguridad y Políticas
 
-- [ ] **Cabeceras de Seguridad HTTP**:
-  - `Content-Security-Policy (CSP)`
-  - `X-Frame-Options: DENY` o `SAMEORIGIN`
-  - `X-Content-Type-Options: nosniff`
-  - `Referrer-Policy: strict-origin-when-cross-origin`
-- [ ] **Permisos del Navegador**:
-  - [ ] Verificar solicitud no invasiva de permisos de Notificaciones de Escritorio y Reproducción de Audio.
-- [ ] **Manejo de Tokens y Sesión**:
-  - [ ] Sesiones persistentes de Supabase almacenadas con refresco automático de token (`autoRefreshToken: true`).
+- [x] **Cabeceras de Seguridad HTTP (en `.htaccess` de Hostinger)**:
+  - [x] `X-Frame-Options: DENY` (Anti-Clickjacking).
+  - [x] `X-Content-Type-Options: nosniff` (Anti-MIME Sniffing).
+  - [x] `Referrer-Policy: strict-origin-when-cross-origin`.
+  - [x] `Strict-Transport-Security` (HSTS para forzado de HTTPS).
+  - [x] `Permissions-Policy` (Bloqueo de sensores innecesarios).
+- [x] **Permisos del Navegador**:
+  - [x] Reproducción de alarmas y sonidos ambientales vinculados a gestos y acciones del usuario (cumple con políticas de autoplay del navegador).
+- [x] **Manejo de Tokens y Sesión**:
+  - [x] Sesiones persistentes de Supabase con refresco automático de token (`persistSession: true`, `autoRefreshToken: true`, `detectSessionInUrl: true`).
+- [x] **Guardas de Rutas Angular (Route Guards)**:
+  - [x] `authGuard`: Bloqueo y protección de las 11 rutas privadas (`/home`, `/enfoque`, `/medallero`, `/ideas`, `/membresia`, etc.) para usuarios no autenticados, redirigiendo a `/login`.
+  - [x] `guestGuard`: Redirección automática a `/home` para usuarios ya autenticados al visitar `/login` o `/registro`.
+  - [x] `focusDeactivateGuard`: Protección anti-abandono en `/enfoque` para prevenir salida accidental durante un Pomodoro activo.
 
 ---
 
@@ -133,11 +124,12 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
 
 ## 8. Cumplimiento Legal y Términos
 
-- [ ] **Términos y Condiciones de Servicio**:
-  - [ ] Explicar reglas de uso, derechos de propiedad intelectual y políticas de cancelación/reembolsos de la membresía Pro.
-- [ ] **Política de Privacidad**:
-  - [ ] Detallar qué datos se guardan (correo, objetivos de concentración, progreso de juego) y cómo se protegen.
-- [ ] **Banner de Consentimiento de Cookies** (si se utilizan herramientas de rastreo analítico de terceros).
+- [x] **Términos y Condiciones de Servicio**:
+  - [x] Implementado modal interactivo con reglas de juego limpio, naturaleza del servicio, propiedad intelectual y políticas de membresía Pro y cancelación.
+- [x] **Política de Privacidad**:
+  - [x] Detallado el tratamiento de datos (correo, progreso, notas), seguridad en Supabase (RLS y cifrado) y procesamiento seguro de pagos con Stripe.
+- [x] **Accesibilidad y Enlaces Legales**:
+  - [x] Enlaces interactivos integrados en la pantalla de `/registro` y en el pie de página de `/landing`.
 
 ---
 

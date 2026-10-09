@@ -1,5 +1,6 @@
 import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LegalService } from '../../services/legal.service';
 
 interface ExcuseDetail {
   title: string;
@@ -28,6 +29,7 @@ interface ChallengeDay {
   styleUrl: './landing.css',
 })
 export class Landing implements OnInit, OnDestroy {
+  constructor(public legalService: LegalService) {}
   private timerId?: any;
   private readonly EXCUSES: Record<string, ExcuseDetail> = {
     perfect: {

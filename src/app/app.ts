@@ -2,11 +2,13 @@ import { Component, OnInit, signal, HostListener, ViewChild, ElementRef } from '
 import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from './services/membership.service';
+import { LegalService } from './services/legal.service';
+import { LegalModal } from './components/legal-modal/legal-modal';
 import { IdeaPriority } from './services/supabase.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, LegalModal],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -22,7 +24,11 @@ export class App implements OnInit {
 
   @ViewChild('ideaInput') ideaInputRef?: ElementRef<HTMLInputElement>;
 
-  constructor(public membership: MembershipService, private router: Router) {}
+  constructor(
+    public membership: MembershipService, 
+    public legalService: LegalService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.applyThemeOnBody();
