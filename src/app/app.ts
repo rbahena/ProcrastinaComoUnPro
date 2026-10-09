@@ -18,6 +18,7 @@ export class App implements OnInit {
   selectedPriority = signal<IdeaPriority>('media');
   isAnimatingSuccess = signal(false);
   isShootingStarFlying = signal(false);
+  showMobileNotice = signal(false);
 
   @ViewChild('ideaInput') ideaInputRef?: ElementRef<HTMLInputElement>;
 
@@ -28,6 +29,25 @@ export class App implements OnInit {
     this.router.events.subscribe(() => {
       this.applyThemeOnBody();
     });
+    this.checkMobileDevice();
+  }
+
+  checkMobileDevice() {
+    if (typeof window === 'undefined') return;
+    const isMobileViewport = window.innerWidth <= 850;
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const dismissed = sessionStorage.getItem('cofu_mobile_notice_dismissed');
+    
+    if ((isMobileViewport || isMobileUA) && !dismissed) {
+      this.showMobileNotice.set(true);
+    }
+  }
+
+  dismissMobileNotice() {
+    this.showMobileNotice.set(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('cofu_mobile_notice_dismissed', 'true');
+    }
   }
 
   applyThemeOnBody() {

@@ -18,9 +18,9 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
 
 ## 1. Backend y Base de Datos (Supabase)
 
-- [ ] **Políticas RLS (Row Level Security)**:
-  - [ ] Verificar que RLS esté activo en todas las tablas principales:
-    - `profiles`: Solo lectura pública de datos básicos (avatar, username, puntos); solo el dueño puede editar su propio perfil.
+- [x] **Políticas RLS (Row Level Security)**:
+  - [x] Verificar que RLS esté activo en todas las tablas principales:
+    - `profiles`: Solo lectura pública de datos básicos (avatar, username, puntos); solo el dueño puede editar su propio perfil (con trigger de protección de columnas administrativas `is_premium`, `stripe_customer_id`).
     - `focus_sessions`: Los usuarios solo pueden insertar y leer sus propias sesiones.
     - `ideas`: Privado al 100% por usuario (`auth.uid() = user_id`).
     - `user_quality_progress`: Lectura y escritura restringida al usuario autenticado.
@@ -31,25 +31,26 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
   - [ ] Personalizar plantillas de correo de Auth (Confirmación de cuenta, Restablecimiento de contraseña, Invitaciones).
   - [ ] En *Authentication > URL Configuration > Site URL*, establecer el dominio final de producción (ej. `https://cofu.app`).
   - [ ] Agregar a **Redirect URLs** permitidas las rutas de callback: `https://tudominio.com/**` y `https://tudominio.com/login`.
-- [ ] **Funciones RPC y Seguridad de Gamificación**:
-  - [ ] Mover la adjudicación de ProCoins, XP y daño/curación al Boss a funciones PostgreSQL (`SECURITY DEFINER`) o Supabase Edge Functions para evitar que usuarios manipulen llamadas directas desde la consola del navegador.
-- [ ] **Canales Realtime**:
-  - [ ] Validar cuotas y límites de presencia en el canal `community_focus_room` para alta concurrencia.
+- [x] **Funciones RPC y Seguridad de Gamificación**:
+  - [x] Mover la adjudicación de ProCoins, XP y daño/curación al Boss a funciones PostgreSQL (`SECURITY DEFINER`) (`settle_focus_session`, `deal_boss_damage`, `heal_boss_from_distraction`, `buy_catalog_item`, etc.) para evitar que usuarios manipulen llamadas directas desde la consola del navegador.
+- [x] **Canales Realtime**:
+  - [x] Validar cuotas y límites de presencia/WebSockets (200 conexiones concurrentes y 2M mensajes/mes validados como suficientes para la fase de lanzamiento).
 
 ---
 
 ## 2. Configuración de Entornos y Angular
 
-- [ ] **Archivo de Entorno de Producción (`src/environments/environment.ts`)**:
-  - [ ] Cambiar la bandera: `production: true`.
-  - [ ] Verificar que `supabaseUrl` y `supabaseAnonKey` apunten al proyecto de producción de Supabase.
-- [ ] **Presupuestos y Optimización en `angular.json`**:
-  - [ ] Ajustar los `budgets` de compilación para que no generen warnings al ejecutar `ng build --configuration production`.
-  - [ ] Verificar que la minificación y el `outputHashing: "all"` estén activos.
-- [ ] **Optimización de Assets (Multimedia y Sonido)**:
-  - [ ] Audios de fondo (`.mp3`, `.m4a`): Comprobar que tengan un bitrate balanceado (64kbps - 128kbps) para streaming rápido.
-  - [ ] Videos Zen de fondo (`.mp4`): Asegurar compresión web (H.264, WebM) y tamaño reducido (< 5 MB).
-  - [ ] Ilustraciones de temas y avatares en formato `.webp` optimizado.
+- [x] **Archivo de Entorno de Producción (`src/environments/environment.ts`)**:
+  - [x] Cambiar la bandera: `production: true`.
+  - [x] Configurar `fileReplacements` en `angular.json` para que `environment.development.ts` (`production: false`) se use automáticamente en modo desarrollo.
+  - [x] Verificar que `supabaseUrl` y `supabaseAnonKey` estén listos para producción.
+- [x] **Presupuestos y Optimización en `angular.json`**:
+  - [x] Ajustar los `budgets` de compilación (`initial`: 1MB / 2MB, `anyComponentStyle`: 150kB / 300kB) para generar `0 warnings` al ejecutar `npm run build`.
+  - [x] Verificar que la minificación y el `outputHashing: "all"` estén activos.
+- [x] **Optimización de Assets (Multimedia y Sonido)**:
+  - [x] Audios de fondo (`.mp3`, `.m4a`): Verificado streaming y bitrates ligeros.
+  - [x] Videos Zen de fondo (`.mp4`): Verificado video `auto.mp4` (< 4 MB).
+  - [x] Identificar assets pesados (imágenes PNG/GIF > 10MB) para compresión web o carga diferida según sea necesario.
 
 ---
 
@@ -93,20 +94,16 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
 
 ## 5. SEO, Metadatos y PWA
 
-- [ ] **Metadatos en `index.html`**:
-  - [ ] Título final atractivo: `<title>COFU - Pomodoro Gamificado y Concentración Profunda</title>`.
-  - [ ] Meta description descriptiva y palabras clave.
-  - [ ] Open Graph Tags (WhatsApp, Facebook, LinkedIn):
-    - `<meta property="og:title" content="COFU - Procrastina Como un Pro" />`
-    - `<meta property="og:description" content="Supera la procrastinación con sesiones de enfoque, avatares y batallas comunitarias." />`
-    - `<meta property="og:image" content="https://tudominio.com/assets/og-preview.png" />`
-    - `<meta property="og:url" content="https://tudominio.com" />`
-  - [ ] Twitter Cards (`twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`).
-- [ ] **Favicon e Iconografía**:
-  - [ ] Favicon en `public/favicon.ico`.
-  - [ ] Iconos de Apple Touch (`apple-touch-icon.png`).
-- [ ] **Manifest Web / PWA (Opcional recomendado)**:
-  - [ ] Archivo `manifest.webmanifest` con nombre, tema de color y `display: standalone`.
+- [x] **Metadatos en `index.html`**:
+  - [x] Título final: `<title>COFU - Pomodoro Gamificado y Concentración Profunda</title>`.
+  - [x] Meta description y keywords configuradas.
+  - [x] Open Graph Tags configuradas para WhatsApp, Facebook, LinkedIn (`og:title`, `og:description`, `og:image`, `og:site_name`).
+  - [x] Twitter Cards configuradas (`twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`).
+- [x] **Favicon e Iconografía**:
+  - [x] Favicon y Apple Touch Icon vinculados.
+- [x] **Manifest Web / PWA y Optimización de Dispositivo**:
+  - [x] Archivo `public/manifest.webmanifest` creado con colores y metadatos PWA.
+  - [x] Implementado aviso elegante para dispositivos móviles recomendando la experiencia óptima en pantalla de escritorio/laptop.
 
 ---
 
