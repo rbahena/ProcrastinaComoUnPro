@@ -1,0 +1,797 @@
+<div class="minijuegos-container" [attr.data-theme]="theme">
+  
+  <!-- BANNER EN TIEMPO REAL DEL DESCANSO -->
+  <div class="break-time-live-bar" *ngIf="currentBreakTimeLeft">
+    <div class="live-indicator">
+      <span class="live-pulse-dot"></span>
+      <span class="live-label">Descanso Activo:</span>
+    </div>
+    <div class="live-clock">
+      <i class="fa-regular fa-clock"></i>
+      <span class="live-timer">{{ currentBreakTimeLeft }}</span>
+      <span class="live-subtext">restantes</span>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- CABECERA SUPERIOR DEL WIDGET -->
+  <!-- ============================================================== -->
+  <div class="minijuegos-header">
+    
+    <!-- MODO 1: CABECERA DEL CATÁLOGO / LOBBY -->
+    <div *ngIf="activeGame() === 'lobby'" class="header-title-group">
+      <div class="badge-icon">
+        <i class="fa-solid fa-gamepad"></i>
+      </div>
+      <div>
+        <h4 class="header-title">Salón Arcade de Descanso</h4>
+        <span class="header-subtitle">9 Minijuegos desbloqueados para despejar la mente</span>
+      </div>
+    </div>
+
+    <!-- MODO 2: CABECERA DENTRO DE UN JUEGO ACTIVO -->
+    <div *ngIf="activeGame() !== 'lobby'" class="in-game-header-group">
+      <button type="button" class="btn-back-lobby" (click)="goToLobby()" title="Volver al catálogo de minijuegos">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Catálogo</span>
+      </button>
+
+      <!-- Selector Rápido de Juegos con Scroll Horizontal -->
+      <div class="game-tabs-inline">
+        <button *ngFor="let g of catalogGames"
+                type="button"
+                class="tab-btn-mini"
+                [class.active]="activeGame() === g.id"
+                (click)="switchGame(g.id)"
+                [title]="g.title">
+          <i class="fa-solid" [ngClass]="g.icon"></i>
+          <span>{{ g.title.split(' ')[0] }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Controles Rápidos (Sonido y Cerrar) -->
+    <div class="header-actions">
+      <button type="button" 
+              class="icon-action-btn"
+              (click)="toggleSound()"
+              [title]="isMuted() ? 'Activar Sonidos' : 'Silenciar Sonidos'">
+        <i class="fa-solid" [class.fa-volume-high]="!isMuted()" [class.fa-volume-xmark]="isMuted()"></i>
+      </button>
+
+      <button type="button" 
+              class="icon-action-btn close-btn"
+              (click)="close.emit()"
+              title="Cerrar ventana y volver al temporizador">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- FILTROS DEL CATÁLOGO (SOLO EN LOBBY) -->
+  <div *ngIf="activeGame() === 'lobby'" class="catalog-filters-bar">
+    <button type="button" 
+            class="filter-pill" 
+            [class.active]="activeFilter() === 'all'"
+            (click)="setFilter('all')">
+      <span>Todos (9)</span>
+    </button>
+    <button type="button" 
+            class="filter-pill unlocked-pill" 
+            [class.active]="activeFilter() === 'arcade'"
+            (click)="setFilter('arcade')">
+      <i class="fa-solid fa-bolt"></i>
+      <span>Arcade y Reflejos (6)</span>
+    </button>
+    <button type="button" 
+            class="filter-pill premium-pill" 
+            [class.active]="activeFilter() === 'puzzle'"
+            (click)="setFilter('puzzle')">
+      <i class="fa-solid fa-brain"></i>
+      <span>Lógica y Puzzles (3)</span>
+    </button>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- VISTA PRINCIPAL: CATÁLOGO DE CARDS CON ANIMACIONES (LOBBY)      -->
+  <!-- ============================================================== -->
+  <div *ngIf="activeGame() === 'lobby'" class="lobby-grid-view">
+    <div class="games-grid">
+      <div *ngFor="let game of filteredGames()" 
+           class="game-card is-unlocked"
+           [attr.data-game-id]="game.id"
+           (click)="onCardClick(game)">
+
+        <!-- STAGE DE ANIMACIÓN EN VIVO DE CADA JUEGO -->
+        <div class="card-anim-stage">
+          
+          <!-- ANIMACIÓN 1: GATO CLÁSICO (TIC-TAC-TOE) -->
+          <div *ngIf="game.id === 'gato'" class="anim-box anim-gato">
+            <div class="gato-anim-grid">
+              <div class="gato-anim-cell cell-1"><span class="anim-symbol x">✕</span></div>
+              <div class="gato-anim-cell cell-2"><span class="anim-symbol o">○</span></div>
+              <div class="gato-anim-cell cell-3"><span class="anim-symbol x">✕</span></div>
+              <div class="gato-anim-cell cell-4"><span class="anim-symbol o">○</span></div>
+              <div class="gato-anim-cell cell-5"><span class="anim-symbol x">✕</span></div>
+              <div class="gato-anim-cell cell-6"></div>
+              <div class="gato-anim-cell cell-7"></div>
+              <div class="gato-anim-cell cell-8"></div>
+              <div class="gato-anim-cell cell-9"><span class="anim-symbol x">✕</span></div>
+              <div class="gato-anim-strike"></div>
+            </div>
+          </div>
+
+          <!-- ANIMACIÓN 2: ESQUIVA VELOZ (DODGE) -->
+          <div *ngIf="game.id === 'dodge'" class="anim-box anim-dodge">
+            <div class="radar-circle"></div>
+            <div class="radar-sweep"></div>
+            <div class="dodge-anim-player">
+              <span class="player-shield"></span>
+            </div>
+            <div class="dodge-anim-hazard hazard-1">
+              <i class="fa-solid fa-gear fa-spin"></i>
+            </div>
+            <div class="dodge-anim-hazard hazard-2">
+              <i class="fa-solid fa-bahai fa-spin"></i>
+            </div>
+            <div class="dodge-anim-hazard hazard-3">
+              <span class="hazard-orb"></span>
+            </div>
+          </div>
+
+          <!-- ANIMACIÓN 3: CYBER CULEBRITA (SNAKE) -->
+          <div *ngIf="game.id === 'snake'" class="anim-box anim-snake">
+            <div class="snake-grid-bg"></div>
+            <div class="snake-food"></div>
+            <div class="snake-body">
+              <span class="snake-seg seg-head"></span>
+              <span class="snake-seg seg-1"></span>
+              <span class="snake-seg seg-2"></span>
+              <span class="snake-seg seg-3"></span>
+            </div>
+          </div>
+
+          <!-- ANIMACIÓN 4: FLAPPY FOCO (PIXEL BIRD) -->
+          <div *ngIf="game.id === 'flappy'" class="anim-box anim-flappy">
+            <div class="flappy-pipe pipe-top pipe-1"></div>
+            <div class="flappy-pipe pipe-bottom pipe-1"></div>
+            <div class="flappy-pipe pipe-top pipe-2"></div>
+            <div class="flappy-pipe pipe-bottom pipe-2"></div>
+            <div class="flappy-bird">
+              <div class="bird-body">
+                <span class="bird-wing"></span>
+                <span class="bird-eye"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ANIMACIÓN 5: MEMORIA ZEN (3D CARD FLIP) -->
+          <div *ngIf="game.id === 'memory'" class="anim-box anim-memory">
+            <div class="memory-card-pair">
+              <div class="memory-card-3d card-a">
+                <div class="card-inner">
+                  <div class="card-front"><i class="fa-solid fa-yin-yang"></i></div>
+                  <div class="card-back"><i class="fa-solid fa-sparkles"></i></div>
+                </div>
+              </div>
+              <div class="memory-card-3d card-b">
+                <div class="card-inner">
+                  <div class="card-front"><i class="fa-solid fa-yin-yang"></i></div>
+                  <div class="card-back"><i class="fa-solid fa-sparkles"></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="memory-match-sparkle"></div>
+          </div>
+
+          <!-- ANIMACIÓN 6: ROMPE-BLOQUES (BRICK BREAKER) -->
+          <div *ngIf="game.id === 'breaker'" class="anim-box anim-breaker">
+            <div class="breaker-bricks">
+              <span class="brick b1"></span>
+              <span class="brick b2"></span>
+              <span class="brick b3"></span>
+              <span class="brick b4"></span>
+              <span class="brick b5"></span>
+              <span class="brick b6"></span>
+            </div>
+            <div class="breaker-ball"></div>
+            <div class="breaker-paddle"></div>
+          </div>
+
+          <!-- ANIMACIÓN 7: TETRIS RELAX (FALLING BLOCKS) -->
+          <div *ngIf="game.id === 'tetris'" class="anim-box anim-tetris">
+            <div class="tetris-piece piece-t">
+              <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+            </div>
+            <div class="tetris-piece piece-line">
+              <span class="block"></span><span class="block"></span><span class="block"></span>
+            </div>
+            <div class="tetris-piece piece-square">
+              <span class="block"></span><span class="block"></span>
+            </div>
+            <div class="tetris-base-line"></div>
+          </div>
+
+          <!-- ANIMACIÓN 8: REFLEJO SAMURAI (KATANA SLASH) -->
+          <div *ngIf="game.id === 'samurai'" class="anim-box anim-samurai">
+            <div class="samurai-target">
+              <div class="target-half top-half"></div>
+              <div class="target-half bottom-half"></div>
+            </div>
+            <div class="katana-slash-blade"></div>
+            <div class="slash-sparks"></div>
+          </div>
+
+          <!-- ANIMACIÓN 9: SALTO ESPACIAL (SPACE HOPPER) -->
+          <div *ngIf="game.id === 'space'" class="anim-box anim-space">
+            <div class="space-stars"></div>
+            <div class="space-platforms">
+              <span class="platform p1"></span>
+              <span class="platform p2"></span>
+              <span class="platform p3"></span>
+            </div>
+            <div class="space-rocket">
+              <i class="fa-solid fa-rocket"></i>
+              <span class="rocket-flame"></span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- INFORMACIÓN Y BADGE DE LA CARD -->
+        <div class="card-info-box">
+          <div class="card-title-row">
+            <h5 class="card-game-title" [title]="game.title">{{ game.title }}</h5>
+            <span class="card-category-tag">{{ game.category }}</span>
+          </div>
+          
+          <div class="card-badge-row">
+            <span class="badge-pill unlocked-badge">
+              <i class="fa-solid fa-play"></i>
+              <span>JUGAR</span>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- VISTA JUEGO 1: GATO CLÁSICO (MINIMAX EXPERTO)                   -->
+  <!-- ============================================================== -->
+  <div *ngIf="activeGame() === 'gato'" class="game-view gato-view">
+    
+    <!-- Barra Superior de Marcador -->
+    <div class="gato-top-bar centered">
+      <div class="gato-scoreboard">
+        <div class="score-card player-x">
+          <span class="score-label"><i class="fa-solid fa-user"></i> Tú (X)</span>
+          <span class="score-digit">{{ gatoScore().player }}</span>
+        </div>
+        <div class="score-card ties">
+          <span class="score-label">Tablas</span>
+          <span class="score-digit">{{ gatoScore().ties }}</span>
+        </div>
+        <div class="score-card player-o">
+          <span class="score-label"><i class="fa-solid fa-robot"></i> Bot Experto (O)</span>
+          <span class="score-digit">{{ gatoScore().bot }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Indicador de Turno / Estado de la Ronda -->
+    <div class="gato-status-banner" [ngClass]="gatoStatus()">
+      <ng-container *ngIf="gatoStatus() === 'playing'">
+        <span *ngIf="!isCpuThinking()" class="turn-text">
+          Tu Turno: <strong class="turn-symbol symbol-x">❌ (X)</strong>
+        </span>
+        <span *ngIf="isCpuThinking()" class="turn-text thinking">
+          <i class="fa-solid fa-circle-notch fa-spin"></i> Bot evaluando Minimax...
+        </span>
+      </ng-container>
+
+      <span *ngIf="gatoStatus() === 'won_player'" class="turn-text result win-x">
+        <i class="fa-solid fa-trophy"></i> ¡Ganaste la ronda! ❌
+      </span>
+
+      <span *ngIf="gatoStatus() === 'won_bot'" class="turn-text result win-o">
+        <i class="fa-solid fa-robot"></i> ¡El Bot Experto ha ganado! ⭕
+      </span>
+
+      <span *ngIf="gatoStatus() === 'draw'" class="turn-text result draw">
+        <i class="fa-solid fa-handshake"></i> ¡Partida en Tablas (Empate)!
+      </span>
+    </div>
+
+    <!-- Tablero 3x3 de Gato -->
+    <div class="gato-board">
+      <button *ngFor="let cell of gatoBoard(); let idx = index"
+              type="button"
+              class="gato-cell"
+              [class.filled]="cell !== null"
+              [class.cell-x]="cell === 'X'"
+              [class.cell-o]="cell === 'O'"
+              [class.winner-cell]="winningCombo()?.includes(idx)"
+              [disabled]="cell !== null || gatoStatus() !== 'playing' || isCpuThinking()"
+              (click)="makeMove(idx)">
+        <span *ngIf="cell === 'X'" class="symbol-content x-mark">✕</span>
+        <span *ngIf="cell === 'O'" class="symbol-content o-mark">○</span>
+      </button>
+    </div>
+
+    <!-- Acciones Inferiores -->
+    <div class="gato-footer-actions">
+      <button type="button" class="btn-gato-action reset-round" (click)="resetGato()">
+        <i class="fa-solid fa-rotate-right"></i>
+        <span>Nueva Ronda</span>
+      </button>
+
+      <button type="button" 
+              class="btn-gato-action clear-score" 
+              (click)="resetGatoScore()"
+              title="Restablecer marcador a 0">
+        <i class="fa-solid fa-trash-can"></i>
+        <span>Borrar Marcador</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- VISTA JUEGO 2: ESQUIVA VELOZ (DODGE CANVAS)                    -->
+  <!-- ============================================================== -->
+  <div *ngIf="activeGame() === 'dodge'" class="game-view dodge-view">
+    
+    <div class="dodge-hud">
+      <div class="hud-stat">
+        <span class="hud-label">Supervivencia:</span>
+        <span class="hud-value" [class.highlight]="survivalTime() >= 30">
+          <i class="fa-solid fa-stopwatch"></i> {{ survivalTime() }}s / {{ targetSurvival }}s
+        </span>
+      </div>
+
+      <div class="hud-level-pill" [ngClass]="currentLevelInfo().badgeClass">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>Nivel {{ currentLevelInfo().name }}</span>
+      </div>
+
+      <div *ngIf="dodgePowerUses() > 0" class="hud-power-pill has-boost" title="Agilidad de Shurikens por el uso de poder">
+        <i class="fa-solid fa-bolt"></i>
+        <span>+{{ dodgePowerUses() * 25 }}% Agilidad</span>
+      </div>
+
+      <div class="hud-stat">
+        <span class="hud-label">Récord:</span>
+        <span class="hud-value record">
+          <i class="fa-solid fa-medal"></i> {{ bestSurvival() }}s
+        </span>
+      </div>
+    </div>
+
+    <div class="dodge-progress-bar">
+      <div class="progress-fill" [style.width.%]="(survivalTime() / targetSurvival) * 100"></div>
+    </div>
+
+    <div *ngIf="levelUpNotification()" class="level-up-toast">
+      <i class="fa-solid fa-bolt-lightning"></i>
+      <span>{{ levelUpNotification() }}</span>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas #dodgeCanvas
+              (mousemove)="onCanvasMouseMove($event)"
+              (touchmove)="onCanvasTouchMove($event)">
+      </canvas>
+
+      <div *ngIf="dodgeStatus() === 'idle'" class="canvas-overlay">
+        <div class="overlay-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 class="overlay-title">Esquiva los Shurikens</h3>
+        <p class="overlay-desc">Esquiva los proyectiles. Recolecta el <strong>Orbe ⚡ (Poder EMP)</strong> para limpiar la pantalla, pero cada uso hace a los siguientes shurikens <strong>más rápidos y ágiles</strong>.</p>
+        <button type="button" class="btn-primary-dodge" (click)="startDodgeGame()">
+          <i class="fa-solid fa-play"></i>
+          <span>Comenzar (Espacio)</span>
+        </button>
+      </div>
+
+      <div *ngIf="dodgeStatus() === 'gameover'" class="canvas-overlay game-over">
+        <div class="overlay-icon defeat">
+          <i class="fa-solid fa-burst"></i>
+        </div>
+        <h3 class="overlay-title defeat">¡Impacto!</h3>
+        <p class="overlay-desc">
+          Sobreviviste <strong>{{ survivalTime() }}s</strong> (Nivel {{ currentLevelInfo().name }}). Poderes usados: <strong>{{ dodgePowerUses() }}</strong> (+{{ dodgePowerUses() * 25 }}% agilidad enemiga).
+        </p>
+        <button type="button" class="btn-primary-dodge" (click)="startDodgeGame()">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Reintentar (Espacio)</span>
+        </button>
+      </div>
+
+      <div *ngIf="dodgeStatus() === 'won'" class="canvas-overlay victory">
+        <div class="overlay-icon victory">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <h3 class="overlay-title victory">¡Descanso Legendario!</h3>
+        <p class="overlay-desc">¡Superaste el modo Maestro esquivando 60s sin impacto!</p>
+        <button type="button" class="btn-primary-dodge victory" (click)="startDodgeGame()">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Jugar Otra Ronda</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="dodge-controls-hint">
+      <span><i class="fa-solid fa-computer-mouse"></i> Ratón / Touch</span>
+      <span>•</span>
+      <span><i class="fa-solid fa-bolt"></i> Toca el Orbe ⚡ para limpiar la pantalla</span>
+      <span>•</span>
+      <span><i class="fa-solid fa-arrows-up-down-left-right"></i> Espacio</span>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- VISTA JUEGO 3: CYBER CULEBRITA (SNAKE)                         -->
+  <!-- ============================================================== -->
+  <div *ngIf="activeGame() === 'snake'" class="game-view snake-view">
+    <div class="dodge-hud">
+      <div class="hud-stat">
+        <span class="hud-label">Puntaje:</span>
+        <span class="hud-value highlight"><i class="fa-solid fa-apple-whole"></i> {{ snakeScore() }}</span>
+      </div>
+      <div class="hud-level-pill" [ngClass]="currentSnakeLevelInfo().badgeClass">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>Nivel {{ currentSnakeLevelInfo().name }}</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">Récord:</span>
+        <span class="hud-value record"><i class="fa-solid fa-trophy"></i> {{ snakeBest() }}</span>
+      </div>
+    </div>
+
+    <!-- NOTIFICACIÓN FLOTANTE SUBIDA DE NIVEL -->
+    <div *ngIf="snakeLevelNotification()" class="level-up-toast">
+      <i class="fa-solid fa-bolt"></i>
+      <span>{{ snakeLevelNotification() }}</span>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas #snakeCanvas></canvas>
+
+      <div *ngIf="snakeStatus() === 'idle'" class="canvas-overlay">
+        <div class="overlay-icon" style="color: #22c55e;">
+          <i class="fa-solid fa-worm"></i>
+        </div>
+        <h3 class="overlay-title">Cyber Culebrita</h3>
+        <p class="overlay-desc">Inicia a ritmo <strong>Tranquilo</strong>. La velocidad escala a medida que devoras orbes de energía.</p>
+        <button type="button" class="btn-primary-dodge" style="background: #22c55e;" (click)="startSnakeGame()">
+          <i class="fa-solid fa-play"></i>
+          <span>Jugar (Espacio)</span>
+        </button>
+      </div>
+
+      <div *ngIf="snakeStatus() === 'gameover'" class="canvas-overlay game-over">
+        <div class="overlay-icon defeat"><i class="fa-solid fa-skull"></i></div>
+        <h3 class="overlay-title defeat">¡Colisión!</h3>
+        <p class="overlay-desc">Alcanzaste <strong>{{ snakeScore() }}</strong> pts en <strong>Nivel {{ currentSnakeLevelInfo().name }}</strong>.</p>
+        <button type="button" class="btn-primary-dodge" (click)="startSnakeGame()">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Reintentar (Espacio)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Controles D-Pad para Touch/Móvil -->
+    <div class="snake-touch-dpad">
+      <button type="button" class="dpad-btn btn-up" (click)="setSnakeDirection(0, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+      <div class="dpad-row">
+        <button type="button" class="dpad-btn btn-left" (click)="setSnakeDirection(-1, 0)"><i class="fa-solid fa-arrow-left"></i></button>
+        <button type="button" class="dpad-btn btn-down" (click)="setSnakeDirection(0, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+        <button type="button" class="dpad-btn btn-right" (click)="setSnakeDirection(1, 0)"><i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- VISTA JUEGO 4: FLAPPY FOCO (PIXEL BIRD)                         -->
+  <!-- ============================================================== -->
+  <div *ngIf="activeGame() === 'flappy'" class="game-view flappy-view">
+    <div class="dodge-hud">
+      <div class="hud-stat">
+        <span class="hud-label">Columnas:</span>
+        <span class="hud-value highlight"><i class="fa-solid fa-feather-pointed"></i> {{ flappyScore() }}</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">Récord:</span>
+        <span class="hud-value record"><i class="fa-solid fa-medal"></i> {{ flappyBest() }}</span>
+      </div>
+    </div>
+
+    <div class="canvas-wrapper" (click)="flapBird()">
+      <canvas #flappyCanvas></canvas>
+
+      <div *ngIf="flappyStatus() === 'idle'" class="canvas-overlay">
+        <div class="overlay-icon" style="color: #f59e0b;"><i class="fa-solid fa-feather-pointed"></i></div>
+        <h3 class="overlay-title">Flappy Foco</h3>
+        <p class="overlay-desc">Haz clic o presiona Espacio para aletear y esquivar las columnas de neón.</p>
+        <button type="button" class="btn-primary-dodge" style="background: #f59e0b;" (click)="startFlappyGame()">
+          <i class="fa-solid fa-play"></i>
+          <span>Comenzar (Espacio/Click)</span>
+        </button>
+      </div>
+
+      <div *ngIf="flappyStatus() === 'gameover'" class="canvas-overlay game-over">
+        <div class="overlay-icon defeat"><i class="fa-solid fa-burst"></i></div>
+        <h3 class="overlay-title defeat">¡Caída!</h3>
+        <p class="overlay-desc">Superaste <strong>{{ flappyScore() }}</strong> columnas.</p>
+        <button type="button" class="btn-primary-dodge" (click)="startFlappyGame()">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Reintentar (Espacio)</span>
+        </button>
+      </div>
+    </div>
+    <div class="dodge-controls-hint">
+      <span><i class="fa-solid fa-computer-mouse"></i> Click / Tap o Espacio para aletear</span>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- VISTA JUEGO 5: MEMORIA ZEN (3D CARDS)                          -->
+  <!-- ============================================================== -->
+  <div *ngIf="activeGame() === 'memory'" class="game-view memory-view">
+    <div class="dodge-hud">
+      <div class="hud-stat">
+        <span class="hud-label">Intentos:</span>
+        <span class="hud-value highlight"><i class="fa-solid fa-hand-pointer"></i> {{ memoryMoves() }}</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">Parejas:</span>
+        <span class="hud-value record"><i class="fa-solid fa-clone"></i> {{ memoryMatches() }} / 6</span>
+      </div>
+    </div>
+
+    <div class="memory-board-grid">
+      <div *ngFor="let card of memoryCards(); let idx = index"
+           class="memory-interactive-card"
+           [class.is-flipped]="card.flipped || card.matched"
+           [class.is-matched]="card.matched"
+           (click)="flipMemoryCard(idx)">
+        <div class="card-inner-box">
+          <div class="card-back-face">
+            <i class="fa-solid fa-sparkles"></i>
+          </div>
+          <div class="card-front-face" [style.color]="card.color">
+            <i class="fa-solid" [ngClass]="card.icon"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="memoryStatus() === 'won'" class="memory-win-banner">
+      <div class="win-title"><i class="fa-solid fa-trophy"></i> ¡Memoria Zen Completada!</div>
+      <p class="win-sub">Logrado en solo <strong>{{ memoryMoves() }}</strong> intentos.</p>
+      <button type="button" class="btn-primary-dodge" style="background: #a855f7;" (click)="initMemoryCards()">
+        <i class="fa-solid fa-rotate-right"></i>
+        <span>Jugar de Nuevo</span>
+      </button>
+    </div>
+
+    <div class="gato-footer-actions" *ngIf="memoryStatus() !== 'won'">
+      <button type="button" class="btn-gato-action reset-round" (click)="initMemoryCards()">
+        <i class="fa-solid fa-rotate-right"></i>
+        <span>Reiniciar Tablero</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- VISTA JUEGO 6: ROMPE-BLOQUES (BRICK BREAKER)                   -->
+  <!-- ============================================================== -->
+  <div *ngIf="activeGame() === 'breaker'" class="game-view breaker-view">
+    <div class="dodge-hud">
+      <div class="hud-stat">
+        <span class="hud-label">Puntaje:</span>
+        <span class="hud-value highlight"><i class="fa-solid fa-star"></i> {{ breakerScore() }}</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">Récord:</span>
+        <span class="hud-value record"><i class="fa-solid fa-medal"></i> {{ breakerBest() }}</span>
+      </div>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas #breakerCanvas
+              (mousemove)="onBreakerMouseMove($event)"
+              (touchmove)="onBreakerTouchMove($event)">
+      </canvas>
+
+      <div *ngIf="breakerStatus() === 'idle'" class="canvas-overlay">
+        <div class="overlay-icon" style="color: #06b6d4;"><i class="fa-solid fa-layer-group"></i></div>
+        <h3 class="overlay-title">Rompe-Bloques Láser</h3>
+        <p class="overlay-desc">Mueve la raqueta con el ratón o flechas para rebotar la bola y destruir todos los bloques.</p>
+        <button type="button" class="btn-primary-dodge" style="background: #06b6d4;" (click)="startBreakerGame()">
+          <i class="fa-solid fa-play"></i>
+          <span>Comenzar (Espacio)</span>
+        </button>
+      </div>
+
+      <div *ngIf="breakerStatus() === 'gameover'" class="canvas-overlay game-over">
+        <div class="overlay-icon defeat"><i class="fa-solid fa-burst"></i></div>
+        <h3 class="overlay-title defeat">¡Bola Perdida!</h3>
+        <p class="overlay-desc">Puntaje acumulado: <strong>{{ breakerScore() }}</strong>.</p>
+        <button type="button" class="btn-primary-dodge" (click)="startBreakerGame()">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Reintentar (Espacio)</span>
+        </button>
+      </div>
+
+      <div *ngIf="breakerStatus() === 'won'" class="canvas-overlay victory">
+        <div class="overlay-icon victory"><i class="fa-solid fa-trophy"></i></div>
+        <h3 class="overlay-title victory">¡Victoria Total!</h3>
+        <p class="overlay-desc">¡Destruiste todas las barreras láser con éxito!</p>
+        <button type="button" class="btn-primary-dodge victory" (click)="startBreakerGame()">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Jugar Otra Ronda</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- VISTA JUEGO 7: TETRIS RELAX (FALLING BLOCKS)                   -->
+  <!-- ============================================================== -->
+  <div *ngIf="activeGame() === 'tetris'" class="game-view tetris-view">
+    <div class="dodge-hud">
+      <div class="hud-stat">
+        <span class="hud-label">Líneas:</span>
+        <span class="hud-value highlight"><i class="fa-solid fa-grip-lines"></i> {{ tetrisLines() }}</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">Puntaje:</span>
+        <span class="hud-value record"><i class="fa-solid fa-cubes"></i> {{ tetrisScore() }}</span>
+      </div>
+    </div>
+
+    <div class="canvas-wrapper tetris-wrapper">
+      <canvas #tetrisCanvas></canvas>
+
+      <div *ngIf="tetrisStatus() === 'idle'" class="canvas-overlay">
+        <div class="overlay-icon" style="color: #818cf8;"><i class="fa-solid fa-cubes"></i></div>
+        <h3 class="overlay-title">Tetris Relax</h3>
+        <p class="overlay-desc">Usa las flechas o botones para rotar y encajar las piezas completando filas.</p>
+        <button type="button" class="btn-primary-dodge" style="background: #818cf8;" (click)="startTetrisGame()">
+          <i class="fa-solid fa-play"></i>
+          <span>Comenzar (Espacio)</span>
+        </button>
+      </div>
+
+      <div *ngIf="tetrisStatus() === 'gameover'" class="canvas-overlay game-over">
+        <div class="overlay-icon defeat"><i class="fa-solid fa-skull"></i></div>
+        <h3 class="overlay-title defeat">¡Fin del Juego!</h3>
+        <p class="overlay-desc">Completaste <strong>{{ tetrisLines() }}</strong> líneas ({{ tetrisScore() }} pts).</p>
+        <button type="button" class="btn-primary-dodge" (click)="startTetrisGame()">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Reintentar (Espacio)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Botones de Control Tetris -->
+    <div class="tetris-controls-row">
+      <button type="button" class="tetris-btn" (click)="moveTetris(-1)"><i class="fa-solid fa-arrow-left"></i></button>
+      <button type="button" class="tetris-btn rotate-btn" (click)="rotateTetris()"><i class="fa-solid fa-rotate"></i></button>
+      <button type="button" class="tetris-btn" (click)="moveTetris(1)"><i class="fa-solid fa-arrow-right"></i></button>
+      <button type="button" class="tetris-btn drop-btn" (click)="hardDropTetris()"><i class="fa-solid fa-angles-down"></i></button>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- VISTA JUEGO 8: REFLEJO SAMURAI (KATANA SLASH)                  -->
+  <!-- ============================================================== -->
+  <div *ngIf="activeGame() === 'samurai'" class="game-view samurai-view" (click)="triggerSlash()">
+    <div class="dodge-hud">
+      <div class="hud-stat">
+        <span class="hud-label">Reflejo:</span>
+        <span class="hud-value highlight"><i class="fa-solid fa-bolt"></i> {{ samuraiReaction() > 0 ? samuraiReaction() + 'ms' : '--' }}</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">Mejor Marca:</span>
+        <span class="hud-value record"><i class="fa-solid fa-crown"></i> {{ samuraiBest() > 0 ? samuraiBest() + 'ms' : '--' }}</span>
+      </div>
+    </div>
+
+    <div class="samurai-arena-box" [ngClass]="samuraiStatus()">
+      <!-- Estado Inicial -->
+      <div *ngIf="samuraiStatus() === 'idle'" class="samurai-stage-content">
+        <div class="katana-icon"><i class="fa-solid fa-hand-fist"></i></div>
+        <h3>Duelo de Reflejos</h3>
+        <p>Espera a que la pantalla parpadee en <strong>¡¡CORTE YA!!</strong> y haz clic lo más rápido posible.</p>
+        <button type="button" class="btn-primary-dodge" style="background: #ef4444;" (click)="startSamurai(); $event.stopPropagation()">
+          <i class="fa-solid fa-play"></i>
+          <span>Iniciar Duelo (Espacio)</span>
+        </button>
+      </div>
+
+      <!-- Estado Esperando Señal -->
+      <div *ngIf="samuraiStatus() === 'waiting'" class="samurai-stage-content waiting">
+        <div class="pulse-ring"></div>
+        <div class="katana-icon"><i class="fa-solid fa-eye fa-fade"></i></div>
+        <h3>En Guardia...</h3>
+        <p>No cortes antes de la señal...</p>
+      </div>
+
+      <!-- Señal de Corte -->
+      <div *ngIf="samuraiStatus() === 'ready'" class="samurai-stage-content ready">
+        <div class="flash-slash-text">¡¡CORTE YA!! ⚡</div>
+      </div>
+
+      <!-- Corte Realizado -->
+      <div *ngIf="samuraiStatus() === 'slashed'" class="samurai-stage-content slashed">
+        <div class="slash-blade-line"></div>
+        <div class="reaction-badge">{{ samuraiReaction() }} ms</div>
+        <div class="rank-badge">{{ samuraiRank() }}</div>
+        <button type="button" class="btn-primary-dodge" style="background: #ef4444; margin-top: 8px;" (click)="startSamurai(); $event.stopPropagation()">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Otro Intento (Espacio)</span>
+        </button>
+      </div>
+
+      <!-- Corte en falso -->
+      <div *ngIf="samuraiStatus() === 'early'" class="samurai-stage-content early">
+        <div class="early-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3>¡Corte en Falso!</h3>
+        <p>Te adelantaste a la señal.</p>
+        <button type="button" class="btn-primary-dodge" style="background: #f59e0b;" (click)="startSamurai(); $event.stopPropagation()">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Reintentar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- VISTA JUEGO 9: SALTO ESPACIAL (SPACE HOPPER)                   -->
+  <!-- ============================================================== -->
+  <div *ngIf="activeGame() === 'space'" class="game-view space-view">
+    <div class="dodge-hud">
+      <div class="hud-stat">
+        <span class="hud-label">Altitud:</span>
+        <span class="hud-value highlight"><i class="fa-solid fa-rocket"></i> {{ spaceScore() }}m</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">Récord:</span>
+        <span class="hud-value record"><i class="fa-solid fa-medal"></i> {{ spaceBest() }}m</span>
+      </div>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas #spaceCanvas
+              (mousemove)="onSpaceMouseMove($event)"
+              (touchmove)="onSpaceTouchMove($event)">
+      </canvas>
+
+      <div *ngIf="spaceStatus() === 'idle'" class="canvas-overlay">
+        <div class="overlay-icon" style="color: #facc15;"><i class="fa-solid fa-rocket"></i></div>
+        <h3 class="overlay-title">Salto Espacial</h3>
+        <p class="overlay-desc">Mueve el ratón o usa las flechas para rebotar de plataforma en plataforma hacia el cosmos.</p>
+        <button type="button" class="btn-primary-dodge" style="background: #facc15; color: #000;" (click)="startSpaceGame()">
+          <i class="fa-solid fa-play"></i>
+          <span>Despegar (Espacio)</span>
+        </button>
+      </div>
+
+      <div *ngIf="spaceStatus() === 'gameover'" class="canvas-overlay game-over">
+        <div class="overlay-icon defeat"><i class="fa-solid fa-burst"></i></div>
+        <h3 class="overlay-title defeat">¡Caída Espacial!</h3>
+        <p class="overlay-desc">Alcanzaste una altitud de <strong>{{ spaceScore() }}m</strong>.</p>
+        <button type="button" class="btn-primary-dodge" (click)="startSpaceGame()">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Reintentar (Espacio)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

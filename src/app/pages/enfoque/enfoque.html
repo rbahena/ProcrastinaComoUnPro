@@ -6483,35 +6483,45 @@
                       <i class="fa-solid fa-rotate-left"></i>
                       <span>Reset</span>
                     </button>
- 
-                   <!-- Ajustes (en setup) -->
-                   <button *ngIf="arenaState() === 'setup'" 
-                           (click)="showSetupSettings.set(true); settingsActiveTab.set('time')"
-                           style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: var(--settings-btn-size); height: var(--settings-btn-size); border-radius: 12px; transition: all 0.2s;"
-                           [style.borderColor]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-                           [style.color]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.8)'"
-                           onmouseover="this.style.background='rgba(255,255,255,0.05)';"
-                           onmouseout="this.style.background='rgba(255,255,255,0.02)';"
-                           title="Configuración de Pomodoro">
-                     <i class="fa-solid fa-gear" style="font-size: calc(var(--settings-btn-size) * 0.36);"></i>
-                   </button>
 
-                   <!-- Botón Nivel de Motivación y Batería (Al lado de Ajustes) -->
-                   <button *ngIf="arenaState() === 'setup' && showBatteryButtonInArena()" 
-                           (click)="showEnergyModal.set(true)"
-                           style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: var(--settings-btn-size); height: var(--settings-btn-size); border-radius: 12px; transition: all 0.2s; position: relative;"
-                           [style.borderColor]="showEnergyModal() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
-                           onmouseover="this.style.background='rgba(255,255,255,0.05)';"
-                           onmouseout="this.style.background='rgba(255,255,255,0.02)';"
-                           title="Nivel de Motivación y Ritmo de Enfoque">
-                     <i class="fa-solid fa-battery-half" 
-                        [style.color]="energyLevel() === 'low' ? '#ef4444' : (energyLevel() === 'high' ? '#10b981' : '#f59e0b')" 
-                        style="font-size: calc(var(--settings-btn-size) * 0.4);"></i>
-                     <!-- Punto indicador de energía -->
-                     <span style="position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; border-radius: 50%;"
-                           [style.background]="energyLevel() === 'low' ? '#ef4444' : (energyLevel() === 'high' ? '#10b981' : '#f59e0b')"></span>
-                   </button>
- 
+                    <!-- Botón discreto de Minijuegos (en setup si es descanso, estilo Arcade Gamer) -->
+                    <button *ngIf="arenaState() === 'setup' && isBreak()" 
+                            type="button"
+                            class="break-gamepad-arcade-btn"
+                            (click)="showBreakGames.set(true)" 
+                            title="Minijuegos de descanso"
+                            aria-label="Minijuegos de descanso">
+                      <i class="fa-solid fa-gamepad gamepad-arcade-icon"></i>
+                    </button>
+
+                    <!-- Ajustes (en setup) -->
+                    <button *ngIf="arenaState() === 'setup'" 
+                            (click)="showSetupSettings.set(true); settingsActiveTab.set('time')"
+                            style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: var(--settings-btn-size); height: var(--settings-btn-size); border-radius: 12px; transition: all 0.2s;"
+                            [style.borderColor]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+                            [style.color]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.8)'"
+                            onmouseover="this.style.background='rgba(255,255,255,0.05)';"
+                            onmouseout="this.style.background='rgba(255,255,255,0.02)';"
+                            title="Configuración de Pomodoro">
+                      <i class="fa-solid fa-gear" style="font-size: calc(var(--settings-btn-size) * 0.36);"></i>
+                    </button>
+
+                    <!-- Botón Nivel de Motivación y Batería (Al lado de Ajustes) -->
+                    <button *ngIf="arenaState() === 'setup' && showBatteryButtonInArena()" 
+                            (click)="showEnergyModal.set(true)"
+                            style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.8); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: var(--settings-btn-size); height: var(--settings-btn-size); border-radius: 12px; transition: all 0.2s; position: relative;"
+                            [style.borderColor]="showEnergyModal() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
+                            onmouseover="this.style.background='rgba(255,255,255,0.05)';"
+                            onmouseout="this.style.background='rgba(255,255,255,0.02)';"
+                            title="Nivel de Motivación y Ritmo de Enfoque">
+                      <i class="fa-solid fa-battery-half" 
+                         [style.color]="energyLevel() === 'low' ? '#ef4444' : (energyLevel() === 'high' ? '#10b981' : '#f59e0b')" 
+                         style="font-size: calc(var(--settings-btn-size) * 0.4);"></i>
+                      <!-- Punto indicador de energía -->
+                      <span style="position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; border-radius: 50%;"
+                            [style.background]="energyLevel() === 'low' ? '#ef4444' : (energyLevel() === 'high' ? '#10b981' : '#f59e0b')"></span>
+                    </button>
+
                     <!-- Botón Interrumpir / Reanudar (Pausa de Emergencia) -->
                     <button *ngIf="arenaState() === 'active' && !isBreak()" 
                             (click)="toggleEmergencyPause()" 
@@ -6536,6 +6546,32 @@
                       <i class="fa-solid fa-ban" style="font-size: 13px;"></i>
                       <span>Abandonar</span>
                     </button>
+
+                    <!-- Botón discreto de Minijuegos (en descanso activo, estilo Arcade Gamer) -->
+                    <button *ngIf="arenaState() === 'active' && isBreak()" 
+                            type="button"
+                            class="break-gamepad-arcade-btn"
+                            (click)="showBreakGames.set(true)" 
+                            title="Minijuegos de descanso"
+                            aria-label="Minijuegos de descanso">
+                      <i class="fa-solid fa-gamepad gamepad-arcade-icon"></i>
+                    </button>
+                 </div>
+
+                 <!-- MODAL FLOTANTE DE MINIJUEGOS EN DESCANSO -->
+                 <div *ngIf="isBreak() && showBreakGames() && arenaState() !== 'summary'" 
+                      class="break-games-modal-backdrop" 
+                      (click)="showBreakGames.set(false)"
+                      style="position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, 0.78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; padding: 24px 16px; box-sizing: border-box;">
+                   <div class="break-games-modal-dialog" 
+                        (click)="$event.stopPropagation()"
+                        style="width: 100%; max-width: 550px; max-height: min(82vh, 560px); height: auto; display: flex; flex-direction: column; margin: auto; overflow: hidden; position: relative;">
+                     <app-minijuegos-descanso [theme]="currentTheme()"
+                                              [currentBreakTimeLeft]="timeString()"
+                                              (close)="showBreakGames.set(false)"
+                                              style="display: flex; flex-direction: column; width: 100%; max-height: 100%; min-height: 0; overflow: hidden; margin: auto;">
+                     </app-minijuegos-descanso>
+                   </div>
                  </div>
                  </ng-container>
               </div>

@@ -7,6 +7,7 @@ import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { SupabaseService, FocusSessionData, IdeaPriority } from '../../services/supabase.service';
 import { NotificationService } from '../../services/notification.service';
 import { Navbar } from '../../components/navbar/navbar';
+import { MinijuegosDescanso } from '../../components/minijuegos-descanso/minijuegos-descanso';
 import { BACKGROUND_SOUNDS, END_SESSION_SOUNDS, BackgroundSoundOption, EndSessionSoundOption } from './sounds.data';
 
 export interface MotivationItem {
@@ -73,7 +74,7 @@ export type FocusTimerStyle =
 @Component({
   selector: 'app-enfoque',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, Navbar],
+  imports: [CommonModule, RouterLink, FormsModule, Navbar, MinijuegosDescanso],
   templateUrl: './enfoque.html',
   styleUrl: './enfoque.css',
   host: {
@@ -1957,7 +1958,12 @@ export class Enfoque implements OnInit, OnDestroy {
   totalSessionTime = signal((parseInt(this.membership.getFocusSetting('focus-duration', '25'), 10) || 25) * 60);
   timerRunning = signal(false);
   isBreak = signal(false);
+  showBreakGames = signal<boolean>(false);
   private pomodoroTimer: any = null;
+
+  toggleBreakGames() {
+    this.showBreakGames.set(!this.showBreakGames());
+  }
 
   // Lógica del Ritual 3-2-1
   countdownValue = signal(3);
