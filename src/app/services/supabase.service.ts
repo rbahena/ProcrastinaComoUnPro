@@ -597,6 +597,43 @@ export class SupabaseService {
     return { error: null };
   }
 
+  async resetPasswordForEmail(email: string): Promise<{ success: boolean; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/login` : undefined;
+      const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl
+      });
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: true, error: null };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al enviar enlace de restablecimiento' };
+    }
+  }
+
+  async updatePassword(password: string): Promise<{ success: boolean; error: string | null }> {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const { error } = await this.supabase.auth.updateUser({
+        password
+      });
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: true, error: null };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al actualizar contraseña' };
+    }
+  }
+
   // ==========================================
   // PERFIL DE USUARIO
   // ==========================================

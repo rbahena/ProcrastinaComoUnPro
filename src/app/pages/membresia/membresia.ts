@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
+import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
   selector: 'app-membresia',
@@ -14,13 +15,18 @@ export class Membresia {
   isAnnual = signal<boolean>(true);
   showSuccessToast = signal<boolean>(false);
 
-  constructor(private router: Router, public membership: MembershipService) {}
+  constructor(
+    private router: Router, 
+    public membership: MembershipService,
+    private analytics: AnalyticsService
+  ) {}
 
   selectPlan(annual: boolean) {
     this.isAnnual.set(annual);
   }
 
   togglePremium() {
+    this.analytics.trackUpgradeProClick(this.isAnnual() ? 'annual' : 'monthly');
     const nextState = !this.membership.isPremium();
     this.membership.setPremium(nextState);
     

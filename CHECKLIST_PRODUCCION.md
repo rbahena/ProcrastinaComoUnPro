@@ -26,11 +26,12 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
     - `user_quality_progress`: Lectura y escritura restringida al usuario autenticado.
     - `motivations`: Lectura pública de frases aprobadas; inserción y eliminación restringida al autor.
     - `boss_battles`: Lectura pública; curación y daño controlado por funciones del servidor.
-- [ ] **Autenticación y Correos**:
-  - [ ] Configurar un servidor SMTP personalizado en Supabase (Resend, SendGrid, Amazon SES o Mailgun) para evitar el límite de 3 correos/hora del servidor gratuito por defecto.
-  - [ ] Personalizar plantillas de correo de Auth (Confirmación de cuenta, Restablecimiento de contraseña, Invitaciones).
-  - [ ] En *Authentication > URL Configuration > Site URL*, establecer el dominio final de producción (ej. `https://cofu.app`).
-  - [ ] Agregar a **Redirect URLs** permitidas las rutas de callback: `https://tudominio.com/**` y `https://tudominio.com/login`.
+- [x] **Autenticación y Correos**:
+  - [x] Configurado servidor SMTP personalizado en Supabase con Resend (`smtp.resend.com:587`, dominio `cofu.io` verificado con SPF, DKIM y DMARC en Hostinger).
+  - [x] Personalizadas plantillas de correo con branding de COFU (Invitaciones, Confirmación de cuenta y Recuperación de contraseña).
+  - [x] En *Authentication > URL Configuration > Site URL*, establecido `https://cofu.io`.
+  - [x] Agregadas a **Redirect URLs** permitidas: `https://cofu.io/**`, `https://cofu.io/login` y `http://localhost:4200/**`.
+  - [x] Implementado flujo y modal automático en `/login` para captura de token de recuperación (`type=recovery`) y actualización segura de contraseña.
 - [x] **Funciones RPC y Seguridad de Gamificación**:
   - [x] Mover la adjudicación de ProCoins, XP y daño/curación al Boss a funciones PostgreSQL (`SECURITY DEFINER`) (`settle_focus_session`, `deal_boss_damage`, `heal_boss_from_distraction`, `buy_catalog_item`, etc.) para evitar que usuarios manipulen llamadas directas desde la consola del navegador.
 - [x] **Canales Realtime**:
@@ -114,11 +115,12 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
 
 ## 7. Monitorización, Logs y Analítica
 
-- [ ] **Captura de Errores en Tiempo Real**:
-  - [ ] Integrar **Sentry** (`@sentry/angular`) o **GlitchTip** para recibir alertas de fallos en producción antes de que los reporten los usuarios.
-- [ ] **Analítica Web**:
-  - [ ] Instalar herramienta de métricas (Google Analytics 4, PostHog, Plausible o Umami) respetando la privacidad del usuario.
-  - [ ] Configurar eventos clave: `registro_completado`, `sesion_enfoque_finalizada`, `upgrade_pro_click`.
+- [x] **Analítica Web y Telemetría (Google Analytics 4 / Telemetría Ligera)**:
+  - [x] Implementado servicio [analytics.service.ts](file:///C:/Users/ramiro.bahena/Desktop/Codes/RBAHENA/ProcrastinaComoUnPro/src/app/services/analytics.service.ts) con inyección dinámica y soporte para ID de medición `G-XXXXXXXXXX`.
+  - [x] Registro automático de vistas de página (`page_view`) en cada cambio de ruta Angular SPA.
+  - [x] Eventos de negocio configurados: `trackSignup` (email/Google), `trackLogin`, `trackFocusCompleted` y `trackUpgradeProClick`.
+- [ ] **Captura de Errores en Tiempo Real (Sentry / GlitchTip)**:
+  - Aplazado para etapas avanzadas de escalado con alto volumen de tráfico.
 
 ---
 

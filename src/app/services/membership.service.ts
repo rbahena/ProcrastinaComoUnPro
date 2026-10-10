@@ -1508,6 +1508,31 @@ export class MembershipService {
     return { success: true };
   }
 
+  // Restablecer contraseña por correo electrónico
+  async resetPassword(email: string): Promise<{ success: boolean; error?: string }> {
+    if (!email || !email.trim()) {
+      return { success: false, error: 'Por favor, ingresa tu correo electrónico.' };
+    }
+    const emailLower = email.toLowerCase().trim();
+    const result = await this.supabaseService.resetPasswordForEmail(emailLower);
+    if (!result.success) {
+      return { success: false, error: result.error || 'Error al enviar correo de restablecimiento' };
+    }
+    return { success: true };
+  }
+
+  // Actualizar contraseña del usuario autenticado (flujo de recuperación)
+  async updatePassword(password: string): Promise<{ success: boolean; error?: string }> {
+    if (!password || password.trim().length < 6) {
+      return { success: false, error: 'La contraseña debe tener al menos 6 caracteres.' };
+    }
+    const result = await this.supabaseService.updatePassword(password);
+    if (!result.success) {
+      return { success: false, error: result.error || 'Error al actualizar la contraseña.' };
+    }
+    return { success: true };
+  }
+
   // Cerrar Sesión
   async logout() {
     if (this.supabaseService.isConfigured()) {

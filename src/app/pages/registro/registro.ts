@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { LegalService } from '../../services/legal.service';
+import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
   selector: 'app-registro',
@@ -17,7 +18,8 @@ export class Registro {
   constructor(
     private router: Router, 
     private membership: MembershipService,
-    public legalService: LegalService
+    public legalService: LegalService,
+    private analytics: AnalyticsService
   ) {}
 
   togglePasswordVisibility() {
@@ -34,6 +36,7 @@ export class Registro {
 
     if (result.success) {
       this.registroError.set(null);
+      this.analytics.trackSignup('email');
       localStorage.setItem('procrastina-just-registered', 'true');
       this.router.navigate(['/cualidades']);
     } else {
@@ -47,6 +50,7 @@ export class Registro {
     this.isLoading.set(false);
 
     if (result.success) {
+      this.analytics.trackSignup('google');
       localStorage.setItem('procrastina-just-registered', 'true');
       this.router.navigate(['/cualidades']);
     } else if (result.error) {

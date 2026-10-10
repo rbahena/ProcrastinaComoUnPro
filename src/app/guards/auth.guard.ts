@@ -40,6 +40,16 @@ export const guestGuard: CanActivateFn = async (route, state) => {
   const supabase = inject(SupabaseService);
   const router = inject(Router);
 
+  // Si el usuario llega desde un correo de recuperación de contraseña, permitimos que se quede en /login
+  if (typeof window !== 'undefined') {
+    const hash = window.location.hash || '';
+    const search = window.location.search || '';
+    const href = window.location.href || '';
+    if (hash.includes('type=recovery') || search.includes('type=recovery') || href.includes('type=recovery')) {
+      return true;
+    }
+  }
+
   if (!supabase.isConfigured()) {
     return true;
   }

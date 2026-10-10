@@ -39,7 +39,7 @@
       <div class="form-group">
         <div class="label-row">
           <label for="password">Contraseña</label>
-          <a class="forgot-link">¿Olvidaste tu contraseña?</a>
+          <a class="forgot-link" (click)="openResetModal()" style="cursor: pointer; color: var(--accent); font-size: 12px; text-decoration: none;">¿Olvidaste tu contraseña?</a>
         </div>
         <div class="password-input-wrapper">
           <input 
@@ -99,3 +99,169 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de Recuperación de Contraseña -->
+@if (showResetModal()) {
+  <div style="position: fixed; inset: 0; background: rgba(5, 7, 18, 0.85); backdrop-filter: blur(10px); z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 20px;" (click)="closeResetModal()">
+    <div style="max-width: 420px; width: 100%; background: linear-gradient(145deg, rgba(23, 28, 48, 0.98), rgba(12, 15, 27, 0.99)); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 20px; padding: 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); color: #fff; text-align: left;" (click)="$event.stopPropagation()">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(99, 102, 241, 0.2); display: flex; align-items: center; justify-content: center; color: #818cf8; font-size: 16px;">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <h3 style="font-size: 17px; font-weight: 800; margin: 0;">Recuperar Contraseña</h3>
+        </div>
+        <button type="button" (click)="closeResetModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 18px;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 18px;">
+        Ingresa tu correo electrónico registrado y te enviaremos un enlace seguro para restablecer tu contraseña.
+      </p>
+
+      @if (resetSuccessMessage()) {
+        <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 16px; color: #34d399; font-size: 12.5px; line-height: 1.4;">
+          <i class="fa-solid fa-circle-check" style="margin-right: 6px;"></i>
+          {{ resetSuccessMessage() }}
+        </div>
+      }
+
+      @if (resetErrorMessage()) {
+        <div style="background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 16px; color: #f87171; font-size: 12.5px;">
+          <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i>
+          {{ resetErrorMessage() }}
+        </div>
+      }
+
+      @if (!resetSuccessMessage()) {
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">Correo Registrado</label>
+          <input #recoveryEmailInput type="email" placeholder="nombre@ejemplo.com" style="width: 100%; padding: 11px 14px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #fff; font-size: 14px; box-sizing: border-box;" [disabled]="isResetLoading()">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" (click)="closeResetModal()" style="padding: 10px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #cbd5e1; font-size: 13px; font-weight: 600; cursor: pointer;">
+            Cancelar
+          </button>
+          <button type="button" (click)="sendPasswordReset(recoveryEmailInput.value)" [disabled]="isResetLoading()" style="padding: 10px 18px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            @if (isResetLoading()) {
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
+              <span>Enviando...</span>
+            } @else {
+              <span>Enviar enlace</span>
+              <i class="fa-solid fa-paper-plane"></i>
+            }
+          </button>
+        </div>
+      } @else {
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" (click)="closeResetModal()" style="padding: 10px 20px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;">
+            Cerrar
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- Modal para Establecer Nueva Contraseña (Retorno desde Correo de Recuperación) -->
+@if (showNewPasswordModal()) {
+  <div style="position: fixed; inset: 0; background: rgba(5, 7, 18, 0.9); backdrop-filter: blur(12px); z-index: 9999999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div style="max-width: 440px; width: 100%; background: linear-gradient(145deg, rgba(23, 28, 48, 0.99), rgba(12, 15, 27, 0.99)); border: 1px solid rgba(99, 102, 241, 0.45); border-radius: 20px; padding: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.85); color: #fff; text-align: left;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(79, 70, 229, 0.35)); display: flex; align-items: center; justify-content: center; color: #818cf8; font-size: 18px;">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; margin: 0; letter-spacing: -0.3px;">Nueva Contraseña</h3>
+            <span style="font-size: 11px; color: #818cf8; font-weight: 600;">Verificación de Identidad Aprobada</span>
+          </div>
+        </div>
+        <button type="button" (click)="closeNewPasswordModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 18px;" title="Cerrar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 20px;">
+        Ingresa tu nueva contraseña para proteger tu cuenta de COFU. Debe contener al menos 6 caracteres.
+      </p>
+
+      @if (updatePasswordSuccess()) {
+        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 14px; margin-bottom: 16px; color: #34d399; font-size: 13px; line-height: 1.5; text-align: center;">
+          <i class="fa-solid fa-circle-check" style="font-size: 20px; display: block; margin-bottom: 6px;"></i>
+          <strong>{{ updatePasswordSuccess() }}</strong>
+        </div>
+      }
+
+      @if (updatePasswordError()) {
+        <div style="background: rgba(248, 113, 113, 0.15); border: 1px solid rgba(248, 113, 113, 0.4); border-radius: 10px; padding: 12px; margin-bottom: 16px; color: #f87171; font-size: 12.5px;">
+          <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i>
+          {{ updatePasswordError() }}
+        </div>
+      }
+
+      @if (!updatePasswordSuccess()) {
+        <form (submit)="onUpdatePassword($event, newPasswordInput.value, confirmPasswordInput.value)">
+          <div style="margin-bottom: 14px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">Nueva Contraseña</label>
+            <div style="position: relative;">
+              <input 
+                #newPasswordInput 
+                [type]="showNewPassword() ? 'text' : 'password'" 
+                placeholder="Mínimo 6 caracteres" 
+                required 
+                autocomplete="new-password"
+                style="width: 100%; padding: 11px 40px 11px 14px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; font-size: 14px; box-sizing: border-box;"
+                [disabled]="isUpdatingPassword()">
+              <button 
+                type="button" 
+                (click)="toggleNewPasswordVisibility()" 
+                style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #94a3b8; cursor: pointer;"
+                tabindex="-1">
+                <i [class]="showNewPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 22px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">Confirmar Nueva Contraseña</label>
+            <input 
+              #confirmPasswordInput 
+              [type]="showNewPassword() ? 'text' : 'password'" 
+              placeholder="Repite la contraseña" 
+              required 
+              autocomplete="new-password"
+              style="width: 100%; padding: 11px 14px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; font-size: 14px; box-sizing: border-box;"
+              [disabled]="isUpdatingPassword()">
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button 
+              type="button" 
+              (click)="closeNewPasswordModal()" 
+              style="padding: 10px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #cbd5e1; font-size: 13px; font-weight: 600; cursor: pointer;"
+              [disabled]="isUpdatingPassword()">
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="isUpdatingPassword()" 
+              style="padding: 11px 22px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(99,102,241,0.4);">
+              @if (isUpdatingPassword()) {
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <span>Guardando...</span>
+              } @else {
+                <span>Actualizar Contraseña</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              }
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+  </div>
+}

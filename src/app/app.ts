@@ -6,6 +6,8 @@ import { LegalService } from './services/legal.service';
 import { LegalModal } from './components/legal-modal/legal-modal';
 import { IdeaPriority } from './services/supabase.service';
 
+import { AnalyticsService } from './services/analytics.service';
+
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, CommonModule, LegalModal],
@@ -27,6 +29,7 @@ export class App implements OnInit {
   constructor(
     public membership: MembershipService, 
     public legalService: LegalService,
+    private analytics: AnalyticsService,
     private router: Router
   ) {}
 
