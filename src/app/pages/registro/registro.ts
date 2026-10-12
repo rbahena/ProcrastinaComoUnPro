@@ -43,18 +43,4 @@ export class Registro {
       this.registroError.set(result.error || 'Ocurrió un error en el registro.');
     }
   }
-
-  async registerWithGoogle() {
-    this.isLoading.set(true);
-    const result = await this.membership.loginWithGoogle();
-    this.isLoading.set(false);
-
-    if (result.success) {
-      this.analytics.trackSignup('google');
-      localStorage.setItem('procrastina-just-registered', 'true');
-      this.router.navigate(['/cualidades']);
-    } else if (result.error) {
-      this.registroError.set(result.error);
-    }
-  }
 }

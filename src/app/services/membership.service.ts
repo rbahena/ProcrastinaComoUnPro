@@ -1498,12 +1498,12 @@ export class MembershipService {
   }
 
   // Iniciar sesión con Google (Supabase OAuth)
-  async loginWithGoogle(): Promise<{ success: boolean; error?: string }> {
+  async loginWithGoogle(redirectTo?: string): Promise<{ success: boolean; error?: string }> {
     if (!this.supabaseService.isConfigured()) {
       return { success: false, error: 'El servicio de base de datos no está disponible.' };
     }
 
-    const { error } = await this.supabaseService.signInWithGoogle();
+    const { error } = await this.supabaseService.signInWithGoogle(redirectTo);
     if (error) return { success: false, error };
     return { success: true };
   }

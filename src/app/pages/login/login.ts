@@ -166,18 +166,4 @@ export class Login implements OnInit, OnDestroy {
       this.errorMessage.set(result.error || 'Las credenciales de acceso ingresadas son incorrectas.');
     }
   }
-
-  async loginWithGoogle() {
-    this.isLoading.set(true);
-    const result = await this.membership.loginWithGoogle();
-    this.isLoading.set(false);
-
-    if (result.success) {
-      this.analytics.trackLogin('google');
-      this.router.navigate(['/home']);
-    } else if (result.error) {
-      this.loginError.set(true);
-      this.errorMessage.set(result.error);
-    }
-  }
 }

@@ -20,7 +20,14 @@ export const authGuard: CanActivateFn = async (route, state) => {
     return true;
   }
 
-  // 2. Si tiene sesión persistida en Supabase
+  // 2. Esperar y verificar si hay sesión activa (incluye el intercambio de tokens de Google OAuth)
+  const session = await supabase.getSession();
+  if (session?.user) {
+    supabase.currentUser.set(session.user);
+    supabase.currentSession.set(session);
+    return true;
+  }
+
   const user = await supabase.getCurrentUser();
   if (user) {
     supabase.currentUser.set(user);

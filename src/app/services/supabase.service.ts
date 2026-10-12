@@ -568,7 +568,7 @@ export class SupabaseService {
     return { user: data.user, session: data.session, error: null };
   }
 
-  async signInWithGoogle(): Promise<{ error: string | null }> {
+  async signInWithGoogle(redirectTo?: string): Promise<{ error: string | null }> {
     if (!this.isConfigured()) {
       return { error: 'SUPABASE_NOT_CONFIGURED' };
     }
@@ -576,7 +576,7 @@ export class SupabaseService {
     const { error } = await this.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/home'
+        redirectTo: redirectTo || (window.location.origin + '/home')
       }
     });
 
