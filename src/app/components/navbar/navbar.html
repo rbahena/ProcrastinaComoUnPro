@@ -1,7 +1,7 @@
 <!-- TOPBAR HEADER -->
 <div class="sidebar" [class.nav-focus-locked]="membership.isFocusActive()">
   <a (click)="onNavClick($event, '/home')" [routerLink]="membership.isFocusActive() ? null : '/home'" class="logo" [class.link-locked]="membership.isFocusActive()">
-    <img class="logo-img" src="/assets/images/cofu_logo.jpg" alt="COFU Logo">
+    <img class="logo-img" src="/assets/images/brand/cofu_logo.jpg" alt="COFU Logo">
     <span class="logo-text">COFU</span>
     <span *ngIf="membership.isFocusActive()" class="focus-lock-badge" data-tooltip="Sesión de enfoque en curso: Navegación bloqueada hasta abandonar" data-tooltip-align="bottom">
       <i class="fa-solid fa-lock"></i>

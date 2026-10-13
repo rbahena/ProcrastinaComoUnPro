@@ -39,13 +39,14 @@
                [class.active-video-layer]="activeVideoLayer() === 'A'"
                (timeupdate)="onVideoTimeUpdate($event, 'A')"
                (ended)="onVideoEnded($event, 'A')"
-               (canplay)="onVideoLoaded($event)"
-               (loadeddata)="onVideoLoaded($event)"
+               (canplay)="onVideoCanPlay('A', $event)"
+               (loadeddata)="onVideoCanPlay('A', $event)"
                (volumechange)="$any($event.target).muted = true; $any($event.target).volume = 0">
         </video>
 
         <video #bgVideoB
                [src]="backgroundVideoUrl()"
+               loop
                muted
                [muted]="true"
                [volume]="0"
@@ -57,8 +58,8 @@
                [class.active-video-layer]="activeVideoLayer() === 'B'"
                (timeupdate)="onVideoTimeUpdate($event, 'B')"
                (ended)="onVideoEnded($event, 'B')"
-               (canplay)="onVideoLoaded($event)"
-               (loadeddata)="onVideoLoaded($event)"
+               (canplay)="onVideoCanPlay('B', $event)"
+               (loadeddata)="onVideoCanPlay('B', $event)"
                (volumechange)="$any($event.target).muted = true; $any($event.target).volume = 0">
         </video>
       </ng-container>

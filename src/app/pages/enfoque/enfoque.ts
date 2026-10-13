@@ -155,6 +155,15 @@ export class Enfoque implements OnInit, OnDestroy {
         }
       }
     });
+
+    // Sincronización y recarga reactiva de fondos en video HD
+    effect(() => {
+      const isVideo = this.isVideoBackground();
+      const videoUrl = this.backgroundVideoUrl();
+      if (isVideo && videoUrl) {
+        setTimeout(() => this.refreshVideoBackground(), 0);
+      }
+    });
   }
 
   // Acompañante de sesión compartida
@@ -4581,25 +4590,96 @@ export class Enfoque implements OnInit, OnDestroy {
     this.isCrossfading = false;
 
     if (this.isVideoBackground()) {
-      setTimeout(() => {
-        if (this.bgVideoARef?.nativeElement) {
-          this.bgVideoARef.nativeElement.currentTime = 0;
-          this.bgVideoARef.nativeElement.muted = true;
-          this.bgVideoARef.nativeElement.volume = 0;
-          this.bgVideoARef.nativeElement.play().catch(() => {});
-        }
-      }, 50);
+      this.refreshVideoBackground();
     }
   }
 
-  // Garantiza 0 volumen y silencio absoluto en la carga del video
-  onVideoLoaded(event: Event) {
+  // Forzar recarga, sincronización de fuente y reproducción instantánea del video
+  refreshVideoBackground() {
+    this.activeVideoLayer.set('A');
+    this.isCrossfading = false;
+    const targetUrl = this.backgroundVideoUrl();
+    if (!targetUrl) return;
+
+    const applyToElements = () => {
+      const videoA = this.bgVideoARef?.nativeElement;
+      const videoB = this.bgVideoBRef?.nativeElement;
+
+      if (videoA) {
+        videoA.muted = true;
+        videoA.defaultMuted = true;
+        videoA.volume = 0;
+
+        const currentSrcA = videoA.getAttribute('src') || videoA.src;
+        if (!currentSrcA || !currentSrcA.includes(targetUrl.replace(/^\//, ''))) {
+          videoA.src = targetUrl;
+          videoA.load();
+        }
+
+        try {
+          videoA.currentTime = 0;
+        } catch (_) {}
+
+        const playPromise = videoA.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            const onCanPlay = () => {
+              videoA.muted = true;
+              videoA.play().catch(() => {});
+              videoA.removeEventListener('canplay', onCanPlay);
+            };
+            videoA.addEventListener('canplay', onCanPlay, { once: true });
+          });
+        }
+      }
+
+      if (videoB) {
+        videoB.muted = true;
+        videoB.defaultMuted = true;
+        videoB.volume = 0;
+        videoB.pause();
+
+        const currentSrcB = videoB.getAttribute('src') || videoB.src;
+        if (!currentSrcB || !currentSrcB.includes(targetUrl.replace(/^\//, ''))) {
+          videoB.src = targetUrl;
+          videoB.load();
+        }
+
+        try {
+          videoB.currentTime = 0;
+        } catch (_) {}
+      }
+    };
+
+    applyToElements();
+    setTimeout(applyToElements, 40);
+    setTimeout(applyToElements, 120);
+  }
+
+  // Controlador de preparación de capas de video A / B
+  onVideoCanPlay(layer: 'A' | 'B', event: Event) {
     const video = event.target as HTMLVideoElement;
-    if (video) {
-      video.muted = true;
-      video.volume = 0;
-      video.play().catch(() => {});
+    if (!video) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+
+    if (this.activeVideoLayer() === layer) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
+      }
+    } else {
+      video.pause();
+      try {
+        video.currentTime = 0;
+      } catch (_) {}
     }
+  }
+
+  // Compatibilidad hacia atrás
+  onVideoLoaded(event: Event) {
+    this.onVideoCanPlay('A', event);
   }
 
   // Motor de Bucle Continuo Imperceptible: Crossfade dinámico de capas A/B
@@ -4621,10 +4701,16 @@ export class Enfoque implements OnInit, OnDestroy {
       const nextVideo = nextLayer === 'A' ? this.bgVideoARef?.nativeElement : this.bgVideoBRef?.nativeElement;
       
       if (nextVideo) {
-        nextVideo.currentTime = 0;
+        try {
+          nextVideo.currentTime = 0;
+        } catch (_) {}
         nextVideo.muted = true;
+        nextVideo.defaultMuted = true;
         nextVideo.volume = 0;
-        nextVideo.play().catch(() => {});
+        const playPromise = nextVideo.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {});
+        }
         this.activeVideoLayer.set(nextLayer);
 
         setTimeout(() => {
@@ -4639,10 +4725,14 @@ export class Enfoque implements OnInit, OnDestroy {
   onVideoEnded(event: Event, layer: 'A' | 'B') {
     const video = event.target as HTMLVideoElement;
     if (video) {
-      video.currentTime = 0;
+      try {
+        video.currentTime = 0;
+      } catch (_) {}
       video.muted = true;
       video.volume = 0;
-      video.play().catch(() => {});
+      if (this.activeVideoLayer() === layer) {
+        video.play().catch(() => {});
+      }
     }
   }
 
