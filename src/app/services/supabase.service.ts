@@ -2403,7 +2403,111 @@ export class SupabaseService {
       if (error) return { success: false, error: error.message };
       return { success: true, result: data };
     } catch (e: any) {
-      return { success: false, error: e.message || 'Error recalculando racha' };
+      return { success: false, error: e.message || 'Error al recalcular racha' };
+    }
+  }
+
+  // ==========================================
+  // MONETIZACIÓN Y PAGOS STRIPE
+  // ==========================================
+
+  async createStripeCheckoutSession(plan: 'monthly' | 'annual', currency: string = 'USD'): Promise<{ data: { url: string } | null; error: string | null }> {
+    if (!this.isConfigured()) return { data: null, error: 'SUPABASE_NOT_CONFIGURED' };
+    try {
+      const { data: sessionData } = await this.supabase.auth.getSession();
+      const headers: Record<string, string> = {};
+      if (sessionData?.session?.access_token) {
+        headers['Authorization'] = `Bearer ${sessionData.session.access_token}`;
+      }
+
+      const { data, error } = await this.supabase.functions.invoke('stripe-checkout', {
+        body: { plan, currency },
+        headers
+      });
+      if (error) {
+        let detail = error.message;
+        try {
+          if ('context' in error && (error as any).context) {
+            const errorJson = await (error as any).context.json();
+            detail = errorJson.message || errorJson.error || detail;
+          }
+        } catch {}
+        console.error('[Stripe Checkout Error]', detail, error);
+        return { data: null, error: detail };
+      }
+      return { data, error: null };
+    } catch (e: any) {
+      console.error('[Stripe Checkout Invoke Exception]', e);
+      return { data: null, error: e.message || 'Error al conectar con la pasarela de pago' };
+    }
+  }
+
+  async createStripePortalSession(): Promise<{ data: { url: string } | null; error: string | null }> {
+    if (!this.isConfigured()) return { data: null, error: 'SUPABASE_NOT_CONFIGURED' };
+    try {
+      const { data: sessionData } = await this.supabase.auth.getSession();
+      const headers: Record<string, string> = {};
+      if (sessionData?.session?.access_token) {
+        headers['Authorization'] = `Bearer ${sessionData.session.access_token}`;
+      }
+
+      const { data, error } = await this.supabase.functions.invoke('stripe-portal', {
+        headers
+      });
+      if (error) {
+        let detail = error.message;
+        try {
+          if ('context' in error && (error as any).context) {
+            const errorJson = await (error as any).context.json();
+            detail = errorJson.message || errorJson.error || detail;
+          }
+        } catch {}
+        console.error('[Stripe Portal Error]', detail, error);
+        return { data: null, error: detail };
+      }
+      return { data, error: null };
+    } catch (e: any) {
+      return { data: null, error: e.message || 'Error al abrir el portal de facturación' };
+    }
+  }
+
+  async syncStripeSubscription(sessionId?: string): Promise<{ success: boolean; is_premium: boolean; error: string | null }> {
+    if (!this.isConfigured()) return { success: false, is_premium: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    try {
+      const { data: sessionData } = await this.supabase.auth.getSession();
+      const headers: Record<string, string> = {};
+      if (sessionData?.session?.access_token) {
+        headers['Authorization'] = `Bearer ${sessionData.session.access_token}`;
+      }
+
+      const { data, error } = await this.supabase.functions.invoke('stripe-checkout', {
+        body: { 
+          action: 'sync-subscription',
+          sessionId: sessionId || undefined 
+        },
+        headers
+      });
+
+      if (error) {
+        let detail = error.message;
+        try {
+          if ('context' in error && (error as any).context) {
+            const errorJson = await (error as any).context.json();
+            detail = errorJson.message || errorJson.error || detail;
+          }
+        } catch {}
+        console.warn('[Stripe Sync Warning]', detail);
+        return { success: false, is_premium: false, error: detail };
+      }
+
+      return { 
+        success: !!data?.success, 
+        is_premium: !!data?.is_premium, 
+        error: null 
+      };
+    } catch (e: any) {
+      console.warn('[Stripe Sync Exception]', e);
+      return { success: false, is_premium: false, error: e.message };
     }
   }
 }

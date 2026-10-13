@@ -19,6 +19,7 @@
 -- [x] PASO 5: Jefes de Raid -> /enfoque (Coworking Comunitario & Boss), /bestiario (Catálogo de Jefes)
 -- [x] PASO 6: Productividad Auxiliar -> /fechas (Deadlines), /bloqueador (Cortafuegos), /ideas (Baúl)
 -- [x] PASO 7: Telemetría Global -> /home (Cards en Vivo, Podio Semanal, Récords Históricos), /medallero
+-- [x] PASO 8: Capa de Seguridad y Blindaje Pre-Producción -> Auditoría RLS, Anti-Trampas y Hardening
 -- ==============================================================================
 
 
@@ -139,6 +140,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     premium_until TIMESTAMPTZ,
     -- stripe_customer_id: ID de cliente en Stripe para sincronización de pagos recurrentes.
     stripe_customer_id TEXT,
+    -- stripe_subscription_id: ID de suscripción activa en Stripe (sub_...).
+    stripe_subscription_id TEXT,
     -- onboarding_completed: Flag para verificar si completó la configuración inicial de la cuenta.
     onboarding_completed BOOLEAN DEFAULT FALSE,
     
@@ -181,6 +184,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 CREATE INDEX IF NOT EXISTS idx_profiles_focus_points ON public.profiles(focus_points DESC);
 CREATE INDEX IF NOT EXISTS idx_profiles_ranking_focus_points ON public.profiles(is_premium, focus_points DESC, focus_tomatoes DESC);
 CREATE INDEX IF NOT EXISTS idx_profiles_ranking_focus_tomatoes ON public.profiles(is_premium, focus_tomatoes DESC, focus_points DESC);
+CREATE INDEX IF NOT EXISTS idx_profiles_stripe_customer_id ON public.profiles(stripe_customer_id);
+CREATE INDEX IF NOT EXISTS idx_profiles_stripe_subscription_id ON public.profiles(stripe_subscription_id);
 
 
 -- ------------------------------------------------------------------------------
@@ -1378,7 +1383,9 @@ CREATE OR REPLACE FUNCTION public.advance_user_quality_progress(
     p_quality_id VARCHAR,
     p_increment INTEGER DEFAULT 1
 )
-RETURNS JSON AS $$
+RETURNS JSON 
+SET search_path = public, pg_temp
+AS $$
 DECLARE
     v_user_id UUID := auth.uid();
     v_quality RECORD;
@@ -1422,7 +1429,7 @@ BEGIN
     END IF;
 
     -- 5. Calcular nuevo progreso acotado al objetivo
-    v_new_progress := LEAST(v_quality.target_total, v_progress.current_progress + p_increment);
+    v_new_progress := LEAST(v_quality.target_total, v_progress.current_progress + 1);
     v_is_now_unlocked := (v_new_progress >= v_quality.target_total);
     v_newly_unlocked := v_is_now_unlocked AND NOT v_progress.is_unlocked;
 
@@ -3561,7 +3568,9 @@ EXCEPTION WHEN duplicate_object THEN null; END $$;
 CREATE OR REPLACE FUNCTION public.toggle_motivation_like(
     p_motivation_id TEXT
 )
-RETURNS JSON AS $$
+RETURNS JSON 
+SET search_path = public, pg_temp
+AS $$
 DECLARE
     v_user_id UUID := auth.uid();
     v_liked BOOLEAN;
@@ -3610,3 +3619,230 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Eliminar trigger de like inicial automático (los mensajes surgen con 0 likes)
 DROP TRIGGER IF EXISTS trg_new_community_motivation ON public.community_motivations;
 DROP FUNCTION IF EXISTS public.handle_new_community_motivation();
+
+
+-- ==============================================================================
+-- 🛡️ PASO 8: CAPA MAESTRA DE SEGURIDAD Y BLINDAJE PRE-PRODUCCIÓN
+-- ==============================================================================
+-- 🎯 PROPÓSITO GENERAL:
+-- Este módulo implementa las reglas de endurecimiento (hardening), integridad de datos
+-- y mitigación de vulnerabilidades detectadas durante la auditoría pre-lanzamiento.
+-- Cada sección documenta el BUG ESPECÍFICO QUE CUBRE, el CONTEXTO DE DESARROLLO
+-- original, el IMPACTO DE SEGURIDAD y la REGLA DE BASE DE DATOS aplicada.
+-- ==============================================================================
+
+
+-- ------------------------------------------------------------------------------
+-- 8.1. BUG CUBIERTO: MANIPULACIÓN DE PROCOINS, XP, TOMATES Y RACHAS VÍA UPDATE
+-- ------------------------------------------------------------------------------
+-- 🎯 BUG CUBIERTO:
+-- Inyección arbitraria de saldos (pro_coins), puntos de experiencia (focus_points),
+-- tomates acumulados (focus_tomatoes), rachas diarias (streak_days, longest_streak)
+-- y medallas (podium_wins, gold_medals) directamente desde la consola DevTools del navegador.
+--
+-- 🧐 CONTEXTO DEL BUG:
+-- Inicialmente, la tabla public.profiles otorgaba permisos FOR UPDATE a cualquier usuario
+-- autenticado sobre su propia fila (auth.uid() = id). El trigger previo solo protegía
+-- columnas de suscripción (is_premium, stripe_customer_id) asumiendo que los puntos se
+-- calcularían de buena fe en el frontend Angular (membership.service.ts). Un atacante
+-- podía emitir un fetch PATCH a /rest/v1/profiles y auto-asignarse millones de monedas y XP.
+--
+-- 🛡️ REGLA DE BASE DE DATOS (BLINDAJE DE COLUMNAS):
+-- Se actualiza check_profile_column_permissions() para que NINGÚN usuario con rol
+-- 'authenticated' pueda alterar columnas de economía, ranking o telemetría. Cualquier
+-- modificación fraudulenta es reseteada silenciosamente a OLD. Solo las funciones
+-- autorizadas con SECURITY DEFINER (como settle_focus_session) o el service_role
+-- pueden incrementar o decrementar estas columnas.
+-- ------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION public.check_profile_column_permissions()
+RETURNS TRIGGER 
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+    IF auth.role() = 'authenticated' THEN
+        -- A. Facturación y suscripción Pro
+        NEW.is_premium := OLD.is_premium;
+        NEW.premium_until := OLD.premium_until;
+        NEW.stripe_customer_id := OLD.stripe_customer_id;
+        NEW.stripe_subscription_id := OLD.stripe_subscription_id;
+
+        -- B. Economía y Monedas de Tienda (ProCoins)
+        NEW.pro_coins := OLD.pro_coins;
+
+        -- C. Telemetría de concentración y Puntos de Clasificación (XP)
+        NEW.focus_points := OLD.focus_points;
+        NEW.focus_tomatoes := OLD.focus_tomatoes;
+        NEW.completed_objectives := OLD.completed_objectives;
+        NEW.abandoned_sessions := OLD.abandoned_sessions;
+
+        -- D. Rachas de disciplina (Streaks)
+        NEW.streak_days := OLD.streak_days;
+        NEW.longest_streak := OLD.longest_streak;
+        NEW.last_focus_date := OLD.last_focus_date;
+
+        -- E. Palmarés competitivo y medallas del Podio
+        NEW.podium_wins := OLD.podium_wins;
+        NEW.gold_medals := OLD.gold_medals;
+        NEW.silver_medals := OLD.silver_medals;
+        NEW.bronze_medals := OLD.bronze_medals;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Reasegurar el trigger en public.profiles
+DROP TRIGGER IF EXISTS tr_protect_profile_columns ON public.profiles;
+CREATE TRIGGER tr_protect_profile_columns
+    BEFORE UPDATE ON public.profiles
+    FOR EACH ROW
+    EXECUTE FUNCTION public.check_profile_column_permissions();
+
+
+-- ------------------------------------------------------------------------------
+-- 8.2. BUG CUBIERTO: ROBO DIRECTO DE ARTÍCULOS EN TIENDA (BYPASS DE PROCOINS)
+-- ------------------------------------------------------------------------------
+-- 🎯 BUG CUBIERTO:
+-- Desbloqueo no autorizado de avatares, temas, armas y cronómetros de pago
+-- (public.user_unlocked_items) sin pagar el costo en Pro Coins.
+--
+-- 🧐 CONTEXTO DEL BUG:
+-- En el Paso 2 se creó la política "Usuarios desbloquean sus propios items" con
+-- WITH CHECK (auth.uid() = user_id) para permitir que el frontend registrara compras.
+-- Aunque se programó el RPC transaccional buy_catalog_item(), un usuario malicioso podía
+-- saltárselo enviando un INSERT directo a /rest/v1/user_unlocked_items y obtener
+-- cualquier cosmético Legendario gratis.
+--
+-- 🛡️ REGLA DE BASE DE DATOS (MEDIACIÓN COMPLETA):
+-- Se revoca la política de INSERT directo para usuarios autenticados. A partir de ahora,
+-- la tabla solo permite lectura pública (SELECT). Cualquier desbloqueo debe realizarse
+-- exclusivamente mediante la función segura buy_catalog_item(p_item_id) con SECURITY DEFINER
+-- (que verifica y descuenta saldo de Pro Coins de forma atómica) o al registrarse la cuenta.
+-- ------------------------------------------------------------------------------
+
+DROP POLICY IF EXISTS "Usuarios desbloquean sus propios items" ON public.user_unlocked_items;
+
+
+-- ------------------------------------------------------------------------------
+-- 8.3. BUG CUBIERTO: AUTO-DESBLOQUEO ARBITRARIO DE VIRTUDES Y RETOS EN DOJO
+-- ------------------------------------------------------------------------------
+-- 🎯 BUG CUBIERTO:
+-- Manipulación de barras de progreso, falsificación de retos cumplidos y adjudicación
+-- indebida de insignias maestras en public.user_quality_progress.
+--
+-- 🧐 CONTEXTO DEL BUG:
+-- Las políticas "Usuarios insertan su propio progreso de cualidades" y "Usuarios actualizan
+-- su propio progreso de cualidades" permitían al cliente enviar valores arbitrarios
+-- (ej. current_progress: 100, is_completed: true) para cualquier cualidad (ej. 'constancia').
+--
+-- 🛡️ REGLA DE BASE DE DATOS:
+-- Se eliminan las políticas de INSERT y UPDATE directas para usuarios. La tabla queda
+-- restringida a solo lectura. El progreso de cualidades solo podrá ser incrementado
+-- por el RPC advance_user_quality_progress() o los disparadores del sistema al completar
+-- sesiones Pomodoro legítimas.
+-- ------------------------------------------------------------------------------
+
+DROP POLICY IF EXISTS "Usuarios insertan su propio progreso de cualidades" ON public.user_quality_progress;
+DROP POLICY IF EXISTS "Usuarios actualizan su propio progreso de cualidades" ON public.user_quality_progress;
+
+
+-- ------------------------------------------------------------------------------
+-- 8.4. BUG CUBIERTO: SPAM, DEFACEMENT Y BORRADO MASIVO EN COMMUNITY_MOTIVATIONS
+-- ------------------------------------------------------------------------------
+-- 🎯 BUG CUBIERTO:
+-- Inserción de spam por visitantes anónimos, edición del texto de frases de otros usuarios
+-- (defacement) y borrado masivo de las frases predeterminadas del sistema donde user_id IS NULL.
+--
+-- 🧐 CONTEXTO DEL BUG:
+-- Para facilitar las pruebas iniciales del muro comunitario, se configuraron políticas
+-- sumamente permisivas: INSERT con CHECK (true), UPDATE con USING (true) y DELETE con
+-- USING (auth.uid() = user_id OR user_id IS NULL). Esto permitía que un usuario anónimo
+-- eliminara todas las frases base de la plataforma con un simple DELETE.
+--
+-- 🛡️ REGLA DE BASE DE DATOS:
+-- 1. INSERT: Requiere usuario autenticado, asignación forzosa de auth.uid() = user_id y
+--    longitud válida de texto (5 a 280 caracteres).
+-- 2. UPDATE: Restringido estrictamente al autor original (auth.uid() = user_id).
+-- 3. DELETE: Restringido estrictamente al autor original (auth.uid() = user_id). Las frases
+--    del sistema (user_id IS NULL) quedan blindadas e inmunes al borrado de clientes.
+-- ------------------------------------------------------------------------------
+
+DROP POLICY IF EXISTS "Permitir crear motivaciones" ON public.community_motivations;
+DROP POLICY IF EXISTS "Permitir actualizar likes de motivaciones" ON public.community_motivations;
+DROP POLICY IF EXISTS "Permitir eliminar mi propia motivacion" ON public.community_motivations;
+
+-- Inserción controlada para usuarios registrados
+CREATE POLICY "Solo usuarios autenticados crean frases de motivacion"
+    ON public.community_motivations FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = user_id AND char_length(text) BETWEEN 5 AND 280);
+
+-- Solo el autor puede editar su propia publicación
+CREATE POLICY "Solo el autor edita su frase de motivacion"
+    ON public.community_motivations FOR UPDATE
+    TO authenticated
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- Solo el autor puede eliminar su propia publicación (protege frases del sistema)
+CREATE POLICY "Solo el autor elimina su frase de motivacion"
+    ON public.community_motivations FOR DELETE
+    TO authenticated
+    USING (auth.uid() = user_id);
+
+
+-- ------------------------------------------------------------------------------
+-- 8.5. BUG CUBIERTO: SUPLANTACIÓN Y SPAM EN FEED DE COMBATE DEL JEFE
+-- ------------------------------------------------------------------------------
+-- 🎯 BUG CUBIERTO:
+-- Registro de eventos de daño falsos o suplantación de identidad en el feed de ataques
+-- (public.community_boss_attacks).
+--
+-- 🧐 CONTEXTO DEL BUG:
+-- La política original permitía INSERT si (auth.uid() IS NOT NULL OR user_id IS NULL),
+-- lo que permitía insertar ataques anónimos falsos o suplantar el user_id de otros.
+--
+-- 🛡️ REGLA DE BASE DE DATOS:
+-- Se exige que todo evento registrado coincida estrictamente con auth.uid() = user_id.
+-- ------------------------------------------------------------------------------
+
+DROP POLICY IF EXISTS "Usuarios autenticados registran eventos de combate" ON public.community_boss_attacks;
+CREATE POLICY "Usuarios autenticados registran sus propios eventos de combate"
+    ON public.community_boss_attacks FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = user_id);
+
+
+-- ------------------------------------------------------------------------------
+-- 8.6. BUG CUBIERTO: SECUESTRO DE RUTA DE BÚSQUEDA (SEARCH-PATH HIJACKING)
+-- ------------------------------------------------------------------------------
+-- 🎯 BUG CUBIERTO:
+-- Vulnerabilidad de escalada de privilegios en PostgreSQL cuando funciones con
+-- SECURITY DEFINER se ejecutan sin un search_path inmutable.
+--
+-- 🧐 CONTEXTO DEL BUG:
+-- Las funciones SECURITY DEFINER se ejecutan con permisos de superusuario / postgres.
+-- Al omitir SET search_path, PostgreSQL resuelve tablas y funciones en el orden del
+-- usuario invocador, lo que permite que objetos temporales maliciosos en pg_temp
+-- secuestren la ejecución de la función.
+--
+-- 🛡️ REGLA DE BASE DE DATOS:
+-- Se fija 'search_path = public, pg_temp' de forma explícita y forzada en todas las
+-- funciones SECURITY DEFINER de la plataforma.
+-- ------------------------------------------------------------------------------
+
+-- Aplicación dinámica y segura a todas las funciones SECURITY DEFINER del esquema público
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (
+        SELECT p.proname, oidvectortypes(p.proargtypes) as argtypes
+        FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE n.nspname = 'public' 
+          AND p.prosecdef = TRUE
+    ) LOOP
+        EXECUTE format('ALTER FUNCTION public.%I(%s) SET search_path = public, pg_temp;', r.proname, r.argtypes);
+    END LOOP;
+END $$;

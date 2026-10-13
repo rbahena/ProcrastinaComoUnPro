@@ -20,12 +20,13 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
 
 - [x] **Políticas RLS (Row Level Security)**:
   - [x] Verificar que RLS esté activo en todas las tablas principales:
-    - `profiles`: Solo lectura pública de datos básicos (avatar, username, puntos); solo el dueño puede editar su propio perfil (con trigger de protección de columnas administrativas `is_premium`, `stripe_customer_id`).
+    - `profiles`: Solo lectura pública; solo el dueño puede editar su configuración estética (trigger blindado que resetea y prohíbe alteración de `pro_coins`, `focus_points`, `is_premium`, medallas y rachas).
+    - `user_unlocked_items`: Solo lectura pública; inserciones directas revocadas para evitar bypass de ProCoins (compras exclusivas vía `buy_catalog_item`).
+    - `user_quality_progress`: Solo lectura pública; escrituras directas revocadas (avance exclusivo vía `advance_user_quality_progress`).
     - `focus_sessions`: Los usuarios solo pueden insertar y leer sus propias sesiones.
     - `ideas`: Privado al 100% por usuario (`auth.uid() = user_id`).
-    - `user_quality_progress`: Lectura y escritura restringida al usuario autenticado.
-    - `motivations`: Lectura pública de frases aprobadas; inserción y eliminación restringida al autor.
-    - `boss_battles`: Lectura pública; curación y daño controlado por funciones del servidor.
+    - `motivations`: Lectura pública; inserción validada (5-280 caracteres), actualización y eliminación estrictamente restringidas al autor original.
+    - `boss_battles`: Lectura pública; feed de daño restringido al autor real (`auth.uid() = user_id`) y curación/daño controlado por RPC.
 - [x] **Autenticación y Correos**:
   - [x] Configurado servidor SMTP personalizado en Supabase con Resend (`smtp.resend.com:587`, dominio `cofu.io` verificado con SPF, DKIM y DMARC en Hostinger).
   - [x] Personalizadas plantillas de correo con branding de COFU (Invitaciones, Confirmación de cuenta y Recuperación de contraseña).
@@ -57,15 +58,24 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
 
 ## 3. Monetización y Pagos (Suscripciones Pro)
 
-- [ ] **Pasarela de Pago (Stripe / LemonSqueezy / Mercado Pago)**:
-  - [ ] Reemplazar la simulación de cliente en `membresia.ts` por una llamada a sesión de Checkout real.
-  - [ ] Crear los productos y planes (Mensual / Anual) en el dashboard de la pasarela.
-- [ ] **Webhooks de Suscripción**:
-  - [ ] Crear Edge Function de Supabase para recibir webhooks de pago:
-    - Evento `checkout.session.completed` -> Activa `is_premium = true` en la tabla `profiles`.
-    - Evento `customer.subscription.deleted` -> Desactiva `is_premium = false`.
-    - Evento `invoice.payment_failed` -> Notifica al usuario o pasa a estado de gracia.
-  - [ ] Proteger el webhook validando la firma criptográfica (`webhook secret`).
+- [x] **Precios en Dólares (USD) con Conversión Automática**:
+  - [x] Precios unificados y directos en USD ($4.49 USD/mes y $2.99 USD/mes en plan anual con 33% de ahorro).
+  - [x] Conversión automática a moneda local gestionada por Stripe Checkout y el banco emisor de la tarjeta.
+  - [x] Interfaz limpia sin selectores manuales de divisa ni fluctuación de tipos de cambio.
+- [x] **Pasarela de Pago (Stripe Checkout) & Período de Prueba de 7 Días**:
+  - [x] Reemplazada la simulación cliente por integración con Edge Function `stripe-checkout` y llamadas seguras mediante `SupabaseService.createStripeCheckoutSession()`.
+  - [x] Configurado período de prueba gratuito nativo de 7 días (`trial_period_days: 7`) con cobro de $0.00 al inicio y cobro recurrente automático al 7mo día.
+  - [x] Soporte para creación automática o vinculación de clientes Stripe (`stripe_customer_id`) y generación de sesiones de suscripción periódicas con Stripe Checkout.
+  - [x] Portal de Clientes de Stripe integrado (`stripe-portal` / `SupabaseService.createStripePortalSession()`) para autoservicio, cambio de tarjeta o cancelación inmediata.
+- [x] **Webhooks de Suscripción Blindados (`stripe-webhook`)**:
+  - [x] Creada Edge Function de Supabase (`supabase/functions/stripe-webhook/index.ts`) con verificación criptográfica de firma `stripe-signature` y `STRIPE_WEBHOOK_SECRET`.
+  - [x] Manejo de eventos:
+    - Evento `checkout.session.completed` -> Activa `is_premium = true`, guarda `stripe_customer_id`, `stripe_subscription_id` y `premium_until` en `profiles`.
+    - Evento `customer.subscription.updated` -> Sincroniza estado de suscripción y nueva fecha de vencimiento.
+    - Evento `customer.subscription.deleted` -> Desactiva suscripción (`is_premium = false`).
+    - Evento `invoice.payment_succeeded` -> Extiende `premium_until`.
+    - Evento `invoice.payment_failed` -> Registra alerta de cobro.
+  - [x] Índices creados en PostgreSQL (`idx_profiles_stripe_customer_id`, `idx_profiles_stripe_subscription_id`) y blindaje de columnas en el trigger `check_profile_column_permissions()`.
 
 ---
 
@@ -96,12 +106,15 @@ Guía paso a paso y lista de verificación técnica, operativa y de seguridad pa
 
 ## 6. Seguridad y Políticas
 
-- [x] **Cabeceras de Seguridad HTTP (en `.htaccess` de Hostinger)**:
+- [x] **Cabeceras de Seguridad HTTP y Servidor (en `.htaccess` de Hostinger)**:
+  - [x] `Options -Indexes` (Desactiva exploración de directorios).
+  - [x] Bloqueo `<FilesMatch>` para archivos sensibles (`.env`, `.sql`, `.md`, `.git`, `.log`).
   - [x] `X-Frame-Options: DENY` (Anti-Clickjacking).
   - [x] `X-Content-Type-Options: nosniff` (Anti-MIME Sniffing).
   - [x] `Referrer-Policy: strict-origin-when-cross-origin`.
   - [x] `Strict-Transport-Security` (HSTS para forzado de HTTPS).
-  - [x] `Permissions-Policy` (Bloqueo de sensores innecesarios).
+  - [x] `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=*` (Permite checkout Stripe).
+  - [x] `Content-Security-Policy` (CSP configurada para Supabase, Google Analytics y Google Fonts).
 - [x] **Permisos del Navegador**:
   - [x] Reproducción de alarmas y sonidos ambientales vinculados a gestos y acciones del usuario (cumple con políticas de autoplay del navegador).
 - [x] **Manejo de Tokens y Sesión**:

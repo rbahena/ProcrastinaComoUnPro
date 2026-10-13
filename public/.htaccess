@@ -3,6 +3,16 @@
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
+# 0. PROTECCIÓN DE DIRECTORIOS Y ARCHIVOS SENSIBLES
+# ------------------------------------------------------------------------------
+Options -Indexes
+
+<FilesMatch "\.(env|sql|git|md|bak|config|log)$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# ------------------------------------------------------------------------------
 # 1. FORZAR HTTPS Y REDIRECCIÓN SEGURA
 # ------------------------------------------------------------------------------
 <IfModule mod_rewrite.c>
@@ -43,11 +53,14 @@
   # Filtro XSS para navegadores antiguos
   Header always set X-XSS-Protection "1; mode=block"
 
-  # Política de permisos del navegador (bloquea hardware no utilizado)
-  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  # Política de permisos del navegador (permite pasarela de pagos para Stripe / Google Pay / Apple Pay)
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=*"
 
   # Forzar transporte seguro estricto (HSTS)
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+  # Content Security Policy (CSP)
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; media-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com;"
 </IfModule>
 
 # ------------------------------------------------------------------------------

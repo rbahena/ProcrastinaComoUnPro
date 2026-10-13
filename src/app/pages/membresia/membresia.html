@@ -52,17 +52,17 @@
                 <div class="price-display">
                   <span class="currency">$</span>
                   <span class="amount">0</span>
-                  <span class="period">MXN/mes</span>
+                  <span class="period">USD/mes</span>
                 </div>
                 <p class="billing-info">Acceso básico de por vida</p>
                 
                 <!-- Botón de Acción Gratuito -->
-                <button (click)="membership.isPremium() ? togglePremium() : null" 
-                        [disabled]="!membership.isPremium()"
-                        class="plan-cta-btn free-tier-btn"
+                <button class="plan-cta-btn free-tier-btn"
                         [class.current-active]="!membership.isPremium()"
-                        data-tooltip="Plan Básico de por vida">
-                  {{ !membership.isPremium() ? 'Tu Plan Actual' : 'Simular Gratuito' }}
+                        [disabled]="!membership.isPremium()"
+                        (click)="membership.isPremium() ? openCustomerPortal() : null"
+                        [attr.data-tooltip]="!membership.isPremium() ? 'Plan Básico actual' : 'Gestionar suscripción'">
+                  {{ !membership.isPremium() ? 'Tu Plan Actual' : 'Gestionar Plan' }}
                 </button>
               </div>
             </th>
@@ -70,24 +70,30 @@
             <!-- Columna Kaizen Pro (Destacada) -->
             <th class="plan-header-col highlight-header-col">
               <div class="plan-header-content">
-                <span class="popular-badge">RECOMENDADO</span>
+                <span class="popular-badge">7 DÍAS GRATIS ⚡</span>
                 <span class="plan-name gold-text">COFU Pro 👑</span>
                 <div class="price-display">
                   <span class="currency">$</span>
-                  <span class="amount">{{ isAnnual() ? '55' : '79' }}</span>
-                  <span class="period">MXN/mes</span>
+                  <span class="amount">{{ isAnnual() ? '2.99' : '4.49' }}</span>
+                  <span class="period">USD/mes</span>
                 </div>
                 <p class="billing-info">
-                  {{ isAnnual() ? 'Facturado anualmente ($660 MXN)' : 'Facturado mensualmente.' }}
+                  {{ isAnnual() ? '7 días gratis, luego $35.88 USD/año ($2.99/mes)' : '7 días gratis, luego $4.49 USD/mes' }}
                 </p>
                 
                 <!-- Botón de Acción Premium -->
-                <button (click)="togglePremium()" 
+                <button (click)="membership.isPremium() ? openCustomerPortal() : subscribePro()" 
+                        [disabled]="isProcessing()"
                         [class.active-premium]="membership.isPremium()"
                         class="plan-cta-btn premium-tier-btn"
-                        data-tooltip="Activar plan COFU Pro con todas las funciones">
-                  <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-bolt'"></i>
-                  <span>{{ membership.isPremium() ? 'Ya eres Pro (Volver a Gratis)' : 'Adquirir Pro ⚡' }}</span>
+                        [attr.data-tooltip]="membership.isPremium() ? 'Gestionar o cancelar suscripción Pro' : 'Comenzar 7 días de prueba sin costo'">
+                  @if (isProcessing()) {
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>Iniciando prueba...</span>
+                  } @else {
+                    <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-bolt'"></i>
+                    <span>{{ membership.isPremium() ? '👑 Eres Pro (Gestionar)' : 'Probar 7 días gratis ⚡' }}</span>
+                  }
                 </button>
               </div>
             </th>
@@ -199,10 +205,17 @@
       </table>
     </div>
 
-    <!-- Garantía de protección -->
+    <!-- Garantía de protección y confianza -->
     <div class="protection-footer">
-      <i class="fa-solid fa-shield-halved protection-icon"></i>
-      <span>Garantía de reembolso de 7 días. Cancela tu membresía Pro con un solo clic cuando quieras.</span>
+      <div class="protection-item">
+        <i class="fa-solid fa-shield-halved protection-icon"></i>
+        <span>Prueba gratis de 7 días sin riesgo. Cancela en cualquier momento con un solo clic antes del día 7 y no pagarás nada.</span>
+      </div>
+      <div class="protection-divider"></div>
+      <div class="protection-item stripe-note">
+        <i class="fa-solid fa-lock protection-icon green"></i>
+        <span>Precios en USD. Conversión automática a tu moneda local y pago seguro y protegido.</span>
+      </div>
     </div>
   </div>
 
@@ -213,20 +226,20 @@
     
     <div class="faq-grid">
       <div class="faq-card">
+        <h4>¿Cómo funciona la prueba gratuita de 7 días?</h4>
+        <p>Al hacer clic en <strong>Probar 7 días gratis</strong>, comenzarás tus 7 días de prueba completa. Hoy pagarás <strong>$0.00</strong>. Puedes cancelar en cualquier momento con un solo clic desde esta pantalla antes de que finalice la prueba y no se te cobrará nada.</p>
+      </div>
+      <div class="faq-card">
         <h4>¿Qué beneficios principales obtengo con COFU Pro?</h4>
         <p>Al unirte a Pro, obtienes acceso ilimitado a las salas de co-working comunitarias para enfocarte con otras personas en tiempo real, participar en el Ranking Comunidad competitivo semanal, desbloquear avatares legendarios y exclusivos como el Fénix o el Dragón del Ego, y ganar Pro Coins que podrás gastar en la tienda.</p>
       </div>
       <div class="faq-card">
-        <h4>¿Cómo funciona la simulación de pago en esta demo?</h4>
-        <p>Esta aplicación es un entorno interactivo de simulación. Al hacer clic en <strong>Adquirir Pro</strong>, simulamos una pasarela de pago segura de inmediato sin realizar ningún cargo real de dinero. Es 100% gratuito para que puedas probar la experiencia premium al instante.</p>
+        <h4>¿En qué moneda se procesa mi pago?</h4>
+        <p>Los precios están fijados en <strong>Dólares Estadounidenses (USD)</strong>. Al momento de pagar, tu banco o tarjeta realiza automáticamente la conversión a tu moneda local según el tipo de cambio oficial, sin comisiones sorpresa.</p>
       </div>
       <div class="faq-card">
-        <h4>¿Puedo volver al plan Gratuito cuando quiera?</h4>
-        <p>¡Totalmente! En esta misma pantalla, si ya tienes el plan Pro activo, el botón de acción cambiará para permitirte desactivar el plan Pro y regresar al plan Gratuito con un solo clic. Toda tu información y progreso se adaptarán automáticamente en la comunidad.</p>
-      </div>
-      <div class="faq-card">
-        <h4>¿Cómo acumulo Pro Coins y qué puedo hacer con ellas?</h4>
-        <p>Las Pro Coins son recompensas del templo que ganas al completar con éxito tus sesiones de pomodoro (25 minutos de concentración activa sin interrupciones). Sirven para canjear y desbloquear nuevos avatares especiales en la sección de cualidades de tu perfil.</p>
+        <h4>¿Puedo cancelar o modificar mi membresía cuando quiera?</h4>
+        <p>¡Totalmente! Puedes gestionar o cancelar tu suscripción con un solo clic desde esta página en cualquier momento, sin plazos forzosos ni complicaciones.</p>
       </div>
     </div>
   </div>

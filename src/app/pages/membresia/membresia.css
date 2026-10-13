@@ -404,22 +404,47 @@
   text-shadow: 0 0 6px rgba(245, 158, 11, 0.2);
 }
 
-/* SECCIÓN PROTECCIÓN / GARANTÍA */
+/* SECCIÓN PROTECCIÓN / GARANTÍA Y CONFIANZA STRIPE */
 .protection-footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 11px;
   color: var(--muted);
   line-height: 1.4;
   text-align: center;
 }
 
+.protection-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.protection-divider {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.stripe-note {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .protection-icon {
   color: var(--muted);
   font-size: 13px;
+}
+
+.protection-icon.green {
+  color: #10b981;
 }
 
 /* TOAST DE ÉXITO */
@@ -619,4 +644,6 @@ body.theme-light .faq-card:hover {
   border-color: #cbd5e1 !important;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06) !important;
 }
+
+
 
