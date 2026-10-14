@@ -28,6 +28,24 @@ export class Membresia implements OnInit {
 
   ngOnInit(): void {
     this.checkReturnStatus();
+    this.notifyViewPlans();
+  }
+
+  private notifyViewPlans(): void {
+    const user = this.supabase.currentUser();
+    const email = user?.email || this.membership.getCurrentUserEmail();
+    if (!email) return;
+
+    const username = this.membership.userName() || email.split('@')[0];
+    const planStatus = this.membership.isPremium() ? 'Plan Pro Activo' : 'Plan Básico (Gratis)';
+
+    this.supabase.notifyTelegramAuth(
+      email,
+      username,
+      'Visita a Mi Plan',
+      'VIEW_PLANS',
+      planStatus
+    );
   }
 
   selectPlan(annual: boolean): void {
@@ -45,6 +63,21 @@ export class Membresia implements OnInit {
     if (!this.supabase.currentUser()) {
       this.router.navigate(['/login'], { queryParams: { redirect: '/membresia' } });
       return;
+    }
+
+    const user = this.supabase.currentUser();
+    const email = user?.email || this.membership.getCurrentUserEmail();
+    const username = this.membership.userName() || (email ? email.split('@')[0] : 'Guerrero');
+    const planDetail = this.isAnnual() ? 'Anual ($35.88 USD/año con 7 días gratis)' : 'Mensual ($4.49 USD/mes con 7 días gratis)';
+
+    if (email) {
+      this.supabase.notifyTelegramAuth(
+        email,
+        username,
+        'Probar 7 días gratis',
+        'START_TRIAL',
+        planDetail
+      );
     }
 
     this.isProcessing.set(true);

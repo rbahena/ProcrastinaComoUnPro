@@ -613,6 +613,18 @@ export class MembershipService {
           }
         });
         this.loadCatalogFromSupabase();
+
+        // Notificar a Telegram SOLO si es un NUEVO registro vía Google OAuth
+        if (user.app_metadata?.provider === 'google' && user.email) {
+          const createdAt = new Date(user.created_at).getTime();
+          const isNewlyCreated = (Date.now() - createdAt) < 90000;
+          const regKey = `tg_reg_${user.id}`;
+          if (isNewlyCreated && typeof localStorage !== 'undefined' && !localStorage.getItem(regKey)) {
+            localStorage.setItem(regKey, 'true');
+            const googleName = user.user_metadata?.['full_name'] || user.user_metadata?.['name'] || user.email.split('@')[0];
+            this.supabaseService.notifyTelegramAuth(user.email, googleName, 'Nuevo Registro (Google OAuth)');
+          }
+        }
       }
     });
 
@@ -1535,6 +1547,8 @@ export class MembershipService {
       if (items && items.length > 0) {
         this.applySupabaseUnlockedItems(items);
       }
+      // Notificar a Telegram (Nuevo Registro)
+      this.supabaseService.notifyTelegramAuth(emailLower, profile?.username || defaultUsername, 'Nuevo Registro (Email)');
       return { success: true };
     }
 

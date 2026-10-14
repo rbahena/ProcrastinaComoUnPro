@@ -2536,8 +2536,46 @@ export class SupabaseService {
       return null;
     }
   }
+
+  // ==========================================
+  // NOTIFICACIONES TELEGRAM
+  // ==========================================
+
+  /**
+   * Invoca la Edge Function 'notify-telegram' para alertar al administrador
+   * en Telegram en tiempo real cuando ocurre un evento relevante (registro, visita a Mi Plan, inicio de prueba).
+   */
+  async notifyTelegramAuth(
+    email: string, 
+    username?: string, 
+    method: string = 'Nuevo Registro',
+    eventType?: string,
+    details?: string
+  ): Promise<void> {
+    if (!this.isConfigured() || !email) return;
+    try {
+      // Evitar spam inmediato por doble clic o recargas repetidas (cooldown de 15 segundos)
+      const cacheKey = `tg_notified_${email}_${method}`;
+      if (typeof sessionStorage !== 'undefined') {
+        const lastNotified = sessionStorage.getItem(cacheKey);
+        const now = Date.now();
+        if (lastNotified && (now - Number(lastNotified)) < 15000) {
+          return;
+        }
+        sessionStorage.setItem(cacheKey, String(now));
+      }
+
+      await this.supabase.functions.invoke('notify-telegram', {
+        body: {
+          email,
+          username: username || email.split('@')[0],
+          method,
+          event_type: eventType,
+          details
+        }
+      });
+    } catch (err) {
+      console.warn('[Telegram Notify Warning]', err);
+    }
+  }
 }
-
-
-
-
