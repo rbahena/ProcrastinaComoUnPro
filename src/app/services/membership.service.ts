@@ -283,6 +283,63 @@ export class MembershipService {
     return [];
   });
 
+  // ==============================================================================
+  // ALMACENAMIENTO SEGURO Y PROTECCIÓN DE AVATARES (SUPABASE STORAGE BUCKET 'avatars')
+  // ==============================================================================
+  private avatarSignedUrls = new Map<string, string>();
+
+  /**
+   * Asegura que la imagen de un avatar esté cargada desde el bucket protegido de Supabase.
+   * Si está desbloqueada o es inicial, inyecta la variable CSS --avatar-img-<avatarId> en el DOM.
+   */
+  async ensureAvatarLoaded(avatarId: string): Promise<string | null> {
+    if (!avatarId) return null;
+    if (this.avatarSignedUrls.has(avatarId)) {
+      return this.avatarSignedUrls.get(avatarId)!;
+    }
+
+    try {
+      const signedUrl = await this.supabaseService.getAvatarSignedUrl(avatarId);
+      if (signedUrl) {
+        this.avatarSignedUrls.set(avatarId, signedUrl);
+        if (typeof document !== 'undefined') {
+          document.documentElement.style.setProperty(`--avatar-img-${avatarId}`, `url("${signedUrl}")`);
+        }
+        return signedUrl;
+      }
+    } catch (e) {
+      console.warn(`[MembershipService] Error cargando URL firmada para avatar ${avatarId}:`, e);
+    }
+    return null;
+  }
+
+  /**
+   * Sincroniza y descarga las URLs firmadas para todos los avatares que el usuario tiene desbloqueados.
+   */
+  async syncUnlockedAvatarUrls() {
+    const list = Array.from(new Set([...this.unlockedAvatars(), this.selectedAvatar()]));
+    await Promise.all(list.map(id => this.ensureAvatarLoaded(id)));
+  }
+
+  /**
+   * Retorna la URL directa de la imagen de un avatar.
+   * Si ya tiene URL firmada en caché la retorna.
+   * Si está desbloqueado y es inicial, retorna el asset local.
+   * Si está bloqueado, retorna la silueta (_locked.webp).
+   */
+  getAvatarImageUrl(avatarId: string, isUnlocked?: boolean): string {
+    if (!avatarId) return '/assets/images/avatars/gato_locked.webp';
+    if (this.avatarSignedUrls.has(avatarId)) {
+      return this.avatarSignedUrls.get(avatarId)!;
+    }
+
+    const unlocked = isUnlocked ?? this.unlockedAvatars().includes(avatarId);
+    if (unlocked) {
+      this.ensureAvatarLoaded(avatarId);
+    }
+    return `/assets/images/avatars/${avatarId}_locked.webp`;
+  }
+
   // Catálogo completo de Cualidades (Bloqueadas por defecto para desbloqueo por mérito/retos)
   qualitiesCatalog = signal<QualityItem[]>([
     { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 0, unlockTotal: 7 },
@@ -868,6 +925,7 @@ export class MembershipService {
   // Equipar avatar seleccionado y sincronizar en Supabase + local
   async equipAvatar(avatarId: string): Promise<boolean> {
     this.selectedAvatar.set(avatarId);
+    this.ensureAvatarLoaded(avatarId);
     this.saveConsolidatedUserData();
 
     if (this.supabaseService.isConfigured()) {
@@ -1320,6 +1378,7 @@ export class MembershipService {
 
     this.proCoins.update(c => c - cost);
     this.unlockedAvatars.update(list => [...list, avatar]);
+    this.ensureAvatarLoaded(avatar);
 
     if (this.supabaseService.isConfigured()) {
       this.supabaseService.buyCatalogItem(avatar).then(res => {
@@ -1692,6 +1751,7 @@ export class MembershipService {
     this.unlockedAvatars.set(finalAvatars);
     this.unlockedThemes.set(finalThemes);
     this.unlockedTimers.set(finalTimers);
+    this.syncUnlockedAvatarUrls();
 
     if (this.selectedAvatar() && !finalAvatars.includes(this.selectedAvatar())) {
       this.selectedAvatar.set(finalAvatars[0] || 'gato');
@@ -1766,6 +1826,7 @@ export class MembershipService {
           if (bundle.inventory.unlockedAvatars) this.unlockedAvatars.set(bundle.inventory.unlockedAvatars);
           if (bundle.inventory.unlockedThemes) this.unlockedThemes.set(bundle.inventory.unlockedThemes);
           if (bundle.inventory.unlockedTimers) this.unlockedTimers.set(bundle.inventory.unlockedTimers);
+          this.syncUnlockedAvatarUrls();
         }
         if (bundle.focusPreferences) {
           this.focusPreferences.set({ ...DEFAULT_FOCUS_PREFERENCES, ...bundle.focusPreferences });

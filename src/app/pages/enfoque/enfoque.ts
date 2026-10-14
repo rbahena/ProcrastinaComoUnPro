@@ -3189,6 +3189,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
     const currentStatus = this.sessionEndingStatus();
     if (currentStatus) {
+      this.sessionEndingStatus.set(null as any);
       const now = new Date();
       const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
       const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
@@ -4319,6 +4320,9 @@ export class Enfoque implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopTitleFlashing();
+    if (this.arenaState() === 'summary' && !this.isSettlingSession()) {
+      this.finishSessionAndStart('exit').catch(err => console.warn('Auto-settle on destroy error:', err));
+    }
     if (!this.timerRunning() || this.isBreak()) {
       this.membership.isFocusActive.set(false);
     }

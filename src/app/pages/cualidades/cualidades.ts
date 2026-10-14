@@ -2601,6 +2601,7 @@ export class Cualidades implements OnInit {
   }
 
   ngOnInit() {
+    this.membership.syncUnlockedAvatarUrls();
     this.inspectedAvatar.set(this.activeAvatar());
     this.inputName.set(this.membership.userName());
     this.inputProfession.set(this.membership.userProfession() || '');
@@ -2621,6 +2622,9 @@ export class Cualidades implements OnInit {
 
   selectAvatar(avatar: ComunidadAvatar) {
     this.inspectedAvatar.set(avatar);
+    if (avatar.isUnlocked) {
+      this.membership.ensureAvatarLoaded(avatar.id);
+    }
   }
 
   equipAvatar(avatar: ComunidadAvatar) {
@@ -2912,6 +2916,7 @@ export class Cualidades implements OnInit {
 
       if (newlyUnlocked.length > 0) {
         this.membership.unlockedAvatars.update(list => [...list, ...newlyUnlocked]);
+        newlyUnlocked.forEach(id => this.membership.ensureAvatarLoaded(id));
       }
       this.showToast(`¡Cualidad ${quality.name} demostrada!`);
     }

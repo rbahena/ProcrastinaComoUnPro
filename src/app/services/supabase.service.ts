@@ -2510,6 +2510,32 @@ export class SupabaseService {
       return { success: false, is_premium: false, error: e.message };
     }
   }
+
+  // ==========================================
+  // STORAGE BUCKET: AVATARES PROTEGIDOS
+  // ==========================================
+
+  /**
+   * Obtiene la URL firmada de un avatar desde el Storage bucket privado 'avatars'.
+   * Si el avatar está desbloqueado por el usuario o es inicial, Supabase Storage
+   * valida las políticas RLS y retorna una URL válida por 24 horas.
+   */
+  async getAvatarSignedUrl(avatarId: string): Promise<string | null> {
+    if (!this.isConfigured() || !avatarId) return null;
+    try {
+      const filename = `${avatarId}.webp`;
+      const { data, error } = await this.supabase.storage
+        .from('avatars')
+        .createSignedUrl(filename, 86400);
+
+      if (error || !data?.signedUrl) {
+        return null;
+      }
+      return data.signedUrl;
+    } catch {
+      return null;
+    }
+  }
 }
 
 

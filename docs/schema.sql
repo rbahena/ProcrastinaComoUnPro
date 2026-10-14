@@ -321,16 +321,22 @@ CREATE POLICY "Los usuarios solo pueden actualizar su propio perfil"
 -- ¿Para qué sirve? Si un usuario autenticado intenta alterar campos de facturación (is_premium, stripe_customer_id),
 -- el trigger preserva los valores originales. Solo el rol service_role (webhooks/backend) puede actualizarlos.
 CREATE OR REPLACE FUNCTION public.check_profile_column_permissions()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER 
+SET search_path = public, pg_temp
+AS $$
 BEGIN
-    IF auth.role() = 'authenticated' THEN
+    IF current_setting('app.settle_session', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+
+    IF current_user IN ('authenticated', 'anon') THEN
         NEW.is_premium := OLD.is_premium;
         NEW.premium_until := OLD.premium_until;
         NEW.stripe_customer_id := OLD.stripe_customer_id;
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS tr_protect_profile_columns ON public.profiles;
 CREATE TRIGGER tr_protect_profile_columns
@@ -1065,6 +1071,8 @@ DECLARE
     v_item RECORD;
     v_user_coins BIGINT;
 BEGIN
+    PERFORM set_config('app.settle_session', 'true', true);
+
     -- 1. Validar autenticación
     IF v_user_id IS NULL THEN
         RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
@@ -1817,6 +1825,9 @@ DECLARE
     v_actual_minutes INTEGER := 0;
     v_tomatoes_earned INTEGER := 0;
 BEGIN
+    -- Permitir bypass seguro para este contexto de transacción
+    PERFORM set_config('app.settle_session', 'true', true);
+
     -- 1. Validar autenticación
     IF v_user_id IS NULL THEN
         RETURN json_build_object('success', FALSE, 'error', 'No autenticado');
@@ -2311,6 +2322,8 @@ DECLARE
     v_message TEXT;
     v_event_type boss_event_type_enum := 'attack';
 BEGIN
+    PERFORM set_config('app.settle_session', 'true', true);
+
     -- Validar si el usuario autenticado tiene membresía Pro (solo Pro inflige daño)
     IF v_user_id IS NOT NULL THEN
         SELECT is_premium INTO v_is_premium FROM public.profiles WHERE id = v_user_id;
@@ -3423,6 +3436,8 @@ DECLARE
     v_cur_date DATE;
     v_today DATE := (CURRENT_TIMESTAMP AT TIME ZONE v_tz)::date;
 BEGIN
+    PERFORM set_config('app.settle_session', 'true', true);
+
     SELECT COALESCE(active_days, ARRAY[1,2,3,4,5]) INTO v_active FROM public.profiles WHERE id = p_user_id;
 
     -- Obtener fechas únicas en la zona horaria local donde completó >= 25 min (1500s)
@@ -3660,7 +3675,13 @@ RETURNS TRIGGER
 SET search_path = public, pg_temp
 AS $$
 BEGIN
-    IF auth.role() = 'authenticated' THEN
+    -- Si la modificación proviene de una función de servidor autorizada (RPC con bypass), permitirla
+    IF current_setting('app.settle_session', true) = 'true' THEN
+        RETURN NEW;
+    END IF;
+
+    -- Si el rol de ejecución es cliente directo (PostgREST / anon / authenticated), blindar columnas
+    IF current_user IN ('authenticated', 'anon') THEN
         -- A. Facturación y suscripción Pro
         NEW.is_premium := OLD.is_premium;
         NEW.premium_until := OLD.premium_until;
@@ -3689,7 +3710,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql;
 
 -- Reasegurar el trigger en public.profiles
 DROP TRIGGER IF EXISTS tr_protect_profile_columns ON public.profiles;
@@ -3846,3 +3867,71 @@ BEGIN
         EXECUTE format('ALTER FUNCTION public.%I(%s) SET search_path = public, pg_temp;', r.proname, r.argtypes);
     END LOOP;
 END $$;
+
+
+-- ------------------------------------------------------------------------------
+-- 8.7. PROTECCIÓN DE RECURSOS VISUALES: STORAGE BUCKET 'avatars' Y POLÍTICAS RLS
+-- ------------------------------------------------------------------------------
+-- 🎯 REQUERIMIENTO Y MITIGACIÓN:
+-- Prevención del robo directo de ilustraciones de avatares desde el navegador web.
+-- En lugar de exponer todos los avatares como archivos estáticos públicos en la
+-- aplicación web (/assets/images/avatars/), las ilustraciones en alta resolución
+-- se custodian en un bucket privado de Supabase Storage ('avatars').
+--
+-- 🛡️ REGLA DE ACCESO Y RLS (storage.objects):
+-- Las miniaturas en blanco y negro (*_locked.webp) residen únicamente en el frontend
+-- local como recursos estáticos y no se almacenan en el bucket.
+-- El bucket 'avatars' custodia exclusivamente las 26 ilustraciones originales a todo color.
+-- Un usuario solo puede acceder a un avatar si:
+--   a) Es un avatar inicial gratuito (gato, perro, conejo, hamster, loro, raton).
+--   b) El usuario autenticado lo ha desbloqueado legítimamente en public.user_unlocked_items.
+--   c) El avatar está actualmente equipado por algún usuario activo en public.profiles
+--      (necesario para visualizar avatares de contrincantes en el medallero y salas grupales).
+-- ------------------------------------------------------------------------------
+
+-- 1. Crear el bucket privado 'avatars'
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+    'avatars',
+    'avatars',
+    false, -- Privado: no accesible mediante URL pública directa sin pasar por RLS
+    5242880, -- 5 MB límite por archivo
+    ARRAY['image/webp', 'image/png']
+)
+ON CONFLICT (id) DO UPDATE SET
+    public = false,
+    file_size_limit = 5242880,
+    allowed_mime_types = ARRAY['image/webp', 'image/png'];
+
+-- 2. Asegurar política de consulta en storage.objects
+DROP POLICY IF EXISTS "Avatares accesibles solo si desbloqueados o iniciales" ON storage.objects;
+
+CREATE POLICY "Avatares accesibles solo si desbloqueados o iniciales"
+ON storage.objects FOR SELECT
+USING (
+    bucket_id = 'avatars'
+    AND (
+        -- Regla A: Es un avatar inicial gratuito
+        EXISTS (
+            SELECT 1 FROM public.catalog_items c
+            WHERE c.id = regexp_replace(storage.objects.name, '\.[^.]+$', '')
+              AND c.is_initial = TRUE
+        )
+        OR
+        -- Regla B: El usuario autenticado lo ha desbloqueado legítimamente
+        (
+            auth.uid() IS NOT NULL
+            AND EXISTS (
+                SELECT 1 FROM public.user_unlocked_items u
+                WHERE u.user_id = auth.uid()
+                  AND u.item_id = regexp_replace(storage.objects.name, '\.[^.]+$', '')
+            )
+        )
+        OR
+        -- Regla C: El avatar está equipado por un usuario activo en profiles
+        EXISTS (
+            SELECT 1 FROM public.profiles p
+            WHERE p.selected_avatar = regexp_replace(storage.objects.name, '\.[^.]+$', '')
+        )
+    )
+);
