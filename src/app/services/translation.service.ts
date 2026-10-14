@@ -8,9 +8,10 @@ export type SupportedLanguage = 'en' | 'es';
   providedIn: 'root'
 })
 export class TranslationService {
-  private static readonly STORAGE_KEY = 'procrastina-user-language';
+  public static readonly STORAGE_KEY = 'procrastina-user-language';
+  public static readonly MANUAL_CHOICE_KEY = 'procrastina-manual-language-choice';
 
-  // Idioma reactivo: POR DEFECTO INICIA EN INGLÉS ('en') a menos que el usuario haya guardado 'es'
+  // Idioma reactivo: detecta navegador o inicia en español ('es') a menos que el usuario haya seleccionado otro
   currentLang = signal<SupportedLanguage>(this.getInitialLanguage());
 
   // Diccionario activo
@@ -21,25 +22,50 @@ export class TranslationService {
 
   constructor() {}
 
+  /**
+   * Detecta y retorna estrictamente el idioma del navegador ('es' o 'en').
+   * Si el navegador está configurado en español (es, es-MX, es-ES, es-419, etc.) -> 'es'
+   * Si el navegador está en inglés (en, en-US, etc.) -> 'en'
+   * Por defecto -> 'es'
+   */
+  getBrowserLanguage(): SupportedLanguage {
+    if (typeof navigator !== 'undefined') {
+      const navLang = (navigator.language || (navigator as any).userLanguage || '').toLowerCase();
+      if (navLang.startsWith('en')) {
+        return 'en';
+      }
+      if (navLang.startsWith('es')) {
+        return 'es';
+      }
+    }
+    return 'es';
+  }
+
   private getInitialLanguage(): SupportedLanguage {
     if (typeof localStorage !== 'undefined') {
+      const manual = localStorage.getItem(TranslationService.MANUAL_CHOICE_KEY) as SupportedLanguage;
+      if (manual === 'en' || manual === 'es') {
+        return manual;
+      }
       const saved = localStorage.getItem(TranslationService.STORAGE_KEY) as SupportedLanguage;
       if (saved === 'en' || saved === 'es') {
         return saved;
       }
     }
-    // Idioma por defecto de la plataforma: INGLÉS
-    return 'en';
+    return this.getBrowserLanguage();
   }
 
   /**
    * Cambia el idioma de toda la plataforma de forma reactiva e instantánea.
    */
-  setLanguage(lang: SupportedLanguage) {
+  setLanguage(lang: SupportedLanguage, isManual: boolean = false) {
     if (lang !== 'en' && lang !== 'es') return;
     this.currentLang.set(lang);
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(TranslationService.STORAGE_KEY, lang);
+      if (isManual) {
+        localStorage.setItem(TranslationService.MANUAL_CHOICE_KEY, lang);
+      }
     }
   }
 
@@ -48,8 +74,20 @@ export class TranslationService {
    */
   toggleLanguage(): SupportedLanguage {
     const nextLang: SupportedLanguage = this.currentLang() === 'en' ? 'es' : 'en';
-    this.setLanguage(nextLang);
+    this.setLanguage(nextLang, true);
     return nextLang;
+  }
+
+  /**
+   * Aplica y fuerza el idioma según el navegador (usado estrictamente en login/registro).
+   */
+  applyBrowserLanguage(): SupportedLanguage {
+    const browserLang = this.getBrowserLanguage();
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(TranslationService.MANUAL_CHOICE_KEY);
+    }
+    this.setLanguage(browserLang, false);
+    return browserLang;
   }
 
   /**

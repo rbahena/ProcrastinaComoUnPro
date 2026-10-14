@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build && node scripts/obfuscate.js",
+    "build:plain": "ng build",
+    "obfuscate": "node scripts/obfuscate.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -26,6 +28,7 @@
     "@angular/build": "^22.1.2",
     "@angular/cli": "^22.1.2",
     "@angular/compiler-cli": "^22.1.0",
+    "javascript-obfuscator": "^5.9.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2"
   }

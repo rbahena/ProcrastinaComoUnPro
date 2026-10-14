@@ -249,20 +249,18 @@ export class MembershipService {
   // Control global para abrir el modal de configuración de identidad
   showSettingsModal = signal<boolean>(false);
 
-  // Idioma de la interfaz: POR DEFECTO INICIA EN INGLÉS ('en')
-  userLanguage = signal<'es' | 'en'>(
-    (typeof localStorage !== 'undefined' && (localStorage.getItem('procrastina-user-language') as 'es' | 'en')) || 'en'
-  );
+  // Idioma de la interfaz: sincronizado con el idioma activo y respetando el navegador
+  userLanguage = signal<'es' | 'en'>(this.translationService.currentLang());
 
   /**
    * Cambia el idioma de la aplicación, persiste en localStorage y sincroniza con Supabase
    */
-  setLanguage(lang: 'es' | 'en') {
+  setLanguage(lang: 'es' | 'en', isManual: boolean = false) {
     this.userLanguage.set(lang);
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('procrastina-user-language', lang);
     }
-    this.translationService.setLanguage(lang);
+    this.translationService.setLanguage(lang, isManual);
     const user = this.supabaseService.currentUser();
     if (user && this.supabaseService.isConfigured()) {
       this.supabaseService.updateProfile(user.id, { language: lang }).catch(() => {});
@@ -275,7 +273,7 @@ export class MembershipService {
    */
   toggleLanguage(): 'es' | 'en' {
     const next: 'es' | 'en' = this.userLanguage() === 'en' ? 'es' : 'en';
-    this.setLanguage(next);
+    this.setLanguage(next, true);
     return next;
   }
 
@@ -564,8 +562,9 @@ export class MembershipService {
   }
 
   constructor() {
-    // Sincronizar TranslationService con el idioma inicial
-    this.translationService.setLanguage(this.userLanguage());
+    // Sincronizar TranslationService con el idioma inicial detectado
+    const currentLang = this.translationService.currentLang();
+    this.userLanguage.set(currentLang);
 
     // Cerrar menú de avatar al hacer click fuera
     if (typeof document !== 'undefined') {
@@ -1538,10 +1537,16 @@ export class MembershipService {
       localStorage.setItem('procrastina-current-user-email', emailLower);
       this.resetNewUserAccount();
       this.loadUserData(emailLower);
+      
+      // Respetar SIEMPRE el idioma del navegador al registrar una nueva cuenta
+      const browserLang = this.translationService.applyBrowserLanguage();
+      this.setLanguage(browserLang, false);
+
       // Cargar perfil e inventario inicial de Supabase de inmediato
       const { profile } = await this.supabaseService.getProfile(user.id);
       if (profile) {
         this.applySupabaseProfile(profile);
+        this.setLanguage(browserLang, false);
       }
       const { items } = await this.supabaseService.getUnlockedItems(user.id);
       if (items && items.length > 0) {
@@ -1576,10 +1581,16 @@ export class MembershipService {
       this.resetAllSignals();
       localStorage.setItem('procrastina-current-user-email', emailLower);
       this.loadUserData(emailLower);
+
+      // Respetar SIEMPRE el idioma del navegador al iniciar sesión
+      const browserLang = this.translationService.applyBrowserLanguage();
+      this.setLanguage(browserLang, false);
+
       // Cargar perfil desde Supabase
       const { profile } = await this.supabaseService.getProfile(user.id);
       if (profile) {
         this.applySupabaseProfile(profile);
+        this.setLanguage(browserLang, false);
       }
       // Cargar items desbloqueados desde Supabase
       const { items } = await this.supabaseService.getUnlockedItems(user.id);
@@ -1680,9 +1691,15 @@ export class MembershipService {
     this.userCountryCode.set(p.country_code ? p.country_code : '');
     if (p.active_days) this.userActiveDays.set(p.active_days);
     if (p.last_focus_date) this.lastFocusDate.set(p.last_focus_date);
-    if (p.language) {
-      this.userLanguage.set(p.language);
-      this.translationService.setLanguage(p.language);
+    // Si el usuario seleccionó un idioma explícitamente en esta sesión, se respeta; si no, se respeta el idioma del navegador
+    const manualLang = typeof localStorage !== 'undefined' ? (localStorage.getItem(TranslationService.MANUAL_CHOICE_KEY) as 'es' | 'en') : null;
+    if (manualLang && (manualLang === 'es' || manualLang === 'en')) {
+      this.userLanguage.set(manualLang);
+      this.translationService.setLanguage(manualLang, true);
+    } else {
+      const browserLang = this.translationService.getBrowserLanguage();
+      this.userLanguage.set(browserLang);
+      this.translationService.setLanguage(browserLang, false);
     }
     if (p.is_premium !== undefined) this.isPremium.set(p.is_premium);
 
@@ -1846,7 +1863,12 @@ export class MembershipService {
           if (bundle.profile.theme) this.selectedTheme.set(bundle.profile.theme);
           if (bundle.profile.themeMode) this.themeMode.set(bundle.profile.themeMode);
           if (bundle.profile.onboardingCompleted !== undefined) this.onboardingCompleted.set(bundle.profile.onboardingCompleted);
-          if (bundle.profile.language) this.userLanguage.set(bundle.profile.language);
+          const manualLang = typeof localStorage !== 'undefined' ? (localStorage.getItem(TranslationService.MANUAL_CHOICE_KEY) as 'es' | 'en') : null;
+          if (manualLang && (manualLang === 'es' || manualLang === 'en')) {
+            this.userLanguage.set(manualLang);
+          } else {
+            this.userLanguage.set(this.translationService.getBrowserLanguage());
+          }
           if (bundle.profile.isPremium !== undefined) this.isPremium.set(bundle.profile.isPremium);
         }
         if (bundle.gamification) {

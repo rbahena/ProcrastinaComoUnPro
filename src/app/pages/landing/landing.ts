@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LegalService } from '../../services/legal.service';
 
@@ -33,40 +33,73 @@ import { TranslatePipe, TranslationService } from '../../services/translation.se
 export class Landing implements OnInit, OnDestroy {
   constructor(public legalService: LegalService, public translation: TranslationService) {}
   private timerId?: any;
-  private readonly EXCUSES: Record<string, ExcuseDetail> = {
-    perfect: {
-      title: 'Parálisis por Perfeccionismo (Miedo al fallo)',
-      emoji: 'fa-solid fa-face-grimace',
-      desc: 'Tu cerebro evita arrancar porque anticipa la presión de un resultado impecable. Como explica el investigador Dr. Timothy Pychyl, la procrastinación es un mecanismo inconsciente de evitación emocional para proteger tu autoestima. Táctica: Aplica el "Principio de la Tarea Borrador". Escribe o diseña algo deliberadamente mediocre durante 10 minutos. Al eliminar la barra de calidad inicial, rompes la resistencia.',
-      tag: 'Tesis: Dr. Timothy Pychyl',
-      btnText: 'Iniciar Sesión Corta (15 min)',
-      link: '/enfoque',
-    },
-    bored: {
-      title: 'Apatía Cognitiva (Tarea tediosa o monótona)',
-      emoji: 'fa-solid fa-face-tired',
-      desc: 'Cuando una tarea carece de recompensa inmediata, sufres un déficit temporal de dopamina. Táctica: Aplica la "Regla de los 2 Minutos" de James Clear (Autor de Hábitos Atómicos) acoplada a un estímulo sensorial. Camufla el tedio aislando tu espectro auditivo con frecuencias continuas (como Ruido Café o Lluvia Sintetizada) e inicia con un paso sumamente diminuto para generar inercia.',
-      tag: 'Tesis: James Clear',
-      btnText: 'Iniciar Pomodoro + Audio',
-      link: '/enfoque',
-    },
-    time: {
-      title: 'Sesgo del Presente (Optimismo temporal engañoso)',
-      emoji: 'fa-solid fa-hourglass-half',
-      desc: 'Tu cerebro valora el descanso actual infinitamente más que la entrega futura. Cree falsamente que "mañana tendrás más energía". Táctica: Rompe la Ley de Parkinson. Traduce tus plazos límite a días y horas reales. Haz visible la contabilidad de tu tiempo real para desactivar el optimismo y forzar a la corteza prefrontal a actuar hoy.',
-      tag: 'Tesis: Ley de Parkinson',
-      btnText: 'Ver Mis Plazos Reales',
-      link: '/fechas',
-    },
-    distract: {
-      title: 'Impulso Dopaminérgico (Distracciones por hábito)',
-      emoji: 'fa-solid fa-mobile-screen-button',
-      desc: 'Abrir pestañas de ocio es una respuesta neuromuscular automática grabada en tus ganglios basales. Táctica: Aplica la "Regla de los 5 Segundos" de Mel Robbins. Cuenta en voz alta 3, 2, 1, activa el escudo de bloqueo de sitios de la aplicación para añadir fricción física al impulso automático y muévete físicamente a la tarea de inmediato.',
-      tag: 'Tesis: Mel Robbins',
-      btnText: 'Activar Escudo de Sitios',
-      link: '/bloqueador',
-    },
-  };
+
+  langMenuOpen = signal<boolean>(false);
+
+  toggleLangMenu(event: Event) {
+    event.stopPropagation();
+    this.langMenuOpen.update(open => !open);
+  }
+
+  closeLangMenu() {
+    this.langMenuOpen.set(false);
+  }
+
+  selectLanguage(lang: 'es' | 'en') {
+    this.translation.setLanguage(lang, true);
+    this.closeLangMenu();
+  }
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.closeLangMenu();
+  }
+
+  private getExcusesMap(lang: string): Record<string, ExcuseDetail> {
+    const isEs = lang === 'es';
+    return {
+      perfect: {
+        title: isEs ? 'Parálisis por Perfeccionismo (Miedo al fallo)' : 'Perfectionism Paralysis (Fear of Failure)',
+        emoji: 'fa-solid fa-face-grimace',
+        desc: isEs 
+          ? 'Tu cerebro evita arrancar porque anticipa la presión de un resultado impecable. Como explica el investigador Dr. Timothy Pychyl, la procrastinación es un mecanismo inconsciente de evitación emocional para proteger tu autoestima. Táctica: Aplica el "Principio de la Tarea Borrador". Escribe o diseña algo deliberadamente mediocre durante 10 minutos. Al eliminar la barra de calidad inicial, rompes la resistencia.'
+          : 'Your brain avoids starting because it anticipates the pressure of an outcome needing to be perfect. As researcher Dr. Timothy Pychyl explains, procrastination is an emotional coping mechanism to protect self-esteem. Tactic: Apply the "Draft Task Principle". Deliberately draft something mediocre for 10 minutes to eliminate initial friction.',
+        tag: isEs ? 'Tesis: Dr. Timothy Pychyl' : 'Thesis: Dr. Timothy Pychyl',
+        btnText: isEs ? 'Iniciar Sesión Corta (15 min)' : 'Start Short Session (15 min)',
+        link: '/enfoque',
+      },
+      bored: {
+        title: isEs ? 'Apatía Cognitiva (Tarea tediosa o monótona)' : 'Cognitive Apathy (Tedious or Monotonous Task)',
+        emoji: 'fa-solid fa-face-tired',
+        desc: isEs
+          ? 'Cuando una tarea carece de recompensa inmediata, sufres un déficit temporal de dopamina. Táctica: Aplica la "Regla de los 2 Minutos" de James Clear (Autor de Hábitos Atómicos) acoplada a un estímulo sensorial. Camufla el tedio aislando tu espectro auditivo con frecuencias continuas (como Ruido Café o Lluvia Sintetizada) e inicia con un paso sumamente diminuto para generar inercia.'
+          : 'When a task lacks immediate reward, your brain undergoes a dopamine deficit. Tactic: Apply James Clear\'s "2-Minute Rule" coupled with sensory stimulation. Mask distractions with continuous frequencies (brown noise or rain) and take a microscopic first step to build momentum.',
+        tag: isEs ? 'Tesis: James Clear' : 'Thesis: James Clear',
+        btnText: isEs ? 'Iniciar Pomodoro + Audio' : 'Start Pomodoro + Audio',
+        link: '/enfoque',
+      },
+      time: {
+        title: isEs ? 'Sesgo del Presente (Optimismo temporal engañoso)' : 'Present Bias (Deceptive Time Optimism)',
+        emoji: 'fa-solid fa-hourglass-half',
+        desc: isEs
+          ? 'Tu cerebro valora el descanso actual infinitamente más que la entrega futura. Cree falsamente que "mañana tendrás más energía". Táctica: Rompe la Ley de Parkinson. Traduce tus plazos límite a días y horas reales. Haz visible la contabilidad de tu tiempo real para desactivar el optimismo y forzar a la corteza prefrontal a actuar hoy.'
+          : 'Your brain values immediate comfort over future deadlines, falsely assuming tomorrow will bring more willpower. Tactic: Break Parkinson\'s Law. Convert deadlines into hours and make time accounting visible to prompt action today.',
+        tag: isEs ? 'Tesis: Ley de Parkinson' : 'Thesis: Parkinson\'s Law',
+        btnText: isEs ? 'Ver Mis Plazos Reales' : 'View Real Deadlines',
+        link: '/fechas',
+      },
+      distract: {
+        title: isEs ? 'Impulso Dopaminérgico (Distracciones por hábito)' : 'Dopaminergic Impulse (Habitual Distraction)',
+        emoji: 'fa-solid fa-mobile-screen-button',
+        desc: isEs
+          ? 'Abrir pestañas de ocio es una respuesta neuromuscular automática grabada en tus ganglios basales. Táctica: Aplica la "Regla de los 5 Segundos" de Mel Robbins. Cuenta en voz alta 3, 2, 1, activa el escudo de bloqueo de sitios de la aplicación para añadir fricción física al impulso automático y muévete físicamente a la tarea de inmediato.'
+          : 'Opening leisure tabs is an automatic neuromuscular habit loop. Tactic: Apply Mel Robbins\' "5-Second Rule". Count down 3, 2, 1, activate website blocker shield, and physically move toward your task immediately.',
+        tag: isEs ? 'Tesis: Mel Robbins' : 'Thesis: Mel Robbins',
+        btnText: isEs ? 'Activar Escudo de Sitios' : 'Activate Site Shield',
+        link: '/bloqueador',
+      },
+    };
+  }
 
   challengeDays: ChallengeDay[] = [
     {
@@ -186,7 +219,9 @@ export class Landing implements OnInit, OnDestroy {
 
   selectedExcuse = computed(() => {
     const key = this.selectedExcuseKey();
-    return key ? this.EXCUSES[key] : null;
+    if (!key) return null;
+    const excuses = this.getExcusesMap(this.translation.currentLang());
+    return excuses[key] || null;
   });
 
   selectedChallengeDay = computed(() => {

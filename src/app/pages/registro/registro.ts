@@ -21,7 +21,7 @@ export class Registro {
     private membership: MembershipService,
     public legalService: LegalService,
     private analytics: AnalyticsService,
-    private translation: TranslationService
+    public translation: TranslationService
   ) {}
 
   togglePasswordVisibility() {

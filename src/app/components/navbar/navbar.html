@@ -226,7 +226,7 @@
            (click)="membership.toggleLanguage()"
            [attr.title]="membership.userLanguage() === 'en' ? ('nav.switchToEs' | translate) : ('nav.switchToEn' | translate)">
         <div class="dropdown-lang-left">
-          <i class="fa-solid fa-globe dropdown-lang-globe"></i>
+          <i class="fa-solid fa-language dropdown-lang-globe" style="font-size: 13px;"></i>
           <span>{{ 'nav.language' | translate }}</span>
         </div>
         <div class="dropdown-lang-switcher">

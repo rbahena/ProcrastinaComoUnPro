@@ -39,7 +39,7 @@ export class Login implements OnInit, OnDestroy {
     private membership: MembershipService,
     private analytics: AnalyticsService,
     private supabaseService: SupabaseService,
-    private translation: TranslationService
+    public translation: TranslationService
   ) {}
 
   ngOnInit() {

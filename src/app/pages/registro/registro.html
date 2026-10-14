@@ -10,6 +10,15 @@
     </div>
   </a>
   <div style="display: flex; gap: 10px; align-items: center;">
+    <button type="button" 
+            (click)="translation.toggleLanguage()"
+            style="background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 5px 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;"
+            [attr.aria-label]="(translation.currentLang() === 'es' ? 'nav.switchToEn' : 'nav.switchToEs') | translate">
+      <i class="fa-solid fa-language" style="color: var(--accent); font-size: 15px;"></i>
+      <span [style.color]="translation.currentLang() === 'es' ? 'var(--accent)' : 'var(--muted)'">ES</span>
+      <span style="opacity: 0.35;">/</span>
+      <span [style.color]="translation.currentLang() === 'en' ? 'var(--accent)' : 'var(--muted)'">EN</span>
+    </button>
     <a routerLink="/login" class="btn btn-ghost btn-sm">{{ 'auth.loginBtn' | translate }}</a>
     <a routerLink="/registro" class="btn btn-outline-accent btn-sm">{{ 'auth.registerBtn' | translate }}</a>
   </div>
