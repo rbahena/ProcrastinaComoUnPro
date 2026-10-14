@@ -16,30 +16,6 @@
         <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">{{ 'medals.pageSubtitle' | translate }}</p>
       </div>
 
-      <!-- SELECTOR DE VISTAS PRINCIPALES (TABS) -->
-      <div class="header-view-switcher">
-        <button class="view-switcher-btn" 
-                [class.active]="viewMode() === 'records_3d'" 
-                (click)="setViewMode('records_3d')">
-          <i class="fa-solid fa-trophy"></i>
-          <span>{{ 'medals.tabRecords' | translate }}</span>
-        </button>
-
-        <button class="view-switcher-btn" 
-                [class.active]="viewMode() === 'signifier_map'" 
-                (click)="setViewMode('signifier_map')">
-          <i class="fa-solid fa-compass-drafting"></i>
-          <span>{{ 'medals.tabSignifiers' | translate }}</span>
-          <span class="guide-glow-pill">{{ 'medals.guide' | translate }}</span>
-        </button>
-
-        <button class="view-switcher-btn" 
-                [class.active]="viewMode() === 'weekly_podium'" 
-                (click)="setViewMode('weekly_podium')">
-          <i class="fa-solid fa-ranking-star"></i>
-          <span>{{ 'medals.tabPodiums' | translate }}</span>
-        </button>
-      </div>
     </div>
 
     <!-- ========================================================================= -->
@@ -326,7 +302,7 @@
               <span class="stat-val text-fire">🔥 {{ userStreak() }} {{ 'common.days' | translate }}</span>
             </div>
             <div class="user-card-stat">
-              <span class="stat-lbl">Tomates 🍅</span>
+              <span class="stat-lbl">{{ 'common.tomatoes' | translate }} 🍅</span>
               <span class="stat-val text-green">{{ membership.focusTomatoes() }}</span>
             </div>
             <div class="user-card-stat">
@@ -463,19 +439,19 @@
                   </thead>
                   <tbody>
                     <tr class="highlight-gold">
-                      <td><span class="podium-rank-pill r1">🥇 1º Lugar</span></td>
+                      <td><span class="podium-rank-pill r1">{{ 'medals.place1Podium' | translate }}</span></td>
                       <td><strong>+100 Pro Coins 🪙</strong></td>
-                      <td>+1 Victoria de Podio 🏆 + Medalla de Oro</td>
+                      <td>{{ 'medals.podiumRewardGold' | translate }}</td>
                     </tr>
                     <tr class="highlight-silver">
-                      <td><span class="podium-rank-pill r2">🥈 2º Lugar</span></td>
+                      <td><span class="podium-rank-pill r2">{{ 'medals.place2Podium' | translate }}</span></td>
                       <td><strong>+70 Pro Coins 🪙</strong></td>
-                      <td>+1 Victoria de Podio 🏆 + Medalla de Plata</td>
+                      <td>{{ 'medals.podiumRewardSilver' | translate }}</td>
                     </tr>
                     <tr class="highlight-bronze">
-                      <td><span class="podium-rank-pill r3">🥉 3º Lugar</span></td>
+                      <td><span class="podium-rank-pill r3">{{ 'medals.place3Podium' | translate }}</span></td>
                       <td><strong>+70 Pro Coins 🪙</strong></td>
-                      <td>+1 Victoria de Podio 🏆 + Medalla de Bronce</td>
+                      <td>{{ 'medals.podiumRewardBronze' | translate }}</td>
                     </tr>
                     <tr>
                       <td><span class="podium-rank-pill">🎖️ Top 4 - 10</span></td>
@@ -483,7 +459,7 @@
                       <td>{{ 'medals.honorMention' | translate }}</td>
                     </tr>
                     <tr>
-                      <td><span class="podium-rank-pill">👥 Participantes</span></td>
+                      <td><span class="podium-rank-pill">{{ 'medals.participants' | translate }}</span></td>
                       <td><strong>+20 Pro Coins 🪙</strong></td>
                       <td>{{ 'medals.constancyReward' | translate }}</td>
                     </tr>
@@ -720,60 +696,60 @@
             <div class="rank-icon-badge seed"><i class="fa-solid fa-seedling"></i></div>
             <div class="rank-info-col">
               <h4>{{ 'medals.rankSeedTitle' | translate }}</h4>
-              <span class="rank-lvl-range">Nivel 1 a 4 (0 a 15 Tomates)</span>
+              <span class="rank-lvl-range">{{ 'medals.lvl1to4' | translate }}</span>
               <p>{{ 'medals.rankSeedDesc' | translate }}</p>
             </div>
-            <span class="rank-hours-tag">0 - 6.3 horas</span>
+            <span class="rank-hours-tag">0 - 6.3 {{ 'common.hours' | translate }}</span>
           </div>
 
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 5 && userLevel() <= 9">
             <div class="rank-icon-badge guard"><i class="fa-solid fa-feather"></i></div>
             <div class="rank-info-col">
               <h4>{{ 'medals.rankGuardTitle' | translate }}</h4>
-              <span class="rank-lvl-range">Nivel 5 a 9 (16 a 35 Tomates)</span>
+              <span class="rank-lvl-range">{{ 'medals.lvl5to9' | translate }}</span>
               <p>{{ 'medals.rankGuardDesc' | translate }}</p>
             </div>
-            <span class="rank-hours-tag">6.7 - 14.7 horas</span>
+            <span class="rank-hours-tag">6.7 - 14.7 {{ 'common.hours' | translate }}</span>
           </div>
 
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 10 && userLevel() <= 14">
             <div class="rank-icon-badge warrior"><i class="fa-solid fa-shield-halved"></i></div>
             <div class="rank-info-col">
               <h4>{{ 'medals.rankWarriorTitle' | translate }}</h4>
-              <span class="rank-lvl-range">Nivel 10 a 14 (36 a 55 Tomates)</span>
+              <span class="rank-lvl-range">{{ 'medals.lvl10to14' | translate }}</span>
               <p>{{ 'medals.rankWarriorDesc' | translate }}</p>
             </div>
-            <span class="rank-hours-tag">15.1 - 23.1 horas</span>
+            <span class="rank-hours-tag">15.1 - 23.1 {{ 'common.hours' | translate }}</span>
           </div>
 
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 15 && userLevel() <= 19">
             <div class="rank-icon-badge elite"><i class="fa-solid fa-bolt"></i></div>
             <div class="rank-info-col">
               <h4>{{ 'medals.rankEliteTitle' | translate }}</h4>
-              <span class="rank-lvl-range">Nivel 15 a 19 (56 a 75 Tomates)</span>
+              <span class="rank-lvl-range">{{ 'medals.lvl15to19' | translate }}</span>
               <p>{{ 'medals.rankEliteDesc' | translate }}</p>
             </div>
-            <span class="rank-hours-tag">23.5 - 31.5 horas</span>
+            <span class="rank-hours-tag">23.5 - 31.5 {{ 'common.hours' | translate }}</span>
           </div>
 
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 20 && userLevel() <= 29">
             <div class="rank-icon-badge master"><i class="fa-solid fa-dragon"></i></div>
             <div class="rank-info-col">
               <h4>{{ 'medals.rankMasterTitle' | translate }}</h4>
-              <span class="rank-lvl-range">Nivel 20 a 29 (76 a 115 Tomates)</span>
+              <span class="rank-lvl-range">{{ 'medals.lvl20to29' | translate }}</span>
               <p>{{ 'medals.rankMasterDesc' | translate }}</p>
             </div>
-            <span class="rank-hours-tag">31.9 - 48.3 horas</span>
+            <span class="rank-hours-tag">31.9 - 48.3 {{ 'common.hours' | translate }}</span>
           </div>
 
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 30">
             <div class="rank-icon-badge supreme"><i class="fa-solid fa-crown"></i></div>
             <div class="rank-info-col">
               <h4>{{ 'medals.rankSupremeTitle' | translate }}</h4>
-              <span class="rank-lvl-range">Nivel 30+ (116+ Tomates)</span>
+              <span class="rank-lvl-range">{{ 'medals.lvl30plus' | translate }}</span>
               <p>{{ 'medals.rankSupremeDesc' | translate }}</p>
             </div>
-            <span class="rank-hours-tag">48.7+ horas</span>
+            <span class="rank-hours-tag">48.7+ {{ 'common.hours' | translate }}</span>
           </div>
 
         </div>
@@ -944,7 +920,7 @@
         </button>
         <button class="podium-tab-btn" [class.active]="activeTab() === 'streaks'" (click)="activeTab.set('streaks')">
           <i class="fa-solid fa-fire"></i>
-          <span>Mejor Racha</span>
+          <span>{{ 'medals.filterStreaks' | translate }}</span>
         </button>
         <button class="podium-tab-btn" [class.active]="activeTab() === 'boss'" (click)="activeTab.set('boss')">
           <i class="fa-solid fa-hand-fist"></i>
@@ -1052,7 +1028,7 @@
                   <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{ 'common.you' | translate }}</span>
                 </td>
                 <td style="padding: 12px 18px; color: var(--muted);">{{ p.title }}</td>
-                <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--green);">{{ p.pomodoros }} pomodoros</td>
+                <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--green);">{{ p.pomodoros }} {{ 'common.tomatoes' | translate }}</td>
               </tr>
             </ng-container>
 

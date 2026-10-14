@@ -6599,7 +6599,7 @@
                               [class.selected]="objectiveCompleted() === 'yes'"
                               class="summary-choice-btn choice-yes">
                         <i class="fa-solid fa-circle-check"></i>
-                        <span>Completado</span>
+                        <span>{{ 'common.completed' | translate }}</span>
                       </button>
 
                       <!-- Opción 2: Avancé bastante -->
@@ -6608,7 +6608,7 @@
                               [class.selected]="objectiveCompleted() === 'progress'"
                               class="summary-choice-btn choice-progress">
                         <i class="fa-solid fa-hourglass-half"></i>
-                        <span>Avanzado</span>
+                        <span>{{ 'focus.statusProgressed' | translate }}</span>
                       </button>
 
                       <!-- Opción 3: No lo logré -->
@@ -6628,32 +6628,32 @@
                       <span class="summary-header-label">{{ 'focus.dopamineClosure' | translate }}</span>
                       <h3 class="summary-question">{{ 'focus.blockCompletedSuccess' | translate }}</h3>
                       <p class="summary-objective-text" style="font-style: normal; color: var(--muted); max-width: none;">
-                        Has completado tu tiempo de enfoque.
+                        {{ 'focus.blockSuccessDesc' | translate }}
                       </p>
                     </div>
                   </ng-container>
 
                   <!-- Sección de Siguiente Actividad (Siempre visible para iniciar inmediatamente) -->
                   <div class="summary-next-steps-container" [style.border-top]="hasCustomObjective() ? '1px solid var(--border)' : 'none'" [style.padding-top]="hasCustomObjective() ? '12px' : '4px'">
-                    <span class="summary-section-title">Elige tu siguiente paso para iniciar:</span>
+                    <span class="summary-section-title">{{ 'focus.nextStepPrompt' | translate }}</span>
                     
                     <div class="summary-next-steps-wrapper">
                       <!-- Descanso Corto -->
                       <button type="button"
                               (click)="finishSessionAndStart('short')"
                               class="summary-next-btn next-short"
-                              title="Iniciar Descanso Corto inmediatamente">
+                              [title]="'focus.shortBreak' | translate">
                         <i class="fa-solid fa-mug-hot"></i>
-                        <span>D. Corto</span>
+                        <span>{{ 'focus.shortBreakShort' | translate }}</span>
                       </button>
 
-                      <!-- {{ 'focus.longBreak' | translate }} -->
+                      <!-- Descanso Largo -->
                       <button type="button"
                               (click)="finishSessionAndStart('long')"
                               class="summary-next-btn next-long"
-                              title="Iniciar {{ 'focus.longBreak' | translate }} inmediatamente">
+                              [title]="'focus.longBreak' | translate">
                         <i class="fa-solid fa-couch"></i>
-                        <span>D. Largo</span>
+                        <span>{{ 'focus.longBreakShort' | translate }}</span>
                       </button>
 
                       <!-- Salir -->
@@ -6662,7 +6662,7 @@
                               class="summary-next-btn next-exit"
                               [title]="'focus.exitToFocusSettings' | translate">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                        <span>Salir</span>
+                        <span>{{ 'focus.exitSession' | translate }}</span>
                       </button>
                     </div>
                   </div>

@@ -187,8 +187,11 @@ export class Medallero implements OnInit, OnDestroy {
   });
 
   brokenRecords = computed<BrokenRecordCard[]>(() => {
+    // Escuchar el idioma para reactividad total al alternar inglés y español
+    this.translation.currentLang();
+
     const ramStreak = this.membership.streak();
-    const ramName = this.membership.userName() || 'Guerrero';
+    const ramName = this.membership.userName() || this.translation.t('medals.warrior');
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
     const ramCoins = this.membership.proCoins();
     const ramTomatoes = this.membership.focusTomatoes();
@@ -198,19 +201,19 @@ export class Medallero implements OnInit, OnDestroy {
     const rec = this.liveRecords();
 
     // 1. MEJOR RACHA
-    let streakHolderName = 'En disputa';
+    let streakHolderName = this.translation.t('medals.inDispute');
     let streakHolderAvatar = '';
     let streakHolderFlag = '';
     let bestStreakVal = 0;
-    let streakDate = 'Sin registro';
+    let streakDate = this.translation.t('medals.noRecord');
     let isStreakAssigned = false;
 
     if (rec.bestStreak && (rec.bestStreak.streak ?? 0) > 0) {
-      streakHolderName = rec.bestStreak.holder || 'Guerrero';
+      streakHolderName = rec.bestStreak.holder || this.translation.t('medals.warrior');
       streakHolderAvatar = rec.bestStreak.avatar || '';
       streakHolderFlag = rec.bestStreak.flag || 'mx';
       bestStreakVal = rec.bestStreak.streak || 0;
-      streakDate = 'Histórico';
+      streakDate = this.translation.t('medals.historical');
       isStreakAssigned = true;
     }
 
@@ -221,24 +224,24 @@ export class Medallero implements OnInit, OnDestroy {
       streakHolderName = ramName;
       streakHolderAvatar = ramAvatar;
       streakHolderFlag = 'mx';
-      streakDate = 'Hoy';
+      streakDate = this.translation.t('medals.today');
       isStreakAssigned = true;
     }
 
     // 2. SESIONES DE CONCENTRACIÓN (POMODOROS)
-    let tomatoHolderName = 'En disputa';
+    let tomatoHolderName = this.translation.t('medals.inDispute');
     let tomatoHolderAvatar = '';
     let tomatoHolderFlag = '';
     let bestTomatoesVal = 0;
-    let tomatoDate = 'Sin registro';
+    let tomatoDate = this.translation.t('medals.noRecord');
     let isTomatoAssigned = false;
 
     if (rec.mostTomatoes && (rec.mostTomatoes.tomatoes ?? 0) > 0) {
-      tomatoHolderName = rec.mostTomatoes.holder || 'Guerrero';
+      tomatoHolderName = rec.mostTomatoes.holder || this.translation.t('medals.warrior');
       tomatoHolderAvatar = rec.mostTomatoes.avatar || '';
       tomatoHolderFlag = rec.mostTomatoes.flag || 'mx';
       bestTomatoesVal = rec.mostTomatoes.tomatoes || 0;
-      tomatoDate = 'Histórico';
+      tomatoDate = this.translation.t('medals.historical');
       isTomatoAssigned = true;
     }
 
@@ -247,24 +250,24 @@ export class Medallero implements OnInit, OnDestroy {
       tomatoHolderName = ramName;
       tomatoHolderAvatar = ramAvatar;
       tomatoHolderFlag = 'mx';
-      tomatoDate = 'Hoy';
+      tomatoDate = this.translation.t('medals.today');
       isTomatoAssigned = true;
     }
 
     // 3. EL MAGNATE DE FOCUS (PRO COINS)
-    let coinHolderName = 'En disputa';
+    let coinHolderName = this.translation.t('medals.inDispute');
     let coinHolderAvatar = '';
     let coinHolderFlag = '';
     let bestCoinsVal = 0;
-    let coinDate = 'Sin registro';
+    let coinDate = this.translation.t('medals.noRecord');
     let isCoinAssigned = false;
 
     if (rec.mostCoins && (rec.mostCoins.coins ?? 0) > 0) {
-      coinHolderName = rec.mostCoins.holder || 'Guerrero';
+      coinHolderName = rec.mostCoins.holder || this.translation.t('medals.warrior');
       coinHolderAvatar = rec.mostCoins.avatar || '';
       coinHolderFlag = rec.mostCoins.flag || 'mx';
       bestCoinsVal = rec.mostCoins.coins || 0;
-      coinDate = 'Histórico';
+      coinDate = this.translation.t('medals.historical');
       isCoinAssigned = true;
     }
 
@@ -273,25 +276,25 @@ export class Medallero implements OnInit, OnDestroy {
       coinHolderName = ramName;
       coinHolderAvatar = ramAvatar;
       coinHolderFlag = 'mx';
-      coinDate = 'Hoy';
+      coinDate = this.translation.t('medals.today');
       isCoinAssigned = true;
     }
 
     // 4. MVP DEL JEFE EN TURNO (DAÑO TOTAL AL JEFE ACTIVO)
     const ramDamage = this.bossService.userDamageDealt();
-    let bossMvpName = 'En disputa';
+    let bossMvpName = this.translation.t('medals.inDispute');
     let bossMvpAvatar = '';
     let bossMvpFlag = '';
     let bestBossDamageVal = 0;
-    let bossMvpDate = 'Sin registro';
+    let bossMvpDate = this.translation.t('medals.noRecord');
     let isBossMvpAssigned = false;
 
     if (rec.bossMvp && (rec.bossMvp.damage ?? 0) > 0) {
-      bossMvpName = rec.bossMvp.holder || 'Guerrero';
+      bossMvpName = rec.bossMvp.holder || this.translation.t('medals.warrior');
       bossMvpAvatar = rec.bossMvp.avatar || 'lobo';
       bossMvpFlag = rec.bossMvp.flag || 'mx';
       bestBossDamageVal = rec.bossMvp.damage || 0;
-      bossMvpDate = 'Jefe Activo';
+      bossMvpDate = this.translation.t('medals.activeBoss');
       isBossMvpAssigned = true;
     }
 
@@ -300,16 +303,20 @@ export class Medallero implements OnInit, OnDestroy {
       bossMvpName = ramName;
       bossMvpAvatar = ramAvatar;
       bossMvpFlag = 'mx';
-      bossMvpDate = 'Hoy';
+      bossMvpDate = this.translation.t('medals.today');
       isBossMvpAssigned = true;
     }
 
+    const availableText = this.translation.t('medals.available');
+    const daysUnit = this.translation.t('common.days');
+    const sessionsUnit = this.translation.t('medals.sessionsUnit');
+
     return [
       {
-        title: 'Mejor Racha',
-        description: 'Racha consecutiva de días de enfoque completados en la plataforma al día de hoy.',
-        motivation: '¡Has demostrado ser una persona sumamente constante y disciplinada en tu camino al éxito! Mantén encendida la llama del enfoque.',
-        value: bestStreakVal > 0 ? `${bestStreakVal.toLocaleString()} días` : 'Disponible',
+        title: this.translation.t('medals.bestStreakCardTitle'),
+        description: this.translation.t('medals.bestStreakCardDesc'),
+        motivation: this.translation.t('medals.bestStreakCardMotivation'),
+        value: bestStreakVal > 0 ? `${bestStreakVal.toLocaleString()} ${daysUnit}` : availableText,
         holder: streakHolderName,
         avatar: streakHolderAvatar,
         flag: streakHolderFlag,
@@ -325,10 +332,10 @@ export class Medallero implements OnInit, OnDestroy {
         isAssigned: isStreakAssigned
       },
       {
-        title: 'Sesiones de Concentración',
-        description: 'Total acumulado de sesiones de enfoque (pomodoros) finalizadas desde el registro en la plataforma.',
-        motivation: '¡Paso a paso se llega a la cima! Cada bloque es un ladrillo en el monumento a tu productividad. Sigue construyendo tu legado.',
-        value: bestTomatoesVal > 0 ? `${bestTomatoesVal.toLocaleString()} sesiones` : 'Disponible',
+        title: this.translation.t('medals.pomodorosCardTitle'),
+        description: this.translation.t('medals.pomodorosCardDesc'),
+        motivation: this.translation.t('medals.pomodorosCardMotivation'),
+        value: bestTomatoesVal > 0 ? `${bestTomatoesVal.toLocaleString()} ${sessionsUnit}` : availableText,
         holder: tomatoHolderName,
         avatar: tomatoHolderAvatar,
         flag: tomatoHolderFlag,
@@ -343,10 +350,10 @@ export class Medallero implements OnInit, OnDestroy {
         isAssigned: isTomatoAssigned
       },
       {
-        title: 'El Magnate de Focus',
-        description: 'Total acumulado de Pro Coins obtenidas enfocándose en la Comunidad desde el origen.',
-        motivation: '¡Tu esfuerzo se traduce en verdadera riqueza mental y digital! Invierte siempre tu tiempo en ti mismo.',
-        value: bestCoinsVal > 0 ? `${bestCoinsVal.toLocaleString()} Coins` : 'Disponible',
+        title: this.translation.t('medals.coinsCardTitle'),
+        description: this.translation.t('medals.coinsCardDesc'),
+        motivation: this.translation.t('medals.coinsCardMotivation'),
+        value: bestCoinsVal > 0 ? `${bestCoinsVal.toLocaleString()} Coins` : availableText,
         holder: coinHolderName,
         avatar: coinHolderAvatar,
         flag: coinHolderFlag,
@@ -362,10 +369,10 @@ export class Medallero implements OnInit, OnDestroy {
         isAssigned: isCoinAssigned
       },
       {
-        title: 'MVP del Jefe en Turno',
-        description: 'Mayor cantidad de daño total infligido al Jefe de la Comunidad activo mediante sesiones de enfoque exitosas.',
-        motivation: '¡El terror de la procrastinación! Tu constancia y ataque implacable lideran el asalto de toda la comunidad.',
-        value: bestBossDamageVal > 0 ? `${bestBossDamageVal.toLocaleString()} HP` : 'Disponible',
+        title: this.translation.t('medals.bossMvpCardTitle'),
+        description: this.translation.t('medals.bossMvpCardDesc'),
+        motivation: this.translation.t('medals.bossMvpCardMotivation'),
+        value: bestBossDamageVal > 0 ? `${bestBossDamageVal.toLocaleString()} HP` : availableText,
         holder: bossMvpName,
         avatar: bossMvpAvatar,
         flag: bossMvpFlag,
@@ -469,7 +476,10 @@ export class Medallero implements OnInit, OnDestroy {
   }
 
   getFormattedToday(): string {
-    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const isEn = this.translation.currentLang() === 'en';
+    const monthsEs = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = isEn ? monthsEn : monthsEs;
     const d = new Date();
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
   }
@@ -492,7 +502,10 @@ export class Medallero implements OnInit, OnDestroy {
 
   // 1. Más objetivos alcanzados
   rankingObjectives = computed<RankingPlayer[]>(() => {
-    const ramName = this.membership.userName() || 'Guerrero';
+    this.translation.currentLang();
+    const warriorText = this.translation.t('medals.warrior');
+    const ofFocusText = this.translation.t('medals.ofFocus');
+    const ramName = this.membership.userName() || warriorText;
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
     const ramPoints = this.membership.focusPoints();
     const ramObjCount = Math.floor(ramPoints / 40);
@@ -502,12 +515,12 @@ export class Medallero implements OnInit, OnDestroy {
     const mapped: RawRankingPlayer[] = (liveList || [])
       .filter((p: any) => this.isUserEligible(p.focus_points ? Math.floor(p.focus_points / 40) : (p.focus_tomatoes || 0), p.created_at))
       .map((p: any) => ({
-        name: p.username || 'Guerrero',
+        name: p.username || warriorText,
         avatar: p.selected_avatar || 'gato',
         objectives: p.focus_points ? Math.floor(p.focus_points / 40) : (p.focus_tomatoes || 0),
         pomodoros: p.focus_tomatoes || 0,
         streakCount: p.streak_days || 0,
-        rankName: this.membership.getAvatarTitle(p.selected_avatar || 'gato') + ' del Foco',
+        rankName: this.membership.getAvatarTitle(p.selected_avatar || 'gato') + ofFocusText,
         isSelf: p.username === ramName
       }));
 
@@ -518,7 +531,7 @@ export class Medallero implements OnInit, OnDestroy {
         objectives: ramObjCount,
         pomodoros: this.membership.focusTomatoes(),
         streakCount: this.membership.streak(),
-        rankName: this.membership.getAvatarTitle(ramAvatar) + ' del Foco',
+        rankName: this.membership.getAvatarTitle(ramAvatar) + ofFocusText,
         isSelf: true
       });
     }
@@ -535,7 +548,10 @@ export class Medallero implements OnInit, OnDestroy {
 
   // 2. Más pomodoros completados
   rankingPomodoros = computed<RankingPlayer[]>(() => {
-    const ramName = this.membership.userName() || 'Guerrero';
+    this.translation.currentLang();
+    const warriorText = this.translation.t('medals.warrior');
+    const pomodoroWarriorText = this.translation.t('medals.pomodoroWarrior');
+    const ramName = this.membership.userName() || warriorText;
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
     const ramTomatoes = this.membership.focusTomatoes();
     const ramCreatedAt = this.membership.userCreatedAt();
@@ -544,7 +560,7 @@ export class Medallero implements OnInit, OnDestroy {
     const mapped: RawRankingPlayer[] = (liveList || [])
       .filter((p: any) => this.isUserEligible(p.focus_tomatoes || 0, p.created_at))
       .map((p: any) => ({
-        name: p.username || 'Guerrero',
+        name: p.username || warriorText,
         avatar: p.selected_avatar || 'gato',
         pomodoros: p.focus_tomatoes || 0,
         streakCount: p.streak_days || 0,
@@ -560,7 +576,7 @@ export class Medallero implements OnInit, OnDestroy {
         pomodoros: ramTomatoes,
         streakCount: this.membership.streak(),
         objectives: Math.floor(this.membership.focusPoints() / 40),
-        title: 'Guerrero del Pomodoro',
+        title: pomodoroWarriorText,
         isSelf: true
       });
     }
@@ -577,8 +593,11 @@ export class Medallero implements OnInit, OnDestroy {
 
   // 3. Mejor racha
   rankingStreaks = computed<RankingPlayer[]>(() => {
+    this.translation.currentLang();
+    const warriorText = this.translation.t('medals.warrior');
+    const activeStreakText = this.translation.t('medals.activeStreakTag');
     const ramStreak = this.membership.streak();
-    const ramName = this.membership.userName() || 'Guerrero';
+    const ramName = this.membership.userName() || warriorText;
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
     const ramCreatedAt = this.membership.userCreatedAt();
 
@@ -586,12 +605,12 @@ export class Medallero implements OnInit, OnDestroy {
     const mapped: RawRankingPlayer[] = (liveList || [])
       .filter((p: any) => this.isUserEligible(p.streak_count || p.streak_days || 0, p.created_at))
       .map((p: any) => ({
-        name: p.username || 'Guerrero',
+        name: p.username || warriorText,
         avatar: p.selected_avatar || 'gato',
         streakCount: p.streak_count || p.streak_days || 0,
         pomodoros: p.focus_tomatoes || 0,
         objectives: p.focus_points ? Math.floor(p.focus_points / 40) : 0,
-        tag: 'Racha Activa',
+        tag: activeStreakText,
         isSelf: p.username === ramName
       }));
 
@@ -602,7 +621,7 @@ export class Medallero implements OnInit, OnDestroy {
         streakCount: ramStreak,
         pomodoros: this.membership.focusTomatoes(),
         objectives: Math.floor(this.membership.focusPoints() / 40),
-        tag: 'Racha Activa',
+        tag: activeStreakText,
         isSelf: true
       });
     }
@@ -619,8 +638,12 @@ export class Medallero implements OnInit, OnDestroy {
 
   // 4. Mejor aporte a villanos
   rankingBoss = computed<RankingPlayer[]>(() => {
+    this.translation.currentLang();
+    const warriorText = this.translation.t('medals.warrior');
+    const hunterText = this.translation.t('medals.bossHunter');
+    const activeWarriorText = this.translation.t('medals.activeWarrior');
     const ramDamage = this.bossService.userDamageDealt();
-    const ramName = this.membership.userName() || 'Guerrero';
+    const ramName = this.membership.userName() || warriorText;
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
     const ramCreatedAt = this.membership.userCreatedAt();
 
@@ -628,11 +651,11 @@ export class Medallero implements OnInit, OnDestroy {
     const mapped: RawRankingPlayer[] = (liveList || [])
       .filter((p: any) => this.isUserEligible(p.total_damage || 0, p.created_at))
       .map((p: any) => ({
-        name: p.username || 'Guerrero',
+        name: p.username || warriorText,
         avatar: p.selected_avatar || 'lobo',
         damage: p.total_damage || 0,
         pomodoros: p.focus_tomatoes || 0,
-        label: 'Cazador de Jefes',
+        label: hunterText,
         isSelf: p.username === ramName
       }));
 
@@ -642,7 +665,7 @@ export class Medallero implements OnInit, OnDestroy {
         avatar: ramAvatar,
         damage: ramDamage,
         pomodoros: this.membership.focusTomatoes(),
-        label: 'Guerrero Activo',
+        label: activeWarriorText,
         isSelf: true
       });
     }
@@ -658,7 +681,10 @@ export class Medallero implements OnInit, OnDestroy {
 
   // 5. Ranking por Pro Coins (El Magnate de Focus)
   rankingCoins = computed<RankingPlayer[]>(() => {
-    const ramName = this.membership.userName() || 'Guerrero';
+    this.translation.currentLang();
+    const warriorText = this.translation.t('medals.warrior');
+    const tycoonText = this.translation.t('medals.focusTycoon');
+    const ramName = this.membership.userName() || warriorText;
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
     const ramCoins = this.membership.proCoins();
     const ramCreatedAt = this.membership.userCreatedAt();
@@ -667,11 +693,11 @@ export class Medallero implements OnInit, OnDestroy {
     const mapped: RawRankingPlayer[] = (liveList || [])
       .filter((p: any) => this.isUserEligible(p.pro_coins || p.coins || 0, p.created_at))
       .map((p: any) => ({
-        name: p.username || 'Guerrero',
+        name: p.username || warriorText,
         avatar: p.selected_avatar || 'gato',
         coins: p.pro_coins || p.coins || 0,
         pomodoros: p.focus_tomatoes || 0,
-        tag: 'Magnate del Foco',
+        tag: tycoonText,
         isSelf: p.username === ramName
       }));
 
@@ -681,7 +707,7 @@ export class Medallero implements OnInit, OnDestroy {
         avatar: ramAvatar,
         coins: ramCoins,
         pomodoros: this.membership.focusTomatoes(),
-        tag: 'Magnate del Foco',
+        tag: tycoonText,
         isSelf: true
       });
     }
@@ -697,7 +723,10 @@ export class Medallero implements OnInit, OnDestroy {
 
   // 6. Ranking por Podios Conquistados
   rankingPodiums = computed<RankingPlayer[]>(() => {
-    const ramName = this.membership.userName() || 'Guerrero';
+    this.translation.currentLang();
+    const warriorText = this.translation.t('medals.warrior');
+    const championText = this.translation.t('medals.weeklyChampion');
+    const ramName = this.membership.userName() || warriorText;
     const ramAvatar = this.membership.selectedAvatar() || 'gato';
     const ramPodiums = this.membership.podiumWins();
     const ramCreatedAt = this.membership.userCreatedAt();
@@ -706,11 +735,11 @@ export class Medallero implements OnInit, OnDestroy {
     const mapped: RawRankingPlayer[] = (liveList || [])
       .filter((p: any) => this.isUserEligible(p.podium_wins || p.podiums || 0, p.created_at))
       .map((p: any) => ({
-        name: p.username || 'Guerrero',
+        name: p.username || warriorText,
         avatar: p.selected_avatar || 'gato',
         podiums: p.podium_wins || p.podiums || 0,
         pomodoros: p.focus_tomatoes || 0,
-        tag: 'Campeón Semanal',
+        tag: championText,
         isSelf: p.username === ramName
       }));
 
@@ -720,7 +749,7 @@ export class Medallero implements OnInit, OnDestroy {
         avatar: ramAvatar,
         podiums: ramPodiums,
         pomodoros: this.membership.focusTomatoes(),
-        tag: 'Campeón Semanal',
+        tag: championText,
         isSelf: true
       });
     }
@@ -743,6 +772,7 @@ export class Medallero implements OnInit, OnDestroy {
 
   // Siguientes 4 lugares (Puestos 2º, 3º, 4º y 5º) de la categoría activa
   currentCategoryRunnersUp = computed<RankingPlayer[]>(() => {
+    this.translation.currentLang();
     const idx = this.activeCardIndex();
     let sourceList: RankingPlayer[] = [];
     let unitLabel = '';
@@ -750,11 +780,11 @@ export class Medallero implements OnInit, OnDestroy {
     switch (idx) {
       case 0: // Mejor Racha
         sourceList = this.rankingStreaks();
-        unitLabel = 'días';
+        unitLabel = this.translation.t('common.days');
         break;
       case 1: // Sesiones de Concentración
         sourceList = this.rankingPomodoros();
-        unitLabel = 'sesiones';
+        unitLabel = this.translation.t('medals.sessionsUnit');
         break;
       case 2: // El Magnate de Focus
         sourceList = this.rankingCoins();
@@ -766,8 +796,11 @@ export class Medallero implements OnInit, OnDestroy {
         break;
       default:
         sourceList = this.rankingStreaks();
-        unitLabel = 'días';
+        unitLabel = this.translation.t('common.days');
     }
+
+    const availableText = this.translation.t('medals.available');
+    const vacantText = this.translation.t('medals.vacantPosition');
 
     const runnersUp: RankingPlayer[] = [];
     for (let place = 2; place <= 5; place++) {
@@ -789,12 +822,12 @@ export class Medallero implements OnInit, OnDestroy {
       } else {
         runnersUp.push({
           rank: place,
-          name: 'Disponible',
+          name: availableText,
           avatar: '',
-          formattedValue: 'Disponible',
+          formattedValue: availableText,
           isAssigned: false,
           isSelf: false,
-          tag: 'Puesto vacante'
+          tag: vacantText
         });
       }
     }
@@ -803,20 +836,22 @@ export class Medallero implements OnInit, OnDestroy {
   });
 
   getPodiumUser(place: 1 | 2 | 3): { name: string; avatar: string; value: string; isSelf: boolean } {
+    this.translation.currentLang();
     const idx = place - 1;
     const tab = this.activeTab();
+    const disputeText = this.translation.t('medals.inDispute');
     if (tab === 'objectives') {
       const p = this.rankingObjectives()[idx];
-      return p ? { name: p.name, avatar: p.avatar, value: (p.objectives || 0) + ' objs', isSelf: !!p.isSelf } : { name: '', avatar: '', value: '', isSelf: false };
+      return p ? { name: p.name, avatar: p.avatar, value: (p.objectives || 0) + ' objs', isSelf: !!p.isSelf } : { name: disputeText, avatar: '', value: '', isSelf: false };
     } else if (tab === 'pomodoros') {
       const p = this.rankingPomodoros()[idx];
-      return p ? { name: p.name, avatar: p.avatar, value: (p.pomodoros || 0) + ' poms', isSelf: !!p.isSelf } : { name: '', avatar: '', value: '', isSelf: false };
+      return p ? { name: p.name, avatar: p.avatar, value: (p.pomodoros || 0) + ' poms', isSelf: !!p.isSelf } : { name: disputeText, avatar: '', value: '', isSelf: false };
     } else if (tab === 'streaks') {
       const p = this.rankingStreaks()[idx];
-      return p ? { name: p.name, avatar: p.avatar, value: (p.streakCount || 0) + ' días', isSelf: !!p.isSelf } : { name: '', avatar: '', value: '', isSelf: false };
+      return p ? { name: p.name, avatar: p.avatar, value: (p.streakCount || 0) + ' ' + this.translation.t('common.days'), isSelf: !!p.isSelf } : { name: disputeText, avatar: '', value: '', isSelf: false };
     } else {
       const p = this.rankingBoss()[idx];
-      return p ? { name: p.name, avatar: p.avatar, value: (p.damage || 0) + ' HP', isSelf: !!p.isSelf } : { name: '', avatar: '', value: '', isSelf: false };
+      return p ? { name: p.name, avatar: p.avatar, value: (p.damage || 0) + ' HP', isSelf: !!p.isSelf } : { name: disputeText, avatar: '', value: '', isSelf: false };
     }
   }
 

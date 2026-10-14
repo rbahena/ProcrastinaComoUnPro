@@ -467,8 +467,8 @@
                     <i class="fa-solid fa-lock" style="font-size: 13px; opacity: 0.5;"></i>
                   </div>
                 </div>
-                <span class="podio-user-name">{{ rankingData()[0].name }}</span>
-                <span class="podio-user-points">{{ rankingData()[0].value }}</span>
+                <span class="podio-user-name">{{ rankingData()[0]?.isAssigned ? rankingData()[0].name : ('medals.inDispute' | translate) }}</span>
+                <span class="podio-user-points">{{ rankingData()[0]?.isAssigned ? rankingData()[0].value : ('medals.available' | translate) }}</span>
                 <span *ngIf="rankingData()[0]?.isAssigned && rankingData()[0].details" class="podio-user-breakdown">{{ rankingData()[0].details }}</span>
                 <div class="podio-bar">2º</div>
               </div>
@@ -492,8 +492,8 @@
                     <i class="fa-solid fa-lock" style="font-size: 15px; opacity: 0.5;"></i>
                   </div>
                 </div>
-                <span class="podio-user-name" style="font-weight: 800; font-size: 12.5px;">{{ rankingData()[1].name }}</span>
-                <span class="podio-user-points" style="color: var(--yellow); font-weight: 800;">{{ rankingData()[1].value }}</span>
+                <span class="podio-user-name" style="font-weight: 800; font-size: 12.5px;">{{ rankingData()[1]?.isAssigned ? rankingData()[1].name : ('medals.inDispute' | translate) }}</span>
+                <span class="podio-user-points" style="color: var(--yellow); font-weight: 800;">{{ rankingData()[1]?.isAssigned ? rankingData()[1].value : ('medals.available' | translate) }}</span>
                 <span *ngIf="rankingData()[1]?.isAssigned && rankingData()[1].details" class="podio-user-breakdown" style="color: var(--yellow); opacity: 0.9;">{{ rankingData()[1].details }}</span>
                 <div class="podio-bar">1º</div>
               </div>
@@ -514,8 +514,8 @@
                     <i class="fa-solid fa-lock" style="font-size: 13px; opacity: 0.5;"></i>
                   </div>
                 </div>
-                <span class="podio-user-name">{{ rankingData()[2].name }}</span>
-                <span class="podio-user-points">{{ rankingData()[2].value }}</span>
+                <span class="podio-user-name">{{ rankingData()[2]?.isAssigned ? rankingData()[2].name : ('medals.inDispute' | translate) }}</span>
+                <span class="podio-user-points">{{ rankingData()[2]?.isAssigned ? rankingData()[2].value : ('medals.available' | translate) }}</span>
                 <span *ngIf="rankingData()[2]?.isAssigned && rankingData()[2].details" class="podio-user-breakdown">{{ rankingData()[2].details }}</span>
                 <div class="podio-bar">3º</div>
               </div>
@@ -560,7 +560,7 @@
                 <!-- Info del Usuario -->
                 <div class="runner-info">
                   <div class="runner-name-row">
-                    <span class="runner-name">{{ runner.name }}</span>
+                    <span class="runner-name">{{ runner.isAssigned ? runner.name : ('medals.inDispute' | translate) }}</span>
                     <span *ngIf="runner.isAssigned && runner.wins > 0" class="runner-wins" [attr.data-tooltip]="runner.wins + ' podios ganados'">
                       🏆 {{ runner.wins }}
                     </span>
@@ -570,7 +570,7 @@
 
                 <!-- Puntos de Productividad -->
                 <div class="runner-score-badge">
-                  <span class="runner-score-value">{{ runner.value }}</span>
+                  <span class="runner-score-value">{{ runner.isAssigned ? runner.value : ('medals.available' | translate) }}</span>
                 </div>
               </div>
             </div>
@@ -630,13 +630,13 @@
       <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 12px;">
         <i class="fa-solid fa-check" style="color: var(--green); margin-top: 2px;"></i>
         <div>
-          <strong style="color: var(--text);">Pro Coins:</strong> Acumula monedas con tus Pomodoros y compra avatares/temas.
+          <strong style="color: var(--text);">Pro Coins:</strong> {{ 'home.paywallBenefit1' | translate }}
         </div>
       </div>
       <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 12px;">
         <i class="fa-solid fa-check" style="color: var(--green); margin-top: 2px;"></i>
         <div>
-          <strong style="color: var(--text);">Ranking & Honor Hall:</strong> Compite en el podio comunitario.
+          <strong style="color: var(--text);">Ranking & Honor Hall:</strong> {{ 'home.paywallBenefit2' | translate }}
         </div>
       </div>
     </div>

@@ -108,7 +108,7 @@ export class Home implements OnInit, OnDestroy {
   hasPodiumWinners = computed(() => {
     const list = this.topPodiumUsers();
     if (!list || list.length < 3) return false;
-    return list.some(u => u.name !== 'En disputa' && u.name !== 'Disponible' && (u.value && u.value !== '0 puntos' && u.value !== 'Disponible'));
+    return list.some(u => u.isAssigned);
   });
 
   displayPomodoroCount = computed(() => {
