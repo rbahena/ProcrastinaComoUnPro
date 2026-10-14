@@ -93,8 +93,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     country TEXT DEFAULT NULL,
     -- country_code: Código ISO del país (ej. 'MX', 'ES', 'CO') para renderizar la bandera nacional.
     country_code VARCHAR(10) DEFAULT NULL,
-    -- language: Idioma preferido por el usuario ('es' para Español, 'en' para Inglés).
-    language VARCHAR(10) NOT NULL DEFAULT 'es' CHECK (language IN ('es', 'en')),
+    -- language: Idioma preferido por el usuario ('en' para Inglés por defecto, 'es' para Español).
+    language VARCHAR(10) NOT NULL DEFAULT 'en' CHECK (language IN ('es', 'en')),
     -- active_days: Array con los días de enfoque semanal elegidos (1: Lunes, ..., 7: Domingo).
     active_days INTEGER[] DEFAULT ARRAY[1, 2, 3, 4, 5],
     
@@ -504,7 +504,7 @@ INSERT INTO public.catalog_items (
     '{"es": "Inicia con curiosidad: solo 5 minutos para romper la inercia.", "en": "Start with curiosity: just 5 minutes to break inertia."}',
     '{"es": "Los pasos silenciosos cruzan las sombras más densas.", "en": "Silent steps cross the densest shadows."}',
     '{"es": "Paso Sigiloso", "en": "Stealth Step"}',
-    '{"es": "Genera +10 Pro Coins y +20 de daño al jefe por sesión completada.", "en": "Generates +10 Pro Coins and +20 boss damage per completed session."}',
+    '{"es": "Genera +12 Pro Coins y +20 de daño al jefe por sesión completada.", "en": "Generates +12 Pro Coins and +20 boss damage per completed session."}',
     NULL, NULL
 ),
 (

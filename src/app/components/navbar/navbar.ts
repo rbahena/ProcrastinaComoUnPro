@@ -3,16 +3,18 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { NotificationService, AppNotification } from '../../services/notification.service';
+import { TranslationService, TranslatePipe } from '../../services/translation.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './navbar.html'
 })
 export class Navbar {
   public membership = inject(MembershipService);
   public notificationService = inject(NotificationService);
+  public translationService = inject(TranslationService);
   private elementRef = inject(ElementRef);
 
   showLockedToast = signal<boolean>(false);

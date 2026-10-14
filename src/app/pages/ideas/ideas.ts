@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { CapturedIdea, SupabaseService, IdeaPriority } from '../../services/supabase.service';
 import { Navbar } from '../../components/navbar/navbar';
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
 
 export type SortOption = 'priority' | 'newest' | 'oldest' | 'alpha';
 export type IdeaFilterType = 'all' | IdeaPriority | 'completed';
@@ -12,7 +13,7 @@ export type IdeaFilterType = 'all' | IdeaPriority | 'completed';
 @Component({
   selector: 'app-ideas',
   standalone: true,
-  imports: [CommonModule, FormsModule, Navbar],
+  imports: [CommonModule, FormsModule, Navbar, TranslatePipe],
   templateUrl: './ideas.html',
   styleUrl: './ideas.css',
 })
@@ -20,6 +21,7 @@ export class Ideas implements OnInit {
   public membership = inject(MembershipService);
   private supabaseService = inject(SupabaseService);
   private router = inject(Router);
+  public translation = inject(TranslationService);
 
   currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
   userName!: WritableSignal<string>;
@@ -293,7 +295,10 @@ export class Ideas implements OnInit {
   }
 
   async clearAllIdeas() {
-    if (confirm('¿Estás seguro de que deseas vaciar todas tus notas y objetivos del baúl? Esta acción eliminará los registros de la base de datos.')) {
+    const confirmMsg = this.translation.currentLang() === 'en'
+      ? 'Are you sure you want to empty all notes and goals from your vault? This will permanently delete them.'
+      : '¿Estás seguro de que deseas vaciar todas tus notas y objetivos del baúl? Esta acción eliminará los registros de la base de datos.';
+    if (confirm(confirmMsg)) {
       await this.membership.clearAllIdeas();
       this.confirmDeleteId.set(null);
       this.confirmCompleteId.set(null);
@@ -317,20 +322,22 @@ export class Ideas implements OnInit {
   }
 
   getPriorityTooltip(priority?: IdeaPriority): string {
+    const isEn = this.translation.currentLang() === 'en';
     switch (priority) {
-      case 'alta': return 'Prioridad: Urgente';
-      case 'baja': return 'Prioridad: Aplazar';
+      case 'alta': return isEn ? 'Priority: Urgent' : 'Prioridad: Urgente';
+      case 'baja': return isEn ? 'Priority: Postpone' : 'Prioridad: Aplazar';
       case 'media':
-      default: return 'Prioridad: Puede esperar';
+      default: return isEn ? 'Priority: Can wait' : 'Prioridad: Puede esperar';
     }
   }
 
   getPriorityLabel(priority?: IdeaPriority): string {
+    const isEn = this.translation.currentLang() === 'en';
     switch (priority) {
-      case 'alta': return 'Prioridad';
-      case 'baja': return 'Aplazar';
+      case 'alta': return isEn ? 'Priority' : 'Prioridad';
+      case 'baja': return isEn ? 'Postpone' : 'Aplazar';
       case 'media':
-      default: return 'Puede esperar';
+      default: return isEn ? 'Can wait' : 'Puede esperar';
     }
   }
 
@@ -353,10 +360,11 @@ export class Ideas implements OnInit {
   }
 
   formatDate(dateStr?: string): string {
-    if (!dateStr) return 'Capturado recientemente';
+    const isEn = this.translation.currentLang() === 'en';
+    if (!dateStr) return isEn ? 'Captured recently' : 'Capturado recientemente';
     try {
       const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return 'Capturado recientemente';
+      if (isNaN(date.getTime())) return isEn ? 'Captured recently' : 'Capturado recientemente';
 
       const now = new Date();
       const isToday = date.toDateString() === now.toDateString();
@@ -370,18 +378,19 @@ export class Ideas implements OnInit {
       const timeStr = `${hours}:${minutes}`;
 
       if (isToday) {
-        return `Hoy a las ${timeStr}`;
+        return isEn ? `Today at ${timeStr}` : `Hoy a las ${timeStr}`;
       } else if (isYesterday) {
-        return `Ayer a las ${timeStr}`;
+        return isEn ? `Yesterday at ${timeStr}` : `Ayer a las ${timeStr}`;
       } else {
         const day = date.getDate();
-        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        const monthName = months[date.getMonth()];
+        const monthsEs = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthName = isEn ? monthsEn[date.getMonth()] : monthsEs[date.getMonth()];
         const year = date.getFullYear() !== now.getFullYear() ? ` ${date.getFullYear()}` : '';
         return `${day} ${monthName}${year}, ${timeStr}`;
       }
     } catch {
-      return 'Capturado recientemente';
+      return isEn ? 'Captured recently' : 'Capturado recientemente';
     }
   }
 

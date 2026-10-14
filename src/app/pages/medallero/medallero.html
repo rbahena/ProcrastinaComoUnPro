@@ -11,9 +11,9 @@
     <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
       <div>
         <h1 class="page-title" style="margin: 0; display: flex; align-items: center; gap: 12px;">
-          Récords & Medallero
+          {{ 'medals.pageTitle' | translate }}
         </h1>
-        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">Conoce las marcas históricas, el mapa de significadores y la contienda semanal del Dojo.</p>
+        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">{{ 'medals.pageSubtitle' | translate }}</p>
       </div>
 
       <!-- SELECTOR DE VISTAS PRINCIPALES (TABS) -->
@@ -22,22 +22,22 @@
                 [class.active]="viewMode() === 'records_3d'" 
                 (click)="setViewMode('records_3d')">
           <i class="fa-solid fa-trophy"></i>
-          <span>Salón de Récords</span>
+          <span>{{ 'medals.tabRecords' | translate }}</span>
         </button>
 
         <button class="view-switcher-btn" 
                 [class.active]="viewMode() === 'signifier_map'" 
                 (click)="setViewMode('signifier_map')">
           <i class="fa-solid fa-compass-drafting"></i>
-          <span>Mapa de Significadores</span>
-          <span class="guide-glow-pill">Guía</span>
+          <span>{{ 'medals.tabSignifiers' | translate }}</span>
+          <span class="guide-glow-pill">{{ 'medals.guide' | translate }}</span>
         </button>
 
         <button class="view-switcher-btn" 
                 [class.active]="viewMode() === 'weekly_podium'" 
                 (click)="setViewMode('weekly_podium')">
           <i class="fa-solid fa-ranking-star"></i>
-          <span>Podios Semanales</span>
+          <span>{{ 'medals.tabPodiums' | translate }}</span>
         </button>
       </div>
     </div>
@@ -84,7 +84,7 @@
                   <!-- Píldora 1er Lugar -->
                   <div class="card-champion-pill">
                     <i class="fa-solid fa-crown"></i>
-                    <span>1er Lugar</span>
+                    <span>{{ 'medals.firstPlace' | translate }}</span>
                   </div>
 
                   <h4 class="card-holder-name" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
@@ -100,7 +100,7 @@
                   </span>
                   
                   <span class="card-flip-hint">
-                    <i class="fa-solid fa-arrows-rotate"></i> Pasa el cursor para girar
+                    <i class="fa-solid fa-arrows-rotate"></i> {{ 'medals.hoverToFlip' | translate }}
                   </span>
                 </div>
               </div>
@@ -119,7 +119,7 @@
                   <div class="card-back-header">
                     <div style="display: flex; flex-direction: column; gap: 2px; text-align: left;">
                       <div class="card-back-champion-tag">
-                        <i class="fa-solid fa-trophy"></i> 1er Lugar
+                        <i class="fa-solid fa-trophy"></i> {{ 'medals.firstPlace' | translate }}
                       </div>
                       <span class="card-back-title" [style.color]="record.color">
                         {{ record.title }}
@@ -151,26 +151,26 @@
 
                 <div class="card-back-stats">
                   <div class="card-back-stat-row">
-                    <span class="card-back-stat-label">Récord Histórico</span>
+                    <span class="card-back-stat-label">{{ 'medals.historicalRecord' | translate }}</span>
                     <span class="card-back-stat-value record-num" [style.color]="record.color">
                       {{ record.value }}
                     </span>
                   </div>
                   
                   <div class="card-back-stat-row" style="border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
-                    <span class="card-back-stat-label">Establecido por</span>
+                    <span class="card-back-stat-label">{{ 'medals.establishedBy' | translate }}</span>
                     <span class="card-back-stat-value" [style.color]="record.isAssigned ? 'var(--text)' : 'var(--muted)'">{{ record.holder }}</span>
                   </div>
                   
                   <div class="card-back-stat-row">
-                    <span class="card-back-stat-label">Estado</span>
+                    <span class="card-back-stat-label">{{ 'medals.status' | translate }}</span>
                     <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 10.5px;">
-                      {{ record.isAssigned ? record.date : 'En disputa' }}
+                      {{ record.isAssigned ? record.date : ('medals.inDispute' | translate) }}
                     </span>
                   </div>
 
                   <div class="card-back-stat-row" style="border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
-                    <span class="card-back-stat-label">Redes / Contacto</span>
+                    <span class="card-back-stat-label">{{ 'medals.socialsContact' | translate }}</span>
                     <div *ngIf="record.isAssigned && record.socials && record.socials.length > 0; else noSocials" style="display: flex; gap: 8px; align-items: center;">
                       <a *ngFor="let social of record.socials" [href]="social.link" target="_blank" [title]="social.platform" 
                          [style.color]="record.color"
@@ -181,7 +181,7 @@
                       </a>
                     </div>
                     <ng-template #noSocials>
-                      <span style="font-size: 10.5px; color: var(--muted); font-style: italic;">Sin usuario asignado</span>
+                      <span style="font-size: 10.5px; color: var(--muted); font-style: italic;">{{ 'medals.noUserAssigned' | translate }}</span>
                     </ng-template>
                   </div>
                 </div>
@@ -217,7 +217,7 @@
             <i [class]="'fa-solid ' + currentRecordInfo().icon"></i>
             <span>{{ currentRecordInfo().title }}</span>
           </div>
-          <h3 class="runners-up-heading">Siguientes Lugares en Disputa</h3>
+          <h3 class="runners-up-heading">{{ 'medals.runnersUp' | translate }}</h3>
         </div>
 
         <!-- LISTA DE LOS SIGUIENTES 4 LUGARES (2º, 3º, 4º y 5º) -->
@@ -256,28 +256,28 @@
               <div class="runner-name-line">
                 <strong class="runner-user-name" [title]="runner.name">{{ runner.name }}</strong>
                 <span *ngIf="runner.isSelf" class="runner-self-badge">
-                  <i class="fa-solid fa-user-check"></i> TÚ
+                  <i class="fa-solid fa-user-check"></i> {{ 'common.you' | translate }}
                 </span>
                 <span *ngIf="!runner.isAssigned" class="runner-vacant-badge">
-                  <i class="fa-solid fa-lock-open"></i> Vacante
+                  <i class="fa-solid fa-lock-open"></i> {{ 'medals.vacant' | translate }}
                 </span>
               </div>
               <span class="runner-user-tag">
-                {{ runner.tag || runner.title || runner.rankName || runner.label || (runner.isAssigned ? 'Aspirante de Honor' : 'Puesto libre para conquistar') }}
+                {{ runner.tag || runner.title || runner.rankName || runner.label || (runner.isAssigned ? ('medals.aspirantTag' | translate) : ('medals.freeTag' | translate)) }}
               </span>
             </div>
 
             <!-- Condecoración / Puesto -->
             <div class="runner-row-tier">
-              <span class="runner-tier-tag tier-silver" *ngIf="runner.rank === 2">🥈 Plata</span>
-              <span class="runner-tier-tag tier-bronze" *ngIf="runner.rank === 3">🥉 Bronce</span>
-              <span class="runner-tier-tag tier-iron" *ngIf="runner.rank === 4">🎖️ 4º Puesto</span>
-              <span class="runner-tier-tag tier-iron" *ngIf="runner.rank === 5">🎖️ 5º Puesto</span>
+              <span class="runner-tier-tag tier-silver" *ngIf="runner.rank === 2">{{ 'medals.tierSilver' | translate }}</span>
+              <span class="runner-tier-tag tier-bronze" *ngIf="runner.rank === 3">{{ 'medals.tierBronze' | translate }}</span>
+              <span class="runner-tier-tag tier-iron" *ngIf="runner.rank === 4">{{ 'medals.tier4th' | translate }}</span>
+              <span class="runner-tier-tag tier-iron" *ngIf="runner.rank === 5">{{ 'medals.tier5th' | translate }}</span>
             </div>
 
             <!-- Métrica Registrada -->
             <div class="runner-row-metric">
-              <span class="runner-metric-label">Marca</span>
+              <span class="runner-metric-label">{{ 'medals.markLabel' | translate }}</span>
               <span class="runner-metric-val" [style.color]="runner.isAssigned ? currentRecordInfo().color : 'var(--muted)'">
                 {{ runner.formattedValue }}
               </span>
@@ -300,11 +300,11 @@
         <div class="hero-map-left">
           <div class="hero-badge-pill">
             <i class="fa-solid fa-compass"></i>
-            <span>SISTEMA DE CALIFICACIÓN & SIGNIFICADORES</span>
+            <span>{{ 'medals.signifierSystemBadge' | translate }}</span>
           </div>
-          <h2 class="hero-map-title">¿Cómo calificar para Podios, Rachas y Récords?</h2>
+          <h2 class="hero-map-title">{{ 'medals.signifierTitle' | translate }}</h2>
           <p class="hero-map-desc">
-            En COFU, cada logro tiene un significado concreto y un criterio de evaluación algorítmica transparente. Explora las categorías para dominar las reglas del Dojo.
+            {{ 'medals.signifierSubtitle' | translate }}
           </p>
         </div>
 
@@ -322,19 +322,19 @@
           
           <div class="user-card-stats-grid">
             <div class="user-card-stat">
-              <span class="stat-lbl">Racha Activa</span>
-              <span class="stat-val text-fire">🔥 {{ userStreak() }} días</span>
+              <span class="stat-lbl">{{ 'medals.activeStreakStat' | translate }}</span>
+              <span class="stat-val text-fire">🔥 {{ userStreak() }} {{ 'common.days' | translate }}</span>
             </div>
             <div class="user-card-stat">
               <span class="stat-lbl">Tomates 🍅</span>
               <span class="stat-val text-green">{{ membership.focusTomatoes() }}</span>
             </div>
             <div class="user-card-stat">
-              <span class="stat-lbl">Victorias Podio</span>
+              <span class="stat-lbl">{{ 'medals.podiumWinsStat' | translate }}</span>
               <span class="stat-val text-yellow">🏆 {{ userPodiumWins() }}</span>
             </div>
             <div class="user-card-stat">
-              <span class="stat-lbl">Medallas Totales</span>
+              <span class="stat-lbl">{{ 'medals.totalMedalsStat' | translate }}</span>
               <span class="stat-val text-accent">🥇{{ userGoldMedals() }} 🥈{{ userSilverMedals() }} 🥉{{ userBronzeMedals() }}</span>
             </div>
           </div>
@@ -347,42 +347,42 @@
                 [class.active]="activeSignifierCategory() === 'podiums'" 
                 (click)="setSignifierCategory('podiums')">
           <i class="fa-solid fa-trophy"></i>
-          <span>Podios Semanales</span>
+          <span>{{ 'medals.tabCategoryPodiums' | translate }}</span>
         </button>
 
         <button class="signifier-cat-btn" 
                 [class.active]="activeSignifierCategory() === 'streaks'" 
                 (click)="setSignifierCategory('streaks')">
           <i class="fa-solid fa-fire"></i>
-          <span>Rachas de Disciplina</span>
+          <span>{{ 'medals.tabCategoryStreaks' | translate }}</span>
         </button>
 
         <button class="signifier-cat-btn" 
                 [class.active]="activeSignifierCategory() === 'broken_records'" 
                 (click)="setSignifierCategory('broken_records')">
           <i class="fa-solid fa-crown"></i>
-          <span>Récords de la Comunidad</span>
+          <span>{{ 'medals.tabCategoryRecords' | translate }}</span>
         </button>
 
         <button class="signifier-cat-btn" 
                 [class.active]="activeSignifierCategory() === 'ranks'" 
                 (click)="setSignifierCategory('ranks')">
           <i class="fa-solid fa-medal"></i>
-          <span>Rangos & Niveles</span>
+          <span>{{ 'medals.tabCategoryRanks' | translate }}</span>
         </button>
 
         <button class="signifier-cat-btn" 
                 [class.active]="activeSignifierCategory() === 'qualities'" 
                 (click)="setSignifierCategory('qualities')">
           <i class="fa-solid fa-award"></i>
-          <span>Cualidades del Dojo</span>
+          <span>{{ 'medals.tabCategoryQualities' | translate }}</span>
         </button>
 
         <button class="signifier-cat-btn" 
                 [class.active]="activeSignifierCategory() === 'economy'" 
                 (click)="setSignifierCategory('economy')">
           <i class="fa-solid fa-coins"></i>
-          <span>Economía & Anti-Exploits</span>
+          <span>{{ 'medals.tabCategoryEconomy' | translate }}</span>
         </button>
       </div>
 
@@ -396,9 +396,9 @@
             <i class="fa-solid fa-trophy"></i>
           </div>
           <div class="intro-box-text">
-            <h3>¿Qué es un Podio y qué significa ganar uno?</h3>
+            <h3>{{ 'medals.whatIsPodiumTitle' | translate }}</h3>
             <p>
-              El <strong>Podio</strong> es la contienda semanal comunitaria de mayor prestigio en COFU. Evalúa el rendimiento de todos los guerreros del Dojo durante la semana (de <strong>Lunes 00:00 a Domingo 23:59 hrs</strong>) en 4 disciplinas clave.
+              {{ 'medals.whatIsPodiumDesc' | translate }}
             </p>
           </div>
         </div>
@@ -409,36 +409,36 @@
           <div class="signifier-card">
             <div class="card-head">
               <i class="fa-solid fa-list-check text-cyan"></i>
-              <h4>Disciplinas que Califican al Podio</h4>
+              <h4>{{ 'medals.disciplinesTitle' | translate }}</h4>
             </div>
             <div class="card-body">
               <ul class="criteria-list">
                 <li>
                   <span class="criteria-bullet">🍅</span>
                   <div>
-                    <strong>Pomodoros Completados:</strong>
-                    <p>Total de bloques de 25+ minutos finalizados con éxito durante la semana en curso.</p>
+                    <strong>{{ 'medals.discPomodorosTitle' | translate }}</strong>
+                    <p>{{ 'medals.discPomodorosDesc' | translate }}</p>
                   </div>
                 </li>
                 <li>
                   <span class="criteria-bullet">🎯</span>
                   <div>
-                    <strong>Objetivos Alcanzados:</strong>
-                    <p>Misiones y tareas concluidas marcando "Objetivo Cumplido" al terminar las sesiones.</p>
+                    <strong>{{ 'medals.discObjectivesTitle' | translate }}</strong>
+                    <p>{{ 'medals.discObjectivesDesc' | translate }}</p>
                   </div>
                 </li>
                 <li>
                   <span class="criteria-bullet">🔥</span>
                   <div>
-                    <strong>Racha de Disciplina:</strong>
-                    <p>Días consecutivos activos sostenidos sin interrupciones en tus jornadas pactadas.</p>
+                    <strong>{{ 'medals.discStreaksTitle' | translate }}</strong>
+                    <p>{{ 'medals.discStreaksDesc' | translate }}</p>
                   </div>
                 </li>
                 <li>
                   <span class="criteria-bullet">⚔️</span>
                   <div>
-                    <strong>Daño a Jefes de Raid:</strong>
-                    <p>Total de puntos de daño asestados en el modo de Coworking Comunitario.</p>
+                    <strong>{{ 'medals.discDamageTitle' | translate }}</strong>
+                    <p>{{ 'medals.discDamageDesc' | translate }}</p>
                   </div>
                 </li>
               </ul>
@@ -449,16 +449,16 @@
           <div class="signifier-card">
             <div class="card-head">
               <i class="fa-solid fa-gift text-yellow"></i>
-              <h4>Premios y Condecoraciones por Puesto</h4>
+              <h4>{{ 'medals.rewardsTitle' | translate }}</h4>
             </div>
             <div class="card-body">
               <div class="rewards-table-wrapper">
                 <table class="rewards-table">
                   <thead>
                     <tr>
-                      <th>Puesto</th>
-                      <th>Premio Monedas</th>
-                      <th>Condecoración</th>
+                      <th>{{ 'medals.tableRankCol' | translate }}</th>
+                      <th>{{ 'medals.tableRewardCol' | translate }}</th>
+                      <th>{{ 'medals.tableHonorsCol' | translate }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -480,18 +480,18 @@
                     <tr>
                       <td><span class="podium-rank-pill">🎖️ Top 4 - 10</span></td>
                       <td><strong>+50 Pro Coins 🪙</strong></td>
-                      <td>Mención de Honor Semanal</td>
+                      <td>{{ 'medals.honorMention' | translate }}</td>
                     </tr>
                     <tr>
                       <td><span class="podium-rank-pill">👥 Participantes</span></td>
                       <td><strong>+20 Pro Coins 🪙</strong></td>
-                      <td>Recompensa de Constancia</td>
+                      <td>{{ 'medals.constancyReward' | translate }}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
               <p class="table-footnote">
-                * Las medallas de Oro, Plata y Bronce y las victorias de podio se acreditan permanentemente a tu perfil y te acercan al récord de <em>Podios Conquistados</em>.
+                {{ 'medals.podiumFootnote' | translate }}
               </p>
             </div>
           </div>
@@ -502,7 +502,7 @@
         <div class="signifier-action-dock">
           <button class="btn-goto-action" (click)="setViewMode('weekly_podium')">
             <i class="fa-solid fa-ranking-star"></i>
-            <span>Ver Clasificación Semanal en Vivo</span>
+            <span>{{ 'medals.viewWeeklyLiveBtn' | translate }}</span>
             <i class="fa-solid fa-arrow-right"></i>
           </button>
         </div>
@@ -519,9 +519,9 @@
             <i class="fa-solid fa-fire"></i>
           </div>
           <div class="intro-box-text">
-            <h3>¿Qué califica para sostener una Racha y cómo opera el blindaje?</h3>
+            <h3>{{ 'medals.streaksHowQualifiesTitle' | translate }}</h3>
             <p>
-              La <strong>Racha</strong> es la medida de tu constancia diaria contra la resistencia psicológica. A diferencia de apps rígidas, COFU incluye un sistema de <strong>Semana Activa Protegida</strong> que respeta tus días de descanso.
+              {{ 'medals.streaksHowQualifiesDesc' | translate }}
             </p>
           </div>
         </div>
@@ -532,30 +532,30 @@
           <div class="signifier-card">
             <div class="card-head">
               <i class="fa-solid fa-circle-check text-green"></i>
-              <h4>¿Qué Califica para Sumar Racha?</h4>
+              <h4>{{ 'medals.streaksCriteriaTitle' | translate }}</h4>
             </div>
             <div class="card-body">
               <div class="criteria-step-box">
                 <div class="step-num">1</div>
                 <div>
-                  <strong>Al menos 1 Pomodoro Completo (25+ min):</strong>
-                  <p>Debes finalizar con éxito como mínimo 1 bloque de concentración de 25 minutos durante tu jornada.</p>
+                  <strong>{{ 'medals.streakRule1Title' | translate }}</strong>
+                  <p>{{ 'medals.streakRule1Desc' | translate }}</p>
                 </div>
               </div>
 
               <div class="criteria-step-box">
                 <div class="step-num">2</div>
                 <div>
-                  <strong>Jornada Activa Pactada:</strong>
-                  <p>El día debe coincidir con tus días activos configurados en tu perfil (ej. Lunes a Viernes).</p>
+                  <strong>{{ 'medals.streakRule2Title' | translate }}</strong>
+                  <p>{{ 'medals.streakRule2Desc' | translate }}</p>
                 </div>
               </div>
 
               <div class="criteria-step-box">
                 <div class="step-num">3</div>
                 <div>
-                  <strong>Periodo de Gracia (120 Segundos):</strong>
-                  <p>Cancelar o interrumpir una sesión en los primeros 2 minutos no penaliza ni rompe tu racha.</p>
+                  <strong>{{ 'medals.streakRule3Title' | translate }}</strong>
+                  <p>{{ 'medals.streakRule3Desc' | translate }}</p>
                 </div>
               </div>
             </div>
@@ -565,30 +565,30 @@
           <div class="signifier-card">
             <div class="card-head">
               <i class="fa-solid fa-shield-halved text-cyan"></i>
-              <h4>Blindaje de Días de Descanso</h4>
+              <h4>{{ 'medals.restShieldTitle' | translate }}</h4>
             </div>
             <div class="card-body">
               <div class="shield-feature-banner">
                 <i class="fa-solid fa-umbrella text-cyan"></i>
                 <div>
-                  <strong>Tu Racha Nunca se Pierde en Días Libres</strong>
-                  <p>En los días que tengas desactivados en tu configuración (ej. Sábados y Domingos), la racha queda en estado <em>Congelada y Blindada</em>. No es obligatorio entrar a la app y tu contador se mantiene intacto.</p>
+                  <strong>{{ 'medals.restShieldNeverLost' | translate }}</strong>
+                  <p>{{ 'medals.restShieldDesc' | translate }}</p>
                 </div>
               </div>
 
               <div class="break-condition-banner">
                 <i class="fa-solid fa-triangle-exclamation text-red"></i>
                 <div>
-                  <strong>¿Cuándo se Reinicia la Racha?</strong>
-                  <p>Si transcurre un día marcado como <strong>activo</strong> y llega la medianoche (23:59 hrs) sin registrar ningún pomodoro, la racha se reinicia a 1 en tu siguiente sesión exitosa.</p>
+                  <strong>{{ 'medals.whenStreakResets' | translate }}</strong>
+                  <p>{{ 'medals.whenStreakResetsDesc' | translate }}</p>
                 </div>
               </div>
 
               <div class="passive-synergy-banner">
                 <i class="fa-solid fa-wand-magic-sparkles text-yellow"></i>
                 <div>
-                  <strong>Sinergia con Genbu (Tortuga):</strong>
-                  <p>Otorga <strong>+5% de daño extra al Boss</strong> por cada día de racha activo (hasta un máximo de +50% de daño permanente).</p>
+                  <strong>{{ 'medals.genbuSynergyTitle' | translate }}</strong>
+                  <p>{{ 'medals.genbuSynergyDesc' | translate }}</p>
                 </div>
               </div>
             </div>
@@ -608,9 +608,9 @@
             <i class="fa-solid fa-crown"></i>
           </div>
           <div class="intro-box-text">
-            <h3>¿Qué son los Broken Records y cómo se rompe una marca histórica?</h3>
+            <h3>{{ 'medals.whatAreBrokenRecordsTitle' | translate }}</h3>
             <p>
-              El <strong>Salón de la Fama</strong> conmemora las 4 marcas más altas alcanzadas por cualquier usuario en la historia de COFU. Romper un récord inmortaliza tu nombre y tu avatar ante toda la comunidad.
+              {{ 'medals.whatAreBrokenRecordsDesc' | translate }}
             </p>
           </div>
         </div>
@@ -621,48 +621,48 @@
           <div class="record-meaning-card r-streak">
             <div class="rm-head">
               <i class="fa-solid fa-fire text-fire"></i>
-              <h4>Mejor Racha</h4>
+              <h4>{{ 'medals.recBestStreakTitle' | translate }}</h4>
             </div>
-            <p class="rm-desc">Racha continua más larga de días de enfoque completados sin interrupciones.</p>
+            <p class="rm-desc">{{ 'medals.recBestStreakDesc' | translate }}</p>
             <div class="rm-rule">
-              <span>¿Cómo romperlo?</span>
-              <strong>Superar los días del poseedor actual</strong>
+              <span>{{ 'medals.howToBreakIt' | translate }}</span>
+              <strong>{{ 'medals.ruleSurpassDays' | translate }}</strong>
             </div>
           </div>
 
           <div class="record-meaning-card r-tomatoes">
             <div class="rm-head">
               <i class="fa-solid fa-apple-whole text-green"></i>
-              <h4>Sesiones de Concentración</h4>
+              <h4>{{ 'medals.recPomodorosTitle' | translate }}</h4>
             </div>
-            <p class="rm-desc">Total acumulado histórico de pomodoros de 25+ minutos completados desde el registro.</p>
+            <p class="rm-desc">{{ 'medals.recPomodorosDesc' | translate }}</p>
             <div class="rm-rule">
-              <span>¿Cómo romperlo?</span>
-              <strong>Superar el volumen total de sesiones</strong>
+              <span>{{ 'medals.howToBreakIt' | translate }}</span>
+              <strong>{{ 'medals.ruleSurpassPomodoros' | translate }}</strong>
             </div>
           </div>
 
           <div class="record-meaning-card r-coins">
             <div class="rm-head">
               <i class="fa-solid fa-coins text-yellow"></i>
-              <h4>El Magnate de Focus</h4>
+              <h4>{{ 'medals.recCoinsTitle' | translate }}</h4>
             </div>
-            <p class="rm-desc">Total acumulado histórico de Pro Coins generadas trabajando con disciplina.</p>
+            <p class="rm-desc">{{ 'medals.recCoinsDesc' | translate }}</p>
             <div class="rm-rule">
-              <span>¿Cómo romperlo?</span>
-              <strong>Acumular mayor saldo total de monedas</strong>
+              <span>{{ 'medals.howToBreakIt' | translate }}</span>
+              <strong>{{ 'medals.ruleSurpassCoins' | translate }}</strong>
             </div>
           </div>
 
           <div class="record-meaning-card r-boss">
             <div class="rm-head">
               <i class="fa-solid fa-skull-crossbones text-red"></i>
-              <h4>MVP del Jefe en Turno</h4>
+              <h4>{{ 'medals.recBossMvpTitle' | translate }}</h4>
             </div>
-            <p class="rm-desc">Mayor cantidad de daño total asestado al Jefe de la Comunidad activo mediante sesiones de enfoque.</p>
+            <p class="rm-desc">{{ 'medals.recBossMvpDesc' | translate }}</p>
             <div class="rm-rule">
-              <span>¿Cómo romperlo?</span>
-              <strong>Superar el daño del máximo atacante</strong>
+              <span>{{ 'medals.howToBreakIt' | translate }}</span>
+              <strong>{{ 'medals.ruleSurpassDamage' | translate }}</strong>
             </div>
           </div>
 
@@ -672,24 +672,24 @@
         <div class="signifier-card" style="margin-top: 18px;">
           <div class="card-head">
             <i class="fa-solid fa-star text-yellow"></i>
-            <h4>Privilegios y Condecoraciones del Poseedor de Récord</h4>
+            <h4>{{ 'medals.holderPerksTitle' | translate }}</h4>
           </div>
           <div class="card-body">
             <div class="holder-perks-grid">
               <div class="holder-perk-item">
                 <i class="fa-solid fa-image-portrait text-accent"></i>
-                <strong>Avatar 3D a Escala Completa:</strong>
-                <p>Tu guardián cobra vida en la tarjeta 3D holográfica visible para toda la comunidad.</p>
+                <strong>{{ 'medals.perk3dAvatarTitle' | translate }}</strong>
+                <p>{{ 'medals.perk3dAvatarDesc' | translate }}</p>
               </div>
               <div class="holder-perk-item">
                 <i class="fa-solid fa-flag text-cyan"></i>
-                <strong>Bandera Nacional & Nombre Oficial:</strong>
-                <p>Tu bandera de país y tu nombre de guerrero quedan grabados con placa dorada.</p>
+                <strong>{{ 'medals.perkFlagTitle' | translate }}</strong>
+                <p>{{ 'medals.perkFlagDesc' | translate }}</p>
               </div>
               <div class="holder-perk-item">
                 <i class="fa-solid fa-share-nodes text-green"></i>
-                <strong>Redes Sociales Públicas:</strong>
-                <p>Tus perfiles de GitHub, LinkedIn, Twitter/X o Twitch quedan vinculados directamente.</p>
+                <strong>{{ 'medals.perkSocialsTitle' | translate }}</strong>
+                <p>{{ 'medals.perkSocialsDesc' | translate }}</p>
               </div>
             </div>
           </div>
@@ -707,9 +707,9 @@
             <i class="fa-solid fa-medal"></i>
           </div>
           <div class="intro-box-text">
-            <h3>¿Cómo se calculan los Niveles y qué representa cada Rango?</h3>
+            <h3>{{ 'medals.ranksFormulaTitle' | translate }}</h3>
             <p>
-              Tu nivel militar en el Dojo se basa estrictamente en el tiempo de vida enfocado. La fórmula oficial es <strong>Nivel = ⌊Tomates / 4⌋ + 1</strong>, donde cada tomate equivale a 25 minutos de concentración profunda.
+              {{ 'medals.ranksFormulaDesc' | translate }}
             </p>
           </div>
         </div>
@@ -719,9 +719,9 @@
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 1 && userLevel() <= 4">
             <div class="rank-icon-badge seed"><i class="fa-solid fa-seedling"></i></div>
             <div class="rank-info-col">
-              <h4>Recluta de Enfoque</h4>
+              <h4>{{ 'medals.rankSeedTitle' | translate }}</h4>
               <span class="rank-lvl-range">Nivel 1 a 4 (0 a 15 Tomates)</span>
-              <p>Primeros pasos para vencer la resistencia inicial y crear el hábito de enfoque.</p>
+              <p>{{ 'medals.rankSeedDesc' | translate }}</p>
             </div>
             <span class="rank-hours-tag">0 - 6.3 horas</span>
           </div>
@@ -729,9 +729,9 @@
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 5 && userLevel() <= 9">
             <div class="rank-icon-badge guard"><i class="fa-solid fa-feather"></i></div>
             <div class="rank-info-col">
-              <h4>Centinela</h4>
+              <h4>{{ 'medals.rankGuardTitle' | translate }}</h4>
               <span class="rank-lvl-range">Nivel 5 a 9 (16 a 35 Tomates)</span>
-              <p>Capacidad de sostener bloques de trabajo regulares sin sucumbir a impulsos rápidos.</p>
+              <p>{{ 'medals.rankGuardDesc' | translate }}</p>
             </div>
             <span class="rank-hours-tag">6.7 - 14.7 horas</span>
           </div>
@@ -739,9 +739,9 @@
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 10 && userLevel() <= 14">
             <div class="rank-icon-badge warrior"><i class="fa-solid fa-shield-halved"></i></div>
             <div class="rank-info-col">
-              <h4>Guerrero Veterano</h4>
+              <h4>{{ 'medals.rankWarriorTitle' | translate }}</h4>
               <span class="rank-lvl-range">Nivel 10 a 14 (36 a 55 Tomates)</span>
-              <p>Dominio de metodologías tácticas (Sapo, Pareto) y resistencia a la fatiga mental.</p>
+              <p>{{ 'medals.rankWarriorDesc' | translate }}</p>
             </div>
             <span class="rank-hours-tag">15.1 - 23.1 horas</span>
           </div>
@@ -749,9 +749,9 @@
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 15 && userLevel() <= 19">
             <div class="rank-icon-badge elite"><i class="fa-solid fa-bolt"></i></div>
             <div class="rank-info-col">
-              <h4>Estratega Élite</h4>
+              <h4>{{ 'medals.rankEliteTitle' | translate }}</h4>
               <span class="rank-lvl-range">Nivel 15 a 19 (56 a 75 Tomates)</span>
-              <p>Alto rendimiento consistente. Hábitos de deep work consolidados en la rutina diaria.</p>
+              <p>{{ 'medals.rankEliteDesc' | translate }}</p>
             </div>
             <span class="rank-hours-tag">23.5 - 31.5 horas</span>
           </div>
@@ -759,9 +759,9 @@
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 20 && userLevel() <= 29">
             <div class="rank-icon-badge master"><i class="fa-solid fa-dragon"></i></div>
             <div class="rank-info-col">
-              <h4>Gran Maestro</h4>
+              <h4>{{ 'medals.rankMasterTitle' | translate }}</h4>
               <span class="rank-lvl-range">Nivel 20 a 29 (76 a 115 Tomates)</span>
-              <p>Maestría mental. Productividad fluida y liderazgo en combates comunitarios.</p>
+              <p>{{ 'medals.rankMasterDesc' | translate }}</p>
             </div>
             <span class="rank-hours-tag">31.9 - 48.3 horas</span>
           </div>
@@ -769,9 +769,9 @@
           <div class="rank-tier-card" [class.is-current-rank]="userLevel() >= 30">
             <div class="rank-icon-badge supreme"><i class="fa-solid fa-crown"></i></div>
             <div class="rank-info-col">
-              <h4>Comandante Supremo</h4>
+              <h4>{{ 'medals.rankSupremeTitle' | translate }}</h4>
               <span class="rank-lvl-range">Nivel 30+ (116+ Tomates)</span>
-              <p>El pináculo del enfoque. La procrastinación ha sido completamente derrotada.</p>
+              <p>{{ 'medals.rankSupremeDesc' | translate }}</p>
             </div>
             <span class="rank-hours-tag">48.7+ horas</span>
           </div>
@@ -790,9 +790,9 @@
             <i class="fa-solid fa-award"></i>
           </div>
           <div class="intro-box-text">
-            <h3>¿Cómo calificar para desbloquear las 7 Cualidades de Honor?</h3>
+            <h3>{{ 'medals.qualitiesHowToTitle' | translate }}</h3>
             <p>
-              Las <strong>Cualidades del Dojo</strong> son avatares de categoría Rara que <strong>no se compran con dinero ni monedas</strong>: se conquistan cumpliendo retos reales de productividad.
+              {{ 'medals.qualitiesHowToDesc' | translate }}
             </p>
           </div>
         </div>
@@ -808,12 +808,12 @@
               </div>
               <span class="q-status-tag" [class.unlocked]="q.isUnlocked">
                 <i [class]="q.isUnlocked ? 'fa-solid fa-circle-check text-green' : 'fa-solid fa-lock'"></i>
-                {{ q.isUnlocked ? 'Desbloqueada' : 'Bloqueada' }}
+                {{ q.isUnlocked ? ('common.unlocked' | translate) : ('common.locked' | translate) }}
               </span>
             </div>
 
             <div class="q-req-box">
-              <span class="req-label">Requisito de Calificación:</span>
+              <span class="req-label">{{ 'medals.qualQualificationReq' | translate }}</span>
               <span class="req-desc">{{ q.unlockRequirement }}</span>
             </div>
 
@@ -821,7 +821,7 @@
               <div class="q-progress-bar">
                 <div class="q-progress-fill" [style.width.%]="q.isUnlocked ? 100 : ((q.unlockProgress / q.unlockTotal) * 100)"></div>
               </div>
-              <span class="q-progress-txt">{{ q.isUnlocked ? 'Completado' : (q.unlockProgress + ' / ' + q.unlockTotal) }}</span>
+              <span class="q-progress-txt">{{ q.isUnlocked ? ('common.completed' | translate) : (q.unlockProgress + ' / ' + q.unlockTotal) }}</span>
             </div>
           </div>
 
@@ -839,9 +839,9 @@
             <i class="fa-solid fa-shield-check"></i>
           </div>
           <div class="intro-box-text">
-            <h3>Economía de Pro Coins & Blindaje Anti-Exploits</h3>
+            <h3>{{ 'medals.economyTitle' | translate }}</h3>
             <p>
-              El motor algorítmico de COFU protege la integridad del juego recompensando el esfuerzo real y neutralizando cualquier intento de granja automática o manipulación de tiempo.
+              {{ 'medals.economyDesc' | translate }}
             </p>
           </div>
         </div>
@@ -852,36 +852,36 @@
           <div class="signifier-card">
             <div class="card-head">
               <i class="fa-solid fa-arrow-trend-up text-green"></i>
-              <h4>¿Qué Califica para Ganar Pro Coins?</h4>
+              <h4>{{ 'medals.whatQualifiesForCoinsTitle' | translate }}</h4>
             </div>
             <div class="card-body">
               <ul class="criteria-list">
                 <li>
                   <span class="criteria-bullet">⚡</span>
                   <div>
-                    <strong>Micro-bloques (5 y 10 min):</strong>
-                    <p>5 min = 1 Coin fija | 10 min = 2 Coins fijas (ideales para romper parálisis mental).</p>
+                    <strong>{{ 'medals.coinSrcMicroTitle' | translate }}</strong>
+                    <p>{{ 'medals.coinSrcMicroDesc' | translate }}</p>
                   </div>
                 </li>
                 <li>
                   <span class="criteria-bullet">🍅</span>
                   <div>
-                    <strong>Pomodoro Completo (25 min):</strong>
-                    <p>100% de las monedas del avatar equipado (+10 a +60 Coins según rareza).</p>
+                    <strong>{{ 'medals.coinSrcPomodoroTitle' | translate }}</strong>
+                    <p>{{ 'medals.coinSrcPomodoroDesc' | translate }}</p>
                   </div>
                 </li>
                 <li>
                   <span class="criteria-bullet">🦁</span>
                   <div>
-                    <strong>Bono de Coraje (Baja Motivación):</strong>
-                    <p>Vencer la desgana y completar el bloque otorga <strong>+35 Coins extra</strong> (+70 con Renard).</p>
+                    <strong>{{ 'medals.coinSrcCourageTitle' | translate }}</strong>
+                    <p>{{ 'medals.coinSrcCourageDesc' | translate }}</p>
                   </div>
                 </li>
                 <li>
                   <span class="criteria-bullet">🎯</span>
                   <div>
-                    <strong>Objetivo Cumplido al Cierre:</strong>
-                    <p>Finalizar y validar tu misión suma <strong>+15 Pro Coins</strong> (+30 XP Plan Pro).</p>
+                    <strong>{{ 'medals.coinSrcObjectiveTitle' | translate }}</strong>
+                    <p>{{ 'medals.coinSrcObjectiveDesc' | translate }}</p>
                   </div>
                 </li>
               </ul>
@@ -892,30 +892,30 @@
           <div class="signifier-card">
             <div class="card-head">
               <i class="fa-solid fa-lock text-cyan"></i>
-              <h4>Reglas de Seguridad Algorítmica</h4>
+              <h4>{{ 'medals.securityRulesTitle' | translate }}</h4>
             </div>
             <div class="card-body">
               <div class="security-rule-box">
                 <i class="fa-solid fa-snowflake text-cyan"></i>
                 <div>
-                  <strong>Snapshot Inmutable:</strong>
-                  <p>Al iniciar el reloj, el avatar y la metodología quedan congelados. Cambiar de pestaña o guardián no altera la liquidación.</p>
+                  <strong>{{ 'medals.ruleSnapshotTitle' | translate }}</strong>
+                  <p>{{ 'medals.ruleSnapshotDesc' | translate }}</p>
                 </div>
               </div>
 
               <div class="security-rule-box">
                 <i class="fa-solid fa-scale-balanced text-green"></i>
                 <div>
-                  <strong>Piso de Billetera (Floor 0):</strong>
-                  <p><code>pro_coins = GREATEST(0, saldo - multa)</code>. Tu balance jamás puede caer en números negativos.</p>
+                  <strong>{{ 'medals.ruleFloorTitle' | translate }}</strong>
+                  <p>{{ 'medals.ruleFloorDesc' | translate }}</p>
                 </div>
               </div>
 
               <div class="security-rule-box">
                 <i class="fa-solid fa-fingerprint text-yellow"></i>
                 <div>
-                  <strong>Idempotencia con Nonce UUID:</strong>
-                  <p>Cada sesión genera un identificador criptográfico único. Reintentos o clicks dobles no duplican recompensas.</p>
+                  <strong>{{ 'medals.ruleNonceTitle' | translate }}</strong>
+                  <p>{{ 'medals.ruleNonceDesc' | translate }}</p>
                 </div>
               </div>
             </div>
@@ -936,11 +936,11 @@
       <div class="podium-tabs-bar">
         <button class="podium-tab-btn" [class.active]="activeTab() === 'objectives'" (click)="activeTab.set('objectives')">
           <i class="fa-solid fa-bullseye"></i>
-          <span>Objetivos Alcanzados</span>
+          <span>{{ 'medals.filterObjectives' | translate }}</span>
         </button>
         <button class="podium-tab-btn" [class.active]="activeTab() === 'pomodoros'" (click)="activeTab.set('pomodoros')">
           <i class="fa-solid fa-apple-whole"></i>
-          <span>Pomodoros Completados</span>
+          <span>{{ 'medals.filterPomodoros' | translate }}</span>
         </button>
         <button class="podium-tab-btn" [class.active]="activeTab() === 'streaks'" (click)="activeTab.set('streaks')">
           <i class="fa-solid fa-fire"></i>
@@ -948,7 +948,7 @@
         </button>
         <button class="podium-tab-btn" [class.active]="activeTab() === 'boss'" (click)="activeTab.set('boss')">
           <i class="fa-solid fa-hand-fist"></i>
-          <span>Aporte al Jefe de Raid</span>
+          <span>{{ 'medals.bossContribution' | translate }}</span>
         </button>
       </div>
 
@@ -1019,9 +1019,9 @@
           <thead>
             <tr style="background: rgba(255,255,255,0.03); color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
               <th style="padding: 12px 18px; width: 60px;">#</th>
-              <th style="padding: 12px 18px;">Guerrero</th>
-              <th style="padding: 12px 18px;">Rango / Título</th>
-              <th style="padding: 12px 18px; text-align: right;">Puntaje Semanal</th>
+              <th style="padding: 12px 18px;">{{ 'medals.player' | translate }}</th>
+              <th style="padding: 12px 18px;">{{ 'medals.rankTitle' | translate }}</th>
+              <th style="padding: 12px 18px; text-align: right;">{{ 'medals.weeklyScore' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -1034,10 +1034,10 @@
                 <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
                   <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
                   <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
-                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">TÚ</span>
+                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{ 'common.you' | translate }}</span>
                 </td>
                 <td style="padding: 12px 18px; color: var(--muted);">{{ p.rankName }}</td>
-                <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--yellow);">{{ p.objectives }} misiones</td>
+                <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--yellow);">{{ p.objectives }} {{ 'medals.missions' | translate }}</td>
               </tr>
             </ng-container>
 
@@ -1049,7 +1049,7 @@
                 <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
                   <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
                   <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
-                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">TÚ</span>
+                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{ 'common.you' | translate }}</span>
                 </td>
                 <td style="padding: 12px 18px; color: var(--muted);">{{ p.title }}</td>
                 <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--green);">{{ p.pomodoros }} pomodoros</td>
@@ -1064,10 +1064,10 @@
                 <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
                   <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
                   <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
-                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">TÚ</span>
+                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{ 'common.you' | translate }}</span>
                 </td>
                 <td style="padding: 12px 18px; color: var(--muted);">{{ p.tag }}</td>
-                <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--fire, #ff6b00);">{{ p.streakCount }} días</td>
+                <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--fire, #ff6b00);">{{ p.streakCount }} {{ 'common.days' | translate }}</td>
               </tr>
             </ng-container>
 
@@ -1079,7 +1079,7 @@
                 <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
                   <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
                   <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
-                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">TÚ</span>
+                  <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{ 'common.you' | translate }}</span>
                 </td>
                 <td style="padding: 12px 18px; color: var(--muted);">{{ p.label }}</td>
                 <td style="padding: 12px 18px; text-align: right; font-weight: 800; color: var(--accent);">{{ p.damage }} HP</td>

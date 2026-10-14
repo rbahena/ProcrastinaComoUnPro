@@ -3,10 +3,11 @@ import { Router, RouterLink } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { LegalService } from '../../services/legal.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-registro',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './registro.html',
   styleUrl: './registro.css',
 })
@@ -19,7 +20,8 @@ export class Registro {
     private router: Router, 
     private membership: MembershipService,
     public legalService: LegalService,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private translation: TranslationService
   ) {}
 
   togglePasswordVisibility() {
@@ -40,7 +42,7 @@ export class Registro {
       localStorage.setItem('procrastina-just-registered', 'true');
       this.router.navigate(['/cualidades']);
     } else {
-      this.registroError.set(result.error || 'Ocurrió un error en el registro.');
+      this.registroError.set(result.error || this.translation.t('auth.registrationError'));
     }
   }
 }

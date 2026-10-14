@@ -4,11 +4,12 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-membresia',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslatePipe],
   templateUrl: './membresia.html',
   styleUrls: ['./membresia.css']
 })

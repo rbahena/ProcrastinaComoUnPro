@@ -107,32 +107,32 @@
     </div>
     
     <div class="notice-header">
-      <span class="notice-tag">💻 Experiencia Óptima</span>
-      <h3>¡COFU se disfruta más en Escritorio!</h3>
+      <span class="notice-tag">{{ 'app.mobileOptimalNotice' | translate }}</span>
+      <h3>{{ 'app.mobileTitle' | translate }}</h3>
     </div>
 
     <p class="notice-desc">
-      Esta plataforma está diseñada con paneles de concentración profunda, reloj zen panorámico, sonidos ambientales y salas de raid pensadas para disfrutarse al 100% en <strong>computadora o laptop</strong>.
+      {{ 'app.mobileDesc' | translate }}
     </p>
 
     <div class="notice-features">
       <div class="feature-item">
         <i class="fa-solid fa-expand"></i>
-        <span>Arena Pomodoro y fondos dinámicos</span>
+        <span>{{ 'app.mobileFeature1' | translate }}</span>
       </div>
       <div class="feature-item">
         <i class="fa-solid fa-keyboard"></i>
-        <span>Atajos rápidos de teclado (Alt + I)</span>
+        <span>{{ 'app.mobileFeature2' | translate }}</span>
       </div>
       <div class="feature-item">
         <i class="fa-solid fa-shield-halved"></i>
-        <span>Coworking y batalla contra Jefes en vivo</span>
+        <span>{{ 'app.mobileFeature3' | translate }}</span>
       </div>
     </div>
 
     <div class="notice-actions">
       <button type="button" class="btn-continue-mobile" (click)="dismissMobileNotice()">
-        <span>Continuar de todos modos</span>
+        <span>{{ 'app.mobileContinueAnyway' | translate }}</span>
         <i class="fa-solid fa-arrow-right"></i>
       </button>
     </div>

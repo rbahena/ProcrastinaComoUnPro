@@ -24,16 +24,16 @@
         <i class="fa-solid fa-gamepad"></i>
       </div>
       <div>
-        <h4 class="header-title">Salón Arcade de Descanso</h4>
-        <span class="header-subtitle">9 Minijuegos desbloqueados para despejar la mente</span>
+        <h4 class="header-title">{{ 'minigames.arcadeLounge' | translate }}</h4>
+        <span class="header-subtitle">{{ 'minigames.arcadeLoungeSub' | translate }}</span>
       </div>
     </div>
 
     <!-- MODO 2: CABECERA DENTRO DE UN JUEGO ACTIVO -->
     <div *ngIf="activeGame() !== 'lobby'" class="in-game-header-group">
-      <button type="button" class="btn-back-lobby" (click)="goToLobby()" title="Volver al catálogo de minijuegos">
+      <button type="button" class="btn-back-lobby" (click)="goToLobby()" [title]="'minigames.catalogBtn' | translate">
         <i class="fa-solid fa-arrow-left"></i>
-        <span>Catálogo</span>
+        <span>{{ 'minigames.catalogBtn' | translate }}</span>
       </button>
 
       <!-- Selector Rápido de Juegos con Scroll Horizontal -->
@@ -55,14 +55,14 @@
       <button type="button" 
               class="icon-action-btn"
               (click)="toggleSound()"
-              [title]="isMuted() ? 'Activar Sonidos' : 'Silenciar Sonidos'">
+              [title]="isMuted() ? ('minigames.unmuteSound' | translate) : ('minigames.muteSound' | translate)">
         <i class="fa-solid" [class.fa-volume-high]="!isMuted()" [class.fa-volume-xmark]="isMuted()"></i>
       </button>
 
       <button type="button" 
               class="icon-action-btn close-btn"
               (click)="close.emit()"
-              title="Cerrar ventana y volver al temporizador">
+              [title]="'minigames.closeMiniGame' | translate">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
@@ -74,21 +74,21 @@
             class="filter-pill" 
             [class.active]="activeFilter() === 'all'"
             (click)="setFilter('all')">
-      <span>Todos (9)</span>
+      <span>{{ 'minigames.filterAll' | translate }}</span>
     </button>
     <button type="button" 
             class="filter-pill unlocked-pill" 
             [class.active]="activeFilter() === 'arcade'"
             (click)="setFilter('arcade')">
       <i class="fa-solid fa-bolt"></i>
-      <span>Arcade y Reflejos (6)</span>
+      <span>{{ 'minigames.filterArcade' | translate }}</span>
     </button>
     <button type="button" 
             class="filter-pill premium-pill" 
             [class.active]="activeFilter() === 'puzzle'"
             (click)="setFilter('puzzle')">
       <i class="fa-solid fa-brain"></i>
-      <span>Lógica y Puzzles (3)</span>
+      <span>{{ 'minigames.filterPuzzle' | translate }}</span>
     </button>
   </div>
 
@@ -266,7 +266,7 @@
     <div class="gato-top-bar centered">
       <div class="gato-scoreboard">
         <div class="score-card player-x">
-          <span class="score-label"><i class="fa-solid fa-user"></i> Tú (X)</span>
+          <span class="score-label"><i class="fa-solid fa-user"></i> {{ 'minigames.youPlayer' | translate }}</span>
           <span class="score-digit">{{ gatoScore().player }}</span>
         </div>
         <div class="score-card ties">
@@ -292,15 +292,15 @@
       </ng-container>
 
       <span *ngIf="gatoStatus() === 'won_player'" class="turn-text result win-x">
-        <i class="fa-solid fa-trophy"></i> ¡Ganaste la ronda! ❌
+        <i class="fa-solid fa-trophy"></i> {{ 'minigames.youWinRound' | translate }}
       </span>
 
       <span *ngIf="gatoStatus() === 'won_bot'" class="turn-text result win-o">
-        <i class="fa-solid fa-robot"></i> ¡El Bot Experto ha ganado! ⭕
+        <i class="fa-solid fa-robot"></i> {{ 'minigames.botWinsRound' | translate }}
       </span>
 
       <span *ngIf="gatoStatus() === 'draw'" class="turn-text result draw">
-        <i class="fa-solid fa-handshake"></i> ¡Partida en Tablas (Empate)!
+        <i class="fa-solid fa-handshake"></i> {{ 'minigames.drawRound' | translate }}
       </span>
     </div>
 
@@ -362,7 +362,7 @@
       </div>
 
       <div class="hud-stat">
-        <span class="hud-label">Récord:</span>
+        <span class="hud-label">{{ 'minigames.recordLabel' | translate }}</span>
         <span class="hud-value record">
           <i class="fa-solid fa-medal"></i> {{ bestSurvival() }}s
         </span>
@@ -389,7 +389,7 @@
           <i class="fa-solid fa-shield-halved"></i>
         </div>
         <h3 class="overlay-title">Esquiva los Shurikens</h3>
-        <p class="overlay-desc">Esquiva los proyectiles. Recolecta el <strong>Orbe ⚡ (Poder EMP)</strong> para limpiar la pantalla, pero cada uso hace a los siguientes shurikens <strong>más rápidos y ágiles</strong>.</p>
+        <p class="overlay-desc">{{ 'minigames.dodgeDesc' | translate }}</p>
         <button type="button" class="btn-primary-dodge" (click)="startDodgeGame()">
           <i class="fa-solid fa-play"></i>
           <span>Comenzar (Espacio)</span>
@@ -400,7 +400,7 @@
         <div class="overlay-icon defeat">
           <i class="fa-solid fa-burst"></i>
         </div>
-        <h3 class="overlay-title defeat">¡Impacto!</h3>
+        <h3 class="overlay-title defeat">{{ 'minigames.impactTitle' | translate }}</h3>
         <p class="overlay-desc">
           Sobreviviste <strong>{{ survivalTime() }}s</strong> (Nivel {{ currentLevelInfo().name }}). Poderes usados: <strong>{{ dodgePowerUses() }}</strong> (+{{ dodgePowerUses() * 25 }}% agilidad enemiga).
         </p>
@@ -414,8 +414,8 @@
         <div class="overlay-icon victory">
           <i class="fa-solid fa-trophy"></i>
         </div>
-        <h3 class="overlay-title victory">¡Descanso Legendario!</h3>
-        <p class="overlay-desc">¡Superaste el modo Maestro esquivando 60s sin impacto!</p>
+        <h3 class="overlay-title victory">{{ 'minigames.legendaryRest' | translate }}</h3>
+        <p class="overlay-desc">{{ 'minigames.legendaryRestDesc' | translate }}</p>
         <button type="button" class="btn-primary-dodge victory" (click)="startDodgeGame()">
           <i class="fa-solid fa-rotate-right"></i>
           <span>Jugar Otra Ronda</span>
@@ -424,7 +424,7 @@
     </div>
 
     <div class="dodge-controls-hint">
-      <span><i class="fa-solid fa-computer-mouse"></i> Ratón / Touch</span>
+      <span><i class="fa-solid fa-computer-mouse"></i> {{ 'minigames.mouseTouch' | translate }}</span>
       <span>•</span>
       <span><i class="fa-solid fa-bolt"></i> Toca el Orbe ⚡ para limpiar la pantalla</span>
       <span>•</span>
@@ -446,7 +446,7 @@
         <span>Nivel {{ currentSnakeLevelInfo().name }}</span>
       </div>
       <div class="hud-stat">
-        <span class="hud-label">Récord:</span>
+        <span class="hud-label">{{ 'minigames.recordLabel' | translate }}</span>
         <span class="hud-value record"><i class="fa-solid fa-trophy"></i> {{ snakeBest() }}</span>
       </div>
     </div>
@@ -465,7 +465,7 @@
           <i class="fa-solid fa-worm"></i>
         </div>
         <h3 class="overlay-title">Cyber Culebrita</h3>
-        <p class="overlay-desc">Inicia a ritmo <strong>Tranquilo</strong>. La velocidad escala a medida que devoras orbes de energía.</p>
+        <p class="overlay-desc">{{ 'minigames.snakeDesc' | translate }}</p>
         <button type="button" class="btn-primary-dodge" style="background: #22c55e;" (click)="startSnakeGame()">
           <i class="fa-solid fa-play"></i>
           <span>Jugar (Espacio)</span>
@@ -474,7 +474,7 @@
 
       <div *ngIf="snakeStatus() === 'gameover'" class="canvas-overlay game-over">
         <div class="overlay-icon defeat"><i class="fa-solid fa-skull"></i></div>
-        <h3 class="overlay-title defeat">¡Colisión!</h3>
+        <h3 class="overlay-title defeat">{{ 'minigames.collisionTitle' | translate }}</h3>
         <p class="overlay-desc">Alcanzaste <strong>{{ snakeScore() }}</strong> pts en <strong>Nivel {{ currentSnakeLevelInfo().name }}</strong>.</p>
         <button type="button" class="btn-primary-dodge" (click)="startSnakeGame()">
           <i class="fa-solid fa-rotate-right"></i>
@@ -504,7 +504,7 @@
         <span class="hud-value highlight"><i class="fa-solid fa-feather-pointed"></i> {{ flappyScore() }}</span>
       </div>
       <div class="hud-stat">
-        <span class="hud-label">Récord:</span>
+        <span class="hud-label">{{ 'minigames.recordLabel' | translate }}</span>
         <span class="hud-value record"><i class="fa-solid fa-medal"></i> {{ flappyBest() }}</span>
       </div>
     </div>
@@ -515,7 +515,7 @@
       <div *ngIf="flappyStatus() === 'idle'" class="canvas-overlay">
         <div class="overlay-icon" style="color: #f59e0b;"><i class="fa-solid fa-feather-pointed"></i></div>
         <h3 class="overlay-title">Flappy Foco</h3>
-        <p class="overlay-desc">Haz clic o presiona Espacio para aletear y esquivar las columnas de neón.</p>
+        <p class="overlay-desc">{{ 'minigames.flappyDesc' | translate }}</p>
         <button type="button" class="btn-primary-dodge" style="background: #f59e0b;" (click)="startFlappyGame()">
           <i class="fa-solid fa-play"></i>
           <span>Comenzar (Espacio/Click)</span>
@@ -524,7 +524,7 @@
 
       <div *ngIf="flappyStatus() === 'gameover'" class="canvas-overlay game-over">
         <div class="overlay-icon defeat"><i class="fa-solid fa-burst"></i></div>
-        <h3 class="overlay-title defeat">¡Caída!</h3>
+        <h3 class="overlay-title defeat">{{ 'minigames.fallTitle' | translate }}</h3>
         <p class="overlay-desc">Superaste <strong>{{ flappyScore() }}</strong> columnas.</p>
         <button type="button" class="btn-primary-dodge" (click)="startFlappyGame()">
           <i class="fa-solid fa-rotate-right"></i>
@@ -570,7 +570,7 @@
     </div>
 
     <div *ngIf="memoryStatus() === 'won'" class="memory-win-banner">
-      <div class="win-title"><i class="fa-solid fa-trophy"></i> ¡Memoria Zen Completada!</div>
+      <div class="win-title"><i class="fa-solid fa-trophy"></i> {{ 'minigames.memoryComplete' | translate }}</div>
       <p class="win-sub">Logrado en solo <strong>{{ memoryMoves() }}</strong> intentos.</p>
       <button type="button" class="btn-primary-dodge" style="background: #a855f7;" (click)="initMemoryCards()">
         <i class="fa-solid fa-rotate-right"></i>
@@ -596,7 +596,7 @@
         <span class="hud-value highlight"><i class="fa-solid fa-star"></i> {{ breakerScore() }}</span>
       </div>
       <div class="hud-stat">
-        <span class="hud-label">Récord:</span>
+        <span class="hud-label">{{ 'minigames.recordLabel' | translate }}</span>
         <span class="hud-value record"><i class="fa-solid fa-medal"></i> {{ breakerBest() }}</span>
       </div>
     </div>
@@ -609,8 +609,8 @@
 
       <div *ngIf="breakerStatus() === 'idle'" class="canvas-overlay">
         <div class="overlay-icon" style="color: #06b6d4;"><i class="fa-solid fa-layer-group"></i></div>
-        <h3 class="overlay-title">Rompe-Bloques Láser</h3>
-        <p class="overlay-desc">Mueve la raqueta con el ratón o flechas para rebotar la bola y destruir todos los bloques.</p>
+        <h3 class="overlay-title">{{ 'minigames.breakerTitle' | translate }}</h3>
+        <p class="overlay-desc">{{ 'minigames.breakerDesc' | translate }}</p>
         <button type="button" class="btn-primary-dodge" style="background: #06b6d4;" (click)="startBreakerGame()">
           <i class="fa-solid fa-play"></i>
           <span>Comenzar (Espacio)</span>
@@ -619,7 +619,7 @@
 
       <div *ngIf="breakerStatus() === 'gameover'" class="canvas-overlay game-over">
         <div class="overlay-icon defeat"><i class="fa-solid fa-burst"></i></div>
-        <h3 class="overlay-title defeat">¡Bola Perdida!</h3>
+        <h3 class="overlay-title defeat">{{ 'minigames.ballLost' | translate }}</h3>
         <p class="overlay-desc">Puntaje acumulado: <strong>{{ breakerScore() }}</strong>.</p>
         <button type="button" class="btn-primary-dodge" (click)="startBreakerGame()">
           <i class="fa-solid fa-rotate-right"></i>
@@ -629,8 +629,8 @@
 
       <div *ngIf="breakerStatus() === 'won'" class="canvas-overlay victory">
         <div class="overlay-icon victory"><i class="fa-solid fa-trophy"></i></div>
-        <h3 class="overlay-title victory">¡Victoria Total!</h3>
-        <p class="overlay-desc">¡Destruiste todas las barreras láser con éxito!</p>
+        <h3 class="overlay-title victory">{{ 'minigames.breakerVictory' | translate }}</h3>
+        <p class="overlay-desc">{{ 'minigames.breakerVictoryDesc' | translate }}</p>
         <button type="button" class="btn-primary-dodge victory" (click)="startBreakerGame()">
           <i class="fa-solid fa-rotate-right"></i>
           <span>Jugar Otra Ronda</span>
@@ -645,7 +645,7 @@
   <div *ngIf="activeGame() === 'tetris'" class="game-view tetris-view">
     <div class="dodge-hud">
       <div class="hud-stat">
-        <span class="hud-label">Líneas:</span>
+        <span class="hud-label">{{ 'minigames.linesLabel' | translate }}</span>
         <span class="hud-value highlight"><i class="fa-solid fa-grip-lines"></i> {{ tetrisLines() }}</span>
       </div>
       <div class="hud-stat">
@@ -669,8 +669,8 @@
 
       <div *ngIf="tetrisStatus() === 'gameover'" class="canvas-overlay game-over">
         <div class="overlay-icon defeat"><i class="fa-solid fa-skull"></i></div>
-        <h3 class="overlay-title defeat">¡Fin del Juego!</h3>
-        <p class="overlay-desc">Completaste <strong>{{ tetrisLines() }}</strong> líneas ({{ tetrisScore() }} pts).</p>
+        <h3 class="overlay-title defeat">{{ 'minigames.gameOver' | translate }}</h3>
+        <p class="overlay-desc">{{ 'minigames.tetrisResultDesc' | translate: { lines: tetrisLines(), score: tetrisScore() } }}</p>
         <button type="button" class="btn-primary-dodge" (click)="startTetrisGame()">
           <i class="fa-solid fa-rotate-right"></i>
           <span>Reintentar (Espacio)</span>
@@ -707,7 +707,7 @@
       <div *ngIf="samuraiStatus() === 'idle'" class="samurai-stage-content">
         <div class="katana-icon"><i class="fa-solid fa-hand-fist"></i></div>
         <h3>Duelo de Reflejos</h3>
-        <p>Espera a que la pantalla parpadee en <strong>¡¡CORTE YA!!</strong> y haz clic lo más rápido posible.</p>
+        <p>{{ 'minigames.samuraiPrompt1' | translate }}</p>
         <button type="button" class="btn-primary-dodge" style="background: #ef4444;" (click)="startSamurai(); $event.stopPropagation()">
           <i class="fa-solid fa-play"></i>
           <span>Iniciar Duelo (Espacio)</span>
@@ -719,12 +719,12 @@
         <div class="pulse-ring"></div>
         <div class="katana-icon"><i class="fa-solid fa-eye fa-fade"></i></div>
         <h3>En Guardia...</h3>
-        <p>No cortes antes de la señal...</p>
+        <p>{{ 'minigames.samuraiPrompt2' | translate }}</p>
       </div>
 
       <!-- Señal de Corte -->
       <div *ngIf="samuraiStatus() === 'ready'" class="samurai-stage-content ready">
-        <div class="flash-slash-text">¡¡CORTE YA!! ⚡</div>
+        <div class="flash-slash-text">{{ 'minigames.slashNow' | translate }}</div>
       </div>
 
       <!-- Corte Realizado -->
@@ -741,8 +741,8 @@
       <!-- Corte en falso -->
       <div *ngIf="samuraiStatus() === 'early'" class="samurai-stage-content early">
         <div class="early-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-        <h3>¡Corte en Falso!</h3>
-        <p>Te adelantaste a la señal.</p>
+        <h3>{{ 'minigames.falseSlashTitle' | translate }}</h3>
+        <p>{{ 'minigames.falseSlashDesc' | translate }}</p>
         <button type="button" class="btn-primary-dodge" style="background: #f59e0b;" (click)="startSamurai(); $event.stopPropagation()">
           <i class="fa-solid fa-rotate-right"></i>
           <span>Reintentar</span>
@@ -761,7 +761,7 @@
         <span class="hud-value highlight"><i class="fa-solid fa-rocket"></i> {{ spaceScore() }}m</span>
       </div>
       <div class="hud-stat">
-        <span class="hud-label">Récord:</span>
+        <span class="hud-label">{{ 'minigames.recordLabel' | translate }}</span>
         <span class="hud-value record"><i class="fa-solid fa-medal"></i> {{ spaceBest() }}m</span>
       </div>
     </div>
@@ -775,7 +775,7 @@
       <div *ngIf="spaceStatus() === 'idle'" class="canvas-overlay">
         <div class="overlay-icon" style="color: #facc15;"><i class="fa-solid fa-rocket"></i></div>
         <h3 class="overlay-title">Salto Espacial</h3>
-        <p class="overlay-desc">Mueve el ratón o usa las flechas para rebotar de plataforma en plataforma hacia el cosmos.</p>
+        <p class="overlay-desc">{{ 'minigames.spaceJumpDesc' | translate }}</p>
         <button type="button" class="btn-primary-dodge" style="background: #facc15; color: #000;" (click)="startSpaceGame()">
           <i class="fa-solid fa-play"></i>
           <span>Despegar (Espacio)</span>
@@ -784,7 +784,7 @@
 
       <div *ngIf="spaceStatus() === 'gameover'" class="canvas-overlay game-over">
         <div class="overlay-icon defeat"><i class="fa-solid fa-burst"></i></div>
-        <h3 class="overlay-title defeat">¡Caída Espacial!</h3>
+        <h3 class="overlay-title defeat">{{ 'minigames.spaceFallTitle' | translate }}</h3>
         <p class="overlay-desc">Alcanzaste una altitud de <strong>{{ spaceScore() }}m</strong>.</p>
         <button type="button" class="btn-primary-dodge" (click)="startSpaceGame()">
           <i class="fa-solid fa-rotate-right"></i>

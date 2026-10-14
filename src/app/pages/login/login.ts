@@ -4,10 +4,11 @@ import { MembershipService } from '../../services/membership.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { SupabaseService } from '../../services/supabase.service';
 import { Subscription } from 'rxjs';
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -37,7 +38,8 @@ export class Login implements OnInit, OnDestroy {
     private router: Router, 
     private membership: MembershipService,
     private analytics: AnalyticsService,
-    private supabaseService: SupabaseService
+    private supabaseService: SupabaseService,
+    private translation: TranslationService
   ) {}
 
   ngOnInit() {
@@ -95,7 +97,7 @@ export class Login implements OnInit, OnDestroy {
 
   async sendPasswordReset(email: string) {
     if (!email || !email.trim()) {
-      this.resetErrorMessage.set('Por favor, ingresa tu correo electrónico.');
+      this.resetErrorMessage.set(this.translation.t('auth.resetEmailRequired'));
       return;
     }
 
@@ -107,9 +109,9 @@ export class Login implements OnInit, OnDestroy {
     this.isResetLoading.set(false);
 
     if (result.success) {
-      this.resetSuccessMessage.set('Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada o spam.');
+      this.resetSuccessMessage.set(this.translation.t('auth.resetSuccess'));
     } else {
-      this.resetErrorMessage.set(result.error || 'Error al enviar el correo de recuperación.');
+      this.resetErrorMessage.set(result.error || this.translation.t('auth.resetError'));
     }
   }
 
@@ -117,12 +119,12 @@ export class Login implements OnInit, OnDestroy {
     event.preventDefault();
 
     if (!newPass || newPass.length < 6) {
-      this.updatePasswordError.set('La nueva contraseña debe tener al menos 6 caracteres.');
+      this.updatePasswordError.set(this.translation.t('auth.passwordLengthError'));
       return;
     }
 
     if (newPass !== confirmPass) {
-      this.updatePasswordError.set('Las contraseñas no coinciden. Por favor, verifícalas.');
+      this.updatePasswordError.set(this.translation.t('auth.passwordMismatchError'));
       return;
     }
 
@@ -134,7 +136,7 @@ export class Login implements OnInit, OnDestroy {
     this.isUpdatingPassword.set(false);
 
     if (result.success) {
-      this.updatePasswordSuccess.set('¡Tu contraseña ha sido actualizada con éxito! Redirigiendo a tu espacio de enfoque...');
+      this.updatePasswordSuccess.set(this.translation.t('auth.passwordUpdateSuccess'));
       if (typeof window !== 'undefined' && window.history) {
         window.history.replaceState(null, '', window.location.pathname);
       }
@@ -143,7 +145,7 @@ export class Login implements OnInit, OnDestroy {
         this.router.navigate(['/home']);
       }, 1500);
     } else {
-      this.updatePasswordError.set(result.error || 'No se pudo actualizar la contraseña. El enlace pudo haber expirado.');
+      this.updatePasswordError.set(result.error || this.translation.t('auth.passwordUpdateError'));
     }
   }
 
@@ -163,7 +165,7 @@ export class Login implements OnInit, OnDestroy {
       this.router.navigate(['/home']);
     } else {
       this.loginError.set(true);
-      this.errorMessage.set(result.error || 'Las credenciales de acceso ingresadas son incorrectas.');
+      this.errorMessage.set(result.error || this.translation.t('auth.invalidCredentials'));
     }
   }
 }

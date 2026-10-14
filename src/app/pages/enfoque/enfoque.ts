@@ -9,6 +9,7 @@ import { NotificationService } from '../../services/notification.service';
 import { Navbar } from '../../components/navbar/navbar';
 import { MinijuegosDescanso } from '../../components/minijuegos-descanso/minijuegos-descanso';
 import { BACKGROUND_SOUNDS, END_SESSION_SOUNDS, BackgroundSoundOption, EndSessionSoundOption } from './sounds.data';
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
 
 export interface MotivationItem {
   id: string;
@@ -74,7 +75,7 @@ export type FocusTimerStyle =
 @Component({
   selector: 'app-enfoque',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, Navbar, MinijuegosDescanso],
+  imports: [CommonModule, RouterLink, FormsModule, Navbar, MinijuegosDescanso, TranslatePipe],
   templateUrl: './enfoque.html',
   styleUrl: './enfoque.css',
   host: {
@@ -91,6 +92,7 @@ export class Enfoque implements OnInit, OnDestroy {
   public membership = inject(MembershipService);
   public bossService = inject(ComunidadBossService);
   public notificationService = inject(NotificationService);
+  public translation = inject(TranslationService);
   private router = inject(Router);
   currentSessionNonceId: string | null = null;
   isSettlingSession = signal<boolean>(false);
@@ -3278,7 +3280,7 @@ export class Enfoque implements OnInit, OnDestroy {
           localStorage.removeItem('activeObjectiveIdeaId');
           localStorage.removeItem('focus-session-objective');
           localStorage.removeItem('focus-session-idea-id');
-          this.showToastFeedback('🎯 ¡Objetivo completado y archivado en tus victorias!', 'success');
+          this.showToastFeedback(this.translation.currentLang() === 'en' ? '🎯 Objective completed and archived in your victories!' : '🎯 ¡Objetivo completado y archivado en tus victorias!', 'success');
         } else {
           // Si el objetivo NO fue completado (no lo logró, avanzado o sin marcar), se desvincula en automático
           this.activeObjective.set('');
@@ -3293,7 +3295,7 @@ export class Enfoque implements OnInit, OnDestroy {
           if (targetIdeaId) {
             this.showToastFeedback(`⏱️ Se registraron +${dedicatedMins}m en tu tarea. Objetivo desvinculado automáticamente.`, 'info');
           } else if (currentObjective && currentObjective !== 'Sesión de Enfoque') {
-            this.showToastFeedback('Objetivo desvinculado automáticamente.', 'info');
+            this.showToastFeedback(this.translation.currentLang() === 'en' ? 'Objective unlinked automatically.' : 'Objetivo desvinculado automáticamente.', 'info');
           }
         }
 
@@ -3422,7 +3424,7 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   resetDailyAttempts() {
-    if (confirm('¿Quieres reiniciar todos los pomodoros y registros de hoy?')) {
+    if (confirm(this.translation.currentLang() === 'en' ? 'Do you want to reset all pomodoros and records for today?' : '¿Quieres reiniciar todos los pomodoros y registros de hoy?')) {
       this.dailyAttempts.set([]);
       localStorage.setItem('daily-attempts', '[]');
     }
@@ -4489,7 +4491,7 @@ export class Enfoque implements OnInit, OnDestroy {
       this.timeLeft.set(duration * 60);
     }
 
-    this.showToastFeedback('Configuración restablecida: 25 min enfoque, 5 min descanso, 15 min descanso largo, 4 ciclos, sin audio y batería activa.', 'success');
+    this.showToastFeedback(this.translation.currentLang() === 'en' ? 'Settings reset: 25 min focus, 5 min break, 15 min long break, 4 cycles, no audio, active battery.' : 'Configuración restablecida: 25 min enfoque, 5 min descanso, 15 min descanso largo, 4 ciclos, sin audio y batería activa.', 'success');
   }
 
   updateFocusDuration(val: number | string | null) {
@@ -5292,9 +5294,9 @@ export class Enfoque implements OnInit, OnDestroy {
     const success = this.membership.unlockAvatar(avatar, cost);
     if (success) {
       this.membership.equipAvatar(avatar);
-      alert(`¡Felicidades! Has desbloqueado el avatar ${avatar.toUpperCase()} con éxito.`);
+      alert(this.translation.currentLang() === 'en' ? `Congratulations! You unlocked avatar ${avatar.toUpperCase()} successfully.` : `¡Felicidades! Has desbloqueado el avatar ${avatar.toUpperCase()} con éxito.`);
     } else {
-      alert('No tienes suficientes Pro Coins. Completa más sesiones para ganar monedas.');
+      alert(this.translation.currentLang() === 'en' ? 'Not enough Pro Coins. Complete more sessions to earn coins.' : 'No tienes suficientes Pro Coins. Completa más sesiones para ganar monedas.');
     }
   }
 

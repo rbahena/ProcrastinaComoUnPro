@@ -1,8 +1,9 @@
-import { Component, OnInit, signal, computed, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, computed, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MembershipService, AvatarItem, QualityItem, ALL_AVATARS_LIST } from '../../services/membership.service';
 import { Navbar } from '../../components/navbar/navbar';
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
 
 export type GuardianArchetype = 'Inicial' | 'Cualidad' | 'Cazador' | 'Alto Riesgo' | string;
 
@@ -57,7 +58,7 @@ interface CountryOption {
 @Component({
   selector: 'app-cualidades',
   standalone: true,
-  imports: [CommonModule, RouterModule, Navbar],
+  imports: [CommonModule, RouterModule, Navbar, TranslatePipe],
   template: `
     <app-navbar></app-navbar>
 
@@ -68,8 +69,8 @@ interface CountryOption {
         <!-- 0. CABECERA PRINCIPAL DE LA VISTA                   -->
         <!-- ==================================================== -->
         <div class="profile-page-header">
-          <h1 class="profile-page-title">Mi Perfil</h1>
-          <p class="profile-page-subtitle">Configura tus datos de identidad, personaliza tu guardián y consulta tu progreso de enfoque.</p>
+          <h1 class="profile-page-title">{{ 'cualidades.myProfile' | translate }}</h1>
+          <p class="profile-page-subtitle">{{ 'cualidades.profileSubtitle' | translate }}</p>
         </div>
 
         <!-- ==================================================== -->
@@ -86,7 +87,7 @@ interface CountryOption {
               <div class="banner-overlay-pattern" [style.background]="'radial-gradient(circle at 85% 25%, ' + activeAvatar().color + '33 0%, transparent 65%)'"></div>
               
               <span class="plan-status-pill" [class.is-pro]="membership.isPremium()">
-                {{ membership.isPremium() ? 'Plan Pro ✦' : 'Plan Básico' }}
+                {{ membership.isPremium() ? ('nav.planPro' | translate) : ('nav.planBasic' | translate) }}
               </span>
             </div>
 
@@ -105,7 +106,7 @@ interface CountryOption {
                 </div>
                 <button class="avatar-circle-edit-btn" 
                         (click)="toggleEditProfile()" 
-                        title="Editar Avatar y Perfil"
+                        [title]="'cualidades.editProfileTooltip' | translate"
                         [style.background]="'linear-gradient(135deg, ' + activeAvatar().color + ', ' + activeAvatar().color + 'bb)'"
                         [style.box-shadow]="'0 4px 12px rgba(0, 0, 0, 0.5), 0 0 14px ' + activeAvatar().color + '88'">
                   <i class="fa-solid fa-pencil"></i>
@@ -126,8 +127,8 @@ interface CountryOption {
                           <span>{{ getCleanProfession() }}</span>
                         </span>
                       } @else {
-                        <button class="btn-add-chip" (click)="toggleEditProfile()" title="Añadir tu profesión">
-                          <i class="fa-solid fa-plus"></i> Profesión
+                        <button class="btn-add-chip" (click)="toggleEditProfile()" [title]="'cualidades.addProfession' | translate">
+                          <i class="fa-solid fa-plus"></i> {{ 'cualidades.addProfession' | translate }}
                         </button>
                       }
 
@@ -137,8 +138,8 @@ interface CountryOption {
                           <span>{{ getCleanCountry() }}</span>
                         </span>
                       } @else {
-                        <button class="btn-add-chip" (click)="toggleEditProfile()" title="Añadir tu país">
-                          <i class="fa-solid fa-plus"></i> País
+                        <button class="btn-add-chip" (click)="toggleEditProfile()" [title]="'cualidades.addCountry' | translate">
+                          <i class="fa-solid fa-plus"></i> {{ 'cualidades.addCountry' | translate }}
                         </button>
                       }
                     </div>
@@ -146,19 +147,19 @@ interface CountryOption {
                     <div class="user-unconfigured-cta">
                       <button class="btn-complete-profile" (click)="toggleEditProfile()">
                         <i class="fa-solid fa-wand-magic-sparkles text-accent"></i>
-                        <span>Completar perfil (Profesión y País)</span>
+                        <span>{{ 'cualidades.completeProfileCta' | translate }}</span>
                       </button>
                     </div>
                   }
 
                   <div class="user-active-week-line">
-                    <span class="active-days-chip" title="Días configurados para mantener la racha de enfoque">
+                    <span class="active-days-chip" [title]="'cualidades.activeDaysLabel' | translate">
                       <i class="fa-regular fa-calendar-check"></i>
-                      <span class="active-days-label">Días de actividad:</span>
+                      <span class="active-days-label">{{ 'cualidades.activeDaysLabel' | translate }}</span>
                       <strong class="active-days-value">{{ membership.getActiveDaysSummary() }}</strong>
                     </span>
 
-                    <span class="last-focus-date-chip" [title]="membership.lastFocusDate() ? ('Fecha de último pomodoro: ' + formatLastFocusDate(membership.lastFocusDate())) : 'Sin pomodoros aún'">
+                    <span class="last-focus-date-chip" [title]="getFormattedLastFocusText()">
                       <i class="fa-regular fa-clock"></i>
                       <span>{{ getFormattedLastFocusText() }}</span>
                     </span>
@@ -167,27 +168,27 @@ interface CountryOption {
 
                 <!-- TELEMETRÍA EN LÍNEA (HISTÓRICOS) -->
                 <div class="user-inline-telemetry">
-                  <div class="tele-pill tomato-pill" [class.is-zero]="membership.focusTomatoes() === 0" data-tooltip="Total histórico de tomates completados">
+                  <div class="tele-pill tomato-pill" [class.is-zero]="membership.focusTomatoes() === 0" [attr.data-tooltip]="'cualidades.totalTomatoes' | translate">
                     <span class="tele-icon">🍅</span>
                     <span class="tele-num">{{ membership.focusTomatoes() }}</span>
                   </div>
 
-                  <div class="tele-pill objective-pill" [class.is-zero]="membership.completedObjectives() === 0" data-tooltip="Total histórico de objetivos cumplidos">
+                  <div class="tele-pill objective-pill" [class.is-zero]="membership.completedObjectives() === 0" [attr.data-tooltip]="'cualidades.totalObjectives' | translate">
                     <span class="tele-icon">🎯</span>
                     <span class="tele-num">{{ membership.completedObjectives() }}</span>
                   </div>
 
-                  <div class="tele-pill trophy-pill gold-pill" [class.is-zero]="membership.goldMedals() === 0" data-tooltip="Trofeos de oro ganados">
+                  <div class="tele-pill trophy-pill gold-pill" [class.is-zero]="membership.goldMedals() === 0" [attr.data-tooltip]="'cualidades.goldTrophies' | translate">
                     <span class="tele-icon"><i class="fa-solid fa-trophy"></i></span>
                     <span class="tele-num">{{ membership.goldMedals() }}</span>
                   </div>
 
-                  <div class="tele-pill medal-pill silver-pill" [class.is-zero]="membership.silverMedals() === 0" data-tooltip="Medallas de plata ganadas">
+                  <div class="tele-pill medal-pill silver-pill" [class.is-zero]="membership.silverMedals() === 0" [attr.data-tooltip]="'cualidades.silverMedals' | translate">
                     <span class="tele-icon"><i class="fa-solid fa-medal"></i></span>
                     <span class="tele-num">{{ membership.silverMedals() }}</span>
                   </div>
 
-                  <div class="tele-pill medal-pill bronze-pill" [class.is-zero]="membership.bronzeMedals() === 0" data-tooltip="Medallas de bronce ganadas">
+                  <div class="tele-pill medal-pill bronze-pill" [class.is-zero]="membership.bronzeMedals() === 0" [attr.data-tooltip]="'cualidades.bronzeMedals' | translate">
                     <span class="tele-icon"><i class="fa-solid fa-medal"></i></span>
                     <span class="tele-num">{{ membership.bronzeMedals() }}</span>
                   </div>
@@ -200,7 +201,7 @@ interface CountryOption {
           <!-- CARD DE CUALIDADES DE HONOR (SKILLS PILLS) -->
           <div class="stratis-skills-card">
             <div class="skills-bar-container">
-              <div class="skills-lead-indicator" title="Cualidades de Honor">
+              <div class="skills-lead-indicator" [title]="'cualidades.honorQualities' | translate">
                 <i class="fa-solid fa-award"></i>
                 <span class="skills-counter-badge">{{ getUnlockedQualitiesCount() }}/{{ membership.qualitiesCatalog().length }}</span>
               </div>
@@ -234,18 +235,18 @@ interface CountryOption {
             
             <div class="catalog-header-bar">
               <div class="catalog-title-group">
-                <span class="catalog-subtag">Avatares</span>
-                <h2 class="catalog-main-title">Selecciona tu Avatar</h2>
+                <span class="catalog-subtag">{{ 'cualidades.catalogTag' | translate }}</span>
+                <h2 class="catalog-main-title">{{ 'cualidades.catalogTitle' | translate }}</h2>
               </div>
 
               <!-- CONTROLES: FILTROS DE CATEGORÍA -->
               <div class="category-filter-chips">
-                <button (click)="setFilter('todos')" [class.active]="selectedCategory() === 'todos'">Todos ({{ allAvatars().length }})</button>
-                <button (click)="setFilter('desbloqueados')" [class.active]="selectedCategory() === 'desbloqueados'">En Escuadra ({{ getUnlockedAvatarsCount() }})</button>
-                <button (click)="setFilter('inicial')" [class.active]="selectedCategory() === 'inicial'">Comunes</button>
-                <button (click)="setFilter('cualidad')" [class.active]="selectedCategory() === 'cualidad'">Retos</button>
-                <button (click)="setFilter('especial')" [class.active]="selectedCategory() === 'especial'">Cazadores</button>
-                <button (click)="setFilter('legendario')" [class.active]="selectedCategory() === 'legendario'">Legendarios</button>
+                <button (click)="setFilter('todos')" [class.active]="selectedCategory() === 'todos'">{{ 'cualidades.filterAll' | translate }} ({{ allAvatars().length }})</button>
+                <button (click)="setFilter('desbloqueados')" [class.active]="selectedCategory() === 'desbloqueados'">{{ 'cualidades.filterSquad' | translate }} ({{ getUnlockedAvatarsCount() }})</button>
+                <button (click)="setFilter('inicial')" [class.active]="selectedCategory() === 'inicial'">{{ 'cualidades.filterInitial' | translate }}</button>
+                <button (click)="setFilter('cualidad')" [class.active]="selectedCategory() === 'cualidad'">{{ 'cualidades.filterChallenges' | translate }}</button>
+                <button (click)="setFilter('especial')" [class.active]="selectedCategory() === 'especial'">{{ 'cualidades.filterHunters' | translate }}</button>
+                <button (click)="setFilter('legendario')" [class.active]="selectedCategory() === 'legendario'">{{ 'cualidades.filterLegendaries' | translate }}</button>
               </div>
             </div>
 
@@ -284,7 +285,7 @@ interface CountryOption {
                       </span>
                       <span class="card-evo-badge" *ngIf="avatar.hasEvolution">🧬 EVO</span>
                       
-                      <span class="card-state-pill" *ngIf="membership.selectedAvatar() === avatar.id" title="Activo">
+                      <span class="card-state-pill" *ngIf="membership.selectedAvatar() === avatar.id" [title]="'common.active' | translate">
                         <i class="fa-solid fa-shield-check"></i>
                       </span>
                     </div>
@@ -299,9 +300,9 @@ interface CountryOption {
                       <h4 class="hero-card-name">{{ avatar.name }}</h4>
                       
                       <div class="hero-card-status-strip">
-                        <span *ngIf="membership.selectedAvatar() === avatar.id" class="status-active">ACTIVO EN PERFIL</span>
-                        <span *ngIf="membership.selectedAvatar() !== avatar.id && avatar.isUnlocked" class="status-squad">EN TU ESCUADRA</span>
-                        <span *ngIf="!avatar.isUnlocked" class="status-locked">BLOQUEADO</span>
+                        <span *ngIf="membership.selectedAvatar() === avatar.id" class="status-active">{{ 'cualidades.statusActive' | translate }}</span>
+                        <span *ngIf="membership.selectedAvatar() !== avatar.id && avatar.isUnlocked" class="status-squad">{{ 'cualidades.statusSquad' | translate }}</span>
+                        <span *ngIf="!avatar.isUnlocked" class="status-locked">{{ 'cualidades.statusLocked' | translate }}</span>
                       </div>
                     </div>
 
@@ -329,7 +330,7 @@ interface CountryOption {
 
                 <!-- TOP ROW CON RAREZA Y ESTADO -->
                 <div class="hero-top-badges-bar">
-                  <div class="hero-stars-pill" title="Tier y Rareza">
+                  <div class="hero-stars-pill" [title]="'cualidades.tierAndRarity' | translate">
                     <i *ngFor="let s of [1,2,3,4,5]" 
                        class="fa-solid fa-star" 
                        [class.is-lit]="s <= inspectedAvatar().stars"></i>
@@ -341,7 +342,7 @@ interface CountryOption {
                         [class.is-unlocked]="inspectedAvatar().isUnlocked && membership.selectedAvatar() !== inspectedAvatar().id"
                         [class.is-locked]="!inspectedAvatar().isUnlocked">
                     <i [class]="membership.selectedAvatar() === inspectedAvatar().id ? 'fa-solid fa-circle-check' : (inspectedAvatar().isUnlocked ? 'fa-solid fa-shield-cat' : 'fa-solid fa-lock')"></i>
-                    {{ membership.selectedAvatar() === inspectedAvatar().id ? 'Activo' : (inspectedAvatar().isUnlocked ? 'En Escuadra' : 'Bloqueado') }}
+                    {{ membership.selectedAvatar() === inspectedAvatar().id ? ('common.active' | translate) : (inspectedAvatar().isUnlocked ? ('cualidades.filterSquad' | translate) : ('common.locked' | translate)) }}
                   </span>
                 </div>
 
@@ -375,7 +376,7 @@ interface CountryOption {
                 <div class="how-to-get-header">
                   <div class="how-to-get-title-group">
                     <i class="fa-solid fa-circle-question text-cyan"></i>
-                    <span class="how-to-get-heading">¿Cómo consigo este avatar?</span>
+                    <span class="how-to-get-heading">{{ 'cualidades.howToGet' | translate }}</span>
                   </div>
                 </div>
 
@@ -391,7 +392,7 @@ interface CountryOption {
                     <!-- Barra de progreso si es de cualidad y está bloqueado -->
                     <div *ngIf="inspectedAvatar().qualityId && !inspectedAvatar().isUnlocked" class="how-to-get-progress-wrap">
                       <div class="how-to-get-progress-labels">
-                        <span>Progreso hacia el desbloqueo</span>
+                        <span>{{ 'cualidades.unlockProgressLabel' | translate }}</span>
                         <strong>{{ getUnlockProgressCurrent(inspectedAvatar()) }} / {{ getUnlockProgressTotal(inspectedAvatar()) }}</strong>
                       </div>
                       <div class="how-to-get-progress-track">
@@ -407,14 +408,14 @@ interface CountryOption {
                     <div *ngIf="!inspectedAvatar().isUnlocked && !inspectedAvatar().qualityId && inspectedAvatar().cost > 0" class="how-to-get-coins-summary">
                       <div class="coins-summary-chip">
                         <i class="fa-solid fa-coins text-yellow"></i>
-                        <span>Precio: <strong>{{ inspectedAvatar().cost }} Pro Coins</strong></span>
+                        <span>{{ 'cualidades.priceLabel' | translate:{ cost: inspectedAvatar().cost } }}</span>
                       </div>
                       <div 
                         class="coins-summary-balance"
                         [class.has-enough]="membership.proCoins() >= inspectedAvatar().cost"
                       >
                         <i [class]="membership.proCoins() >= inspectedAvatar().cost ? 'fa-solid fa-circle-check text-green' : 'fa-solid fa-circle-xmark text-red'"></i>
-                        <span>Tu balance: {{ membership.proCoins() }} 🪙 {{ membership.proCoins() >= inspectedAvatar().cost ? '(¡Puedes canjearlo!)' : '(Insuficiente)' }}</span>
+                        <span>{{ 'cualidades.yourBalance' | translate:{ balance: membership.proCoins() } }} {{ membership.proCoins() >= inspectedAvatar().cost ? ('cualidades.canRedeem' | translate) : ('cualidades.insufficient' | translate) }}</span>
                       </div>
                     </div>
 
@@ -426,8 +427,8 @@ interface CountryOption {
               <!-- 3. MÉTRICAS DE ENFOQUE Y COMBATE -->
               <div class="detail-section">
                 <div class="section-title-bar">
-                  <span class="section-title">Rendimiento por Sesión</span>
-                  <span class="section-subtitle">Impacto Pomodoro</span>
+                  <span class="section-title">{{ 'cualidades.sessionPerformance' | translate }}</span>
+                  <span class="section-subtitle">{{ 'cualidades.pomodoroImpact' | translate }}</span>
                 </div>
 
                 <div class="tactical-metrics-grid">
@@ -435,7 +436,7 @@ interface CountryOption {
                   <div class="clean-metric-tile">
                     <div class="tile-header">
                       <i class="fa-solid fa-circle-check text-green"></i>
-                      <span>Sesión Completada</span>
+                      <span>{{ 'cualidades.sessionCompleted' | translate }}</span>
                     </div>
                     <div class="tile-stats-row">
                       <div class="tile-stat-item">
@@ -445,7 +446,7 @@ interface CountryOption {
                       <div class="tile-stat-divider"></div>
                       <div class="tile-stat-item">
                         <span class="stat-value text-white">{{ inspectedAvatar().bossDamagePoints }}</span>
-                        <span class="stat-label">⚔️ Daño Jefe</span>
+                        <span class="stat-label">⚔️ {{ 'cualidades.bossDamage' | translate }}</span>
                       </div>
                     </div>
                   </div>
@@ -454,7 +455,7 @@ interface CountryOption {
                   <div class="clean-metric-tile">
                     <div class="tile-header">
                       <i class="fa-solid fa-triangle-exclamation text-red"></i>
-                      <span>Pausa o Abandono</span>
+                      <span>{{ 'cualidades.pauseOrAbandon' | translate }}</span>
                     </div>
                     <div class="tile-stats-row">
                       <div class="tile-stat-item">
@@ -462,9 +463,9 @@ interface CountryOption {
                         <span class="stat-label">🪙 Pro Coins</span>
                       </div>
                       <div class="tile-stat-divider"></div>
-                      <div class="tile-stat-item">
-                        <span class="stat-value text-red-light">+{{ inspectedAvatar().bossHealPoints }}</span>
-                        <span class="stat-label">🩸 Salud Jefe</span>
+                      <div class="tile-stat-item" style="text-align: center; align-items: center; justify-content: center;">
+                        <span class="stat-value text-red-light" style="text-align: center;">+{{ inspectedAvatar().bossHealPoints }}</span>
+                        <span class="stat-label" style="text-align: center; display: block; width: 100%; line-height: 1.25;">🩸 {{ 'cualidades.bossHeal' | translate }}</span>
                       </div>
                     </div>
                   </div>
@@ -474,7 +475,7 @@ interface CountryOption {
               <!-- 4. HABILIDADES Y ESTRATEGIA -->
               <div class="detail-section">
                 <div class="section-title-bar">
-                  <span class="section-title">Habilidades y Técnicas</span>
+                  <span class="section-title">{{ 'cualidades.skillsAndTechniques' | translate }}</span>
                   <span class="section-badge" *ngIf="inspectedAvatar().archetypeBadge">{{ inspectedAvatar().archetypeBadge }}</span>
                 </div>
 
@@ -482,7 +483,7 @@ interface CountryOption {
                   <!-- Pasiva -->
                   <div class="clean-ability-item">
                     <div class="ability-lead">
-                      <span class="ability-lead-tag">Pasiva</span>
+                      <span class="ability-lead-tag">{{ 'cualidades.passiveLabel' | translate }}</span>
                       <span class="ability-title-txt">{{ inspectedAvatar().passiveName }}</span>
                     </div>
                     <p class="ability-body-txt">{{ inspectedAvatar().passiveAdvantage }}</p>
@@ -491,8 +492,8 @@ interface CountryOption {
                   <!-- Técnica Mental -->
                   <div class="clean-ability-item">
                     <div class="ability-lead">
-                      <span class="ability-lead-tag">Enfoque</span>
-                      <span class="ability-title-txt">Técnica Mental</span>
+                      <span class="ability-lead-tag">{{ 'cualidades.focusLabel' | translate }}</span>
+                      <span class="ability-title-txt">{{ 'cualidades.mentalTechnique' | translate }}</span>
                     </div>
                     <p class="ability-body-txt">{{ inspectedAvatar().focusApplication }}</p>
                   </div>
@@ -506,7 +507,7 @@ interface CountryOption {
                   class="btn-clean-cta is-active-equipped" 
                   disabled
                 >
-                  <i class="fa-solid fa-shield-check text-green"></i> Guardián Activo en tu Perfil ✓
+                  <i class="fa-solid fa-shield-check text-green"></i> {{ 'cualidades.activeGuardianBadge' | translate }}
                 </button>
 
                 <button 
@@ -514,7 +515,7 @@ interface CountryOption {
                   (click)="equipAvatar(inspectedAvatar())" 
                   class="btn-clean-cta is-equip-btn"
                 >
-                  <i class="fa-solid fa-paw"></i> Elegir a {{ inspectedAvatar().name }}
+                  <i class="fa-solid fa-paw"></i> {{ 'cualidades.chooseGuardian' | translate:{ name: inspectedAvatar().name } }}
                   <i class="fa-solid fa-arrow-right"></i>
                 </button>
 
@@ -523,7 +524,7 @@ interface CountryOption {
                   (click)="simulateUnlockQuality(inspectedAvatar().quality!)" 
                   class="btn-clean-cta is-challenge-btn"
                 >
-                  <i class="fa-solid fa-wand-magic-sparkles"></i> Demostrar Cualidad: {{ inspectedAvatar().displayName || inspectedAvatar().qualityName }}
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> {{ 'cualidades.proveQuality' | translate:{ name: (inspectedAvatar().displayName || inspectedAvatar().qualityName) } }}
                   <i class="fa-solid fa-arrow-right"></i>
                 </button>
 
@@ -534,7 +535,7 @@ interface CountryOption {
                   [disabled]="membership.proCoins() < inspectedAvatar().cost"
                 >
                   <i class="fa-solid fa-coins"></i> 
-                  {{ membership.proCoins() >= inspectedAvatar().cost ? 'Canjear por ' + inspectedAvatar().cost + ' Pro Coins' : 'Faltan ' + (inspectedAvatar().cost - membership.proCoins()) + ' Pro Coins' }}
+                  {{ membership.proCoins() >= inspectedAvatar().cost ? ('cualidades.redeemForCoins' | translate:{ cost: inspectedAvatar().cost }) : ('cualidades.needMoreCoins' | translate:{ diff: (inspectedAvatar().cost - membership.proCoins()) }) }}
                   <i class="fa-solid fa-arrow-right"></i>
                 </button>
               </div>
@@ -551,35 +552,35 @@ interface CountryOption {
         <div class="edit-modal-backdrop" *ngIf="isEditingProfile()" (click)="toggleEditProfile()">
           <div class="edit-modal-window" (click)="$event.stopPropagation()">
             <div class="modal-window-head">
-              <h3><i class="fa-solid fa-user-pen text-cyan"></i> Ajustes de Perfil</h3>
+              <h3><i class="fa-solid fa-user-pen text-cyan"></i> {{ 'cualidades.profileSettings' | translate }}</h3>
               <button class="modal-close-btn" (click)="toggleEditProfile()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-window-body">
               <div class="form-group-item">
-                <label>Nombre de Usuario</label>
+                <label>{{ 'cualidades.usernameLabel' | translate }}</label>
                 <input 
                   type="text" 
                   [value]="inputName()"
                   (input)="onUsernameInput($event)"
-                  placeholder="Tu nombre de usuario"
+                  [placeholder]="'cualidades.usernamePlaceholder' | translate"
                   class="text-input-field"
                 />
                 <span class="form-error-msg" *ngIf="usernameError()">{{ usernameError() }}</span>
               </div>
               <div class="form-group-item">
-                <label>Profesión</label>
+                <label>{{ 'cualidades.professionLabel' | translate }}</label>
                 <input 
                   type="text" 
                   [value]="inputProfession()"
                   (input)="onProfessionInput($event)"
-                  placeholder="Desarrollador, Estudiante, Diseñador..."
+                  [placeholder]="'cualidades.professionPlaceholder' | translate"
                   class="text-input-field"
                 />
               </div>
               <div class="form-group-item">
-                <label>País</label>
+                <label>{{ 'cualidades.countryLabel' | translate }}</label>
                 <select [value]="selectedCountry()" (change)="onCountrySelect($event)" class="select-input-field">
-                  <option value="" disabled selected>-- Selecciona tu país --</option>
+                  <option value="" disabled selected>{{ 'cualidades.selectCountryPlaceholder' | translate }}</option>
                   <option *ngFor="let country of countryOptions" [value]="country.name">
                     {{ country.flag }} {{ country.name }}
                   </option>
@@ -589,11 +590,11 @@ interface CountryOption {
               <!-- CONTROL DE SEMANA ACTIVA (CONTROL DE RACHAS) -->
               <div class="form-group-item active-week-form-section">
                 <div class="active-days-header-line">
-                  <label><i class="fa-regular fa-calendar-days text-green"></i> Semana Activa</label>
+                  <label><i class="fa-regular fa-calendar-days text-green"></i> {{ 'cualidades.activeWeekLabel' | translate }}</label>
                   <span class="active-days-summary-pill">{{ getTempActiveDaysSummary() }}</span>
                 </div>
                 <p class="form-helper-desc">
-                  Elige los días de la semana en que te enfocarás. En los días desactivados tu racha estará protegida y no se reiniciará.
+                  {{ 'cualidades.activeWeekDesc' | translate }}
                 </p>
 
                 <!-- SELECTOR DE DÍAS (LUN A DOM) -->
@@ -612,8 +613,8 @@ interface CountryOption {
               </div>
             </div>
             <div class="modal-window-foot">
-              <button (click)="toggleEditProfile()" class="btn-ghost-cancel">Cancelar</button>
-              <button (click)="saveProfileChanges()" class="btn-save-confirm">Guardar Cambios</button>
+              <button (click)="toggleEditProfile()" class="btn-ghost-cancel">{{ 'common.cancel' | translate }}</button>
+              <button (click)="saveProfileChanges()" class="btn-save-confirm">{{ 'common.saveChanges' | translate }}</button>
             </div>
           </div>
         </div>
@@ -622,14 +623,14 @@ interface CountryOption {
         <div class="unlock-success-overlay" *ngIf="unlockedRewardQuality()" (click)="closeRewardFlow()">
           <div class="unlock-success-card" (click)="$event.stopPropagation()">
             <div class="success-glow"></div>
-            <span class="success-badge">¡CUALIDAD DEMOSTRADA!</span>
+            <span class="success-badge">{{ 'cualidades.qualityProven' | translate }}</span>
             <div [class]="'avatar-sprite sprite-reward sprite-' + unlockedRewardQuality()?.animal"></div>
-            <h3 class="reward-title">Cualidad Desbloqueada</h3>
+            <h3 class="reward-title">{{ 'cualidades.qualityUnlocked' | translate }}</h3>
             <span class="success-quality">{{ unlockedRewardQuality()?.name }}</span>
             <p class="reward-description">
-              Has demostrado la cualidad de <strong>{{ unlockedRewardQuality()?.name }}</strong>. El guardián correspondiente ahora está disponible en tu colección.
+              {{ 'cualidades.demonstratedQualitySuccess' | translate:{ name: unlockedRewardQuality()?.name } }}
             </p>
-            <button class="btn-equip-now-action" (click)="closeRewardFlow()">¡Genial, Entendido!</button>
+            <button class="btn-equip-now-action" (click)="closeRewardFlow()">{{ 'cualidades.gotIt' | translate }}</button>
           </div>
         </div>
 
@@ -1809,13 +1810,16 @@ interface CountryOption {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1px;
+      justify-content: center;
+      text-align: center;
+      gap: 2px;
       flex: 1;
     }
     .tile-stat-item .stat-value {
       font-size: 15px;
       font-weight: 850;
       font-family: 'Space Grotesk', sans-serif;
+      text-align: center;
     }
     .tile-stat-item .stat-value.text-green { color: #34d399; }
     .tile-stat-item .stat-value.text-white { color: #f8fafc; }
@@ -1828,6 +1832,10 @@ interface CountryOption {
       color: #64748b;
       text-transform: uppercase;
       letter-spacing: 0.2px;
+      text-align: center;
+      display: block;
+      width: 100%;
+      line-height: 1.25;
     }
     .tile-stat-divider {
       width: 1px;
@@ -2395,15 +2403,18 @@ export class Cualidades implements OnInit {
   usernameError = signal<string | null>(null);
   toastMessage = signal<string | null>(null);
 
-  weekDaysList = [
-    { id: 1, label: 'Lun', full: 'Lunes' },
-    { id: 2, label: 'Mar', full: 'Martes' },
-    { id: 3, label: 'Mié', full: 'Miércoles' },
-    { id: 4, label: 'Jue', full: 'Jueves' },
-    { id: 5, label: 'Vie', full: 'Viernes' },
-    { id: 6, label: 'Sáb', full: 'Sábado' },
-    { id: 7, label: 'Dom', full: 'Domingo' }
-  ];
+  get weekDaysList() {
+    const isEn = this.translation.currentLang() === 'en';
+    return [
+      { id: 1, label: isEn ? 'Mon' : 'Lun', full: isEn ? 'Monday' : 'Lunes' },
+      { id: 2, label: isEn ? 'Tue' : 'Mar', full: isEn ? 'Tuesday' : 'Martes' },
+      { id: 3, label: isEn ? 'Wed' : 'Mié', full: isEn ? 'Wednesday' : 'Miércoles' },
+      { id: 4, label: isEn ? 'Thu' : 'Jue', full: isEn ? 'Thursday' : 'Jueves' },
+      { id: 5, label: isEn ? 'Fri' : 'Vie', full: isEn ? 'Friday' : 'Viernes' },
+      { id: 6, label: isEn ? 'Sat' : 'Sáb', full: isEn ? 'Saturday' : 'Sábado' },
+      { id: 7, label: isEn ? 'Sun' : 'Dom', full: isEn ? 'Sunday' : 'Domingo' }
+    ];
+  }
 
   unlockedRewardQuality = signal<QualityItem | null>(null);
   portraitZoomOrigin = signal<string>('center center');
@@ -2421,7 +2432,10 @@ export class Cualidades implements OnInit {
 
   sidebarCollapsed!: any;
 
-  constructor(public membership: MembershipService) {
+  constructor(
+    public membership: MembershipService,
+    public translation: TranslationService
+  ) {
     this.sidebarCollapsed = this.membership.sidebarCollapsed;
   }
 
@@ -2465,7 +2479,11 @@ export class Cualidades implements OnInit {
             bossDamagePoints: item.boss_damage_points,
             bossHealPoints: item.boss_heal_points,
             passiveName: item.passive_name?.[lang] || item.passive_name?.['es'] || '',
-            passiveAdvantage: item.passive_advantage?.[lang] || item.passive_advantage?.['es'] || '',
+            passiveAdvantage: (item.id === 'gato' || item.passive_name?.['es'] === 'Paso Sigiloso' || item.passive_name?.[lang] === 'Stealth Step')
+              ? (lang === 'en'
+                  ? `Generates +${item.coins_per_pomodoro ?? 12} Pro Coins and +${item.boss_damage_points ?? 20} boss damage per completed session.`
+                  : `Genera +${item.coins_per_pomodoro ?? 12} Pro Coins y +${item.boss_damage_points ?? 20} de daño al jefe por sesión completada.`)
+              : (item.passive_advantage?.[lang] || item.passive_advantage?.['es'] || ''),
             cost: item.cost_coins,
             qualityId: item.required_quality_id || null,
             qualityName: item.quality_name?.[lang] || item.quality_name?.['es'] || undefined,
@@ -2554,12 +2572,13 @@ export class Cualidades implements OnInit {
     const cat = this.selectedCategory();
     const all = this.allAvatars();
     const pool = cat === 'desbloqueados' ? all.filter(a => a.isUnlocked) : (cat === 'todos' ? all : all.filter(a => a.type === cat));
+    const isEn = this.translation.currentLang() === 'en';
 
     const categoryMeta: { type: string; name: string; badge: string; icon: string; color: string }[] = [
-      { type: 'inicial', name: 'Comunes (Iniciales)', badge: 'Comunes', icon: 'fa-solid fa-shield-cat', color: '#94a3b8' },
-      { type: 'cualidad', name: 'Retos de Cualidad', badge: 'Retos', icon: 'fa-solid fa-award', color: '#10b981' },
-      { type: 'especial', name: 'Cazadores Especiales', badge: 'Cazadores', icon: 'fa-solid fa-paw', color: '#f59e0b' },
-      { type: 'legendario', name: 'Guardianes Legendarios', badge: 'Legendarios', icon: 'fa-solid fa-dragon', color: '#fbbf24' }
+      { type: 'inicial', name: isEn ? 'Commons (Starters)' : 'Comunes (Iniciales)', badge: isEn ? 'Commons' : 'Comunes', icon: 'fa-solid fa-shield-cat', color: '#94a3b8' },
+      { type: 'cualidad', name: isEn ? 'Quality Challenges' : 'Retos de Cualidad', badge: isEn ? 'Challenges' : 'Retos', icon: 'fa-solid fa-award', color: '#10b981' },
+      { type: 'especial', name: isEn ? 'Special Hunters' : 'Cazadores Especiales', badge: isEn ? 'Hunters' : 'Cazadores', icon: 'fa-solid fa-paw', color: '#f59e0b' },
+      { type: 'legendario', name: isEn ? 'Legendary Guardians' : 'Guardianes Legendarios', badge: isEn ? 'Legendaries' : 'Legendarios', icon: 'fa-solid fa-dragon', color: '#fbbf24' }
     ];
 
     const groups: AvatarCategoryGroup[] = [];
@@ -2582,12 +2601,13 @@ export class Cualidades implements OnInit {
 
   userRankTitle = computed(() => {
     const lvl = this.userLevel();
-    if (lvl >= 30) return 'Comandante Supremo';
-    if (lvl >= 20) return 'Gran Maestro';
-    if (lvl >= 15) return 'Estratega Élite';
-    if (lvl >= 10) return 'Guerrero Veterano';
-    if (lvl >= 5) return 'Centinela';
-    return 'Recluta de Enfoque';
+    const isEn = this.translation.currentLang() === 'en';
+    if (lvl >= 30) return isEn ? 'Supreme Commander' : 'Comandante Supremo';
+    if (lvl >= 20) return isEn ? 'Grand Master' : 'Gran Maestro';
+    if (lvl >= 15) return isEn ? 'Elite Strategist' : 'Estratega Élite';
+    if (lvl >= 10) return isEn ? 'Veteran Warrior' : 'Guerrero Veterano';
+    if (lvl >= 5) return isEn ? 'Sentinel' : 'Centinela';
+    return isEn ? 'Focus Recruit' : 'Recluta de Enfoque';
   });
 
   userHoursFocused = computed(() => {
@@ -2630,7 +2650,8 @@ export class Cualidades implements OnInit {
   equipAvatar(avatar: ComunidadAvatar) {
     if (avatar.isUnlocked) {
       this.membership.equipAvatar(avatar.id);
-      this.showToast(`¡Has elegido a ${avatar.name} como tu guardián activo!`);
+      const isEn = this.translation.currentLang() === 'en';
+      this.showToast(isEn ? `You have chosen ${avatar.name} as your active guardian!` : `¡Has elegido a ${avatar.name} como tu guardián activo!`);
     }
   }
 
@@ -2657,42 +2678,49 @@ export class Cualidades implements OnInit {
   }
 
   getHowToGetMethodTag(avatar?: ComunidadAvatar): string {
-    if (!avatar || !avatar.id) return 'Requisito de Obtención';
-    if (avatar.type === 'inicial') return 'Avatar Inicial Gratuito';
+    const isEn = this.translation.currentLang() === 'en';
+    if (!avatar || !avatar.id) return isEn ? 'Unlock Requirement' : 'Requisito de Obtención';
+    if (avatar.type === 'inicial') return this.translation.t('cualidades.howToGetInitial');
     if (avatar.qualityId) {
-      const qName = avatar.displayName || avatar.qualityName || (avatar.quality?.name) || 'Cualidad';
-      return `Reto de Cualidad: ${qName}`;
+      const qName = avatar.displayName || avatar.qualityName || (avatar.quality?.name) || (isEn ? 'Quality' : 'Cualidad');
+      return this.translation.t('cualidades.howToGetChallenge', { name: qName });
     }
-    if (avatar.type === 'legendario') return 'Guardián Legendario';
-    return 'Tienda de Recompensas';
+    if (avatar.type === 'legendario') return this.translation.t('cualidades.howToGetLegendary');
+    return this.translation.t('cualidades.howToGetStore');
   }
 
   getHowToGetTitle(avatar?: ComunidadAvatar): string {
-    if (!avatar || !avatar.id) return 'Obtención del Guardián';
-    if (avatar.type === 'inicial') return 'Disponible desde el inicio';
+    const isEn = this.translation.currentLang() === 'en';
+    if (!avatar || !avatar.id) return isEn ? 'Guardian Acquisition' : 'Obtención del Guardián';
+    if (avatar.type === 'inicial') return this.translation.t('cualidades.howToGetTitleInitial');
     if (avatar.qualityId) {
-      const qName = avatar.displayName || avatar.qualityName || (avatar.quality?.name) || 'Cualidad';
-      return `Demuestra la cualidad de ${qName}`;
+      const qName = avatar.displayName || avatar.qualityName || (avatar.quality?.name) || (isEn ? 'Quality' : 'Cualidad');
+      return this.translation.t('cualidades.howToGetTitleQuality', { name: qName });
     }
-    if (avatar.cost > 0) return `Canje por ${avatar.cost} Pro Coins 🪙`;
-    return 'Recompensa de Productividad';
+    if (avatar.cost > 0) return this.translation.t('cualidades.howToGetTitleCost', { cost: avatar.cost }) + ' 🪙';
+    return this.translation.t('cualidades.howToGetTitleDefault');
   }
 
   getHowToGetDescription(avatar?: ComunidadAvatar): string {
+    const isEn = this.translation.currentLang() === 'en';
     if (!avatar || !avatar.id) return '';
     if (avatar.type === 'inicial') {
-      return 'Este guardián se te otorga automáticamente al unirte a la comunidad. ¡Está desbloqueado y listo para acompañarte!';
+      return this.translation.t('cualidades.howToGetDescInitial');
     }
     if (avatar.qualityId) {
       if (avatar.displayReq) return avatar.displayReq;
       if (avatar.quality?.unlockRequirement) return avatar.quality.unlockRequirement;
-      const qName = avatar.displayName || avatar.qualityName || 'cualidad';
-      return `Completa sesiones de enfoque continuas para demostrar tu ${qName} y desbloquear este guardián.`;
+      const qName = avatar.displayName || avatar.qualityName || (isEn ? 'quality' : 'cualidad');
+      return this.translation.t('cualidades.howToGetDescQuality', { name: qName });
     }
     if (avatar.cost > 0) {
-      return `Acumula Pro Coins completando bloques Pomodoro de 25 minutos sin pausas ni distracciones. ¡Canjéalo cuando alcances las monedas requeridas!`;
+      return isEn 
+        ? 'Accumulate Pro Coins by completing 25-minute Pomodoro sessions without pauses or distractions. Redeem it when you have enough coins!'
+        : 'Acumula Pro Coins completando bloques Pomodoro de 25 minutos sin pausas ni distracciones. ¡Canjéalo cuando alcances las monedas requeridas!';
     }
-    return 'Completa tus metas de productividad diaria para desbloquear este avatar.';
+    return isEn 
+      ? 'Complete your daily productivity targets to unlock this avatar.'
+      : 'Completa tus metas de productividad diaria para desbloquear este avatar.';
   }
 
   getUnlockProgressCurrent(avatar?: ComunidadAvatar): number {
@@ -2729,26 +2757,27 @@ export class Cualidades implements OnInit {
 
   getFormattedLastFocusText(): string {
     const raw = this.membership.lastFocusDate();
-    if (!raw) return 'Sin pomodoros aún';
+    if (!raw) return this.translation.t('cualidades.noPomodorosYet');
     
     const today = this.membership.getLocalDateKey(new Date());
-    if (raw === today) return 'Último pomodoro realizado: Hoy';
+    if (raw === today) return this.translation.t('cualidades.lastPomodoroToday');
 
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yestStr = this.membership.getLocalDateKey(yesterday);
-    if (raw === yestStr) return 'Último pomodoro realizado: Ayer';
+    if (raw === yestStr) return this.translation.t('cualidades.lastPomodoroYesterday');
 
-    return 'Último pomodoro realizado el día: ' + this.formatLastFocusDate(raw);
+    return this.translation.t('cualidades.lastPomodoroOn', { date: this.formatLastFocusDate(raw) });
   }
 
   formatLastFocusDate(rawDateStr?: string): string {
     const raw = rawDateStr || this.membership.lastFocusDate();
-    if (!raw) return 'Sin fecha registrada';
+    if (!raw) return this.translation.currentLang() === 'en' ? 'No registered date' : 'Sin fecha registrada';
     const parts = raw.split('-').map(Number);
     if (parts.length === 3) {
       const d = new Date(parts[0], parts[1] - 1, parts[2]);
-      return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+      const locale = this.translation.currentLang() === 'en' ? 'en-US' : 'es-ES';
+      return d.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
     }
     return raw;
   }
@@ -2820,20 +2849,23 @@ export class Cualidades implements OnInit {
   }
 
   getTempActiveDaysSummary(): string {
+    const isEn = this.translation.currentLang() === 'en';
     const raw = this.selectedActiveDays() || [];
     const days = [...raw].sort((a, b) => a - b);
-    if (days.length === 0) return 'Sin días seleccionados';
-    if (days.length === 7) return 'Lunes a Domingo';
+    if (days.length === 0) return isEn ? 'No days selected' : 'Sin días seleccionados';
+    if (days.length === 7) return isEn ? 'Monday to Sunday' : 'Lunes a Domingo';
     if (days.length === 5 && days[0] === 1 && days[1] === 2 && days[2] === 3 && days[3] === 4 && days[4] === 5) {
-      return 'Lunes a Viernes';
+      return isEn ? 'Monday to Friday' : 'Lunes a Viernes';
     }
     if (days.length === 6 && days[0] === 1 && days[1] === 2 && days[2] === 3 && days[3] === 4 && days[4] === 5 && days[5] === 6) {
-      return 'Lunes a Sábado';
+      return isEn ? 'Monday to Saturday' : 'Lunes a Sábado';
     }
     if (days.length === 2 && days.includes(6) && days.includes(7)) {
-      return 'Sábado y Domingo';
+      return isEn ? 'Saturday and Sunday' : 'Sábado y Domingo';
     }
-    const dayNames: { [k: number]: string } = {
+    const dayNames: { [k: number]: string } = isEn ? {
+      1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat', 7: 'Sun'
+    } : {
       1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo'
     };
     return days.map(d => dayNames[d]).filter(Boolean).join(', ');
@@ -2856,13 +2888,14 @@ export class Cualidades implements OnInit {
   }
 
   validateUsername(name: string) {
+    const isEn = this.translation.currentLang() === 'en';
     const cleaned = name.trim();
     if (!cleaned) {
-      this.usernameError.set('El nombre no puede estar vacío.');
+      this.usernameError.set(isEn ? 'Username cannot be empty.' : 'El nombre no puede estar vacío.');
       return;
     }
     if (cleaned.length > 22) {
-      this.usernameError.set('Máximo 22 caracteres.');
+      this.usernameError.set(isEn ? 'Maximum 22 characters.' : 'Máximo 22 caracteres.');
       return;
     }
     this.usernameError.set(null);
@@ -2881,7 +2914,7 @@ export class Cualidades implements OnInit {
     this.membership.userActiveDays.set(activeDays);
     await this.membership.saveSupabaseProfile(cleaned, this.membership.selectedAvatar(), this.selectedCountry(), undefined, prof, activeDays);
     this.isEditingProfile.set(false);
-    this.showToast('Perfil actualizado correctamente.');
+    this.showToast(this.translation.currentLang() === 'en' ? 'Profile updated successfully.' : 'Perfil actualizado correctamente.');
   }
 
   simulateUnlockQuality(quality: QualityItem) {
@@ -2897,11 +2930,12 @@ export class Cualidades implements OnInit {
           if (q.id === quality.id) {
             const relatedAvatars = this.allAvatars().filter(a => a.qualityId === q.id);
             maxTotal = relatedAvatars.reduce((max, a) => Math.max(max, a.unlockTotal || 0), q.unlockTotal);
+            const locale = this.translation.currentLang() === 'en' ? 'en-US' : 'es-ES';
             return {
               ...q,
               isUnlocked: true,
               unlockProgress: maxTotal,
-              unlockedAt: new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
+              unlockedAt: new Date().toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })
             };
           }
           return q;
@@ -2918,7 +2952,8 @@ export class Cualidades implements OnInit {
         this.membership.unlockedAvatars.update(list => [...list, ...newlyUnlocked]);
         newlyUnlocked.forEach(id => this.membership.ensureAvatarLoaded(id));
       }
-      this.showToast(`¡Cualidad ${quality.name} demostrada!`);
+      const isEn = this.translation.currentLang() === 'en';
+      this.showToast(isEn ? `Quality ${quality.name} proven!` : `¡Cualidad ${quality.name} demostrada!`);
     }
     this.unlockedRewardQuality.set(null);
   }
@@ -2928,7 +2963,8 @@ export class Cualidades implements OnInit {
       const success = this.membership.unlockAvatar(avatar.id, avatar.cost);
       if (success) {
         this.selectAvatar({ ...avatar, isUnlocked: true });
-        this.showToast(`¡${avatar.name} desbloqueado exitosamente!`);
+        const isEn = this.translation.currentLang() === 'en';
+        this.showToast(isEn ? `${avatar.name} successfully unlocked!` : `¡${avatar.name} desbloqueado exitosamente!`);
       }
     }
   }

@@ -5,13 +5,13 @@
     <div style="display: flex; flex-direction: column; line-height: 1.1;">
       <span class="logo-text" style="font-size: 20px; font-weight: 900; letter-spacing: -0.5px; line-height: 1;">COFU</span>
       <span class="logo-slogan" style="font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 0.5px; margin-top: 3px; text-transform: uppercase;">
-        Enfócate. Conecta. Avanza.
+        {{ 'auth.slogan' | translate }}
       </span>
     </div>
   </a>
   <div style="display: flex; gap: 10px; align-items: center;">
-    <a routerLink="/login" class="btn btn-ghost btn-sm">Iniciar sesión</a>
-    <a routerLink="/registro" class="btn btn-outline-accent btn-sm">Registrarme</a>
+    <a routerLink="/login" class="btn btn-ghost btn-sm">{{ 'auth.loginBtn' | translate }}</a>
+    <a routerLink="/registro" class="btn btn-outline-accent btn-sm">{{ 'auth.registerBtn' | translate }}</a>
   </div>
 </header>
 
@@ -19,27 +19,27 @@
 
   <div class="auth-card">
     <div class="auth-header">
-      <h2 class="auth-title">Iniciar sesión</h2>
-      <p class="auth-subtitle">Ingresa tus credenciales para acceder a la plataforma</p>
+      <h2 class="auth-title">{{ 'auth.loginTitle' | translate }}</h2>
+      <p class="auth-subtitle">{{ 'auth.loginSubtitle' | translate }}</p>
     </div>
 
     @if (loginError()) {
       <div style="background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 18px; color: var(--red); font-size: 12.5px; text-align: center; font-weight: 500;">
-        {{ errorMessage() || 'Las credenciales de acceso ingresadas son incorrectas.' }}
+        {{ errorMessage() || ('auth.invalidCredentials' | translate) }}
       </div>
     }
 
     <!-- Main Form -->
     <form (submit)="onSubmit($event, emailInput.value, passwordInput.value)" class="auth-form">
       <div class="form-group">
-        <label for="email">Correo Electrónico</label>
-        <input #emailInput type="email" id="email" placeholder="nombre@ejemplo.com" required autocomplete="email" [disabled]="isLoading()">
+        <label for="email">{{ 'auth.emailLabel' | translate }}</label>
+        <input #emailInput type="email" id="email" [placeholder]="'auth.emailPlaceholder' | translate" required autocomplete="email" [disabled]="isLoading()">
       </div>
 
       <div class="form-group">
         <div class="label-row">
-          <label for="password">Contraseña</label>
-          <a class="forgot-link" (click)="openResetModal()" style="cursor: pointer; color: var(--accent); font-size: 12px; text-decoration: none;">¿Olvidaste tu contraseña?</a>
+          <label for="password">{{ 'auth.passwordLabel' | translate }}</label>
+          <a class="forgot-link" (click)="openResetModal()" style="cursor: pointer; color: var(--accent); font-size: 12px; text-decoration: none;">{{ 'auth.forgotPassword' | translate }}</a>
         </div>
         <div class="password-input-wrapper">
           <input 
@@ -54,8 +54,8 @@
             type="button" 
             class="password-toggle-btn" 
             (click)="togglePasswordVisibility()" 
-            [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Ver contraseña'"
-            [title]="showPassword() ? 'Ocultar contraseña' : 'Ver contraseña'"
+            [attr.aria-label]="showPassword() ? ('auth.hidePassword' | translate) : ('auth.showPassword' | translate)"
+            [title]="showPassword() ? ('auth.hidePassword' | translate) : ('auth.showPassword' | translate)"
             tabindex="-1">
             <i [class]="showPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
           </button>
@@ -65,15 +65,15 @@
       <button type="submit" class="btn btn-accent w-100" [disabled]="isLoading()" style="margin-top: 10px; border: 1px solid var(--accent) !important; background: rgba(6, 8, 19, 0.45) !important; color: var(--accent) !important; display: flex; align-items: center; justify-content: center; gap: 8px;">
         @if (isLoading()) {
           <i class="fa-solid fa-circle-notch fa-spin"></i>
-          <span>Iniciando sesión...</span>
+          <span>{{ 'auth.loggingIn' | translate }}</span>
         } @else {
-          <span>Acceder</span>
+          <span>{{ 'auth.submitLogin' | translate }}</span>
         }
       </button>
     </form>
 
     <div class="auth-footer">
-      ¿No tienes una cuenta aún? <a routerLink="/registro">Regístrate</a>
+      {{ 'auth.noAccountYet' | translate }} <a routerLink="/registro">{{ 'auth.registerLink' | translate }}</a>
     </div>
   </div>
 </div>
@@ -88,15 +88,15 @@
           <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(99, 102, 241, 0.2); display: flex; align-items: center; justify-content: center; color: #818cf8; font-size: 16px;">
             <i class="fa-solid fa-key"></i>
           </div>
-          <h3 style="font-size: 17px; font-weight: 800; margin: 0;">Recuperar Contraseña</h3>
+          <h3 style="font-size: 17px; font-weight: 800; margin: 0;">{{ 'auth.resetModalTitle' | translate }}</h3>
         </div>
-        <button type="button" (click)="closeResetModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 18px;">
+        <button type="button" (click)="closeResetModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 18px;" [attr.aria-label]="'common.close' | translate">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 18px;">
-        Ingresa tu correo electrónico registrado y te enviaremos un enlace seguro para restablecer tu contraseña.
+        {{ 'auth.resetModalDesc' | translate }}
       </p>
 
       @if (resetSuccessMessage()) {
@@ -115,20 +115,20 @@
 
       @if (!resetSuccessMessage()) {
         <div style="margin-bottom: 16px;">
-          <label style="display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">Correo Registrado</label>
-          <input #recoveryEmailInput type="email" placeholder="nombre@ejemplo.com" style="width: 100%; padding: 11px 14px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #fff; font-size: 14px; box-sizing: border-box;" [disabled]="isResetLoading()">
+          <label style="display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">{{ 'auth.resetEmailLabel' | translate }}</label>
+          <input #recoveryEmailInput type="email" [placeholder]="'auth.emailPlaceholder' | translate" style="width: 100%; padding: 11px 14px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #fff; font-size: 14px; box-sizing: border-box;" [disabled]="isResetLoading()">
         </div>
 
         <div style="display: flex; gap: 10px; justify-content: flex-end;">
           <button type="button" (click)="closeResetModal()" style="padding: 10px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #cbd5e1; font-size: 13px; font-weight: 600; cursor: pointer;">
-            Cancelar
+            {{ 'common.cancel' | translate }}
           </button>
           <button type="button" (click)="sendPasswordReset(recoveryEmailInput.value)" [disabled]="isResetLoading()" style="padding: 10px 18px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
             @if (isResetLoading()) {
               <i class="fa-solid fa-circle-notch fa-spin"></i>
-              <span>Enviando...</span>
+              <span>{{ 'auth.sendingLink' | translate }}</span>
             } @else {
-              <span>Enviar enlace</span>
+              <span>{{ 'auth.sendLink' | translate }}</span>
               <i class="fa-solid fa-paper-plane"></i>
             }
           </button>
@@ -136,7 +136,7 @@
       } @else {
         <div style="display: flex; justify-content: flex-end;">
           <button type="button" (click)="closeResetModal()" style="padding: 10px 20px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;">
-            Cerrar
+            {{ 'common.close' | translate }}
           </button>
         </div>
       }
@@ -155,17 +155,17 @@
             <i class="fa-solid fa-shield-halved"></i>
           </div>
           <div>
-            <h3 style="font-size: 18px; font-weight: 800; margin: 0; letter-spacing: -0.3px;">Nueva Contraseña</h3>
-            <span style="font-size: 11px; color: #818cf8; font-weight: 600;">Verificación de Identidad Aprobada</span>
+            <h3 style="font-size: 18px; font-weight: 800; margin: 0; letter-spacing: -0.3px;">{{ 'auth.newPasswordTitle' | translate }}</h3>
+            <span style="font-size: 11px; color: #818cf8; font-weight: 600;">{{ 'auth.identityVerified' | translate }}</span>
           </div>
         </div>
-        <button type="button" (click)="closeNewPasswordModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 18px;" title="Cerrar">
+        <button type="button" (click)="closeNewPasswordModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 18px;" [title]="'common.close' | translate">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 20px;">
-        Ingresa tu nueva contraseña para proteger tu cuenta de COFU. Debe contener al menos 6 caracteres.
+        {{ 'auth.newPasswordDesc' | translate }}
       </p>
 
       @if (updatePasswordSuccess()) {
@@ -185,12 +185,12 @@
       @if (!updatePasswordSuccess()) {
         <form (submit)="onUpdatePassword($event, newPasswordInput.value, confirmPasswordInput.value)">
           <div style="margin-bottom: 14px;">
-            <label style="display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">Nueva Contraseña</label>
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">{{ 'auth.newPasswordLabel' | translate }}</label>
             <div style="position: relative;">
               <input 
                 #newPasswordInput 
                 [type]="showNewPassword() ? 'text' : 'password'" 
-                placeholder="Mínimo 6 caracteres" 
+                [placeholder]="'auth.newPasswordPlaceholder' | translate" 
                 required 
                 autocomplete="new-password"
                 style="width: 100%; padding: 11px 40px 11px 14px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; font-size: 14px; box-sizing: border-box;"
@@ -206,11 +206,11 @@
           </div>
 
           <div style="margin-bottom: 22px;">
-            <label style="display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">Confirmar Nueva Contraseña</label>
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">{{ 'auth.confirmPasswordLabel' | translate }}</label>
             <input 
               #confirmPasswordInput 
               [type]="showNewPassword() ? 'text' : 'password'" 
-              placeholder="Repite la contraseña" 
+              [placeholder]="'auth.confirmPasswordPlaceholder' | translate" 
               required 
               autocomplete="new-password"
               style="width: 100%; padding: 11px 14px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; font-size: 14px; box-sizing: border-box;"
@@ -223,7 +223,7 @@
               (click)="closeNewPasswordModal()" 
               style="padding: 10px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #cbd5e1; font-size: 13px; font-weight: 600; cursor: pointer;"
               [disabled]="isUpdatingPassword()">
-              Cancelar
+              {{ 'common.cancel' | translate }}
             </button>
             <button 
               type="submit" 
@@ -231,9 +231,9 @@
               style="padding: 11px 22px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(99,102,241,0.4);">
               @if (isUpdatingPassword()) {
                 <i class="fa-solid fa-circle-notch fa-spin"></i>
-                <span>Guardando...</span>
+                <span>{{ 'auth.savingPassword' | translate }}</span>
               } @else {
-                <span>Actualizar Contraseña</span>
+                <span>{{ 'auth.updatePasswordBtn' | translate }}</span>
                 <i class="fa-solid fa-arrow-right"></i>
               }
             </button>

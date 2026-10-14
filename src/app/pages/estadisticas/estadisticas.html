@@ -8,13 +8,9 @@
     <header class="stats-header">
       <div class="header-content">
         <div class="header-text">
-          <h1 class="page-title">Tu Avance de Enfoque</h1>
-          <p class="page-subtitle">Un vistazo claro a tu constancia, hábitos y tiempo productivo.</p>
+          <h1 class="page-title">{{ 'stats.pageTitle' | translate }}</h1>
+          <p class="page-subtitle">{{ 'stats.pageSubtitle' | translate }}</p>
         </div>
-        <button (click)="openShareModal()" class="share-btn" data-tooltip="Compartir Insignia en LinkedIn" data-tooltip-align="left">
-          <i class="fa-brands fa-linkedin"></i>
-          <span>Compartir Insignia</span>
-        </button>
       </div>
     </header>
 
@@ -23,8 +19,8 @@
       <!-- 1. Hoy (1 Tomate Vector) -->
       <div class="kpi-card">
         <div class="kpi-top">
-          <span class="kpi-label">Hoy</span>
-          <div class="kpi-icon tomato-single" title="Pomodoros completados hoy">
+          <span class="kpi-label">{{ 'stats.today' | translate }}</span>
+          <div class="kpi-icon tomato-single" [title]="'stats.todayTooltip' | translate">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <radialGradient id="tomSingleGrad" cx="35%" cy="30%" r="70%">
@@ -48,7 +44,7 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-number">{{ todayCompletedCount() }}</span>
-          <span class="kpi-unit">pomodoros</span>
+          <span class="kpi-unit">{{ 'stats.pomodoros' | translate }}</span>
         </div>
         <div class="kpi-footer">
           <span class="kpi-pill">
@@ -60,8 +56,8 @@
       <!-- 2. Esta Semana (1 Tomate Vector) -->
       <div class="kpi-card">
         <div class="kpi-top">
-          <span class="kpi-label">Esta Semana</span>
-          <div class="kpi-icon tomato-single" title="Pomodoros completados esta semana">
+          <span class="kpi-label">{{ 'stats.thisWeek' | translate }}</span>
+          <div class="kpi-icon tomato-single" [title]="'stats.thisWeekTooltip' | translate">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <radialGradient id="tomWeekGrad" cx="35%" cy="30%" r="70%">
@@ -85,11 +81,11 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-number">{{ weeklyTotal() }}</span>
-          <span class="kpi-unit">pomodoros</span>
+          <span class="kpi-unit">{{ 'stats.pomodoros' | translate }}</span>
         </div>
         <div class="kpi-footer">
           <span class="kpi-pill">
-            <i class="fa-solid fa-chart-simple"></i> {{ weeklyAvg() }}/día prom.
+            <i class="fa-solid fa-chart-simple"></i> {{ 'stats.dayAvg' | translate: { val: weeklyAvg() } }}
           </span>
         </div>
       </div>
@@ -97,8 +93,8 @@
       <!-- 3. Racha Activa (Flama Fuego Vector) -->
       <div class="kpi-card">
         <div class="kpi-top">
-          <span class="kpi-label">Racha Activa</span>
-          <div class="kpi-icon fire-flame" title="Racha activa de días consecutivos">
+          <span class="kpi-label">{{ 'stats.activeStreak' | translate }}</span>
+          <div class="kpi-icon fire-flame" [title]="'stats.streakTooltip' | translate">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="flameOuterGrad" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
@@ -119,11 +115,11 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-number">{{ userStreak() || longestStreak }}</span>
-          <span class="kpi-unit">días</span>
+          <span class="kpi-unit">{{ 'stats.days' | translate }}</span>
         </div>
         <div class="kpi-footer">
           <span class="kpi-pill flame">
-            <i class="fa-solid fa-fire-flame-curved"></i> Récord: {{ longestStreak }}d
+            <i class="fa-solid fa-fire-flame-curved"></i> {{ 'stats.recordStreak' | translate: { val: longestStreak } }}
           </span>
         </div>
       </div>
@@ -131,8 +127,8 @@
       <!-- 4. Total Acumulado (2 Tomates Vector) -->
       <div class="kpi-card">
         <div class="kpi-top">
-          <span class="kpi-label">Total Histórico</span>
-          <div class="kpi-icon tomato-double" title="Total histórico de pomodoros acumulados">
+          <span class="kpi-label">{{ 'stats.allTimeTotal' | translate }}</span>
+          <div class="kpi-icon tomato-double" [title]="'stats.allTimeTooltip' | translate">
             <svg viewBox="0 0 28 24" width="26" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <radialGradient id="tomHistDbl1" cx="35%" cy="30%" r="70%">
@@ -171,11 +167,11 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-number">{{ annualTotal() }}</span>
-          <span class="kpi-unit">pomodoros</span>
+          <span class="kpi-unit">{{ 'stats.pomodoros' | translate }}</span>
         </div>
         <div class="kpi-footer">
           <span class="kpi-pill">
-            <i class="fa-solid fa-stopwatch"></i> {{ totalFocusHours() }}h totales
+            <i class="fa-solid fa-stopwatch"></i> {{ 'stats.totalHours' | translate: { hours: totalFocusHours() } }}
           </span>
         </div>
       </div>
@@ -189,9 +185,9 @@
         <div class="panel-header">
           <div class="panel-title-row">
             <i class="fa-solid fa-chart-column" style="color: var(--accent);"></i>
-            <h3>Rendimiento de Esta Semana</h3>
+            <h3>{{ 'stats.weeklyTitle' | translate }}</h3>
           </div>
-          <span class="panel-subtitle">Pomodoros completados día por día (Lun - Dom)</span>
+          <span class="panel-subtitle">{{ 'stats.weeklySubtitle' | translate }}</span>
         </div>
 
         <div class="chart-box">
@@ -235,8 +231,8 @@
         </div>
 
         <div class="panel-footer-stat">
-          <span>Total completado esta semana:</span>
-          <strong>{{ weeklyTotal() }} pomodoros</strong>
+          <span>{{ 'stats.weeklyCompleted' | translate }}</span>
+          <strong>{{ 'stats.weeklyPomodoros' | translate: { count: weeklyTotal() } }}</strong>
         </div>
       </div>
 
@@ -245,9 +241,9 @@
         <div class="panel-header">
           <div class="panel-title-row">
             <i class="fa-solid fa-calendar-days" style="color: var(--green);"></i>
-            <h3>Mapa de Hábitos ({{ currentMonthName() }})</h3>
+            <h3>{{ 'stats.habitMapTitle' | translate: { month: currentMonthName() } }}</h3>
           </div>
-          <span class="panel-subtitle">Tu constancia diaria iluminada en el mes</span>
+          <span class="panel-subtitle">{{ 'stats.habitMapSubtitle' | translate }}</span>
         </div>
 
         <div class="calendar-container">
@@ -266,7 +262,7 @@
                  [class.level-1]="day.level === 1"
                  [class.level-2]="day.level === 2"
                  [class.level-3]="day.level === 3"
-                 [attr.data-tooltip]="day.dayNumber ? (day.dayNumber + ' ' + currentMonthName() + ': ' + day.pomodoros + ' pomodoros') : null">
+                 [attr.data-tooltip]="day.dayNumber ? (day.dayNumber + ' ' + currentMonthName() + ': ' + day.pomodoros + ' ' + ('stats.pomodoros' | translate)) : null">
               
               <span class="cal-day-num">{{ day.dayNumber }}</span>
 
@@ -279,7 +275,7 @@
 
         <!-- Leyenda -->
         <div class="cal-legend">
-          <span class="legend-text">Nivel de enfoque:</span>
+          <span class="legend-text">{{ 'stats.focusLevel' | translate }}</span>
           <div class="legend-scale">
             <span class="leg-item"><span class="box-sample l0"></span> 0</span>
             <span class="leg-item"><span class="box-sample l1"></span> 1-2</span>
@@ -296,9 +292,9 @@
       <div class="panel-header">
         <div class="panel-title-row">
           <i class="fa-solid fa-chart-line" style="color: var(--yellow);"></i>
-          <h3>Historial y Tendencia Anual</h3>
+          <h3>{{ 'stats.annualTitle' | translate }}</h3>
         </div>
-        <span class="panel-subtitle">Producción mensual de sesiones completadas de enfoque</span>
+        <span class="panel-subtitle">{{ 'stats.annualSubtitle' | translate }}</span>
       </div>
 
       <div class="chart-box annual-chart-box">
@@ -343,8 +339,8 @@
       </div>
 
       <div class="panel-footer-stat">
-        <span>Total acumulado en el año:</span>
-        <strong style="color: var(--yellow);">{{ annualTotal() }} pomodoros ({{ totalFocusHours() }} horas)</strong>
+        <span>{{ 'stats.annualTotal' | translate }}</span>
+        <strong style="color: var(--yellow);">{{ 'stats.annualTotalDesc' | translate: { poms: annualTotal(), hours: totalFocusHours() } }}</strong>
       </div>
     </div>
 
@@ -358,9 +354,9 @@
             <i class="fa-solid fa-bullseye"></i>
           </div>
           <div>
-            <h2 class="section-title">Analítica y Medición de Objetivos</h2>
+            <h2 class="section-title">{{ 'stats.objTitle' | translate }}</h2>
             <p class="section-subtitle">
-              Métricas cuantitativas de cumplimiento, efectividad por metodología, rendimiento semanal y mapa de calor de logros.
+              {{ 'stats.objSubtitle' | translate }}
             </p>
           </div>
         </div>
@@ -372,7 +368,7 @@
                   [class.active]="activeObjectivesTab() === 'overview'"
                   (click)="setObjectivesTab('overview')">
             <i class="fa-solid fa-chart-pie"></i>
-            <span>Panel General de Metas</span>
+            <span>{{ 'stats.tabOverview' | translate }}</span>
           </button>
           
           <button type="button" 
@@ -380,7 +376,7 @@
                   [class.active]="activeObjectivesTab() === 'calendar'"
                   (click)="setObjectivesTab('calendar')">
             <i class="fa-solid fa-calendar-days"></i>
-            <span>Mapa de Calor & Calendario</span>
+            <span>{{ 'stats.tabCalendar' | translate }}</span>
           </button>
         </div>
       </div>
@@ -397,8 +393,8 @@
             </div>
             <div class="metric-data">
               <span class="metric-value">{{ totalObjectivesTimeFormatted() }}</span>
-              <span class="metric-title">Tiempo Total en Objetivos</span>
-              <span class="metric-sub">{{ totalObjectivesTimeHours() }} horas de enfoque acumuladas</span>
+              <span class="metric-title">{{ 'stats.totalTimeGoals' | translate }}</span>
+              <span class="metric-sub">{{ 'stats.totalTimeGoalsSub' | translate: { hours: totalObjectivesTimeHours() } }}</span>
             </div>
           </div>
 
@@ -409,8 +405,8 @@
             </div>
             <div class="metric-data">
               <span class="metric-value">{{ todayObjectivesTimeFormatted() }}</span>
-              <span class="metric-title">Tiempo Dedicado Hoy</span>
-              <span class="metric-sub">{{ todayCompletedObjectives() }} objetivos logrados hoy</span>
+              <span class="metric-title">{{ 'stats.todayTimeGoals' | translate }}</span>
+              <span class="metric-sub">{{ 'stats.todayGoalsSub' | translate: { count: todayCompletedObjectives() } }}</span>
             </div>
           </div>
 
@@ -421,8 +417,8 @@
             </div>
             <div class="metric-data">
               <span class="metric-value">{{ averageMinutesPerObjective() }} min</span>
-              <span class="metric-title">Duración Promedio por Meta</span>
-              <span class="metric-sub">Tiempo medio para resolver un objetivo</span>
+              <span class="metric-title">{{ 'stats.avgGoalDuration' | translate }}</span>
+              <span class="metric-sub">{{ 'stats.avgGoalDurationSub' | translate }}</span>
             </div>
           </div>
 
@@ -432,9 +428,9 @@
               <i class="fa-solid fa-circle-check"></i>
             </div>
             <div class="metric-data">
-              <span class="metric-value">{{ totalCompletedObjectives() }} metas</span>
-              <span class="metric-title">Metas Conquistadas</span>
-              <span class="metric-sub">{{ objectiveCompletionRate() }}% de tasa de éxito global</span>
+              <span class="metric-value">{{ totalCompletedObjectives() }}</span>
+              <span class="metric-title">{{ 'stats.goalsConquered' | translate }}</span>
+              <span class="metric-sub">{{ 'stats.successRateSub' | translate: { rate: objectiveCompletionRate() } }}</span>
             </div>
           </div>
         </div>
@@ -447,9 +443,9 @@
             <div class="panel-header">
               <div class="panel-title-row">
                 <i class="fa-solid fa-chart-column" style="color: var(--accent);"></i>
-                <h3>Objetivos Cumplidos Esta Semana</h3>
+                <h3>{{ 'stats.goalsThisWeek' | translate }}</h3>
               </div>
-              <span class="panel-subtitle">Metas conquistadas día por día (Lun - Dom)</span>
+              <span class="panel-subtitle">{{ 'stats.goalsThisWeekSub' | translate }}</span>
             </div>
 
             <div class="chart-box">
@@ -490,8 +486,8 @@
             </div>
 
             <div class="panel-footer-stat">
-              <span>Tiempo total en metas esta semana:</span>
-              <strong style="color: #10b981;">{{ weeklyObjectivesTimeFormatted() }} ({{ weeklyObjectivesTotal() }} objetivos)</strong>
+              <span>{{ 'stats.weeklyGoalsTime' | translate }}</span>
+              <strong style="color: #10b981;">{{ weeklyObjectivesTimeFormatted() }} ({{ weeklyObjectivesTotal() }} {{ 'common.all' | translate }})</strong>
             </div>
           </div>
 
@@ -500,17 +496,17 @@
             <div class="panel-header">
               <div class="panel-title-row">
                 <i class="fa-solid fa-layer-group" style="color: var(--yellow);"></i>
-                <h3>Rendimiento por Metodología</h3>
+                <h3>{{ 'stats.methodologyTitle' | translate }}</h3>
               </div>
-              <span class="panel-subtitle">Proporción de efectividad según la técnica empleada</span>
+              <span class="panel-subtitle">{{ 'stats.methodologySub' | translate }}</span>
             </div>
 
             <div class="methodologies-bars-list">
               <!-- Sapo -->
               <div class="method-bar-row">
                 <div class="method-bar-labels">
-                  <span class="method-name">🐸 Metodología Sapo (Tareas Críticas)</span>
-                  <span class="method-count"><strong>{{ sapoObjectivesCount() }}</strong> logrados ({{ sapoPercent() }}%)</span>
+                  <span class="method-name">{{ 'stats.sapoMethod' | translate }}</span>
+                  <span class="method-count"><strong>{{ sapoObjectivesCount() }}</strong> {{ 'stats.achievedCount' | translate: { count: sapoObjectivesCount(), percent: sapoPercent() } }}</span>
                 </div>
                 <div class="method-progress-track">
                   <div class="method-progress-fill fill-sapo" [style.width.%]="sapoPercent()"></div>
@@ -520,8 +516,8 @@
               <!-- Pareto -->
               <div class="method-bar-row">
                 <div class="method-bar-labels">
-                  <span class="method-name">🦉 Principio Pareto (80/20 Estratégico)</span>
-                  <span class="method-count"><strong>{{ paretoObjectivesCount() }}</strong> logrados ({{ paretoPercent() }}%)</span>
+                  <span class="method-name">{{ 'stats.paretoMethod' | translate }}</span>
+                  <span class="method-count"><strong>{{ paretoObjectivesCount() }}</strong> {{ 'stats.achievedCount' | translate: { count: paretoObjectivesCount(), percent: paretoPercent() } }}</span>
                 </div>
                 <div class="method-progress-track">
                   <div class="method-progress-fill fill-pareto" [style.width.%]="paretoPercent()"></div>
@@ -531,8 +527,8 @@
               <!-- Normal -->
               <div class="method-bar-row">
                 <div class="method-bar-labels">
-                  <span class="method-name">🎯 Enfoque Normal / Estándar</span>
-                  <span class="method-count"><strong>{{ normalObjectivesCount() }}</strong> logrados ({{ normalPercent() }}%)</span>
+                  <span class="method-name">{{ 'stats.normalMethod' | translate }}</span>
+                  <span class="method-count"><strong>{{ normalObjectivesCount() }}</strong> {{ 'stats.achievedCount' | translate: { count: normalObjectivesCount(), percent: normalPercent() } }}</span>
                 </div>
                 <div class="method-progress-track">
                   <div class="method-progress-fill fill-normal" [style.width.%]="normalPercent()"></div>
@@ -542,18 +538,18 @@
 
             <!-- Mini desglose de energía -->
             <div class="energy-matrix-box">
-              <span class="energy-matrix-title"><i class="fa-solid fa-bolt"></i> Rendimiento por Nivel de Energía:</span>
+              <span class="energy-matrix-title"><i class="fa-solid fa-bolt"></i> {{ 'stats.energyTitle' | translate }}</span>
               <div class="energy-bars-group">
-                <div class="energy-pill-stat high" title="Alta energía al resolver metas">
-                  <span class="energy-label">Alta</span>
+                <div class="energy-pill-stat high" [title]="'stats.energyHigh' | translate">
+                  <span class="energy-label">{{ 'stats.energyHigh' | translate }}</span>
                   <span class="energy-val">{{ energyHighPercent() }}%</span>
                 </div>
-                <div class="energy-pill-stat medium" title="Energía media al resolver metas">
-                  <span class="energy-label">Media</span>
+                <div class="energy-pill-stat medium" [title]="'stats.energyMedium' | translate">
+                  <span class="energy-label">{{ 'stats.energyMedium' | translate }}</span>
                   <span class="energy-val">{{ energyMediumPercent() }}%</span>
                 </div>
-                <div class="energy-pill-stat low" title="Baja energía al resolver metas">
-                  <span class="energy-label">Baja</span>
+                <div class="energy-pill-stat low" [title]="'stats.energyLow' | translate">
+                  <span class="energy-label">{{ 'stats.energyLow' | translate }}</span>
                   <span class="energy-val">{{ energyLowPercent() }}%</span>
                 </div>
               </div>
@@ -575,9 +571,9 @@
               <i class="fa-solid fa-bullseye"></i>
             </div>
             <div class="metric-data">
-              <span class="metric-value">{{ monthlyGoalsTotal() }} metas</span>
-              <span class="metric-title">Metas en {{ objectivesCalendarMonthName() }}</span>
-              <span class="metric-sub">Total acumulado en el mes</span>
+              <span class="metric-value">{{ monthlyGoalsTotal() }}</span>
+              <span class="metric-title">{{ 'stats.goalsInMonth' | translate: { month: objectivesCalendarMonthName() } }}</span>
+              <span class="metric-sub">{{ 'stats.monthTotalAccum' | translate }}</span>
             </div>
           </div>
 
@@ -587,8 +583,8 @@
             </div>
             <div class="metric-data">
               <span class="metric-value">{{ (monthlyGoalsTotal() * 25 / 60).toFixed(1) }} h</span>
-              <span class="metric-title">Tiempo en el Mes</span>
-              <span class="metric-sub">Horas dedicadas a metas</span>
+              <span class="metric-title">{{ 'stats.timeInMonth' | translate }}</span>
+              <span class="metric-sub">{{ 'stats.hoursDedicatedGoals' | translate }}</span>
             </div>
           </div>
 
@@ -597,9 +593,9 @@
               <i class="fa-solid fa-calendar-check"></i>
             </div>
             <div class="metric-data">
-              <span class="metric-value">{{ monthlyActiveDaysCount() }} días</span>
-              <span class="metric-title">Días con Logros</span>
-              <span class="metric-sub">Jornadas con al menos 1 objetivo</span>
+              <span class="metric-value">{{ monthlyActiveDaysCount() }} {{ 'common.days' | translate }}</span>
+              <span class="metric-title">{{ 'stats.daysWithAchievements' | translate }}</span>
+              <span class="metric-sub">{{ 'stats.daysWithAchievementsSub' | translate }}</span>
             </div>
           </div>
 
@@ -609,8 +605,8 @@
             </div>
             <div class="metric-data">
               <span class="metric-value">{{ monthlyAvgPerActiveDay() }}</span>
-              <span class="metric-title">Promedio / Día Activo</span>
-              <span class="metric-sub">Ritmo de metas por día productivo</span>
+              <span class="metric-title">{{ 'stats.avgPerActiveDay' | translate }}</span>
+              <span class="metric-sub">{{ 'stats.avgPerActiveDaySub' | translate }}</span>
             </div>
           </div>
         </div>
@@ -626,13 +622,13 @@
                 <h3 class="obj-month-title">{{ objectivesCalendarMonthName() }}</h3>
               </div>
               <div class="cal-nav-buttons">
-                <button type="button" class="cal-arrow-btn" (click)="prevObjCalendarMonth()" title="Mes anterior">
+                <button type="button" class="cal-arrow-btn" (click)="prevObjCalendarMonth()" [title]="'stats.prevMonth' | translate">
                   <i class="fa-solid fa-chevron-left"></i>
                 </button>
-                <button type="button" class="cal-today-btn" (click)="resetObjCalendarToToday()" title="Ir a hoy">
-                  Hoy
+                <button type="button" class="cal-today-btn" (click)="resetObjCalendarToToday()" [title]="'stats.goToToday' | translate">
+                  {{ 'stats.todayBtn' | translate }}
                 </button>
-                <button type="button" class="cal-arrow-btn" (click)="nextObjCalendarMonth()" title="Mes siguiente">
+                <button type="button" class="cal-arrow-btn" (click)="nextObjCalendarMonth()" [title]="'stats.nextMonth' | translate">
                   <i class="fa-solid fa-chevron-right"></i>
                 </button>
               </div>
@@ -658,7 +654,7 @@
                   
                   <span class="cell-day-number">{{ day.dayNumber }}</span>
 
-                  <div class="cell-goals-badge" *ngIf="day.completedCount > 0" [title]="day.completedCount + ' objetivo(s) completado(s)'">
+                  <div class="cell-goals-badge" *ngIf="day.completedCount > 0" [title]="day.completedCount + ' ' + ('stats.goalsConquered' | translate)">
                     <span>{{ day.completedCount }}</span>
                   </div>
                 </div>
@@ -666,12 +662,12 @@
             </div>
 
             <div class="obj-cal-legend">
-              <span class="legend-label">Densidad de metas:</span>
+              <span class="legend-label">{{ 'stats.density' | translate }}</span>
               <div class="legend-scale-row">
                 <div class="legend-item"><span class="legend-box level-0"></span> 0</div>
-                <div class="legend-item"><span class="legend-box level-1"></span> 1 meta</div>
-                <div class="legend-item"><span class="legend-box level-2"></span> 2-3 metas</div>
-                <div class="legend-item"><span class="legend-box level-3"></span> 4+ metas</div>
+                <div class="legend-item"><span class="legend-box level-1"></span> 1</div>
+                <div class="legend-item"><span class="legend-box level-2"></span> 2-3</div>
+                <div class="legend-item"><span class="legend-box level-3"></span> 4+</div>
               </div>
             </div>
 
@@ -682,32 +678,32 @@
             <div class="inspector-header">
               <div class="inspector-title-row">
                 <i class="fa-solid fa-chart-simple" style="color: var(--yellow);"></i>
-                <h4>Estadística del Día</h4>
+                <h4>{{ 'stats.dayStats' | translate }}</h4>
               </div>
               <span class="inspector-count-tag" *ngIf="selectedDayStats()">
-                {{ selectedDayStats()?.dateKey || 'Día actual' }}
+                {{ selectedDayStats()?.dateKey || ('stats.currentDay' | translate) }}
               </span>
             </div>
 
             <div class="inspector-body" *ngIf="selectedDayStats() as dStat">
               <div class="day-stat-big-card">
                 <span class="day-stat-number">{{ dStat.completedCount }}</span>
-                <span class="day-stat-label">Objetivos Conquistados</span>
+                <span class="day-stat-label">{{ 'stats.goalsConquered' | translate }}</span>
               </div>
 
               <div class="day-stat-metrics-list">
                 <div class="day-metric-item">
-                  <span class="label"><i class="fa-solid fa-clock"></i> Tiempo Invertido:</span>
+                  <span class="label"><i class="fa-solid fa-clock"></i> {{ 'stats.timeInvested' | translate }}</span>
                   <strong class="val">{{ dStat.completedCount * 25 }} min</strong>
                 </div>
 
                 <div class="day-metric-item">
-                  <span class="label"><i class="fa-solid fa-bolt"></i> Puntos de Enfoque:</span>
+                  <span class="label"><i class="fa-solid fa-bolt"></i> {{ 'stats.focusPoints' | translate }}</span>
                   <strong class="val text-yellow">+{{ dStat.completedCount * 25 }} XP</strong>
                 </div>
 
                 <div class="day-metric-item">
-                  <span class="label"><i class="fa-solid fa-percent"></i> Aporte al Mes:</span>
+                  <span class="label"><i class="fa-solid fa-percent"></i> {{ 'stats.monthContribution' | translate }}</span>
                   <strong class="val">{{ monthlyGoalsTotal() > 0 ? (dStat.completedCount / monthlyGoalsTotal() * 100).toFixed(0) : '0' }}%</strong>
                 </div>
               </div>
@@ -715,10 +711,10 @@
               <div class="day-stat-summary-box">
                 <i class="fa-solid fa-circle-info"></i>
                 <p *ngIf="dStat.completedCount > 0">
-                  En esta fecha se consolidaron <strong>{{ dStat.completedCount }}</strong> metas de enfoque sostenido, manteniendo la inercia productiva.
+                  {{ 'stats.daySummarySuccess' | translate: { count: dStat.completedCount } }}
                 </p>
                 <p *ngIf="dStat.completedCount === 0">
-                  No se registraron objetivos completados en esta fecha. Selecciona un día iluminado en el mapa de calor para ver sus métricas.
+                  {{ 'stats.daySummaryEmpty' | translate }}
                 </p>
               </div>
             </div>
@@ -734,40 +730,8 @@
     <!-- FOOTER SIMPLE Y ELEGANTE -->
     <footer class="stats-simple-footer">
       <i class="fa-solid fa-yin-yang" style="color: var(--accent); font-size: 20px;"></i>
-      <p>"Cada sesión completada es una victoria sobre la procrastinación. La constancia diaria crea la maestría."</p>
+      <p>{{ 'stats.quote' | translate }}</p>
     </footer>
 
   </div>
 </div>
-
-<!-- MODAL DE COMPARTIR EN LINKEDIN -->
-<div *ngIf="showShareModal()" class="modal-overlay">
-  <div class="modal-box">
-    <button (click)="closeShareModal()" class="modal-close-btn" data-tooltip="Cerrar ventana" data-tooltip-align="left">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-
-    <h3>Insignia de Enfoque COFU</h3>
-    <p class="modal-sub">Comparte tu dedicación y constancia con tu red profesional.</p>
-
-    <div class="badge-card-preview">
-      <div class="badge-shield">
-        <i class="fa-solid fa-yin-yang"></i>
-      </div>
-      <span class="badge-user-name">{{ userName() }}</span>
-      <span class="badge-stats-line">
-        {{ annualTotal() }} Pomodoros • {{ totalCompletedObjectives() }} Objetivos • Racha de {{ longestStreak }} días
-      </span>
-    </div>
-
-    <div class="modal-actions">
-      <button (click)="shareOnLinkedIn()" class="btn-linkedin">
-        <i class="fa-brands fa-linkedin"></i> Publicar en LinkedIn
-      </button>
-      <button (click)="closeShareModal()" class="btn-cancel">
-        Volver
-      </button>
-    </div>
-  </div>
-</div>
-

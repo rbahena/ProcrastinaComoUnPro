@@ -3,9 +3,9 @@
   <a (click)="onNavClick($event, '/home')" [routerLink]="membership.isFocusActive() ? null : '/home'" class="logo" [class.link-locked]="membership.isFocusActive()">
     <img class="logo-img" src="/assets/images/brand/cofu_logo.jpg" alt="COFU Logo">
     <span class="logo-text">COFU</span>
-    <span *ngIf="membership.isFocusActive()" class="focus-lock-badge" data-tooltip="Sesión de enfoque en curso: Navegación bloqueada hasta abandonar" data-tooltip-align="bottom">
+    <span *ngIf="membership.isFocusActive()" class="focus-lock-badge" [attr.data-tooltip]="'nav.focusLockedTooltip' | translate" data-tooltip-align="bottom">
       <i class="fa-solid fa-lock"></i>
-      <span>ENFOQUE ACTIVO</span>
+      <span>{{ 'nav.focusActiveBadge' | translate }}</span>
     </span>
   </a>
   
@@ -13,26 +13,26 @@
     <a (click)="onNavClick($event, '/home')" [routerLink]="membership.isFocusActive() ? null : '/home'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()"><span class="nav-dot"></span><i class="fa-solid fa-house"></i></a>
     <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
       <span class="nav-dot"></span>
-      Concentrarme
-    </a>
-    <a (click)="onNavClick($event, '/fechas')" [routerLink]="membership.isFocusActive() ? null : '/fechas'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
-      <span class="nav-dot"></span>
-      Estadisticas
+      {{ 'nav.focus' | translate }}
     </a>
     <a (click)="onNavClick($event, '/ideas')" [routerLink]="membership.isFocusActive() ? null : '/ideas'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
-      Objetivos
-      <span *ngIf="membership.pendingCapturedIdeasCount() > 0" class="ideas-badge" data-tooltip="Ideas y tareas pendientes" data-tooltip-align="bottom">
+      {{ 'nav.goals' | translate }}
+      <span *ngIf="membership.pendingCapturedIdeasCount() > 0" class="ideas-badge" [attr.data-tooltip]="'nav.tooltipIdeas' | translate" data-tooltip-align="bottom">
         {{ membership.pendingCapturedIdeasCount() }}
       </span>
     </a>
     <a (click)="onNavClick($event, '/bestiario')" [routerLink]="membership.isFocusActive() ? null : '/bestiario'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
-      Retos
+      {{ 'nav.challenges' | translate }}
+    </a>
+    <a (click)="onNavClick($event, '/fechas')" [routerLink]="membership.isFocusActive() ? null : '/fechas'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
+      <span class="nav-dot"></span>
+      {{ 'nav.stats' | translate }}
     </a>
     <a (click)="onNavClick($event, '/medallero')" [routerLink]="membership.isFocusActive() ? null : '/medallero'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
-      Récords
+      {{ 'nav.records' | translate }}
     </a>
   </div>
 
@@ -40,7 +40,7 @@
   <div class="global-currency-header">
     <!-- Tomates -->
     <div class="header-currency-badge tomato-badge" 
-         data-tooltip="Pomodoros completados"
+         [attr.data-tooltip]="'nav.tooltipTomatoes' | translate"
          data-tooltip-align="bottom">
       <i style="font-style: normal; display: inline-block; font-size: 11px;">🍅</i>
       <span>{{ membership.focusTomatoes() }}</span>
@@ -48,7 +48,7 @@
 
     <!-- Puntos de Productividad -->
     <div class="header-currency-badge honor-badge" 
-         data-tooltip="Puntos de productividad (XP acumulado)"
+         [attr.data-tooltip]="'nav.tooltipXp' | translate"
          data-tooltip-align="bottom">
       <i class="fa-solid fa-bolt"></i>
       <span>{{ membership.focusPoints() }}</span>
@@ -56,7 +56,7 @@
 
     <!-- Pro Coins -->
     <div class="header-currency-badge pro-coins-badge" 
-         data-tooltip="Pro Coins acumuladas"
+         [attr.data-tooltip]="'nav.tooltipCoins' | translate"
          data-tooltip-align="bottom">
       <i class="fa-solid fa-coins"></i>
       <span>{{ membership.proCoins() }}</span>
@@ -64,7 +64,7 @@
 
     <!-- Racha de Enfoque -->
     <div class="header-currency-badge streak-badge" 
-         data-tooltip="Días de racha activa"
+         [attr.data-tooltip]="'nav.tooltipStreak' | translate"
          data-tooltip-align="bottom-left">
       <i class="fa-solid fa-fire"></i>
       <span>{{ membership.streak() }}</span>
@@ -79,7 +79,7 @@
             [class.item-locked]="membership.isFocusActive()"
             [class.has-unread]="notificationService.hasUnread()"
             [class.is-muted]="notificationService.isPaused()"
-            [attr.data-tooltip]="membership.isFocusActive() ? 'Notificaciones bloqueadas durante el enfoque activo' : (notificationService.isPaused() ? 'Notificaciones pausadas (Silencio)' : (notificationService.hasUnread() ? (notificationService.unreadCount() + ' notificaciones nuevas') : 'Notificaciones'))"
+            [attr.data-tooltip]="membership.isFocusActive() ? ('nav.focusLockedTooltip' | translate) : (notificationService.isPaused() ? ('nav.notificationsMuted' | translate) : (notificationService.hasUnread() ? (notificationService.unreadCount() + ' ' + ('nav.notificationsNew' | translate)) : ('nav.notifications' | translate)))"
             data-tooltip-align="bottom-left"
             aria-label="Abrir notificaciones">
       <i [class]="notificationService.isPaused() ? 'fa-solid fa-bell-slash' : 'fa-solid fa-bell'"></i>
@@ -96,7 +96,7 @@
       <div class="notif-panel-header">
         <div class="notif-panel-title-wrap">
           <i [class]="notificationService.isPaused() ? 'fa-solid fa-bell-slash notif-panel-bell-icon is-muted' : 'fa-solid fa-bell notif-panel-bell-icon'"></i>
-          <span class="notif-panel-title">Notificaciones</span>
+          <span class="notif-panel-title">{{ 'nav.notifications' | translate }}</span>
         </div>
         <div class="notif-panel-actions">
           <!-- Botón rápido de Pausa / Activar con emisión de sonido al reanudar -->
@@ -104,22 +104,22 @@
                   (click)="notificationService.togglePaused($event)"
                   class="notif-pause-toggle-btn"
                   [class.is-paused]="notificationService.isPaused()"
-                  [attr.data-tooltip]="notificationService.isPaused() ? 'Reanudar notificaciones y sonido' : 'Pausar notificaciones (Silencio)'"
+                  [attr.data-tooltip]="notificationService.isPaused() ? ('nav.notificationsMuted' | translate) : ('nav.notificationsActive' | translate)"
                   data-tooltip-align="bottom">
             <i [class]="notificationService.isPaused() ? 'fa-solid fa-bell-slash' : 'fa-solid fa-volume-high'"></i>
-            <span>{{ notificationService.isPaused() ? 'Pausadas' : 'Activas' }}</span>
+            <span>{{ notificationService.isPaused() ? ('nav.notificationsMuted' | translate) : ('nav.notificationsActive' | translate) }}</span>
           </button>
 
           <button *ngIf="notificationService.hasUnread()"
                   (click)="notificationService.markAllAsRead()"
                   class="notif-action-btn"
-                  title="Marcar todas como leídas">
+                  [attr.title]="'nav.markAllRead' | translate">
             <i class="fa-solid fa-check-double"></i>
           </button>
           <button *ngIf="notificationService.notifications().length > 0"
                   (click)="notificationService.clearAll()"
                   class="notif-action-btn notif-clear-btn"
-                  title="Limpiar todas las notificaciones">
+                  [attr.title]="'nav.clearAll' | translate">
             <i class="fa-solid fa-trash-can"></i>
           </button>
         </div>
@@ -132,8 +132,8 @@
           <div class="notif-empty-icon">
             <i class="fa-regular fa-bell-slash"></i>
           </div>
-          <span class="notif-empty-title">Todo en calma</span>
-          <span class="notif-empty-desc">No hay notificaciones pendientes. Tu mente está despejada para enfocarte.</span>
+          <span class="notif-empty-title">All clear</span>
+          <span class="notif-empty-desc">No pending notifications. Your mind is ready to focus.</span>
         </div>
 
         <!-- Items de Notificación -->
@@ -159,10 +159,10 @@
 
           <!-- Acciones laterales (punto de no leído + botón eliminar) -->
           <div class="notif-item-actions" (click)="$event.stopPropagation()">
-            <span *ngIf="!notif.isRead" class="notif-item-unread-dot" title="No leído"></span>
+            <span *ngIf="!notif.isRead" class="notif-item-unread-dot"></span>
             <button class="notif-item-delete-btn" 
                     (click)="notificationService.removeNotification(notif.id, $event)"
-                    title="Eliminar notificación">
+                    title="Delete">
               <i class="fa-solid fa-xmark"></i>
             </button>
           </div>
@@ -172,7 +172,7 @@
       <!-- Pie del Panel -->
       <div class="notif-panel-footer">
         <i class="fa-solid fa-shield-heart" style="color: var(--accent); font-size: 11px;"></i>
-        <span>Filosofía de Ruido Cero: solo avisos esenciales.</span>
+        <span>{{ 'nav.notificationsPhilosophy' | translate }}</span>
       </div>
     </div>
   </div>
@@ -183,7 +183,7 @@
          class="navbar-avatar-wrapper"
          [class.avatar-locked]="membership.isFocusActive()"
          [style.--avatar-color]="membership.getAvatarColorById(membership.selectedAvatar())"
-         [attr.data-tooltip]="membership.isFocusActive() ? 'Sesión de enfoque en curso' : 'Menú de perfil'"
+         [attr.data-tooltip]="membership.isFocusActive() ? ('nav.focusLockedTooltip' | translate) : ('nav.profile' | translate)"
          data-tooltip-align="bottom-left">
       <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" class="navbar-avatar-img">
       </div>
@@ -196,27 +196,53 @@
     <div *ngIf="membership.avatarMenuOpen() && !membership.isFocusActive()"
          class="navbar-dropdown-panel"
          (click)="$event.stopPropagation()">
-      <div style="padding: 6px 12px; display: flex; flex-direction: column; gap: 4px; user-select: none;">
+      <!-- Encabezado de Usuario -->
+      <div style="padding: 6px 12px 4px 12px; display: flex; flex-direction: column; gap: 3px; user-select: none;">
         <span style="font-size: 11.5px; font-weight: 700; color: var(--text);">{{ membership.userName() }}</span>
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
           <span style="font-size: 9.5px; font-weight: 600; color: var(--muted); letter-spacing: 0.3px;">
-            Plan {{ membership.isPremium() ? 'Pro 👑' : 'Básico' }}
+            {{ membership.isPremium() ? ('nav.planPro' | translate) : ('nav.planBasic' | translate) }}
           </span>
         </div>
       </div>
-      <div style="height: 1px; background: var(--border); margin: 4px 6px;"></div>
-      <a routerLink="/cualidades" (click)="membership.closeAvatarMenu()" class="dropdown-item-link">
-        <i class="fa-solid fa-user" style="font-size: 11px; width: 14px; text-align: center; color: var(--muted);"></i>
-        <span>Mi Perfil</span>
+
+      <!-- 1. MI PERFIL (HASTA ARRIBA) -->
+      <a routerLink="/cualidades" (click)="membership.closeAvatarMenu()" class="dropdown-item-link" style="font-weight: 700;">
+        <i class="fa-solid fa-user" style="font-size: 11px; width: 14px; text-align: center; color: var(--accent);"></i>
+        <span>{{ 'nav.profile' | translate }}</span>
       </a>
+
+      <!-- SEPARADOR DE SECCIÓN -->
+      <div style="height: 1px; background: var(--border); margin: 3px 6px;"></div>
+      
+      <!-- 2. SECCIÓN DE OTRAS OPCIONES: MI PLAN E IDIOMA -->
       <a routerLink="/membresia" (click)="membership.closeAvatarMenu()" class="dropdown-item-link">
-        <i class="fa-solid fa-crown" style="font-size: 11px; width: 14px; text-align: center; color: var(--muted);"></i>
-        <span>Mi Plan</span>
+        <i class="fa-solid fa-crown" style="font-size: 11px; width: 14px; text-align: center; color: var(--yellow);"></i>
+        <span>{{ 'nav.plan' | translate }}</span>
       </a>
-      <div style="height: 1px; background: var(--border); margin: 4px 6px;"></div>
+
+      <!-- Selector de Idioma Elegante -->
+      <div class="dropdown-lang-row" 
+           (click)="membership.toggleLanguage()"
+           [attr.title]="membership.userLanguage() === 'en' ? ('nav.switchToEs' | translate) : ('nav.switchToEn' | translate)">
+        <div class="dropdown-lang-left">
+          <i class="fa-solid fa-globe dropdown-lang-globe"></i>
+          <span>{{ 'nav.language' | translate }}</span>
+        </div>
+        <div class="dropdown-lang-switcher">
+          <span class="lang-opt" [class.is-active]="membership.userLanguage() === 'en'">EN</span>
+          <span class="lang-slash">/</span>
+          <span class="lang-opt" [class.is-active]="membership.userLanguage() === 'es'">ES</span>
+        </div>
+      </div>
+
+      <!-- SEPARADOR -->
+      <div style="height: 1px; background: var(--border); margin: 3px 6px;"></div>
+
+      <!-- 3. CERRAR SESIÓN -->
       <a routerLink="/login" (click)="membership.logout()" class="dropdown-item-link logout-dropdown-link">
         <i class="fa-solid fa-right-from-bracket" style="font-size: 11px; width: 14px; text-align: center;"></i>
-        <span>Cerrar Sesión</span>
+        <span>{{ 'nav.logout' | translate }}</span>
       </a>
     </div>
   </div>
@@ -232,12 +258,12 @@
   </div>
   <div class="nav-locked-toast-content">
     <div class="nav-locked-toast-header">
-      <span class="nav-locked-toast-badge">MODO ENFOQUE ACTIVO</span>
-      <span class="nav-locked-toast-title">Navegación restringida</span>
+      <span class="nav-locked-toast-badge">{{ 'nav.focusActiveBadge' | translate }}</span>
+      <span class="nav-locked-toast-title">Navigation locked</span>
     </div>
     <span class="nav-locked-toast-text">{{ lockedToastMessage() }}</span>
   </div>
-  <button class="nav-locked-toast-close" (click)="showLockedToast.set(false); $event.stopPropagation();" aria-label="Cerrar aviso" data-tooltip="Cerrar aviso" data-tooltip-align="left">
+  <button class="nav-locked-toast-close" (click)="showLockedToast.set(false); $event.stopPropagation();" aria-label="Cerrar aviso">
     <i class="fa-solid fa-xmark"></i>
   </button>
 </div>

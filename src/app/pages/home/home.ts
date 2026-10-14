@@ -39,10 +39,12 @@ export interface CommunityCompanionItem {
   mission?: string;
 }
 
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, Navbar],
+  imports: [CommonModule, RouterLink, Navbar, TranslatePipe],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -51,6 +53,7 @@ export class Home implements OnInit, OnDestroy {
   private router = inject(Router);
   public bossService = inject(ComunidadBossService);
   private supabaseService = inject(SupabaseService);
+  public translation = inject(TranslationService);
 
   currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
   userName!: WritableSignal<string>;
@@ -779,5 +782,32 @@ export class Home implements OnInit, OnDestroy {
 
   cancelJoinRoom() {
     this.showJoinConfirmation.set(false);
+  }
+
+  // Modal de Detalles de Jefe / Sirena y Retos
+  showBossModal = signal(false);
+
+  openBossModal() {
+    this.showBossModal.set(true);
+  }
+
+  closeBossModal() {
+    this.showBossModal.set(false);
+  }
+
+  getBossImage(): string {
+    const type = this.bossService.activeBoss()?.type;
+    switch (type) {
+      case 'samurai': return '/assets/images/avatars/boss_hidra.webp';
+      case 'cyberpunk': return '/assets/images/avatars/boss_kraken.webp';
+      case 'zen': return '/assets/images/avatars/boss_basilisco.webp';
+      case 'aurora': return '/assets/images/avatars/boss_quimera.webp';
+      case 'siren':
+      case 'sirena':
+        return '/assets/images/avatars/boss_sirena.webp';
+      case 'werewolf': return '/assets/images/avatars/boss_lobo.webp';
+      case 'vampire': return '/assets/images/avatars/boss_vampiro.webp';
+      default: return '/assets/images/avatars/boss_sirena.webp';
+    }
   }
 }

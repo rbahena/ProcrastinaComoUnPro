@@ -10,9 +10,9 @@
     <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; width: 100%;">
       <div>
         <h1 class="page-title" style="margin: 0; display: flex; align-items: center; gap: 12px;">
-          Retos de la Comunidad & Bestiario
+          {{ 'bestiary.title' | translate }}
         </h1>
-        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">Entiende a tus enemigos de la procrastinación, domina tu autodisciplina y explota sus debilidades.</p>
+        <p class="page-sub" style="margin-top: 4px; margin-bottom: 0;">{{ 'bestiary.subtitle' | translate }}</p>
       </div>
 
       <!-- Panel de Recompensas y Guía -->
@@ -20,9 +20,9 @@
         <!-- Botón ¿Cómo Vencer? -->
         <button (click)="toggleGuide()" 
                 class="btn-como-vencer"
-                title="Abre la Guía Táctica y Manual de Combate contra los Jefes">
+                [title]="'bestiary.combatManualTitle' | translate">
           <i class="fa-solid fa-circle-question icon-guide"></i>
-          <span>¿Cómo Vencer?</span>
+          <span>{{ 'bestiary.howToWinBtn' | translate }}</span>
         </button>
       </div>
     </div>
@@ -61,7 +61,7 @@
                 <!-- Candado si está bloqueado (Sin retrato ni pistas) -->
                 <div *ngIf="villain.locked" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: radial-gradient(circle at center, rgba(13, 13, 18, 0.4) 0%, transparent 100%);">
                   <i class="fa-solid fa-lock" style="font-size: 40px; color: rgba(255, 255, 255, 0.15); filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"></i>
-                  <span style="font-size: 9px; font-weight: 800; color: rgba(255, 255, 255, 0.25); letter-spacing: 1.5px; text-transform: uppercase;">Bloqueado</span>
+                  <span style="font-size: 9px; font-weight: 800; color: rgba(255, 255, 255, 0.25); letter-spacing: 1.5px; text-transform: uppercase;">{{ 'bestiary.lockedTag' | translate }}</span>
                 </div>
 
                 <!-- Degradado oscuro inferior para legibilidad del texto -->
@@ -70,17 +70,17 @@
                 <!-- Detalles Rápidos del HUD Frontal -->
                 <div class="card-front-hud" style="position: absolute; bottom: 32px; left: 16px; right: 16px; display: flex; flex-direction: column; gap: 6px; text-align: center; align-items: center; justify-content: center;">
                   <span class="card-record-badge" [style.color]="villain.locked ? 'var(--red)' : villain.color" style="font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block;">
-                    {{ villain.locked ? 'BLOQUEADO' : villain.subtitle }}
+                    {{ villain.locked ? ('bestiary.lockedTag' | translate) : villain.subtitle }}
                   </span>
                   <span class="card-holder-name" 
                         [style.fontSize]="villain.locked ? '12.5px' : '18px'"
                         [style.whiteSpace]="villain.locked ? 'normal' : 'nowrap'"
                         [style.color]="villain.locked ? 'rgba(255,255,255,0.75)' : '#fff'"
                         style="font-weight: 900; line-height: 1.4; text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.65); display: block; max-width: 280px; margin: 0 auto;">
-                    {{ villain.locked ? 'Se desbloquea en cuanto la comunidad venza al jefe en curso' : villain.name }}
+                    {{ villain.locked ? ('bestiary.lockedUnlockHint' | translate) : villain.name }}
                   </span>
                   <span *ngIf="!villain.locked" class="card-flip-hint" style="text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block;">
-                    <i class="fa-solid fa-arrows-rotate"></i> Pasa el cursor para ver detalles
+                    <i class="fa-solid fa-arrows-rotate"></i> {{ 'bestiary.hoverForDetails' | translate }}
                   </span>
                 </div>
               </div>
@@ -121,7 +121,7 @@
                             [style.boxShadow]="'0 0 10px ' + villain.color" 
                             style="width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-top: 5px;"></span>
                       <p style="font-family: inherit; font-size: 12.5px; line-height: 1.4; color: rgba(255, 255, 255, 0.85); margin: 0;">
-                        <strong>Tip:</strong> {{ villain.weakness }}
+                        <strong>{{ 'bestiary.tipLabel' | translate }}:</strong> {{ villain.weakness }}
                       </p>
                     </div>
                   </div>
@@ -129,13 +129,13 @@
                   <!-- Estadísticas del Combate -->
                   <div class="card-back-stats">
                     <div class="card-back-stat-row" style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 5px; margin-top: 5px;">
-                      <span class="card-back-stat-label" style="font-size: 13px; color: var(--muted);">Poder de Combate</span>
+                      <span class="card-back-stat-label" style="font-size: 13px; color: var(--muted);">{{ 'bestiary.combatPower' | translate }}</span>
                       <span class="card-back-stat-value record-num" [style.color]="villain.color" style="font-weight: 800; font-family: monospace; font-size: 14px;">
                         {{ villain.hp | number }} HP
                       </span>
                     </div>
                     <div class="card-back-stat-row" style="display: flex; justify-content: space-between;">
-                      <span class="card-back-stat-label" style="font-size: 13px; color: var(--muted);">Última actualización</span>
+                      <span class="card-back-stat-label" style="font-size: 13px; color: var(--muted);">{{ 'bestiary.lastUpdate' | translate }}</span>
                       <span class="card-back-stat-value" style="font-family: monospace; color: var(--muted); font-size: 12px;">{{ getFormattedToday() }}</span>
                     </div>
                   </div>
@@ -145,12 +145,12 @@
                 <ng-template #lockedBack>
                   <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px; padding: 20px 0;">
                     <i class="fa-solid fa-shield-halved" [style.color]="villain.color" style="font-size: 48px; opacity: 0.8; filter: drop-shadow(0 0 10px var(--card-glow));"></i>
-                    <span style="font-size: 14px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">Acceso Denegado</span>
+                    <span style="font-size: 14px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">{{ 'bestiary.accessDenied' | translate }}</span>
                     <p style="font-size: 11px; line-height: 1.5; color: var(--muted); margin: 0; max-width: 240px;">
-                      Este enemigo está bloqueado. Se desbloqueará de forma automática en cuanto la comunidad logre vencer al jefe activo en curso.
+                      {{ 'bestiary.lockedDescription' | translate }}
                     </p>
                     <div style="background: rgba(255,255,255,0.02); border: 1.5px solid rgba(255,255,255,0.06); padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 9px; color: var(--muted); text-transform: uppercase;">
-                      SYS.LOCK: ACTIVE_BOSS_REQD
+                      {{ 'bestiary.activeBossRequired' | translate }}
                     </div>
                   </div>
                 </ng-template>
@@ -192,7 +192,7 @@
       <div style="padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
         <h3 style="margin: 0; font-size: 18px; font-weight: 900; text-transform: uppercase; color: #fff; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
           <i class="fa-solid fa-circle-question" style="color: var(--accent);"></i>
-          Manual de Combate: ¿Cómo Vencer?
+          {{ 'bestiary.combatManualTitle' | translate }}
         </h3>
         <button (click)="toggleGuide()" 
                 style="background: transparent; border: none; color: var(--muted); font-size: 24px; cursor: pointer; line-height: 1; transition: color 0.2s;"
@@ -207,8 +207,8 @@
         <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
           <div class="combat-guide-num step-1">1</div>
           <div>
-            <h4 class="combat-guide-title">Elige tu Avatar</h4>
-            <p class="combat-guide-desc">Selecciona tu avatar de ataque. Cada uno posee cualidades, multiplicadores y daños únicos contra el jefe.</p>
+            <h4 class="combat-guide-title">{{ 'bestiary.step1Title' | translate }}</h4>
+            <p class="combat-guide-desc">{{ 'bestiary.step1Desc' | translate }}</p>
           </div>
         </div>
 
@@ -216,8 +216,8 @@
         <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
           <div class="combat-guide-num step-2">2</div>
           <div>
-            <h4 class="combat-guide-title">Enfócate</h4>
-            <p class="combat-guide-desc">En la sección de concentrarme verás al jefe activo. Únete a la comunidad de enfoque para dañarlo.</p>
+            <h4 class="combat-guide-title">{{ 'bestiary.step2Title' | translate }}</h4>
+            <p class="combat-guide-desc">{{ 'bestiary.step2Desc' | translate }}</p>
           </div>
         </div>
 
@@ -225,8 +225,8 @@
         <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
           <div class="combat-guide-num step-3">3</div>
           <div>
-            <h4 class="combat-guide-title">Usa Debilidades</h4>
-            <p class="combat-guide-desc">Ciertos avatares tienen ventajas de daño adicionales sobre jefes específicos según su estilo y naturaleza.</p>
+            <h4 class="combat-guide-title">{{ 'bestiary.step3Title' | translate }}</h4>
+            <p class="combat-guide-desc">{{ 'bestiary.step3Desc' | translate }}</p>
           </div>
         </div>
 
@@ -234,8 +234,8 @@
         <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
           <div class="combat-guide-num step-4">4</div>
           <div>
-            <h4 class="combat-guide-title">Gana Recompensas</h4>
-            <p class="combat-guide-desc">Al derrotar al jefe, todo guerrero que haya participado en el daño recibirá un botín en Pro Coins.</p>
+            <h4 class="combat-guide-title">{{ 'bestiary.step4Title' | translate }}</h4>
+            <p class="combat-guide-desc">{{ 'bestiary.step4Desc' | translate }}</p>
           </div>
         </div>
 
@@ -243,8 +243,8 @@
         <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
           <div class="combat-guide-num step-5">5</div>
           <div>
-            <h4 class="combat-guide-title">Siguiente Desafío</h4>
-            <p class="combat-guide-desc">Vencer al jefe purifica el templo actual, desbloqueando automáticamente el acceso al siguiente gran enemigo.</p>
+            <h4 class="combat-guide-title">{{ 'bestiary.step5Title' | translate }}</h4>
+            <p class="combat-guide-desc">{{ 'bestiary.step5Desc' | translate }}</p>
           </div>
         </div>
 
@@ -252,8 +252,8 @@
         <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
           <div class="combat-guide-num step-6">6</div>
           <div>
-            <h4 class="combat-guide-title">Evita la Retirada</h4>
-            <p class="combat-guide-desc">Si abandonas o interrumpes tu sesión de enfoque, el jefe absorberá tus puntos de vida y sanará su salud.</p>
+            <h4 class="combat-guide-title">{{ 'bestiary.step6Title' | translate }}</h4>
+            <p class="combat-guide-desc">{{ 'bestiary.step6Desc' | translate }}</p>
           </div>
         </div>
 
@@ -265,7 +265,7 @@
                 style="background: var(--accent); border: none; color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.2s;"
                 onmouseover="this.style.filter='brightness(1.1)';"
                 onmouseout="this.style.filter='none';">
-          Entendido, ¡a luchar!
+          {{ 'bestiary.understoodFight' | translate }}
         </button>
       </div>
 

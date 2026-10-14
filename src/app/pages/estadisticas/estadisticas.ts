@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
 import { SupabaseService, UserDailyAttempt } from '../../services/supabase.service';
 import { Navbar } from '../../components/navbar/navbar';
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
 
 export interface CalendarDay {
   dayNumber: number | null;
@@ -41,13 +42,14 @@ export interface ObjectivesCalendarDay {
 @Component({
   selector: 'app-estadisticas',
   standalone: true,
-  imports: [CommonModule, Navbar],
+  imports: [CommonModule, Navbar, TranslatePipe],
   templateUrl: './estadisticas.html',
   styleUrl: './estadisticas.css'
 })
 export class Estadisticas implements OnInit, OnDestroy {
   public membership = inject(MembershipService);
   private supabaseService = inject(SupabaseService);
+  public translation = inject(TranslationService);
 
   // Intentos del día actual (reales)
   dailyAttempts = signal<UserDailyAttempt[]>([]);
@@ -77,9 +79,6 @@ export class Estadisticas implements OnInit, OnDestroy {
   // Mes y Año del Calendario Estadístico de Objetivos
   objCalendarMonth = signal<number>(new Date().getMonth());
   objCalendarYear = signal<number>(new Date().getFullYear());
-
-  // Estado del modal de compartir en LinkedIn
-  showShareModal = signal(false);
 
   sidebarCollapsed = this.membership.sidebarCollapsed;
   userName = this.membership.userName;
@@ -289,7 +288,11 @@ export class Estadisticas implements OnInit, OnDestroy {
   });
 
   // --- CÁLCULOS SEMANALES DE POMODOROS ---
-  weeklyLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  get weeklyLabels(): string[] {
+    return this.translation.currentLang() === 'en'
+      ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      : ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  }
 
   weeklyData = computed(() => {
     return this.weeklyHistorical();
@@ -328,14 +331,23 @@ export class Estadisticas implements OnInit, OnDestroy {
   });
 
   // --- CALENDARIO DEL MES ACTUAL (POMODOROS) ---
-  calendarWeekdays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  get calendarWeekdays(): string[] {
+    return this.translation.currentLang() === 'en'
+      ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      : ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  }
 
   currentMonthName = computed(() => {
     const now = new Date();
-    const months = [
+    const monthsEs = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
+    const monthsEn = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const months = this.translation.currentLang() === 'en' ? monthsEn : monthsEs;
     return `${months[now.getMonth()]} ${now.getFullYear()}`;
   });
 
@@ -391,7 +403,11 @@ export class Estadisticas implements OnInit, OnDestroy {
   });
 
   // --- CÁLCULOS ANUALES ---
-  annualLabels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  get annualLabels(): string[] {
+    return this.translation.currentLang() === 'en'
+      ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      : ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  }
 
   currentMonthIndex = computed(() => new Date().getMonth());
 
@@ -593,10 +609,15 @@ export class Estadisticas implements OnInit, OnDestroy {
 
   // --- CALENDARIO ESTADÍSTICO DE OBJETIVOS (HEATMAP) ---
   objectivesCalendarMonthName = computed(() => {
-    const months = [
+    const monthsEs = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
+    const monthsEn = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const months = this.translation.currentLang() === 'en' ? monthsEn : monthsEs;
     return `${months[this.objCalendarMonth()]} ${this.objCalendarYear()}`;
   });
 
@@ -737,24 +758,6 @@ export class Estadisticas implements OnInit, OnDestroy {
     const mStr = String(now.getMonth() + 1).padStart(2, '0');
     const dStr = String(now.getDate()).padStart(2, '0');
     this.selectedCalendarDayDate.set(`${now.getFullYear()}-${mStr}-${dStr}`);
-  }
-
-  // --- COMPARTIR EN LINKEDIN ---
-  openShareModal() {
-    this.showShareModal.set(true);
-  }
-
-  closeShareModal() {
-    this.showShareModal.set(false);
-  }
-
-  shareOnLinkedIn() {
-    const text = encodeURIComponent(
-      `🎯 ¡He completado ${this.annualTotal()} sesiones de enfoque (${this.totalFocusHours()} horas) y conquistado ${this.totalCompletedObjectives()} objetivos en COFU manteniendo una racha de ${this.longestStreak} días! 🔥🧠\n\n` +
-      `Supera la procrastinación en: https://cofu.app`
-    );
-    window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}`, '_blank');
-    this.showShareModal.set(false);
   }
 }
 

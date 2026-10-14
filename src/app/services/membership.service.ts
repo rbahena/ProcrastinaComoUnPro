@@ -1,6 +1,7 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService, CatalogItem, MultilingualText, CapturedIdea, IdeaPriority } from './supabase.service';
+import { TranslationService } from './translation.service';
 
 export function normalizeCapturedIdeas(raw: any[]): CapturedIdea[] {
   if (!Array.isArray(raw)) return [];
@@ -119,6 +120,7 @@ export const ALL_AVATARS_LIST = [
 export class MembershipService {
   private supabaseService = inject(SupabaseService);
   private router = inject(Router);
+  public translationService = inject(TranslationService);
 
   // Estado de membresía (Pro/Premium Desbloqueado al 100%)
   isPremium = signal<boolean>(true);
@@ -247,8 +249,35 @@ export class MembershipService {
   // Control global para abrir el modal de configuración de identidad
   showSettingsModal = signal<boolean>(false);
 
-  // Idioma de la interfaz ('es' por defecto o 'en')
-  userLanguage = signal<'es' | 'en'>('es');
+  // Idioma de la interfaz: POR DEFECTO INICIA EN INGLÉS ('en')
+  userLanguage = signal<'es' | 'en'>(
+    (typeof localStorage !== 'undefined' && (localStorage.getItem('procrastina-user-language') as 'es' | 'en')) || 'en'
+  );
+
+  /**
+   * Cambia el idioma de la aplicación, persiste en localStorage y sincroniza con Supabase
+   */
+  setLanguage(lang: 'es' | 'en') {
+    this.userLanguage.set(lang);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('procrastina-user-language', lang);
+    }
+    this.translationService.setLanguage(lang);
+    const user = this.supabaseService.currentUser();
+    if (user && this.supabaseService.isConfigured()) {
+      this.supabaseService.updateProfile(user.id, { language: lang }).catch(() => {});
+    }
+    this.saveConsolidatedUserData();
+  }
+
+  /**
+   * Alterna entre inglés y español ('en' <-> 'es')
+   */
+  toggleLanguage(): 'es' | 'en' {
+    const next: 'es' | 'en' = this.userLanguage() === 'en' ? 'es' : 'en';
+    this.setLanguage(next);
+    return next;
+  }
 
   // Preferencias centralizadas de la Arena de Enfoque
   focusPreferences = signal<Record<string, string>>({ ...DEFAULT_FOCUS_PREFERENCES });
@@ -535,6 +564,9 @@ export class MembershipService {
   }
 
   constructor() {
+    // Sincronizar TranslationService con el idioma inicial
+    this.translationService.setLanguage(this.userLanguage());
+
     // Cerrar menú de avatar al hacer click fuera
     if (typeof document !== 'undefined') {
       document.addEventListener('click', () => {
@@ -1636,6 +1668,7 @@ export class MembershipService {
     if (p.last_focus_date) this.lastFocusDate.set(p.last_focus_date);
     if (p.language) {
       this.userLanguage.set(p.language);
+      this.translationService.setLanguage(p.language);
     }
     if (p.is_premium !== undefined) this.isPremium.set(p.is_premium);
 

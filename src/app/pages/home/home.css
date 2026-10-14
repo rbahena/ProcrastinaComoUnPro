@@ -363,24 +363,25 @@
   z-index: 3;
 }
 
-/* Made text inside cards slightly larger */
+/* Made text inside cards slightly larger and clearly legible */
 .metric-card-premium .card-title-text {
-  font-size: 11px !important;
+  font-size: 12.5px !important;
+  letter-spacing: 0.6px;
 }
 
 .metric-card-premium .card-large-value {
-  font-size: 25px !important;
+  font-size: 26px !important;
   font-weight: 900;
   color: var(--text);
-  line-height: 1.1;
+  line-height: 1.15;
   margin-top: 4px;
   letter-spacing: -0.5px;
 }
 
 .metric-card-premium .card-sub-desc {
-  font-size: 12px !important;
+  font-size: 13.5px !important;
   color: var(--muted);
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 /* Diseños con gradientes y rejilla inspirados en dashboard.png */
@@ -613,12 +614,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 3px 6px;
+  padding: 4px 7px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.04);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  font-size: 10.5px;
+  font-size: 11.5px;
 }
 
 .rank-ladder-mini-row:hover {
@@ -634,10 +635,10 @@
 }
 
 .ladder-rank-tag {
-  font-size: 9.5px;
+  font-size: 11px;
   font-weight: 800;
   font-family: 'Space Grotesk', sans-serif;
-  width: 22px;
+  width: 24px;
   text-align: left;
   color: var(--muted);
   flex-shrink: 0;
@@ -661,8 +662,8 @@
 }
 
 .ladder-mini-avatar {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
@@ -673,7 +674,7 @@
 .ladder-mini-name {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   flex: 1;
   overflow: hidden;
   white-space: nowrap;
@@ -683,16 +684,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
-  font-size: 10.5px;
+  font-size: 11.5px;
   white-space: nowrap;
 }
 
 .ladder-you-pill {
-  font-size: 7.5px;
+  font-size: 9px;
   font-weight: 900;
   background: var(--yellow);
   color: #000;
-  padding: 1px 4px;
+  padding: 1.5px 5px;
   border-radius: 3px;
   letter-spacing: 0.3px;
   line-height: 1;
@@ -700,7 +701,7 @@
 }
 
 .ladder-mini-tomatoes {
-  font-size: 10.5px;
+  font-size: 11.5px;
   font-weight: 700;
   flex-shrink: 0;
   margin-left: 6px;
@@ -838,6 +839,39 @@
 
 .podio-column:hover {
   transform: translateY(-4px);
+}
+
+/* Posicionamiento calibrado de tooltips en columnas del podio y runners-up (evita que suban en exceso y tapen el título) */
+.podio-column[data-tooltip]::before,
+.podio-column.custom-tooltip-host::before,
+.runner-up-card[data-tooltip]::before,
+.runner-up-card.custom-tooltip-host::before {
+  bottom: calc(100% + 6px) !important;
+  transform: translate(-50%, 4px) scale(0.96) !important;
+}
+
+.podio-column[data-tooltip]:hover::before,
+.podio-column.custom-tooltip-host:hover::before,
+.runner-up-card[data-tooltip]:hover::before,
+.runner-up-card.custom-tooltip-host:hover::before {
+  opacity: 1 !important;
+  transform: translate(-50%, 0) scale(1) !important;
+}
+
+.podio-column[data-tooltip]::after,
+.podio-column.custom-tooltip-host::after,
+.runner-up-card[data-tooltip]::after,
+.runner-up-card.custom-tooltip-host::after {
+  bottom: calc(100% - 3px) !important;
+  transform: translate(-50%, 4px) scale(0.96) !important;
+}
+
+.podio-column[data-tooltip]:hover::after,
+.podio-column.custom-tooltip-host:hover::after,
+.runner-up-card[data-tooltip]:hover::after,
+.runner-up-card.custom-tooltip-host:hover::after {
+  opacity: 1 !important;
+  transform: translate(-50%, 0) scale(1) !important;
 }
 
 .podio-avatar-wrapper {
@@ -1187,7 +1221,7 @@
 }
 
 .podio-section-title {
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 800;
   color: var(--yellow);
   text-transform: uppercase;
@@ -1195,13 +1229,13 @@
 }
 
 .podio-top3-badge {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--yellow);
   background: rgba(255, 215, 0, 0.08);
   border: 1px solid rgba(255, 215, 0, 0.25);
   border-radius: 10px;
-  padding: 2px 7px;
+  padding: 2px 8px;
 }
 
 .podio-columns-row {
@@ -1216,7 +1250,7 @@
 
 .podio-crown-badge {
   color: #ffd700;
-  font-size: 13px;
+  font-size: 14px;
   margin-bottom: 3px;
   filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
   display: flex;
@@ -1226,7 +1260,7 @@
 }
 
 .podio-user-name {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--text);
   overflow: hidden;
@@ -1238,7 +1272,7 @@
 }
 
 .podio-user-points {
-  font-size: 10px;
+  font-size: 11.5px;
   color: var(--muted);
   margin-bottom: 1px;
   font-weight: 700;
@@ -1246,9 +1280,9 @@
 }
 
 .podio-user-breakdown {
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
-  opacity: 0.85;
+  opacity: 0.9;
   font-weight: 600;
   margin-bottom: 5px;
   letter-spacing: 0.2px;
@@ -1374,7 +1408,7 @@
 }
 
 .runner-name {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text);
   overflow: hidden;
@@ -1383,17 +1417,17 @@
 }
 
 .runner-wins {
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 800;
   color: var(--yellow);
   background: rgba(255, 215, 0, 0.1);
   border: 1px solid rgba(255, 215, 0, 0.25);
   border-radius: 4px;
-  padding: 0 4px;
+  padding: 1px 5px;
 }
 
 .runner-details {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
   font-weight: 600;
   letter-spacing: 0.2px;
@@ -1411,7 +1445,7 @@
 }
 
 .runner-score-value {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 800;
   color: var(--yellow);
   font-family: 'Space Grotesk', sans-serif;

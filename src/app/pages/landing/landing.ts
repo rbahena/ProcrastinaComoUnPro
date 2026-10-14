@@ -22,14 +22,16 @@ interface ChallengeDay {
   btnText: string;
 }
 
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
+
 @Component({
   selector: 'app-landing',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './landing.html',
   styleUrl: './landing.css',
 })
 export class Landing implements OnInit, OnDestroy {
-  constructor(public legalService: LegalService) {}
+  constructor(public legalService: LegalService, public translation: TranslationService) {}
   private timerId?: any;
   private readonly EXCUSES: Record<string, ExcuseDetail> = {
     perfect: {

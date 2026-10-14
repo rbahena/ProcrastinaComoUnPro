@@ -1,16 +1,17 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LegalService } from '../../services/legal.service';
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-legal-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './legal-modal.html',
   styleUrl: './legal-modal.css'
 })
 export class LegalModal {
-  constructor(public legalService: LegalService) {}
+  constructor(public legalService: LegalService, public translation: TranslationService) {}
 
   close() {
     this.legalService.close();

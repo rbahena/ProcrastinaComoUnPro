@@ -15,6 +15,7 @@ import {
   PLATFORM_ID
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
 import { Router } from '@angular/router';
 
 export type MiniGameType = 'lobby' | 'gato' | 'dodge' | 'snake' | 'flappy' | 'memory' | 'breaker' | 'tetris' | 'samurai' | 'space';
@@ -104,7 +105,7 @@ export interface MemoryCard {
 @Component({
   selector: 'app-minijuegos-descanso',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './minijuegos-descanso.html',
   styleUrl: './minijuegos-descanso.css'
 })
@@ -112,6 +113,7 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private router = inject(Router);
   public isBrowser = isPlatformBrowser(this.platformId);
+  public translation = inject(TranslationService);
 
   @Input() theme: 'samurai' | 'cyberpunk' | 'aurora' | 'zen' = 'samurai';
   @Input() currentBreakTimeLeft: string = '';
@@ -127,116 +129,119 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
   showPremiumModal = signal<boolean>(false);
 
   // Catálogo completo de 9 minijuegos (¡TODOS DESBLOQUEADOS!)
-  readonly catalogGames: GameCatalogItem[] = [
-    {
-      id: 'gato',
-      title: 'Gato Clásico',
-      subtitle: 'IA Nivel Experto',
-      category: 'Lógica',
-      isUnlocked: true,
-      isPremium: false,
-      icon: 'fa-table-cells-large',
-      badgeText: 'JUGAR',
-      accentColor: '#38bdf8',
-      description: 'Reta a la IA experta (Minimax) en una partida rápida de 3 en raya con marcador dinámico.'
-    },
-    {
-      id: 'dodge',
-      title: 'Esquiva Veloz',
-      subtitle: 'Reflejos Ninja',
-      category: 'Reflejos',
-      isUnlocked: true,
-      isPremium: false,
-      icon: 'fa-bolt',
-      badgeText: 'JUGAR',
-      accentColor: '#10b981',
-      description: 'Sobrevive 60 segundos esquivando shurikens y orbes de energía con dificultad adaptativa.'
-    },
-    {
-      id: 'snake',
-      title: 'Cyber Culebrita',
-      subtitle: 'Snake Neón Retro',
-      category: 'Arcade',
-      isUnlocked: true,
-      isPremium: false,
-      icon: 'fa-worm',
-      badgeText: 'JUGAR',
-      accentColor: '#22c55e',
-      description: 'Guía la serpiente cibernética, devora orbes de energía y desafía tus propios récords sin chocar.'
-    },
-    {
-      id: 'flappy',
-      title: 'Flappy Foco',
-      subtitle: 'Aleteo de Precisión',
-      category: 'Habilidad',
-      isUnlocked: true,
-      isPremium: false,
-      icon: 'fa-feather-pointed',
-      badgeText: 'JUGAR',
-      accentColor: '#f59e0b',
-      description: 'Mantén el vuelo en el momento justo a través de columnas de neón y calibra tu ritmo de enfoque.'
-    },
-    {
-      id: 'memory',
-      title: 'Memoria Zen',
-      subtitle: 'Parejas Holográficas',
-      category: 'Memoria',
-      isUnlocked: true,
-      isPremium: false,
-      icon: 'fa-brain',
-      badgeText: 'JUGAR',
-      accentColor: '#a855f7',
-      description: 'Empareja sellos y runas místicas en 3D para activar la agilidad mental en pocos segundos.'
-    },
-    {
-      id: 'breaker',
-      title: 'Rompe-Bloques',
-      subtitle: 'Laser Arkanoid',
-      category: 'Arcade',
-      isUnlocked: true,
-      isPremium: false,
-      icon: 'fa-layer-group',
-      badgeText: 'JUGAR',
-      accentColor: '#06b6d4',
-      description: 'Destruye todas las barreras de distracción con disparos de precisión y rebote láser.'
-    },
-    {
-      id: 'tetris',
-      title: 'Tetris Relax',
-      subtitle: 'Alineación Total',
-      category: 'Estrategia',
-      isUnlocked: true,
-      isPremium: false,
-      icon: 'fa-cubes',
-      badgeText: 'JUGAR',
-      accentColor: '#818cf8',
-      description: 'Encaja bloques geométricos en un flujo continuo y satisfactorio para despejar la mente.'
-    },
-    {
-      id: 'samurai',
-      title: 'Reflejo Samurai',
-      subtitle: 'Corte de Katana',
-      category: 'Velocidad',
-      isUnlocked: true,
-      isPremium: false,
-      icon: 'fa-hand-fist',
-      badgeText: 'JUGAR',
-      accentColor: '#ef4444',
-      description: 'Corta objetivos en milisegundos cuando aparezca la señal de ataque con tajos láser.'
-    },
-    {
-      id: 'space',
-      title: 'Salto Espacial',
-      subtitle: 'Cosmic Jumper',
-      category: 'Plataformas',
-      isUnlocked: true,
-      isPremium: false,
-      icon: 'fa-rocket',
-      badgeText: 'JUGAR',
-      accentColor: '#facc15',
-      description: 'Impulsa tu cohete de plataforma en plataforma evitando anomalías hacia las estrellas.'
-    }
-  ];
+  get catalogGames(): GameCatalogItem[] {
+    const isEn = this.translation.currentLang() === 'en';
+    return [
+      {
+        id: 'gato',
+        title: isEn ? 'Classic Tic-Tac-Toe' : 'Gato Clásico',
+        subtitle: isEn ? 'Expert AI' : 'IA Nivel Experto',
+        category: isEn ? 'Logic' : 'Lógica',
+        isUnlocked: true,
+        isPremium: false,
+        icon: 'fa-table-cells-large',
+        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        accentColor: '#38bdf8',
+        description: isEn ? 'Challenge expert AI (Minimax) in a quick tic-tac-toe game with dynamic scoring.' : 'Reta a la IA experta (Minimax) en una partida rápida de 3 en raya con marcador dinámico.'
+      },
+      {
+        id: 'dodge',
+        title: isEn ? 'Swift Dodge' : 'Esquiva Veloz',
+        subtitle: isEn ? 'Ninja Reflexes' : 'Reflejos Ninja',
+        category: isEn ? 'Reflexes' : 'Reflejos',
+        isUnlocked: true,
+        isPremium: false,
+        icon: 'fa-bolt',
+        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        accentColor: '#10b981',
+        description: isEn ? 'Survive 60 seconds dodging shurikens and energy orbs with adaptive difficulty.' : 'Sobrevive 60 segundos esquivando shurikens y orbes de energía con dificultad adaptativa.'
+      },
+      {
+        id: 'snake',
+        title: isEn ? 'Cyber Snake' : 'Cyber Culebrita',
+        subtitle: isEn ? 'Retro Neon Snake' : 'Snake Neón Retro',
+        category: 'Arcade',
+        isUnlocked: true,
+        isPremium: false,
+        icon: 'fa-worm',
+        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        accentColor: '#22c55e',
+        description: isEn ? 'Guide the cyber snake, consume energy orbs, and beat your records without crashing.' : 'Guía la serpiente cibernética, devora orbes de energía y desafía tus propios récords sin chocar.'
+      },
+      {
+        id: 'flappy',
+        title: isEn ? 'Flappy Focus' : 'Flappy Foco',
+        subtitle: isEn ? 'Precision Flapping' : 'Aleteo de Precisión',
+        category: isEn ? 'Skill' : 'Habilidad',
+        isUnlocked: true,
+        isPremium: false,
+        icon: 'fa-feather-pointed',
+        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        accentColor: '#f59e0b',
+        description: isEn ? 'Keep steady flight through neon pillars and calibrate your focus rhythm.' : 'Mantén el vuelo en el momento justo a través de columnas de neón y calibra tu ritmo de enfoque.'
+      },
+      {
+        id: 'memory',
+        title: isEn ? 'Zen Memory' : 'Memoria Zen',
+        subtitle: isEn ? 'Holographic Pairs' : 'Parejas Holográficas',
+        category: isEn ? 'Memory' : 'Memoria',
+        isUnlocked: true,
+        isPremium: false,
+        icon: 'fa-brain',
+        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        accentColor: '#a855f7',
+        description: isEn ? 'Match mystic 3D seals and runes to spark mental agility in seconds.' : 'Empareja sellos y runas místicas en 3D para activar la agilidad mental en pocos segundos.'
+      },
+      {
+        id: 'breaker',
+        title: isEn ? 'Block Breaker' : 'Rompe-Bloques',
+        subtitle: 'Laser Arkanoid',
+        category: 'Arcade',
+        isUnlocked: true,
+        isPremium: false,
+        icon: 'fa-layer-group',
+        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        accentColor: '#06b6d4',
+        description: isEn ? 'Destroy all distraction barriers with precision laser rebounds.' : 'Destruye todas las barreras de distracción con disparos de precisión y rebote láser.'
+      },
+      {
+        id: 'tetris',
+        title: 'Tetris Relax',
+        subtitle: isEn ? 'Total Alignment' : 'Alineación Total',
+        category: isEn ? 'Strategy' : 'Estrategia',
+        isUnlocked: true,
+        isPremium: false,
+        icon: 'fa-cubes',
+        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        accentColor: '#818cf8',
+        description: isEn ? 'Fit geometric blocks in a satisfying flow to clear your mind.' : 'Encaja bloques geométricos en un flujo continuo y satisfactorio para despejar la mente.'
+      },
+      {
+        id: 'samurai',
+        title: isEn ? 'Samurai Reflex' : 'Reflejo Samurai',
+        subtitle: isEn ? 'Katana Strike' : 'Corte de Katana',
+        category: isEn ? 'Speed' : 'Velocidad',
+        isUnlocked: true,
+        isPremium: false,
+        icon: 'fa-hand-fist',
+        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        accentColor: '#ef4444',
+        description: isEn ? 'Strike targets in milliseconds when the attack cue appears with laser slices.' : 'Corta objetivos en milisegundos cuando aparezca la señal de ataque con tajos láser.'
+      },
+      {
+        id: 'space',
+        title: isEn ? 'Space Jump' : 'Salto Espacial',
+        subtitle: 'Cosmic Jumper',
+        category: isEn ? 'Platformer' : 'Plataformas',
+        isUnlocked: true,
+        isPremium: false,
+        icon: 'fa-rocket',
+        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        accentColor: '#facc15',
+        description: isEn ? 'Boost your rocket from platform to platform avoiding cosmic anomalies.' : 'Impulsa tu cohete de plataforma en plataforma evitando anomalías hacia las estrellas.'
+      }
+    ];
+  }
 
   filteredGames = computed<GameCatalogItem[]>(() => {
     const filter = this.activeFilter();

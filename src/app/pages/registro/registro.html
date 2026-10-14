@@ -5,13 +5,13 @@
     <div style="display: flex; flex-direction: column; line-height: 1.1;">
       <span class="logo-text" style="font-size: 20px; font-weight: 900; letter-spacing: -0.5px; line-height: 1;">COFU</span>
       <span class="logo-slogan" style="font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 0.5px; margin-top: 3px; text-transform: uppercase;">
-        Enfócate. Conecta. Avanza.
+        {{ 'auth.slogan' | translate }}
       </span>
     </div>
   </a>
   <div style="display: flex; gap: 10px; align-items: center;">
-    <a routerLink="/login" class="btn btn-ghost btn-sm">Iniciar sesión</a>
-    <a routerLink="/registro" class="btn btn-outline-accent btn-sm">Registrarme</a>
+    <a routerLink="/login" class="btn btn-ghost btn-sm">{{ 'auth.loginBtn' | translate }}</a>
+    <a routerLink="/registro" class="btn btn-outline-accent btn-sm">{{ 'auth.registerBtn' | translate }}</a>
   </div>
 </header>
 
@@ -19,8 +19,8 @@
 
   <div class="auth-card">
     <div class="auth-header">
-      <h2 class="auth-title">Crear una cuenta</h2>
-      <p class="auth-subtitle">Crea tu cuenta de acceso gratuito para comenzar</p>
+      <h2 class="auth-title">{{ 'auth.registerTitle' | translate }}</h2>
+      <p class="auth-subtitle">{{ 'auth.registerSubtitle' | translate }}</p>
     </div>
 
     @if (registroError()) {
@@ -32,18 +32,18 @@
     <!-- Main Form -->
     <form (submit)="onSubmit($event, emailInput.value, passwordInput.value)" class="auth-form">
       <div class="form-group">
-        <label for="email">Correo Electrónico</label>
-        <input #emailInput type="email" id="email" placeholder="nombre@ejemplo.com" required autocomplete="email" [disabled]="isLoading()">
+        <label for="email">{{ 'auth.emailLabel' | translate }}</label>
+        <input #emailInput type="email" id="email" [placeholder]="'auth.emailPlaceholder' | translate" required autocomplete="email" [disabled]="isLoading()">
       </div>
 
       <div class="form-group">
-        <label for="password">Contraseña</label>
+        <label for="password">{{ 'auth.passwordLabel' | translate }}</label>
         <div class="password-input-wrapper">
           <input 
             #passwordInput 
             [type]="showPassword() ? 'text' : 'password'" 
             id="password" 
-            placeholder="Mínimo 8 caracteres" 
+            [placeholder]="'auth.registerPasswordPlaceholder' | translate" 
             required 
             autocomplete="new-password" 
             [disabled]="isLoading()">
@@ -51,8 +51,8 @@
             type="button" 
             class="password-toggle-btn" 
             (click)="togglePasswordVisibility()" 
-            [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Ver contraseña'"
-            [title]="showPassword() ? 'Ocultar contraseña' : 'Ver contraseña'"
+            [attr.aria-label]="showPassword() ? ('auth.hidePassword' | translate) : ('auth.showPassword' | translate)"
+            [title]="showPassword() ? ('auth.hidePassword' | translate) : ('auth.showPassword' | translate)"
             tabindex="-1">
             <i [class]="showPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
           </button>
@@ -62,22 +62,22 @@
       <button type="submit" class="btn btn-accent w-100" [disabled]="isLoading()" style="margin-top: 15px; border: 1px solid var(--accent) !important; background: rgba(6, 8, 19, 0.45) !important; color: var(--accent) !important; display: flex; align-items: center; justify-content: center; gap: 8px;">
         @if (isLoading()) {
           <i class="fa-solid fa-circle-notch fa-spin"></i>
-          <span>Creando tu cuenta...</span>
+          <span>{{ 'auth.creatingAccount' | translate }}</span>
         } @else {
-          <span>Registrarse</span>
+          <span>{{ 'auth.submitRegister' | translate }}</span>
         }
       </button>
 
       <p class="terms-disclaimer" style="text-align: center; font-size: 11px; margin-top: 14px; line-height: 1.5; color: var(--muted);">
-        Al registrarte, confirmas que aceptas nuestros 
-        <a href="javascript:void(0)" (click)="legalService.open('terms')" style="color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 600;">Términos de Servicio</a> 
-        y la 
-        <a href="javascript:void(0)" (click)="legalService.open('privacy')" style="color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 600;">Política de Privacidad</a>.
+        {{ 'auth.termsDisclaimerPrefix' | translate }} 
+        <a href="javascript:void(0)" (click)="legalService.open('terms')" style="color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 600;">{{ 'auth.termsOfService' | translate }}</a> 
+        {{ 'auth.andThe' | translate }} 
+        <a href="javascript:void(0)" (click)="legalService.open('privacy')" style="color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 600;">{{ 'auth.privacyPolicy' | translate }}</a>.
       </p>
     </form>
 
     <div class="auth-footer" style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--muted);">
-      ¿Ya tienes una cuenta registrada? <a routerLink="/login" style="color: var(--accent); text-decoration: none; font-weight: 500;">Inicia sesión</a>
+      {{ 'auth.alreadyRegistered' | translate }} <a routerLink="/login" style="color: var(--accent); text-decoration: none; font-weight: 500;">{{ 'auth.loginLink' | translate }}</a>
     </div>
   </div>
 </div>

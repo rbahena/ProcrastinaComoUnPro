@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { Navbar } from '../../components/navbar/navbar';
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
 
 export interface BitacoraSession {
   date: string;
@@ -29,13 +30,14 @@ export interface AchievementItem {
 @Component({
   selector: 'app-bitacora',
   standalone: true,
-  imports: [CommonModule, RouterLink, Navbar],
+  imports: [CommonModule, RouterLink, Navbar, TranslatePipe],
   templateUrl: './bitacora.html',
   styleUrl: './bitacora.css'
 })
 export class Bitacora {
   membership = inject(MembershipService);
   bossService = inject(ComunidadBossService);
+  public translation = inject(TranslationService);
 
   sidebarCollapsed = this.membership.sidebarCollapsed;
   userName = this.membership.userName;

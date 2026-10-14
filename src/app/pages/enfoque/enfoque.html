@@ -1674,7 +1674,7 @@
                 <!-- Texto de Advertencia de Interrupción -->
                 <div *ngIf="emergencyPauseActive()"
                      style="margin-top: 14px; font-size: 11.5px; color: var(--red); font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px; animation: buttonGlowPulse 2s infinite ease-in-out;">
-                  ¡Regresa a tiempo o serás penalizado!
+                  {{ 'focus.returnInTimePenalty' | translate }}
                 </div>
               </ng-container>
 
@@ -6432,7 +6432,7 @@
                     <div class="setup-obj-left">
                       <div class="setup-obj-meta">
                         <i class="fa-solid fa-bullseye"></i>
-                        <span>Objetivo</span>
+                        <span>{{ 'focus.objectiveLabel' | translate }}</span>
                       </div>
                       <div class="setup-obj-title-wrapper">
                         <span class="setup-obj-title">"{{ activeObjective() }}"</span>
@@ -6451,10 +6451,10 @@
                       <button type="button" 
                               class="setup-obj-clear-btn" 
                               (click)="disassociateObjective()" 
-                              [attr.data-tooltip]="'Desvincular tarea'"
+                              [attr.data-tooltip]="'focus.unlinkTask' | translate"
                               data-tooltip-align="left"
-                              [title]="'Desvincular tarea'"
-                              aria-label="Desvincular tarea">
+                              [title]="'focus.unlinkTask' | translate"
+                              [attr.aria-label]="'focus.unlinkTask' | translate">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
                     </div>
@@ -6469,9 +6469,9 @@
                             style="border: none; background: var(--accent); color: #000; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--start-btn-width);"
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px var(--accent)';"
                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.3)';"
-                            [title]="isBreak() ? 'Iniciar tiempo de descanso' : 'Iniciar Sesión de Enfoque'">
+                            [title]="isBreak() ? ('focus.startBreakBtn' | translate) : ('focus.start' | translate)">
                       <i class="fa-solid" [class.fa-couch]="isBreak()" [class.fa-play]="!isBreak()"></i>
-                      <span>{{ isBreak() ? 'Iniciar Descanso' : 'Iniciar' }}</span>
+                      <span>{{ isBreak() ? ('focus.startBreakBtn' | translate) : ('focus.startBtn' | translate) }}</span>
                     </button>
 
                     <!-- Reset/Volver a enfocar (en setup si es descanso) -->
@@ -6480,9 +6480,9 @@
                             style="border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: var(--muted); padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: auto;"
                             onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--text)';"
                             onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.color='var(--muted)';"
-                            title="Volver a enfocar (ignorar descanso)">
+                            [title]="'focus.resetBtn' | translate">
                       <i class="fa-solid fa-rotate-left"></i>
-                      <span>Reset</span>
+                      <span>{{ 'focus.resetBtn' | translate }}</span>
                     </button>
 
                     <!-- Botón discreto de Minijuegos (en setup si es descanso, estilo Arcade Gamer) -->
@@ -6503,7 +6503,7 @@
                             [style.color]="showSetupSettings() && settingsActiveTab() === 'time' ? 'var(--accent)' : 'rgba(255,255,255,0.8)'"
                             onmouseover="this.style.background='rgba(255,255,255,0.05)';"
                             onmouseout="this.style.background='rgba(255,255,255,0.02)';"
-                            title="Configuración de Pomodoro">
+                            [title]="'focus.pomodoroConfig' | translate">
                       <i class="fa-solid fa-gear" style="font-size: calc(var(--settings-btn-size) * 0.36);"></i>
                     </button>
 
@@ -6514,7 +6514,7 @@
                             [style.borderColor]="showEnergyModal() ? 'var(--accent)' : 'rgba(255,255,255,0.08)'"
                             onmouseover="this.style.background='rgba(255,255,255,0.05)';"
                             onmouseout="this.style.background='rgba(255,255,255,0.02)';"
-                            title="Nivel de Motivación y Ritmo de Enfoque">
+                            [title]="'focus.motivationRhythm' | translate">
                       <i class="fa-solid fa-battery-half" 
                          [style.color]="energyLevel() === 'low' ? '#ef4444' : (energyLevel() === 'high' ? '#10b981' : '#f59e0b')" 
                          style="font-size: calc(var(--settings-btn-size) * 0.4);"></i>
@@ -6532,9 +6532,9 @@
                             style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1.5px solid; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: var(--start-btn-width);"
                             onmouseover="this.style.transform='translateY(-1px)';"
                             onmouseout="this.style.transform='translateY(0)';"
-                            [title]="emergencyPauseActive() ? 'Reanudar sesión de enfoque' : 'Interrumpir temporalmente (2 min máx con penalización si expira)'">
+                            [title]="emergencyPauseActive() ? ('focus.resume' | translate) : ('focus.emergencyPause' | translate)">
                       <i class="fa-solid" [class.fa-play]="emergencyPauseActive()" [class.fa-pause]="!emergencyPauseActive()"></i>
-                      <span>{{ emergencyPauseActive() ? 'Reanudar' : 'Interrumpir' }}</span>
+                      <span>{{ emergencyPauseActive() ? ('focus.resumeBtn' | translate) : ('focus.interruptBtn' | translate) }}</span>
                     </button>
 
                     <!-- Botón Abandonar -->
@@ -6543,9 +6543,9 @@
                             style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1.5px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08); color: #ef4444; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: auto;"
                             onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'; this.style.transform='translateY(-1px)';"
                             onmouseout="this.style.background='rgba(239, 68, 68, 0.08)'; this.style.transform='translateY(0)';"
-                            title="Abandonar sesión de concentración (Aplica penalización inmediata)">
+                            [title]="'focus.abandon' | translate">
                       <i class="fa-solid fa-ban" style="font-size: 13px;"></i>
-                      <span>Abandonar</span>
+                      <span>{{ 'focus.abandonBtn' | translate }}</span>
                     </button>
 
                     <!-- Botón discreto de Minijuegos (en descanso activo, estilo Arcade Gamer) -->
@@ -6584,8 +6584,8 @@
                   <!-- CASO 1: CON OBJETIVO LIGADO -->
                   <ng-container *ngIf="hasCustomObjective()">
                     <div class="summary-header">
-                      <span class="summary-header-label">Cierre Dopamínico</span>
-                      <h3 class="summary-question">¿Lograste completar tu objetivo?</h3>
+                      <span class="summary-header-label">{{ 'focus.dopamineClosure' | translate }}</span>
+                      <h3 class="summary-question">{{ 'focus.didYouCompleteObjective' | translate }}</h3>
                       <p class="summary-objective-text">
                         "{{ activeObjective() }}"
                       </p> 
@@ -6617,7 +6617,7 @@
                               [class.selected]="objectiveCompleted() === 'no'"
                               class="summary-choice-btn choice-no">
                         <i class="fa-solid fa-circle-xmark"></i>
-                        <span>No lo logré</span>
+                        <span>{{ 'focus.didNotAchieve' | translate }}</span>
                       </button>
                     </div>
                   </ng-container>
@@ -6625,8 +6625,8 @@
                   <!-- CASO 2: SIN OBJETIVO LIGADO (SOLO DESCANSO Y SALIR) -->
                   <ng-container *ngIf="!hasCustomObjective()">
                     <div class="summary-header">
-                      <span class="summary-header-label">Cierre Dopamínico</span>
-                      <h3 class="summary-question">¡Bloque completado con éxito!</h3>
+                      <span class="summary-header-label">{{ 'focus.dopamineClosure' | translate }}</span>
+                      <h3 class="summary-question">{{ 'focus.blockCompletedSuccess' | translate }}</h3>
                       <p class="summary-objective-text" style="font-style: normal; color: var(--muted); max-width: none;">
                         Has completado tu tiempo de enfoque.
                       </p>
@@ -6647,11 +6647,11 @@
                         <span>D. Corto</span>
                       </button>
 
-                      <!-- Descanso Largo -->
+                      <!-- {{ 'focus.longBreak' | translate }} -->
                       <button type="button"
                               (click)="finishSessionAndStart('long')"
                               class="summary-next-btn next-long"
-                              title="Iniciar Descanso Largo inmediatamente">
+                              title="Iniciar {{ 'focus.longBreak' | translate }} inmediatamente">
                         <i class="fa-solid fa-couch"></i>
                         <span>D. Largo</span>
                       </button>
@@ -6660,7 +6660,7 @@
                       <button type="button"
                               (click)="finishSessionAndStart('exit')"
                               class="summary-next-btn next-exit"
-                              title="Salir a la configuración de concentración">
+                              [title]="'focus.exitToFocusSettings' | translate">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
                         <span>Salir</span>
                       </button>
@@ -6713,7 +6713,7 @@
       <button *ngIf="showConsoleOnboardingHint()"
               (click)="showCommunityConsole.set(!showCommunityConsole()); showSetupSettings.set(false); showConsoleOnboardingHint.set(false)"
               class="console-fab-label-pill"
-              title="Abrir sala de concentración, guerreros y jefe">
+              [title]="'focus.openRoomGuerreros' | translate">
         <span class="console-fab-label-dot"></span>
         <span>⚔️ Guerreros & Jefe</span>
         <span *ngIf="totalLiveWarriorsCount() > 0" class="console-fab-live-count">
@@ -6738,7 +6738,7 @@
             <div class="energy-modal-icon-badge">
               <i class="fa-solid fa-battery-half"></i>
             </div>
-            <h3 class="energy-modal-title">Nivel de Motivación</h3>
+            <h3 class="energy-modal-title">{{ 'focus.motivationLevel' | translate }}</h3>
           </div>
         </div>
 
@@ -6762,10 +6762,10 @@
                 <span class="energy-option-dot" style="background: #ef4444; box-shadow: 0 0 8px #ef4444; margin-top: 5px;"></span>
                 <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
                   <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
-                    ¡Explota tu potencial! <strong>Inicia con · 10 min</strong>
+                    {{ 'focus.boostPotential10' | translate }}
                   </span>
                   <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
-                    Solo necesitas un pequeño impulso para arrancar.
+                    {{ 'focus.boostPotential10Sub' | translate }}
                   </span>
                   <span style="font-size: clamp(10px, 2.2vw, 11px); color: var(--muted); font-weight: 500; margin-top: 1px;">
                     🪙 +2 monedas · No suma Tomates ni Racha
@@ -6820,10 +6820,10 @@
                 <span class="energy-option-dot" style="background: #f59e0b; box-shadow: 0 0 8px #f59e0b; margin-top: 5px;"></span>
                 <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
                   <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
-                    Ritmo clásico · 25 min
+                    {{ 'focus.classicRhythm25' | translate }}
                   </span>
                   <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
-                    El bloque estándar de enfoque y balance.
+                    {{ 'focus.classicRhythm25Sub' | translate }}
                   </span>
                   <span style="font-size: clamp(10px, 2.2vw, 11px); color: #fde047; font-weight: 700; margin-top: 1px;">
                     🍅 +1 Tomate · Racha Diaria · 🪙 Recompensas
@@ -6878,10 +6878,10 @@
                 <span class="energy-option-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981; margin-top: 5px;"></span>
                 <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
                   <span style="font-size: clamp(12px, 2.7vw, 13.5px); font-weight: 800; color: #fff;">
-                    ¿Alta energía? <strong>Modo Flow · 45 min</strong>
+                    {{ 'focus.flowMode45' | translate }}
                   </span>
                   <span style="font-size: clamp(11px, 2.4vw, 12px); color: rgba(255, 255, 255, 0.85); font-weight: 500;">
-                    Inmersión total sin interrupciones.
+                    {{ 'focus.flowMode45Sub' | translate }}
                   </span>
                   <span style="font-size: clamp(10px, 2.2vw, 11px); color: #6ee7b7; font-weight: 800; margin-top: 1px;">
                     🍅🍅 +2 Tomates · Racha Diaria · 🪙 Recompensas
@@ -6918,7 +6918,7 @@
       <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); border: 1.5px solid var(--yellow); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
         <i class="fa-solid fa-crown" style="color: var(--yellow); font-size: 20px;"></i>
       </div>
-      <span style="font-size: 10px; color: var(--yellow); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Membresía Premium</span>
+      <span style="font-size: 10px; color: var(--yellow); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">{{ 'focus.premiumMembership' | translate }}</span>
       <h2 style="font-size: 20px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.5px;">Desbloquea el Camino Pro</h2>
     </div>
 
@@ -6939,7 +6939,7 @@
       <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px;">
         <i class="fa-solid fa-check" style="color: var(--green); margin-top: 2px;"></i>
         <div>
-          <strong style="color: var(--text);">Salas Compartidas en Vivo:</strong> Enfócate acompañado por compañeros en tiempo real.
+          <strong style="color: var(--text);">{{ 'focus.liveSharedRoomsTitle' | translate }}</strong> {{ 'focus.liveSharedRoomsDesc' | translate }}
         </div>
       </div>
     </div>
@@ -6952,14 +6952,14 @@
               onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 15px rgba(99,102,241,0.45)';"
               onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
         <i class="fa-solid fa-crown"></i>
-        Ir por mi suscripción Pro
+        {{ 'focus.getProSubscription' | translate }}
       </button>
       <!-- Toggle Premium Simulador -->
       <button (click)="membership.setPremium(!membership.isPremium()); showPaywallModal.set(false)" 
               style="width: 100%; background: transparent; border: 1.5px solid rgba(245, 158, 11, 0.35); padding: 10.5px; border-radius: 10px; color: var(--yellow); font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: inherit;"
               onmouseover="this.style.background='rgba(245, 158, 11, 0.06)';"
               onmouseout="this.style.background='transparent';">
-        {{ membership.isPremium() ? 'Revertir a plan Gratuito' : 'Probar por 7 días gratis' }}
+        {{ membership.isPremium() ? ('focus.revertToFreePlan' | translate) : ('focus.try7DaysFree' | translate) }}
       </button>
       <button (click)="showPaywallModal.set(false)" 
               style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 10px; color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;">
@@ -6987,17 +6987,17 @@
       <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 1.5px solid var(--red); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
         <i class="fa-solid fa-circle-exclamation" style="color: var(--red); font-size: 24px;"></i>
       </div>
-      <span style="font-size: 10px; color: var(--red); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">¿Abandonar Enfoque?</span>
-      <h2 style="font-size: 18px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.5px;">¿Seguro que quieres abandonar?</h2>
+      <span style="font-size: 10px; color: var(--red); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">{{ 'focus.abandonFocusQuestion' | translate }}</span>
+      <h2 style="font-size: 18px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.5px;">{{ 'focus.abandonConfirmTitle' | translate }}</h2>
     </div>
 
     <!-- Mensaje de penalización -->
     <div style="background: rgba(239, 68, 68, 0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 12px; color: rgba(255, 255, 255, 0.85); line-height: 1.6; text-align: left;">
       <p style="margin: 0 0 12px 0;">
-        Si abandonas la sesión de concentración serás penalizado perdiendo <strong style="color: var(--yellow);">{{ currentAvatarPausePenalty() }} ProCoins</strong><span *ngIf="membership.isPremium() && coworkingMode() === 'comunitario'"> y el jefe de la sala recuperará <strong style="color: var(--red);">{{ bossHealAmount() }} puntos de vida</strong></span>.
+        {{ 'focus.abandonPenaltyWarn' | translate: { penalty: currentAvatarPausePenalty() } }}<span *ngIf="membership.isPremium() && coworkingMode() === 'comunitario'">{{ 'focus.bossHealWarn' | translate: { heal: bossHealAmount() } }}</span>.
       </p>
       <p style="margin: 0; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 6px;">
-        ¡Tu perseverancia es clave!
+        {{ 'focus.perseveranceKey' | translate }}
       </p>
     </div>
 
@@ -7007,7 +7007,7 @@
               style="flex: 1; border: 1.5px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text); padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
               onmouseover="this.style.background='rgba(255,255,255,0.06)'"
               onmouseout="this.style.background='rgba(255,255,255,0.02)'">
-        Seguir Enfocado
+        {{ 'focus.stayFocusedBtn' | translate }}
       </button>
       <button (click)="confirmAbandon()"
               style="flex: 1; border: 1.5px solid var(--red); background: rgba(239, 68, 68, 0.1); color: var(--red); padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s;"
@@ -7031,13 +7031,13 @@
       <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 1.5px solid var(--red); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
         <i class="fa-solid fa-clock-rotate-left" style="color: var(--red); font-size: 24px;"></i>
       </div>
-      <span style="font-size: 10px; color: var(--red); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Tiempo Agotado</span>
-      <h2 style="font-size: 18px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.5px;">Sesión Cancelada</h2>
+      <span style="font-size: 10px; color: var(--red); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">{{ 'focus.timeExpired' | translate }}</span>
+      <h2 style="font-size: 18px; font-weight: 900; color: var(--text); margin-top: 4px; letter-spacing: -0.5px;">{{ 'focus.sessionCancelledTitle' | translate }}</h2>
     </div>
 
     <!-- Mensaje informativo -->
     <div style="background: rgba(239, 68, 68, 0.05); padding: 14px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 12px; color: rgba(255, 255, 255, 0.85); line-height: 1.5;">
-      El periodo de concentración se ha cancelado debido a que excediste los 2 minutos de interrupción. Has sido penalizado perdiendo <strong style="color: var(--yellow);">{{ currentAvatarPausePenalty() }} ProCoins</strong><span *ngIf="membership.isPremium() && coworkingMode() === 'comunitario'"> y el jefe de la sala ha recuperado <strong style="color: var(--red);">{{ bossHealAmount() }} puntos de vida</strong></span>.
+      {{ 'focus.sessionCancelledDesc' | translate: { penalty: currentAvatarPausePenalty() } }}<span *ngIf="membership.isPremium() && coworkingMode() === 'comunitario'">{{ 'focus.bossHealedDesc' | translate: { heal: bossHealAmount() } }}</span>.
     </div>
 
     <!-- Botón Aceptar -->
@@ -7088,7 +7088,7 @@
       </div>
       <h2 style="font-size: 18px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.5px;">Mensaje de Apoyo</h2>
       <p style="font-size: 11.5px; color: var(--muted); margin: 6px 0 0 0; line-height: 1.4;">
-        Te unirás a la sesión de <strong>{{ partnerName() }}</strong>. Déjale un mensaje de ánimo que recibirá al terminar su Pomodoro, sin interrumpir su concentración.
+        {{ 'focus.partnerJoinNotice' | translate: { name: partnerName() } }}
       </p>
     </div>
 
@@ -7131,7 +7131,7 @@
     <div style="margin-top: 14px; background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.1); border-radius: 8px; padding: 10px; display: flex; align-items: flex-start; gap: 8px; text-align: left;">
       <i class="fa-solid fa-circle-exclamation" style="color: var(--red); font-size: 13px; margin-top: 2px;"></i>
       <span style="font-size: 9.5px; color: var(--muted); line-height: 1.35;">
-        Si abandonas o interrumpes tu sesión antes de completarla, tu mensaje de apoyo no se entregará. ¡Mantente enfocado!
+        {{ 'focus.partnerAbandonNotice' | translate }}
       </span>
     </div>
 
@@ -7233,7 +7233,7 @@
 
       <!-- Título de la Pestaña Activa -->
       <h2 style="font-size: var(--modal-title-size); font-weight: 900; color: #fff; margin: 0 0 20px 0; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; letter-spacing: 0.5px;">
-        {{ settingsActiveTab() === 'time' ? 'Configuración de Tiempo y Sonidos' : settingsActiveTab() === 'notifications' ? 'Centro de Notificaciones y Alertas' : settingsActiveTab() === 'themes' ? 'Personalización y Fondos de Espacio' : 'Estilo y Visualización del Reloj' }}
+        {{ settingsActiveTab() === 'time' ? ('focus.settingsTimeAndSounds' | translate) : settingsActiveTab() === 'notifications' ? ('focus.settingsNotificationsAlerts' | translate) : settingsActiveTab() === 'themes' ? ('focus.settingsThemesAndSpaces' | translate) : ('focus.settingsClockStyle' | translate) }}
       </h2>
 
       <!-- Contenido Scrollable -->
@@ -7250,19 +7250,17 @@
                 <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 14px;">
                   <i class="fa-solid fa-brain"></i>
                 </div>
-                <span style="font-size: 13.5px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
-                  Concentración
-                </span>
+                <span style="font-size: 13.5px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">{{ 'focus.focusTabLabel' | translate }}</span>
               </div>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <button type="button" 
                         (click)="resetDefaultFocusSettings()" 
-                        title="Restablecer configuración inicial por defecto (25m / 5m / 15m / 4 ciclos / Sin audio / Batería activa)"
+                        [title]="'focus.resetDefaultsTip' | translate"
                         style="border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: #cbd5e1; padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: inherit;"
                         onmouseover="this.style.background='rgba(239,68,68,0.18)'; this.style.color='#fca5a5'; this.style.borderColor='rgba(239,68,68,0.45)';"
                         onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.color='#cbd5e1'; this.style.borderColor='rgba(255,255,255,0.14)';">
                   <i class="fa-solid fa-rotate-left"></i>
-                  <span>Restablecer por defecto</span>
+                  <span>{{ 'focus.resetBtn' | translate }}</span>
                 </button>
                 <span style="font-size: 11px; font-weight: 700; color: var(--accent); background: rgba(99,102,241,0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(99,102,241,0.25);">
                   Modo Enfoque Activo
@@ -7274,7 +7272,7 @@
             <div style="display: grid; grid-template-columns: 140px 1fr 1fr; gap: 14px; align-items: start;">
               <!-- 1. Duración -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
-                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Duración</span>
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">{{ 'focus.durationLabel' | translate }}</span>
                 <div class="duration-stepper-container">
                   <button type="button" 
                           (click)="focusDuration.set(focusDuration() > 1 ? focusDuration() - 1 : 1); applyTimeSettings()"
@@ -7371,10 +7369,10 @@
               <i class="fa-solid fa-triangle-exclamation" style="color: #f87171; font-size: 14px; margin-top: 2px; flex-shrink: 0;"></i>
               <div style="display: flex; flex-direction: column; gap: 2px;">
                 <span style="font-size: 12px; font-weight: 800; color: #fca5a5;">
-                  Sesión corta (&lt; 25 min): No suma Tomates ni Racha
+                  {{ 'focus.shortSessionNotice' | translate }}
                 </span>
                 <span style="font-size: 11.5px; color: #cbd5e1; line-height: 1.4;">
-                  Tu tiempo de concentración se guardará íntegro en estadísticas y total acumulado, pero los bloques menores a <strong>25 min</strong> no otorgan <strong>Tomates (🍅)</strong> ni incrementan tu <strong>racha diaria</strong>.
+                  {{ 'focus.shortSessionNoticeDesc' | translate }}
                 </span>
               </div>
             </div>
@@ -7382,7 +7380,7 @@
             <div *ngIf="focusDuration() >= 25" style="display: flex; align-items: center; gap: 10px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 10px; padding: 9px 14px; margin-top: 4px;">
               <span style="font-size: 15px; flex-shrink: 0;">🍅</span>
               <span style="font-size: 11.5px; color: #cbd5e1; line-height: 1.4;">
-                <strong style="color: #6ee7b7;">Bloque de concentración ({{ focusDuration() }} min):</strong> Otorga <strong style="color: #fff;">{{ getTomatoesForDuration(focusDuration()) }} {{ getTomatoesForDuration(focusDuration()) === 1 ? 'Tomate (🍅)' : 'Tomates (🍅)' }}</strong> y cuenta para tu racha diaria al completarlo.
+                {{ 'focus.fullBlockNotice' | translate: { duration: focusDuration(), tomatoes: getTomatoesForDuration(focusDuration()), label: (getTomatoesForDuration(focusDuration()) === 1 ? ('common.tomatoes' | translate) : ('common.tomatoes' | translate)) } }}
               </span>
             </div>
           </div>
@@ -7396,18 +7394,18 @@
                   <i class="fa-solid fa-mug-hot"></i>
                 </div>
                 <span style="font-size: 13.5px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
-                  Descanso Breve
+                  {{ 'focus.shortBreak' | translate }}
                 </span>
               </div>
               <span style="font-size: 11px; font-weight: 700; color: #34d399; background: rgba(16,185,129,0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(16,185,129,0.25);">
-                Pausa Rápida
+                {{ 'focus.quickBreakLabel' | translate }}
               </span>
             </div>
 
             <div style="display: grid; grid-template-columns: 140px 1fr 1fr; gap: 14px; align-items: start;">
               <!-- 1. Duración -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
-                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Duración</span>
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">{{ 'focus.durationLabel' | translate }}</span>
                 <div class="duration-stepper-container">
                   <button type="button" 
                           (click)="breakDuration.set(breakDuration() > 1 ? breakDuration() - 1 : 1); applyTimeSettings()"
@@ -7472,7 +7470,7 @@
                 </div>
               </div>
 
-              <!-- 3. Alarma Fin de Descanso Breve -->
+              <!-- 3. Alarma Fin de {{ 'focus.shortBreak' | translate }} -->
               <div style="display: flex; flex-direction: column; gap: 6px; position: relative;">
                 <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Alarma Fin de Descanso</span>
                 <div style="display: flex; gap: 6px;">
@@ -7508,18 +7506,18 @@
                   <i class="fa-solid fa-couch"></i>
                 </div>
                 <span style="font-size: 13.5px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
-                  Descanso Largo
+                  {{ 'focus.longBreak' | translate }}
                 </span>
               </div>
               <span style="font-size: 11px; font-weight: 700; color: #c084fc; background: rgba(168,85,247,0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(168,85,247,0.25);">
-                Recuperación Profunda
+                {{ 'focus.deepRecoveryLabel' | translate }}
               </span>
             </div>
 
             <div style="display: grid; grid-template-columns: 130px 130px 1fr 1fr; gap: 12px; align-items: start;">
               <!-- 1. Duración -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
-                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Duración</span>
+                <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">{{ 'focus.durationLabel' | translate }}</span>
                 <div class="duration-stepper-container">
                   <button type="button" 
                           (click)="longBreakDuration.set(longBreakDuration() > 1 ? longBreakDuration() - 1 : 1); applyTimeSettings()"
@@ -7564,7 +7562,7 @@
                            (blur)="onLongBreakIntervalBlur()"
                            class="custom-duration-input"
                            style="width: 24px; font-size: 12px;"
-                           title="Ingresa directamente el número de ciclos con el teclado">
+                           [title]="'focus.inputCyclesTooltip' | translate">
                     <span style="font-size: 10px; font-weight: 750; color: var(--muted); font-family: 'Space Grotesk', monospace; user-select: none;">ciclos</span>
                   </div>
                   <button type="button" 
@@ -7575,7 +7573,7 @@
                 </div>
               </div>
 
-              <!-- 3. Sonido de Fondo en Descanso Largo -->
+              <!-- 3. Sonido de Fondo en {{ 'focus.longBreak' | translate }} -->
               <div style="display: flex; flex-direction: column; gap: 6px; position: relative;">
                 <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Sonido de Fondo</span>
                 <div style="display: flex; gap: 6px;">
@@ -7613,7 +7611,7 @@
                 </div>
               </div>
 
-              <!-- 4. Alarma Fin de Descanso Largo -->
+              <!-- 4. Alarma Fin de {{ 'focus.longBreak' | translate }} -->
               <div style="display: flex; flex-direction: column; gap: 6px; position: relative;">
                 <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">Alarma Fin de Descanso</span>
                 <div style="display: flex; gap: 6px;">
@@ -7656,7 +7654,7 @@
                 <div style="display: flex; flex-direction: column; gap: 2px;">
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 12.5px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.4px;">
-                      Acceso Rápido a Batería de Motivación
+                      {{ 'focus.quickAccessBattery' | translate }}
                     </span>
                     <span *ngIf="showBatteryButtonInArena()" style="font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 5px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);">
                       Visible
@@ -7666,7 +7664,7 @@
                     </span>
                   </div>
                   <span style="font-size: 11px; color: var(--muted); opacity: 0.85;">
-                    Mostrar el botón 🔋 en la barra de la vista de concentración para calibrar tu energía al instante.
+                    {{ 'focus.quickAccessBatteryDesc' | translate }}
                   </span>
                 </div>
               </div>
@@ -7718,7 +7716,7 @@
                     </span>
                   </div>
                   <span style="font-size: 11.5px; color: var(--muted); opacity: 0.9;">
-                    Recibe avisos flotantes en tu sistema cuando el temporizador finalice, incluso si estás en otra ventana.
+                    {{ 'focus.floatingNotificationsDesc' | translate }}
                   </span>
                 </div>
               </div>
@@ -7766,7 +7764,7 @@
                  style="background: rgba(239, 68, 68, 0.08); border: 1px dashed rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; font-size: 11.5px; color: #fca5a5;">
               <i class="fa-solid fa-circle-exclamation" style="font-size: 15px; margin-top: 2px; color: #ef4444; flex-shrink: 0;"></i>
               <div style="display: flex; flex-direction: column; gap: 4px;">
-                <strong style="color: #fff;">Las notificaciones están bloqueadas en tu navegador</strong>
+                <strong style="color: #fff;">{{ 'focus.notificationsBlockedWarning' | translate }}</strong>
                 <span>Para activarlas: Haz clic en el icono del candado o ajustes del sitio <strong>🔒</strong> a la izquierda de la barra de direcciones de tu navegador, cambia <em>Notificaciones</em> a <strong>Permitir</strong> y vuelve a esta ventana.</span>
               </div>
             </div>
@@ -7776,14 +7774,14 @@
                  style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
               <div style="display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: #a7f3d0;">
                 <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
-                <span>Notificaciones activas. Recibirás avisos flotantes aunque cambies de ventana o aplicación.</span>
+                <span>{{ 'focus.notificationsActiveNotice' | translate }}</span>
               </div>
               <button type="button" 
                       (click)="testFocusNotification()" 
                       style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 800; font-size: 11px; padding: 5px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s;"
                       onmouseover="this.style.background='rgba(16, 185, 129, 0.28)'"
                       onmouseout="this.style.background='rgba(16, 185, 129, 0.15)'">
-                <i class="fa-solid fa-paper-plane"></i> Probar Notificación
+                <i class="fa-solid fa-paper-plane"></i> {{ 'focus.testNotification' | translate }}
               </button>
             </div>
 
@@ -7806,11 +7804,11 @@
                   <i class="fa-solid fa-brain" style="font-size: 14px; color: var(--accent);"></i>
                   <div style="display: flex; flex-direction: column; gap: 1px;">
                     <span style="font-size: 12px; font-weight: 800; color: #fff;">Pomodoro Terminado</span>
-                    <span style="font-size: 10.5px; color: var(--muted);">Avisar al completar la sesión de concentración</span>
+                    <span style="font-size: 10.5px; color: var(--muted);">{{ 'focus.notifyPomodoroEnd' | translate }}</span>
                   </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <button type="button" (click)="testNotification('pomodoroEnd')" title="Probar notificación" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
+                  <button type="button" (click)="testNotification('pomodoroEnd')" [title]="'focus.testNotification' | translate" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
                     <i class="fa-solid fa-bell"></i>
                   </button>
                   <label style="position: relative; display: inline-block; width: 38px; height: 20px; cursor: pointer; margin: 0;">
@@ -7824,17 +7822,17 @@
                 </div>
               </div>
 
-              <!-- 2. Fin de Descanso Breve -->
+              <!-- 2. Fin de {{ 'focus.shortBreak' | translate }} -->
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <i class="fa-solid fa-mug-hot" style="font-size: 14px; color: #10b981;"></i>
                   <div style="display: flex; flex-direction: column; gap: 1px;">
-                    <span style="font-size: 12px; font-weight: 800; color: #fff;">Descanso Breve Terminado</span>
+                    <span style="font-size: 12px; font-weight: 800; color: #fff;">{{ 'focus.shortBreak' | translate }} Terminado</span>
                     <span style="font-size: 10.5px; color: var(--muted);">Avisar que es momento de volver a enfocarte</span>
                   </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <button type="button" (click)="testNotification('shortBreakEnd')" title="Probar notificación" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
+                  <button type="button" (click)="testNotification('shortBreakEnd')" [title]="'focus.testNotification' | translate" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
                     <i class="fa-solid fa-bell"></i>
                   </button>
                   <label style="position: relative; display: inline-block; width: 38px; height: 20px; cursor: pointer; margin: 0;">
@@ -7848,17 +7846,17 @@
                 </div>
               </div>
 
-              <!-- 3. Fin de Descanso Largo -->
+              <!-- 3. Fin de {{ 'focus.longBreak' | translate }} -->
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <i class="fa-solid fa-couch" style="font-size: 14px; color: #a855f7;"></i>
                   <div style="display: flex; flex-direction: column; gap: 1px;">
-                    <span style="font-size: 12px; font-weight: 800; color: #fff;">Descanso Largo Terminado</span>
-                    <span style="font-size: 10.5px; color: var(--muted);">Avisar que finalizó tu pausa extendida</span>
+                    <span style="font-size: 12px; font-weight: 800; color: #fff;">{{ 'focus.longBreak' | translate }} Terminado</span>
+                    <span style="font-size: 10.5px; color: var(--muted);">{{ 'focus.notifyLongBreakEnd' | translate }}</span>
                   </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <button type="button" (click)="testNotification('longBreakEnd')" title="Probar notificación" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
+                  <button type="button" (click)="testNotification('longBreakEnd')" [title]="'focus.testNotification' | translate" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
                     <i class="fa-solid fa-bell"></i>
                   </button>
                   <label style="position: relative; display: inline-block; width: 38px; height: 20px; cursor: pointer; margin: 0;">
@@ -7877,12 +7875,12 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <i class="fa-solid fa-battery-half" style="font-size: 14px; color: var(--yellow);"></i>
                   <div style="display: flex; flex-direction: column; gap: 1px;">
-                    <span style="font-size: 12px; font-weight: 800; color: #fff;">Impulsos y Ajuste de Batería</span>
-                    <span style="font-size: 10.5px; color: var(--muted);">Avisos para calibrar tu ritmo según tu energía</span>
+                    <span style="font-size: 12px; font-weight: 800; color: #fff;">{{ 'focus.notifyMotivationReminder' | translate }}</span>
+                    <span style="font-size: 10.5px; color: var(--muted);">{{ 'focus.notifyMotivationReminderDesc' | translate }}</span>
                   </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <button type="button" (click)="testNotification('motivationReminder')" title="Probar notificación" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
+                  <button type="button" (click)="testNotification('motivationReminder')" [title]="'focus.testNotification' | translate" style="background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; cursor: pointer;">
                     <i class="fa-solid fa-bell"></i>
                   </button>
                   <label style="position: relative; display: inline-block; width: 38px; height: 20px; cursor: pointer; margin: 0;">
@@ -7912,14 +7910,14 @@
               <div style="display: flex; flex-direction: column; gap: 2px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span style="font-size: 12.5px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.4px;">
-                    Sonido al Abandonar Sesión
+                    {{ 'focus.abandonSoundTitle' | translate }}
                   </span>
                   <span style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid rgba(255,255,255,0.08);">
-                    Tono Fijo Melancólico
+                    {{ 'focus.melancholicFixedTone' | translate }}
                   </span>
                 </div>
                 <span style="font-size: 11px; color: var(--muted); opacity: 0.85;">
-                  Reproduce el efecto sonoro triste al cancelar o abandonar tu sesión de concentración.
+                  {{ 'focus.abandonSoundDesc' | translate }}
                 </span>
               </div>
             </div>
@@ -7952,10 +7950,10 @@
               </div>
               <div style="display: flex; flex-direction: column; gap: 2px;">
                 <span style="font-size: 12.5px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.4px;">
-                  Parpadeo en Pestaña del Navegador
+                  {{ 'focus.tabFlashingTitle' | translate }}
                 </span>
                 <span style="font-size: 11px; color: var(--muted); opacity: 0.85;">
-                  Cambia el título de la pestaña con alertas visuales (ej. 🔔 ¡POMODORO COMPLETADO!) si estás en otra web.
+                  {{ 'focus.tabFlashingDesc' | translate }}
                 </span>
               </div>
             </div>
@@ -7973,7 +7971,7 @@
           <!-- Tip Informativo del Sistema Operativo -->
           <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--muted);">
             <i class="fa-brands fa-windows" style="font-size: 14px; color: #60a5fa; flex-shrink: 0;"></i>
-            <span><strong>Tip para Windows / macOS:</strong> Si tienes activo "No molestar" o "Asistente de concentración", las notificaciones flotantes se archivan silenciosamente en tu centro de actividades.</span>
+            <span>{{ 'focus.windowsMacTip' | translate }}</span>
           </div>
 
         </div>
@@ -8027,7 +8025,7 @@
               <i class="fa-solid fa-satellite" style="color: #38bdf8; font-size: 13px;"></i>
               <div style="display: flex; flex-direction: column; text-align: left;">
                 <span style="font-size: 11.5px; font-weight: 800; color: #ffffff;">Fondos Espaciales Exclusivos</span>
-                <span style="font-size: 10px; color: var(--muted);">Para los relojes orbitales solo están disponibles los fondos: Espacio, Nebulosa y Lunar.</span>
+                <span style="font-size: 10px; color: var(--muted);">{{ 'focus.orbitalThemesTip' | translate }}</span>
               </div>
             </div>
 
@@ -8037,7 +8035,7 @@
               <i class="fa-solid fa-lock" style="color: #38bdf8; font-size: 13px;"></i>
               <div style="display: flex; flex-direction: column; text-align: left;">
                 <span style="font-size: 11.5px; font-weight: 800; color: #ffffff;">Fondo Mar Fijado</span>
-                <span style="font-size: 10px; color: var(--muted);">El reloj del Titanic utiliza por defecto el fondo Mar. No se puede modificar mientras esté seleccionado.</span>
+                <span style="font-size: 10px; color: var(--muted);">{{ 'focus.titanicSeaTip' | translate }}</span>
               </div>
             </div>
 
@@ -8199,7 +8197,7 @@
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
                   </div>
                 </div>
-                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'line' ? 'var(--accent)' : 'var(--muted)'">Línea</span>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'line' ? 'var(--accent)' : 'var(--muted)'">{{ 'focus.clockLine' | translate }}</span>
               </div>
 
             </div>
@@ -8305,7 +8303,7 @@
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
                   </div>
                 </div>
-                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--muted)'">Batería</span>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'battery' ? 'var(--accent)' : 'var(--muted)'">{{ 'focus.clockBattery' | translate }}</span>
               </div>
 
             </div>
@@ -8316,7 +8314,7 @@
           <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
             <div style="display: flex; align-items: center; border-bottom: 1px solid rgba(148, 163, 184, 0.2); padding-bottom: 6px;">
               <span style="font-size: 11.5px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.2px;">
-                Órbitas y Cosmos
+                {{ 'focus.clockCosmos' | translate }}
               </span>
             </div>
 
@@ -8341,7 +8339,7 @@
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
                   </div>
                 </div>
-                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'solar' ? 'var(--accent)' : 'var(--muted)'">Órbita Solar</span>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'solar' ? 'var(--accent)' : 'var(--muted)'">{{ 'focus.clockSolar' | translate }}</span>
               </div>
 
               <!-- 3.2 Satélite Orbital -->
@@ -8366,7 +8364,7 @@
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
                   </div>
                 </div>
-                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'satellite' ? 'var(--accent)' : 'var(--muted)'">Satélite</span>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'satellite' ? 'var(--accent)' : 'var(--muted)'">{{ 'focus.clockSatellite' | translate }}</span>
               </div>
 
               <!-- 3.3 Órbita Lunar -->
@@ -8389,7 +8387,7 @@
                     <i class="fa-solid fa-check" style="color: #000; font-size: 8px; font-weight: 900;"></i>
                   </div>
                 </div>
-                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'moon' ? 'var(--accent)' : 'var(--muted)'">Órbita Lunar</span>
+                <span class="timer-thumb-label" style="font-size: var(--modal-subtext-size); font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.2s;" [style.color]="timerStyle() === 'moon' ? 'var(--accent)' : 'var(--muted)'">{{ 'focus.clockMoon' | translate }}</span>
               </div>
 
             </div>
@@ -8574,7 +8572,7 @@
           Acceso Exclusivo Premium
         </h3>
         <p style="margin: 0; font-size: 13.5px; color: #cbd5e1; line-height: 1.45;">
-          Desbloquea los escenarios cinematográficos más avanzados: <strong style="color: #fbbf24;">Titanic, El Faro, Aterrizaje</strong> y todas las <strong style="color: #38bdf8;">Órbitas Cósmicas</strong>.
+          {{ 'focus.unlockCinematicsDesc' | translate }}
         </p>
       </div>
 
@@ -8582,15 +8580,15 @@
       <div style="width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; text-align: left;">
         <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e2e8f0; font-weight: 600;">
           <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
-          <span>Todos los Grandes Escenarios Cinematográficos</span>
+          <span>{{ 'focus.featureCinematics' | translate }}</span>
         </div>
         <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e2e8f0; font-weight: 600;">
           <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
-          <span>Órbitas y Cosmos (Sol, Satélite y Luna)</span>
+          <span>{{ 'focus.clockCosmos' | translate }} (Sol, Satélite y Luna)</span>
         </div>
         <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e2e8f0; font-weight: 600;">
           <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
-          <span>Fondos exclusivos de alta definición y atmósfera zen</span>
+          <span>{{ 'focus.featureZenBg' | translate }}</span>
         </div>
         <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e2e8f0; font-weight: 600;">
           <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
@@ -8605,12 +8603,12 @@
                 onmouseover="this.style.transform='scale(1.02)'"
                 onmouseout="this.style.transform='scale(1)'">
           <i class="fa-solid fa-crown" style="color: #fff;"></i>
-          <span>Obtener Membresía Premium</span>
+          <span>{{ 'focus.getPremiumMembershipBtn' | translate }}</span>
         </button>
 
         <button (click)="showPaywallModal.set(false)"
                 style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: transparent; color: #94a3b8; font-size: 13px; font-weight: 700; cursor: pointer;">
-          Quizás más tarde
+          {{ 'focus.maybeLater' | translate }}
         </button>
       </div>
 
@@ -8644,10 +8642,10 @@
             <span style="font-size: 10px; font-weight: 900; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.8px;">Desbloqueo de Estilo</span>
           </div>
           <h3 style="margin: 0; font-size: 21px; font-weight: 900; color: #ffffff; letter-spacing: -0.4px;">
-            ¿Desbloquear {{ item.name }}?
+            {{ 'focus.unlockItemTitle' | translate: { name: item.name } }}
           </h3>
           <p style="margin: 0; font-size: 13px; color: #cbd5e1; line-height: 1.45;">
-            Estás a punto de desbloquear este estilo permanente para tus sesiones de enfoque.
+            {{ 'focus.unlockItemDesc' | translate }}
           </p>
         </div>
 
@@ -8739,8 +8737,8 @@
           <div style="font-size: 11.5px; color: #fef08a; line-height: 1.45; display: flex; gap: 8px;">
             <i class="fa-solid fa-lightbulb" style="color: #fbbf24; font-size: 13px; margin-top: 2px;"></i>
             <span>
-              <strong>¿Cómo ganar más monedas?</strong><br>
-              Completa sesiones de enfoque (<span style="color:#fbbf24;">+{{ currentAvatarCoins() }} monedas</span> con tu avatar actual) o termina tus objetivos del día.
+              <strong>{{ 'focus.howToEarnCoinsTitle' | translate }}</strong><br>
+              {{ 'focus.howToEarnCoinsDesc' | translate: { coins: currentAvatarCoins() } }}
             </span>
           </div>
         </div>
@@ -8773,7 +8771,7 @@
     
     <!-- Título de la Consola -->
     <div style="font-size: 10px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">
-      {{ communityActiveTab() === 'strategy' ? 'Estrategia y Enfoque' : (communityActiveTab() === 'boss' ? 'Combate con el Jefe' : (communityActiveTab() === 'users' ? 'Usuarios Conectados' : 'Muro de Motivación')) }}
+      {{ communityActiveTab() === 'strategy' ? ('focus.consoleStrategy' | translate) : (communityActiveTab() === 'boss' ? ('focus.consoleBoss' | translate) : (communityActiveTab() === 'users' ? ('focus.consoleUsers' | translate) : ('focus.consoleMotivation' | translate))) }}
     </div>
 
     <!-- Contenedor Derecho (Tabs + Botones Acción) -->
@@ -8806,7 +8804,7 @@
                 [style.background]="communityActiveTab() === 'users' ? 'var(--accent)' : 'transparent'"
                 [style.color]="communityActiveTab() === 'users' ? '#000' : 'var(--muted)'"
                 style="border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
-                title="Compañeros y Guerreros">
+                [title]="'focus.companionsAndWarriors' | translate">
           <i class="fa-solid fa-users" style="font-size: 15px;"></i>
         </button>
 
@@ -8815,7 +8813,7 @@
                 [style.background]="communityActiveTab() === 'motivation' ? 'var(--accent)' : 'transparent'"
                 [style.color]="communityActiveTab() === 'motivation' ? '#000' : 'var(--muted)'"
                 style="border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
-                title="Muro de Motivación y Chat">
+                [title]="'focus.motivationWallAndChat' | translate">
           <i class="fa-solid fa-fire-flame-curved" style="font-size: 15px;"></i>
         </button>
       </div>
@@ -8937,10 +8935,10 @@
             <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
               <span style="font-size: 11.5px; font-weight: 800; color: #fff; letter-spacing: 0.3px; display: flex; align-items: center; gap: 5px;">
                 <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 8px #ef4444;"></span>
-                ¡Alerta de Combate Activa!
+                {{ 'focus.combatAlertTitle' | translate }}
               </span>
               <span style="font-size: 9.5px; color: rgba(255, 255, 255, 0.65); font-weight: 500; max-width: 220px; line-height: 1.35;">
-                El Jefe está al acecho. Inicia tu Pomodoro para apagar la alarma y asestar el primer golpe.
+                {{ 'focus.combatAlertDesc' | translate }}
               </span>
             </div>
           </div>
@@ -8959,10 +8957,10 @@
       <!-- Cabecera de la sección -->
       <div style="display: flex; flex-direction: column; gap: 2px;">
         <span style="font-size: 11.5px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.8px;">
-          Objetivo de mi sesión (opcional)
+          {{ 'focus.sessionObjectiveOptional' | translate }}
         </span>
         <span style="font-size: 10px; color: rgba(255, 255, 255, 0.5); font-weight: 500;">
-          Selecciona la estrategia de productividad para esta sesión
+          {{ 'focus.selectStrategyDesc' | translate }}
         </span>
       </div>
 
@@ -8982,12 +8980,9 @@
           <i class="fa-solid fa-crosshairs" 
              style="font-size: 14px;" 
              [style.color]="activeMethodology() === 'normal' ? 'var(--accent)' : 'var(--muted)'"></i>
-          <span style="font-size: 11px; font-weight: 800;" 
-                [style.color]="activeMethodology() === 'normal' ? '#fff' : 'var(--muted)'">
-            Estándar
-          </span>
+          <span style="font-size: 11px; font-weight: 800;" [style.color]="activeMethodology() === 'normal' ? '#fff' : 'var(--muted)'">{{ 'focus.methodologyStandard' | translate }}</span>
           <span style="font-size: 8.5px; color: rgba(255, 255, 255, 0.5); font-weight: 600; line-height: 1;">
-            Ritmo continuo
+            {{ 'focus.steadyRhythm' | translate }}
           </span>
         </button>
 
@@ -9004,11 +8999,9 @@
              [style.color]="activeMethodology() === 'sapo' ? '#10b981' : 'var(--muted)'"></i>
           <span style="font-size: 11px; font-weight: 800;" 
                 [style.color]="activeMethodology() === 'sapo' ? '#fff' : 'var(--muted)'">
-            El Sapo
+            {{ 'focus.theFrog' | translate }}
           </span>
-          <span style="font-size: 8.5px; color: rgba(255, 255, 255, 0.5); font-weight: 600; line-height: 1;">
-            La más difícil
-          </span>
+          <span style="font-size: 8.5px; color: rgba(255, 255, 255, 0.5); font-weight: 600; line-height: 1;">{{ 'focus.methodologyHardest' | translate }}</span>
         </button>
 
         <!-- Opción 3: Pareto -->
@@ -9027,7 +9020,7 @@
             Pareto
           </span>
           <span style="font-size: 8.5px; color: rgba(255, 255, 255, 0.5); font-weight: 600; line-height: 1;">
-            Mayor impacto
+            {{ 'focus.highImpact' | translate }}
           </span>
         </button>
       </div>
@@ -9037,8 +9030,8 @@
 
         
         <span style="color: rgba(255, 255, 255, 0.85);">
-          <strong style="color: #fff;">{{ activeMethodology() === 'sapo' ? 'Cómete el Sapo:' : (activeMethodology() === 'pareto' ? 'Principio 80/20:' : 'Enfoque Estándar:') }}</strong>
-          {{ activeMethodology() === 'sapo' ? ' Dedica este bloque a tu tarea más intimidante o postergada. Liquidarla disolverá la resistencia mental del día.' : (activeMethodology() === 'pareto' ? ' Concéntrate en el 20% clave de tus tareas que generará el 80% de tus resultados reales.' : ' Sesión equilibrada para avanzar tareas continuas, proyectos o rutinas con ritmo constante.') }}
+          <strong style="color: #fff;">{{ activeMethodology() === 'sapo' ? ('focus.methodologySapoTitle' | translate) : (activeMethodology() === 'pareto' ? ('focus.methodologyParetoTitle' | translate) : ('focus.methodologyStandardTitle' | translate)) }}</strong>
+          {{ activeMethodology() === 'sapo' ? ('focus.methodologySapoText' | translate) : (activeMethodology() === 'pareto' ? ('focus.methodologyParetoText' | translate) : ('focus.methodologyStandardText' | translate)) }}
         </span>
       </div>
 
@@ -9078,7 +9071,7 @@
                  [ngModel]="objectiveInput()" 
                  (ngModelChange)="onObjectiveInputChange($event)"
                  (keydown.enter)="confirmObjective()"
-                 [placeholder]="activeMethodology() === 'sapo' ? '¿Qué tarea pesada liquidarás hoy?' : (activeMethodology() === 'pareto' ? '¿Cuál es tu 20% clave de mayor impacto?' : '¿Qué objetivo lograrás en este bloque?')"
+                 [placeholder]="activeMethodology() === 'sapo' ? ('focus.placeholderSapo' | translate) : (activeMethodology() === 'pareto' ? ('focus.placeholderPareto' | translate) : ('focus.placeholderStandard' | translate))"
                  style="width: 100%; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; padding-right: 32px; color: var(--text); font-size: 12px; font-weight: 600; outline: none; font-family: inherit; height: 38px; box-sizing: border-box;"
                  [style.cursor]="arenaState() !== 'setup' ? 'not-allowed' : 'text'">
 
@@ -9122,7 +9115,7 @@
           Modo de Sala
         </span>
         <span style="font-size: 10px; color: rgba(255, 255, 255, 0.5); font-weight: 500;">
-          Elige entre sala colectiva o concentración privada
+          {{ 'focus.chooseRoomMode' | translate }}
         </span>
       </div>
 
@@ -9137,7 +9130,7 @@
                 [style.background]="coworkingMode() === 'comunitario' ? 'rgba(99, 102, 241, 0.25)' : 'transparent'"
                 [style.color]="coworkingMode() === 'comunitario' ? '#fff' : 'var(--muted)'"
                 [style.boxShadow]="coworkingMode() === 'comunitario' ? '0 0 0 1px rgba(99, 102, 241, 0.45)' : 'none'"
-                title="Modo Comunidad: conéctate con otros guerreros y ataca al Jefe en equipo">
+                [title]="'focus.modeCommunityTitle' | translate">
           <i class="fa-solid fa-users" [style.color]="coworkingMode() === 'comunitario' ? 'var(--accent)' : 'var(--muted)'" style="font-size: 12px;"></i>
           <span>Comunidad</span>
           <span *ngIf="coworkingMode() === 'comunitario'" 
@@ -9151,7 +9144,7 @@
                 [style.background]="coworkingMode() === 'solo' ? 'rgba(16, 185, 129, 0.22)' : 'transparent'"
                 [style.color]="coworkingMode() === 'solo' ? '#fff' : 'var(--muted)'"
                 [style.boxShadow]="coworkingMode() === 'solo' ? '0 0 0 1px rgba(16, 185, 129, 0.45)' : 'none'"
-                title="Modo Solitario: concentración 100% privada">
+                [title]="'focus.modeSoloTitle' | translate">
           <i class="fa-solid fa-user-shield" [style.color]="coworkingMode() === 'solo' ? 'var(--green)' : 'var(--muted)'" style="font-size: 12px;"></i>
           <span>Solitario</span>
           <span *ngIf="coworkingMode() === 'solo'" 
@@ -9164,7 +9157,7 @@
            style="background: rgba(99, 102, 241, 0.03); border: 1px dashed rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center;">
         <i class="fa-solid fa-lock" style="color: var(--muted); font-size: 11px;"></i>
         <span style="font-size: 11px; color: var(--muted); font-weight: 600;">
-          Modo bloqueado durante la sesión activa.
+          {{ 'focus.modeLockedActiveNotice' | translate }}
         </span>
       </div>
 
@@ -9172,7 +9165,7 @@
       <div style="background: rgba(0, 0, 0, 0.25); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.04);">
         <div *ngIf="coworkingMode() === 'comunitario'" style="display: flex; flex-direction: column; gap: 5px; align-items: flex-start;">
           <span style="font-size: 10.5px; font-weight: 600; color: rgba(255, 255, 255, 0.8); display: inline-flex; align-items: center; gap: 6px;">
-            <span>⚔️</span> <span>Infliges daño al Jefe de la Sala con cada minuto de enfoque</span>
+            <span>⚔️</span> <span>{{ 'focus.modeCommunityFeature' | translate }}</span>
           </span>
           <span style="font-size: 10.5px; font-weight: 600; color: rgba(255, 255, 255, 0.8); display: inline-flex; align-items: center; gap: 6px;">
             <span>👥</span> <span>Compartes presencia en vivo con otros guerreros</span>
@@ -9181,7 +9174,7 @@
 
         <div *ngIf="coworkingMode() === 'solo'" style="display: flex; flex-direction: column; gap: 5px; align-items: flex-start;">
           <span style="font-size: 10.5px; font-weight: 600; color: rgba(255, 255, 255, 0.8); display: inline-flex; align-items: center; gap: 6px;">
-            <span>🧘</span> <span>Sesión privada aislada y sin distractores</span>
+            <span>🧘</span> <span>{{ 'focus.modeSoloFeature' | translate }}</span>
           </span>
           <span style="font-size: 10.5px; font-weight: 600; color: rgba(255, 255, 255, 0.8); display: inline-flex; align-items: center; gap: 6px;">
             <span>🪙</span> <span>Suma tus monedas, tomates y racha individual normalmente</span>
@@ -9210,7 +9203,7 @@
 
         <!-- Checkbox para mostrar u ocultar mi tarea (inicia marcado = oculta) -->
         <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 10px; font-weight: 700; user-select: none; margin: 0; white-space: nowrap;"
-               [title]="hideMyObjectiveInCommunity() ? 'Tu tarea está oculta para la comunidad' : 'Tu tarea es visible en la comunidad'">
+               [title]="hideMyObjectiveInCommunity() ? ('focus.taskHiddenTip' | translate) : ('focus.taskVisibleTip' | translate)">
           <input type="checkbox"
                  [ngModel]="hideMyObjectiveInCommunity()"
                  (ngModelChange)="toggleHideMyObjective($event)"
@@ -9228,7 +9221,7 @@
         <input type="text"
                [ngModel]="comunidadSearchQuery()"
                (ngModelChange)="comunidadSearchQuery.set($event)"
-               placeholder="Buscar compañero..."
+               [placeholder]="'focus.searchCompanionPlaceholder' | translate"
                style="background: transparent; border: none; outline: none; color: #fff; font-size: 10px; font-family: inherit; flex: 1; padding: 0;">
         <button *ngIf="comunidadSearchQuery()" 
                 type="button" 
@@ -9255,8 +9248,8 @@
           <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; text-align: left;">
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
               <div style="display: flex; align-items: center; gap: 4px;">
-                <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text);">Tú ({{ userName() }})</span>
-                <span style="font-size: 7.5px; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 0 3px; border-radius: 3px; text-transform: uppercase;">Tú</span>
+                <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--text);">{{ 'focus.youWarriorLabel' | translate: { name: userName() } }}</span>
+                <span style="font-size: 7.5px; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 0 3px; border-radius: 3px; text-transform: uppercase;">{{ 'focus.youBadge' | translate }}</span>
                 <span *ngIf="(arenaState() === 'active' || arenaState() === 'countdown') && !emergencyPauseActive() && !recentlyAbandoned()" 
                       style="font-size: 7.5px; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 0 3px; border-radius: 3px; text-transform: uppercase;">
                   En vivo
@@ -9266,18 +9259,18 @@
             </div>
             <span style="font-size: var(--modal-text-size); font-weight: 700; margin-top: 1px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"
                   [style.color]="recentlyAbandoned() ? '#f87171' : (emergencyPauseActive() ? '#f59e0b' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'var(--muted)')))">
-              {{ recentlyAbandoned() ? 'Sesión interrumpida' : (emergencyPauseActive() ? 'En pausa de emergencia' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'Pausa de descanso' : ((arenaState() === 'active' || arenaState() === 'countdown') ? (hideMyObjectiveInCommunity() ? 'Enfoque Activo' : ((activeObjective() && activeObjective().trim()) ? '🎯 ' + activeObjective().trim() : 'Enfoque Activo')) : ((activeObjective() && activeObjective().trim()) ? '🎯 ' + activeObjective().trim() : 'En el campamento')))) }}
+              {{ recentlyAbandoned() ? ('focus.sessionInterruptedStatus' | translate) : (emergencyPauseActive() ? ('focus.emergencyPauseStatus' | translate) : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? ('focus.restBreakStatus' | translate) : ((arenaState() === 'active' || arenaState() === 'countdown') ? (hideMyObjectiveInCommunity() ? ('focus.activeFocusStatus' | translate) : ((activeObjective() && activeObjective().trim()) ? '🎯 ' + activeObjective().trim() : ('focus.activeFocusStatus' | translate))) : ((activeObjective() && activeObjective().trim()) ? '🎯 ' + activeObjective().trim() : ('focus.inCampStatus' | translate))))) }}
             </span>
           </div>
           <span style="font-size: var(--modal-header-size); font-weight: 800; font-family: monospace; flex-shrink: 0;"
                 [style.color]="recentlyAbandoned() ? '#ef4444' : (emergencyPauseActive() ? '#f59e0b' : (isBreak() && (arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--green)' : ((arenaState() === 'active' || arenaState() === 'countdown') ? 'var(--accent)' : 'var(--muted)')))">
-            {{ recentlyAbandoned() ? '💔 Abandonó' : (emergencyPauseActive() ? emergencyTimeString() : timeString()) }}
+            {{ recentlyAbandoned() ? ('focus.abandonedStatus' | translate) : (emergencyPauseActive() ? emergencyTimeString() : timeString()) }}
           </span>
         </div>
 
         <!-- Placeholder Modo Solo -->
         <div *ngIf="coworkingMode() === 'solo'" style="padding: 12px 6px; text-align: center; color: var(--muted); font-size: var(--modal-text-size); line-height: 1.4;">
-          Estás entrenando en solitario. ¡Compañeros ocultos! Cambia a modo Comunidad para ver a otros guerreros concentrándose.
+          {{ 'focus.soloNoticeCompanions' | translate }}
         </div>
 
         <!-- Compañeros Reales con Límite Inteligente (Sólo si modo comunitario) -->
@@ -9313,7 +9306,7 @@
                     <span *ngIf="p.is_live && p.status !== 'idle' && p.status !== 'abandoned'" style="font-size: 7.5px; font-weight: 800; padding: 0 3px; border-radius: 3px; text-transform: uppercase;"
                           [style.color]="p.status === 'paused' ? '#f59e0b' : '#10b981'"
                           [style.background]="p.status === 'paused' ? 'rgba(245, 158, 11, 0.16)' : 'rgba(16, 185, 129, 0.12)'">
-                      {{ p.status === 'paused' ? 'Pausado' : 'En vivo' }}
+                      {{ p.status === 'paused' ? ('common.paused' | translate) : ('home.liveBadge' | translate) }}
                     </span>
                   </div>
                 </div>
@@ -9325,7 +9318,7 @@
             </div>
             <span style="font-size: var(--modal-header-size); font-weight: 800; font-family: monospace; flex-shrink: 0;"
                   [style.color]="p.status === 'focused' ? 'var(--accent)' : (p.status === 'abandoned' ? '#ef4444' : (p.status === 'paused' ? '#f59e0b' : (p.status === 'break' ? 'var(--green)' : 'var(--muted)')))">
-              {{ p.status === 'focused' ? formatTime(p.timeLeft) : (p.status === 'abandoned' ? '💔 Abandonó' : (p.status === 'paused' ? (p.timeLeft > 0 ? formatTime(p.timeLeft) : 'Pausa') : (p.status === 'break' ? (p.timeLeft > 0 ? formatTime(p.timeLeft) : '☕ 5:00') : '💤 Inactivo'))) }}
+              {{ p.status === 'focused' ? formatTime(p.timeLeft) : (p.status === 'abandoned' ? ('focus.abandonedStatus' | translate) : (p.status === 'paused' ? (p.timeLeft > 0 ? formatTime(p.timeLeft) : ('common.pause' | translate)) : (p.status === 'break' ? (p.timeLeft > 0 ? formatTime(p.timeLeft) : '☕ 5:00') : ('focus.statusInactive' | translate)))) }}
             </span>
           </div>
 
@@ -9333,7 +9326,7 @@
           <div *ngIf="hiddenComunidadUsersCount() > 0"
                style="padding: 6px 8px; margin-top: 2px; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.08); border-radius: 6px; color: var(--muted); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;">
             <i class="fa-solid fa-users" style="font-size: 9px; color: var(--accent);"></i>
-            <span>+{{ hiddenComunidadUsersCount() }} guerreros más en la sala</span>
+            <span>{{ 'focus.moreWarriorsInRoom' | translate: { count: hiddenComunidadUsersCount() } }}</span>
           </div>
         </ng-container>
       </div>
@@ -9350,13 +9343,13 @@
              [ngModel]="newMotivationText()"
              (ngModelChange)="newMotivationText.set($event)"
              (keydown.enter)="addMotivation()"
-             placeholder="¿Qué te motiva hoy?..."
+             [placeholder]="'focus.motivationInputPlaceholder' | translate"
              style="flex: 1; background: transparent; border: none; color: #fff; font-size: var(--modal-subtext-size); outline: none; font-family: inherit;">
       <button (click)="addMotivation()"
               [disabled]="!newMotivationText().trim()"
               [style.opacity]="newMotivationText().trim() ? '1' : '0.4'"
               style="border: none; background: var(--accent); color: #000; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center;"
-              title="Publicar motivación">
+              [title]="'focus.publishMotivationTitle' | translate">
         <i class="fa-solid fa-paper-plane"></i>
       </button>
     </div>
@@ -9380,7 +9373,7 @@
     <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 2px;">
       <span style="font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
         <i class="fa-solid fa-fire" style="color: #f59e0b; font-size: 10px;"></i>
-        Top 10 Más Motivantes
+        {{ 'focus.top10Motivators' | translate }}
       </span>
       <span style="font-size: 8.5px; color: rgba(255,255,255,0.4); font-weight: 600;">
         {{ filteredMotivations().length }} frases
@@ -9394,9 +9387,9 @@
       <div *ngIf="filteredMotivations().length === 0" 
            style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 28px 12px; text-align: center; color: var(--muted); flex: 1;">
         <i class="fa-regular fa-comment-dots" style="font-size: 24px; color: var(--accent); opacity: 0.6;"></i>
-        <span style="font-size: 11.5px; font-weight: 700; color: #fff;">El muro está esperando tu inspiración</span>
+        <span style="font-size: 11.5px; font-weight: 700; color: #fff;">{{ 'focus.wallWaitingInspiration' | translate }}</span>
         <span style="font-size: 9.5px; color: rgba(255,255,255,0.5); max-width: 220px; line-height: 1.35;">
-          Sé el primer compañero en compartir una frase motivadora para la comunidad.
+          {{ 'focus.wallFirstToShare' | translate }}
         </span>
       </div>
 
@@ -9426,7 +9419,7 @@
                     style="border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 10px; padding: 1px 3px; border-radius: 3px; transition: all 0.2s; display: inline-flex; align-items: center;"
                     onmouseover="this.style.color='#ef4444'"
                     onmouseout="this.style.color='var(--muted)'"
-                    title="Eliminar mi publicación">
+                    [title]="'focus.deleteMyPost' | translate">
               <i class="fa-solid fa-trash-can"></i>
             </button>
           </div>
@@ -9444,7 +9437,7 @@
                   [style.background]="mot.likedByMe ? 'rgba(239, 68, 68, 0.16)' : 'rgba(255, 255, 255, 0.03)'"
                   [style.borderColor]="mot.likedByMe ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.08)'"
                   [style.color]="mot.likedByMe ? '#f87171' : 'var(--muted)'"
-                  [attr.data-tooltip]="mot.likedByMe ? 'Me motivó' : 'Me motiva'"
+                  [attr.data-tooltip]="mot.likedByMe ? ('focus.likedByMe' | translate) : ('focus.likePost' | translate)"
                   data-tooltip-align="left">
             <i [class]="mot.likedByMe ? 'fa-solid fa-heart' : 'fa-regular fa-heart'" [style.color]="mot.likedByMe ? '#ef4444' : 'inherit'" style="font-size: 9px;"></i>
             <span style="font-weight: 800;" [style.color]="mot.likedByMe ? '#fff' : 'inherit'">{{ mot.likes }}</span>

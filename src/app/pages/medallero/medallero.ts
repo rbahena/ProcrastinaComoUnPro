@@ -56,10 +56,12 @@ interface RawRankingPlayer {
   isSelf?: boolean;
 }
 
+import { TranslatePipe, TranslationService } from '../../services/translation.service';
+
 @Component({
   selector: 'app-medallero',
   standalone: true,
-  imports: [CommonModule, Navbar],
+  imports: [CommonModule, Navbar, TranslatePipe],
   templateUrl: './medallero.html',
   styleUrl: './medallero.css'
 })
@@ -67,6 +69,7 @@ export class Medallero implements OnInit, OnDestroy {
   public membership = inject(MembershipService);
   public bossService = inject(ComunidadBossService);
   private supabaseService = inject(SupabaseService);
+  public translation = inject(TranslationService);
 
   activeTab = signal<'objectives' | 'pomodoros' | 'streaks' | 'boss'>('objectives');
   sidebarCollapsed = this.membership.sidebarCollapsed;
@@ -86,12 +89,13 @@ export class Medallero implements OnInit, OnDestroy {
 
   userRankName = computed(() => {
     const lvl = this.userLevel();
-    if (lvl >= 30) return 'Comandante Supremo';
-    if (lvl >= 20) return 'Gran Maestro';
-    if (lvl >= 15) return 'Estratega Élite';
-    if (lvl >= 10) return 'Guerrero Veterano';
-    if (lvl >= 5) return 'Centinela';
-    return 'Recluta de Enfoque';
+    const isEn = this.translation.currentLang() === 'en';
+    if (lvl >= 30) return isEn ? 'Supreme Commander' : 'Comandante Supremo';
+    if (lvl >= 20) return isEn ? 'Grandmaster' : 'Gran Maestro';
+    if (lvl >= 15) return isEn ? 'Elite Strategist' : 'Estratega Élite';
+    if (lvl >= 10) return isEn ? 'Veteran Warrior' : 'Guerrero Veterano';
+    if (lvl >= 5) return isEn ? 'Sentinel' : 'Centinela';
+    return isEn ? 'Focus Recruit' : 'Recluta de Enfoque';
   });
 
   userRankIcon = computed(() => {

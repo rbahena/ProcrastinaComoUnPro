@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { Navbar } from '../../components/navbar/navbar';
+import { TranslatePipe } from '../../services/translation.service';
 
 @Component({
   selector: 'app-bloqueador',
   standalone: true,
-  imports: [CommonModule, RouterModule, Navbar],
+  imports: [CommonModule, RouterModule, Navbar, TranslatePipe],
   templateUrl: './bloqueador.html',
   styleUrl: './bloqueador.css',
 })

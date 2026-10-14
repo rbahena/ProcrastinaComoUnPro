@@ -3,13 +3,13 @@
   <!-- CABECERA -->
   <div class="page-header">
     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; width: 100%;">
-      <a routerLink="/home" class="back-link" style="align-self: flex-start;" data-tooltip="Volver a Inicio" data-tooltip-align="right">
+      <a routerLink="/home" class="back-link" style="align-self: flex-start;" [attr.data-tooltip]="'membership.backToHome' | translate" data-tooltip-align="right">
         <i class="fa-solid fa-arrow-left"></i>
-        Volver a la Comunidad
+        {{ 'membership.backToHome' | translate }}
       </a>
-      <span class="pricing-badge">Comparativa de Planes</span>
-      <h1 class="page-title" style="margin-top: 4px;">Invierte en tu Productividad</h1>
-      <p class="page-sub" style="max-width: 600px; margin: 0 auto 10px auto;">Compara las características del plan gratuito y el plan Pro. Elige el camino de enfoque que mejor se adapte a tus metas.</p>
+      <span class="pricing-badge">{{ 'membership.pricingBadge' | translate }}</span>
+      <h1 class="page-title" style="margin-top: 4px;">{{ 'membership.title' | translate }}</h1>
+      <p class="page-sub" style="max-width: 600px; margin: 0 auto 10px auto;">{{ 'membership.subtitle' | translate }}</p>
     </div>
   </div>
 
@@ -18,15 +18,13 @@
     <div class="plan-toggle">
       <button (click)="selectPlan(false)" 
               [class.active]="!isAnnual()" 
-              class="plan-btn"
-              data-tooltip="Cambiar a facturación mensual">
-        Facturación Mensual
+              class="plan-btn">
+        {{ 'membership.monthlyBilling' | translate }}
       </button>
       <button (click)="selectPlan(true)" 
               [class.active]="isAnnual()" 
-              class="plan-btn"
-              data-tooltip="Cambiar a facturación anual (Ahorra 33%)">
-        Facturación Anual <span class="save-tag">Ahorra 33%</span>
+              class="plan-btn">
+        {{ 'membership.annualBilling' | translate }} <span class="save-tag">{{ 'membership.savePercent' | translate }}</span>
       </button>
     </div>
   </div>
@@ -40,29 +38,28 @@
             <!-- Columna de Características -->
             <th class="feature-header-col">
               <div class="header-feature-info">
-                <h3>Planes COFU</h3>
-                <p>Enfócate como un Pro</p>
+                <h3>{{ 'membership.plansHeader' | translate }}</h3>
+                <p>{{ 'membership.plansSub' | translate }}</p>
               </div>
             </th>
 
             <!-- Columna Plan Gratuito -->
             <th class="plan-header-col">
               <div class="plan-header-content">
-                <span class="plan-name">Gratuito</span>
+                <span class="plan-name">{{ 'membership.freePlan' | translate }}</span>
                 <div class="price-display">
                   <span class="currency">$</span>
                   <span class="amount">0</span>
-                  <span class="period">USD/mes</span>
+                  <span class="period">{{ 'membership.usdMonth' | translate }}</span>
                 </div>
-                <p class="billing-info">Acceso básico de por vida</p>
+                <p class="billing-info">{{ 'membership.freeBillingInfo' | translate }}</p>
                 
                 <!-- Botón de Acción Gratuito -->
                 <button class="plan-cta-btn free-tier-btn"
                         [class.current-active]="!membership.isPremium()"
                         [disabled]="!membership.isPremium()"
-                        (click)="membership.isPremium() ? openCustomerPortal() : null"
-                        [attr.data-tooltip]="!membership.isPremium() ? 'Plan Básico actual' : 'Gestionar suscripción'">
-                  {{ !membership.isPremium() ? 'Tu Plan Actual' : 'Gestionar Plan' }}
+                        (click)="membership.isPremium() ? openCustomerPortal() : null">
+                  {{ !membership.isPremium() ? ('membership.currentPlan' | translate) : ('membership.managePlan' | translate) }}
                 </button>
               </div>
             </th>
@@ -70,29 +67,28 @@
             <!-- Columna Kaizen Pro (Destacada) -->
             <th class="plan-header-col highlight-header-col">
               <div class="plan-header-content">
-                <span class="popular-badge">7 DÍAS GRATIS ⚡</span>
-                <span class="plan-name gold-text">COFU Pro 👑</span>
+                <span class="popular-badge">{{ 'membership.freeTrialBadge' | translate }}</span>
+                <span class="plan-name gold-text">{{ 'membership.proPlan' | translate }}</span>
                 <div class="price-display">
                   <span class="currency">$</span>
                   <span class="amount">{{ isAnnual() ? '2.99' : '4.49' }}</span>
-                  <span class="period">USD/mes</span>
+                  <span class="period">{{ 'membership.usdMonth' | translate }}</span>
                 </div>
                 <p class="billing-info">
-                  {{ isAnnual() ? '7 días gratis, luego $35.88 USD/año ($2.99/mes)' : '7 días gratis, luego $4.49 USD/mes' }}
+                  {{ isAnnual() ? ('membership.billedAnnually' | translate) : ('membership.billedMonthly' | translate) }}
                 </p>
                 
                 <!-- Botón de Acción Premium -->
                 <button (click)="membership.isPremium() ? openCustomerPortal() : subscribePro()" 
                         [disabled]="isProcessing()"
                         [class.active-premium]="membership.isPremium()"
-                        class="plan-cta-btn premium-tier-btn"
-                        [attr.data-tooltip]="membership.isPremium() ? 'Gestionar o cancelar suscripción Pro' : 'Comenzar 7 días de prueba sin costo'">
+                        class="plan-cta-btn premium-tier-btn">
                   @if (isProcessing()) {
                     <i class="fa-solid fa-spinner fa-spin"></i>
-                    <span>Iniciando prueba...</span>
+                    <span>{{ 'membership.startingTrial' | translate }}</span>
                   } @else {
                     <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-bolt'"></i>
-                    <span>{{ membership.isPremium() ? '👑 Eres Pro (Gestionar)' : 'Probar 7 días gratis ⚡' }}</span>
+                    <span>{{ membership.isPremium() ? ('membership.youArePro' | translate) : ('membership.startFreeTrial' | translate) }}</span>
                   }
                 </button>
               </div>
@@ -104,8 +100,8 @@
           <!-- Fila 1 -->
           <tr>
             <td class="feature-info">
-              <strong>Pomodoro en Solitario</strong>
-              <span>Enfócate de forma individual sin límites de tiempo.</span>
+              <strong>{{ 'membership.soloPomodoro' | translate }}</strong>
+              <span>{{ 'membership.soloPomodoroDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-check check-icon green"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -113,8 +109,8 @@
           <!-- Fila 2 -->
           <tr>
             <td class="feature-info">
-              <strong>Configuración Completa de Tiempos</strong>
-              <span>Personaliza libremente la duración de enfoque y descansos (cortos/largos).</span>
+              <strong>{{ 'membership.customDurations' | translate }}</strong>
+              <span>{{ 'membership.customDurationsDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-check check-icon green"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -122,8 +118,8 @@
           <!-- Fila 3 -->
           <tr>
             <td class="feature-info">
-              <strong>Sonidos Ambientales y Alertas</strong>
-              <span>Biblioteca de ruidos de fondo (lluvia, café, relojes) y múltiples alarmas de finalización (Zen, Campanilla, Digital).</span>
+              <strong>{{ 'membership.ambientSounds' | translate }}</strong>
+              <span>{{ 'membership.ambientSoundsDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-check check-icon green"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -131,8 +127,8 @@
           <!-- Fila 4 -->
           <tr>
             <td class="feature-info">
-              <strong>Notas Rápidas (Baúl de Ideas)</strong>
-              <span>Captura ideas y notas al instante durante tu sesión con el atajo Alt + I.</span>
+              <strong>{{ 'membership.quickNotes' | translate }}</strong>
+              <span>{{ 'membership.quickNotesDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-check check-icon green"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -140,8 +136,8 @@
           <!-- Fila 5 -->
           <tr>
             <td class="feature-info">
-              <strong>Avatares Básicos (9 Iniciales)</strong>
-              <span>Usa los animales iniciales como gato, perro y conejo.</span>
+              <strong>{{ 'membership.basicAvatars' | translate }}</strong>
+              <span>{{ 'membership.basicAvatarsDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-check check-icon green"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -149,8 +145,8 @@
           <!-- Fila 6 -->
           <tr>
             <td class="feature-info">
-              <strong>Estadísticas de Pomodoros</strong>
-              <span>Visualiza tu historial de rendimiento y sesiones completadas.</span>
+              <strong>{{ 'membership.stats' | translate }}</strong>
+              <span>{{ 'membership.statsDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-check check-icon green"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -158,8 +154,8 @@
           <!-- Fila 7 -->
           <tr>
             <td class="feature-info">
-              <strong>Clasificación Semanal dentro de la comunidad</strong>
-              <span>Sube en la cartelera semanal para competir con la comunidad.</span>
+              <strong>{{ 'membership.leaderboards' | translate }}</strong>
+              <span>{{ 'membership.leaderboardsDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-xmark cross-icon"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -167,8 +163,8 @@
           <!-- Fila 8 -->
           <tr>
             <td class="feature-info">
-              <strong>Ganancia de Pro Coins</strong>
-              <span>Monedas por pomodoro exitoso para comprar en la tienda.</span>
+              <strong>{{ 'membership.proCoinsEarn' | translate }}</strong>
+              <span>{{ 'membership.proCoinsEarnDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-xmark cross-icon"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -176,8 +172,8 @@
           <!-- Fila 9 -->
           <tr>
             <td class="feature-info">
-              <strong>Salas de Co-working (Hospedar/Unirme)</strong>
-              <span>Publica tu sesión de enfoque o únete a salas comunitarias.</span>
+              <strong>{{ 'membership.coworking' | translate }}</strong>
+              <span>{{ 'membership.coworkingDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-xmark cross-icon"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -185,8 +181,8 @@
           <!-- Fila 10 -->
           <tr>
             <td class="feature-info">
-              <strong>Mensajería Silenciosa de Apoyo</strong>
-              <span>Deja mensajes motivacionales que recibirán al terminar.</span>
+              <strong>{{ 'membership.supportMessaging' | translate }}</strong>
+              <span>{{ 'membership.supportMessagingDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-xmark cross-icon"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -194,8 +190,8 @@
           <!-- Fila 11 -->
           <tr>
             <td class="feature-info">
-              <strong>Avatares Especiales y Legendarios</strong>
-              <span>Desbloquea el Dragón del Ego, Fénix de Fuego, León Shogun, etc.</span>
+              <strong>{{ 'membership.legendaryAvatars' | translate }}</strong>
+              <span>{{ 'membership.legendaryAvatarsDesc' | translate }}</span>
             </td>
             <td><i class="fa-solid fa-circle-xmark cross-icon"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
@@ -209,37 +205,37 @@
     <div class="protection-footer">
       <div class="protection-item">
         <i class="fa-solid fa-shield-halved protection-icon"></i>
-        <span>Prueba gratis de 7 días sin riesgo. Cancela en cualquier momento con un solo clic antes del día 7 y no pagarás nada.</span>
+        <span>{{ 'membership.guarantee1' | translate }}</span>
       </div>
       <div class="protection-divider"></div>
       <div class="protection-item stripe-note">
         <i class="fa-solid fa-lock protection-icon green"></i>
-        <span>Precios en USD. Conversión automática a tu moneda local y pago seguro y protegido.</span>
+        <span>{{ 'membership.guarantee2' | translate }}</span>
       </div>
     </div>
   </div>
 
   <!-- SECCIÓN DE PREGUNTAS FRECUENTES (FAQ) -->
   <div class="faq-section">
-    <h2 class="faq-title">Preguntas Frecuentes</h2>
-    <p class="faq-sub">Todo lo que necesitas saber sobre el plan COFU Pro</p>
+    <h2 class="faq-title">{{ 'membership.faqTitle' | translate }}</h2>
+    <p class="faq-sub">{{ 'membership.faqSubtitle' | translate }}</p>
     
     <div class="faq-grid">
       <div class="faq-card">
-        <h4>¿Cómo funciona la prueba gratuita de 7 días?</h4>
-        <p>Al hacer clic en <strong>Probar 7 días gratis</strong>, comenzarás tus 7 días de prueba completa. Hoy pagarás <strong>$0.00</strong>. Puedes cancelar en cualquier momento con un solo clic desde esta pantalla antes de que finalice la prueba y no se te cobrará nada.</p>
+        <h4>{{ 'membership.faqQ1' | translate }}</h4>
+        <p>{{ 'membership.faqA1' | translate }}</p>
       </div>
       <div class="faq-card">
-        <h4>¿Qué beneficios principales obtengo con COFU Pro?</h4>
-        <p>Al unirte a Pro, obtienes acceso ilimitado a las salas de co-working comunitarias para enfocarte con otras personas en tiempo real, participar en el Ranking Comunidad competitivo semanal, desbloquear avatares legendarios y exclusivos como el Fénix o el Dragón del Ego, y ganar Pro Coins que podrás gastar en la tienda.</p>
+        <h4>{{ 'membership.faqQ2' | translate }}</h4>
+        <p>{{ 'membership.faqA2' | translate }}</p>
       </div>
       <div class="faq-card">
-        <h4>¿En qué moneda se procesa mi pago?</h4>
-        <p>Los precios están fijados en <strong>Dólares Estadounidenses (USD)</strong>. Al momento de pagar, tu banco o tarjeta realiza automáticamente la conversión a tu moneda local según el tipo de cambio oficial, sin comisiones sorpresa.</p>
+        <h4>{{ 'membership.faqQ3' | translate }}</h4>
+        <p>{{ 'membership.faqA3' | translate }}</p>
       </div>
       <div class="faq-card">
-        <h4>¿Puedo cancelar o modificar mi membresía cuando quiera?</h4>
-        <p>¡Totalmente! Puedes gestionar o cancelar tu suscripción con un solo clic desde esta página en cualquier momento, sin plazos forzosos ni complicaciones.</p>
+        <h4>{{ 'membership.faqQ4' | translate }}</h4>
+        <p>{{ 'membership.faqA4' | translate }}</p>
       </div>
     </div>
   </div>
@@ -249,8 +245,8 @@
     <div class="toast-content">
       <i class="fa-solid fa-circle-check toast-icon"></i>
       <div class="toast-text">
-        <h4>¡Bienvenido al Templo Pro!</h4>
-        <p>Tu cuenta se ha actualizado a COFU Pro con éxito. Redirigiendo a la comunidad...</p>
+        <h4>{{ 'membership.successTitle' | translate }}</h4>
+        <p>{{ 'membership.successDesc' | translate }}</p>
       </div>
     </div>
   </div>
