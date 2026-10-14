@@ -60,7 +60,7 @@ export class Navbar {
   }
 
   onNotificationClick(notif: AppNotification) {
-    if (this.membership.isFocusActive() && notif.route !== '/enfoque') {
+    if (this.membership.isFocusActive() && notif.route !== '/focus' && notif.route !== '/enfoque') {
       this.triggerLockedFeedback();
       return;
     }

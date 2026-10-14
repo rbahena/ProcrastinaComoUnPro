@@ -318,7 +318,7 @@ export class Ideas implements OnInit {
     }
 
     // Redireccionar a la zona de concentración (donde estará precargado en estado setup antes de iniciar)
-    this.router.navigate(['/enfoque']);
+    this.router.navigate(['/focus']);
   }
 
   getPriorityTooltip(priority?: IdeaPriority): string {

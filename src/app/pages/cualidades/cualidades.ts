@@ -486,7 +486,7 @@ interface CountryOption {
                       <span class="ability-lead-tag">{{ 'cualidades.passiveLabel' | translate }}</span>
                       <span class="ability-title-txt">{{ inspectedAvatar().passiveName }}</span>
                     </div>
-                    <p class="ability-body-txt">{{ inspectedAvatar().passiveAdvantage }}</p>
+                    <p class="ability-body-txt">{{ getDynamicPassiveAdvantage(inspectedAvatar()) }}</p>
                   </div>
 
                   <!-- Técnica Mental -->
@@ -2474,16 +2474,17 @@ export class Cualidades implements OnInit {
             weaponName: item.weapon_name?.[lang] || item.weapon_name?.['es'] || '',
             focusApplication: item.focus_application?.[lang] || item.focus_application?.['es'] || '',
             tacticalQuote: item.tactical_quote?.[lang] || item.tactical_quote?.['es'] || '',
-            coinsPerPomodoro: item.coins_per_pomodoro,
-            pausePenaltyCoins: item.pause_penalty_coins,
-            bossDamagePoints: item.boss_damage_points,
-            bossHealPoints: item.boss_heal_points,
+            coinsPerPomodoro: item.coins_per_pomodoro ?? this.membership.getAvatarCoinsPerPomodoro(item.id),
+            pausePenaltyCoins: item.pause_penalty_coins ?? this.membership.getAvatarPausePenalty(item.id),
+            bossDamagePoints: item.boss_damage_points ?? this.membership.getAvatarDamagePoints(item.id),
+            bossHealPoints: item.boss_heal_points ?? this.membership.getAvatarHealPoints(item.id),
             passiveName: item.passive_name?.[lang] || item.passive_name?.['es'] || '',
-            passiveAdvantage: (item.id === 'gato' || item.passive_name?.['es'] === 'Paso Sigiloso' || item.passive_name?.[lang] === 'Stealth Step')
-              ? (lang === 'en'
-                  ? `Generates +${item.coins_per_pomodoro ?? 12} Pro Coins and +${item.boss_damage_points ?? 20} boss damage per completed session.`
-                  : `Genera +${item.coins_per_pomodoro ?? 12} Pro Coins y +${item.boss_damage_points ?? 20} de daño al jefe por sesión completada.`)
-              : (item.passive_advantage?.[lang] || item.passive_advantage?.['es'] || ''),
+            passiveAdvantage: this.formatPassiveAdvantage(
+              item.passive_advantage?.[lang] || item.passive_advantage?.['es'] || '',
+              item.coins_per_pomodoro ?? this.membership.getAvatarCoinsPerPomodoro(item.id),
+              item.boss_damage_points ?? this.membership.getAvatarDamagePoints(item.id),
+              lang
+            ),
             cost: item.cost_coins,
             qualityId: item.required_quality_id || null,
             qualityName: item.quality_name?.[lang] || item.quality_name?.['es'] || undefined,
@@ -2721,6 +2722,58 @@ export class Cualidades implements OnInit {
     return isEn 
       ? 'Complete your daily productivity targets to unlock this avatar.'
       : 'Completa tus metas de productividad diaria para desbloquear este avatar.';
+  }
+
+  /**
+   * Formatea dinámicamente la leyenda de la habilidad pasiva del avatar,
+   * actualizando el número de Pro Coins para que refleje de forma reactiva el valor real.
+   */
+  formatPassiveAdvantage(raw: string | undefined | null, coins: number, bossDamage?: number, lang: string = 'es'): string {
+    const isEn = lang === 'en';
+    const coinsValue = coins ?? 10;
+    
+    if (!raw || raw.trim() === '') {
+      return isEn 
+        ? `Generates +${coinsValue} Pro Coins per pomodoro session.`
+        : `Genera +${coinsValue} Pro Coins por bloque pomodoro.`;
+    }
+
+    let text = raw;
+
+    // 1. Reemplazar "+10 Pro Coins", "+18 Pro Coins", "+26 Coins", "+60 Coins", "+10 monedas", etc.
+    text = text.replace(/\+(\d+)\s*(Pro\s*Coins?|Coins?|monedas)/gi, (match, prevNum, unit) => {
+      return `+${coinsValue} ${unit}`;
+    });
+
+    // 2. Reemplazar "con +30 monedas", "de +30 monedas", "with +30 coins"
+    text = text.replace(/(\b(?:con|de|with)\s*\+?)(\d+)\s*(monedas|coins|Pro\s*Coins)/gi, (match, prefix, prevNum, unit) => {
+      return `${prefix}${coinsValue} ${unit}`;
+    });
+
+    // 3. Reemplazar "Genera +12 Pro Coins", "Generates +12 Pro Coins" si no coincide con los anteriores
+    text = text.replace(/(\b(?:genera|generates)\s*\+?)(\d+)\s*(Pro\s*Coins?|Coins?|monedas)/gi, (match, prefix, prevNum, unit) => {
+      return `${prefix}${coinsValue} ${unit}`;
+    });
+
+    // 4. Si se especifica daño al boss, actualizar dinámicamente también el daño al jefe para consistencia
+    if (bossDamage !== undefined && bossDamage !== null && bossDamage > 0) {
+      text = text.replace(/\+(\d+)\s*(boss\s*damage|de\s*daño\s*al\s*jefe|de\s*daño|daño\s*al\s*jefe|daño\s*directo|daño\s*constante|daño\s*masivo|daño|damage|Pts\s*al\s*Jefe|Puntos\s*de\s*daño|Daño\s*Primordial|Daño\s*Solar|Daño\s*Astral|Daño\s*fulminante)/gi, (match, prevNum, unit) => {
+        return `+${bossDamage} ${unit}`;
+      });
+    }
+
+    return text;
+  }
+
+  /**
+   * Obtiene la leyenda pasiva formateada dinámicamente para el avatar inspeccionado.
+   */
+  getDynamicPassiveAdvantage(avatar?: ComunidadAvatar): string {
+    if (!avatar || !avatar.id) return '';
+    const lang = this.membership.userLanguage();
+    const coins = avatar.coinsPerPomodoro ?? this.membership.getAvatarCoinsPerPomodoro(avatar.id);
+    const bossDmg = avatar.bossDamagePoints ?? this.membership.getAvatarDamagePoints(avatar.id);
+    return this.formatPassiveAdvantage(avatar.passiveAdvantage, coins, bossDmg, lang);
   }
 
   getUnlockProgressCurrent(avatar?: ComunidadAvatar): number {

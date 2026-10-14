@@ -33,7 +33,14 @@ Options -Indexes
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # Si no existe (ej. /enfoque, /medallero, /ideas, /login), redirigir a index.html
+  # Excluir recursos estáticos (imágenes, medios, fuentes, css, js) de la reescritura a index.html.
+  # Si falta un archivo estático, responder con 404 real en vez de servir index.html,
+  # evitando que Hostinger CDN (hcdn) u optimizadores intenten procesar HTML como imagen y devuelvan 422.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_URI} \.(?:css|js|jpe?g|png|gif|ico|cur|heic|webp|tiff?|mp3|m4a|aac|ogg|midi?|wav|mp4|mov|webm|mkv|avi|svgz?|ttf|ttc|otf|eot|woff2?|json|map)$ [NC]
+  RewriteRule ^ - [R=404,L]
+
+  # Si no existe y es una ruta de navegación SPA (ej. /focus, /login, /profile), redirigir a index.html
   RewriteRule ^ index.html [L]
 </IfModule>
 

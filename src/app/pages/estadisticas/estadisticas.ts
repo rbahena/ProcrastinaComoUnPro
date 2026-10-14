@@ -80,6 +80,9 @@ export class Estadisticas implements OnInit, OnDestroy {
   objCalendarMonth = signal<number>(new Date().getMonth());
   objCalendarYear = signal<number>(new Date().getFullYear());
 
+  // Control para mostrar u ocultar la sección de Analítica y Medición de Objetivos
+  showObjectivesSection = signal<boolean>(false);
+
   sidebarCollapsed = this.membership.sidebarCollapsed;
   userName = this.membership.userName;
 

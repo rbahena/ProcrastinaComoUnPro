@@ -40,7 +40,7 @@ export class Registro {
       this.registroError.set(null);
       this.analytics.trackSignup('email');
       localStorage.setItem('procrastina-just-registered', 'true');
-      this.router.navigate(['/cualidades']);
+      this.router.navigate(['/profile']);
     } else {
       this.registroError.set(result.error || this.translation.t('auth.registrationError'));
     }

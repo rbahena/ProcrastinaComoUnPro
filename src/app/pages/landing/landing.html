@@ -1,6 +1,6 @@
 <!-- HEADER -->
 <header class="landing-header">
-  <a routerLink="/landing" class="logo"
+  <a routerLink="/" class="logo"
     style="padding: 0; text-decoration: none; display: flex; align-items: center; gap: 10px;">
     <img class="logo-img" src="/assets/images/brand/cofu_logo.jpg" alt="COFU Logo">
     <div style="display: flex; flex-direction: column; line-height: 1.1;">
@@ -73,7 +73,7 @@
     <a routerLink="/login" class="btn btn-ghost btn-sm">
       {{ 'auth.loginBtn' | translate }}
     </a>
-    <a routerLink="/registro" class="btn btn-outline-accent btn-sm">
+    <a routerLink="/register" class="btn btn-outline-accent btn-sm">
       {{ 'auth.registerBtn' | translate }}
     </a>
   </div>
@@ -237,7 +237,7 @@
         <p style="font-size: 16px; color: var(--muted); line-height: 1.6; margin-bottom: 32px;">
           {{ 'landing.raidsDesc' | translate }}
         </p>
-        <a routerLink="/registro" style="width: fit-content;">
+        <a routerLink="/register" style="width: fit-content;">
           <button class="btn btn-outline-accent" style="padding: 14px 28px; font-size: 14.5px; font-weight: 700;">
             {{ 'landing.joinBtn' | translate }} <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
           </button>
@@ -702,7 +702,7 @@
         {{ 'landing.finalCtaText' | translate }}
       </p>
 
-      <a routerLink="/registro">
+      <a routerLink="/register">
         <button class="btn btn-outline-accent" style="padding: 14px 38px; font-size: 15px; font-weight: 700;">
           {{ 'auth.registerBtn' | translate }} <i class="fa-solid fa-arrow-right" style="margin-left: 6px;"></i>
         </button>

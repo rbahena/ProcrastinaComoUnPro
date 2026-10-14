@@ -1,7 +1,7 @@
 <!-- HEADER -->
 <header class="landing-header">
-  <a routerLink="/landing" class="logo" style="padding: 0; text-decoration: none; display: flex; align-items: center; gap: 10px;">
-    <img class="logo-img" src="/assets/images/brand/cofu_logo.jpg" alt="COFU Logo">
+  <a routerLink="/" class="logo" style="padding: 0; text-decoration: none; display: flex; align-items: center; gap: 10px;">
+    <img class="logo-img" src="assets/images/brand/cofu_logo.jpg" alt="COFU Logo">
     <div style="display: flex; flex-direction: column; line-height: 1.1;">
       <span class="logo-text" style="font-size: 20px; font-weight: 900; letter-spacing: -0.5px; line-height: 1;">COFU</span>
       <span class="logo-slogan" style="font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 0.5px; margin-top: 3px; text-transform: uppercase;">
@@ -20,7 +20,7 @@
       <span [style.color]="translation.currentLang() === 'en' ? 'var(--accent)' : 'var(--muted)'">EN</span>
     </button>
     <a routerLink="/login" class="btn btn-ghost btn-sm">{{ 'auth.loginBtn' | translate }}</a>
-    <a routerLink="/registro" class="btn btn-outline-accent btn-sm">{{ 'auth.registerBtn' | translate }}</a>
+    <a routerLink="/register" class="btn btn-outline-accent btn-sm">{{ 'auth.registerBtn' | translate }}</a>
   </div>
 </header>
 
@@ -82,7 +82,7 @@
     </form>
 
     <div class="auth-footer">
-      {{ 'auth.noAccountYet' | translate }} <a routerLink="/registro">{{ 'auth.registerLink' | translate }}</a>
+      {{ 'auth.noAccountYet' | translate }} <a routerLink="/register">{{ 'auth.registerLink' | translate }}</a>
     </div>
   </div>
 </div>

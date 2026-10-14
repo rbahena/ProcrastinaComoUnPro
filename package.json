@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build && node scripts/obfuscate.js",
+    "build:deploy": "npm run build && python scripts/package-deploy.py",
     "build:plain": "ng build",
     "obfuscate": "node scripts/obfuscate.js",
     "watch": "ng build --watch --configuration development",

@@ -66,7 +66,7 @@ export class Landing implements OnInit, OnDestroy {
           : 'Your brain avoids starting because it anticipates the pressure of an outcome needing to be perfect. As researcher Dr. Timothy Pychyl explains, procrastination is an emotional coping mechanism to protect self-esteem. Tactic: Apply the "Draft Task Principle". Deliberately draft something mediocre for 10 minutes to eliminate initial friction.',
         tag: isEs ? 'Tesis: Dr. Timothy Pychyl' : 'Thesis: Dr. Timothy Pychyl',
         btnText: isEs ? 'Iniciar Sesión Corta (15 min)' : 'Start Short Session (15 min)',
-        link: '/enfoque',
+        link: '/focus',
       },
       bored: {
         title: isEs ? 'Apatía Cognitiva (Tarea tediosa o monótona)' : 'Cognitive Apathy (Tedious or Monotonous Task)',
@@ -76,7 +76,7 @@ export class Landing implements OnInit, OnDestroy {
           : 'When a task lacks immediate reward, your brain undergoes a dopamine deficit. Tactic: Apply James Clear\'s "2-Minute Rule" coupled with sensory stimulation. Mask distractions with continuous frequencies (brown noise or rain) and take a microscopic first step to build momentum.',
         tag: isEs ? 'Tesis: James Clear' : 'Thesis: James Clear',
         btnText: isEs ? 'Iniciar Pomodoro + Audio' : 'Start Pomodoro + Audio',
-        link: '/enfoque',
+        link: '/focus',
       },
       time: {
         title: isEs ? 'Sesgo del Presente (Optimismo temporal engañoso)' : 'Present Bias (Deceptive Time Optimism)',
@@ -86,7 +86,7 @@ export class Landing implements OnInit, OnDestroy {
           : 'Your brain values immediate comfort over future deadlines, falsely assuming tomorrow will bring more willpower. Tactic: Break Parkinson\'s Law. Convert deadlines into hours and make time accounting visible to prompt action today.',
         tag: isEs ? 'Tesis: Ley de Parkinson' : 'Thesis: Parkinson\'s Law',
         btnText: isEs ? 'Ver Mis Plazos Reales' : 'View Real Deadlines',
-        link: '/fechas',
+        link: '/analytics',
       },
       distract: {
         title: isEs ? 'Impulso Dopaminérgico (Distracciones por hábito)' : 'Dopaminergic Impulse (Habitual Distraction)',
@@ -96,7 +96,7 @@ export class Landing implements OnInit, OnDestroy {
           : 'Opening leisure tabs is an automatic neuromuscular habit loop. Tactic: Apply Mel Robbins\' "5-Second Rule". Count down 3, 2, 1, activate website blocker shield, and physically move toward your task immediately.',
         tag: isEs ? 'Tesis: Mel Robbins' : 'Thesis: Mel Robbins',
         btnText: isEs ? 'Activar Escudo de Sitios' : 'Activate Site Shield',
-        link: '/bloqueador',
+        link: '/blocker',
       },
     };
   }
@@ -109,7 +109,7 @@ export class Landing implements OnInit, OnDestroy {
       desc: 'Inicia el entrenamiento superando la barrera inicial de la inercia. Tu meta hoy es completar una sesión de enfoque de 15 minutos en tu tarea principal (tu sapo). Sin interrupciones, sin abrir otras pestañas.',
       metric1: '15 Minutos de Foco',
       metric2: 'Ritual 3-2-1 Activo',
-      link: '/enfoque',
+      link: '/focus',
       btnText: 'Iniciar Día 1'
     },
     {
@@ -119,7 +119,7 @@ export class Landing implements OnInit, OnDestroy {
       desc: 'Aísla tu entorno de los impulsos automáticos de distracción. Tu meta hoy es añadir tus 3 mayores distractores digitales cotidianos al bloqueador de la app y completar 25 minutos de enfoque con el escudo activo.',
       metric1: '25 Minutos de Foco',
       metric2: '3 Sitios Bloqueados',
-      link: '/bloqueador',
+      link: '/blocker',
       btnText: 'Activar Escudo'
     },
     {
@@ -129,7 +129,7 @@ export class Landing implements OnInit, OnDestroy {
       desc: 'Protege tu corteza sensorial de estímulos externos aleatorios. Tu meta hoy es trabajar en una tarea monótona durante 25 minutos escuchando nuestro enmascarador acústico en tiempo real (lluvia o ruido café).',
       metric1: '25 Minutos de Foco',
       metric2: 'Audio-Frecuencia Activa',
-      link: '/enfoque',
+      link: '/focus',
       btnText: 'Iniciar Día 3'
     },
     {
@@ -139,7 +139,7 @@ export class Landing implements OnInit, OnDestroy {
       desc: 'Desactiva el sesgo del presente visualizando de forma cruda tu tiempo disponible. Tu meta hoy es configurar tus 3 plazos reales más importantes en el panel de cuentas regresivas y reflexionar sobre tus días restantes.',
       metric1: '3 Plazos Listos',
       metric2: 'Urgencia Concreta',
-      link: '/fechas',
+      link: '/analytics',
       btnText: 'Configurar Plazos'
     },
     {
@@ -159,7 +159,7 @@ export class Landing implements OnInit, OnDestroy {
       desc: 'Fuerza a tu mente a pasar de la idea a la acción motora. Tu meta hoy es completar 2 sesiones de enfoque Pomodoro consecutivas, iniciando cada bloque aplicando estrictamente la rutina 3-2-1 del ritual de activación.',
       metric1: '50 Minutos de Foco',
       metric2: '2 Rituales Exitosos',
-      link: '/enfoque',
+      link: '/focus',
       btnText: 'Iniciar Día 6'
     },
     {
@@ -169,7 +169,7 @@ export class Landing implements OnInit, OnDestroy {
       desc: 'Consolida tu control mental y demuestra tu inmunidad a la procrastinación. Tu meta final es completar un set de Pomodoro completo (4 sesiones de enfoque consecutivas) sin una sola pausa fallida ni distracción.',
       metric1: '100 Minutos de Foco',
       metric2: '1 Set de Maestría',
-      link: '/enfoque',
+      link: '/focus',
       btnText: 'Reclamar Maestría'
     }
   ];

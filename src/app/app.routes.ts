@@ -5,12 +5,14 @@ import { focusDeactivateGuard } from './guards/focus.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'landing',
+    loadComponent: () => import('./pages/landing/landing').then(m => m.Landing),
+    canActivate: [guestGuard],
     pathMatch: 'full'
   },
   {
     path: 'landing',
-    loadComponent: () => import('./pages/landing/landing').then(m => m.Landing)
+    redirectTo: '',
+    pathMatch: 'full'
   },
   {
     path: 'login',
@@ -18,7 +20,7 @@ export const routes: Routes = [
     canActivate: [guestGuard]
   },
   {
-    path: 'registro',
+    path: 'register',
     loadComponent: () => import('./pages/registro/registro').then(m => m.Registro),
     canActivate: [guestGuard]
   },
@@ -28,63 +30,73 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'enfoque',
+    path: 'focus',
     loadComponent: () => import('./pages/enfoque/enfoque').then(m => m.Enfoque),
     canActivate: [authGuard],
     canDeactivate: [focusDeactivateGuard]
   },
   {
-    path: 'fechas',
+    path: 'analytics',
     loadComponent: () => import('./pages/estadisticas/estadisticas').then(m => m.Estadisticas),
     canActivate: [authGuard]
   },
   {
-    path: 'bloqueador',
+    path: 'blocker',
     loadComponent: () => import('./pages/bloqueador/bloqueador').then(m => m.Bloqueador),
     canActivate: [authGuard]
   },
   {
-    path: 'cualidades',
+    path: 'profile',
     loadComponent: () => import('./pages/cualidades/cualidades').then(m => m.Cualidades),
     canActivate: [authGuard]
   },
   {
-    path: 'membresia',
+    path: 'membership',
     loadComponent: () => import('./pages/membresia/membresia').then(m => m.Membresia),
     canActivate: [authGuard]
   },
   {
-    path: 'estadisticas',
-    loadComponent: () => import('./pages/estadisticas/estadisticas').then(m => m.Estadisticas),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'bestiario',
+    path: 'bestiary',
     loadComponent: () => import('./pages/bestiario/bestiario').then(m => m.Bestiario),
     canActivate: [authGuard]
   },
   {
-    path: 'medallero',
+    path: 'leaderboards',
     loadComponent: () => import('./pages/medallero/medallero').then(m => m.Medallero),
     canActivate: [authGuard]
   },
   {
-    path: 'bitacora',
+    path: 'logbook',
     loadComponent: () => import('./pages/bitacora/bitacora').then(m => m.Bitacora),
     canActivate: [authGuard]
   },
   {
-    path: 'ideas',
+    path: 'goals',
     loadComponent: () => import('./pages/ideas/ideas').then(m => m.Ideas),
     canActivate: [authGuard]
   },
-  {
-    path: 'retos',
-    redirectTo: 'bestiario',
-    pathMatch: 'full'
-  },
+  // Backward compatibility & aliases
+  { path: 'registro', redirectTo: 'register', pathMatch: 'full' },
+  { path: 'signup', redirectTo: 'register', pathMatch: 'full' },
+  { path: 'enfoque', redirectTo: 'focus', pathMatch: 'full' },
+  { path: 'fechas', redirectTo: 'analytics', pathMatch: 'full' },
+  { path: 'estadisticas', redirectTo: 'analytics', pathMatch: 'full' },
+  { path: 'stats', redirectTo: 'analytics', pathMatch: 'full' },
+  { path: 'bloqueador', redirectTo: 'blocker', pathMatch: 'full' },
+  { path: 'cualidades', redirectTo: 'profile', pathMatch: 'full' },
+  { path: 'qualities', redirectTo: 'profile', pathMatch: 'full' },
+  { path: 'membresia', redirectTo: 'membership', pathMatch: 'full' },
+  { path: 'bestiario', redirectTo: 'bestiary', pathMatch: 'full' },
+  { path: 'retos', redirectTo: 'bestiary', pathMatch: 'full' },
+  { path: 'challenges', redirectTo: 'bestiary', pathMatch: 'full' },
+  { path: 'medallero', redirectTo: 'leaderboards', pathMatch: 'full' },
+  { path: 'records', redirectTo: 'leaderboards', pathMatch: 'full' },
+  { path: 'medals', redirectTo: 'leaderboards', pathMatch: 'full' },
+  { path: 'bitacora', redirectTo: 'logbook', pathMatch: 'full' },
+  { path: 'log', redirectTo: 'logbook', pathMatch: 'full' },
+  { path: 'ideas', redirectTo: 'goals', pathMatch: 'full' },
   {
     path: '**',
-    redirectTo: 'landing'
+    redirectTo: ''
   }
 ];

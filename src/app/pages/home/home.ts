@@ -777,7 +777,7 @@ export class Home implements OnInit, OnDestroy {
     this.showJoinConfirmation.set(false);
     localStorage.setItem('shared-session-partner-name', this.selectedPartnerName());
     localStorage.setItem('shared-session-partner-avatar', this.selectedPartnerAvatar());
-    this.router.navigate(['/enfoque']);
+    this.router.navigate(['/focus']);
   }
 
   cancelJoinRoom() {

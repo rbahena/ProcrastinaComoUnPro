@@ -292,7 +292,7 @@ export class NotificationService {
       icon: 'fa-solid fa-heart',
       iconColor: '#ef4444',
       iconBg: 'rgba(239, 68, 68, 0.15)',
-      route: '/enfoque',
+      route: '/focus',
       metadata: { motivationText }
     });
   }
@@ -308,7 +308,7 @@ export class NotificationService {
       icon: 'fa-solid fa-fire',
       iconColor: '#ff6b00',
       iconBg: 'rgba(255, 107, 0, 0.15)',
-      route: '/enfoque'
+      route: '/focus'
     });
   }
 
@@ -323,7 +323,7 @@ export class NotificationService {
       icon: 'fa-solid fa-trophy',
       iconColor: '#f59e0b',
       iconBg: 'rgba(245, 158, 11, 0.15)',
-      route: '/medallero'
+      route: '/leaderboards'
     });
   }
 
@@ -338,7 +338,7 @@ export class NotificationService {
       icon: 'fa-solid fa-crown',
       iconColor: '#10b981',
       iconBg: 'rgba(168, 85, 247, 0.15)',
-      route: '/enfoque'
+      route: '/focus'
     });
   }
 

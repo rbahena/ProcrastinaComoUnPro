@@ -344,7 +344,8 @@
       </div>
     </div>
 
-    <!-- SECCIÓN PRINCIPAL: ANALÍTICA Y MEDICIÓN DE OBJETIVOS -->
+    <!-- SECCIÓN PRINCIPAL: ANALÍTICA Y MEDICIÓN DE OBJETIVOS (OCULTA) -->
+    @if (showObjectivesSection()) {
     <section class="objectives-workspace-section">
       
       <!-- Encabezado de la Sección y Pestañas Estadísticas -->
@@ -726,6 +727,7 @@
       </div>
 
     </section>
+    }
 
     <!-- FOOTER SIMPLE Y ELEGANTE -->
     <footer class="stats-simple-footer">

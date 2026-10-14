@@ -1,7 +1,7 @@
 <!-- TOPBAR HEADER -->
 <div class="sidebar" [class.nav-focus-locked]="membership.isFocusActive()">
   <a (click)="onNavClick($event, '/home')" [routerLink]="membership.isFocusActive() ? null : '/home'" class="logo" [class.link-locked]="membership.isFocusActive()">
-    <img class="logo-img" src="/assets/images/brand/cofu_logo.jpg" alt="COFU Logo">
+    <img class="logo-img" src="assets/images/brand/cofu_logo.jpg" alt="COFU Logo">
     <span class="logo-text">COFU</span>
     <span *ngIf="membership.isFocusActive()" class="focus-lock-badge" [attr.data-tooltip]="'nav.focusLockedTooltip' | translate" data-tooltip-align="bottom">
       <i class="fa-solid fa-lock"></i>
@@ -11,26 +11,26 @@
   
   <div class="nav" [class.nav-locked]="membership.isFocusActive()">
     <a (click)="onNavClick($event, '/home')" [routerLink]="membership.isFocusActive() ? null : '/home'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()"><span class="nav-dot"></span><i class="fa-solid fa-house"></i></a>
-    <a routerLink="/enfoque" routerLinkActive="active" class="nav-item">
+    <a routerLink="/focus" routerLinkActive="active" class="nav-item">
       <span class="nav-dot"></span>
       {{ 'nav.focus' | translate }}
     </a>
-    <a (click)="onNavClick($event, '/ideas')" [routerLink]="membership.isFocusActive() ? null : '/ideas'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
+    <a (click)="onNavClick($event, '/goals')" [routerLink]="membership.isFocusActive() ? null : '/goals'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
       {{ 'nav.goals' | translate }}
       <span *ngIf="membership.pendingCapturedIdeasCount() > 0" class="ideas-badge" [attr.data-tooltip]="'nav.tooltipIdeas' | translate" data-tooltip-align="bottom">
         {{ membership.pendingCapturedIdeasCount() }}
       </span>
     </a>
-    <a (click)="onNavClick($event, '/bestiario')" [routerLink]="membership.isFocusActive() ? null : '/bestiario'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
+    <a (click)="onNavClick($event, '/bestiary')" [routerLink]="membership.isFocusActive() ? null : '/bestiary'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
       {{ 'nav.challenges' | translate }}
     </a>
-    <a (click)="onNavClick($event, '/fechas')" [routerLink]="membership.isFocusActive() ? null : '/fechas'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
+    <a (click)="onNavClick($event, '/analytics')" [routerLink]="membership.isFocusActive() ? null : '/analytics'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
       {{ 'nav.stats' | translate }}
     </a>
-    <a (click)="onNavClick($event, '/medallero')" [routerLink]="membership.isFocusActive() ? null : '/medallero'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
+    <a (click)="onNavClick($event, '/leaderboards')" [routerLink]="membership.isFocusActive() ? null : '/leaderboards'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
       {{ 'nav.records' | translate }}
     </a>
@@ -207,7 +207,7 @@
       </div>
 
       <!-- 1. MI PERFIL (HASTA ARRIBA) -->
-      <a routerLink="/cualidades" (click)="membership.closeAvatarMenu()" class="dropdown-item-link" style="font-weight: 700;">
+      <a routerLink="/profile" (click)="membership.closeAvatarMenu()" class="dropdown-item-link" style="font-weight: 700;">
         <i class="fa-solid fa-user" style="font-size: 11px; width: 14px; text-align: center; color: var(--accent);"></i>
         <span>{{ 'nav.profile' | translate }}</span>
       </a>
@@ -216,7 +216,7 @@
       <div style="height: 1px; background: var(--border); margin: 3px 6px;"></div>
       
       <!-- 2. SECCIÓN DE OTRAS OPCIONES: MI PLAN E IDIOMA -->
-      <a routerLink="/membresia" (click)="membership.closeAvatarMenu()" class="dropdown-item-link">
+      <a routerLink="/membership" (click)="membership.closeAvatarMenu()" class="dropdown-item-link">
         <i class="fa-solid fa-crown" style="font-size: 11px; width: 14px; text-align: center; color: var(--yellow);"></i>
         <span>{{ 'nav.plan' | translate }}</span>
       </a>

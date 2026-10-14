@@ -3337,7 +3337,7 @@ export class Enfoque implements OnInit, OnDestroy {
     }
 
     this.objectiveCompleted.set(null);
-    this.router.navigate(['/enfoque']);
+    this.router.navigate(['/focus']);
   }
 
   
@@ -4864,7 +4864,7 @@ export class Enfoque implements OnInit, OnDestroy {
 
   goToMembership() {
     this.showPaywallModal.set(false);
-    this.router.navigate(['/membresia']);
+    this.router.navigate(['/membership']);
   }
 
   // Setter del estilo de cronómetro Zen (100% libre para todos)

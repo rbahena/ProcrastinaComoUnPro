@@ -612,9 +612,9 @@
   cursor: pointer;
 }
 
-/* ===== SECCIÓN PRINCIPAL: ANALÍTICA Y MEDICIÓN DE OBJETIVOS ===== */
+/* ===== SECCIÓN PRINCIPAL: ANALÍTICA Y MEDICIÓN DE OBJETIVOS (OCULTA) ===== */
 .objectives-workspace-section {
-  display: flex;
+  display: none !important;
   flex-direction: column;
   gap: 20px;
   margin-top: 4px;

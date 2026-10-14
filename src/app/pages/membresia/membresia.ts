@@ -61,7 +61,7 @@ export class Membresia implements OnInit {
 
     // Si no está autenticado, invitar a iniciar sesión primero
     if (!this.supabase.currentUser()) {
-      this.router.navigate(['/login'], { queryParams: { redirect: '/membresia' } });
+      this.router.navigate(['/login'], { queryParams: { redirect: '/membership' } });
       return;
     }
 

@@ -11,7 +11,7 @@
     <!-- BALANCES DE USUARIO (PREMIUM VS GRATUITO) -->
     <div *ngIf="membership.isPremium()" style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
       <!-- Badge Premium (Sutil y COFU Pro) -->
-      <button routerLink="/membresia" 
+      <button routerLink="/membership" 
               class="premium-header-badge"
               [attr.data-tooltip]="'home.proTooltip' | translate"
               data-tooltip-align="left">
@@ -38,7 +38,7 @@
             <i class="fa-solid fa-stopwatch" style="font-size: 11px;"></i>
             {{ 'home.inPomodoro' | translate }}
           </span>
-          <button routerLink="/enfoque" class="card-action-play" [attr.data-tooltip]="'home.goToFocus' | translate" data-tooltip-align="left">
+          <button routerLink="/focus" class="card-action-play" [attr.data-tooltip]="'home.goToFocus' | translate" data-tooltip-align="left">
             <i class="fa-solid fa-play"></i>
           </button>
         </div>
@@ -174,7 +174,7 @@
             <i class="fa-solid fa-crown" style="font-size: 10px; color: var(--yellow); opacity: 0.85;"></i>
             {{ 'home.basicPlanTag' | translate: { rank: rankingPosition() } }}
           </span>
-          <button routerLink="/fechas" class="card-action-play" [attr.data-tooltip]="'home.viewStatsTooltip' | translate" data-tooltip-align="left">
+          <button routerLink="/analytics" class="card-action-play" [attr.data-tooltip]="'home.viewStatsTooltip' | translate" data-tooltip-align="left">
             <i class="fa-solid fa-chart-simple"></i>
           </button>
         </div>
@@ -279,7 +279,7 @@
         </span>
         <div *ngIf="!membership.isPremium()" style="display: flex; align-items: center; gap: 6px;">
           <span style="color: var(--muted); font-size: 11px; font-weight: 600;">{{ 'home.personalMode' | translate }}</span>
-          <a routerLink="/membresia" 
+          <a routerLink="/membership" 
              class="custom-tooltip-host"
              [attr.data-tooltip]="'home.proTooltip' | translate"
              style="color: var(--yellow); font-size: 11px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; cursor: pointer;"
@@ -334,7 +334,7 @@
               <i class="fa-solid fa-campground" style="font-size: 10px;"></i>
               {{ 'home.campBadge' | translate }}
             </span>
-            <button routerLink="/enfoque" class="card-action-play" [attr.data-tooltip]="'home.startFocus' | translate" data-tooltip-align="left">
+            <button routerLink="/focus" class="card-action-play" [attr.data-tooltip]="'home.startFocus' | translate" data-tooltip-align="left">
               <i class="fa-solid fa-play"></i>
             </button>
           </div>
@@ -390,7 +390,7 @@
         </div>
 
         <!-- Botón de Acción Principal -->
-        <a routerLink="/enfoque" 
+        <a routerLink="/focus" 
            class="coworking-btn" 
            style="width: 100%; justify-content: center; padding: 12px; font-size: 13px; font-weight: 800; text-decoration: none; box-sizing: border-box; text-align: center; border-radius: 10px; display: inline-flex;"
            [attr.data-tooltip]="'home.startFocus' | translate">
@@ -421,7 +421,7 @@
                 <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">{{ 'home.podiumHonor' | translate }}</h4>
                 <span style="font-size: 11px; font-weight: 800; color: #22c55e; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 4px; padding: 2px 7px; text-transform: uppercase; letter-spacing: 0.5px;">{{ 'home.liveBadge' | translate }}</span>
                 <a *ngIf="!membership.isPremium()" 
-                   routerLink="/membresia"
+                   routerLink="/membership"
                    class="custom-tooltip-host"
                    [attr.data-tooltip]="'home.bePremiumToCompete' | translate"
                    style="font-size: 11px; font-weight: 800; color: #f97316; background: rgba(249, 115, 22, 0.12); border: 1px solid rgba(249, 115, 22, 0.35); border-radius: 4px; padding: 2px 8px; text-transform: uppercase; letter-spacing: 0.4px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; transition: all 0.2s;">
@@ -432,7 +432,7 @@
               <p style="font-size: 12px; color: var(--muted); margin: 3px 0 0 0;">{{ 'home.podiumSub' | translate }}</p>
             </div>
           </div>
-          <button routerLink="/fechas" class="card-action-play" [attr.data-tooltip]="'home.viewStatsTooltip' | translate" data-tooltip-align="left">
+          <button routerLink="/analytics" class="card-action-play" [attr.data-tooltip]="'home.viewStatsTooltip' | translate" data-tooltip-align="left">
             <i class="fa-solid fa-chart-simple"></i>
           </button>
         </div>
@@ -587,7 +587,7 @@
             <span style="font-size: 13.5px; font-weight: 800; color: var(--text); letter-spacing: 0.3px;">{{ 'home.podiumPending' | translate }}</span>
             <span style="font-size: 12px; color: var(--muted); max-width: 320px; line-height: 1.4;">{{ 'home.podiumPendingSub' | translate }}</span>
           </div>
-          <button routerLink="/enfoque" style="width: auto; padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); color: var(--yellow); cursor: pointer; transition: all 0.2s;">
+          <button routerLink="/focus" style="width: auto; padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); color: var(--yellow); cursor: pointer; transition: all 0.2s;">
             <i class="fa-solid fa-play" style="font-size: 10px;"></i>
             <span>{{ 'home.conquerPodium' | translate }}</span>
           </button>
@@ -644,7 +644,7 @@
     <!-- Acciones -->
     <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
       <!-- Botón de Suscripción Real (Redirección a Membresía) -->
-      <button routerLink="/membresia" (click)="showPaywallModal.set(false)"
+      <button routerLink="/membership" (click)="showPaywallModal.set(false)"
               style="width: 100%; border: none; padding: 12.5px; border-radius: 10px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px;"
               onmouseover="this.style.transform='scale(1.02)';"
               onmouseout="this.style.transform='scale(1)';">
@@ -833,7 +833,7 @@
     </div>
 
     <!-- Link / Botón que lleva a la vista de retos -->
-    <a routerLink="/retos" 
+    <a routerLink="/bestiary" 
        (click)="closeBossModal()"
        style="width: 100%; background: linear-gradient(135deg, var(--red) 0%, #dc2626 100%); color: #ffffff; text-decoration: none; padding: 11px 16px; border-radius: 10px; font-size: 12.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4); cursor: pointer; transition: all 0.2s;"
        onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 20px rgba(239, 68, 68, 0.6)';"

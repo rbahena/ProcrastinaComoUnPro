@@ -78,8 +78,8 @@ export class App implements OnInit {
   }
 
   isLandingOrAuthRoute(): boolean {
-    const url = this.router.url;
-    return url.includes('/landing') || url.includes('/login') || url.includes('/registro') || url === '/';
+    const cleanUrl = this.router.url.split('?')[0].split('#')[0];
+    return cleanUrl === '' || cleanUrl === '/' || cleanUrl === '/landing' || cleanUrl === '/login' || cleanUrl === '/register' || cleanUrl === '/registro';
   }
 
   @HostListener('window:scroll', [])
