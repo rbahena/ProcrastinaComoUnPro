@@ -592,9 +592,11 @@ export class MembershipService {
   }
 
   constructor() {
-    // Sincronizar TranslationService con el idioma inicial detectado
-    const currentLang = this.translationService.currentLang();
-    this.userLanguage.set(currentLang);
+    // Sincronizar reactivamente con el TranslationService
+    effect(() => {
+      const currentLang = this.translationService.currentLang();
+      this.userLanguage.set(currentLang);
+    });
 
     // Cerrar menú de avatar al hacer click fuera
     if (typeof document !== 'undefined') {
@@ -1620,15 +1622,14 @@ export class MembershipService {
       this.resetNewUserAccount();
       this.loadUserData(emailLower);
       
-      // Respetar SIEMPRE el idioma del navegador al registrar una nueva cuenta
-      const browserLang = this.translationService.applyBrowserLanguage();
-      this.setLanguage(browserLang, false);
+      // Mantener el idioma definido por el usuario (en la landing o inicial)
+      const activeLang = this.translationService.currentLang();
+      this.setLanguage(activeLang, true);
 
       // Cargar perfil e inventario inicial de Supabase de inmediato
       const { profile } = await this.supabaseService.getProfile(user.id);
       if (profile) {
         this.applySupabaseProfile(profile);
-        this.setLanguage(browserLang, false);
       }
       const { items } = await this.supabaseService.getUnlockedItems(user.id);
       if (items && items.length > 0) {
@@ -1664,15 +1665,14 @@ export class MembershipService {
       localStorage.setItem('procrastina-current-user-email', emailLower);
       this.loadUserData(emailLower);
 
-      // Respetar SIEMPRE el idioma del navegador al iniciar sesión
-      const browserLang = this.translationService.applyBrowserLanguage();
-      this.setLanguage(browserLang, false);
+      // Mantener el idioma definido por el usuario (en la landing o inicial)
+      const activeLang = this.translationService.currentLang();
+      this.setLanguage(activeLang, true);
 
       // Cargar perfil desde Supabase
       const { profile } = await this.supabaseService.getProfile(user.id);
       if (profile) {
         this.applySupabaseProfile(profile);
-        this.setLanguage(browserLang, false);
       }
       // Cargar items desbloqueados desde Supabase
       const { items } = await this.supabaseService.getUnlockedItems(user.id);

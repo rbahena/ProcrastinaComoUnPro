@@ -23,6 +23,7 @@
               [attr.title]="'nav.language' | translate"
               style="background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); border-radius: 9px; color: var(--text); padding: 7px 11px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
         <i class="fa-solid fa-language" style="color: var(--accent); font-size: 16px;"></i>
+        <span style="font-size: 12px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">{{ translation.currentLang() }}</span>
         <i class="fa-solid fa-chevron-down" style="font-size: 9px; color: var(--muted); transition: transform 0.2s;" [style.transform]="langMenuOpen() ? 'rotate(180deg)' : 'none'"></i>
       </button>
 
