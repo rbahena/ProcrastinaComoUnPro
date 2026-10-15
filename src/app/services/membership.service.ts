@@ -1421,8 +1421,10 @@ export class MembershipService {
       return list.map(q => {
         if (q.id === 'constancia') {
           const isNowUnlocked = currentStreak >= q.unlockTotal;
-          if (isNowUnlocked && !this.unlockedAvatars().includes('tortuga')) {
-            this.unlockedAvatars.update(unlocked => [...unlocked, 'tortuga']);
+          if (isNowUnlocked) {
+            if (!this.unlockedAvatars().includes('tortuga')) {
+              this.unlockedAvatars.update(unlocked => [...unlocked, 'tortuga']);
+            }
             if (this.supabaseService.isConfigured()) {
               this.supabaseService.advanceQualityProgress('constancia', currentStreak).then(() => {
                 this.ensureAvatarLoaded('tortuga');
@@ -1435,9 +1437,9 @@ export class MembershipService {
           }
           return {
             ...q,
-            unlockProgress: Math.min(q.unlockTotal, currentStreak),
-            isUnlocked: isNowUnlocked,
-            unlockedAt: isNowUnlocked ? new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : undefined
+            unlockProgress: (q.isUnlocked && !isNowUnlocked) ? q.unlockTotal : Math.min(q.unlockTotal, currentStreak),
+            isUnlocked: isNowUnlocked || q.isUnlocked,
+            unlockedAt: isNowUnlocked ? new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : q.unlockedAt
           };
         }
         return q;
@@ -1961,6 +1963,11 @@ export class MembershipService {
       this.selectedAvatar.set(finalAvatars[0] || 'gato');
     }
 
+    const currentTimer = this.getFocusSetting('focus-timer-style', 'digital');
+    if (!finalTimers.includes(currentTimer)) {
+      this.setFocusSetting('focus-timer-style', 'digital');
+    }
+
     this.saveConsolidatedUserData();
   }
 
@@ -2010,6 +2017,12 @@ export class MembershipService {
       if (user && this.supabaseService.isConfigured()) {
         this.supabaseService.updateProfile(user.id, { selected_avatar: 'gato' }).catch(() => {});
       }
+    }
+
+    // 2.1 Si tenía equipado un timer VIP revocado, desequiparlo a 'digital'
+    const revokedTimer = this.getFocusSetting('focus-timer-style', 'digital');
+    if (vipTimers.includes(revokedTimer)) {
+      this.setFocusSetting('focus-timer-style', 'digital');
     }
 
     // 3. Limpiar variables CSS del DOM para volver a mostrar siluetas bloqueadas
@@ -2149,13 +2162,13 @@ export class MembershipService {
 
     // Reestablecer cualidades
     this.qualitiesCatalog.set([
-      { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 0, unlockTotal: 7 },
-      { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
-      { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-      { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-      { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-      { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-      { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: false, unlockProgress: 0, unlockTotal: 3 }
+      { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 10 días consecutivos completando al menos 1 pomodoro diario.', isUnlocked: false, unlockProgress: 0, unlockTotal: 10 },
+      { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 35 pomodoros en total a lo largo de tu trayectoria.', isUnlocked: false, unlockProgress: 0, unlockTotal: 35 },
+      { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 15 pomodoros con la metodología Pareto (80/20) en tareas de alto impacto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+      { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 12 pomodoros con la metodología Sapo/Rana y objetivo cumplido.', isUnlocked: false, unlockProgress: 0, unlockTotal: 12 },
+      { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 25 pomodoros con la metodología Normal manteniendo el rumbo.', isUnlocked: false, unlockProgress: 0, unlockTotal: 25 },
+      { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 15 sesiones de Coworking Comunitario en la sala compartida.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+      { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 5 días diferentes logrando al menos 3 pomodoros encadenados para la misma meta.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 }
     ]);
   }
 

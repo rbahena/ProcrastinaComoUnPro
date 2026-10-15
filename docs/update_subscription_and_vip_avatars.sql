@@ -167,6 +167,23 @@ BEGIN
         RETURN json_build_object('success', TRUE, 'message', 'Ya posees este artículo');
     END IF;
 
+    -- C.1 Validar que el artículo esté disponible para compra con monedas
+    IF v_item.is_initial = TRUE THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Este artículo ya es gratuito e inicial');
+    END IF;
+
+    IF v_item.is_premium = TRUE THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Este artículo es exclusivo de la membresía PRO');
+    END IF;
+
+    IF v_item.required_quality_id IS NOT NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Este artículo es un reto de honor y solo puede desbloquearse en la Arena de Enfoque');
+    END IF;
+
+    IF COALESCE(v_item.cost_coins, 0) <= 0 THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Este artículo no está a la venta con monedas');
+    END IF;
+
     -- D. Obtener saldo de monedas del perfil
     SELECT pro_coins INTO v_user_coins FROM public.profiles WHERE id = v_user_id FOR UPDATE;
     
@@ -565,3 +582,48 @@ ON CONFLICT (id) DO UPDATE SET
     is_premium = EXCLUDED.is_premium,
     name = EXCLUDED.name,
     description = EXCLUDED.description;
+
+-- ------------------------------------------------------------------------------
+-- 12. ACTUALIZAR TEXTOS CALIBRADOS DE CUALIDADES Y RETOS EN CATALOG_ITEMS
+-- ------------------------------------------------------------------------------
+UPDATE public.catalog_items
+SET 
+    description = jsonb_build_object('es', 'Encarna la cualidad de la constancia (Racha de 10 días)', 'en', 'Embodies the quality of consistency (10-day streak)'),
+    quality_req = jsonb_build_object('es', 'Mantener una racha de 10 días consecutivos completando al menos 1 pomodoro diario.', 'en', 'Maintain a 10-day consecutive streak completing at least 1 daily pomodoro.')
+WHERE id = 'tortuga';
+
+UPDATE public.catalog_items
+SET 
+    description = jsonb_build_object('es', 'Encarna la disciplina inquebrantable (35 pomodoros)', 'en', 'Embodies unyielding discipline (35 pomodoros)'),
+    quality_req = jsonb_build_object('es', 'Completar 35 pomodoros en total a lo largo de tu trayectoria.', 'en', 'Complete 35 total pomodoros across your journey.')
+WHERE id = 'hormiga';
+
+UPDATE public.catalog_items
+SET 
+    description = jsonb_build_object('es', 'Estratega del enfoque con metodología Pareto (15 pomodoros)', 'en', 'Focus strategist with Pareto methodology (15 pomodoros)'),
+    quality_req = jsonb_build_object('es', 'Completar 15 pomodoros con la metodología Pareto (80/20) en tareas de alto impacto.', 'en', 'Complete 15 pomodoros using the Pareto (80/20) methodology on high-impact tasks.')
+WHERE id = 'buho';
+
+UPDATE public.catalog_items
+SET 
+    description = jsonb_build_object('es', 'Vencedor del sapo diario en tareas complejas (12 pomodoros)', 'en', 'Conqueror of the daily frog in complex tasks (12 pomodoros)'),
+    quality_req = jsonb_build_object('es', 'Completar 12 pomodoros con la metodología Sapo/Rana y objetivo cumplido.', 'en', 'Complete 12 pomodoros using the Frog methodology and goal accomplished.')
+WHERE id = 'rana';
+
+UPDATE public.catalog_items
+SET 
+    description = jsonb_build_object('es', 'Enfoque panorámico y claridad de objetivos (25 pomodoros)', 'en', 'Panoramic focus and clarity of objectives (25 pomodoros)'),
+    quality_req = jsonb_build_object('es', 'Completar 25 pomodoros con la metodología Normal manteniendo el rumbo.', 'en', 'Complete 25 pomodoros using the Normal methodology staying on track.')
+WHERE id = 'aguila';
+
+UPDATE public.catalog_items
+SET 
+    description = jsonb_build_object('es', 'Poder del trabajo comunitario y colaborativo (15 sesiones)', 'en', 'Power of community and collaborative work (15 sessions)'),
+    quality_req = jsonb_build_object('es', 'Participar en 15 sesiones de Coworking Comunitario en la sala compartida.', 'en', 'Participate in 15 community coworking sessions in the shared room.')
+WHERE id = 'abeja';
+
+UPDATE public.catalog_items
+SET 
+    description = jsonb_build_object('es', 'Construcción tenaz de proyectos largos (5 días de enfoque continuo)', 'en', 'Tenacious building of long-term projects (5 days of continuous focus)'),
+    quality_req = jsonb_build_object('es', 'Completar 5 días diferentes logrando al menos 3 pomodoros encadenados para la misma meta.', 'en', 'Complete 5 different days achieving at least 3 chained pomodoros for the same goal.')
+WHERE id = 'castor';

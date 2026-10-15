@@ -3251,6 +3251,15 @@ export class Cualidades implements OnInit {
       lobo: 3200,
       dragon: 4500
     };
+    const DEFAULT_QUALITY_TOTALS: Record<string, number> = {
+      constancia: 10,
+      disciplina: 35,
+      sabiduria: 15,
+      superacion: 12,
+      vision: 25,
+      colaboracion: 15,
+      construccion: 5
+    };
     const STARTER_AVATARS = new Set(['gato', 'perro', 'conejo', 'raton', 'hamster', 'loro']);
     const EVOLVING_AVATAR_IDS = new Set(['tortuga', 'buho', 'zorro', 'dragon', 'lobo', 'rana', 'leon']);
 
@@ -3316,8 +3325,7 @@ export class Cualidades implements OnInit {
             qualityName: item.quality_name?.[lang] || item.quality_name?.['es'] || undefined,
             qualityReq: item.quality_req?.[lang] || item.quality_req?.['es'] || undefined,
             unlockTotal: qualities.find(q => q.id === item.required_quality_id)?.unlockTotal ??
-                         (item.required_quality_id === 'constancia' ? 10 :
-                         (item.required_quality_id === 'disciplina' ? 35 : 5)),
+                         (DEFAULT_QUALITY_TOTALS[item.required_quality_id || ''] || 10),
             hasEvolution,
             evolutionDetail: hasEvolution ? EVOLUTION_ITEMS_MAP[item.id] : undefined
           };
@@ -3331,14 +3339,18 @@ export class Cualidades implements OnInit {
 
       if (item.qualityId && quality) {
         // STRICTLY MERIT: Retos de Honor nunca se desbloquean con membresía ni monedas
-        const total = item.unlockTotal || quality.unlockTotal || 0;
+        const total = item.unlockTotal || quality.unlockTotal || DEFAULT_QUALITY_TOTALS[item.qualityId] || 10;
         const progress = quality.unlockProgress || 0;
 
         if (unlockedList.includes(item.id)) {
           isUnlocked = true;
         }
 
-        displayReq = item.qualityReq || `Demuestra la cualidad de ${quality.name}: ${quality.unlockRequirement} (Progreso: ${progress}/${total}).`;
+        const isEn = this.translation.currentLang() === 'en';
+        const reqDetail = quality.unlockRequirement || item.qualityReq;
+        displayReq = isEn 
+          ? `Prove the quality of ${quality.name}: ${reqDetail} (Progress: ${progress}/${total}).`
+          : `Demuestra la cualidad de ${quality.name}: ${reqDetail} (Progreso: ${progress}/${total}).`;
       } else if (item.isPremium) {
         // Exclusivo VIP: Desbloqueado única y exclusivamente si el usuario cuenta con membresía o prueba activa de COFU Pro
         isUnlocked = this.membership.isPremium();

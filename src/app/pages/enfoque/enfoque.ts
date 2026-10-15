@@ -109,14 +109,31 @@ export class Enfoque implements OnInit, OnDestroy {
     this.selectedAvatar = this.membership.selectedAvatar;
     this.sidebarCollapsed = this.membership.sidebarCollapsed;
 
-    // Reloj digital por defecto siempre si el usuario no tiene una preferencia previa guardada
+    // Reloj digital por defecto siempre si el usuario no tiene preferencia guardada o si el estilo guardado está bloqueado
     const savedTimer = this.membership.getFocusSetting('focus-timer-style', 'digital') as FocusTimerStyle;
-    if (!savedTimer) {
+    if (!savedTimer || this.isTimerStyleLocked(savedTimer)) {
       this.timerStyle.set('digital');
       this.membership.setFocusSetting('focus-timer-style', 'digital');
     } else {
       this.timerStyle.set(savedTimer);
     }
+
+    // Validación continua y reactiva de acceso al estilo de temporizador:
+    // Si el estilo actual resulta bloqueado (por revocación de membresía Pro o falta de monedas), revertir a digital
+    effect(() => {
+      const current = this.timerStyle();
+      // Dependencias reactivas explícitas
+      this.membership.unlockedTimers();
+      this.membership.isPremium();
+      if (this.isTimerStyleLocked(current)) {
+        this.timerStyle.set('digital');
+        this.membership.setFocusSetting('focus-timer-style', 'digital');
+        if (this.activeBackground() === 'lofi_titanic_ocean' || this.activeBackground() === 'lofi_lighthouse_ocean') {
+          this.activeBackground.set('theme_autumn');
+          this.membership.setFocusSetting('focus-active-bg', 'theme_autumn');
+        }
+      }
+    });
 
     // Garantizar que todo usuario tenga un fondo válido (por defecto "theme_autumn" si no hay ninguno)
     const savedBg = this.membership.getFocusSetting('focus-active-bg', 'theme_autumn') as FocusBackgroundType;

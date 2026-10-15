@@ -594,7 +594,7 @@ INSERT INTO public.catalog_items (
     'tortuga', 'avatar', 'Raro', 2, '🐢', '#10b981', 0, FALSE, TRUE, 'constancia',
     18, 7, 36, 14,
     '{"es": "Genbu", "en": "Genbu"}',
-    '{"es": "Encarna la cualidad de la constancia (Racha de 7 días)", "en": "Embodies the quality of consistency (7-day streak)"}',
+    '{"es": "Encarna la cualidad de la constancia (Racha de 10 días)", "en": "Embodies the quality of consistency (10-day streak)"}',
     '{"es": "Tortuga de la Constancia (Reptil Acorazado)", "en": "Turtle of Consistency (Armored Reptile)"}',
     '{"es": "Guardián de la Racha", "en": "Streak Guardian"}',
     '{"es": "Retado", "en": "Challenged"}',
@@ -604,7 +604,7 @@ INSERT INTO public.catalog_items (
     '{"es": "Escudo de Racha", "en": "Streak Shield"}',
     '{"es": "+18 Pro Coins y +36 daño al jefe. Mitiga el daño por distracción.", "en": "+18 Pro Coins and +36 boss damage. Mitigates distraction damage."}',
     '{"es": "Constancia", "en": "Consistency"}',
-    '{"es": "Mantén una racha de 7 días consecutivos completando pomodoros.", "en": "Maintain a 7-day consecutive streak completing pomodoros."}'
+    '{"es": "Mantén una racha de 10 días consecutivos completando al menos 1 pomodoro diario.", "en": "Maintain a 10-day consecutive streak completing at least 1 daily pomodoro."}'
 ),
 (
     'tortuga_evolved', 'avatar', 'Épico', 3, '🐢', '#059669', 0, FALSE, TRUE, 'constancia',
@@ -642,7 +642,7 @@ INSERT INTO public.catalog_items (
     'hormiga', 'avatar', 'Raro', 2, '🐜', '#ef4444', 0, FALSE, FALSE, 'disciplina',
     18, 7, 36, 14,
     '{"es": "Vargas", "en": "Vargas"}',
-    '{"es": "Encarna la disciplina inquebrantable (15 pomodoros)", "en": "Embodies unyielding discipline (15 pomodoros)"}',
+    '{"es": "Encarna la disciplina inquebrantable (35 pomodoros)", "en": "Embodies unyielding discipline (35 pomodoros)"}',
     '{"es": "Hormiga Guerrera (Mirmécido Marcial)", "en": "Warrior Ant (Martial Myrmecid)"}',
     '{"es": "Fuerza Colectiva", "en": "Collective Strength"}',
     '{"es": "Retado", "en": "Challenged"}',
@@ -652,13 +652,13 @@ INSERT INTO public.catalog_items (
     '{"es": "Carga Imparable", "en": "Unstoppable Load"}',
     '{"es": "+18 Pro Coins y +36 daño por sesión finalizada.", "en": "+18 Pro Coins and +36 damage per finished session."}',
     '{"es": "Disciplina", "en": "Discipline"}',
-    '{"es": "Completa 15 pomodoros en total.", "en": "Complete 15 total pomodoros."}'
+    '{"es": "Completar 35 pomodoros en total a lo largo de tu trayectoria.", "en": "Complete 35 total pomodoros across your journey."}'
 ),
 (
     'buho', 'avatar', 'Raro', 2, '🦉', '#3b82f6', 0, FALSE, FALSE, 'sabiduria',
     18, 7, 36, 14,
     '{"es": "Noctis", "en": "Noctis"}',
-    '{"es": "Estratega del enfoque con metodología Pareto", "en": "Focus strategist with Pareto methodology"}',
+    '{"es": "Estratega del enfoque con metodología Pareto (15 pomodoros)", "en": "Focus strategist with Pareto methodology (15 pomodoros)"}',
     '{"es": "Búho Arcano (Estrígido Sabio)", "en": "Arcane Owl (Wise Strigid)"}',
     '{"es": "Estratega Pareto", "en": "Pareto Strategist"}',
     '{"es": "Retado", "en": "Challenged"}',
@@ -668,13 +668,13 @@ INSERT INTO public.catalog_items (
     '{"es": "Foco Pareto", "en": "Pareto Focus"}',
     '{"es": "+18 Pro Coins y bonificación táctica en metodología Pareto.", "en": "+18 Pro Coins and tactical bonus in Pareto methodology."}',
     '{"es": "Sabiduría", "en": "Wisdom"}',
-    '{"es": "Completa 5 pomodoros con la metodología Pareto (80/20).", "en": "Complete 5 pomodoros using the Pareto (80/20) methodology."}'
+    '{"es": "Completar 15 pomodoros con la metodología Pareto (80/20) en tareas de alto impacto.", "en": "Complete 15 pomodoros using the Pareto (80/20) methodology on high-impact tasks."}'
 ),
 (
     'rana', 'avatar', 'Raro', 2, '🐸', '#84cc16', 0, FALSE, FALSE, 'superacion',
     18, 7, 36, 14,
     '{"es": "Kero", "en": "Kero"}',
-    '{"es": "Vencedor del sapo diario en pomodoros difíciles", "en": "Conqueror of the daily frog in tough pomodoros"}',
+    '{"es": "Vencedor del sapo diario en tareas complejas (12 pomodoros)", "en": "Conqueror of the daily frog in complex tasks (12 pomodoros)"}',
     '{"es": "Rana Cazadora (Anuro de Pantano)", "en": "Hunter Frog (Swamp Anuran)"}',
     '{"es": "Comemiedos", "en": "Fear-Eater"}',
     '{"es": "Retado", "en": "Challenged"}',
@@ -684,13 +684,13 @@ INSERT INTO public.catalog_items (
     '{"es": "Golpe al Sapo", "en": "Frog Strike"}',
     '{"es": "+18 Pro Coins y daño crítico a jefes matutinos.", "en": "+18 Pro Coins and critical damage to morning bosses."}',
     '{"es": "Superación", "en": "Overcoming"}',
-    '{"es": "Completa 5 pomodoros con la metodología Sapo/Rana.", "en": "Complete 5 pomodoros using the Frog methodology."}'
+    '{"es": "Completar 12 pomodoros con la metodología Sapo/Rana y objetivo cumplido.", "en": "Complete 12 pomodoros using the Frog methodology and goal accomplished."}'
 ),
 (
     'aguila', 'avatar', 'Raro', 2, '🦅', '#06b6d4', 0, FALSE, FALSE, 'vision',
     18, 7, 36, 14,
     '{"es": "Valkor", "en": "Valkor"}',
-    '{"es": "Enfoque panorámico y claridad de objetivos", "en": "Panoramic focus and clarity of objectives"}',
+    '{"es": "Enfoque panorámico y claridad de objetivos (25 pomodoros)", "en": "Panoramic focus and clarity of objectives (25 pomodoros)"}',
     '{"es": "Águila Real (Accipítrido de Altura)", "en": "Golden Eagle (Highland Accipitrid)"}',
     '{"es": "Visión de Cumbre", "en": "Summit Vision"}',
     '{"es": "Retado", "en": "Challenged"}',
@@ -700,13 +700,13 @@ INSERT INTO public.catalog_items (
     '{"es": "Mirada de Altura", "en": "Highland Gaze"}',
     '{"es": "+18 Pro Coins y +36 daño constante.", "en": "+18 Pro Coins and +36 constant damage."}',
     '{"es": "Visión", "en": "Vision"}',
-    '{"es": "Completa 5 pomodoros con la metodología Normal.", "en": "Complete 5 pomodoros using the Normal methodology."}'
+    '{"es": "Completar 25 pomodoros con la metodología Normal manteniendo el rumbo.", "en": "Complete 25 pomodoros using the Normal methodology staying on track."}'
 ),
 (
     'abeja', 'avatar', 'Raro', 2, '🐝', '#eab308', 0, FALSE, FALSE, 'colaboracion',
     18, 7, 36, 14,
     '{"es": "Vespia", "en": "Vespia"}',
-    '{"es": "Poder del trabajo comunitario y acompañado", "en": "Power of community and accompanied work"}',
+    '{"es": "Poder del trabajo comunitario y colaborativo (15 sesiones)", "en": "Power of community and collaborative work (15 sessions)"}',
     '{"es": "Abeja Reina (Himenóptero Solar)", "en": "Queen Bee (Solar Hymenopteran)"}',
     '{"es": "Espíritu Comunitario", "en": "Community Spirit"}',
     '{"es": "Retado", "en": "Challenged"}',
@@ -716,13 +716,13 @@ INSERT INTO public.catalog_items (
     '{"es": "Sinergia de Colmena", "en": "Hive Synergy"}',
     '{"es": "+18 Pro Coins y bonificador de daño en asedios comunitarios.", "en": "+18 Pro Coins and damage bonus in community raids."}',
     '{"es": "Colaboración", "en": "Collaboration"}',
-    '{"es": "Participa en 5 sesiones de enfoque comunitario.", "en": "Participate in 5 community focus sessions."}'
+    '{"es": "Participar en 15 sesiones de Coworking Comunitario en la sala compartida.", "en": "Participate in 15 community coworking sessions in the shared room."}'
 ),
 (
     'castor', 'avatar', 'Raro', 2, '🦫', '#78350f', 0, FALSE, FALSE, 'construccion',
     18, 7, 36, 14,
     '{"es": "Barris", "en": "Barris"}',
-    '{"es": "Construcción tenaz de proyectos largos", "en": "Tenacious building of long-term projects"}',
+    '{"es": "Construcción tenaz de proyectos largos (5 días de enfoque continuo)", "en": "Tenacious building of long-term projects (5 days of continuous focus)"}',
     '{"es": "Castor Ingeniero (Roedor de Presa)", "en": "Engineer Beaver (Dam Rodent)"}',
     '{"es": "Maestro Constructor", "en": "Master Builder"}',
     '{"es": "Retado", "en": "Challenged"}',
@@ -732,7 +732,7 @@ INSERT INTO public.catalog_items (
     '{"es": "Dique de Acero", "en": "Steel Dam"}',
     '{"es": "+18 Pro Coins y bonificación al encadenar 3 pomodoros seguidos.", "en": "+18 Pro Coins and bonus when chaining 3 pomodoros in a row."}',
     '{"es": "Construcción", "en": "Construction"}',
-    '{"es": "Completa 3 pomodoros al hilo para un mismo objetivo en un día.", "en": "Complete 3 pomodoros in a row for the same goal in one day."}'
+    '{"es": "Completar 5 días diferentes logrando al menos 3 pomodoros encadenados para la misma meta.", "en": "Complete 5 different days achieving at least 3 chained pomodoros for the same goal."}'
 ),
 
 -- ==============================================================================
@@ -1213,6 +1213,23 @@ BEGIN
     -- 3. Verificar si el usuario ya posee el cosmético
     IF EXISTS (SELECT 1 FROM public.user_unlocked_items WHERE user_id = v_user_id AND item_id = p_item_id) THEN
         RETURN json_build_object('success', TRUE, 'message', 'Ya posees este artículo');
+    END IF;
+
+    -- 3.1 Validar que el artículo esté disponible para compra con monedas
+    IF v_item.is_initial = TRUE THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Este artículo ya es gratuito e inicial');
+    END IF;
+
+    IF v_item.is_premium = TRUE THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Este artículo es exclusivo de la membresía PRO');
+    END IF;
+
+    IF v_item.required_quality_id IS NOT NULL THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Este artículo es un reto de honor y solo puede desbloquearse en la Arena de Enfoque');
+    END IF;
+
+    IF COALESCE(v_item.cost_coins, 0) <= 0 THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Este artículo no está a la venta con monedas');
     END IF;
 
     -- 4. Obtener monedas y bloquear fila para evitar condiciones de carrera (Race Condition)
