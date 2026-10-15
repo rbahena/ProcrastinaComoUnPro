@@ -20,6 +20,8 @@
 -- [x] PASO 6: Productividad Auxiliar -> /fechas (Deadlines), /bloqueador (Cortafuegos), /ideas (Baúl)
 -- [x] PASO 7: Telemetría Global -> /home (Cards en Vivo, Podio Semanal, Récords Históricos), /medallero
 -- [x] PASO 8: Capa de Seguridad y Blindaje Pre-Producción -> Auditoría RLS, Anti-Trampas y Hardening
+-- [x] PASO 9: Métricas Individuales y Rendimiento -> /estadisticas (Mapa de Calor, Pomodoros)
+-- [x] PASO 10: Ciclo de Vida Pro (Stripe) y Gestión Atómica de Avatares VIP -> /membresia, Webhooks & Storage RLS
 -- ==============================================================================
 
 
@@ -1092,9 +1094,12 @@ BEGIN
     -- 4. Obtener monedas y bloquear fila para evitar condiciones de carrera (Race Condition)
     SELECT pro_coins INTO v_user_coins FROM public.profiles WHERE id = v_user_id FOR UPDATE;
     
-    -- Validar fondos suficientes
-    IF v_user_coins < v_item.cost_coins THEN
-        RETURN json_build_object('success', FALSE, 'error', 'Monedas insuficientes');
+    -- Validar fondos suficientes con COALESCE defensivo
+    IF COALESCE(v_user_coins, 0) < v_item.cost_coins THEN
+        RETURN json_build_object(
+            'success', FALSE, 
+            'error', 'Monedas insuficientes en el servidor (Tienes ' || COALESCE(v_user_coins, 0) || ', necesitas ' || v_item.cost_coins || ')'
+        );
     END IF;
 
     -- 5. Descontar monedas del perfil
@@ -1102,9 +1107,10 @@ BEGIN
     SET pro_coins = pro_coins - v_item.cost_coins
     WHERE id = v_user_id;
 
-    -- 6. Insertar en el inventario del usuario
+    -- 6. Insertar en el inventario del usuario (idempotente)
     INSERT INTO public.user_unlocked_items (user_id, item_id, unlock_source)
-    VALUES (v_user_id, p_item_id, 'coin_purchase');
+    VALUES (v_user_id, p_item_id, 'coin_purchase')
+    ON CONFLICT (user_id, item_id) DO NOTHING;
 
     -- 7. Respuesta exitosa con telemetría de saldo restante
     RETURN json_build_object(
@@ -1114,7 +1120,11 @@ BEGIN
         'remaining_coins', v_user_coins - v_item.cost_coins
     );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+-- Conceder permisos de ejecución para usuarios autenticados
+GRANT EXECUTE ON FUNCTION public.buy_catalog_item(VARCHAR) TO authenticated;
+
 
 
 -- ------------------------------------------------------------------------------
@@ -1290,46 +1300,46 @@ INSERT INTO public.master_qualities (
     name, description, unlock_requirement
 ) VALUES
 (
-    'constancia', 'tortuga', 'tortuga', 7, 'streak_days', 'fa-solid fa-fire', '#10b981', 1,
+    'constancia', 'tortuga', 'tortuga', 10, 'streak_days', 'fa-solid fa-fire', '#10b981', 1,
     '{"es": "Constancia", "en": "Consistency"}',
     '{"es": "Cada día cuenta. Mantén el ritmo firme sin importar la velocidad.", "en": "Every day counts. Keep a steady pace regardless of speed."}',
-    '{"es": "Mantener una racha de 7 días consecutivos completando pomodoros.", "en": "Maintain a 7-day consecutive streak completing pomodoros."}'
+    '{"es": "Mantener una racha de 10 días consecutivos completando al menos 1 pomodoro diario.", "en": "Maintain a 10-day consecutive streak completing at least 1 daily pomodoro."}'
 ),
 (
-    'disciplina', 'hormiga', 'hormiga', 15, 'total_pomodoros', 'fa-solid fa-dumbbell', '#ef4444', 2,
+    'disciplina', 'hormiga', 'hormiga', 35, 'total_pomodoros', 'fa-solid fa-dumbbell', '#ef4444', 2,
     '{"es": "Disciplina", "en": "Discipline"}',
     '{"es": "Los pequeños pasos construyen grandes resultados. La disciplina supera a la motivación.", "en": "Small steps build great results. Discipline overcomes motivation."}',
-    '{"es": "Completar 15 pomodoros en total.", "en": "Complete 15 total pomodoros."}'
+    '{"es": "Completar 35 pomodoros en total a lo largo de tu trayectoria.", "en": "Complete 35 total pomodoros across your journey."}'
 ),
 (
-    'sabiduria', 'buho', 'buho', 5, 'pareto_pomodoros', 'fa-solid fa-brain', '#3b82f6', 3,
+    'sabiduria', 'buho', 'buho', 15, 'pareto_pomodoros', 'fa-solid fa-brain', '#3b82f6', 3,
     '{"es": "Sabiduría", "en": "Wisdom"}',
     '{"es": "La estrategia supera a la fuerza bruta. Identifica el 20% que genera el 80% del resultado.", "en": "Strategy overcomes brute force. Identify the 20% that produces 80% of the result."}',
-    '{"es": "Completar 5 pomodoros con la metodología Pareto (80/20).", "en": "Complete 5 pomodoros using the Pareto (80/20) methodology."}'
+    '{"es": "Completar 15 pomodoros con la metodología Pareto (80/20) en tareas de alto impacto.", "en": "Complete 15 pomodoros using the Pareto (80/20) methodology on high-impact tasks."}'
 ),
 (
-    'superacion', 'rana', 'rana', 5, 'sapo_pomodoros', 'fa-solid fa-mountain-sun', '#84cc16', 4,
+    'superacion', 'rana', 'rana', 12, 'sapo_pomodoros', 'fa-solid fa-mountain-sun', '#84cc16', 4,
     '{"es": "Superación", "en": "Overcoming"}',
     '{"es": "Enfréntate a lo más difícil de inmediato. Trágate el sapo a primera hora.", "en": "Face the hardest task immediately. Eat the frog first thing in the morning."}',
-    '{"es": "Completar 5 pomodoros con la metodología Sapo/Rana y objetivo cumplido.", "en": "Complete 5 pomodoros using the Frog methodology and goal accomplished."}'
+    '{"es": "Completar 12 pomodoros con la metodología Sapo/Rana y objetivo cumplido.", "en": "Complete 12 pomodoros using the Frog methodology and goal accomplished."}'
 ),
 (
-    'vision', 'aguila', 'aguila', 5, 'normal_pomodoros', 'fa-solid fa-eye', '#06b6d4', 5,
+    'vision', 'aguila', 'aguila', 25, 'normal_pomodoros', 'fa-solid fa-eye', '#06b6d4', 5,
     '{"es": "Visión", "en": "Vision"}',
     '{"es": "No pierdas de vista hacia dónde vas. Eleva tu perspectiva sobre el ruido exterior.", "en": "Never lose sight of where you are going. Elevate your perspective above outside noise."}',
-    '{"es": "Completar 5 pomodoros con la metodología Normal.", "en": "Complete 5 pomodoros using the Normal methodology."}'
+    '{"es": "Completar 25 pomodoros con la metodología Normal manteniendo el rumbo.", "en": "Complete 25 pomodoros using the Normal methodology staying on track."}'
 ),
 (
-    'colaboracion', 'abeja', 'abeja', 5, 'community_pomodoros', 'fa-solid fa-users', '#eab308', 6,
+    'colaboracion', 'abeja', 'abeja', 15, 'community_pomodoros', 'fa-solid fa-users', '#eab308', 6,
     '{"es": "Colaboración", "en": "Collaboration"}',
     '{"es": "El enfoque también puede compartirse. Acompaña y déjate acompañar en el dojo.", "en": "Focus can also be shared. Accompany and be accompanied in the dojo."}',
-    '{"es": "Participar en 5 sesiones de coworking comunitario.", "en": "Participate in 5 community coworking sessions."}'
+    '{"es": "Participar en 15 sesiones de Coworking Comunitario en la sala compartida.", "en": "Participate in 15 community coworking sessions in the shared room."}'
 ),
 (
-    'construccion', 'castor', 'castor', 3, 'chained_objective_pomodoros', 'fa-solid fa-hammer', '#78350f', 7,
+    'construccion', 'castor', 'castor', 5, 'chained_objective_pomodoros', 'fa-solid fa-hammer', '#78350f', 7,
     '{"es": "Construcción", "en": "Construction"}',
     '{"es": "Construye hoy lo que quieres terminar mañana. Cierra bloques con entregables reales.", "en": "Build today what you want to finish tomorrow. Close blocks with real deliverables."}',
-    '{"es": "Completar 3 pomodoros seguidos para un mismo objetivo en un solo día.", "en": "Complete 3 pomodoros in a row for the same goal in a single day."}'
+    '{"es": "Completar 5 días diferentes logrando al menos 3 pomodoros encadenados para la misma meta.", "en": "Complete 5 different days achieving at least 3 chained pomodoros for the same goal."}'
 )
 ON CONFLICT (id) DO UPDATE SET
     animal_id = EXCLUDED.animal_id,
@@ -1398,6 +1408,7 @@ DECLARE
     v_user_id UUID := auth.uid();
     v_quality RECORD;
     v_progress RECORD;
+    v_profile_streak INTEGER := 0;
     v_new_progress INTEGER;
     v_is_now_unlocked BOOLEAN := FALSE;
     v_newly_unlocked BOOLEAN := FALSE;
@@ -1423,8 +1434,14 @@ BEGIN
     WHERE user_id = v_user_id AND quality_id = p_quality_id 
     FOR UPDATE;
 
-    -- 4. Si ya estaba desbloqueada, retornar estado actual sin alterar
+    -- 4. Si ya estaba desbloqueada, asegurar que el avatar esté en user_unlocked_items y retornar
     IF v_progress.is_unlocked THEN
+        IF v_quality.associated_avatar_id IS NOT NULL THEN
+            INSERT INTO public.user_unlocked_items (user_id, item_id, unlock_source)
+            VALUES (v_user_id, v_quality.associated_avatar_id, 'quality_reward')
+            ON CONFLICT (user_id, item_id) DO NOTHING;
+        END IF;
+
         RETURN json_build_object(
             'success', TRUE,
             'quality_id', p_quality_id,
@@ -1436,8 +1453,14 @@ BEGIN
         );
     END IF;
 
-    -- 5. Calcular nuevo progreso acotado al objetivo
-    v_new_progress := LEAST(v_quality.target_total, v_progress.current_progress + 1);
+    -- 5. Calcular nuevo progreso acotado al objetivo respetando el incremento o la racha activa del perfil
+    IF p_quality_id = 'constancia' THEN
+        SELECT COALESCE(streak_days, 0) INTO v_profile_streak FROM public.profiles WHERE id = v_user_id;
+        v_new_progress := LEAST(v_quality.target_total, GREATEST(v_progress.current_progress + GREATEST(1, COALESCE(p_increment, 1)), v_profile_streak));
+    ELSE
+        v_new_progress := LEAST(v_quality.target_total, v_progress.current_progress + GREATEST(1, COALESCE(p_increment, 1)));
+    END IF;
+
     v_is_now_unlocked := (v_new_progress >= v_quality.target_total);
     v_newly_unlocked := v_is_now_unlocked AND NOT v_progress.is_unlocked;
 
@@ -1451,7 +1474,7 @@ BEGIN
     WHERE user_id = v_user_id AND quality_id = p_quality_id;
 
     -- 7. Si se completó el reto, otorgar el avatar correspondiente en el inventario
-    IF v_newly_unlocked AND v_quality.associated_avatar_id IS NOT NULL THEN
+    IF v_is_now_unlocked AND v_quality.associated_avatar_id IS NOT NULL THEN
         INSERT INTO public.user_unlocked_items (user_id, item_id, unlock_source)
         VALUES (v_user_id, v_quality.associated_avatar_id, 'quality_reward')
         ON CONFLICT (user_id, item_id) DO NOTHING;
@@ -1469,6 +1492,8 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.advance_user_quality_progress(VARCHAR, INTEGER) TO authenticated;
 
 
 -- ------------------------------------------------------------------------------
@@ -3707,6 +3732,19 @@ BEGIN
         NEW.gold_medals := OLD.gold_medals;
         NEW.silver_medals := OLD.silver_medals;
         NEW.bronze_medals := OLD.bronze_medals;
+
+        -- F. Blindaje de avatar equipado: no se permite equipar lo que no se posee
+        IF NEW.selected_avatar IS DISTINCT FROM OLD.selected_avatar THEN
+            IF NOT EXISTS (
+                SELECT 1 FROM public.catalog_items c
+                WHERE c.id = NEW.selected_avatar AND c.is_initial = TRUE
+            ) AND NOT EXISTS (
+                SELECT 1 FROM public.user_unlocked_items u
+                WHERE u.user_id = NEW.id AND u.item_id = NEW.selected_avatar
+            ) THEN
+                NEW.selected_avatar := OLD.selected_avatar;
+            END IF;
+        END IF;
     END IF;
     RETURN NEW;
 END;
@@ -3928,10 +3966,289 @@ USING (
             )
         )
         OR
-        -- Regla C: El avatar está equipado por un usuario activo en profiles
+        -- Regla C: El usuario autenticado cuenta con prueba o suscripción Premium activa
+        (
+            auth.uid() IS NOT NULL
+            AND EXISTS (
+                SELECT 1 FROM public.profiles p
+                WHERE p.id = auth.uid()
+                  AND p.is_premium = TRUE
+                  AND (p.premium_until IS NULL OR p.premium_until > NOW())
+            )
+            AND regexp_replace(storage.objects.name, '\.[^.]+$', '') IN ('leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante')
+        )
+        OR
+        -- Regla D: El avatar está equipado por un usuario activo en profiles (para contrincantes en medallero)
         EXISTS (
             SELECT 1 FROM public.profiles p
             WHERE p.selected_avatar = regexp_replace(storage.objects.name, '\.[^.]+$', '')
         )
     )
 );
+
+
+-- ==============================================================================
+-- 📦 PASO 10: CICLO DE VIDA DE SUSCRIPCIÓN PRO (STRIPE) Y GESTIÓN ATÓMICA DE AVATARES VIP
+-- ==============================================================================
+-- 🎯 PANTALLAS Y MÓDULOS DE USO EN EL FRONTEND:
+-- • /membresia: Activación de prueba gratuita de 7 días, checkout de suscripción Pro,
+--   portal del cliente de Stripe (Customer Portal) y visualización del casillero VIP.
+-- • /cualidades: Desbloqueo y renderizado inmediato de los 6 avatares Legendarios VIP
+--   (leon, tigre, fenix, grifo, lince, elefante) condicionados a la membresía activa.
+-- • /enfoque & /medallero: Visualización segura de avatares VIP mediante URLs firmadas
+--   custodiadas en Supabase Storage (bucket privado 'avatars').
+--
+-- 🛡️ REGLAS DE ARQUITECTURA Y CICLO DE VIDA (OPCIÓN A - PERIODO DE GRACIA):
+-- 1. Si el usuario inicia su prueba de 7 días o se suscribe:
+--    - profiles.is_premium pasa a TRUE y premium_until almacena la fecha de término.
+--    - El trigger tr_handle_profile_premium_status_change inserta automáticamente
+--      los 6 avatares VIP en public.user_unlocked_items con unlock_source = 'admin'.
+-- 2. Si el usuario cancela en el Customer Portal durante el periodo de prueba:
+--    - Stripe mantiene la suscripción activa hasta el fin del ciclo ('cancel_at_period_end' = true).
+--    - El usuario conserva sus beneficios y avatares hasta que expire premium_until.
+-- 3. Al vencer la suscripción o cancelarse de inmediato:
+--    - profiles.is_premium pasa a FALSE y premium_until se vacía.
+--    - El trigger tr_handle_profile_premium_status_change revoca atómicamente los avatares VIP
+--      de public.user_unlocked_items (donde unlock_source = 'admin') y, si el usuario tenía
+--      equipado un avatar VIP, lo regresa limpiamente a 'gato' para evitar avatares fantasma.
+-- 4. Blindaje Anti-Manipulación:
+--    - Ni authenticated ni anon pueden alterar is_premium o premium_until.
+--    - Los avatares a todo color solo se sirven si el bucket RLS valida pertenencia o membresía activa.
+-- ==============================================================================
+
+-- ------------------------------------------------------------------------------
+-- 10.1. VERIFICAR COLUMNAS EN public.profiles
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.profiles 
+ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE,
+ADD COLUMN IF NOT EXISTS premium_until TIMESTAMPTZ DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(100) DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR(100) DEFAULT NULL;
+
+-- ------------------------------------------------------------------------------
+-- 10.2. TRIGGER AUTOMÁTICO: CICLO DE VIDA PREMIUM EN public.profiles
+-- ------------------------------------------------------------------------------
+-- Se dispara automáticamente cada vez que un proceso autorizado altera 'is_premium'.
+-- Si pasa a TRUE: Adjudica de inmediato los 6 avatares VIP en user_unlocked_items.
+-- Si pasa a FALSE: Revoca de inmediato los avatares VIP de user_unlocked_items
+--                 y desequipa el avatar a 'gato' si tenía un VIP seleccionado.
+CREATE OR REPLACE FUNCTION public.handle_profile_premium_status_change()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_vip_avatars TEXT[] := ARRAY['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+BEGIN
+    -- Ignorar si la llamada proviene de un cliente no autorizado
+    IF current_user IN ('authenticated', 'anon') THEN
+        RETURN NEW;
+    END IF;
+
+    -- CASO A: El usuario pierde el estatus Premium (Fin de prueba de 7 días o cancelación)
+    IF (OLD.is_premium = TRUE AND NEW.is_premium = FALSE) THEN
+        -- 1. Revocar exclusivamente los avatares VIP otorgados por membresía ('admin')
+        -- (Si el usuario compró algún avatar con monedas 'coin_purchase', ese se conserva)
+        DELETE FROM public.user_unlocked_items
+        WHERE user_id = NEW.id
+          AND item_id = ANY(v_vip_avatars)
+          AND unlock_source = 'admin';
+
+        -- 2. Evitar avatar fantasma: si tenía equipado un avatar VIP revocado, volver a 'gato'
+        IF NEW.selected_avatar = ANY(v_vip_avatars) THEN
+            NEW.selected_avatar := 'gato';
+        END IF;
+    END IF;
+
+    -- CASO B: El usuario activa Premium Pro (Inicio de prueba de 7 días o pago activo)
+    IF (NEW.is_premium = TRUE AND (OLD.is_premium IS NULL OR OLD.is_premium = FALSE)) THEN
+        -- Adjudicar automáticamente los 6 avatares VIP con procedencia 'admin'
+        INSERT INTO public.user_unlocked_items (user_id, item_id, unlock_source)
+        SELECT NEW.id, unnest(v_vip_avatars), 'admin'
+        ON CONFLICT (user_id, item_id) DO NOTHING;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+-- Asegurar la vinculación del trigger
+DROP TRIGGER IF EXISTS tr_handle_profile_premium_status_change ON public.profiles;
+
+CREATE TRIGGER tr_handle_profile_premium_status_change
+BEFORE UPDATE OF is_premium ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_profile_premium_status_change();
+
+-- ------------------------------------------------------------------------------
+-- 10.3. FUNCIÓN RPC: RECLAMAR AVATARES VIP (claim_premium_vip_avatars)
+-- ------------------------------------------------------------------------------
+-- Permite al cliente autenticado sincronizar de inmediato sus avatares VIP tras el checkout
+CREATE OR REPLACE FUNCTION public.claim_premium_vip_avatars()
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+    v_user_id UUID;
+    v_is_premium BOOLEAN;
+    v_vip_items TEXT[] := ARRAY['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+    v_item TEXT;
+    v_count INT := 0;
+BEGIN
+    v_user_id := auth.uid();
+    IF v_user_id IS NULL THEN
+        RETURN jsonb_build_object('success', FALSE, 'error', 'UNAUTHORIZED');
+    END IF;
+
+    SELECT is_premium INTO v_is_premium
+    FROM public.profiles
+    WHERE id = v_user_id;
+
+    IF v_is_premium IS NOT TRUE THEN
+        RETURN jsonb_build_object('success', FALSE, 'error', 'NOT_PREMIUM');
+    END IF;
+
+    FOREACH v_item IN ARRAY v_vip_items
+    LOOP
+        INSERT INTO public.user_unlocked_items (user_id, item_id, unlock_source)
+        VALUES (v_user_id, v_item, 'admin')
+        ON CONFLICT (user_id, item_id) DO NOTHING;
+        v_count := v_count + 1;
+    END LOOP;
+
+    RETURN jsonb_build_object('success', TRUE, 'unlocked_count', v_count, 'items', v_vip_items);
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.claim_premium_vip_avatars() TO authenticated;
+
+-- ------------------------------------------------------------------------------
+-- 10.4. FUNCIÓN RPC: REVOCAR AVATARES VIP DE UN USUARIO (revoke_user_vip_avatars)
+-- ------------------------------------------------------------------------------
+-- Función de servidor de alta seguridad restringida a service_role
+CREATE OR REPLACE FUNCTION public.revoke_user_vip_avatars(p_user_id UUID)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+    v_revoked_count INT;
+    v_vip_avatars TEXT[] := ARRAY['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+BEGIN
+    -- 1. Desactivar en profiles (esto también disparará el trigger preventivo)
+    UPDATE public.profiles
+    SET is_premium = FALSE,
+        premium_until = NULL,
+        stripe_subscription_id = NULL
+    WHERE id = p_user_id;
+
+    -- 2. Eliminar avatares VIP de membresía
+    DELETE FROM public.user_unlocked_items
+    WHERE user_id = p_user_id
+      AND item_id = ANY(v_vip_avatars)
+      AND unlock_source = 'admin';
+    GET DIAGNOSTICS v_revoked_count = ROW_COUNT;
+
+    -- 3. Desequipar si tenía uno equipado
+    UPDATE public.profiles
+    SET selected_avatar = 'gato'
+    WHERE id = p_user_id
+      AND selected_avatar = ANY(v_vip_avatars);
+
+    RETURN jsonb_build_object('success', TRUE, 'revoked_count', v_revoked_count);
+END;
+$$;
+
+-- Restringir ejecución exclusivamente al rol administrativo
+REVOKE EXECUTE ON FUNCTION public.revoke_user_vip_avatars(UUID) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.revoke_user_vip_avatars(UUID) TO service_role;
+
+-- ------------------------------------------------------------------------------
+-- 10.5. FUNCIÓN RPC: EXPIRACIÓN AUTOMÁTICA DE PRUEBA / MEMBRESÍA
+-- ------------------------------------------------------------------------------
+-- Verifica si la fecha premium_until ha vencido y ejecuta la revocación atómica
+CREATE OR REPLACE FUNCTION public.check_user_premium_expiration()
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+    v_user_id UUID;
+    v_was_expired BOOLEAN := FALSE;
+BEGIN
+    v_user_id := auth.uid();
+    IF v_user_id IS NULL THEN
+        RETURN jsonb_build_object('success', FALSE, 'error', 'UNAUTHORIZED');
+    END IF;
+
+    UPDATE public.profiles
+    SET is_premium = FALSE,
+        premium_until = NULL,
+        stripe_subscription_id = NULL
+    WHERE id = v_user_id
+      AND is_premium = TRUE
+      AND premium_until IS NOT NULL
+      AND premium_until <= NOW();
+
+    GET DIAGNOSTICS v_was_expired = ROW_COUNT;
+
+    RETURN jsonb_build_object('success', TRUE, 'was_expired', (v_was_expired > 0));
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.check_user_premium_expiration() TO authenticated;
+
+-- Versión para backend/cron con parámetro p_user_id
+CREATE OR REPLACE FUNCTION public.check_user_premium_expiration(p_user_id UUID)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+    v_was_expired BOOLEAN := FALSE;
+BEGIN
+    UPDATE public.profiles
+    SET is_premium = FALSE,
+        premium_until = NULL,
+        stripe_subscription_id = NULL
+    WHERE id = p_user_id
+      AND is_premium = TRUE
+      AND premium_until IS NOT NULL
+      AND premium_until <= NOW();
+
+    GET DIAGNOSTICS v_was_expired = ROW_COUNT;
+
+    RETURN jsonb_build_object('success', TRUE, 'was_expired', (v_was_expired > 0));
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.check_user_premium_expiration(UUID) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.check_user_premium_expiration(UUID) TO service_role;
+
+-- ------------------------------------------------------------------------------
+-- 10.6. SINCRONIZACIÓN RETROACTIVA DE CUENTAS PREMIUM Y NO-PREMIUM EXISTENTES
+-- ------------------------------------------------------------------------------
+-- Para los usuarios que actualmente tienen is_premium = TRUE, asegurar sus 6 avatares VIP
+INSERT INTO public.user_unlocked_items (user_id, item_id, unlock_source)
+SELECT p.id, v.item_id, 'admin'
+FROM public.profiles p
+CROSS JOIN (
+    VALUES ('leon'), ('tigre'), ('fenix'), ('grifo'), ('lince'), ('elefante')
+) AS v(item_id)
+WHERE p.is_premium = TRUE
+ON CONFLICT (user_id, item_id) DO NOTHING;
+
+-- Para los usuarios que tienen is_premium = FALSE, revocar cualquier avatar VIP residual
+DELETE FROM public.user_unlocked_items
+WHERE unlock_source = 'admin'
+  AND item_id IN ('leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante')
+  AND user_id IN (SELECT id FROM public.profiles WHERE is_premium = FALSE);
+
+-- Desequipar avatar VIP en usuarios no premium
+UPDATE public.profiles
+SET selected_avatar = 'gato'
+WHERE is_premium = FALSE
+  AND selected_avatar IN ('leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante');
+

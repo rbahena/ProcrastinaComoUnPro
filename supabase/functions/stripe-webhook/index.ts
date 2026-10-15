@@ -129,20 +129,42 @@ serve(async (req) => {
           console.error('[stripe-webhook] Error en customer.subscription.updated:', updateError);
         } else {
           console.log(`[stripe-webhook] Suscripción ${subscriptionId} actualizada. is_premium=${isActive}`);
+          if (isActive) {
+            const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+            const { data: profs } = await supabaseAdmin
+              .from('profiles')
+              .select('id')
+              .or(`stripe_subscription_id.eq.${subscriptionId},stripe_customer_id.eq.${customerId}`);
+            if (profs && profs.length > 0) {
+              for (const p of profs) {
+                const rows = vipAvatars.map(id => ({ user_id: p.id, item_id: id, unlock_source: 'admin' }));
+                await supabaseAdmin.from('user_unlocked_items').upsert(rows, { onConflict: 'user_id, item_id', ignoreDuplicates: true });
+              }
+            }
+          }
         }
         break;
       }
 
-      // 3. Suscripción cancelada (por el usuario antes del día 7 o al final del período)
+      // 3. Suscripción cancelada definitivamente (fin de los 7 días de prueba o cancelación total)
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
         const customerId = subscription.customer as string;
         const subscriptionId = subscription.id as string;
 
+        // 1. Obtener los perfiles afectados
+        const { data: affectedProfiles } = await supabaseAdmin
+          .from('profiles')
+          .select('id, selected_avatar')
+          .or(`stripe_subscription_id.eq.${subscriptionId},stripe_customer_id.eq.${customerId}`);
+
+        // 2. Revertir estado a Gratuito en profiles
         const { error: updateError } = await supabaseAdmin
           .from('profiles')
           .update({
             is_premium: false,
+            premium_until: null,
+            stripe_subscription_id: null,
             updated_at: new Date().toISOString()
           })
           .or(`stripe_subscription_id.eq.${subscriptionId},stripe_customer_id.eq.${customerId}`);
@@ -151,6 +173,28 @@ serve(async (req) => {
           console.error('[stripe-webhook] Error en customer.subscription.deleted:', updateError);
         } else {
           console.log(`[stripe-webhook] Suscripción ${subscriptionId} cancelada. Usuario revertido a Gratuito.`);
+        }
+
+        // 3. Revocar exclusivamente los avatares VIP otorgados por suscripción ('admin')
+        const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+        if (affectedProfiles && affectedProfiles.length > 0) {
+          for (const prof of affectedProfiles) {
+            await supabaseAdmin
+              .from('user_unlocked_items')
+              .delete()
+              .eq('user_id', prof.id)
+              .in('item_id', vipAvatars)
+              .eq('unlock_source', 'admin');
+
+            // 4. Si el usuario tenía equipado un avatar VIP revocado, desequiparlo a 'gato'
+            if (vipAvatars.includes(prof.selected_avatar)) {
+              await supabaseAdmin
+                .from('profiles')
+                .update({ selected_avatar: 'gato' })
+                .eq('id', prof.id);
+            }
+          }
+          console.log(`[stripe-webhook] Avatares VIP revocados con éxito para ${affectedProfiles.length} perfil(es).`);
         }
         break;
       }

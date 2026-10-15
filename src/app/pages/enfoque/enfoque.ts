@@ -5286,13 +5286,13 @@ export class Enfoque implements OnInit, OnDestroy {
     } catch(e){}
   }
 
-  buyAvatar(avatar: string, cost: number) {
+  async buyAvatar(avatar: string, cost: number) {
     if (!this.membership.isPremium()) {
       this.showPaywallModal.set(true);
       return;
     }
-    const success = this.membership.unlockAvatar(avatar, cost);
-    if (success) {
+    const res = await this.membership.unlockAvatar(avatar, cost);
+    if (res.success) {
       this.membership.equipAvatar(avatar);
       alert(this.translation.currentLang() === 'en' ? `Congratulations! You unlocked avatar ${avatar.toUpperCase()} successfully.` : `¡Felicidades! Has desbloqueado el avatar ${avatar.toUpperCase()} con éxito.`);
     } else {

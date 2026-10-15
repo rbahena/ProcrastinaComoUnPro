@@ -347,7 +347,11 @@ export class MembershipService {
   async ensureAvatarLoaded(avatarId: string): Promise<string | null> {
     if (!avatarId) return null;
     if (this.avatarSignedUrls.has(avatarId)) {
-      return this.avatarSignedUrls.get(avatarId)!;
+      const existing = this.avatarSignedUrls.get(avatarId)!;
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.setProperty(`--avatar-img-${avatarId}`, `url("${existing}")`);
+      }
+      return existing;
     }
 
     try {
@@ -395,13 +399,13 @@ export class MembershipService {
 
   // Catálogo completo de Cualidades (Bloqueadas por defecto para desbloqueo por mérito/retos)
   qualitiesCatalog = signal<QualityItem[]>([
-    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 7 días consecutivos.', isUnlocked: false, unlockProgress: 0, unlockTotal: 7 },
-    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 15 pomodoros en total.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
-    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 5 pomodoros con la metodología Pareto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-    { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 5 pomodoros con la metodología Sapo/Rana.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 5 pomodoros con la metodología Normal.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 5 sesiones acompañadas en comunidad.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 },
-    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 3 pomodoros al hilo para un mismo objetivo en un día.', isUnlocked: false, unlockProgress: 0, unlockTotal: 3 }
+    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 10 días consecutivos completando al menos 1 pomodoro diario.', isUnlocked: false, unlockProgress: 0, unlockTotal: 10 },
+    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 35 pomodoros en total a lo largo de tu trayectoria.', isUnlocked: false, unlockProgress: 0, unlockTotal: 35 },
+    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 15 pomodoros con la metodología Pareto (80/20) en tareas de alto impacto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+    { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 12 pomodoros con la metodología Sapo/Rana y objetivo cumplido.', isUnlocked: false, unlockProgress: 0, unlockTotal: 12 },
+    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 25 pomodoros con la metodología Normal manteniendo el rumbo.', isUnlocked: false, unlockProgress: 0, unlockTotal: 25 },
+    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 15 sesiones de Coworking Comunitario en la sala compartida.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 5 días diferentes logrando al menos 3 pomodoros encadenados para la misma meta.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 }
   ]);
 
   // Registro de sesiones procesadas para idempotencia
@@ -607,8 +611,9 @@ export class MembershipService {
       this.cleanupLegacyLocalStorageKeys();
     }
 
-    // Cargar catálogo de artículos desde Supabase (solo en memoria)
+    // Cargar catálogo de artículos y cualidades maestras desde Supabase (solo en memoria)
     this.loadCatalogFromSupabase();
+    this.loadMasterQualitiesFromSupabase();
 
     // Sincronizar perfil e inventario automáticamente cuando Supabase tenga sesión activa
     effect(() => {
@@ -638,6 +643,7 @@ export class MembershipService {
           }
         });
         this.loadCatalogFromSupabase();
+        this.loadMasterQualitiesFromSupabase();
 
         // Notificar a Telegram SOLO si es un NUEVO registro vía Google OAuth
         if (user.app_metadata?.provider === 'google' && user.email) {
@@ -1274,13 +1280,7 @@ export class MembershipService {
           if (isNowUnlocked && !this.unlockedAvatars().includes(q.animal)) {
             // Desbloquear avatar correspondiente de forma automática
             this.unlockedAvatars.update(unlocked => [...unlocked, q.animal]);
-            if (this.supabaseService.isConfigured()) {
-              this.supabaseService.getCurrentUser().then(user => {
-                if (user) {
-                  this.supabaseService.unlockItemDirectly(user.id, q.animal);
-                }
-              });
-            }
+            this.ensureAvatarLoaded(q.animal);
           }
 
           return {
@@ -1421,6 +1421,15 @@ export class MembershipService {
           const isNowUnlocked = currentStreak >= q.unlockTotal;
           if (isNowUnlocked && !this.unlockedAvatars().includes('tortuga')) {
             this.unlockedAvatars.update(unlocked => [...unlocked, 'tortuga']);
+            if (this.supabaseService.isConfigured()) {
+              this.supabaseService.advanceQualityProgress('constancia', currentStreak).then(() => {
+                this.ensureAvatarLoaded('tortuga');
+              }).catch(err => {
+                console.warn('[MembershipService] Error persistiendo constancia en Supabase:', err);
+              });
+            } else {
+              this.ensureAvatarLoaded('tortuga');
+            }
           }
           return {
             ...q,
@@ -1434,6 +1443,21 @@ export class MembershipService {
     });
   }
 
+  /**
+   * Avanza una cualidad directamente en el backend (Security Definer RPC) y desbloquea su avatar si procede.
+   */
+  async advanceQuality(qualityId: string, amount: number = 1): Promise<{ success: boolean; error?: string }> {
+    if (this.supabaseService.isConfigured()) {
+      const res = await this.supabaseService.advanceQualityProgress(qualityId, amount);
+      if (!res.success) {
+        console.warn('[MembershipService] Error al avanzar cualidad en Supabase:', res.error);
+        return { success: false, error: res.error };
+      }
+      return { success: true };
+    }
+    return { success: true };
+  }
+
   private isDateInList(dates: string[], date: Date): boolean {
     const isoKey = this.getLocalDateKey(date);
     const localeKey = date.toLocaleDateString();
@@ -1444,41 +1468,65 @@ export class MembershipService {
     return this.streak();
   }
 
-  // Desbloquear avatar
-  unlockAvatar(avatar: string, cost: number): boolean {
-    if (this.unlockedAvatars().includes(avatar)) return true;
-    if (this.proCoins() < cost) return false;
-
-    this.proCoins.update(c => c - cost);
-    this.unlockedAvatars.update(list => [...list, avatar]);
-    this.ensureAvatarLoaded(avatar);
+  // Desbloquear avatar con Pro Coins
+  async unlockAvatar(avatar: string, cost: number): Promise<{ success: boolean; error?: string }> {
+    if (this.unlockedAvatars().includes(avatar)) {
+      await this.ensureAvatarLoaded(avatar);
+      return { success: true };
+    }
+    if (this.proCoins() < cost) {
+      return { success: false, error: 'Monedas insuficientes' };
+    }
 
     if (this.supabaseService.isConfigured()) {
-      this.supabaseService.buyCatalogItem(avatar).then(res => {
-        if (res.remainingCoins !== undefined) {
-          this.proCoins.set(res.remainingCoins);
-        }
-      });
+      const res = await this.supabaseService.buyCatalogItem(avatar);
+      if (!res.success) {
+        console.warn(`[MembershipService] Error al comprar avatar ${avatar} en Supabase:`, res.error);
+        return { success: false, error: res.error || 'Error al procesar la compra en el servidor' };
+      }
+      if (res.remainingCoins !== undefined) {
+        this.proCoins.set(res.remainingCoins);
+      } else {
+        this.proCoins.update(c => Math.max(0, c - cost));
+      }
+    } else {
+      this.proCoins.update(c => Math.max(0, c - cost));
     }
-    return true;
+
+    this.unlockedAvatars.update(list => Array.from(new Set([...list, avatar])));
+    this.saveConsolidatedUserData();
+
+    // AHORA que ya se confirmó y persistió en user_unlocked_items en Supabase,
+    // cargar la URL firmada de Supabase Storage e inyectar la variable CSS a todo color en el DOM
+    await this.ensureAvatarLoaded(avatar);
+
+    return { success: true };
   }
 
-  // Desbloquear tema
-  unlockTheme(theme: string, cost: number): boolean {
-    if (this.unlockedThemes().includes(theme)) return true;
-    if (this.proCoins() < cost) return false;
-
-    this.proCoins.update(c => c - cost);
-    this.unlockedThemes.update(list => [...list, theme]);
+  // Desbloquear tema con Pro Coins
+  async unlockTheme(theme: string, cost: number): Promise<{ success: boolean; error?: string }> {
+    if (this.unlockedThemes().includes(theme)) return { success: true };
+    if (this.proCoins() < cost) return { success: false, error: 'Monedas insuficientes' };
 
     if (this.supabaseService.isConfigured()) {
-      this.supabaseService.buyCatalogItem(theme).then(res => {
-        if (res.remainingCoins !== undefined) {
-          this.proCoins.set(res.remainingCoins);
-        }
-      });
+      const res = await this.supabaseService.buyCatalogItem(theme);
+      if (!res.success) {
+        console.warn(`[MembershipService] Error al comprar tema ${theme} en Supabase:`, res.error);
+        return { success: false, error: res.error || 'Error al procesar la compra en el servidor' };
+      }
+      if (res.remainingCoins !== undefined) {
+        this.proCoins.set(res.remainingCoins);
+      } else {
+        this.proCoins.update(c => Math.max(0, c - cost));
+      }
+    } else {
+      this.proCoins.update(c => Math.max(0, c - cost));
     }
-    return true;
+
+    this.unlockedThemes.update(list => Array.from(new Set([...list, theme])));
+    this.saveConsolidatedUserData();
+
+    return { success: true };
   }
 
   // Aplicar tema y modo global en el DOM
@@ -1731,11 +1779,22 @@ export class MembershipService {
       this.userLanguage.set(browserLang);
       this.translationService.setLanguage(browserLang, false);
     }
-    if (p.is_premium !== undefined) {
-      this.isPremium.set(p.is_premium);
-      if (p.is_premium) {
-        this.unlockVipAvatarsForPremiumUser();
+    // Manejo robusto de estatus Premium con periodo de gracia de prueba (Opción A)
+    let isCurrentlyPremium = false;
+    if (p.premium_until) {
+      const isExpired = new Date(p.premium_until).getTime() <= Date.now();
+      if (!isExpired) {
+        isCurrentlyPremium = true;
       }
+    } else if (p.is_premium === true) {
+      isCurrentlyPremium = true;
+    }
+
+    this.isPremium.set(isCurrentlyPremium);
+    if (isCurrentlyPremium) {
+      this.unlockVipAvatarsForPremiumUser();
+    } else {
+      this.revokeVipAvatarsLocally();
     }
 
     // Supabase es la única fuente de verdad estricta para los valores de gamificación
@@ -1815,6 +1874,34 @@ export class MembershipService {
     }
   }
 
+  // Cargar catálogo de cualidades maestras desde Supabase (SSOT)
+  async loadMasterQualitiesFromSupabase() {
+    if (this.supabaseService.isConfigured()) {
+      const { qualities, error } = await this.supabaseService.getMasterQualities();
+      if (!error && qualities && qualities.length > 0) {
+        const lang = this.userLanguage();
+        this.qualitiesCatalog.update(currentList => {
+          return currentList.map(localQ => {
+            const master = qualities.find(m => m.id === localQ.id);
+            if (master) {
+              const name = master.name?.[lang] || master.name?.['es'] || localQ.name;
+              const desc = master.description?.[lang] || master.description?.['es'] || localQ.description;
+              const req = master.unlock_requirement?.[lang] || master.unlock_requirement?.['es'] || localQ.unlockRequirement;
+              return {
+                ...localQ,
+                name,
+                description: desc,
+                unlockRequirement: req,
+                unlockTotal: master.target_total ?? localQ.unlockTotal
+              };
+            }
+            return localQ;
+          });
+        });
+      }
+    }
+  }
+
   // Obtener texto localizado según idioma del usuario ('es' o 'en')
   getLocalizedText(field?: MultilingualText | null, fallback: string = ''): string {
     if (!field) return fallback;
@@ -1844,7 +1931,15 @@ export class MembershipService {
     ));
 
     const vipAvatars = this.isPremium() ? ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'] : [];
-    const finalAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...catalogInitialAvatars, ...avatars, ...vipAvatars]));
+    // Filtrar avatares VIP si el usuario no cuenta con membresía Premium activa
+    const filteredAvatars = (avatars || []).filter(id => {
+      if (['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'].includes(id)) {
+        return this.isPremium();
+      }
+      return true;
+    });
+
+    const finalAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...catalogInitialAvatars, ...filteredAvatars, ...vipAvatars]));
     const finalThemes = themes.length > 0 ? themes : ['samurai'];
     const finalTimers = timers.length > 0 ? timers : ['digital'];
 
@@ -1883,6 +1978,36 @@ export class MembershipService {
         console.warn('[MembershipService] Error sincronizando avatares VIP en user_unlocked_items:', e);
       }
     }
+  }
+
+  /**
+   * Revoca de forma inmediata y reactiva los avatares VIP en la interfaz,
+   * limpia las variables CSS del DOM y desequipa avatares VIP si el usuario ya no es Pro.
+   */
+  revokeVipAvatarsLocally() {
+    const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+
+    // 1. Remover del inventario local en memoria
+    this.unlockedAvatars.update(list => list.filter(id => !vipAvatars.includes(id)));
+
+    // 2. Si tenía equipado un avatar VIP revocado, desequiparlo a 'gato'
+    if (vipAvatars.includes(this.selectedAvatar())) {
+      this.selectedAvatar.set('gato');
+      const user = this.supabaseService.currentUser();
+      if (user && this.supabaseService.isConfigured()) {
+        this.supabaseService.updateProfile(user.id, { selected_avatar: 'gato' }).catch(() => {});
+      }
+    }
+
+    // 3. Limpiar variables CSS del DOM para volver a mostrar siluetas bloqueadas
+    if (typeof document !== 'undefined') {
+      vipAvatars.forEach(id => {
+        document.documentElement.style.removeProperty(`--avatar-img-${id}`);
+        this.avatarSignedUrls.delete(id);
+      });
+    }
+
+    this.saveConsolidatedUserData();
   }
 
   // Aplicar progreso de cualidades desde Supabase (user_quality_progress)

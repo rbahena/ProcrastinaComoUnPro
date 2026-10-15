@@ -237,22 +237,22 @@ Los 7 avatares de reto no se compran con dinero ni monedas: se conquistan demost
 
 ```mermaid
 graph TD
-    Q1[Constancia: 7 días de racha] --> A1[Desbloquea Tortuga Genbu]
-    Q2[Disciplina: 15 pomodoros totales] --> A2[Desbloquea Hormiga Vargas]
-    Q3[Sabiduría: 5 pomodoros Pareto] --> A3[Desbloquea Búho Noctis]
-    Q4[Superación: 5 sapos cumplidos] --> A4[Desbloquea Rana Kero]
-    Q5[Visión: 5 pomodoros normales] --> A5[Desbloquea Águila Valkor]
-    Q6[Colaboración: 5 coworking] --> A6[Desbloquea Abeja Vespia]
-    Q7[Construcción: 3 al hilo mismo fin] --> A7[Desbloquea Castor Barris]
+    Q1["Constancia: 10 días de racha"] --> A1[Desbloquea Tortuga Genbu]
+    Q2["Disciplina: 35 pomodoros totales"] --> A2[Desbloquea Hormiga Vargas]
+    Q3["Sabiduría: 15 pomodoros Pareto"] --> A3[Desbloquea Búho Noctis]
+    Q4["Superación: 12 sapos cumplidos"] --> A4[Desbloquea Rana Kero]
+    Q5["Visión: 25 pomodoros normales"] --> A5[Desbloquea Águila Valkor]
+    Q6["Colaboración: 15 coworking"] --> A6[Desbloquea Abeja Vespia]
+    Q7["Construcción: 5 días 3 al hilo"] --> A7[Desbloquea Castor Barris]
 ```
 
-1. **Constancia (`constancia`):** Mantener una racha de **7 días consecutivos**. Desbloquea a **Genbu**.
-2. **Disciplina (`disciplina`):** Completar **15 pomodoros en total**. Desbloquea a **Vargas**.
-3. **Sabiduría (`sabiduria`):** Completar **5 pomodoros con metodología Pareto**. Desbloquea a **Noctis**.
-4. **Superación (`superacion`):** Completar **5 pomodoros con metodología Sapo y objetivo cumplido**. Desbloquea a **Kero**.
-5. **Visión (`vision`):** Completar **5 pomodoros con metodología Normal**. Desbloquea a **Valkor**.
-6. **Colaboración (`colaboracion`):** Participar en **5 sesiones de Coworking Comunitario**. Desbloquea a **Vespia**.
-7. **Construcción (`construccion`):** Encadenar **3 pomodoros consecutivos para el mismo objetivo en un día**. Desbloquea a **Barris**.
+1. **Constancia (`constancia`):** Mantener una racha de **10 días consecutivos**. Desbloquea a **Genbu**.
+2. **Disciplina (`disciplina`):** Completar **35 pomodoros en total**. Desbloquea a **Vargas**.
+3. **Sabiduría (`sabiduria`):** Completar **15 pomodoros con metodología Pareto (80/20)**. Desbloquea a **Noctis**.
+4. **Superación (`superacion`):** Completar **12 pomodoros con metodología Sapo y objetivo cumplido**. Desbloquea a **Kero**.
+5. **Visión (`vision`):** Completar **25 pomodoros con metodología Normal**. Desbloquea a **Valkor**.
+6. **Colaboración (`colaboracion`):** Participar en **15 sesiones de Coworking Comunitario**. Desbloquea a **Vespia**.
+7. **Construcción (`construccion`):** Completar **5 días diferentes logrando al menos 3 pomodoros encadenados al mismo objetivo**. Desbloquea a **Barris**.
 
 ---
 

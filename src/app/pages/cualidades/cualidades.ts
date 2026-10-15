@@ -325,6 +325,7 @@ interface CountryOption {
                   class="quality-skill-pill"
                   [class.is-unlocked]="q.isUnlocked"
                   [title]="q.name + (q.isUnlocked ? ' (Desbloqueada)' : ': ' + q.unlockRequirement)"
+                  (click)="handleQualityPillClick(q)"
                 >
                   <span class="pill-icon" *ngIf="q.isUnlocked">{{ membership.getEmoji(q.animal) }}</span>
                   <span class="pill-icon locked-icon" *ngIf="!q.isUnlocked"><i class="fa-solid fa-lock"></i></span>
@@ -692,13 +693,25 @@ interface CountryOption {
                   <i class="fa-solid fa-arrow-right"></i>
                 </button>
 
+                <!-- CASO A: RETO COMPLETADO (Progreso >= Meta) -> Botón para reclamar recompensa formalmente -->
                 <button 
-                  *ngIf="!inspectedAvatar().isUnlocked && inspectedAvatar().qualityId && inspectedAvatar().quality" 
-                  (click)="simulateUnlockQuality(inspectedAvatar().quality!)" 
+                  *ngIf="!inspectedAvatar().isUnlocked && inspectedAvatar().qualityId && inspectedAvatar().quality && (inspectedAvatar().quality?.unlockProgress || 0) >= (inspectedAvatar().quality?.unlockTotal || 1)" 
+                  (click)="claimQualityReward(inspectedAvatar().quality!)" 
                   class="btn-clean-cta is-challenge-btn"
                 >
-                  <i class="fa-solid fa-wand-magic-sparkles"></i> {{ 'cualidades.proveQuality' | translate:{ name: (inspectedAvatar().displayName || inspectedAvatar().qualityName) } }}
+                  <i class="fa-solid fa-gift"></i> {{ 'cualidades.claimGuardian' | translate:{ name: inspectedAvatar().name } }}
                   <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <!-- CASO B: RETO EN PROGRESO (Progreso < Meta) -> Abre ventana indicando que aún no cuenta con los requisitos -->
+                <button 
+                  *ngIf="!inspectedAvatar().isUnlocked && inspectedAvatar().qualityId && inspectedAvatar().quality && (inspectedAvatar().quality?.unlockProgress || 0) < (inspectedAvatar().quality?.unlockTotal || 1)" 
+                  (click)="openIncompleteQualityModal(inspectedAvatar())"
+                  class="btn-clean-cta is-challenge-btn is-incomplete-btn"
+                >
+                  <i class="fa-solid fa-shield-halved text-amber"></i> {{ 'cualidades.proveQuality' | translate:{ name: inspectedAvatar().quality?.name } }}
+                  <span class="btn-progress-badge">{{ inspectedAvatar().quality?.unlockProgress || 0 }}/{{ inspectedAvatar().quality?.unlockTotal || 1 }}</span>
+                  <i class="fa-solid fa-circle-info"></i>
                 </button>
 
                 <button 
@@ -814,6 +827,76 @@ interface CountryOption {
               {{ 'cualidades.demonstratedQualitySuccess' | translate:{ name: unlockedRewardQuality()?.name } }}
             </p>
             <button class="btn-equip-now-action" (click)="closeRewardFlow()">{{ 'cualidades.gotIt' | translate }}</button>
+          </div>
+        </div>
+
+        <!-- MODAL: REQUISITOS DE CUALIDAD PENDIENTES / AÚN NO CUMPLES LOS REQUISITOS -->
+        <div class="quality-incomplete-overlay" *ngIf="inspectingIncompleteQuality()" (click)="closeIncompleteQualityModal()">
+          <div class="quality-incomplete-card" (click)="$event.stopPropagation()">
+            <div class="incomplete-glow"></div>
+            
+            <button class="modal-close-x" (click)="closeIncompleteQualityModal()" aria-label="Cerrar">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="incomplete-badge">
+              <i class="fa-solid fa-shield-halved text-amber"></i>
+              <span>{{ 'cualidades.requirementPendingBadge' | translate }}</span>
+            </div>
+
+            <div class="incomplete-avatar-preview">
+              <div [class]="'avatar-sprite incomplete-avatar-sprite sprite-' + inspectingIncompleteQuality()?.id + ' is-locked-sprite'"></div>
+              <div class="incomplete-avatar-meta">
+                <h3 class="incomplete-avatar-name">{{ inspectingIncompleteQuality()?.name }}</h3>
+                <span class="incomplete-quality-name">
+                  <i class="fa-solid fa-award text-amber"></i>
+                  {{ 'cualidades.incompleteQualityTitle' | translate:{ name: inspectingIncompleteQuality()?.quality?.name } }}
+                </span>
+              </div>
+            </div>
+
+            <div class="incomplete-requirement-box">
+              <div class="req-title-row">
+                <span class="req-label">{{ 'cualidades.honorChallengeLabel' | translate }}</span>
+                <span class="req-target-tag">{{ inspectingIncompleteQuality()?.quality?.unlockProgress || 0 }} / {{ inspectingIncompleteQuality()?.quality?.unlockTotal || 1 }}</span>
+              </div>
+              <p class="req-description">
+                {{ inspectingIncompleteQuality()?.quality?.unlockRequirement }}
+              </p>
+
+              <!-- BARRA DE PROGRESO -->
+              <div class="req-progress-track">
+                <div class="req-progress-fill" [style.width.%]="getIncompleteQualityPercent()"></div>
+              </div>
+
+              <div class="req-hint-row">
+                <i class="fa-solid fa-circle-info text-amber"></i>
+                <p class="req-hint-text">
+                  {{ getIncompleteQualityRemainingHint() }}
+                </p>
+              </div>
+            </div>
+
+            <div class="incomplete-modal-actions">
+              <a 
+                routerLink="/enfoque" 
+                (click)="closeIncompleteQualityModal()" 
+                class="btn-incomplete-cta"
+              >
+                <i class="fa-solid fa-fire text-amber"></i>
+                <span>{{ 'cualidades.goToFocusArenaAction' | translate }}</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+
+              <button 
+                type="button" 
+                (click)="closeIncompleteQualityModal()" 
+                class="btn-incomplete-secondary"
+              >
+                {{ 'cualidades.gotIt' | translate }}
+              </button>
+            </div>
+
           </div>
         </div>
 
@@ -1320,11 +1403,12 @@ interface CountryOption {
       display: inline-flex;
       align-items: center;
       gap: 5px;
+      cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .quality-skill-pill:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(245, 158, 11, 0.35);
       transform: translateY(-1px);
     }
     .quality-skill-pill.is-unlocked {
@@ -2766,6 +2850,273 @@ interface CountryOption {
       cursor: pointer;
     }
 
+    /* MODAL: CUALIDAD INCOMPLETA / REQUISITOS PENDIENTES */
+    .quality-incomplete-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+      animation: fadeInModal 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .quality-incomplete-card {
+      position: relative;
+      background: linear-gradient(145deg, rgba(22, 26, 38, 0.98) 0%, rgba(14, 16, 24, 0.98) 100%);
+      border: 1.5px solid rgba(245, 158, 11, 0.5);
+      border-radius: 24px;
+      padding: 28px 24px 24px;
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(245, 158, 11, 0.2);
+      box-sizing: border-box;
+    }
+
+    .incomplete-glow {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, rgba(245, 158, 11, 0) 70%);
+      pointer-events: none;
+    }
+
+    .modal-close-x {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    .modal-close-x:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .incomplete-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 850;
+      color: #f59e0b;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .incomplete-avatar-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .incomplete-avatar-sprite {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      border: 3px solid rgba(245, 158, 11, 0.6);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 25px rgba(245, 158, 11, 0.25);
+      background-color: #11141e;
+    }
+
+    .incomplete-avatar-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .incomplete-avatar-name {
+      font-size: 18px;
+      font-weight: 850;
+      color: #fff;
+      margin: 0;
+    }
+
+    .incomplete-quality-name {
+      font-size: 12.5px;
+      font-weight: 750;
+      color: #f59e0b;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .incomplete-requirement-box {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .req-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .req-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .req-target-tag {
+      font-size: 11px;
+      font-weight: 850;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+      padding: 2px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .req-description {
+      font-size: 12px;
+      color: #e2e8f0;
+      line-height: 1.45;
+      margin: 0;
+      font-weight: 550;
+    }
+
+    .req-progress-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+
+    .req-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+      border-radius: 6px;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+
+    .req-hint-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding-top: 4px;
+    }
+
+    .req-hint-text {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .incomplete-modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .btn-incomplete-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0f172a;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 850;
+      padding: 12px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+      transition: all 0.2s ease;
+    }
+    .btn-incomplete-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45);
+      color: #0f172a;
+    }
+
+    .btn-incomplete-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-incomplete-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .is-incomplete-btn {
+      background: rgba(245, 158, 11, 0.12) !important;
+      border: 1px solid rgba(245, 158, 11, 0.4) !important;
+      color: #fbbf24 !important;
+      cursor: pointer;
+    }
+    .is-incomplete-btn:hover {
+      background: rgba(245, 158, 11, 0.2) !important;
+      border-color: rgba(245, 158, 11, 0.6) !important;
+      transform: translateY(-1px);
+    }
+    .btn-progress-badge {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+      padding: 2px 7px;
+      font-size: 10.5px;
+      font-weight: 850;
+      color: #fbbf24;
+      margin: 0 4px;
+    }
+
     .toast-popup-alert {
       position: fixed;
       bottom: 28px;
@@ -2861,6 +3212,7 @@ export class Cualidades implements OnInit {
   }
 
   unlockedRewardQuality = signal<QualityItem | null>(null);
+  inspectingIncompleteQuality = signal<ComunidadAvatar | null>(null);
   portraitZoomOrigin = signal<string>('center center');
   headerAvatarZoomOrigin = signal<string>('center center');
 
@@ -2963,8 +3315,9 @@ export class Cualidades implements OnInit {
             qualityId: item.required_quality_id || null,
             qualityName: item.quality_name?.[lang] || item.quality_name?.['es'] || undefined,
             qualityReq: item.quality_req?.[lang] || item.quality_req?.['es'] || undefined,
-            unlockTotal: item.required_quality_id === 'constancia' ? 7 :
-                         (item.required_quality_id === 'disciplina' ? 15 : 5),
+            unlockTotal: qualities.find(q => q.id === item.required_quality_id)?.unlockTotal ??
+                         (item.required_quality_id === 'constancia' ? 10 :
+                         (item.required_quality_id === 'disciplina' ? 35 : 5)),
             hasEvolution,
             evolutionDetail: hasEvolution ? EVOLUTION_ITEMS_MAP[item.id] : undefined
           };
@@ -2981,14 +3334,14 @@ export class Cualidades implements OnInit {
         const total = item.unlockTotal || quality.unlockTotal || 0;
         const progress = quality.unlockProgress || 0;
 
-        if (progress >= total || unlockedList.includes(item.id)) {
+        if (unlockedList.includes(item.id)) {
           isUnlocked = true;
         }
 
         displayReq = item.qualityReq || `Demuestra la cualidad de ${quality.name}: ${quality.unlockRequirement} (Progreso: ${progress}/${total}).`;
       } else if (item.isPremium) {
-        // Exclusivo VIP: Desbloqueado automáticamente si es usuario Premium Pro
-        isUnlocked = this.membership.isPremium() || unlockedList.includes(item.id);
+        // Exclusivo VIP: Desbloqueado única y exclusivamente si el usuario cuenta con membresía o prueba activa de COFU Pro
+        isUnlocked = this.membership.isPremium();
       } else if (item.type === 'inicial' || STARTER_AVATARS.has(item.id)) {
         isUnlocked = true;
       } else if (item.cost > 0) {
@@ -3101,6 +3454,7 @@ export class Cualidades implements OnInit {
   }
 
   ngOnInit() {
+    this.membership.loadMasterQualitiesFromSupabase();
     this.membership.syncProfileFromSupabase().then(() => {
       this.membership.syncUnlockedAvatarUrls();
     });
@@ -3475,11 +3829,82 @@ export class Cualidades implements OnInit {
     this.showToast(this.translation.currentLang() === 'en' ? 'Profile updated successfully.' : 'Perfil actualizado correctamente.');
   }
 
-  simulateUnlockQuality(quality: QualityItem) {
+  openIncompleteQualityModal(avatar: ComunidadAvatar) {
+    this.inspectingIncompleteQuality.set(avatar);
+  }
+
+  openIncompleteQualityModalByQuality(quality: QualityItem) {
+    const avatar = this.allAvatars().find(a => a.qualityId === quality.id) || null;
+    if (avatar) {
+      this.inspectedAvatarId.set(avatar.id);
+      this.inspectingIncompleteQuality.set(avatar);
+    }
+  }
+
+  closeIncompleteQualityModal() {
+    this.inspectingIncompleteQuality.set(null);
+  }
+
+  handleQualityPillClick(q: QualityItem) {
+    const relatedAvatar = this.allAvatars().find(a => a.qualityId === q.id);
+    if (relatedAvatar) {
+      this.inspectedAvatarId.set(relatedAvatar.id);
+    }
+    if (!q.isUnlocked) {
+      if (relatedAvatar) {
+        this.openIncompleteQualityModal(relatedAvatar);
+      }
+    }
+  }
+
+  getIncompleteQualityPercent(): number {
+    const avatar = this.inspectingIncompleteQuality();
+    if (!avatar || !avatar.quality) return 0;
+    const current = avatar.quality.unlockProgress || 0;
+    const total = avatar.quality.unlockTotal || 1;
+    return Math.min(100, Math.max(0, Math.round((current / total) * 100)));
+  }
+
+  getIncompleteQualityRemainingHint(): string {
+    const avatar = this.inspectingIncompleteQuality();
+    if (!avatar || !avatar.quality) return '';
+    const current = avatar.quality.unlockProgress || 0;
+    const total = avatar.quality.unlockTotal || 1;
+    const remaining = Math.max(0, total - current);
+    const isEn = this.translation.currentLang() === 'en';
+
+    const isStreak = avatar.quality.id === 'constancia' || avatar.id === 'tortuga';
+    if (isStreak) {
+      if (isEn) {
+        return `You need ${remaining} more consecutive active streak ${remaining === 1 ? 'day' : 'days'} to demonstrate your ${avatar.quality.name} and unlock this guardian in full color.`;
+      }
+      return `Te faltan ${remaining} ${remaining === 1 ? 'día' : 'días'} más de racha activa consecutiva para demostrar tu ${avatar.quality.name} y desbloquear este guardián a todo color.`;
+    } else {
+      if (isEn) {
+        return `You need ${remaining} more completed focus ${remaining === 1 ? 'session' : 'sessions'} in the Focus Arena to demonstrate your ${avatar.quality.name} and unlock this guardian in full color.`;
+      }
+      return `Te faltan ${remaining} ${remaining === 1 ? 'sesión' : 'sesiones'} más de enfoque completadas en la Arena para demostrar tu ${avatar.quality.name} y desbloquear este guardián a todo color.`;
+    }
+  }
+
+  claimQualityReward(quality: QualityItem) {
+    const current = quality.unlockProgress || 0;
+    const total = quality.unlockTotal || 1;
+    if (current < total) {
+      const avatar = this.allAvatars().find(a => a.qualityId === quality.id);
+      if (avatar) {
+        this.openIncompleteQualityModal(avatar);
+      }
+      return;
+    }
     this.unlockedRewardQuality.set(quality);
   }
 
-  closeRewardFlow() {
+  simulateUnlockQuality(quality: QualityItem) {
+    this.claimQualityReward(quality);
+  }
+
+  async closeRewardFlow() {
     const quality = this.unlockedRewardQuality();
     if (quality) {
       let maxTotal = quality.unlockTotal;
@@ -3508,7 +3933,17 @@ export class Cualidades implements OnInit {
 
       if (newlyUnlocked.length > 0) {
         this.membership.unlockedAvatars.update(list => [...list, ...newlyUnlocked]);
-        newlyUnlocked.forEach(id => this.membership.ensureAvatarLoaded(id));
+
+        // 1. Persistir avance en Supabase (RPC advance_user_quality_progress adjudica en user_unlocked_items)
+        try {
+          await this.membership.advanceQuality(quality.id, maxTotal);
+        } catch (e) {
+          console.warn('[Cualidades] Error persistiendo avance en Supabase:', e);
+        }
+
+        // 2. Ahora que ya está en user_unlocked_items, cargar la URL firmada del bucket privado
+        await Promise.all(newlyUnlocked.map(id => this.membership.ensureAvatarLoaded(id)));
+        this.membership.saveConsolidatedUserData();
       }
       const isEn = this.translation.currentLang() === 'en';
       this.showToast(isEn ? `Quality ${quality.name} proven!` : `¡Cualidad ${quality.name} demostrada!`);
@@ -3516,13 +3951,18 @@ export class Cualidades implements OnInit {
     this.unlockedRewardQuality.set(null);
   }
 
-  buyAvatar(avatar: ComunidadAvatar) {
+  async buyAvatar(avatar: ComunidadAvatar) {
     if (this.membership.proCoins() >= avatar.cost) {
-      const success = this.membership.unlockAvatar(avatar.id, avatar.cost);
-      if (success) {
+      const res = await this.membership.unlockAvatar(avatar.id, avatar.cost);
+      if (res.success) {
         this.selectAvatar({ ...avatar, isUnlocked: true });
         const isEn = this.translation.currentLang() === 'en';
         this.showToast(isEn ? `${avatar.name} successfully unlocked!` : `¡${avatar.name} desbloqueado exitosamente!`);
+      } else {
+        const errorMsg = res.error === 'Monedas insuficientes'
+          ? 'No tienes suficientes Pro Coins registradas en Supabase.'
+          : (res.error || 'Error al procesar la compra en el servidor.');
+        this.showToast(`❌ ${errorMsg}`);
       }
     }
   }

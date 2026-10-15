@@ -124,22 +124,58 @@ serve(async (req) => {
         }
       }
 
+      // Opción A: Si no hay suscripción activa en Stripe, pero el periodo de prueba premium_until aún no expira, se respeta el tiempo
+      if (!isProActive && profile?.premium_until && new Date(profile.premium_until).getTime() > Date.now()) {
+        isProActive = true;
+        premiumUntil = profile.premium_until;
+      }
+
       if (isProActive) {
         await supabaseAdmin
           .from('profiles')
           .update({
             is_premium: true,
             stripe_customer_id: customerId,
-            stripe_subscription_id: subscriptionId || null,
+            stripe_subscription_id: subscriptionId || profile?.stripe_subscription_id || null,
             premium_until: premiumUntil,
             updated_at: new Date().toISOString()
           })
           .eq('id', user.id);
 
+        const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+        const rows = vipAvatars.map(id => ({ user_id: user.id, item_id: id, unlock_source: 'admin' }));
+        await supabaseAdmin.from('user_unlocked_items').upsert(rows, { onConflict: 'user_id, item_id', ignoreDuplicates: true });
+
         return new Response(
-          JSON.stringify({ success: true, is_premium: true, customerId, subscriptionId }),
+          JSON.stringify({ success: true, is_premium: true, customerId, subscriptionId, premiumUntil }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
+      }
+
+      // Si el periodo expiró definitivamente o no tiene suscripción:
+      await supabaseAdmin
+        .from('profiles')
+        .update({
+          is_premium: false,
+          premium_until: null,
+          stripe_subscription_id: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+      await supabaseAdmin
+        .from('user_unlocked_items')
+        .delete()
+        .eq('user_id', user.id)
+        .in('item_id', vipAvatars)
+        .eq('unlock_source', 'admin');
+
+      if (vipAvatars.includes(profile?.selected_avatar)) {
+        await supabaseAdmin
+          .from('profiles')
+          .update({ selected_avatar: 'gato' })
+          .eq('id', user.id);
       }
 
       return new Response(
