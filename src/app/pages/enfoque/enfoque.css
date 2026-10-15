@@ -1209,6 +1209,69 @@
   transform: scale(0.97);
 }
 
+/* BADGES Y CANDADOS DE MONETIZACIÓN DE CRONÓMETROS */
+.timer-tier-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3.5px;
+  padding: 2px 5.5px;
+  border-radius: 6px;
+  font-size: 8.5px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 4;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.timer-tier-badge.badge-premium {
+  background: rgba(245, 158, 11, 0.22);
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  color: #fbbf24;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
+}
+
+.timer-tier-badge.badge-coins {
+  background: rgba(251, 191, 36, 0.18);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
+}
+
+.timer-tier-badge.badge-unlocked {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #10b981;
+}
+
+.timer-tier-badge.badge-free {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #94a3b8;
+}
+
+.timer-lock-indicator {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: #fbbf24;
+  z-index: 4;
+  pointer-events: none;
+}
+
 /* Tarjetas de Selección de Fondo Zen */
 .bg-thumb-card {
   display: flex;

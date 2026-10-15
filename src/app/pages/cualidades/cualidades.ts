@@ -417,9 +417,9 @@ interface CountryOption {
                       </div>
 
                       <div class="top-badges-right">
-                        <!-- BADGE TIPO DE DESBLOQUEO (VIP / MONEDAS / RETO) -->
+                        <!-- BADGE TIPO DE DESBLOQUEO (PRO / MONEDAS / RETO) -->
                         <span *ngIf="avatar.unlockType === 'premium'" class="card-unlock-pill pill-premium" [class.is-unlocked]="avatar.isUnlocked" [title]="'cualidades.vipExclusive' | translate">
-                          <i class="fa-solid fa-crown"></i> VIP
+                          <i class="fa-solid fa-crown"></i> PRO
                         </span>
                         <span *ngIf="avatar.unlockType === 'coins'" class="card-unlock-pill pill-coins" [class.is-unlocked]="avatar.isUnlocked" [title]="avatar.cost + ' Pro Coins'">
                           <i class="fa-solid fa-coins"></i> {{ avatar.cost }}

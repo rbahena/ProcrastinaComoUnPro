@@ -403,6 +403,8 @@ CREATE TABLE IF NOT EXISTS public.catalog_items (
     cost_coins INTEGER NOT NULL DEFAULT 0 CHECK (cost_coins >= 0),
     -- is_initial: Si es TRUE, se desbloquea automáticamente al registrarse el usuario.
     is_initial BOOLEAN NOT NULL DEFAULT FALSE,
+    -- is_premium: Si es TRUE, es un cosmético reservado exclusivamente para miembros con Membresía Pro.
+    is_premium BOOLEAN NOT NULL DEFAULT FALSE,
     -- has_evolution: Indica si este avatar posee fases evolutivas superiores.
     has_evolution BOOLEAN NOT NULL DEFAULT FALSE,
     -- required_quality_id: Slug de la cualidad maestra requerida para desbloquearlo por mérito.
@@ -939,8 +941,9 @@ INSERT INTO public.catalog_items (
 ),
 
 -- ==============================================================================
--- F. ESTILOS VISUALES DEL CRONÓMETRO (3)
+-- F. ESTILOS VISUALES DEL CRONÓMETRO (14)
 -- ==============================================================================
+-- 1. ESENCIALES Y MINIMALISTAS (3) - GRATUITOS INICIALES
 (
     'digital', 'timer', 'Común', 1, '⏱️', '#3b82f6', 0, TRUE, FALSE, NULL,
     0, 0, 0, 0,
@@ -949,17 +952,97 @@ INSERT INTO public.catalog_items (
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 ),
 (
-    'ring', 'timer', 'Raro', 2, '⭕', '#10b981', 100, FALSE, FALSE, NULL,
+    'ring', 'timer', 'Común', 1, '⭕', '#10b981', 0, TRUE, FALSE, NULL,
     0, 0, 0, 0,
     '{"es": "Cronómetro de Anillo", "en": "Ring Timer"}',
     '{"es": "Círculo de progreso continuo con efecto respiración", "en": "Continuous progress circle with breathing effect"}',
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 ),
 (
-    'line', 'timer', 'Raro', 2, '➖', '#fbbf24', 100, FALSE, FALSE, NULL,
+    'line', 'timer', 'Común', 1, '➖', '#fbbf24', 0, TRUE, FALSE, NULL,
     0, 0, 0, 0,
     '{"es": "Cronómetro de Barra", "en": "Bar Timer"}',
     '{"es": "Línea de progreso horizontal minimalista y despejada", "en": "Minimalist and uncluttered horizontal progress line"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+-- 2. ELEMENTOS Y OBJETOS (4) - TIENDA PRO COINS (150 COINS)
+(
+    'fire', 'timer', 'Raro', 2, '🔥', '#f59e0b', 150, FALSE, FALSE, NULL,
+    0, 0, 0, 0,
+    '{"es": "Fogata Sagrada", "en": "Sacred Campfire"}',
+    '{"es": "Fuego místico de campamento que devora el tiempo restante", "en": "Mystic campfire flame devouring remaining time"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+(
+    'hourglass', 'timer', 'Raro', 2, '⏳', '#00f2fe', 150, FALSE, FALSE, NULL,
+    0, 0, 0, 0,
+    '{"es": "Reloj de Arena", "en": "Hourglass"}',
+    '{"es": "Elegante reloj de arena con partículas celestes y física fluida", "en": "Elegant hourglass with celestial particles and fluid physics"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+(
+    'ice', 'timer', 'Raro', 2, '🧊', '#38bdf8', 150, FALSE, FALSE, NULL,
+    0, 0, 0, 0,
+    '{"es": "Cubo de Hielo", "en": "Ice Cube"}',
+    '{"es": "Cubo de hielo ártico que se funde en agua pura gota a gota", "en": "Arctic ice cube melting into pure water drop by drop"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+(
+    'battery', 'timer', 'Raro', 2, '🔋', '#00e676', 150, FALSE, FALSE, NULL,
+    0, 0, 0, 0,
+    '{"es": "Batería de Energía", "en": "Energy Battery"}',
+    '{"es": "Célula cibernética con barras de energía y voltaje neón", "en": "Cybernetic cell with energy bars and neon voltage"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+-- 3. ÓRBITA LUNAR Y TITANIC (2) - TIENDA PRO COINS (ALTO VALOR)
+(
+    'moon', 'timer', 'Épico', 3, '🌙', '#e2e8f0', 800, FALSE, FALSE, NULL,
+    0, 0, 0, 0,
+    '{"es": "Órbita Lunar", "en": "Lunar Orbit"}',
+    '{"es": "Fases lunares precisas y rotación astronómica nocturna", "en": "Precise lunar phases and night astronomical rotation"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+(
+    'titanic', 'timer', 'Legendario', 4, '🚢', '#38bdf8', 1200, FALSE, FALSE, NULL,
+    0, 0, 0, 0,
+    '{"es": "Titanic Legendario", "en": "Legendary Titanic"}',
+    '{"es": "Gran travesía marítima hacia el iceberg con cinemática oceánica", "en": "Grand ocean voyage toward the iceberg with oceanic kinematics"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+-- 4. EXCLUSIVOS PREMIUM (5) - MEMBRESÍA PRO (CINEMÁTICAS AVANZADAS)
+(
+    'solar', 'timer', 'Épico', 3, '☀️', '#f59e0b', 0, FALSE, TRUE, NULL,
+    0, 0, 0, 0,
+    '{"es": "Órbita Solar", "en": "Solar Orbit"}',
+    '{"es": "Corona solar pulsante con planeta en órbita gravitatoria", "en": "Pulsing solar corona with planet in gravitational orbit"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+(
+    'satellite', 'timer', 'Épico', 3, '🛰️', '#0284c7', 0, FALSE, TRUE, NULL,
+    0, 0, 0, 0,
+    '{"es": "Satélite Orbital", "en": "Orbital Satellite"}',
+    '{"es": "Estación de comunicaciones orbital con paneles solares activos", "en": "Orbital communications station with active solar panels"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+(
+    'lighthouse', 'timer', 'Legendario', 4, '🗼', '#fde047', 0, FALSE, TRUE, NULL,
+    0, 0, 0, 0,
+    '{"es": "El Faro", "en": "The Lighthouse"}',
+    '{"es": "Faro costero con haz de luz giratorio continuo en la noche marítima", "en": "Coastal lighthouse with continuous rotating beam in ocean night"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+(
+    'airplane', 'timer', 'Legendario', 4, '✈️', '#f8fafc', 0, FALSE, TRUE, NULL,
+    0, 0, 0, 0,
+    '{"es": "Aterrizaje en Pista", "en": "Runway Landing"}',
+    '{"es": "Aproximación de vuelo comercial, despliegue de tren y humo en pista", "en": "Commercial flight approach, gear deployment, and touchdown smoke"}',
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+),
+(
+    'lantern', 'timer', 'Legendario', 4, '🏮', '#ea580c', 0, FALSE, TRUE, NULL,
+    0, 0, 0, 0,
+    '{"es": "Farol Encantado", "en": "Enchanted Lantern"}',
+    '{"es": "Farol de bosque místico con hiedra, mariposas turquesa y fuego mágico", "en": "Mystic forest lantern with ivy, turquoise butterflies, and magic fire"}',
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 ),
 
@@ -1020,6 +1103,47 @@ ON CONFLICT (id) DO UPDATE SET
     passive_advantage = EXCLUDED.passive_advantage,
     quality_name = EXCLUDED.quality_name,
     quality_req = EXCLUDED.quality_req;
+
+-- ==============================================================================
+-- F. ESTILOS DE CRONÓMETRO ZEN (14)
+-- ==============================================================================
+INSERT INTO public.catalog_items (
+    id, category, tier, stars, emoji, color, cost_coins, is_initial, is_premium, required_quality_id,
+    coins_per_pomodoro, pause_penalty_coins, boss_damage_points, boss_heal_points,
+    name, description
+) VALUES
+-- 1. ESENCIALES Y MINIMALISTAS (3) - GRATUITOS INICIALES
+('digital', 'timer', 'Común', 1, '⏱️', '#3b82f6', 0, TRUE, FALSE, NULL, 0, 0, 0, 0, '{"es": "Cronómetro Digital", "en": "Digital Timer"}', '{"es": "Reloj digital clásico nítido de alta precisión", "en": "Classic crisp high-precision digital clock"}'),
+('ring', 'timer', 'Común', 1, '⭕', '#10b981', 0, TRUE, FALSE, NULL, 0, 0, 0, 0, '{"es": "Cronómetro de Anillo", "en": "Ring Timer"}', '{"es": "Círculo de progreso continuo con efecto respiración", "en": "Continuous progress circle with breathing effect"}'),
+('line', 'timer', 'Común', 1, '➖', '#fbbf24', 0, TRUE, FALSE, NULL, 0, 0, 0, 0, '{"es": "Cronómetro de Barra", "en": "Bar Timer"}', '{"es": "Línea de progreso horizontal minimalista y despejada", "en": "Minimalist and uncluttered horizontal progress line"}'),
+
+-- 2. ELEMENTOS Y OBJETOS (4) - TIENDA PRO COINS (150 COINS)
+('fire', 'timer', 'Raro', 2, '🔥', '#f59e0b', 150, FALSE, FALSE, NULL, 0, 0, 0, 0, '{"es": "Fogata Sagrada", "en": "Sacred Campfire"}', '{"es": "Fuego místico de campamento que devora el tiempo restante", "en": "Mystic campfire flame devouring remaining time"}'),
+('hourglass', 'timer', 'Raro', 2, '⏳', '#00f2fe', 150, FALSE, FALSE, NULL, 0, 0, 0, 0, '{"es": "Reloj de Arena", "en": "Hourglass"}', '{"es": "Elegante reloj de arena con partículas celestes y física fluida", "en": "Elegant hourglass with celestial particles and fluid physics"}'),
+('ice', 'timer', 'Raro', 2, '🧊', '#38bdf8', 150, FALSE, FALSE, NULL, 0, 0, 0, 0, '{"es": "Cubo de Hielo", "en": "Ice Cube"}', '{"es": "Cubo de hielo ártico que se funde en agua pura gota a gota", "en": "Arctic ice cube melting into pure water drop by drop"}'),
+('battery', 'timer', 'Raro', 2, '🔋', '#00e676', 150, FALSE, FALSE, NULL, 0, 0, 0, 0, '{"es": "Batería de Energía", "en": "Energy Battery"}', '{"es": "Célula cibernética con barras de energía y voltaje neón", "en": "Cybernetic cell with energy bars and neon voltage"}'),
+
+-- 3. ÓRBITA LUNAR Y TITANIC (2) - TIENDA PRO COINS (ALTO VALOR)
+('moon', 'timer', 'Épico', 3, '🌙', '#e2e8f0', 800, FALSE, FALSE, NULL, 0, 0, 0, 0, '{"es": "Órbita Lunar", "en": "Lunar Orbit"}', '{"es": "Fases lunares precisas y rotación astronómica nocturna", "en": "Precise lunar phases and night astronomical rotation"}'),
+('titanic', 'timer', 'Legendario', 4, '🚢', '#38bdf8', 1200, FALSE, FALSE, NULL, 0, 0, 0, 0, '{"es": "Titanic Legendario", "en": "Legendary Titanic"}', '{"es": "Gran travesía marítima hacia el iceberg con cinemática oceánica", "en": "Grand ocean voyage toward the iceberg with oceanic kinematics"}'),
+
+-- 4. EXCLUSIVOS PREMIUM (5) - MEMBRESÍA PRO (CINEMÁTICAS AVANZADAS)
+('solar', 'timer', 'Épico', 3, '☀️', '#f59e0b', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, '{"es": "Órbita Solar", "en": "Solar Orbit"}', '{"es": "Corona solar pulsante con planeta en órbita gravitatoria", "en": "Pulsing solar corona with planet in gravitational orbit"}'),
+('satellite', 'timer', 'Épico', 3, '🛰️', '#0284c7', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, '{"es": "Satélite Orbital", "en": "Orbital Satellite"}', '{"es": "Estación de comunicaciones orbital con paneles solares activos", "en": "Orbital communications station with active solar panels"}'),
+('lighthouse', 'timer', 'Legendario', 4, '🗼', '#fde047', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, '{"es": "El Faro", "en": "The Lighthouse"}', '{"es": "Faro costero con haz de luz giratorio continuo en la noche marítima", "en": "Coastal lighthouse with continuous rotating beam in ocean night"}'),
+('airplane', 'timer', 'Legendario', 4, '✈️', '#f8fafc', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, '{"es": "Aterrizaje en Pista", "en": "Runway Landing"}', '{"es": "Aproximación de vuelo comercial, despliegue de tren y humo en pista", "en": "Commercial flight approach, gear deployment, and touchdown smoke"}'),
+('lantern', 'timer', 'Legendario', 4, '🏮', '#ea580c', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, '{"es": "Farol Encantado", "en": "Enchanted Lantern"}', '{"es": "Farol de bosque místico con hiedra, mariposas turquesa y fuego mágico", "en": "Mystic forest lantern with ivy, turquoise butterflies, and magic fire"}')
+ON CONFLICT (id) DO UPDATE SET
+    category = EXCLUDED.category,
+    tier = EXCLUDED.tier,
+    stars = EXCLUDED.stars,
+    emoji = EXCLUDED.emoji,
+    color = EXCLUDED.color,
+    cost_coins = EXCLUDED.cost_coins,
+    is_initial = EXCLUDED.is_initial,
+    is_premium = EXCLUDED.is_premium,
+    name = EXCLUDED.name,
+    description = EXCLUDED.description;
 
 
 -- ------------------------------------------------------------------------------

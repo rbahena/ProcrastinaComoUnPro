@@ -125,8 +125,8 @@ export class MembershipService {
   private router = inject(Router);
   public translationService = inject(TranslationService);
 
-  // Estado de membresía (Pro/Premium Desbloqueado al 100%)
-  isPremium = signal<boolean>(true);
+  // Estado de membresía (Pro/Premium)
+  isPremium = signal<boolean>(false);
 
   // Estado del sidebar global
   sidebarCollapsed = signal<boolean>(
@@ -227,7 +227,7 @@ export class MembershipService {
   // Cosméticos desbloqueados (Solo los 6 iniciales por defecto)
   unlockedAvatars = signal<string[]>([...INITIAL_AVATARS_LIST]);
   unlockedThemes = signal<string[]>(['samurai']);
-  unlockedTimers = signal<string[]>(['digital']);
+  unlockedTimers = signal<string[]>(['digital', 'ring', 'line']);
 
   // Perfil del usuario
   userName = signal<string>('Guerrero');
@@ -1071,6 +1071,8 @@ export class MembershipService {
 
     if (premium) {
       this.unlockVipAvatarsForPremiumUser();
+    } else {
+      this.revokeVipAvatarsLocally();
     }
 
     // Sincronizar estado en Supabase profiles si está conectado
@@ -1916,7 +1918,12 @@ export class MembershipService {
     const allKnownAvatars = Array.from(new Set([...ALL_AVATARS_LIST, ...catalogAvatars]));
 
     const knownThemes = ['samurai', 'cyberpunk', 'aurora', 'zen'];
-    const knownTimers = ['digital', 'ring', 'line'];
+    const knownTimers = [
+      'digital', 'ring', 'line',
+      'fire', 'hourglass', 'ice', 'battery',
+      'moon', 'titanic',
+      'solar', 'satellite', 'lighthouse', 'airplane', 'lantern'
+    ];
 
     const avatars = Array.from(new Set(
       (itemIds || []).filter(id => allKnownAvatars.includes(id))
@@ -1939,9 +1946,11 @@ export class MembershipService {
       return true;
     });
 
+    const vipTimers = this.isPremium() ? ['solar', 'satellite', 'lighthouse', 'airplane', 'lantern'] : [];
+
     const finalAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...catalogInitialAvatars, ...filteredAvatars, ...vipAvatars]));
     const finalThemes = themes.length > 0 ? themes : ['samurai'];
-    const finalTimers = timers.length > 0 ? timers : ['digital'];
+    const finalTimers = Array.from(new Set(['digital', 'ring', 'line', ...timers, ...vipTimers]));
 
     this.unlockedAvatars.set(finalAvatars);
     this.unlockedThemes.set(finalThemes);
@@ -1961,9 +1970,11 @@ export class MembershipService {
    */
   async unlockVipAvatarsForPremiumUser() {
     const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+    const vipTimers = ['solar', 'satellite', 'lighthouse', 'airplane', 'lantern'];
     
     // 1. Agregar de inmediato al inventario local para reactividad instantánea en la interfaz
     this.unlockedAvatars.update(list => Array.from(new Set([...list, ...vipAvatars])));
+    this.unlockedTimers.update(list => Array.from(new Set([...list, ...vipTimers])));
     this.saveConsolidatedUserData();
     this.syncUnlockedAvatarUrls();
 
@@ -1986,9 +1997,11 @@ export class MembershipService {
    */
   revokeVipAvatarsLocally() {
     const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+    const vipTimers = ['solar', 'satellite', 'lighthouse', 'airplane', 'lantern'];
 
     // 1. Remover del inventario local en memoria
     this.unlockedAvatars.update(list => list.filter(id => !vipAvatars.includes(id)));
+    this.unlockedTimers.update(list => list.filter(id => !vipTimers.includes(id)));
 
     // 2. Si tenía equipado un avatar VIP revocado, desequiparlo a 'gato'
     if (vipAvatars.includes(this.selectedAvatar())) {
@@ -2107,7 +2120,7 @@ export class MembershipService {
   resetAllSignals() {
     this.unlockedAvatars.set([...INITIAL_AVATARS_LIST]);
     this.unlockedThemes.set(['samurai']);
-    this.unlockedTimers.set(['digital']);
+    this.unlockedTimers.set(['digital', 'ring', 'line']);
     this.userName.set('Guerrero');
     this.selectedAvatar.set('gato');
     this.selectedTheme.set('samurai');
@@ -2254,14 +2267,33 @@ export class MembershipService {
     }
   }
 
-  // Desbloquear un cronómetro con Pro Coins
-  unlockTimerWithCoins(timerId: string, cost: number = 100): boolean {
+  // Desbloquear un cronómetro con Pro Coins (persistente en Supabase y localmente)
+  async unlockTimerWithCoins(timerId: string, cost: number = 150): Promise<boolean> {
     if (this.unlockedTimers().includes(timerId)) return true;
-    if (this.proCoins() >= cost) {
-      this.proCoins.update(c => c - cost);
-      this.unlockedTimers.update(t => [...t, timerId]);
-      return true;
+    if (this.proCoins() < cost) return false;
+
+    if (this.supabaseService.isConfigured()) {
+      try {
+        const res = await this.supabaseService.buyCatalogItem(timerId);
+        if (!res.success) {
+          console.warn(`[MembershipService] Error al comprar cronómetro ${timerId} en Supabase:`, res.error);
+          return false;
+        }
+        if (res.remainingCoins !== undefined) {
+          this.proCoins.set(res.remainingCoins);
+        } else {
+          this.proCoins.update(c => Math.max(0, c - cost));
+        }
+      } catch (e) {
+        console.warn(`[MembershipService] Excepción al comprar cronómetro ${timerId} en Supabase:`, e);
+        this.proCoins.update(c => Math.max(0, c - cost));
+      }
+    } else {
+      this.proCoins.update(c => Math.max(0, c - cost));
     }
-    return false;
+
+    this.unlockedTimers.update(t => Array.from(new Set([...t, timerId])));
+    this.saveConsolidatedUserData();
+    return true;
   }
 }

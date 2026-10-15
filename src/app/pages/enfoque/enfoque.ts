@@ -4838,24 +4838,126 @@ export class Enfoque implements OnInit, OnDestroy {
     }
   }
 
-  // Información de nivel de complejidad y monetización del estilo de cronómetro (Todos 100% libres y desbloqueados)
-  getTimerStyleTier(style: string): { label: string; class: string; icon: string; color: string; bg: string; type: 'free' | 'coins' | 'premium' } {
-    return { label: 'GRATIS', class: 'tier-free', icon: 'fa-lock-open', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.12)', type: 'free' };
+  // Información de nivel de complejidad y monetización del estilo de cronómetro
+  getTimerStyleTier(style: string): { label: string; class: string; icon: string; color: string; bg: string; type: 'free' | 'coins' | 'premium'; cost?: number } {
+    switch (style) {
+      // 🪙 MONEDAS - ALTO VALOR (800 / 1,200)
+      case 'titanic':
+        return { label: '1,200', class: 'tier-coins-1200', icon: 'fa-coins', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.18)', type: 'coins', cost: 1200 };
+      case 'moon':
+        return { label: '800', class: 'tier-coins-800', icon: 'fa-coins', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.18)', type: 'coins', cost: 800 };
+
+      // 🪙 MONEDAS - ESTÁNDAR (150 Coins)
+      case 'fire':
+      case 'hourglass':
+      case 'ice':
+      case 'battery':
+        return { label: '150', class: 'tier-coins', icon: 'fa-coins', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)', type: 'coins', cost: 150 };
+
+      // 👑 PREMIUM (Corona VIP)
+      case 'solar':
+      case 'satellite':
+      case 'lighthouse':
+      case 'airplane':
+      case 'lantern':
+        return { label: 'PRO', class: 'tier-premium', icon: 'fa-crown', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', type: 'premium', cost: 0 };
+
+      // 🔓 GRATIS (Esenciales y Minimalistas)
+      case 'digital':
+      case 'ring':
+      case 'line':
+      default:
+        return { label: 'GRATIS', class: 'tier-free', icon: 'fa-lock-open', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.12)', type: 'free', cost: 0 };
+    }
   }
 
-  // Verificación si un estilo está bloqueado por monedas o membresía (Todos desbloqueados)
+  // Nombre traducido para el modal de desbloqueo con monedas
+  getTimerDisplayName(style: string): string {
+    const isEn = this.translation.currentLang() === 'en';
+    const names: Record<string, { es: string; en: string }> = {
+      digital: { es: 'Digital Clásico', en: 'Classic Digital' },
+      ring: { es: 'Anillo Zen', en: 'Zen Ring' },
+      line: { es: 'Línea Zen', en: 'Zen Line' },
+      fire: { es: 'Fogata Sagrada', en: 'Sacred Campfire' },
+      hourglass: { es: 'Reloj de Arena', en: 'Hourglass' },
+      ice: { es: 'Cubo de Hielo', en: 'Ice Cube' },
+      battery: { es: 'Batería de Energía', en: 'Energy Battery' },
+      solar: { es: 'Órbita Solar', en: 'Solar Orbit' },
+      satellite: { es: 'Satélite Orbital', en: 'Orbital Satellite' },
+      moon: { es: 'Órbita Lunar', en: 'Lunar Orbit' },
+      titanic: { es: 'Titanic Legendario', en: 'Legendary Titanic' },
+      lighthouse: { es: 'El Faro', en: 'The Lighthouse' },
+      airplane: { es: 'Aterrizaje en Pista', en: 'Runway Landing' },
+      lantern: { es: 'Farol Encantado', en: 'Enchanted Lantern' }
+    };
+    const entry = names[style];
+    if (!entry) return style;
+    return isEn ? entry.en : entry.es;
+  }
+
+  getTimerBadgeClass(style: string): string {
+    const tier = this.getTimerStyleTier(style);
+    if (tier.type === 'premium') return 'badge-premium';
+    if (tier.type === 'coins') {
+      return this.membership.unlockedTimers().includes(style) ? 'badge-unlocked' : 'badge-coins';
+    }
+    return 'badge-free';
+  }
+
+  getTimerBadgeLabel(style: string): string {
+    const tier = this.getTimerStyleTier(style);
+    if (tier.type === 'coins' && this.membership.unlockedTimers().includes(style)) {
+      return this.translation.currentLang() === 'en' ? 'Unlocked' : 'Listo';
+    }
+    if (tier.type === 'free') {
+      return this.translation.currentLang() === 'en' ? 'FREE' : 'GRATIS';
+    }
+    return tier.label;
+  }
+
+  getTimerBadgeIcon(style: string): string {
+    const tier = this.getTimerStyleTier(style);
+    if (tier.type === 'coins' && this.membership.unlockedTimers().includes(style)) {
+      return 'fa-circle-check';
+    }
+    return tier.icon;
+  }
+
+  // Verificación si un estilo está bloqueado por monedas o membresía
   isTimerStyleLocked(style: string): boolean {
+    const tier = this.getTimerStyleTier(style);
+    if (tier.type === 'free') {
+      return false;
+    }
+    if (tier.type === 'coins') {
+      // Los cronómetros con costo en monedas requieren compra explícita con Pro Coins
+      return !this.membership.unlockedTimers().includes(style);
+    }
+    if (tier.type === 'premium') {
+      // Los cronómetros VIP requieren membresía o prueba activa de COFU Pro
+      return !this.membership.isPremium();
+    }
     return false;
   }
 
   // Estado del modal de desbloqueo con monedas
   coinTimerToUnlock = signal<{ id: string; name: string; cost: number } | null>(null);
 
-  confirmUnlockWithCoins() {
+  async confirmUnlockWithCoins() {
     const item = this.coinTimerToUnlock();
     if (!item) return;
-    this.setTimerStyle(item.id as FocusTimerStyle);
-    this.coinTimerToUnlock.set(null);
+    if (this.membership.proCoins() >= item.cost) {
+      const ok = await this.membership.unlockTimerWithCoins(item.id, item.cost);
+      if (ok) {
+        this.setTimerStyle(item.id as FocusTimerStyle);
+        this.coinTimerToUnlock.set(null);
+        const isEn = this.translation.currentLang() === 'en';
+        this.partnerNotificationMessage.set(isEn ? `${item.name} unlocked successfully!` : `¡${item.name} desbloqueado exitosamente!`);
+        this.partnerNotificationType.set('success');
+        this.showPartnerNotification.set(true);
+        setTimeout(() => this.showPartnerNotification.set(false), 3500);
+      }
+    }
   }
 
   closeCoinUnlockModal() {
@@ -4864,11 +4966,25 @@ export class Enfoque implements OnInit, OnDestroy {
 
   goToMembership() {
     this.showPaywallModal.set(false);
-    this.router.navigate(['/membership']);
+    this.router.navigate(['/membresia']);
   }
 
-  // Setter del estilo de cronómetro Zen (100% libre para todos)
+  // Setter del estilo de cronómetro Zen con control de acceso
   setTimerStyle(style: FocusTimerStyle) {
+    if (this.isTimerStyleLocked(style)) {
+      const tier = this.getTimerStyleTier(style);
+      if (tier.type === 'premium') {
+        this.showPaywallModal.set(true);
+      } else if (tier.type === 'coins') {
+        this.coinTimerToUnlock.set({
+          id: style,
+          name: this.getTimerDisplayName(style),
+          cost: tier.cost || 150
+        });
+      }
+      return;
+    }
+
     this.timerStyle.set(style);
     this.membership.setFocusSetting('focus-timer-style', style);
 

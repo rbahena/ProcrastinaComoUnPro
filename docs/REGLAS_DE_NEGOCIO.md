@@ -404,5 +404,33 @@ flowchart TD
 
 ---
 
+## ⏱️ 13. SISTEMA DE ESTILOS VISUALES DEL CRONÓMETRO (14 TEMPORIZADORES ZEN)
+
+La Arena de Enfoque (`/enfoque`) cuenta con 14 motores visuales de temporizador divididos en 3 modelos de acceso:
+
+| ID | Estilo de Cronómetro | Categoría Visual | Acceso / Modelo | Coste Pro Coins | Cinemática / Mecánica Visual |
+| :--- | :--- | :--- | :---: | :---: | :--- |
+| `digital` | **Digital Clásico** | Esenciales y Minimalistas | 🟢 **Gratuito Inicial** | 0 | Display digital nítido de alta precisión. |
+| `ring` | **Anillo Zen** | Esenciales y Minimalistas | 🟢 **Gratuito Inicial** | 0 | Círculo de progreso continuo con efecto respiración. |
+| `line` | **Línea Zen** | Esenciales y Minimalistas | 🟢 **Gratuito Inicial** | 0 | Línea horizontal minimalista y despejada. |
+| `fire` | **Fogata Sagrada** | Elementos y Objetos | 🪙 **Tienda Coins** | **150 🪙** | Fuego que devora el tiempo restante y las distracciones. |
+| `hourglass` | **Reloj de Arena** | Elementos y Objetos | 🪙 **Tienda Coins** | **150 🪙** | Partículas celestes cayendo con física de arena fluida. |
+| `ice` | **Cubo de Hielo** | Elementos y Objetos | 🪙 **Tienda Coins** | **150 🪙** | Cubo ártico que se derrite en agua pura gota a gota. |
+| `battery` | **Batería de Energía** | Elementos y Objetos | 🪙 **Tienda Coins** | **150 🪙** | Barras neón cibernéticas de voltaje decreciente. |
+| `moon` | **Órbita Lunar** | Órbitas y Cosmos | 🪙 **Tienda Coins** | **800 🪙** | Rotación astronómica y fases lunares precisas. |
+| `titanic` | **Titanic Legendario** | Grandes Escenarios | 🪙 **Tienda Coins** | **1,200 🪙** | Travesía marítima hacia el iceberg con cinemática oceánica. |
+| `solar` | **Órbita Solar** | Órbitas y Cosmos | 👑 **Premium Pro** | Exclusivo VIP | Corona solar pulsante con planeta en órbita gravitatoria. |
+| `satellite` | **Satélite Orbital** | Órbitas y Cosmos | 👑 **Premium Pro** | Exclusivo VIP | Satélite de comunicaciones con paneles solares activos. |
+| `lighthouse` | **El Faro** | Grandes Escenarios | 👑 **Premium Pro** | Exclusivo VIP | Faro costero con haz de luz giratorio continuo en la noche. |
+| `airplane` | **Aterrizaje en Pista** | Grandes Escenarios | 👑 **Premium Pro** | Exclusivo VIP | Aproximación comercial, despliegue de tren y humo de frenado. |
+| `lantern` | **Farol Encantado** | Grandes Escenarios | 👑 **Premium Pro** | Exclusivo VIP | Farol rúnico de bosque con mariposas turquesa y fuego mágico. |
+
+### 💎 Reglas de Acceso y Compra:
+1. **Usuarios Pro (Premium):** Tienen acceso irrestricto inmediato a los 14 estilos (tanto los Exclusivos Premium como los comprables con monedas).
+2. **Usuarios Gratuitos:** Disfrutan de los 3 estilos iniciales (`digital`, `ring`, `line`) y pueden canjear permanentemente los 6 estilos de monedas usando los Pro Coins acumulados en sus sesiones de enfoque.
+3. **Persistencia en la Nube:** Las compras con monedas se registran atómicamente en `public.user_unlocked_items` con `unlock_source = 'coin_purchase'` mediante el RPC seguro `buy_catalog_item(timer_id)`.
+
+---
+
 > **Fin del Documento Maestro de Reglas de Negocio.**  
 > Cualquier modificación a este sistema debe sincronizarse con `supabase/schema.sql` y los servicios centrales de Angular (`membership.service.ts` y `comunidad-boss.service.ts`).
