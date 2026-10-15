@@ -17,6 +17,7 @@ export interface CatalogItem {
   color: string;
   cost_coins: number;
   is_initial: boolean;
+  is_premium?: boolean;
   has_evolution: boolean;
   required_quality_id?: string | null;
   coins_per_pomodoro: number;
@@ -782,6 +783,24 @@ export class SupabaseService {
       const { error } = await this.supabase
         .from('user_unlocked_items')
         .upsert({ user_id: userId, item_id: itemId }, { onConflict: 'user_id, item_id' });
+
+      if (error) return { success: false, error: error.message };
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  async unlockItemsBatchDirectly(userId: string, itemIds: string[]): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured() || !userId || !itemIds || itemIds.length === 0) {
+      return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    }
+
+    try {
+      const rows = itemIds.map(id => ({ user_id: userId, item_id: id }));
+      const { error } = await this.supabase
+        .from('user_unlocked_items')
+        .upsert(rows, { onConflict: 'user_id, item_id', ignoreDuplicates: true });
 
       if (error) return { success: false, error: error.message };
       return { success: true };
@@ -2534,6 +2553,24 @@ export class SupabaseService {
       return data.signedUrl;
     } catch {
       return null;
+    }
+  }
+
+  /**
+   * Invoca de forma segura la Edge Function 'claim-vip-avatars' para verificar
+   * el estatus de la suscripción en el servidor y desbloquear los avatares VIP
+   * en user_unlocked_items sin permitir inyecciones arbitrarias desde el cliente.
+   */
+  async claimVipAvatars(): Promise<{ success: boolean; items?: string[]; error?: string }> {
+    if (!this.isConfigured()) return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    try {
+      const { data, error } = await this.supabase.functions.invoke('claim-vip-avatars');
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return data || { success: true };
+    } catch (e: any) {
+      return { success: false, error: e?.message };
     }
   }
 

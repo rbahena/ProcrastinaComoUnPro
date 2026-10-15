@@ -56,6 +56,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'membresia',
+    loadComponent: () => import('./pages/membresia/membresia').then(m => m.Membresia),
+    canActivate: [authGuard]
+  },
+  {
     path: 'bestiary',
     loadComponent: () => import('./pages/bestiario/bestiario').then(m => m.Bestiario),
     canActivate: [authGuard]
@@ -85,7 +90,6 @@ export const routes: Routes = [
   { path: 'bloqueador', redirectTo: 'blocker', pathMatch: 'full' },
   { path: 'cualidades', redirectTo: 'profile', pathMatch: 'full' },
   { path: 'qualities', redirectTo: 'profile', pathMatch: 'full' },
-  { path: 'membresia', redirectTo: 'membership', pathMatch: 'full' },
   { path: 'bestiario', redirectTo: 'bestiary', pathMatch: 'full' },
   { path: 'retos', redirectTo: 'bestiary', pathMatch: 'full' },
   { path: 'challenges', redirectTo: 'bestiary', pathMatch: 'full' },

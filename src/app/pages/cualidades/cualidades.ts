@@ -38,7 +38,120 @@ export interface ComunidadAvatar {
   quality?: QualityItem | null;
   displayReq?: string;
   hasEvolution?: boolean;
+  evolutionDetail?: EvolutionDetail;
+  isPremium?: boolean;
+  unlockType?: 'free' | 'merit' | 'coins' | 'premium';
 }
+
+export interface EvolutionDetail {
+  relicName: { es: string; en: string };
+  mysteryForm: { es: string; en: string };
+  icon: string;
+  color: string;
+  relicDesc: { es: string; en: string };
+  performanceHint: { es: string; en: string };
+}
+
+export const EVOLUTION_ITEMS_MAP: Record<string, EvolutionDetail> = {
+  tortuga: {
+    relicName: { es: 'Núcleo Telúrico de Adamantina', en: 'Adamantine Telluric Core' },
+    mysteryForm: { es: '??? [Guardián de Égida Ancestral]', en: '??? [Ancestral Aegis Guardian]' },
+    icon: 'fa-solid fa-shield-halved',
+    color: '#10b981',
+    relicDesc: {
+      es: 'Gema mineral milenaria que almacena el temple de las rachas ininterrumpidas. Resuena con una paciencia inquebrantable.',
+      en: 'Ancient mineral gem storing the temper of unbroken streaks. Resonates with unshakable patience.'
+    },
+    performanceHint: {
+      es: 'Evolucionará según el desempeño de su portador: sostén rachas prolongadas de días consecutivos y protege tu constancia.',
+      en: 'Will evolve based on the bearer\'s performance: sustain prolonged daily streaks and protect your consistency.'
+    }
+  },
+  buho: {
+    relicName: { es: 'Prisma Óptico de la Razón Trascendente', en: 'Optical Prism of Transcendent Reason' },
+    mysteryForm: { es: '??? [Arconte del Ojo Omnisciente]', en: '??? [Archon of the All-Seeing Eye]' },
+    icon: 'fa-solid fa-eye',
+    color: '#38bdf8',
+    relicDesc: {
+      es: 'Lente prismático capaz de refractar las metas complejas en su esencia pura 80/20. Reacciona a la claridad analítica extrema.',
+      en: 'Prismatic lens decoding complex goals into pure 80/20 essence. Reacts to extreme analytical clarity.'
+    },
+    performanceHint: {
+      es: 'Evolucionará según el desempeño de su portador: domina sesiones de hiperenfoque táctico y análisis sin titubeos.',
+      en: 'Will evolve based on the bearer\'s performance: master high-demand tactical focus and analytical sessions.'
+    }
+  },
+  zorro: {
+    relicName: { es: 'Amuleto de las Siete Sombras', en: 'Amulet of the Seven Shadows' },
+    mysteryForm: { es: '??? [Kitsune de las Sombras Astrales]', en: '??? [Astral Shadow Kitsune]' },
+    icon: 'fa-solid fa-mask',
+    color: '#f59e0b',
+    relicDesc: {
+      es: 'Reliquia sigilosa tejida con hilos de sombra. Canaliza el flujo de trabajo continuo esquivando cualquier interrupción externa.',
+      en: 'Stealth relic woven with shadow threads. Channels continuous workflow while evading any disruption.'
+    },
+    performanceHint: {
+      es: 'Evolucionará según el desempeño de su portador: completa sprints de enfoque veloz y respeta al segundo tus pausas.',
+      en: 'Will evolve based on the bearer\'s performance: complete rapid focus sprints and strictly respect timed breaks.'
+    }
+  },
+  dragon: {
+    relicName: { es: 'Corazón de Plasma Primordial', en: 'Primordial Plasma Heart' },
+    mysteryForm: { es: '??? [Dragón Soberano del Vacío]', en: '??? [Void Sovereign Dragon]' },
+    icon: 'fa-solid fa-fire-flame-curved',
+    color: '#ef4444',
+    relicDesc: {
+      es: 'Núcleo termonuclear de una estrella ancestral. Libera un calor avasallador cuando el portador entra en flujo total.',
+      en: 'Thermonuclear core of an ancestral star. Releases overwhelming heat when the bearer enters total flow.'
+    },
+    performanceHint: {
+      es: 'Evolucionará según el desempeño de su portador: asesta golpes devastadores y acumula daño crítico masivo contra el Jefe.',
+      en: 'Will evolve based on the bearer\'s performance: land devastating blows and accumulate massive boss damage.'
+    }
+  },
+  lobo: {
+    relicName: { es: 'Colmillo Rúnico del Alfa Solitario', en: 'Runic Fang of the Lone Alpha' },
+    mysteryForm: { es: '??? [Fenrir Hoja de Tormenta]', en: '??? [Stormblade Fenrir]' },
+    icon: 'fa-solid fa-moon',
+    color: '#818cf8',
+    relicDesc: {
+      es: 'Forjado en tundras boreales con acero lunar. Resuena con el código de honor de quien jamás se rinde a mitad de camino.',
+      en: 'Forged in boreal tundras with lunar steel. Resonates with the honor code of someone who never gives up halfway.'
+    },
+    performanceHint: {
+      es: 'Evolucionará según el desempeño de su portador: encadena bloques Pomodoro perfectos con cero pausas y cero abandonos.',
+      en: 'Will evolve based on the bearer\'s performance: chain perfect Pomodoro blocks with zero pauses and zero abandonments.'
+    }
+  },
+  rana: {
+    relicName: { es: 'Loto Cuántico del Pantano Abisal', en: 'Quantum Lotus of the Abyssal Mire' },
+    mysteryForm: { es: '??? [Deidad del Salto Cuántico]', en: '??? [Quantum Leap Deity]' },
+    icon: 'fa-solid fa-spa',
+    color: '#22c55e',
+    relicDesc: {
+      es: 'Flor bio-luminiscente que florece únicamente tras conquistar la tarea más temida y postergada de la jornada.',
+      en: 'Bioluminescent blossom that only flowers after conquering the most dreaded, procrastinated task of the day.'
+    },
+    performanceHint: {
+      es: 'Evolucionará según el desempeño de su portador: liquida tus objetivos prioritarios (método Sapo) al inicio del día.',
+      en: 'Will evolve based on the bearer\'s performance: conquer your priority targets (Eat the Frog) first thing each day.'
+    }
+  },
+  leon: {
+    relicName: { es: 'Corona de Asedio del Emperador Solar', en: 'Siege Crown of the Solar Emperor' },
+    mysteryForm: { es: '??? [Soberano de la Melena Eterna]', en: '??? [Eternal Mane Sovereign]' },
+    icon: 'fa-solid fa-crown',
+    color: '#eab308',
+    relicDesc: {
+      es: 'Insignia regia forjada en oro solar flamígero. Confiere un aura de liderazgo indiscutible ante cualquier desafío colosal.',
+      en: 'Regal insignia forged in blazing solar gold. Grants an aura of undeniable leadership against any colossal challenge.'
+    },
+    performanceHint: {
+      es: 'Evolucionará según el desempeño de su portador: lidera las tablas de productividad y asesta el golpe final al Jefe.',
+      en: 'Will evolve based on the bearer\'s performance: lead the productivity leaderboards and strike the boss.'
+    }
+  }
+};
 
 export interface AvatarCategoryGroup {
   type: string;
@@ -273,21 +386,51 @@ interface CountryOption {
                     [class.is-active]="inspectedAvatar().id === avatar.id"
                     [class.is-equipped]="membership.selectedAvatar() === avatar.id"
                     [class.is-locked]="!avatar.isUnlocked"
+                    [class.has-evo-rail]="avatar.hasEvolution"
                     [style.--card-theme]="avatar.color"
                   >
+                    <!-- LÍNEA LUMINOSA QUE RECORRE EL BORDE DE LA CARD CADA 1 MINUTO -->
+                    <svg class="card-border-travel-beam" *ngIf="avatar.hasEvolution" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <rect x="0.8" y="0.6" width="98.4" height="98.8" rx="10.5" ry="7.5" pathLength="100" />
+                    </svg>
+
+                    <!-- ITEM VERTICAL DE EVOLUCIÓN (LARGO COMPLETO DE LA CARD) -->
+                    <div class="card-vertical-evo-rail" *ngIf="avatar.hasEvolution" [title]="'cualidades.evoTooltip' | translate">
+                      <div class="evo-rail-glow"></div>
+                      <div class="evo-rail-track">
+                        <i class="fa-solid fa-dna evo-rail-icon"></i>
+                        <span class="evo-rail-text">EVOLUCIÓN</span>
+                        <span class="evo-rail-sparkle">✦</span>
+                      </div>
+                    </div>
+
                     <!-- AURA DE FONDO -->
                     <div class="hero-card-glow" [style.background]="'radial-gradient(circle at 50% 30%, ' + avatar.color + '55 0%, transparent 75%)'"></div>
                     
                     <!-- BADGES SUPERIORES -->
                     <div class="hero-card-top-badges">
-                      <span class="card-tier-pill" [class]="'tier-' + avatar.tier.toLowerCase()">
-                        ★ {{ avatar.tier }}
-                      </span>
-                      <span class="card-evo-badge" *ngIf="avatar.hasEvolution">🧬 EVO</span>
-                      
-                      <span class="card-state-pill" *ngIf="membership.selectedAvatar() === avatar.id" [title]="'common.active' | translate">
-                        <i class="fa-solid fa-shield-check"></i>
-                      </span>
+                      <div class="top-badges-left">
+                        <span class="card-tier-pill" [class]="'tier-' + avatar.tier.toLowerCase()">
+                          ★ {{ avatar.tier }}
+                        </span>
+                      </div>
+
+                      <div class="top-badges-right">
+                        <!-- BADGE TIPO DE DESBLOQUEO (VIP / MONEDAS / RETO) -->
+                        <span *ngIf="avatar.unlockType === 'premium'" class="card-unlock-pill pill-premium" [class.is-unlocked]="avatar.isUnlocked" [title]="'cualidades.vipExclusive' | translate">
+                          <i class="fa-solid fa-crown"></i> VIP
+                        </span>
+                        <span *ngIf="avatar.unlockType === 'coins'" class="card-unlock-pill pill-coins" [class.is-unlocked]="avatar.isUnlocked" [title]="avatar.cost + ' Pro Coins'">
+                          <i class="fa-solid fa-coins"></i> {{ avatar.cost }}
+                        </span>
+                        <span *ngIf="avatar.unlockType === 'merit'" class="card-unlock-pill pill-merit" [class.is-unlocked]="avatar.isUnlocked" [title]="'cualidades.meritBadge' | translate">
+                          <i class="fa-solid fa-award"></i> RETO
+                        </span>
+                        
+                        <span class="card-state-pill" *ngIf="membership.selectedAvatar() === avatar.id" [title]="'common.active' | translate">
+                          <i class="fa-solid fa-shield-check"></i>
+                        </span>
+                      </div>
                     </div>
 
                     <!-- SPRITE DEL PERSONAJE DENTRO DE LA CARTA (EN B&N / SIN COLOR) -->
@@ -405,7 +548,7 @@ interface CountryOption {
                     </div>
 
                     <!-- Indicador de monedas si es de tienda y está bloqueado -->
-                    <div *ngIf="!inspectedAvatar().isUnlocked && !inspectedAvatar().qualityId && inspectedAvatar().cost > 0" class="how-to-get-coins-summary">
+                    <div *ngIf="!inspectedAvatar().isUnlocked && (inspectedAvatar().unlockType === 'coins' || (!inspectedAvatar().qualityId && !inspectedAvatar().isPremium && inspectedAvatar().cost > 0))" class="how-to-get-coins-summary">
                       <div class="coins-summary-chip">
                         <i class="fa-solid fa-coins text-yellow"></i>
                         <span>{{ 'cualidades.priceLabel' | translate:{ cost: inspectedAvatar().cost } }}</span>
@@ -417,6 +560,17 @@ interface CountryOption {
                         <i [class]="membership.proCoins() >= inspectedAvatar().cost ? 'fa-solid fa-circle-check text-green' : 'fa-solid fa-circle-xmark text-red'"></i>
                         <span>{{ 'cualidades.yourBalance' | translate:{ balance: membership.proCoins() } }} {{ membership.proCoins() >= inspectedAvatar().cost ? ('cualidades.canRedeem' | translate) : ('cualidades.insufficient' | translate) }}</span>
                       </div>
+                    </div>
+
+                    <!-- Banner explicativo si es Premium VIP y está bloqueado -->
+                    <div *ngIf="!inspectedAvatar().isUnlocked && inspectedAvatar().unlockType === 'premium'" class="how-to-get-vip-summary">
+                      <div class="vip-summary-chip">
+                        <i class="fa-solid fa-crown text-yellow"></i>
+                        <span>{{ 'cualidades.vipExclusive' | translate }}</span>
+                      </div>
+                      <p class="vip-summary-text">
+                        {{ 'cualidades.howToGetDescVip' | translate }}
+                      </p>
                     </div>
 
                     <!-- Banner si ya está desbloqueado -->
@@ -500,7 +654,26 @@ interface CountryOption {
                 </div>
               </div>
 
-              <!-- 5. ACCIONES PRINCIPALES -->
+              <!-- 5. LINAJE Y DESPERTAR EVOLUTIVO OCULTO -->
+              <div class="detail-section" *ngIf="inspectedAvatar().hasEvolution">
+                <div class="section-title-bar">
+                  <span class="section-title text-emerald">
+                    <i class="fa-solid fa-dna"></i> {{ 'cualidades.evoCardTitle' | translate }}
+                  </span>
+                  <span class="section-badge evo-status-pill">
+                    <i class="fa-solid fa-sparkles"></i> {{ 'cualidades.evoMysteryBadge' | translate }}
+                  </span>
+                </div>
+
+                <div class="clean-evolution-card">
+                  <div class="evo-ambient-aura"></div>
+                  <p class="evo-universal-mystery-text">
+                    {{ 'cualidades.evoUniversalMysteryText' | translate }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- 6. ACCIONES PRINCIPALES -->
               <div class="detail-actions-dock">
                 <button 
                   *ngIf="membership.selectedAvatar() === inspectedAvatar().id" 
@@ -529,7 +702,7 @@ interface CountryOption {
                 </button>
 
                 <button 
-                  *ngIf="!inspectedAvatar().isUnlocked && !inspectedAvatar().qualityId && inspectedAvatar().cost > 0" 
+                  *ngIf="!inspectedAvatar().isUnlocked && (inspectedAvatar().unlockType === 'coins' || (!inspectedAvatar().qualityId && !inspectedAvatar().isPremium && inspectedAvatar().cost > 0))" 
                   (click)="buyAvatar(inspectedAvatar())" 
                   class="btn-clean-cta is-buy-btn"
                   [disabled]="membership.proCoins() < inspectedAvatar().cost"
@@ -538,6 +711,16 @@ interface CountryOption {
                   {{ membership.proCoins() >= inspectedAvatar().cost ? ('cualidades.redeemForCoins' | translate:{ cost: inspectedAvatar().cost }) : ('cualidades.needMoreCoins' | translate:{ diff: (inspectedAvatar().cost - membership.proCoins()) }) }}
                   <i class="fa-solid fa-arrow-right"></i>
                 </button>
+
+                <a 
+                  *ngIf="!inspectedAvatar().isUnlocked && inspectedAvatar().unlockType === 'premium'" 
+                  routerLink="/membership" 
+                  class="btn-clean-cta is-premium-btn"
+                >
+                  <i class="fa-solid fa-crown text-yellow"></i> 
+                  <span>{{ 'cualidades.unlockWithPremium' | translate }}</span>
+                  <i class="fa-solid fa-arrow-right"></i>
+                </a>
               </div>
 
             </div>
@@ -1331,16 +1514,16 @@ interface CountryOption {
     /* CONTENEDOR DE LA CUADRÍCULA DE CADA CATEGORÍA */
     .avatars-grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
-      gap: 10px;
-      padding: 2px 2px 4px 2px;
+      grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
+      gap: 16px;
+      padding: 4px 2px 8px 2px;
     }
 
     /* TARJETA VERTICAL HERO DENTRO DE LA CUADRÍCULA */
     .vertical-hero-card {
       width: 100%;
-      height: 152px;
-      border-radius: 12px;
+      height: 218px;
+      border-radius: 16px;
       background: #0f1422;
       border: 1.5px solid rgba(255, 255, 255, 0.08);
       position: relative;
@@ -1350,7 +1533,7 @@ interface CountryOption {
       flex-direction: column;
       justify-content: space-between;
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
       user-select: none;
       box-sizing: border-box;
     }
@@ -1365,15 +1548,15 @@ interface CountryOption {
       box-shadow: 0 0 16px var(--card-theme, rgba(0, 242, 254, 0.4)), 0 8px 20px rgba(0, 0, 0, 0.7);
     }
     .vertical-hero-card.is-locked {
-      background: linear-gradient(180deg, #090c14 0%, #06080e 100%);
-      border-color: rgba(255, 255, 255, 0.06);
+      background: linear-gradient(180deg, rgba(16, 22, 36, 0.85) 0%, rgba(10, 14, 22, 0.9) 100%);
+      border-color: rgba(255, 255, 255, 0.08);
     }
     .vertical-hero-card.is-locked:hover {
-      border-color: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.25);
     }
     .avatar-sprite.is-locked-sprite {
-      opacity: 0.9;
-      filter: grayscale(100%);
+      opacity: 0.95;
+      filter: grayscale(100%) brightness(0.92);
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
     .vertical-hero-card:hover .avatar-sprite.is-locked-sprite {
@@ -1398,40 +1581,198 @@ interface CountryOption {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 4px 6px;
+      padding: 9px 10px;
+      gap: 8px;
+    }
+    .top-badges-left, .top-badges-right {
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
     .card-tier-pill {
-      font-size: 7px;
+      font-size: 8.5px;
       font-weight: 900;
-      padding: 1px 4px;
-      border-radius: 3px;
+      padding: 2.5px 6.5px;
+      border-radius: 5px;
       text-transform: uppercase;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.4px;
+      line-height: 1.1;
     }
     .card-tier-pill.tier-común { background: rgba(156, 163, 175, 0.2); color: #e2e8f0; border: 1px solid rgba(156, 163, 175, 0.3); }
     .card-tier-pill.tier-raro { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); }
     .card-tier-pill.tier-épico { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
-    .card-tier-pill.tier-legendario { background: rgba(251, 191, 36, 0.2); color: #fde047; border: 1px solid rgba(251, 191, 36, 0.5); }
+    .card-tier-pill.tier-legendario { 
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.28), rgba(185, 28, 28, 0.2)); 
+      color: #fca5a5; 
+      border: 1px solid rgba(239, 68, 68, 0.65); 
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.35); 
+    }
 
-    .card-evo-badge {
-      font-size: 6px;
+    /* 🧬 ITEM VERTICAL DE EVOLUCIÓN (LARGO COMPLETO DE LA CARD) - ESTILO CYBER-VIOLET ASCENDANT PRO */
+    .card-vertical-evo-rail {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 20px;
+      background: linear-gradient(180deg, #2e1065 0%, #4c1d95 25%, #6d28d9 50%, #4338ca 75%, #1e1b4b 100%);
+      border-right: 1px solid rgba(192, 132, 252, 0.35);
+      box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.2), inset 1px 0 0 rgba(192, 132, 252, 0.25), 3px 0 14px rgba(109, 40, 217, 0.45);
+      z-index: 7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      pointer-events: auto;
+      backdrop-filter: blur(8px);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .vertical-hero-card:hover .card-vertical-evo-rail {
+      background: linear-gradient(180deg, #3b0764 0%, #581c87 25%, #7c3aed 50%, #4f46e5 75%, #312e81 100%);
+      border-right-color: rgba(216, 180, 254, 0.65);
+      box-shadow: inset -1px 0 1px rgba(255, 255, 255, 0.35), inset 1px 0 0 rgba(216, 180, 254, 0.4), 4px 0 20px rgba(124, 58, 237, 0.7);
+    }
+    .evo-rail-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(216, 180, 254, 0.3) 0%, rgba(139, 92, 246, 0.12) 50%, transparent 80%);
+      pointer-events: none;
+      animation: evoRailPulse 3s infinite ease-in-out;
+    }
+    .evo-rail-track {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+      z-index: 1;
+    }
+    .evo-rail-icon {
+      font-size: 9px;
+      color: #f3e8ff;
+      filter: drop-shadow(0 0 5px rgba(216, 180, 254, 0.9)) drop-shadow(0 0 8px rgba(168, 85, 247, 0.6));
+      animation: evoIconFloat 2.5s ease-in-out infinite;
+    }
+    .evo-rail-text {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-size: 7.2px;
       font-weight: 900;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.2);
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      padding: 1px 3px;
-      border-radius: 3px;
+      letter-spacing: 2.2px;
+      color: #ffffff;
+      text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(216, 180, 254, 0.8), 0 0 12px rgba(147, 51, 234, 0.5), 0 1px 2px rgba(0, 0, 0, 0.9);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .evo-rail-sparkle {
+      font-size: 8px;
+      color: #f5d0fe;
+      filter: drop-shadow(0 0 4px rgba(232, 121, 249, 0.9));
+    }
+    @keyframes evoRailPulse {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.85; }
+    }
+    @keyframes evoIconFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+
+    /* INDENTACIONES PARA LA CARD CON RAIL VERTICAL */
+    .vertical-hero-card.has-evo-rail .hero-card-top-badges {
+      padding-left: 24px;
+    }
+    .vertical-hero-card.has-evo-rail .hero-card-footer-glass {
+      padding-left: 24px;
+    }
+    .vertical-hero-card.has-evo-rail .hero-card-artwork-frame {
+      margin-left: 10px;
+    }
+
+    /* ⚡ LÍNEA LUMINOSA QUE RECORRE EL BORDE DE LA CARD CADA 1 MINUTO */
+    .card-border-travel-beam {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      border-radius: 16px;
+      overflow: visible;
+    }
+    .card-border-travel-beam rect {
+      fill: none;
+      stroke: #d8b4fe;
+      stroke-width: 2.2px;
+      stroke-linecap: round;
+      vector-effect: non-scaling-stroke;
+      stroke-dasharray: 14 86;
+      stroke-dashoffset: 0;
+      filter: drop-shadow(0 0 4px #c084fc) drop-shadow(0 0 8px rgba(192, 132, 252, 0.9)) drop-shadow(0 0 14px rgba(147, 51, 234, 0.7));
+      animation: borderBeamCircuit 60s linear infinite;
+    }
+    .vertical-hero-card:hover .card-border-travel-beam rect {
+      stroke: #ffffff;
+      filter: drop-shadow(0 0 6px #ffffff) drop-shadow(0 0 12px rgba(216, 180, 254, 1)) drop-shadow(0 0 18px rgba(168, 85, 247, 0.9));
+    }
+    @keyframes borderBeamCircuit {
+      0% {
+        stroke-dashoffset: 100;
+      }
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+    .card-unlock-pill {
+      font-size: 8.5px;
+      font-weight: 900;
+      padding: 3px 8.5px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      line-height: 1.1;
+    }
+    .card-unlock-pill i {
+      font-size: 9px;
+    }
+    .card-unlock-pill.pill-premium {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(245, 158, 11, 0.15) 100%);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.55);
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.25);
+    }
+    .card-unlock-pill.pill-coins {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.14) 100%);
+      color: #fde047;
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+    }
+    .card-unlock-pill.pill-merit {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.14) 100%);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+    }
+    .card-unlock-pill.is-unlocked {
+      opacity: 0.6;
+      border-style: dashed;
+      box-shadow: none;
     }
     .card-state-pill {
-      width: 14px;
-      height: 14px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       background: #10b981;
       color: #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 7px;
+      font-size: 9px;
       font-weight: 900;
     }
     .card-state-pill.is-lock {
@@ -1449,11 +1790,11 @@ interface CountryOption {
       z-index: 2;
     }
     .hero-card-sprite {
-      width: 88px;
-      height: 88px;
+      width: 124px;
+      height: 124px;
       background-size: cover;
       background-position: center;
-      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.65));
       border-radius: 50%;
       transition: transform 0.3s ease;
     }
@@ -1464,29 +1805,30 @@ interface CountryOption {
     .hero-card-footer-glass {
       position: relative;
       z-index: 5;
-      background: linear-gradient(180deg, transparent 0%, rgba(10, 14, 24, 0.92) 28%, rgba(8, 11, 18, 0.98) 100%);
-      padding: 10px 4px 5px;
+      background: linear-gradient(180deg, transparent 0%, rgba(10, 14, 24, 0.45) 35%, rgba(8, 11, 18, 0.75) 100%);
+      padding: 12px 8px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 2px;
+      gap: 3px;
     }
     .hero-card-name {
-      font-size: 11px;
-      font-weight: 850;
+      font-size: 13.5px;
+      font-weight: 900;
       color: #fff;
       margin: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 100%;
+      letter-spacing: -0.2px;
     }
     .hero-card-status-strip {
       margin-top: 1px;
-      font-size: 6.5px;
+      font-size: 8.5px;
       font-weight: 850;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
       color: #64748b;
     }
@@ -1636,14 +1978,14 @@ interface CountryOption {
       width: 270px;
       height: 270px;
       border-radius: 50%;
-      background: radial-gradient(circle at center, rgba(22, 30, 48, 0.95) 0%, #090c14 100%);
+      background: radial-gradient(circle at center, rgba(30, 42, 65, 0.65) 0%, rgba(12, 17, 28, 0.7) 100%);
       border: 4.5px solid rgba(255, 255, 255, 0.2);
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
       z-index: 2;
       overflow: hidden;
       cursor: crosshair;
@@ -1664,17 +2006,17 @@ interface CountryOption {
     }
     .hero-portrait-frame.is-locked-dock {
       cursor: default;
-      background: radial-gradient(circle at center, rgba(16, 22, 36, 0.95) 0%, #080b12 100%);
+      background: radial-gradient(circle at center, rgba(30, 42, 65, 0.65) 0%, rgba(12, 17, 28, 0.7) 100%);
     }
     .hero-portrait-frame.is-locked-dock:hover {
-      border-color: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.35);
     }
     .hero-portrait-frame.is-locked-dock:hover .hero-portrait-sprite {
       transform: none !important;
     }
     .hero-portrait-frame.is-locked-dock .hero-portrait-sprite {
-      filter: grayscale(100%) brightness(0.8) contrast(1.1);
-      opacity: 0.88;
+      filter: grayscale(100%) brightness(0.95) contrast(1.05);
+      opacity: 0.95;
       transform: none;
     }
 
@@ -2039,6 +2381,32 @@ interface CountryOption {
     .coins-summary-balance.has-enough {
       color: #34d399;
     }
+    .how-to-get-vip-summary {
+      margin-top: 6px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(245, 158, 11, 0.02) 100%);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .vip-summary-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 850;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .vip-summary-text {
+      font-size: 11px;
+      color: #e2e8f0;
+      margin: 0;
+      line-height: 1.4;
+    }
     .how-to-get-unlocked-banner {
       margin-top: 4px;
       font-size: 10.5px;
@@ -2047,6 +2415,62 @@ interface CountryOption {
       align-items: center;
       gap: 6px;
       font-weight: 700;
+    }
+
+    /* 4.5 SECCIÓN DE EVOLUCIÓN OCULTA */
+    .text-emerald {
+      color: #34d399 !important;
+    }
+    .section-badge.evo-status-pill {
+      background: linear-gradient(135deg, rgba(76, 29, 149, 0.45) 0%, rgba(30, 27, 75, 0.7) 100%);
+      color: #f8fafc;
+      border: 1px solid rgba(192, 132, 252, 0.4);
+      box-shadow: 0 2px 12px rgba(124, 58, 237, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      font-size: 8.5px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      font-weight: 850;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .clean-evolution-card {
+      position: relative;
+      background: linear-gradient(145deg, rgba(23, 15, 42, 0.94) 0%, rgba(33, 23, 62, 0.9) 100%);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 16px rgba(124, 58, 237, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .evo-ambient-aura {
+      position: absolute;
+      top: -24px;
+      right: -24px;
+      width: 110px;
+      height: 110px;
+      background: radial-gradient(circle, #c084fc 0%, transparent 70%);
+      opacity: 0.22;
+      pointer-events: none;
+    }
+    .evo-universal-mystery-text {
+      font-size: 11.8px;
+      line-height: 1.65;
+      color: #e2e8f0;
+      margin: 0;
+      position: relative;
+      z-index: 2;
+      font-style: italic;
+      letter-spacing: 0.25px;
+      text-align: center;
+      padding: 6px 8px;
+      font-weight: 500;
+      font-family: 'Space Grotesk', sans-serif;
     }
 
     /* 5. BOTÓN DE ACCIÓN */
@@ -2112,6 +2536,18 @@ interface CountryOption {
       opacity: 0.5;
       cursor: not-allowed;
       filter: grayscale(0.5);
+    }
+    .btn-clean-cta.is-premium-btn {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0b0f19;
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+      text-decoration: none;
+      font-weight: 850;
+    }
+    .btn-clean-cta.is-premium-btn:hover {
+      background: linear-gradient(135deg, #fde047 0%, #fbbf24 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(245, 158, 11, 0.55);
     }
 
     /* ==================================================== */
@@ -2394,7 +2830,15 @@ export class Cualidades implements OnInit {
   Math = Math;
   isEditingProfile = signal<boolean>(false);
   selectedCategory = signal<string>('todos');
-  inspectedAvatar = signal<ComunidadAvatar>({} as ComunidadAvatar);
+  inspectedAvatarId = signal<string>('');
+  inspectedAvatar = computed<ComunidadAvatar>(() => {
+    const id = this.inspectedAvatarId();
+    if (id) {
+      const found = this.allAvatars().find(a => a.id === id);
+      if (found) return found;
+    }
+    return this.activeAvatar() || ({} as ComunidadAvatar);
+  });
 
   inputName = signal<string>('');
   inputProfession = signal<string>('');
@@ -2447,9 +2891,20 @@ export class Cualidades implements OnInit {
 
     let dynamicList: ComunidadAvatar[] = [];
 
+    const PREMIUM_AVATAR_IDS = new Set(['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante']);
+    const COIN_AVATAR_COSTS: Record<string, number> = {
+      zorro: 1250,
+      panda: 1650,
+      oso: 2200,
+      lobo: 3200,
+      dragon: 4500
+    };
+    const STARTER_AVATARS = new Set(['gato', 'perro', 'conejo', 'raton', 'hamster', 'loro']);
+    const EVOLVING_AVATAR_IDS = new Set(['tortuga', 'buho', 'zorro', 'dragon', 'lobo', 'rana', 'leon']);
+
     if (dynamicCatalog && dynamicCatalog.length > 0) {
       dynamicList = dynamicCatalog
-        .filter(item => item.category === 'avatar' && item.id !== 'tortuga_evolved')
+        .filter(item => item.category === 'avatar' && item.id !== 'tortuga_evolved' && item.id !== 'tortuga_phase3')
         .map(item => {
           const type: 'inicial' | 'cualidad' | 'especial' | 'legendario' = 
             item.is_initial ? 'inicial' :
@@ -2458,6 +2913,23 @@ export class Cualidades implements OnInit {
 
           const archetypeText = item.archetype?.[lang] || item.archetype?.['es'] || item.tier;
           const archetypeBadge = (archetypeText || '').toUpperCase();
+
+          const isCoinAvatar = COIN_AVATAR_COSTS[item.id] !== undefined;
+          const isPremium = !isCoinAvatar && (PREMIUM_AVATAR_IDS.has(item.id) || (item.is_premium ?? false));
+          const calibratedCost = COIN_AVATAR_COSTS[item.id] ?? (isPremium ? 0 : (item.cost_coins || 0));
+
+          let unlockType: 'free' | 'merit' | 'coins' | 'premium' = 'free';
+          if (item.required_quality_id) {
+            unlockType = 'merit';
+          } else if (isPremium) {
+            unlockType = 'premium';
+          } else if (calibratedCost > 0) {
+            unlockType = 'coins';
+          } else {
+            unlockType = 'free';
+          }
+
+          const hasEvolution = EVOLVING_AVATAR_IDS.has(item.id);
 
           return {
             id: item.id,
@@ -2485,13 +2957,16 @@ export class Cualidades implements OnInit {
               item.boss_damage_points ?? this.membership.getAvatarDamagePoints(item.id),
               lang
             ),
-            cost: item.cost_coins,
+            cost: calibratedCost,
+            isPremium,
+            unlockType,
             qualityId: item.required_quality_id || null,
             qualityName: item.quality_name?.[lang] || item.quality_name?.['es'] || undefined,
             qualityReq: item.quality_req?.[lang] || item.quality_req?.['es'] || undefined,
-            unlockTotal: item.required_quality_id === 'constancia' ? (item.id === 'tortuga_phase3' ? 75 : 7) :
+            unlockTotal: item.required_quality_id === 'constancia' ? 7 :
                          (item.required_quality_id === 'disciplina' ? 15 : 5),
-            hasEvolution: item.has_evolution
+            hasEvolution,
+            evolutionDetail: hasEvolution ? EVOLUTION_ITEMS_MAP[item.id] : undefined
           };
         });
     }
@@ -2501,21 +2976,25 @@ export class Cualidades implements OnInit {
       const quality = item.qualityId ? qualities.find(q => q.id === item.qualityId) : null;
       let displayReq = item.qualityReq || '';
 
-      if (unlockedList.includes(item.id)) {
-        isUnlocked = true;
-      } else if (item.qualityId && quality) {
+      if (item.qualityId && quality) {
+        // STRICTLY MERIT: Retos de Honor nunca se desbloquean con membresía ni monedas
         const total = item.unlockTotal || quality.unlockTotal || 0;
-        let progress = quality.unlockProgress || 0;
+        const progress = quality.unlockProgress || 0;
 
-        if (item.id === 'tortuga_phase3') {
-          progress = this.membership.getTotalCompletedPomodoros();
-        }
-
-        if (progress >= total) {
+        if (progress >= total || unlockedList.includes(item.id)) {
           isUnlocked = true;
         }
 
         displayReq = item.qualityReq || `Demuestra la cualidad de ${quality.name}: ${quality.unlockRequirement} (Progreso: ${progress}/${total}).`;
+      } else if (item.isPremium) {
+        // Exclusivo VIP: Desbloqueado automáticamente si es usuario Premium Pro
+        isUnlocked = this.membership.isPremium() || unlockedList.includes(item.id);
+      } else if (item.type === 'inicial' || STARTER_AVATARS.has(item.id)) {
+        isUnlocked = true;
+      } else if (item.cost > 0) {
+        isUnlocked = unlockedList.includes(item.id);
+      } else {
+        isUnlocked = unlockedList.includes(item.id);
       }
 
       return {
@@ -2579,7 +3058,7 @@ export class Cualidades implements OnInit {
       { type: 'inicial', name: isEn ? 'Commons (Starters)' : 'Comunes (Iniciales)', badge: isEn ? 'Commons' : 'Comunes', icon: 'fa-solid fa-shield-cat', color: '#94a3b8' },
       { type: 'cualidad', name: isEn ? 'Quality Challenges' : 'Retos de Cualidad', badge: isEn ? 'Challenges' : 'Retos', icon: 'fa-solid fa-award', color: '#10b981' },
       { type: 'especial', name: isEn ? 'Special Hunters' : 'Cazadores Especiales', badge: isEn ? 'Hunters' : 'Cazadores', icon: 'fa-solid fa-paw', color: '#f59e0b' },
-      { type: 'legendario', name: isEn ? 'Legendary Guardians' : 'Guardianes Legendarios', badge: isEn ? 'Legendaries' : 'Legendarios', icon: 'fa-solid fa-dragon', color: '#fbbf24' }
+      { type: 'legendario', name: isEn ? 'Legendary Guardians' : 'Guardianes Legendarios', badge: isEn ? 'Legendaries' : 'Legendarios', icon: 'fa-solid fa-dragon', color: '#ef4444' }
     ];
 
     const groups: AvatarCategoryGroup[] = [];
@@ -2622,8 +3101,10 @@ export class Cualidades implements OnInit {
   }
 
   ngOnInit() {
+    this.membership.syncProfileFromSupabase().then(() => {
+      this.membership.syncUnlockedAvatarUrls();
+    });
     this.membership.syncUnlockedAvatarUrls();
-    this.inspectedAvatar.set(this.activeAvatar());
     this.inputName.set(this.membership.userName());
     this.inputProfession.set(this.membership.userProfession() || '');
     this.selectedCountry.set(this.membership.userCountry() || '');
@@ -2642,7 +3123,7 @@ export class Cualidades implements OnInit {
   }
 
   selectAvatar(avatar: ComunidadAvatar) {
-    this.inspectedAvatar.set(avatar);
+    this.inspectedAvatarId.set(avatar.id);
     if (avatar.isUnlocked) {
       this.membership.ensureAvatarLoaded(avatar.id);
     }
@@ -2672,40 +3153,43 @@ export class Cualidades implements OnInit {
 
   getHowToGetIcon(avatar?: ComunidadAvatar): string {
     if (!avatar || !avatar.id) return 'fa-solid fa-circle-question';
-    if (avatar.type === 'inicial') return 'fa-solid fa-gift';
-    if (avatar.qualityId) return 'fa-solid fa-award';
-    if (avatar.type === 'legendario') return 'fa-solid fa-crown';
-    return 'fa-solid fa-coins';
+    if (avatar.unlockType === 'premium') return 'fa-solid fa-crown';
+    if (avatar.unlockType === 'merit' || avatar.qualityId) return 'fa-solid fa-award';
+    if (avatar.unlockType === 'coins' || avatar.cost > 0) return 'fa-solid fa-coins';
+    return 'fa-solid fa-gift';
   }
 
   getHowToGetMethodTag(avatar?: ComunidadAvatar): string {
     const isEn = this.translation.currentLang() === 'en';
     if (!avatar || !avatar.id) return isEn ? 'Unlock Requirement' : 'Requisito de Obtención';
-    if (avatar.type === 'inicial') return this.translation.t('cualidades.howToGetInitial');
-    if (avatar.qualityId) {
+    if (avatar.unlockType === 'premium') return this.translation.t('cualidades.howToGetVipTag');
+    if (avatar.unlockType === 'merit' || avatar.qualityId) {
       const qName = avatar.displayName || avatar.qualityName || (avatar.quality?.name) || (isEn ? 'Quality' : 'Cualidad');
       return this.translation.t('cualidades.howToGetChallenge', { name: qName });
     }
-    if (avatar.type === 'legendario') return this.translation.t('cualidades.howToGetLegendary');
-    return this.translation.t('cualidades.howToGetStore');
+    if (avatar.unlockType === 'coins' || avatar.cost > 0) return this.translation.t('cualidades.howToGetStore');
+    return this.translation.t('cualidades.howToGetInitial');
   }
 
   getHowToGetTitle(avatar?: ComunidadAvatar): string {
     const isEn = this.translation.currentLang() === 'en';
     if (!avatar || !avatar.id) return isEn ? 'Guardian Acquisition' : 'Obtención del Guardián';
-    if (avatar.type === 'inicial') return this.translation.t('cualidades.howToGetTitleInitial');
-    if (avatar.qualityId) {
+    if (avatar.unlockType === 'premium') return this.translation.t('cualidades.howToGetTitleVip');
+    if (avatar.unlockType === 'merit' || avatar.qualityId) {
       const qName = avatar.displayName || avatar.qualityName || (avatar.quality?.name) || (isEn ? 'Quality' : 'Cualidad');
       return this.translation.t('cualidades.howToGetTitleQuality', { name: qName });
     }
-    if (avatar.cost > 0) return this.translation.t('cualidades.howToGetTitleCost', { cost: avatar.cost }) + ' 🪙';
-    return this.translation.t('cualidades.howToGetTitleDefault');
+    if (avatar.unlockType === 'coins' || avatar.cost > 0) return this.translation.t('cualidades.howToGetTitleCost', { cost: avatar.cost }) + ' 🪙';
+    return this.translation.t('cualidades.howToGetTitleInitial');
   }
 
   getHowToGetDescription(avatar?: ComunidadAvatar): string {
     const isEn = this.translation.currentLang() === 'en';
     if (!avatar || !avatar.id) return '';
-    if (avatar.type === 'inicial') {
+    if (avatar.unlockType === 'premium') {
+      return this.translation.t('cualidades.howToGetDescVip');
+    }
+    if (avatar.type === 'inicial' || avatar.unlockType === 'free') {
       return this.translation.t('cualidades.howToGetDescInitial');
     }
     if (avatar.qualityId) {
@@ -2778,9 +3262,6 @@ export class Cualidades implements OnInit {
 
   getUnlockProgressCurrent(avatar?: ComunidadAvatar): number {
     if (!avatar || !avatar.qualityId) return 0;
-    if (avatar.id === 'tortuga_phase3') {
-      return this.membership.getTotalCompletedPomodoros();
-    }
     return avatar.quality?.unlockProgress || 0;
   }
 
@@ -2795,6 +3276,30 @@ export class Cualidades implements OnInit {
     if (!total || total <= 0) return 0;
     const cur = this.getUnlockProgressCurrent(avatar);
     return Math.min(100, Math.max(0, Math.round((cur / total) * 100)));
+  }
+
+  getEvolutionRelicName(avatar?: ComunidadAvatar): string {
+    if (!avatar?.evolutionDetail) return '';
+    const lang = this.membership.userLanguage();
+    return avatar.evolutionDetail.relicName[lang === 'en' ? 'en' : 'es'] || avatar.evolutionDetail.relicName.es;
+  }
+
+  getMysteryFormTitle(avatar?: ComunidadAvatar): string {
+    if (!avatar?.evolutionDetail) return '';
+    const lang = this.membership.userLanguage();
+    return avatar.evolutionDetail.mysteryForm[lang === 'en' ? 'en' : 'es'] || avatar.evolutionDetail.mysteryForm.es;
+  }
+
+  getEvolutionRelicDesc(avatar?: ComunidadAvatar): string {
+    if (!avatar?.evolutionDetail) return '';
+    const lang = this.membership.userLanguage();
+    return avatar.evolutionDetail.relicDesc[lang === 'en' ? 'en' : 'es'] || avatar.evolutionDetail.relicDesc.es;
+  }
+
+  getEvolutionPerformanceHint(avatar?: ComunidadAvatar): string {
+    if (!avatar?.evolutionDetail) return '';
+    const lang = this.membership.userLanguage();
+    return avatar.evolutionDetail.performanceHint[lang === 'en' ? 'en' : 'es'] || avatar.evolutionDetail.performanceHint.es;
   }
 
   getCountryFlag(countryName: string): string {

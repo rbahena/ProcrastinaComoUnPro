@@ -204,7 +204,7 @@ button { font-family: inherit; cursor: pointer; }
   background-position: center;
 }
 
-/* ===== AVATARES INICIALES (COMUNES GRATUITOS - ARTE COLOR DESDE EL BUCKET) ===== */
+/* ===== AVATARES INICIALES (COMUNES GRATUITOS - ARTE COLOR DESDE EL BUCKET PRIVADO) ===== */
 .avatar-sprite.sprite-gato { background-image: var(--avatar-img-gato, url('/assets/images/avatars/gato_locked.webp')); }
 .avatar-sprite.sprite-perro { background-image: var(--avatar-img-perro, url('/assets/images/avatars/perro_locked.webp')); }
 .avatar-sprite.sprite-conejo { background-image: var(--avatar-img-conejo, url('/assets/images/avatars/conejo_locked.webp')); }

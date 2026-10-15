@@ -95,6 +95,9 @@ serve(async (req) => {
           console.error('[stripe-webhook] Error actualizando perfil de usuario:', updateError);
         } else {
           console.log(`[stripe-webhook] Usuario ${userId} activado a COFU Pro con éxito.`);
+          const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+          const rows = vipAvatars.map(id => ({ user_id: userId, item_id: id, unlock_source: 'admin' }));
+          await supabaseAdmin.from('user_unlocked_items').upsert(rows, { onConflict: 'user_id, item_id', ignoreDuplicates: true });
         }
         break;
       }

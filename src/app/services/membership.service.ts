@@ -42,6 +42,9 @@ export interface AvatarItem {
   color: string;
   isUnlocked: boolean;
   isInitial?: boolean;
+  isPremium?: boolean;
+  costCoins?: number;
+  hasEvolution?: boolean;
 }
 
 export interface QualityItem {
@@ -293,19 +296,41 @@ export class MembershipService {
 
   // Catálogo completo de avatares disponibles (generado dinámicamente desde Supabase)
   avatarsCatalog = computed<AvatarItem[]>(() => {
-    const items = this.catalogItems().filter(i => i.category === 'avatar' && i.id !== 'tortuga_evolved');
+    const items = this.catalogItems().filter(i => i.category === 'avatar' && i.id !== 'tortuga_evolved' && i.id !== 'tortuga_phase3');
     const unlocked = this.unlockedAvatars();
     const lang = this.userLanguage();
+    const isPrem = this.isPremium();
+    const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+    const coinCosts: Record<string, number> = {
+      zorro: 1250,
+      panda: 1650,
+      oso: 2200,
+      lobo: 3200,
+      dragon: 4500
+    };
+
+    const evolvingAvatars = new Set(['tortuga', 'buho', 'zorro', 'dragon', 'lobo', 'rana', 'leon']);
 
     if (items.length > 0) {
-      return items.map(item => ({
-        id: item.id,
-        name: item.name?.[lang] || item.name?.['es'] || item.id,
-        icon: this.getAvatarIconById(item.id),
-        color: item.color || '#10b981',
-        isUnlocked: unlocked.includes(item.id),
-        isInitial: item.is_initial
-      }));
+      return items.map(item => {
+        const isCoinAvatar = coinCosts[item.id] !== undefined;
+        const isPremiumAvatar = !isCoinAvatar && (item.is_premium === true || vipAvatars.includes(item.id));
+        const isUnlocked = unlocked.includes(item.id) || 
+                           item.is_initial === true || 
+                           (isPrem && isPremiumAvatar);
+
+        return {
+          id: item.id,
+          name: item.name?.[lang] || item.name?.['es'] || item.id,
+          icon: this.getAvatarIconById(item.id),
+          color: item.color || '#10b981',
+          isUnlocked,
+          isInitial: item.is_initial,
+          isPremium: isPremiumAvatar,
+          costCoins: coinCosts[item.id] ?? item.cost_coins,
+          hasEvolution: evolvingAvatars.has(item.id)
+        };
+      });
     }
     return [];
   });
@@ -344,7 +369,8 @@ export class MembershipService {
    * Sincroniza y descarga las URLs firmadas para todos los avatares que el usuario tiene desbloqueados.
    */
   async syncUnlockedAvatarUrls() {
-    const list = Array.from(new Set([...this.unlockedAvatars(), this.selectedAvatar()]));
+    const vipAvatars = this.isPremium() ? ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'] : [];
+    const list = Array.from(new Set([...this.unlockedAvatars(), this.selectedAvatar(), ...vipAvatars]));
     await Promise.all(list.map(id => this.ensureAvatarLoaded(id)));
   }
 
@@ -1037,6 +1063,10 @@ export class MembershipService {
     this.isPremium.set(premium);
     this.saveConsolidatedUserData();
 
+    if (premium) {
+      this.unlockVipAvatarsForPremiumUser();
+    }
+
     // Sincronizar estado en Supabase profiles si está conectado
     if (this.supabaseService.isConfigured()) {
       try {
@@ -1701,7 +1731,12 @@ export class MembershipService {
       this.userLanguage.set(browserLang);
       this.translationService.setLanguage(browserLang, false);
     }
-    if (p.is_premium !== undefined) this.isPremium.set(p.is_premium);
+    if (p.is_premium !== undefined) {
+      this.isPremium.set(p.is_premium);
+      if (p.is_premium) {
+        this.unlockVipAvatarsForPremiumUser();
+      }
+    }
 
     // Supabase es la única fuente de verdad estricta para los valores de gamificación
     const serverCoins = Number(p.pro_coins ?? p.coins ?? 0);
@@ -1808,7 +1843,8 @@ export class MembershipService {
       (itemIds || []).filter(id => knownTimers.includes(id))
     ));
 
-    const finalAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...catalogInitialAvatars, ...avatars]));
+    const vipAvatars = this.isPremium() ? ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'] : [];
+    const finalAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...catalogInitialAvatars, ...avatars, ...vipAvatars]));
     const finalThemes = themes.length > 0 ? themes : ['samurai'];
     const finalTimers = timers.length > 0 ? timers : ['digital'];
 
@@ -1822,6 +1858,31 @@ export class MembershipService {
     }
 
     this.saveConsolidatedUserData();
+  }
+
+  /**
+   * Desbloquea de forma atómica y reactiva todos los avatares VIP para usuarios con suscripción Premium o prueba activa.
+   * Además los persiste en user_unlocked_items para habilitar las políticas de Supabase Storage.
+   */
+  async unlockVipAvatarsForPremiumUser() {
+    const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+    
+    // 1. Agregar de inmediato al inventario local para reactividad instantánea en la interfaz
+    this.unlockedAvatars.update(list => Array.from(new Set([...list, ...vipAvatars])));
+    this.saveConsolidatedUserData();
+    this.syncUnlockedAvatarUrls();
+
+    // 2. Persistir en user_unlocked_items en Supabase mediante la Edge Function blindada
+    if (this.supabaseService.isConfigured()) {
+      try {
+        const res = await this.supabaseService.claimVipAvatars();
+        if (res?.success) {
+          await this.syncUnlockedAvatarUrls();
+        }
+      } catch (e) {
+        console.warn('[MembershipService] Error sincronizando avatares VIP en user_unlocked_items:', e);
+      }
+    }
   }
 
   // Aplicar progreso de cualidades desde Supabase (user_quality_progress)
