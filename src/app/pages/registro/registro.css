@@ -308,3 +308,59 @@
     border-radius: 10px;
   }
 }
+
+/* Indicador de Fuerza de Contraseña (Puramente Visual/Informativo) */
+.strength-meter-container {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  animation: fadeInStrength 0.25s ease-out;
+}
+
+@keyframes fadeInStrength {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.strength-meter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.strength-meter-label {
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.strength-meter-value {
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  transition: color 0.3s ease;
+}
+
+.strength-meter-bars {
+  display: flex;
+  gap: 4px;
+  height: 4px;
+  width: 100%;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 100%;
+  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.08);
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

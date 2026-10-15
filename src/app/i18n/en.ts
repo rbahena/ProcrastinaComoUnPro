@@ -515,7 +515,12 @@ export const EN = {
     "privacyPolicy": "Privacy Policy",
     "alreadyRegistered": "Already have an account?",
     "loginLink": "Log in",
-    "registrationError": "An error occurred during registration."
+    "registrationError": "An error occurred during registration.",
+    "passwordStrength": "Password strength",
+    "strengthWeak": "Weak",
+    "strengthMedium": "Fair",
+    "strengthGood": "Good",
+    "strengthStrong": "Very strong"
   },
   "bestiary": {
     "title": "Community Challenges & Bestiary",

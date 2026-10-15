@@ -41,6 +41,7 @@
         <div class="password-input-wrapper">
           <input 
             #passwordInput 
+            (input)="onPasswordInput(passwordInput.value)"
             [type]="showPassword() ? 'text' : 'password'" 
             id="password" 
             [placeholder]="'auth.registerPasswordPlaceholder' | translate" 
@@ -57,6 +58,24 @@
             <i [class]="showPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
           </button>
         </div>
+
+        @if (password().length > 0) {
+          <div class="strength-meter-container">
+            <div class="strength-meter-header">
+              <span class="strength-meter-label">{{ 'auth.passwordStrength' | translate }}</span>
+              <span class="strength-meter-value" [style.color]="strengthColor()">
+                {{ strengthLabelKey() | translate }}
+              </span>
+            </div>
+            <div class="strength-meter-bars">
+              @for (bar of [1, 2, 3, 4]; track bar) {
+                <div class="strength-bar"
+                     [style.background-color]="bar <= strengthScore() ? strengthColor() : 'rgba(255, 255, 255, 0.08)'">
+                </div>
+              }
+            </div>
+          </div>
+        }
       </div>
 
       <button type="submit" class="btn btn-accent w-100" [disabled]="isLoading()" style="margin-top: 15px; border: 1px solid var(--accent) !important; background: rgba(6, 8, 19, 0.45) !important; color: var(--accent) !important; display: flex; align-items: center; justify-content: center; gap: 8px;">

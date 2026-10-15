@@ -515,7 +515,12 @@ export const ES = {
     "privacyPolicy": "Política de Privacidad",
     "alreadyRegistered": "¿Ya tienes una cuenta registrada?",
     "loginLink": "Inicia sesión",
-    "registrationError": "Ocurrió un error en el registro."
+    "registrationError": "Ocurrió un error en el registro.",
+    "passwordStrength": "Seguridad de la contraseña",
+    "strengthWeak": "Débil",
+    "strengthMedium": "Aceptable",
+    "strengthGood": "Buena",
+    "strengthStrong": "Muy fuerte"
   },
   "bestiary": {
     "title": "Retos de la Comunidad & Bestiario",
