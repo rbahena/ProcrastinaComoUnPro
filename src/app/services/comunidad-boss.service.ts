@@ -245,10 +245,8 @@ export class ComunidadBossService {
     // Reducir escudo comunitario
     this.comunidadShield.update(shield => {
       const newShield = Math.max(0, shield - 40);
-      if (newShield === 0) {
+      if (newShield === 0 && shield > 0) {
         this.addLog(`⚠️ El escudo de la Comunidad ha colapsado. ¡El Jefe ataca con fuerza!`);
-      } else {
-        this.addLog(`🛡️ El escudo comunitario absorbió el contraataque (-40 de escudo).`);
       }
       return newShield;
     });
