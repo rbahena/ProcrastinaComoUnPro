@@ -228,6 +228,7 @@ export class MembershipService {
   unlockedAvatars = signal<string[]>([...INITIAL_AVATARS_LIST]);
   unlockedThemes = signal<string[]>(['samurai']);
   unlockedTimers = signal<string[]>(['digital', 'ring', 'line']);
+  unlockedGames = signal<string[]>(['gato', 'snake', 'memory']);
 
   // Perfil del usuario
   userName = signal<string>('Guerrero');
@@ -478,7 +479,8 @@ export class MembershipService {
       inventory: {
         unlockedAvatars: this.unlockedAvatars(),
         unlockedThemes: this.unlockedThemes(),
-        unlockedTimers: this.unlockedTimers()
+        unlockedTimers: this.unlockedTimers(),
+        unlockedGames: this.unlockedGames()
       },
       focusPreferences: this.focusPreferences(),
       capturedIdeas: this.capturedIdeas()
@@ -690,6 +692,7 @@ export class MembershipService {
       this.unlockedAvatars();
       this.unlockedThemes();
       this.unlockedTimers();
+      this.unlockedGames();
       this.focusPreferences();
       this.capturedIdeas();
 
@@ -1926,6 +1929,7 @@ export class MembershipService {
       'moon', 'titanic',
       'solar', 'satellite', 'lighthouse', 'airplane', 'lantern'
     ];
+    const knownGames = ['gato', 'snake', 'memory', 'flappy', 'breaker', 'space', 'dodge', 'tetris', 'samurai'];
 
     const avatars = Array.from(new Set(
       (itemIds || []).filter(id => allKnownAvatars.includes(id))
@@ -1939,6 +1943,10 @@ export class MembershipService {
       (itemIds || []).filter(id => knownTimers.includes(id))
     ));
 
+    const games = Array.from(new Set(
+      (itemIds || []).filter(id => knownGames.includes(id))
+    ));
+
     const vipAvatars = this.isPremium() ? ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'] : [];
     // Filtrar avatares VIP si el usuario no cuenta con membresía Premium activa
     const filteredAvatars = (avatars || []).filter(id => {
@@ -1949,14 +1957,17 @@ export class MembershipService {
     });
 
     const vipTimers = this.isPremium() ? ['solar', 'satellite', 'lighthouse', 'airplane', 'lantern'] : [];
+    const vipGames = this.isPremium() ? ['dodge', 'tetris', 'samurai'] : [];
 
     const finalAvatars = Array.from(new Set([...INITIAL_AVATARS_LIST, ...catalogInitialAvatars, ...filteredAvatars, ...vipAvatars]));
     const finalThemes = themes.length > 0 ? themes : ['samurai'];
     const finalTimers = Array.from(new Set(['digital', 'ring', 'line', ...timers, ...vipTimers]));
+    const finalGames = Array.from(new Set(['gato', 'snake', 'memory', ...games, ...vipGames]));
 
     this.unlockedAvatars.set(finalAvatars);
     this.unlockedThemes.set(finalThemes);
     this.unlockedTimers.set(finalTimers);
+    this.unlockedGames.set(finalGames);
     this.syncUnlockedAvatarUrls();
 
     if (this.selectedAvatar() && !finalAvatars.includes(this.selectedAvatar())) {
@@ -1978,10 +1989,12 @@ export class MembershipService {
   async unlockVipAvatarsForPremiumUser() {
     const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
     const vipTimers = ['solar', 'satellite', 'lighthouse', 'airplane', 'lantern'];
+    const vipGames = ['dodge', 'tetris', 'samurai'];
     
     // 1. Agregar de inmediato al inventario local para reactividad instantánea en la interfaz
     this.unlockedAvatars.update(list => Array.from(new Set([...list, ...vipAvatars])));
     this.unlockedTimers.update(list => Array.from(new Set([...list, ...vipTimers])));
+    this.unlockedGames.update(list => Array.from(new Set([...list, ...vipGames])));
     this.saveConsolidatedUserData();
     this.syncUnlockedAvatarUrls();
 
@@ -2005,10 +2018,12 @@ export class MembershipService {
   revokeVipAvatarsLocally() {
     const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
     const vipTimers = ['solar', 'satellite', 'lighthouse', 'airplane', 'lantern'];
+    const vipGames = ['dodge', 'tetris', 'samurai'];
 
     // 1. Remover del inventario local en memoria
     this.unlockedAvatars.update(list => list.filter(id => !vipAvatars.includes(id)));
     this.unlockedTimers.update(list => list.filter(id => !vipTimers.includes(id)));
+    this.unlockedGames.update(list => list.filter(id => !vipGames.includes(id)));
 
     // 2. Si tenía equipado un avatar VIP revocado, desequiparlo a 'gato'
     if (vipAvatars.includes(this.selectedAvatar())) {
@@ -2107,6 +2122,7 @@ export class MembershipService {
           if (bundle.inventory.unlockedAvatars) this.unlockedAvatars.set(bundle.inventory.unlockedAvatars);
           if (bundle.inventory.unlockedThemes) this.unlockedThemes.set(bundle.inventory.unlockedThemes);
           if (bundle.inventory.unlockedTimers) this.unlockedTimers.set(bundle.inventory.unlockedTimers);
+          if (bundle.inventory.unlockedGames) this.unlockedGames.set(bundle.inventory.unlockedGames);
           this.syncUnlockedAvatarUrls();
         }
         if (bundle.focusPreferences) {
@@ -2134,6 +2150,7 @@ export class MembershipService {
     this.unlockedAvatars.set([...INITIAL_AVATARS_LIST]);
     this.unlockedThemes.set(['samurai']);
     this.unlockedTimers.set(['digital', 'ring', 'line']);
+    this.unlockedGames.set(['gato', 'snake', 'memory']);
     this.userName.set('Guerrero');
     this.selectedAvatar.set('gato');
     this.selectedTheme.set('samurai');
@@ -2308,5 +2325,60 @@ export class MembershipService {
     this.unlockedTimers.update(t => Array.from(new Set([...t, timerId])));
     this.saveConsolidatedUserData();
     return true;
+  }
+
+  // Desbloquear un minijuego con Pro Coins (persistente en Supabase y localmente)
+  async unlockGameWithCoins(gameId: string, cost?: number): Promise<boolean> {
+    if (this.unlockedGames().includes(gameId)) return true;
+
+    // Obtener costo dinámico desde el catálogo maestro de Supabase si está disponible
+    const dbItem = this.catalogItems().find(i => i.id === gameId);
+    const actualCost = dbItem ? dbItem.cost_coins : (cost ?? 150);
+
+    if (this.proCoins() < actualCost) return false;
+
+    if (this.supabaseService.isConfigured()) {
+      try {
+        const res = await this.supabaseService.buyCatalogItem(gameId);
+        if (!res.success) {
+          console.warn(`[MembershipService] Error al comprar minijuego ${gameId} en Supabase:`, res.error);
+          return false;
+        }
+        if (res.remainingCoins !== undefined) {
+          this.proCoins.set(res.remainingCoins);
+        } else {
+          this.proCoins.update(c => Math.max(0, c - actualCost));
+        }
+      } catch (e) {
+        console.warn(`[MembershipService] Excepción al comprar minijuego ${gameId} en Supabase:`, e);
+        this.proCoins.update(c => Math.max(0, c - actualCost));
+      }
+    } else {
+      this.proCoins.update(c => Math.max(0, c - actualCost));
+    }
+
+    this.unlockedGames.update(g => Array.from(new Set([...g, gameId])));
+    this.saveConsolidatedUserData();
+    return true;
+  }
+
+  // Comprobar si un minijuego está desbloqueado para el usuario actual
+  isGameUnlocked(gameId: string): boolean {
+    const dbItem = this.catalogItems().find(i => i.id === gameId);
+    if (dbItem) {
+      if (dbItem.is_initial || (dbItem.cost_coins === 0 && !dbItem.is_premium)) {
+        return true;
+      }
+      if (dbItem.is_premium) {
+        return this.isPremium();
+      }
+      return this.unlockedGames().includes(gameId);
+    }
+
+    const freeGames = ['gato', 'snake', 'memory'];
+    if (freeGames.includes(gameId)) return true;
+    const vipGames = ['dodge', 'tetris', 'samurai'];
+    if (vipGames.includes(gameId)) return this.isPremium();
+    return this.unlockedGames().includes(gameId);
   }
 }

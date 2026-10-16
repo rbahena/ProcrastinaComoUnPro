@@ -432,5 +432,24 @@ La Arena de Enfoque (`/enfoque`) cuenta con 14 motores visuales de temporizador 
 
 ---
 
+## 🕹️ 14. SALÓN ARCADE DE DESCANSO (BREAK LOUNGE) Y NATURALEZA RECREATIVA
+
+El Salón Arcade de Descanso (`minijuegos-descanso`) está diseñado exclusivamente como un espacio de esparcimiento mental y descompresión cognitiva durante los intervalos de descanso activo del temporizador Pomodoro.
+
+### 🚫 Regla de Oro: Cero Progresión RPG / Cero Recompensas
+1. **No otorgan Tomates / Pomodoros:** Jugar un minijuego no suma bloques de enfoque ni cuenta como sesión completada.
+2. **No otorgan Monedas (ProCoins):** Los minijuegos no generan ProCoins al ganar ni por tiempo jugado. Únicamente pueden requerir monedas como costo de desbloqueo en la tienda.
+3. **No otorgan Racha (Streaks):** Jugar no mantiene ni avanza la racha diaria de productividad del usuario.
+4. **No otorgan Puntos de Enfoque ni Estadísticas:** Las puntuaciones obtenidas son meramente récords personales locales (`localStorage`) y no alteran las métricas globales del perfil ni del medallero.
+5. **No afectan la Incursión Comunitaria (Jefe de Raid):** El desempeño en los minijuegos no inflige daño, no otorga escudos comunitarios ni cura a los compañeros de coworking.
+6. **No desbloquean Cualidades Maestras:** El progreso en los minijuegos es completamente independiente del sistema de méritos y de los 7 Guardianes de Cualidad.
+
+### 🎮 Modelo de Acceso al Catálogo (9 Minijuegos):
+- **Gratuitos / Iniciales (3):** Gato Clásico (`gato`), Cyber Culebrita (`snake`), Memoria Zen (`memory`). Disponibles siempre para todos los usuarios.
+- **Tienda ProCoins (3):** Astro Flap (`flappy`), Rompeladrillos Neon (`breaker`), Invasores Galácticos (`space`). Desbloqueables mediante compra única con monedas.
+- **Exclusivos PRO (3):** Esquiva Veloz (`dodge`), Tetris Relax (`tetris`), Reflejo Samurai (`samurai`). Reservados para miembros con suscripción PRO activa.
+
+---
+
 > **Fin del Documento Maestro de Reglas de Negocio.**  
-> Cualquier modificación a este sistema debe sincronizarse con `supabase/schema.sql` y los servicios centrales de Angular (`membership.service.ts` y `comunidad-boss.service.ts`).
+> Cualquier modificación a este sistema debe sincronizarse con `docs/schema.sql` y los servicios centrales de Angular (`membership.service.ts` y `comunidad-boss.service.ts`).

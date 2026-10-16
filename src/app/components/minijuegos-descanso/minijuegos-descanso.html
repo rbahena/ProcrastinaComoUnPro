@@ -42,10 +42,11 @@
                 type="button"
                 class="tab-btn-mini"
                 [class.active]="activeGame() === g.id"
-                (click)="switchGame(g.id)"
+                (click)="onCardClick(g)"
                 [title]="g.title">
           <i class="fa-solid" [ngClass]="g.icon"></i>
           <span>{{ g.title.split(' ')[0] }}</span>
+          <i *ngIf="!isGameUnlocked(g.id)" class="fa-solid fa-lock" style="font-size: 8px; margin-left: 2px; color: #fbbf24;"></i>
         </button>
       </div>
     </div>
@@ -98,12 +99,22 @@
   <div *ngIf="activeGame() === 'lobby'" class="lobby-grid-view">
     <div class="games-grid">
       <div *ngFor="let game of filteredGames()" 
-           class="game-card is-unlocked"
+           class="game-card"
+           [class.is-unlocked]="isGameUnlocked(game.id)"
+           [class.is-premium]="game.isPremium"
+           [class.is-coins]="!game.isPremium && (game.costCoins || 0) > 0"
+           [class.is-locked]="!isGameUnlocked(game.id)"
            [attr.data-game-id]="game.id"
            (click)="onCardClick(game)">
 
         <!-- STAGE DE ANIMACIÓN EN VIVO DE CADA JUEGO -->
         <div class="card-anim-stage">
+          
+          <!-- Candado flotante si está bloqueado -->
+          <div *ngIf="!isGameUnlocked(game.id)" class="premium-lock-overlay" 
+               [style.borderColor]="game.isPremium ? 'rgba(245, 158, 11, 0.45)' : 'rgba(251, 191, 36, 0.45)'">
+            <i class="fa-solid fa-lock" [style.color]="game.isPremium ? '#fbbf24' : '#fbbf24'"></i>
+          </div>
           
           <!-- ANIMACIÓN 1: GATO CLÁSICO (TIC-TAC-TOE) -->
           <div *ngIf="game.id === 'gato'" class="anim-box anim-gato">
@@ -246,9 +257,22 @@
           </div>
           
           <div class="card-badge-row">
-            <span class="badge-pill unlocked-badge">
+            <!-- Caso 1: Desbloqueado -->
+            <span *ngIf="isGameUnlocked(game.id)" class="badge-pill unlocked-badge">
               <i class="fa-solid fa-play"></i>
-              <span>JUGAR</span>
+              <span>{{ 'minigames.playBtn' | translate }}</span>
+            </span>
+
+            <!-- Caso 2: Exclusivo PRO (Bloqueado) -->
+            <span *ngIf="!isGameUnlocked(game.id) && game.isPremium" class="badge-pill premium-badge">
+              <i class="fa-solid fa-crown"></i>
+              <span>PRO</span>
+            </span>
+
+            <!-- Caso 3: Desbloqueo con Coins (Bloqueado) -->
+            <span *ngIf="!isGameUnlocked(game.id) && !game.isPremium && (game.costCoins || 0) > 0" class="badge-pill coins-badge">
+              <i class="fa-solid fa-cart-shopping"></i>
+              <span>{{ 'minigames.buyButton' | translate }} {{ game.costCoins }} 🪙</span>
             </span>
           </div>
         </div>
@@ -789,6 +813,142 @@
         <button type="button" class="btn-primary-dodge" (click)="startSpaceGame()">
           <i class="fa-solid fa-rotate-right"></i>
           <span>Reintentar (Espacio)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: PAYWALL PRO PARA MINIJUEGOS EXCLUSIVOS                  -->
+  <!-- ============================================================== -->
+  <div *ngIf="showPremiumModal() && selectedPremiumGame() as pGame"
+       style="position: fixed; inset: 0; z-index: 9999999; background: rgba(5, 8, 17, 0.92); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; padding: 20px;"
+       (click)="closePremiumModal()">
+    <div style="background: linear-gradient(145deg, #181308 0%, #0d0c11 100%); border: 1.5px solid rgba(245, 158, 11, 0.5); border-radius: 20px; width: 100%; max-width: 440px; padding: 28px 24px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(245, 158, 11, 0.2); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; position: relative;"
+         (click)="$event.stopPropagation()">
+      
+      <!-- Cerrar -->
+      <button type="button" (click)="closePremiumModal()" 
+              style="position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.06); border: none; width: 30px; height: 30px; border-radius: 50%; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Corona Dorada -->
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.05) 70%); border: 2px solid #f59e0b; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);">
+        <i class="fa-solid fa-crown" style="font-size: 28px; color: #fbbf24; filter: drop-shadow(0 0 8px #f59e0b);"></i>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 20px; padding: 3px 12px; margin: 0 auto;">
+          <i class="fa-solid fa-star" style="color: #fbbf24; font-size: 10px;"></i>
+          <span style="font-size: 10px; font-weight: 900; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.8px;">{{ 'minigames.proBadge' | translate }}</span>
+        </div>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 900; color: #fff; letter-spacing: -0.3px;">
+          {{ pGame.title }}
+        </h3>
+        <p style="margin: 0; font-size: 13px; color: #cbd5e1; line-height: 1.45;">
+          {{ pGame.description }}
+        </p>
+      </div>
+
+      <div style="width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 12px 16px; font-size: 12.5px; color: #94a3b8; line-height: 1.5; text-align: left;">
+        {{ 'minigames.proExclusiveDesc' | translate }}
+      </div>
+
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+        <button type="button" (click)="goToMembership()"
+                style="width: 100%; border: none; padding: 12px; border-radius: 10px; background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: #000; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(251, 191, 36, 0.4);">
+          <i class="fa-solid fa-crown"></i>
+          <span>{{ 'minigames.viewMembership' | translate }}</span>
+        </button>
+        <button type="button" (click)="closePremiumModal()"
+                style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; color: #94a3b8; font-size: 12px; font-weight: 700; cursor: pointer;">
+          {{ 'common.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: DESBLOQUEO DE MINIJUEGO CON PROCOINS                     -->
+  <!-- ============================================================== -->
+  <div *ngIf="showCoinModal() && selectedCoinGame() as cGame"
+       style="position: fixed; inset: 0; z-index: 9999999; background: rgba(5, 8, 17, 0.92); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; padding: 20px;"
+       (click)="closeCoinModal()">
+    <div style="background: linear-gradient(145deg, #13120a 0%, #0d0c11 100%); border: 1.5px solid rgba(251, 191, 36, 0.45); border-radius: 20px; width: 100%; max-width: 440px; padding: 28px 24px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(251, 191, 36, 0.15); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; position: relative;"
+         (click)="$event.stopPropagation()">
+      
+      <!-- Cerrar -->
+      <button type="button" (click)="closeCoinModal()" 
+              style="position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.06); border: none; width: 30px; height: 30px; border-radius: 50%; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Ícono Monedas -->
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, rgba(251, 191, 36, 0.05) 70%); border: 2px solid #fbbf24; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(251, 191, 36, 0.45);">
+        <i class="fa-solid fa-coins" style="font-size: 28px; color: #fbbf24; filter: drop-shadow(0 0 8px #fbbf24);"></i>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 20px; padding: 3px 12px; margin: 0 auto;">
+          <i class="fa-solid fa-cart-shopping" style="color: #fbbf24; font-size: 10px;"></i>
+          <span style="font-size: 10px; font-weight: 900; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.8px;">{{ 'minigames.confirmPurchaseTitle' | translate }}</span>
+        </div>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 900; color: #fff; letter-spacing: -0.3px;">
+          {{ 'minigames.unlockGameTitle' | translate: { name: cGame.title } }}
+        </h3>
+        <p style="margin: 0; font-size: 12.5px; color: #94a3b8; line-height: 1.4;">
+          {{ 'minigames.confirmPurchaseSubtitle' | translate }}
+        </p>
+        <p style="margin: 0; font-size: 13px; color: #cbd5e1; line-height: 1.45;">
+          {{ cGame.description }}
+        </p>
+      </div>
+
+      <!-- Tarjeta de Saldo y Costo -->
+      <div style="width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 14px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; text-align: left; box-sizing: border-box;">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #cbd5e1;">
+          <span>{{ 'minigames.gameCost' | translate }}</span>
+          <span style="font-weight: 900; color: #fbbf24; display: flex; align-items: center; gap: 5px;">
+            <i class="fa-solid fa-coins"></i> {{ cGame.costCoins }} Monedas
+          </span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #cbd5e1;">
+          <span>{{ 'minigames.yourCoins' | translate }}</span>
+          <span style="font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 5px;">
+            <i class="fa-solid fa-wallet" style="color: #94a3b8;"></i> {{ membership.proCoins() }} Monedas
+          </span>
+        </div>
+        <div style="height: 1px; background: rgba(255,255,255,0.08); margin: 2px 0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #cbd5e1;">
+          <span>{{ 'minigames.remainingCoins' | translate }}</span>
+          <span [style.color]="membership.proCoins() >= (cGame.costCoins || 0) ? '#10b981' : '#f87171'" style="font-weight: 900; display: flex; align-items: center; gap: 5px;">
+            <i class="fa-solid fa-coins"></i> {{ (membership.proCoins() - (cGame.costCoins || 0)) }} Monedas
+          </span>
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+        <button *ngIf="membership.proCoins() >= (cGame.costCoins || 0)"
+                type="button"
+                [disabled]="isUnlockingCoinGame()"
+                (click)="confirmUnlockWithCoins()"
+                style="width: 100%; padding: 13px; border-radius: 12px; border: none; background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: #000; font-size: 13.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(251, 191, 36, 0.45); transition: transform 0.2s;">
+          <i *ngIf="isUnlockingCoinGame()" class="fa-solid fa-circle-notch fa-spin"></i>
+          <i *ngIf="!isUnlockingCoinGame()" class="fa-solid fa-coins"></i>
+          <span>{{ 'minigames.confirmUnlockGame' | translate: { cost: cGame.costCoins } }}</span>
+        </button>
+
+        <div *ngIf="membership.proCoins() < (cGame.costCoins || 0)"
+             style="padding: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; color: #fca5a5; font-size: 12px;">
+          <i class="fa-solid fa-triangle-exclamation" style="margin-right: 5px;"></i>
+          {{ 'minigames.insufficientCoinsDesc' | translate: { cost: cGame.costCoins } }}
+        </div>
+
+        <button type="button" (click)="closeCoinModal()"
+                style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; color: #94a3b8; font-size: 12px; font-weight: 700; cursor: pointer;">
+          {{ 'common.close' | translate }}
         </button>
       </div>
     </div>

@@ -1253,6 +1253,26 @@
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
 }
 
+.badge-pill.coins-badge {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.2);
+}
+
+.game-card.is-coins {
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+.game-card.is-coins:hover {
+  border-color: #fbbf24;
+  box-shadow: 0 10px 24px rgba(251, 191, 36, 0.25), 0 0 14px rgba(251, 191, 36, 0.2);
+}
+
+.game-card.is-locked .card-anim-stage {
+  filter: saturate(0.85);
+}
+
 .badge-pill i {
   font-size: 8.5px;
 }

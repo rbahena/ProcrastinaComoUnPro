@@ -389,8 +389,8 @@ CREATE TABLE IF NOT EXISTS public.catalog_items (
     id VARCHAR(50) PRIMARY KEY,
     
     -- [COLUMNAS: CATEGORIZACIÓN Y CLASIFICACIÓN]
-    -- category: Tipo de artículo ('avatar', 'weapon', 'theme', 'timer').
-    category VARCHAR(20) NOT NULL CHECK (category IN ('avatar', 'weapon', 'theme', 'timer')),
+    -- category: Tipo de artículo ('avatar', 'weapon', 'theme', 'timer', 'game').
+    category VARCHAR(20) NOT NULL CHECK (category IN ('avatar', 'weapon', 'theme', 'timer', 'game')),
     -- tier: Nivel de rareza del artículo ('Común', 'Raro', 'Épico', 'Legendario').
     tier VARCHAR(20) NOT NULL DEFAULT 'Común' CHECK (tier IN ('Común', 'Raro', 'Épico', 'Legendario')),
     -- stars: Rango visual de 1 a 5 estrellas para la tarjeta RPG.
@@ -1132,7 +1132,25 @@ INSERT INTO public.catalog_items (
 ('satellite', 'timer', 'Épico', 3, '🛰️', '#0284c7', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, '{"es": "Satélite Orbital", "en": "Orbital Satellite"}', '{"es": "Estación de comunicaciones orbital con paneles solares activos", "en": "Orbital communications station with active solar panels"}'),
 ('lighthouse', 'timer', 'Legendario', 4, '🗼', '#fde047', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, '{"es": "El Faro", "en": "The Lighthouse"}', '{"es": "Faro costero con haz de luz giratorio continuo en la noche marítima", "en": "Coastal lighthouse with continuous rotating beam in ocean night"}'),
 ('airplane', 'timer', 'Legendario', 4, '✈️', '#f8fafc', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, '{"es": "Aterrizaje en Pista", "en": "Runway Landing"}', '{"es": "Aproximación de vuelo comercial, despliegue de tren y humo en pista", "en": "Commercial flight approach, gear deployment, and touchdown smoke"}'),
-('lantern', 'timer', 'Legendario', 4, '🏮', '#ea580c', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, '{"es": "Farol Encantado", "en": "Enchanted Lantern"}', '{"es": "Farol de bosque místico con hiedra, mariposas turquesa y fuego mágico", "en": "Mystic forest lantern with ivy, turquoise butterflies, and magic fire"}')
+('lantern', 'timer', 'Legendario', 4, '🏮', '#ea580c', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, '{"es": "Farol Encantado", "en": "Enchanted Lantern"}', '{"es": "Farol de bosque místico con hiedra, mariposas turquesa y fuego mágico", "en": "Mystic forest lantern with ivy, turquoise butterflies, and magic fire"}'),
+
+-- ==============================================================================
+-- H. MINIJUEGOS DEL BREAK LOUNGE (9)
+-- ==============================================================================
+-- 1. GRATUITOS INICIALES (3)
+('gato', 'game', 'Común', 1, '⚔️', '#10b981', 0, TRUE, FALSE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Gato Clásico', 'en', 'Tic-Tac-Toe'), jsonb_build_object('es', 'El duelo mental ancestral. Rápido, táctico y perfecto para despejar la mente.', 'en', 'The ancestral mind duel. Fast, tactical, and perfect to clear your head.')),
+('snake', 'game', 'Común', 1, '🐍', '#00f2fe', 0, TRUE, FALSE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Cyber Culebrita', 'en', 'Cyber Snake'), jsonb_build_object('es', 'Guía el flujo digital, devora datos y evita colisiones en la cuadrícula.', 'en', 'Guide the digital flow, devour data, and avoid collisions on the grid.')),
+('memory', 'game', 'Común', 1, '🧠', '#a855f7', 0, TRUE, FALSE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Memoria Zen', 'en', 'Zen Memory'), jsonb_build_object('es', 'Encuentra los pares de glifos en armonía. Enfoque visual y retención pura.', 'en', 'Find pairs of glyphs in harmony. Visual focus and pure retention.')),
+
+-- 2. TIENDA PRO COINS (3)
+('flappy', 'game', 'Raro', 2, '🚀', '#fbbf24', 150, FALSE, FALSE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Astro Flap', 'en', 'Astro Flap'), jsonb_build_object('es', 'Impulso vertical anti-gravedad. Maniobra entre las columnas cuánticas.', 'en', 'Vertical anti-gravity thrust. Maneuver through quantum pillars.')),
+('breaker', 'game', 'Raro', 3, '🧱', '#f59e0b', 200, FALSE, FALSE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Rompeladrillos Neon', 'en', 'Neon Brick Breaker'), jsonb_build_object('es', 'Destruye barreras con física luminosa. Mantén el orbe de plasma en juego.', 'en', 'Smash barriers with luminous physics. Keep the plasma orb in play.')),
+('space', 'game', 'Épico', 3, '👾', '#ec4899', 250, FALSE, FALSE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Invasores Galácticos', 'en', 'Galactic Invaders'), jsonb_build_object('es', 'Defensa perimetral contra oleadas estelares. Fuego rápido y reflejos láser.', 'en', 'Perimeter defense against stellar waves. Rapid fire and laser reflexes.')),
+
+-- 3. EXCLUSIVOS PRO / VIP (3)
+('dodge', 'game', 'Épico', 4, '⚡', '#ef4444', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Esquiva Veloz', 'en', 'Cyber Dodge'), jsonb_build_object('es', 'Tormenta de proyectiles neón. Velocidad de reacción y reflejos al límite.', 'en', 'Storm of neon projectiles. Reaction speed and reflexes pushed to the limit.')),
+('tetris', 'game', 'Legendario', 4, '🧩', '#6366f1', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Tetris Relax', 'en', 'Zen Tetris'), jsonb_build_object('es', 'Apila geometría perfecta y despeja líneas en un estado de flujo continuo.', 'en', 'Stack perfect geometry and clear lines in a state of continuous flow.')),
+('samurai', 'game', 'Legendario', 5, '🗡️', '#f43f5e', 0, FALSE, TRUE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Reflejo Samurai', 'en', 'Samurai Reflex'), jsonb_build_object('es', 'Un solo corte en el instante exacto. Precisión milimétrica y temple de acero.', 'en', 'A single strike at the exact instant. Millisecond precision and nerves of steel.'))
 ON CONFLICT (id) DO UPDATE SET
     category = EXCLUDED.category,
     tier = EXCLUDED.tier,
@@ -1142,6 +1160,10 @@ ON CONFLICT (id) DO UPDATE SET
     cost_coins = EXCLUDED.cost_coins,
     is_initial = EXCLUDED.is_initial,
     is_premium = EXCLUDED.is_premium,
+    coins_per_pomodoro = EXCLUDED.coins_per_pomodoro,
+    pause_penalty_coins = EXCLUDED.pause_penalty_coins,
+    boss_damage_points = EXCLUDED.boss_damage_points,
+    boss_heal_points = EXCLUDED.boss_heal_points,
     name = EXCLUDED.name,
     description = EXCLUDED.description;
 

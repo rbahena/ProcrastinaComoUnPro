@@ -16,6 +16,7 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { TranslatePipe, TranslationService } from '../../services/translation.service';
+import { MembershipService } from '../../services/membership.service';
 import { Router } from '@angular/router';
 
 export type MiniGameType = 'lobby' | 'gato' | 'dodge' | 'snake' | 'flappy' | 'memory' | 'breaker' | 'tetris' | 'samurai' | 'space';
@@ -29,6 +30,7 @@ export interface GameCatalogItem {
   category: string;
   isUnlocked: boolean;
   isPremium: boolean;
+  costCoins?: number;
   icon: string;
   badgeText: string;
   accentColor: string;
@@ -114,6 +116,7 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
   private router = inject(Router);
   public isBrowser = isPlatformBrowser(this.platformId);
   public translation = inject(TranslationService);
+  public membership = inject(MembershipService);
 
   @Input() theme: 'samurai' | 'cyberpunk' | 'aurora' | 'zen' = 'samurai';
   @Input() currentBreakTimeLeft: string = '';
@@ -124,23 +127,31 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
   isMuted = signal<boolean>(false);
   activeFilter = signal<'all' | 'unlocked' | 'arcade' | 'puzzle'>('all');
 
-  // Modal de vista previa / info (opcional)
+  // Modal de vista previa / Paywall para juegos PRO
   selectedPremiumGame = signal<GameCatalogItem | null>(null);
   showPremiumModal = signal<boolean>(false);
 
-  // Catálogo completo de 9 minijuegos (¡TODOS DESBLOQUEADOS!)
+  // Modal para desbloqueo de juegos con ProCoins
+  selectedCoinGame = signal<GameCatalogItem | null>(null);
+  showCoinModal = signal<boolean>(false);
+  isUnlockingCoinGame = signal<boolean>(false);
+
+  // Catálogo completo de 9 minijuegos (combinado dinámicamente con Supabase BD)
   get catalogGames(): GameCatalogItem[] {
     const isEn = this.translation.currentLang() === 'en';
-    return [
+    const dbItems = this.membership.catalogItems().filter(i => i.category === 'game');
+
+    const baseGames: GameCatalogItem[] = [
       {
         id: 'gato',
         title: isEn ? 'Classic Tic-Tac-Toe' : 'Gato Clásico',
         subtitle: isEn ? 'Expert AI' : 'IA Nivel Experto',
         category: isEn ? 'Logic' : 'Lógica',
-        isUnlocked: true,
+        isUnlocked: this.membership.isGameUnlocked('gato'),
         isPremium: false,
+        costCoins: 0,
         icon: 'fa-table-cells-large',
-        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        badgeText: 'GRATIS',
         accentColor: '#38bdf8',
         description: isEn ? 'Challenge expert AI (Minimax) in a quick tic-tac-toe game with dynamic scoring.' : 'Reta a la IA experta (Minimax) en una partida rápida de 3 en raya con marcador dinámico.'
       },
@@ -149,10 +160,11 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
         title: isEn ? 'Swift Dodge' : 'Esquiva Veloz',
         subtitle: isEn ? 'Ninja Reflexes' : 'Reflejos Ninja',
         category: isEn ? 'Reflexes' : 'Reflejos',
-        isUnlocked: true,
-        isPremium: false,
+        isUnlocked: this.membership.isGameUnlocked('dodge'),
+        isPremium: true,
+        costCoins: 0,
         icon: 'fa-bolt',
-        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        badgeText: 'PRO',
         accentColor: '#10b981',
         description: isEn ? 'Survive 60 seconds dodging shurikens and energy orbs with adaptive difficulty.' : 'Sobrevive 60 segundos esquivando shurikens y orbes de energía con dificultad adaptativa.'
       },
@@ -161,10 +173,11 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
         title: isEn ? 'Cyber Snake' : 'Cyber Culebrita',
         subtitle: isEn ? 'Retro Neon Snake' : 'Snake Neón Retro',
         category: 'Arcade',
-        isUnlocked: true,
+        isUnlocked: this.membership.isGameUnlocked('snake'),
         isPremium: false,
+        costCoins: 0,
         icon: 'fa-worm',
-        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        badgeText: 'GRATIS',
         accentColor: '#22c55e',
         description: isEn ? 'Guide the cyber snake, consume energy orbs, and beat your records without crashing.' : 'Guía la serpiente cibernética, devora orbes de energía y desafía tus propios récords sin chocar.'
       },
@@ -173,10 +186,11 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
         title: isEn ? 'Flappy Focus' : 'Flappy Foco',
         subtitle: isEn ? 'Precision Flapping' : 'Aleteo de Precisión',
         category: isEn ? 'Skill' : 'Habilidad',
-        isUnlocked: true,
+        isUnlocked: this.membership.isGameUnlocked('flappy'),
         isPremium: false,
+        costCoins: 150,
         icon: 'fa-feather-pointed',
-        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        badgeText: '150 🪙',
         accentColor: '#f59e0b',
         description: isEn ? 'Keep steady flight through neon pillars and calibrate your focus rhythm.' : 'Mantén el vuelo en el momento justo a través de columnas de neón y calibra tu ritmo de enfoque.'
       },
@@ -185,10 +199,11 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
         title: isEn ? 'Zen Memory' : 'Memoria Zen',
         subtitle: isEn ? 'Holographic Pairs' : 'Parejas Holográficas',
         category: isEn ? 'Memory' : 'Memoria',
-        isUnlocked: true,
+        isUnlocked: this.membership.isGameUnlocked('memory'),
         isPremium: false,
+        costCoins: 0,
         icon: 'fa-brain',
-        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        badgeText: 'GRATIS',
         accentColor: '#a855f7',
         description: isEn ? 'Match mystic 3D seals and runes to spark mental agility in seconds.' : 'Empareja sellos y runas místicas en 3D para activar la agilidad mental en pocos segundos.'
       },
@@ -197,10 +212,11 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
         title: isEn ? 'Block Breaker' : 'Rompe-Bloques',
         subtitle: 'Laser Arkanoid',
         category: 'Arcade',
-        isUnlocked: true,
+        isUnlocked: this.membership.isGameUnlocked('breaker'),
         isPremium: false,
+        costCoins: 200,
         icon: 'fa-layer-group',
-        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        badgeText: '200 🪙',
         accentColor: '#06b6d4',
         description: isEn ? 'Destroy all distraction barriers with precision laser rebounds.' : 'Destruye todas las barreras de distracción con disparos de precisión y rebote láser.'
       },
@@ -209,10 +225,11 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
         title: 'Tetris Relax',
         subtitle: isEn ? 'Total Alignment' : 'Alineación Total',
         category: isEn ? 'Strategy' : 'Estrategia',
-        isUnlocked: true,
-        isPremium: false,
+        isUnlocked: this.membership.isGameUnlocked('tetris'),
+        isPremium: true,
+        costCoins: 0,
         icon: 'fa-cubes',
-        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        badgeText: 'PRO',
         accentColor: '#818cf8',
         description: isEn ? 'Fit geometric blocks in a satisfying flow to clear your mind.' : 'Encaja bloques geométricos en un flujo continuo y satisfactorio para despejar la mente.'
       },
@@ -221,10 +238,11 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
         title: isEn ? 'Samurai Reflex' : 'Reflejo Samurai',
         subtitle: isEn ? 'Katana Strike' : 'Corte de Katana',
         category: isEn ? 'Speed' : 'Velocidad',
-        isUnlocked: true,
-        isPremium: false,
+        isUnlocked: this.membership.isGameUnlocked('samurai'),
+        isPremium: true,
+        costCoins: 0,
         icon: 'fa-hand-fist',
-        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        badgeText: 'PRO',
         accentColor: '#ef4444',
         description: isEn ? 'Strike targets in milliseconds when the attack cue appears with laser slices.' : 'Corta objetivos en milisegundos cuando aparezca la señal de ataque con tajos láser.'
       },
@@ -233,14 +251,48 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
         title: isEn ? 'Space Jump' : 'Salto Espacial',
         subtitle: 'Cosmic Jumper',
         category: isEn ? 'Platformer' : 'Plataformas',
-        isUnlocked: true,
+        isUnlocked: this.membership.isGameUnlocked('space'),
         isPremium: false,
+        costCoins: 250,
         icon: 'fa-rocket',
-        badgeText: isEn ? 'PLAY' : 'JUGAR',
+        badgeText: '250 🪙',
         accentColor: '#facc15',
         description: isEn ? 'Boost your rocket from platform to platform avoiding cosmic anomalies.' : 'Impulsa tu cohete de plataforma en plataforma evitando anomalías hacia las estrellas.'
       }
     ];
+
+    // Combinar dinámicamente con los costos y flags actualizados en Supabase
+    return baseGames.map(game => {
+      const db = dbItems.find(i => i.id === game.id);
+      if (!db) {
+        return {
+          ...game,
+          isUnlocked: this.membership.isGameUnlocked(game.id)
+        };
+      }
+
+      const cost = db.cost_coins !== undefined ? db.cost_coins : (game.costCoins || 0);
+      const isPrem = db.is_premium === true;
+      const isInitial = db.is_initial === true;
+      const langKey = isEn ? 'en' : 'es';
+
+      let badge = 'GRATIS';
+      if (isPrem) {
+        badge = 'PRO';
+      } else if (cost > 0 && !isInitial) {
+        badge = `${cost} 🪙`;
+      }
+
+      return {
+        ...game,
+        title: db.name?.[langKey] || db.name?.['es'] || game.title,
+        description: db.description?.[langKey] || db.description?.['es'] || game.description,
+        isPremium: isPrem,
+        costCoins: cost,
+        badgeText: badge,
+        isUnlocked: this.membership.isGameUnlocked(game.id)
+      };
+    });
   }
 
   filteredGames = computed<GameCatalogItem[]>(() => {
@@ -447,6 +499,7 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
     this.resetGato();
     this.initMemoryCards();
     this.loadStats();
+    this.membership.loadCatalogFromSupabase();
   }
 
   ngAfterViewInit() {
@@ -466,11 +519,73 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
   // NAVEGACIÓN Y SELECCIÓN DE JUEGOS
   // ==========================================
   onCardClick(game: GameCatalogItem) {
-    this.switchGame(game.id);
+    const freshGame = this.catalogGames.find(g => g.id === game.id) || game;
+    if (this.isGameUnlocked(freshGame.id)) {
+      this.switchGame(freshGame.id);
+      return;
+    }
+
+    if (freshGame.isPremium) {
+      this.selectedPremiumGame.set(freshGame);
+      this.showPremiumModal.set(true);
+      return;
+    }
+
+    if (freshGame.costCoins && freshGame.costCoins > 0) {
+      this.selectedCoinGame.set(freshGame);
+      this.showCoinModal.set(true);
+      return;
+    }
+  }
+
+  isGameUnlocked(gameId: string): boolean {
+    return this.membership.isGameUnlocked(gameId);
+  }
+
+  closePremiumModal() {
+    this.showPremiumModal.set(false);
+    this.selectedPremiumGame.set(null);
+  }
+
+  goToMembership() {
+    this.closePremiumModal();
+    this.close.emit();
+    this.router.navigate(['/membership']);
+  }
+
+  closeCoinModal() {
+    this.showCoinModal.set(false);
+    this.selectedCoinGame.set(null);
+  }
+
+  async confirmUnlockWithCoins() {
+    const game = this.selectedCoinGame();
+    if (!game) return;
+    const freshGame = this.catalogGames.find(g => g.id === game.id) || game;
+    const cost = freshGame.costCoins || 0;
+    if (this.membership.proCoins() < cost) return;
+
+    this.isUnlockingCoinGame.set(true);
+    const success = await this.membership.unlockGameWithCoins(freshGame.id, cost);
+    this.isUnlockingCoinGame.set(false);
+
+    if (success) {
+      this.playTone(600, 'triangle', 0.15);
+      setTimeout(() => this.playTone(850, 'sine', 0.25), 120);
+      this.closeCoinModal();
+      this.switchGame(freshGame.id);
+    }
   }
 
   switchGame(game: MiniGameType | string) {
     const gameType = game as MiniGameType;
+    if (gameType !== 'lobby' && !this.isGameUnlocked(gameType)) {
+      const item = this.catalogGames.find(g => g.id === gameType);
+      if (item) {
+        this.onCardClick(item);
+      }
+      return;
+    }
     if (this.activeGame() === gameType) return;
     this.stopAllGameLoops();
     this.playTone(420, 'sine', 0.05);

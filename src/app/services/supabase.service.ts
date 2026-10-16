@@ -10,7 +10,7 @@ export interface MultilingualText {
 
 export interface CatalogItem {
   id: string;
-  category: 'avatar' | 'weapon' | 'theme' | 'timer';
+  category: 'avatar' | 'weapon' | 'theme' | 'timer' | 'game';
   tier: 'Común' | 'Raro' | 'Épico' | 'Legendario';
   stars: number;
   emoji: string;
