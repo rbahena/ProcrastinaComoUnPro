@@ -302,6 +302,8 @@ export const ES = {
     "criticalHit": "¡GOLPE CRÍTICO DE ENFOQUE!",
     "startBtn": "Iniciar",
     "startBreakBtn": "Iniciar Descanso",
+    "finishBreakBtn": "Terminar Descanso",
+    "finishBreakTooltip": "Terminar descanso y volver a la vista de concentración",
     "resetBtn": "Reset",
     "interruptBtn": "Interrumpir",
     "resumeBtn": "Reanudar",

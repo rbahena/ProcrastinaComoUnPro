@@ -11,6 +11,13 @@
       <span class="live-timer">{{ currentBreakTimeLeft }}</span>
       <span class="live-subtext">restantes</span>
     </div>
+    <button type="button" 
+            class="btn-finish-break-mini"
+            (click)="finishBreak.emit()"
+            [title]="'focus.finishBreakTooltip' | translate">
+      <i class="fa-solid fa-forward-step"></i>
+      <span>{{ 'focus.finishBreakBtn' | translate }}</span>
+    </button>
   </div>
 
   <!-- ============================================================== -->
@@ -101,8 +108,8 @@
       <div *ngFor="let game of filteredGames()" 
            class="game-card"
            [class.is-unlocked]="isGameUnlocked(game.id)"
-           [class.is-premium]="game.isPremium"
-           [class.is-coins]="!game.isPremium && (game.costCoins || 0) > 0"
+           [class.is-premium]="!isGameUnlocked(game.id) && game.isPremium"
+           [class.is-coins]="!isGameUnlocked(game.id) && !game.isPremium && (game.costCoins || 0) > 0"
            [class.is-locked]="!isGameUnlocked(game.id)"
            [attr.data-game-id]="game.id"
            (click)="onCardClick(game)">

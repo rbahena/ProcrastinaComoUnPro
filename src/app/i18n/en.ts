@@ -302,6 +302,8 @@ export const EN = {
     "criticalHit": "CRITICAL FOCUS STRIKE!",
     "startBtn": "Start",
     "startBreakBtn": "Start Break",
+    "finishBreakBtn": "End Break",
+    "finishBreakTooltip": "End break and return to focus mode",
     "resetBtn": "Reset",
     "interruptBtn": "Interrupt",
     "resumeBtn": "Resume",

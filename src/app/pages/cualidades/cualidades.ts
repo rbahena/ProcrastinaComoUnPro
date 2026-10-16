@@ -417,14 +417,14 @@ interface CountryOption {
                       </div>
 
                       <div class="top-badges-right">
-                        <!-- BADGE TIPO DE DESBLOQUEO (PRO / MONEDAS / RETO) -->
-                        <span *ngIf="avatar.unlockType === 'premium'" class="card-unlock-pill pill-premium" [class.is-unlocked]="avatar.isUnlocked" [title]="'cualidades.vipExclusive' | translate">
+                        <!-- BADGE TIPO DE DESBLOQUEO (PRO / MONEDAS / RETO) (Solo si está bloqueado) -->
+                        <span *ngIf="!avatar.isUnlocked && avatar.unlockType === 'premium'" class="card-unlock-pill pill-premium" [title]="'cualidades.vipExclusive' | translate">
                           <i class="fa-solid fa-crown"></i> PRO
                         </span>
-                        <span *ngIf="avatar.unlockType === 'coins'" class="card-unlock-pill pill-coins" [class.is-unlocked]="avatar.isUnlocked" [title]="avatar.cost + ' Pro Coins'">
+                        <span *ngIf="!avatar.isUnlocked && avatar.unlockType === 'coins'" class="card-unlock-pill pill-coins" [title]="avatar.cost + ' Pro Coins'">
                           <i class="fa-solid fa-coins"></i> {{ avatar.cost }}
                         </span>
-                        <span *ngIf="avatar.unlockType === 'merit'" class="card-unlock-pill pill-merit" [class.is-unlocked]="avatar.isUnlocked" [title]="'cualidades.meritBadge' | translate">
+                        <span *ngIf="!avatar.isUnlocked && avatar.unlockType === 'merit'" class="card-unlock-pill pill-merit" [title]="'cualidades.meritBadge' | translate">
                           <i class="fa-solid fa-award"></i> RETO
                         </span>
                         
@@ -3519,6 +3519,7 @@ export class Cualidades implements OnInit {
 
   getHowToGetIcon(avatar?: ComunidadAvatar): string {
     if (!avatar || !avatar.id) return 'fa-solid fa-circle-question';
+    if (avatar.isUnlocked) return 'fa-solid fa-circle-check';
     if (avatar.unlockType === 'premium') return 'fa-solid fa-crown';
     if (avatar.unlockType === 'merit' || avatar.qualityId) return 'fa-solid fa-award';
     if (avatar.unlockType === 'coins' || avatar.cost > 0) return 'fa-solid fa-coins';
@@ -3528,6 +3529,7 @@ export class Cualidades implements OnInit {
   getHowToGetMethodTag(avatar?: ComunidadAvatar): string {
     const isEn = this.translation.currentLang() === 'en';
     if (!avatar || !avatar.id) return isEn ? 'Unlock Requirement' : 'Requisito de Obtención';
+    if (avatar.isUnlocked) return isEn ? 'UNLOCKED' : 'DESBLOQUEADO';
     if (avatar.unlockType === 'premium') return this.translation.t('cualidades.howToGetVipTag');
     if (avatar.unlockType === 'merit' || avatar.qualityId) {
       const qName = avatar.displayName || avatar.qualityName || (avatar.quality?.name) || (isEn ? 'Quality' : 'Cualidad');
@@ -3540,6 +3542,7 @@ export class Cualidades implements OnInit {
   getHowToGetTitle(avatar?: ComunidadAvatar): string {
     const isEn = this.translation.currentLang() === 'en';
     if (!avatar || !avatar.id) return isEn ? 'Guardian Acquisition' : 'Obtención del Guardián';
+    if (avatar.isUnlocked) return isEn ? 'Unlocked & in your Squad' : 'Desbloqueado y en tu Escuadra';
     if (avatar.unlockType === 'premium') return this.translation.t('cualidades.howToGetTitleVip');
     if (avatar.unlockType === 'merit' || avatar.qualityId) {
       const qName = avatar.displayName || avatar.qualityName || (avatar.quality?.name) || (isEn ? 'Quality' : 'Cualidad');
@@ -3552,6 +3555,11 @@ export class Cualidades implements OnInit {
   getHowToGetDescription(avatar?: ComunidadAvatar): string {
     const isEn = this.translation.currentLang() === 'en';
     if (!avatar || !avatar.id) return '';
+    if (avatar.isUnlocked) {
+      return isEn 
+        ? 'This guardian already belongs to you and is ready to accompany you in your focus sessions.'
+        : 'Este guardián ya forma parte de tu escuadra y está listo para ser equipado en tu perfil.';
+    }
     if (avatar.unlockType === 'premium') {
       return this.translation.t('cualidades.howToGetDescVip');
     }

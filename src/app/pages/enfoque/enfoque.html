@@ -6548,6 +6548,18 @@
                       <span>{{ 'focus.abandonBtn' | translate }}</span>
                     </button>
 
+                    <!-- Botón Terminar Descanso (en descanso activo: corto o largo) -->
+                    <button *ngIf="arenaState() === 'active' && isBreak()" 
+                            type="button"
+                            (click)="finishBreakAndReturnToFocus()" 
+                            style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1.5px solid rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.12); color: #10b981; padding: var(--button-padding); border-radius: 12px; font-size: var(--button-font-size); font-weight: 800; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; width: auto; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);"
+                            onmouseover="this.style.background='rgba(16, 185, 129, 0.22)'; this.style.borderColor='#10b981'; this.style.transform='translateY(-1px)';"
+                            onmouseout="this.style.background='rgba(16, 185, 129, 0.12)'; this.style.borderColor='rgba(16, 185, 129, 0.45)'; this.style.transform='translateY(0)';"
+                            [title]="'focus.finishBreakTooltip' | translate">
+                      <i class="fa-solid fa-forward-step" style="font-size: 13px;"></i>
+                      <span>{{ 'focus.finishBreakBtn' | translate }}</span>
+                    </button>
+
                     <!-- Botón discreto de Minijuegos (en descanso activo, estilo Arcade Gamer) -->
                     <button *ngIf="arenaState() === 'active' && isBreak()" 
                             type="button"
@@ -6570,6 +6582,7 @@
                      <app-minijuegos-descanso [theme]="currentTheme()"
                                               [currentBreakTimeLeft]="timeString()"
                                               (close)="showBreakGames.set(false)"
+                                              (finishBreak)="finishBreakAndReturnToFocus()"
                                               style="display: flex; flex-direction: column; width: 100%; max-height: 100%; min-height: 0; overflow: hidden; margin: auto;">
                      </app-minijuegos-descanso>
                    </div>
@@ -8147,8 +8160,8 @@
                      [style.boxShadow]="timerStyle() === 'digital' ? '0 0 14px rgba(99, 102, 241, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('digital') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('digital')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('digital')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('digital')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('digital')"></i>
                     <span>{{ getTimerBadgeLabel('digital') }}</span>
                   </div>
@@ -8178,8 +8191,8 @@
                      [style.boxShadow]="timerStyle() === 'ring' ? '0 0 14px rgba(99, 102, 241, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('ring') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('ring')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('ring')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('ring')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('ring')"></i>
                     <span>{{ getTimerBadgeLabel('ring') }}</span>
                   </div>
@@ -8211,8 +8224,8 @@
                      [style.boxShadow]="timerStyle() === 'line' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('line') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('line')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('line')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('line')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('line')"></i>
                     <span>{{ getTimerBadgeLabel('line') }}</span>
                   </div>
@@ -8258,8 +8271,8 @@
                      [style.boxShadow]="timerStyle() === 'fire' ? '0 0 14px rgba(245, 158, 11, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('fire') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('fire')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('fire')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('fire')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('fire')"></i>
                     <span>{{ getTimerBadgeLabel('fire') }}</span>
                   </div>
@@ -8292,8 +8305,8 @@
                      [style.boxShadow]="timerStyle() === 'hourglass' ? '0 0 14px rgba(0, 242, 254, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('hourglass') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('hourglass')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('hourglass')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('hourglass')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('hourglass')"></i>
                     <span>{{ getTimerBadgeLabel('hourglass') }}</span>
                   </div>
@@ -8328,8 +8341,8 @@
                      [style.boxShadow]="timerStyle() === 'ice' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('ice') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('ice')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('ice')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('ice')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('ice')"></i>
                     <span>{{ getTimerBadgeLabel('ice') }}</span>
                   </div>
@@ -8363,8 +8376,8 @@
                      [style.boxShadow]="timerStyle() === 'battery' ? '0 0 14px rgba(16, 185, 129, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('battery') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('battery')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('battery')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('battery')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('battery')"></i>
                     <span>{{ getTimerBadgeLabel('battery') }}</span>
                   </div>
@@ -8412,8 +8425,8 @@
                      [style.boxShadow]="timerStyle() === 'solar' ? '0 0 14px rgba(251, 191, 36, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('solar') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('solar')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('solar')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('solar')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('solar')"></i>
                     <span>{{ getTimerBadgeLabel('solar') }}</span>
                   </div>
@@ -8446,8 +8459,8 @@
                      [style.boxShadow]="timerStyle() === 'satellite' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('satellite') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('satellite')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('satellite')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('satellite')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('satellite')"></i>
                     <span>{{ getTimerBadgeLabel('satellite') }}</span>
                   </div>
@@ -8483,8 +8496,8 @@
                      [style.boxShadow]="timerStyle() === 'moon' ? '0 0 14px rgba(241, 245, 249, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('moon') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('moon')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('moon')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('moon')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('moon')"></i>
                     <span>{{ getTimerBadgeLabel('moon') }}</span>
                   </div>
@@ -8532,8 +8545,8 @@
                      [style.boxShadow]="timerStyle() === 'titanic' ? '0 0 14px rgba(14, 165, 233, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('titanic') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('titanic')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('titanic')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('titanic')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('titanic')"></i>
                     <span>{{ getTimerBadgeLabel('titanic') }}</span>
                   </div>
@@ -8576,8 +8589,8 @@
                      [style.boxShadow]="timerStyle() === 'lighthouse' ? '0 0 14px rgba(250, 204, 21, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('lighthouse') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('lighthouse')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('lighthouse')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('lighthouse')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('lighthouse')"></i>
                     <span>{{ getTimerBadgeLabel('lighthouse') }}</span>
                   </div>
@@ -8613,8 +8626,8 @@
                      [style.boxShadow]="timerStyle() === 'airplane' ? '0 0 14px rgba(56, 189, 248, 0.35)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('airplane') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('airplane')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('airplane')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('airplane')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('airplane')"></i>
                     <span>{{ getTimerBadgeLabel('airplane') }}</span>
                   </div>
@@ -8653,8 +8666,8 @@
                      [style.boxShadow]="timerStyle() === 'lantern' ? '0 0 14px rgba(245, 158, 11, 0.4)' : '0 4px 10px rgba(0,0,0,0.3)'"
                      [style.filter]="isTimerStyleLocked('lantern') ? 'grayscale(0.4) brightness(0.8)' : 'none'">
 
-                  <!-- Badge de Monetización -->
-                  <div class="timer-tier-badge" [ngClass]="getTimerBadgeClass('lantern')">
+                  <!-- Badge de Monetización (solo si está bloqueado) -->
+                  <div *ngIf="isTimerStyleLocked('lantern')" class="timer-tier-badge" [ngClass]="getTimerBadgeClass('lantern')">
                     <i class="fa-solid" [class]="getTimerBadgeIcon('lantern')"></i>
                     <span>{{ getTimerBadgeLabel('lantern') }}</span>
                   </div>

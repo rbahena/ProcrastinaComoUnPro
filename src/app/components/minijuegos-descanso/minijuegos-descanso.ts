@@ -121,6 +121,7 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
   @Input() theme: 'samurai' | 'cyberpunk' | 'aurora' | 'zen' = 'samurai';
   @Input() currentBreakTimeLeft: string = '';
   @Output() close = new EventEmitter<void>();
+  @Output() finishBreak = new EventEmitter<void>();
 
   // Inicia en el lobby con todas las cards animadas
   activeGame = signal<MiniGameType>('lobby');
@@ -277,7 +278,9 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
       const langKey = isEn ? 'en' : 'es';
 
       let badge = 'GRATIS';
-      if (isPrem) {
+      if (this.membership.isGameUnlocked(game.id)) {
+        badge = isEn ? 'PLAY' : 'JUGAR';
+      } else if (isPrem) {
         badge = 'PRO';
       } else if (cost > 0 && !isInitial) {
         badge = `${cost} 🪙`;

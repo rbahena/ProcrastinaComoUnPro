@@ -3358,13 +3358,24 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   
-  resetToFocus() {
+  finishBreakAndReturnToFocus() {
     this.stopTitleFlashing();
+    this.clearPersistedSession();
+    this.stopTimerLoop();
+    this.stopEmergencyTimer();
+    this.stopBackgroundSound();
+    this.showBreakGames.set(false);
     this.isBreak.set(false);
+    this.emergencyPauseActive.set(false);
     this.totalSessionTime.set(this.focusDuration() * 60);
     this.timeLeft.set(this.focusDuration() * 60);
+    this.arenaState.set('setup');
     this.membership.isFocusActive.set(false);
     this.broadcastPresence();
+  }
+
+  resetToFocus() {
+    this.finishBreakAndReturnToFocus();
   }
 
   // Verificación si el cronómetro actual tiene habilitada la función de arrastre
@@ -4913,30 +4924,24 @@ export class Enfoque implements OnInit, OnDestroy {
   }
 
   getTimerBadgeClass(style: string): string {
+    if (!this.isTimerStyleLocked(style)) return '';
     const tier = this.getTimerStyleTier(style);
     if (tier.type === 'premium') return 'badge-premium';
-    if (tier.type === 'coins') {
-      return this.membership.unlockedTimers().includes(style) ? 'badge-unlocked' : 'badge-coins';
-    }
-    return 'badge-free';
+    if (tier.type === 'coins') return 'badge-coins';
+    return '';
   }
 
   getTimerBadgeLabel(style: string): string {
+    if (!this.isTimerStyleLocked(style)) return '';
     const tier = this.getTimerStyleTier(style);
-    if (tier.type === 'coins' && this.membership.unlockedTimers().includes(style)) {
-      return this.translation.currentLang() === 'en' ? 'Unlocked' : 'Listo';
-    }
-    if (tier.type === 'free') {
-      return this.translation.currentLang() === 'en' ? 'FREE' : 'GRATIS';
-    }
+    if (tier.type === 'free') return '';
     return tier.label;
   }
 
   getTimerBadgeIcon(style: string): string {
+    if (!this.isTimerStyleLocked(style)) return '';
     const tier = this.getTimerStyleTier(style);
-    if (tier.type === 'coins' && this.membership.unlockedTimers().includes(style)) {
-      return 'fa-circle-check';
-    }
+    if (tier.type === 'free') return '';
     return tier.icon;
   }
 
