@@ -1140,7 +1140,7 @@ INSERT INTO public.catalog_items (
 -- H. MINIJUEGOS DEL BREAK LOUNGE (9)
 -- ==============================================================================
 -- 1. GRATUITOS INICIALES (3)
-('gato', 'game', 'Común', 1, '⚔️', '#10b981', 0, TRUE, FALSE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Gato Clásico', 'en', 'Tic-Tac-Toe'), jsonb_build_object('es', 'El duelo mental ancestral. Rápido, táctico y perfecto para despejar la mente.', 'en', 'The ancestral mind duel. Fast, tactical, and perfect to clear your head.')),
+('game_gato', 'game', 'Común', 1, '⚔️', '#10b981', 0, TRUE, FALSE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Gato Clásico', 'en', 'Tic-Tac-Toe'), jsonb_build_object('es', 'El duelo mental ancestral. Rápido, táctico y perfecto para despejar la mente.', 'en', 'The ancestral mind duel. Fast, tactical, and perfect to clear your head.')),
 ('snake', 'game', 'Común', 1, '🐍', '#00f2fe', 0, TRUE, FALSE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Cyber Culebrita', 'en', 'Cyber Snake'), jsonb_build_object('es', 'Guía el flujo digital, devora datos y evita colisiones en la cuadrícula.', 'en', 'Guide the digital flow, devour data, and avoid collisions on the grid.')),
 ('memory', 'game', 'Común', 1, '🧠', '#a855f7', 0, TRUE, FALSE, NULL, 0, 0, 0, 0, jsonb_build_object('es', 'Memoria Zen', 'en', 'Zen Memory'), jsonb_build_object('es', 'Encuentra los pares de glifos en armonía. Enfoque visual y retención pura.', 'en', 'Find pairs of glyphs in harmony. Visual focus and pure retention.')),
 
@@ -2164,8 +2164,11 @@ BEGIN
 
     ELSE
         -- Estado: Abandonado o Interrumpido
-        -- Penalización calculada según el avatar del snapshot (aplica a todos los usuarios)
-        v_coins_penalized := COALESCE(v_avatar.pause_penalty_coins, 10);
+        -- Penalización calculada según el avatar del snapshot (aplica a todos los usuarios independientemente del plan)
+        v_coins_penalized := CASE 
+            WHEN v_avatar.pause_penalty_coins IS NOT NULL AND v_avatar.pause_penalty_coins > 0 THEN v_avatar.pause_penalty_coins
+            ELSE 10 
+        END;
 
         -- Curación al Boss: solo usuarios Premium en sala comunitaria afectan al Jefe
         IF v_user.is_premium AND p_coworking_mode = 'comunitario' THEN

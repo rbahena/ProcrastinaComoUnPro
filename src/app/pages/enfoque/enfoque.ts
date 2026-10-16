@@ -2140,19 +2140,23 @@ export class Enfoque implements OnInit, OnDestroy {
   showInterruptedModal = signal(false);
   currentAvatarPausePenalty = computed(() => {
     const avatarId = this.membership.selectedAvatar() || 'gato';
-    return this.membership.getAvatarPausePenalty(avatarId);
+    const penalty = this.membership.getAvatarPausePenalty(avatarId);
+    return (typeof penalty === 'number' && penalty > 0) ? penalty : 10;
   });
   bossHealAmount = computed(() => {
     const avatarId = this.membership.selectedAvatar() || 'gato';
-    return this.membership.getAvatarHealPoints(avatarId);
+    const heal = this.membership.getAvatarHealPoints(avatarId);
+    return (typeof heal === 'number' && heal > 0) ? heal : 10;
   });
   currentAvatarCoins = computed(() => {
     const avatarId = this.membership.selectedAvatar() || 'gato';
-    return this.membership.getAvatarCoinsPerPomodoro(avatarId);
+    const coins = this.membership.getAvatarCoinsPerPomodoro(avatarId);
+    return (typeof coins === 'number' && coins > 0) ? coins : 10;
   });
   currentAvatarDamage = computed(() => {
     const avatarId = this.membership.selectedAvatar() || 'gato';
-    return this.membership.getAvatarDamagePoints(avatarId);
+    const damage = this.membership.getAvatarDamagePoints(avatarId);
+    return (typeof damage === 'number' && damage > 0) ? damage : 20;
   });
   objectiveConfirmed = signal(false);
 
@@ -2259,18 +2263,61 @@ export class Enfoque implements OnInit, OnDestroy {
     status: 'completed' | 'abandoned' | 'interrupted',
     objCompleted?: 'yes' | 'no' | 'progress' | 'partial',
     overrideObjective?: string,
-    overrideIdeaId?: string | null
+    overrideIdeaId?: string | null,
+    coinsEarned?: number
   ) {
-    if (!this.supabaseService.isConfigured() || !this.supabaseService.currentUser()) {
-      return;
-    }
-
     const nonceId = this.currentSessionNonceId || this.generateUUID();
     const plannedSeconds = Math.max(60, this.totalSessionTime() > 0 ? this.totalSessionTime() : this.focusDuration() * 60);
     const actualSeconds = status === 'completed'
       ? plannedSeconds
       : Math.max(0, plannedSeconds - Math.max(0, this.timeLeft()));
     
+    const finalObjective = (overrideObjective !== undefined ? overrideObjective : this.activeObjective())?.trim() || 'Sesión de Enfoque';
+    const finalIdeaId = overrideIdeaId !== undefined ? overrideIdeaId : this.associatedIdeaId();
+
+    const isShared = this.coworkingMode() === 'comunitario';
+    const equippedAvatar = this.membership.selectedAvatar() || 'gato';
+    const activeBoss = this.bossService.activeBoss();
+    const currentBossName = isShared ? (activeBoss?.name || 'Jefe de la Comunidad') : '';
+
+    let bossDamage = 0;
+    let bossHealed = 0;
+
+    if (isShared) {
+      if (status === 'completed') {
+        bossDamage = this.membership.isPremium()
+          ? this.membership.getAvatarDamagePoints(equippedAvatar)
+          : 0;
+      } else if (status === 'abandoned' || status === 'interrupted') {
+        bossHealed = this.membership.isPremium() ? Math.round(50 * 0.4) : 0;
+      }
+    }
+
+    const penaltyAmount = (status === 'abandoned' || status === 'interrupted')
+      ? this.currentAvatarPausePenalty()
+      : 0;
+
+    // Guardar en el historial local de sesiones recientes (las últimas 30)
+    this.membership.recordRecentSession({
+      id: nonceId,
+      objective_text: finalObjective,
+      actual_duration_seconds: actualSeconds,
+      status: status,
+      methodology: this.activeMethodology() || 'normal',
+      coworking_mode: isShared ? 'comunitario' : 'individual',
+      avatar_id: equippedAvatar,
+      coins_earned: coinsEarned || 0,
+      coins_penalized: penaltyAmount,
+      boss_damage_dealt: bossDamage,
+      boss_hp_healed: bossHealed,
+      boss_name: currentBossName,
+      created_at: new Date().toISOString()
+    });
+
+    if (!this.supabaseService.isConfigured() || !this.supabaseService.currentUser()) {
+      return;
+    }
+
     const objectiveCompletion = objCompleted || (this.objectiveCompleted() as any) || (status === 'completed' ? 'yes' : 'no');
     
     const distractions = this.distractionsList().map(d => ({
@@ -2279,14 +2326,11 @@ export class Enfoque implements OnInit, OnDestroy {
       time: d.time
     }));
 
-    const finalObjective = (overrideObjective !== undefined ? overrideObjective : this.activeObjective())?.trim() || 'Sesión de Enfoque';
-    const finalIdeaId = overrideIdeaId !== undefined ? overrideIdeaId : this.associatedIdeaId();
-
     const sessionPayload: FocusSessionData = {
       nonce_id: nonceId,
-      avatar_id: this.membership.selectedAvatar() || 'gato',
+      avatar_id: equippedAvatar,
       methodology: this.activeMethodology() || 'normal',
-      coworking_mode: this.coworkingMode() === 'comunitario' ? 'comunitario' : 'individual',
+      coworking_mode: isShared ? 'comunitario' : 'individual',
       energy_level: this.energyLevel() || 'medium',
       objective_text: finalObjective,
       idea_id: finalIdeaId || undefined,
@@ -2295,7 +2339,9 @@ export class Enfoque implements OnInit, OnDestroy {
       pause_count: this.interruptedByPause() ? 1 : 0,
       total_pause_seconds: 0,
       status: status,
-      objective_completed: objectiveCompletion
+      objective_completed: objectiveCompletion,
+      boss_damage_dealt: bossDamage,
+      boss_hp_healed: bossHealed
     };
 
     try {
@@ -2308,13 +2354,55 @@ export class Enfoque implements OnInit, OnDestroy {
 
       if (success && result) {
         if (result.remaining_coins !== undefined) {
-          this.membership.proCoins.set(result.remaining_coins);
+          if (status === 'abandoned' || status === 'interrupted') {
+            const expectedPenalty = Math.max(1, this.currentAvatarPausePenalty());
+            if (result.coins_penalized && result.coins_penalized > 0) {
+              this.membership.proCoins.set(result.remaining_coins);
+            } else {
+              const currentBalance = Number(result.remaining_coins ?? this.membership.proCoins());
+              const penalizedBalance = Math.max(0, currentBalance - expectedPenalty);
+              this.membership.proCoins.set(penalizedBalance);
+            }
+          } else {
+            this.membership.proCoins.set(result.remaining_coins);
+          }
         }
         if (result.streak_days !== undefined) {
           this.membership.streak.set(result.streak_days);
         }
+        const finalPenalized = (status === 'abandoned' || status === 'interrupted')
+          ? ((result.coins_penalized !== undefined && result.coins_penalized > 0) ? result.coins_penalized : this.currentAvatarPausePenalty())
+          : 0;
+
+        // Sincronizar el registro local con los valores exactos liquidados por la base de datos
+        this.membership.recordRecentSession({
+          id: nonceId,
+          objective_text: finalObjective,
+          actual_duration_seconds: actualSeconds,
+          status: status,
+          methodology: this.activeMethodology() || 'normal',
+          coworking_mode: isShared ? 'comunitario' : 'individual',
+          avatar_id: equippedAvatar,
+          coins_earned: result.coins_earned ?? coinsEarned ?? 0,
+          coins_penalized: finalPenalized,
+          boss_damage_dealt: result.boss_damage !== undefined ? result.boss_damage : bossDamage,
+          boss_hp_healed: result.boss_heal !== undefined ? result.boss_heal : bossHealed,
+          boss_name: currentBossName,
+          created_at: new Date().toISOString()
+        });
+
         // Sincronizar perfil completo desde Supabase
         await this.membership.syncProfileFromSupabase();
+
+        // Blindaje post-sincronización: si fue abandonada o interrumpida y el servidor devolvió coins_penalized <= 0
+        // (por falta de migración en BD), aseguramos que las monedas permanezcan descontadas en la billetera
+        if (status === 'abandoned' || status === 'interrupted') {
+          const expectedPenalty = Math.max(1, this.currentAvatarPausePenalty());
+          if (!result.coins_penalized || result.coins_penalized <= 0) {
+            this.membership.proCoins.update(coins => Math.max(0, coins - expectedPenalty));
+            this.membership.saveConsolidatedUserData();
+          }
+        }
       } else if (error) {
         console.warn('Error al liquidar sesión en Supabase:', error);
       }
@@ -3259,13 +3347,16 @@ export class Enfoque implements OnInit, OnDestroy {
           this.membership.rewardCompletedObjective(objectiveId);
         }
 
-        // Seguir el progreso del reto / cualidades para desbloquear avatares
-        this.membership.trackChallengeProgress(
-          this.activeMethodology(),
-          isShared,
-          objCompleted === 'yes',
-          this.activeObjective()
-        );
+        // Seguir el progreso del reto / cualidades para desbloquear avatares (únicamente con tomates completos)
+        if (tomatoesEarned > 0) {
+          this.membership.trackChallengeProgress(
+            this.activeMethodology(),
+            isShared,
+            objCompleted === 'yes',
+            this.activeObjective(),
+            tomatoesEarned
+          );
+        }
 
         const targetIdeaId = this.associatedIdeaId();
         const currentObjective = this.activeObjective()?.trim() || 'Sesión de Enfoque';
@@ -3280,7 +3371,8 @@ export class Enfoque implements OnInit, OnDestroy {
           currentStatus as 'completed' | 'abandoned' | 'interrupted',
           objCompleted as any,
           currentObjective,
-          targetIdeaId
+          targetIdeaId,
+          coinsEarned
         );
 
         // Si el usuario confirmó que SÍ terminó el objetivo al final del pomodoro
@@ -3316,14 +3408,17 @@ export class Enfoque implements OnInit, OnDestroy {
           }
         }
 
-      } else if (currentStatus === 'abandoned' && this.membership.isPremium()) {
-        // Castigo de -20 XP por abandonar
-        this.membership.addFocusPoints(-20);
+      } else if (currentStatus === 'abandoned') {
+        if (this.membership.isPremium()) {
+          // Castigo de -20 XP por abandonar (exclusivo Premium)
+          this.membership.addFocusPoints(-20);
+        }
         await this.settleCurrentSession(
           'abandoned',
           'no',
           this.activeObjective()?.trim() || 'Sesión de Enfoque',
-          this.associatedIdeaId()
+          this.associatedIdeaId(),
+          0
         );
       }
 
@@ -5452,13 +5547,12 @@ export class Enfoque implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.membership.isPremium()) {
-      this.showPaywallModal.set(true);
-      return;
-    }
-
     this.coworkingMode.set('comunitario');
-    this.showToast('👥 Modo Comunidad activado (combate Boss y guerreros en vivo).', 'info');
+    if (!this.membership.isPremium()) {
+      this.showToast('👥 Modo Comunidad activado (Plan Básico: modo espectador, no afecta al jefe).', 'info');
+    } else {
+      this.showToast('👥 Modo Comunidad activado (combate Boss y guerreros en vivo).', 'info');
+    }
   }
 
   async initializeRealComunidadUsers() {

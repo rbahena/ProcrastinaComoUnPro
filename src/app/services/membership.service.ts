@@ -211,6 +211,7 @@ export class MembershipService {
 
   addFocusTomatoes(tomatoes: number) {
     this.focusTomatoes.update(t => t + tomatoes);
+    this.syncDisciplinaQualityProgress(this.focusTomatoes());
     this.queueGamificationSync();
   }
 
@@ -400,13 +401,13 @@ export class MembershipService {
 
   // Catálogo completo de Cualidades (Bloqueadas por defecto para desbloqueo por mérito/retos)
   qualitiesCatalog = signal<QualityItem[]>([
-    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 10 días consecutivos completando al menos 1 pomodoro diario.', isUnlocked: false, unlockProgress: 0, unlockTotal: 10 },
-    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 35 pomodoros en total a lo largo de tu trayectoria.', isUnlocked: false, unlockProgress: 0, unlockTotal: 35 },
-    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 15 pomodoros con la metodología Pareto (80/20) en tareas de alto impacto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
-    { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 12 pomodoros con la metodología Sapo/Rana y objetivo cumplido.', isUnlocked: false, unlockProgress: 0, unlockTotal: 12 },
-    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 25 pomodoros con la metodología Normal manteniendo el rumbo.', isUnlocked: false, unlockProgress: 0, unlockTotal: 25 },
-    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 15 sesiones de Coworking Comunitario en la sala compartida.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
-    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 5 días diferentes logrando al menos 3 pomodoros encadenados para la misma meta.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 }
+    { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 10 días consecutivos completando al menos 1 tomate completo (pomodoro de 25+ min) diario.', isUnlocked: false, unlockProgress: 0, unlockTotal: 10 },
+    { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 35 tomates completos (pomodoros de 25+ min) a lo largo de tu trayectoria.', isUnlocked: false, unlockProgress: 0, unlockTotal: 35 },
+    { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 15 tomates completos (pomodoros de 25+ min) con la metodología Pareto (80/20) en tareas de alto impacto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+    { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 12 tomates completos (pomodoros de 25+ min) con la metodología Sapo/Rana y objetivo cumplido.', isUnlocked: false, unlockProgress: 0, unlockTotal: 12 },
+    { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 25 tomates completos (pomodoros de 25+ min) con la metodología Normal manteniendo el rumbo.', isUnlocked: false, unlockProgress: 0, unlockTotal: 25 },
+    { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 15 sesiones comunitarias completas (pomodoros de 25+ min) en la sala compartida.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+    { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 5 días diferentes logrando al menos 3 pomodoros completos (25+ min) encadenados para la misma meta.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 }
   ]);
 
   // Registro de sesiones procesadas para idempotencia
@@ -1193,26 +1194,34 @@ export class MembershipService {
 
   // Puntos de daño al Boss de la Comunidad aportados por el avatar (100% dinámico desde Supabase)
   getAvatarDamagePoints(avatarId: string): number {
-    const item = this.catalogItems().find(i => i.id === avatarId);
-    return item?.boss_damage_points ?? this.AVATAR_FALLBACK_STATS[avatarId]?.bossDamage ?? 20;
+    const item = this.catalogItems().find(i => i.id === avatarId && i.category === 'avatar')
+      || this.catalogItems().find(i => i.id === avatarId && i.category !== 'game');
+    const val = item?.boss_damage_points;
+    return (typeof val === 'number' && val > 0) ? val : (this.AVATAR_FALLBACK_STATS[avatarId]?.bossDamage ?? 20);
   }
 
   // Puntos de curación del Boss por distracción/abandono según el avatar (100% dinámico desde Supabase)
   getAvatarHealPoints(avatarId: string): number {
-    const item = this.catalogItems().find(i => i.id === avatarId);
-    return item?.boss_heal_points ?? this.AVATAR_FALLBACK_STATS[avatarId]?.bossHeal ?? 10;
+    const item = this.catalogItems().find(i => i.id === avatarId && i.category === 'avatar')
+      || this.catalogItems().find(i => i.id === avatarId && i.category !== 'game');
+    const val = item?.boss_heal_points;
+    return (typeof val === 'number' && val > 0) ? val : (this.AVATAR_FALLBACK_STATS[avatarId]?.bossHeal ?? 10);
   }
 
   // Monedas aportadas por cada avatar al completar un pomodoro (100% dinámico desde Supabase)
   getAvatarCoinsPerPomodoro(avatarId: string): number {
-    const item = this.catalogItems().find(i => i.id === avatarId);
-    return item?.coins_per_pomodoro ?? this.AVATAR_FALLBACK_STATS[avatarId]?.coinsPerPomodoro ?? 10;
+    const item = this.catalogItems().find(i => i.id === avatarId && i.category === 'avatar')
+      || this.catalogItems().find(i => i.id === avatarId && i.category !== 'game');
+    const val = item?.coins_per_pomodoro;
+    return (typeof val === 'number' && val > 0) ? val : (this.AVATAR_FALLBACK_STATS[avatarId]?.coinsPerPomodoro ?? 10);
   }
 
   // Penalización de monedas por pausa/abandono (100% dinámico desde Supabase)
   getAvatarPausePenalty(avatarId: string): number {
-    const item = this.catalogItems().find(i => i.id === avatarId);
-    return item?.pause_penalty_coins ?? this.AVATAR_FALLBACK_STATS[avatarId]?.pausePenalty ?? 10;
+    const item = this.catalogItems().find(i => i.id === avatarId && i.category === 'avatar')
+      || this.catalogItems().find(i => i.id === avatarId && i.category !== 'game');
+    const val = item?.pause_penalty_coins;
+    return (typeof val === 'number' && val > 0) ? val : (this.AVATAR_FALLBACK_STATS[avatarId]?.pausePenalty ?? 10);
   }
 
   // Intentar recompensar objetivo terminado (idempotente)
@@ -1234,40 +1243,46 @@ export class MembershipService {
     return { points: pointsEarned, coins: 0, isNew: true };
   }
 
-  // Seguimiento de retos y progreso de cualidades
+  // Seguimiento de retos y progreso de cualidades (estrictamente tomates completos >= 25 min)
   trackChallengeProgress(
     methodology: 'sapo' | 'pareto' | 'normal',
     isShared: boolean,
     isObjectiveCompleted: boolean,
-    objectiveText: string
+    objectiveText: string,
+    tomatoesEarned: number = 0
   ) {
-    // 1. Disciplina (Hormiga) - Completar 15 pomodoros en total.
-    this.updateQualityProgress('disciplina', 1);
+    // Si la sesión no otorgó tomates completos (menos de 25 min), ningún reto de cualidad avanza
+    if (tomatoesEarned <= 0) {
+      return;
+    }
 
-    // 2. Sabiduría (Búho) - Completar 5 pomodoros con Pareto.
+    // 1. Disciplina (Hormiga) - Sincronizada directamente con el total de tomates completos acumulados (focusTomatoes)
+    this.syncDisciplinaQualityProgress(this.focusTomatoes());
+
+    // 2. Sabiduría (Búho) - Completar 15 tomates completos con Pareto.
     if (methodology === 'pareto') {
-      this.updateQualityProgress('sabiduria', 1);
+      this.updateQualityProgress('sabiduria', tomatoesEarned);
     }
 
-    // 3. Superación (Rana) - Completar 5 pomodoros en Sapo y cumplido.
+    // 3. Superación (Rana) - Completar 12 tomates completos en Sapo y cumplido.
     if (methodology === 'sapo' && isObjectiveCompleted) {
-      this.updateQualityProgress('superacion', 1);
+      this.updateQualityProgress('superacion', tomatoesEarned);
     }
 
-    // 4. Visión (Águila) - Completar 5 pomodoros normales.
+    // 4. Visión (Águila) - Completar 25 tomates completos normales.
     if (methodology === 'normal') {
-      this.updateQualityProgress('vision', 1);
+      this.updateQualityProgress('vision', tomatoesEarned);
     }
 
-    // 5. Colaboración (Abeja) - Completar 5 pomodoros en modo comunitario.
+    // 5. Colaboración (Abeja) - Completar 15 tomates completos en modo comunitario.
     if (isShared) {
-      this.updateQualityProgress('colaboracion', 1);
+      this.updateQualityProgress('colaboracion', tomatoesEarned);
     }
 
-    // 6. Construcción (Castor) - Completar 3 pomodoros seguidos al mismo objetivo en un día.
-    this.checkCastorProgress(objectiveText);
+    // 6. Construcción (Castor) - Completar 3 pomodoros encadenados al mismo objetivo en días diferentes.
+    this.checkCastorProgress(objectiveText, tomatoesEarned);
 
-    // 7. Constancia (Tortuga) - Racha de 7 días (sincronizada con la racha activa).
+    // 7. Constancia (Tortuga) - Racha de días consecutivos (sincronizada con la racha activa).
     this.syncConstanciaQualityProgress(this.streak());
   }
 
@@ -1302,20 +1317,26 @@ export class MembershipService {
     });
   }
 
-  private checkCastorProgress(objectiveText: string) {
-    if (!objectiveText || !objectiveText.trim()) return;
+  private checkCastorProgress(objectiveText: string, tomatoesEarned: number = 1) {
+    if (!objectiveText || !objectiveText.trim() || tomatoesEarned <= 0) return;
     const today = new Date().toLocaleDateString();
     const key = `castor-history-${today}`;
     const saved = localStorage.getItem(key);
     let history: string[] = saved ? JSON.parse(saved) : [];
 
-    history.push(objectiveText.trim());
+    for (let i = 0; i < tomatoesEarned; i++) {
+      history.push(objectiveText.trim());
+    }
     localStorage.setItem(key, JSON.stringify(history));
 
     if (history.length >= 3) {
+      const rewardedTodayKey = `castor-awarded-${today}`;
+      if (localStorage.getItem(rewardedTodayKey)) return;
+
       const lastThree = history.slice(-3);
       if (lastThree[0] === lastThree[1] && lastThree[1] === lastThree[2]) {
         this.updateQualityProgress('construccion', 1);
+        localStorage.setItem(rewardedTodayKey, 'true');
       }
     }
   }
@@ -1445,6 +1466,37 @@ export class MembershipService {
             unlockProgress: (q.isUnlocked && !isNowUnlocked) ? q.unlockTotal : Math.min(q.unlockTotal, currentStreak),
             isUnlocked: isNowUnlocked || q.isUnlocked,
             unlockedAt: isNowUnlocked ? new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : q.unlockedAt
+          };
+        }
+        return q;
+      });
+    });
+  }
+
+  syncDisciplinaQualityProgress(currentTomatoes: number): void {
+    this.qualitiesCatalog.update(list => {
+      return list.map(q => {
+        if (q.id === 'disciplina') {
+          const isNowUnlocked = currentTomatoes >= q.unlockTotal;
+          if (isNowUnlocked) {
+            if (!this.unlockedAvatars().includes('hormiga')) {
+              this.unlockedAvatars.update(unlocked => [...unlocked, 'hormiga']);
+            }
+            if (this.supabaseService.isConfigured()) {
+              this.supabaseService.advanceQualityProgress('disciplina', currentTomatoes).then(() => {
+                this.ensureAvatarLoaded('hormiga');
+              }).catch(err => {
+                console.warn('[MembershipService] Error persistiendo disciplina en Supabase:', err);
+              });
+            } else {
+              this.ensureAvatarLoaded('hormiga');
+            }
+          }
+          return {
+            ...q,
+            unlockProgress: (q.isUnlocked && !isNowUnlocked) ? q.unlockTotal : Math.min(q.unlockTotal, currentTomatoes),
+            isUnlocked: isNowUnlocked || q.isUnlocked,
+            unlockedAt: isNowUnlocked ? (q.unlockedAt || new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })) : q.unlockedAt
           };
         }
         return q;
@@ -1814,6 +1866,7 @@ export class MembershipService {
 
     const serverTomatoes = Number(p.focus_tomatoes ?? p.tomatoes ?? 0);
     this.focusTomatoes.set(serverTomatoes);
+    this.syncDisciplinaQualityProgress(serverTomatoes);
 
     const serverObjectives = Number(p.completed_objectives ?? 0);
     this.completedObjectives.set(serverObjectives);
@@ -1876,7 +1929,22 @@ export class MembershipService {
     if (this.supabaseService.isConfigured()) {
       const { items, error } = await this.supabaseService.getCatalogItems();
       if (!error && items && items.length > 0) {
-        this.catalogItems.set(items);
+        // Normalizar catálogo: Si el avatar 'gato' colisionó históricamente con la categoría 'game',
+        // restaurar sus propiedades de avatar con sus estadísticas para evitar ceros
+        const normalized = items.map(item => {
+          if (item.id === 'gato' && (item.category as string) === 'game') {
+            return {
+              ...item,
+              category: 'avatar' as const,
+              pause_penalty_coins: (item.pause_penalty_coins && item.pause_penalty_coins > 0) ? item.pause_penalty_coins : 10,
+              coins_per_pomodoro: (item.coins_per_pomodoro && item.coins_per_pomodoro > 0) ? item.coins_per_pomodoro : 10,
+              boss_damage_points: (item.boss_damage_points && item.boss_damage_points > 0) ? item.boss_damage_points : 20,
+              boss_heal_points: (item.boss_heal_points && item.boss_heal_points > 0) ? item.boss_heal_points : 10
+            };
+          }
+          return item;
+        });
+        this.catalogItems.set(normalized);
       }
     }
   }
@@ -2070,6 +2138,9 @@ export class MembershipService {
         return q;
       });
     });
+
+    this.syncConstanciaQualityProgress(this.streak());
+    this.syncDisciplinaQualityProgress(this.focusTomatoes());
   }
 
   // Cargar datos de usuario
@@ -2101,7 +2172,10 @@ export class MembershipService {
         if (bundle.gamification) {
           if (bundle.gamification.proCoins !== undefined) this.proCoins.set(bundle.gamification.proCoins);
           if (bundle.gamification.focusPoints !== undefined) this.focusPoints.set(bundle.gamification.focusPoints);
-          if (bundle.gamification.focusTomatoes !== undefined) this.focusTomatoes.set(bundle.gamification.focusTomatoes);
+          if (bundle.gamification.focusTomatoes !== undefined) {
+            this.focusTomatoes.set(bundle.gamification.focusTomatoes);
+            this.syncDisciplinaQualityProgress(bundle.gamification.focusTomatoes);
+          }
           if (bundle.gamification.completedObjectives !== undefined) this.completedObjectives.set(bundle.gamification.completedObjectives);
           if (bundle.gamification.abandonedSessions !== undefined) this.abandonedSessions.set(bundle.gamification.abandonedSessions);
           if (bundle.gamification.weeklyHonorPoints !== undefined) this.weeklyHonorPoints.set(bundle.gamification.weeklyHonorPoints);
@@ -2179,13 +2253,13 @@ export class MembershipService {
 
     // Reestablecer cualidades
     this.qualitiesCatalog.set([
-      { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 10 días consecutivos completando al menos 1 pomodoro diario.', isUnlocked: false, unlockProgress: 0, unlockTotal: 10 },
-      { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 35 pomodoros en total a lo largo de tu trayectoria.', isUnlocked: false, unlockProgress: 0, unlockTotal: 35 },
-      { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 15 pomodoros con la metodología Pareto (80/20) en tareas de alto impacto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
-      { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 12 pomodoros con la metodología Sapo/Rana y objetivo cumplido.', isUnlocked: false, unlockProgress: 0, unlockTotal: 12 },
-      { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 25 pomodoros con la metodología Normal manteniendo el rumbo.', isUnlocked: false, unlockProgress: 0, unlockTotal: 25 },
-      { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 15 sesiones de Coworking Comunitario en la sala compartida.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
-      { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 5 días diferentes logrando al menos 3 pomodoros encadenados para la misma meta.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 }
+      { id: 'constancia', animal: 'tortuga', name: 'Constancia', description: 'Cada día cuenta.', unlockRequirement: 'Mantener una racha de 10 días consecutivos completando al menos 1 tomate completo (pomodoro de 25+ min) diario.', isUnlocked: false, unlockProgress: 0, unlockTotal: 10 },
+      { id: 'disciplina', animal: 'hormiga', name: 'Disciplina', description: 'Los pequeños pasos construyen grandes resultados.', unlockRequirement: 'Completar 35 tomates completos (pomodoros de 25+ min) a lo largo de tu trayectoria.', isUnlocked: false, unlockProgress: 0, unlockTotal: 35 },
+      { id: 'sabiduria', animal: 'buho', name: 'Sabiduría', description: 'La estrategia supera a la fuerza bruta.', unlockRequirement: 'Completar 15 tomates completos (pomodoros de 25+ min) con la metodología Pareto (80/20) en tareas de alto impacto.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+      { id: 'superacion', animal: 'rana', name: 'Superación', description: 'Enfréntate a lo más difícil de inmediato.', unlockRequirement: 'Completar 12 tomates completos (pomodoros de 25+ min) con la metodología Sapo/Rana y objetivo cumplido.', isUnlocked: false, unlockProgress: 0, unlockTotal: 12 },
+      { id: 'vision', animal: 'aguila', name: 'Visión', description: 'No pierdas de vista hacia dónde vas.', unlockRequirement: 'Completar 25 tomates completos (pomodoros de 25+ min) con la metodología Normal manteniendo el rumbo.', isUnlocked: false, unlockProgress: 0, unlockTotal: 25 },
+      { id: 'colaboracion', animal: 'abeja', name: 'Colaboración', description: 'El enfoque también puede compartirse.', unlockRequirement: 'Participar en 15 sesiones comunitarias completas (pomodoros de 25+ min) en la sala compartida.', isUnlocked: false, unlockProgress: 0, unlockTotal: 15 },
+      { id: 'construccion', animal: 'castor', name: 'Construcción', description: 'Construye hoy lo que quieres terminar mañana.', unlockRequirement: 'Completar 5 días diferentes logrando al menos 3 pomodoros completos (25+ min) encadenados para la misma meta.', isUnlocked: false, unlockProgress: 0, unlockTotal: 5 }
     ]);
   }
 
@@ -2381,4 +2455,81 @@ export class MembershipService {
     if (vipGames.includes(gameId)) return this.isPremium();
     return this.unlockedGames().includes(gameId);
   }
+
+  // Historial de sesiones recientes de enfoque (las últimas 30 guardadas localmente)
+  getLocalRecentSessions(): any[] {
+    if (typeof localStorage === 'undefined') return [];
+    try {
+      const raw = localStorage.getItem('focus-session-recent-history');
+      if (!raw) return [];
+      const list = JSON.parse(raw);
+      if (!Array.isArray(list)) return [];
+
+      const currentUserId = this.supabaseService.currentUser()?.id;
+      const currentEmail = this.getCurrentUserEmail();
+
+      if (!currentUserId && !currentEmail) {
+        return list;
+      }
+
+      return list.filter(item => {
+        // Si no tiene asignado usuario, conservarlo (creado localmente en esta misma máquina)
+        if (!item.user_id && !item.user_email) return true;
+        if (currentUserId && item.user_id === currentUserId) return true;
+        if (currentEmail && item.user_email === currentEmail) return true;
+        return false;
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  recordRecentSession(session: {
+    id?: string;
+    objective_text?: string;
+    actual_duration_seconds: number;
+    status: 'completed' | 'abandoned' | 'interrupted';
+    methodology?: string;
+    coworking_mode?: string;
+    avatar_id?: string;
+    coins_earned?: number;
+    coins_penalized?: number;
+    boss_damage_dealt?: number;
+    boss_hp_healed?: number;
+    boss_name?: string;
+    user_id?: string;
+    user_email?: string;
+    created_at?: string;
+  }) {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      const current = this.getLocalRecentSessions();
+      const currentUserId = this.supabaseService.currentUser()?.id;
+      const currentEmail = this.getCurrentUserEmail();
+
+      const newEntry = {
+        id: session.id || 'local-' + Date.now(),
+        objective_text: session.objective_text || 'Sesión de Enfoque',
+        actual_duration_seconds: session.actual_duration_seconds,
+        status: session.status,
+        methodology: session.methodology || 'normal',
+        coworking_mode: session.coworking_mode || 'comunitario',
+        avatar_id: session.avatar_id || this.selectedAvatar() || 'gato',
+        coins_earned: session.coins_earned || 0,
+        coins_penalized: session.coins_penalized || 0,
+        boss_damage_dealt: session.boss_damage_dealt || 0,
+        boss_hp_healed: session.boss_hp_healed || 0,
+        boss_name: session.boss_name || '',
+        user_id: session.user_id || currentUserId || undefined,
+        user_email: session.user_email || currentEmail || undefined,
+        created_at: session.created_at || new Date().toISOString()
+      };
+      // Insertar al inicio y conservar hasta 30 elementos
+      const updated = [newEntry, ...current.filter(s => s.id !== newEntry.id)].slice(0, 30);
+      localStorage.setItem('focus-session-recent-history', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('[MembershipService] Error al guardar sesión reciente local:', e);
+    }
+  }
 }
+

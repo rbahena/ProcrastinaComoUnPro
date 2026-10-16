@@ -90,36 +90,34 @@
         </div>
       </div>
 
-      <!-- 3. Racha Activa (Flama Fuego Vector) -->
+      <!-- 3. Minutos Totales de Enfoque (Cronómetro Vector) -->
       <div class="kpi-card">
         <div class="kpi-top">
-          <span class="kpi-label">{{ 'stats.activeStreak' | translate }}</span>
-          <div class="kpi-icon fire-flame" [title]="'stats.streakTooltip' | translate">
+          <span class="kpi-label">{{ 'stats.totalFocusMinutesLabel' | translate }}</span>
+          <div class="kpi-icon time-clock" [title]="'stats.totalMinutesTooltip' | translate">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="flameOuterGrad" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#ffb74d" />
-                  <stop offset="35%" stop-color="#ff5722" />
-                  <stop offset="100%" stop-color="#d32f2f" />
-                </linearGradient>
-                <linearGradient id="flameInnerGrad" x1="12" y1="10" x2="12" y2="21" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#fff9c4" />
-                  <stop offset="40%" stop-color="#ffca28" />
-                  <stop offset="100%" stop-color="#ff7043" />
+                <linearGradient id="clockGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="50%" stop-color="#6366f1" />
+                  <stop offset="100%" stop-color="#a855f7" />
                 </linearGradient>
               </defs>
-              <path d="M12 2C11.5 5.5 9.5 7.5 8 9.5C6 12 5 14.5 5 17C5 20.8 8.1 22 12 22C15.9 22 19 20.8 19 17C19 13.5 16.8 10.8 15.5 8C14.2 10.5 13 11.5 12 11.5C11 11.5 10 10.5 10.5 8.5C11 6.5 12 4 12 2Z" fill="url(#flameOuterGrad)" />
-              <path d="M12 11C11.2 12.8 10 14 9 15.5C8.2 16.8 8 18 8 19C8 20.7 9.8 21.5 12 21.5C14.2 21.5 16 20.7 16 19C16 17.5 14.8 16 14 14.5C13.2 15.5 12.8 16 12.2 16C11.8 16 11.5 15.5 11.8 14.5C12 13.5 12.5 12 12 11Z" fill="url(#flameInnerGrad)" />
+              <circle cx="12" cy="13" r="8.5" stroke="url(#clockGrad)" stroke-width="2.2" />
+              <path d="M12 8.5V13L15 15" stroke="url(#clockGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M12 1.5V4" stroke="url(#clockGrad)" stroke-width="2" stroke-linecap="round" />
+              <path d="M9 1.5H15" stroke="url(#clockGrad)" stroke-width="2" stroke-linecap="round" />
+              <circle cx="12" cy="13" r="1.5" fill="#38bdf8" />
             </svg>
           </div>
         </div>
         <div class="kpi-body">
-          <span class="kpi-number">{{ userStreak() || longestStreak }}</span>
-          <span class="kpi-unit">{{ 'stats.days' | translate }}</span>
+          <span class="kpi-number">{{ totalFocusMinutesFormatted() }}</span>
+          <span class="kpi-unit">{{ 'stats.minUnit' | translate }}</span>
         </div>
         <div class="kpi-footer">
-          <span class="kpi-pill flame">
-            <i class="fa-solid fa-fire-flame-curved"></i> {{ 'stats.recordStreak' | translate: { val: longestStreak } }}
+          <span class="kpi-pill time-pill">
+            <i class="fa-solid fa-bolt"></i> {{ 'stats.todayMinutesPill' | translate: { mins: todayFocusMinutes() } }}
           </span>
         </div>
       </div>
@@ -344,8 +342,160 @@
       </div>
     </div>
 
+    <!-- SECCIÓN: ÚLTIMAS 10 SESIONES REALIZADAS -->
+    <div class="panel-card recent-sessions-card">
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <i class="fa-solid fa-list-check" style="color: var(--accent);"></i>
+          <h3>{{ 'stats.recentSessionsTitle' | translate }}</h3>
+          <span class="sessions-count-pill">{{ recentSessions().length }} / 10</span>
+        </div>
+        <span class="panel-subtitle">{{ 'stats.recentSessionsSubtitle' | translate }}</span>
+      </div>
+
+      @if (recentSessions().length > 0) {
+        <div class="recent-sessions-table-wrapper">
+          <table class="recent-sessions-table">
+            <thead>
+              <tr>
+                <th class="th-date">{{ 'stats.thDate' | translate }}</th>
+                <th class="th-objective">{{ 'stats.thObjective' | translate }}</th>
+                <th class="th-duration">{{ 'stats.thDuration' | translate }}</th>
+                <th class="th-method">{{ 'stats.thMethodology' | translate }}</th>
+                <th class="th-status">{{ 'stats.thStatus' | translate }}</th>
+                <th class="th-boss">
+                  <div class="th-boss-wrap">
+                    <span>{{ 'stats.thBossImpact' | translate }}</span>
+                    @if (!membership.isPremium()) {
+                      <span class="th-basic-hint" [title]="'stats.basicPlanNoBossTooltip' | translate">
+                        <i class="fa-solid fa-circle-info"></i>
+                      </span>
+                    }
+                  </div>
+                </th>
+                <th class="th-rewards">{{ 'stats.thRewards' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (session of recentSessions(); track session.id) {
+                <tr class="session-row" [class]="'row-' + session.status">
+                  <!-- Fecha y Hora -->
+                  <td class="td-date">
+                    <div class="date-cell">
+                      <i class="fa-regular fa-clock date-icon"></i>
+                      <span>{{ session.dateFormatted }}</span>
+                    </div>
+                  </td>
+
+                  <!-- Objetivo de Enfoque -->
+                  <td class="td-objective">
+                    <div class="objective-cell">
+                      <span class="objective-text" [title]="session.objective">
+                        {{ session.objective }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <!-- Tiempo Invertido (contar en minutos) -->
+                  <td class="td-duration">
+                    <div class="duration-cell">
+                      <span class="duration-minutes">{{ session.durationMinutesFormatted }}</span>
+                      <span class="duration-exact">({{ session.durationSecFormatted }})</span>
+                    </div>
+                  </td>
+
+                  <!-- Metodología -->
+                  <td class="td-method">
+                    <span class="method-pill method-{{ session.methodology }}">
+                      {{ session.methodologyLabel }}
+                    </span>
+                  </td>
+
+                  <!-- Estado -->
+                  <td class="td-status">
+                    <span class="status-badge" [class]="session.statusBadgeClass">
+                      <i [class]="session.statusIcon"></i>
+                      <span>{{ session.statusLabel }}</span>
+                    </span>
+                  </td>
+
+                  <!-- Impacto al Jefe de la Comunidad -->
+                  <td class="td-boss">
+                    @if (session.hasBossImpact) {
+                      <div class="boss-impact-cell">
+                        @if (session.bossDamageDealt > 0) {
+                          <span class="boss-damage-badge" title="Daño infligido al jefe en modo comunitario">
+                            <i class="fa-solid fa-hand-fist"></i> -{{ session.bossDamageDealt }} DMG
+                          </span>
+                          <span class="boss-target-name" [title]="session.bossName">
+                            vs {{ session.bossName }}
+                          </span>
+                        } @else if (session.bossHpHealed > 0) {
+                          <span class="boss-heal-badge" title="Salud recuperada por el jefe tras abandono o interrupción">
+                            <i class="fa-solid fa-heart-pulse"></i> +{{ session.bossHpHealed }} HP
+                          </span>
+                          <span class="boss-target-name" [title]="session.bossName">
+                            {{ 'stats.bossHealedText' | translate: { name: session.bossName } }}
+                          </span>
+                        }
+                      </div>
+                    } @else {
+                      <span class="basic-plan-boss-badge" [title]="'stats.basicPlanNoBossTooltip' | translate">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>{{ 'stats.basicPlanNoBossBadge' | translate }}</span>
+                      </span>
+                    }
+                  </td>
+
+                  <!-- Recompensas / Tomates -->
+                  <td class="td-rewards">
+                    <div class="rewards-cell">
+                      @if (session.tomatoesEarned > 0) {
+                        <span class="reward-pill tomato-pill" title="Tomates completos obtenidos">
+                          🍅 +{{ session.tomatoesEarned }}
+                        </span>
+                      }
+                      @if (session.coinsEarned > 0) {
+                        <span class="reward-pill coins-pill" title="Monedas ganadas">
+                          🪙 +{{ session.coinsEarned }}
+                        </span>
+                      }
+                      @if (session.coinsPenalized > 0 && session.status !== 'completed') {
+                        <span class="reward-pill penalty-pill" title="Penalización de monedas">
+                          🪙 -{{ session.coinsPenalized }}
+                        </span>
+                      }
+                      @if (session.tomatoesEarned <= 0 && session.coinsEarned <= 0 && (!session.coinsPenalized || session.status === 'completed')) {
+                        <span class="empty-reward-dash" title="Sin recompensas">-</span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <!-- Estado Vacío -->
+        <div class="recent-sessions-empty">
+          <div class="empty-icon-wrap">
+            <i class="fa-solid fa-hourglass-start"></i>
+          </div>
+          <h4>{{ 'stats.recentSessionsEmpty' | translate }}</h4>
+          <p class="empty-sub">
+            Realiza tu primer bloque de pomodoro o concentración libre y tus estadísticas se registrarán automáticamente minuto a minuto.
+          </p>
+          <a routerLink="/enfoque" class="start-session-btn">
+            <i class="fa-solid fa-play"></i>
+            <span>{{ 'stats.startFirstSession' | translate }}</span>
+          </a>
+        </div>
+      }
+    </div>
+
     <!-- SECCIÓN PRINCIPAL: ANALÍTICA Y MEDICIÓN DE OBJETIVOS (OCULTA) -->
     @if (showObjectivesSection()) {
+
     <section class="objectives-workspace-section">
       
       <!-- Encabezado de la Sección y Pestañas Estadísticas -->

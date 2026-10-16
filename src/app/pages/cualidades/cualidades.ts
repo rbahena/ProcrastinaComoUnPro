@@ -3901,9 +3901,9 @@ export class Cualidades implements OnInit {
       return `Te faltan ${remaining} ${remaining === 1 ? 'día' : 'días'} más de racha activa consecutiva para demostrar tu ${avatar.quality.name} y desbloquear este guardián a todo color.`;
     } else {
       if (isEn) {
-        return `You need ${remaining} more completed focus ${remaining === 1 ? 'session' : 'sessions'} in the Focus Arena to demonstrate your ${avatar.quality.name} and unlock this guardian in full color.`;
+        return `You need ${remaining} more completed full ${remaining === 1 ? 'tomato (25+ min pomodoro)' : 'tomatoes (25+ min pomodoros)'} in the Focus Arena to demonstrate your ${avatar.quality.name} and unlock this guardian in full color.`;
       }
-      return `Te faltan ${remaining} ${remaining === 1 ? 'sesión' : 'sesiones'} más de enfoque completadas en la Arena para demostrar tu ${avatar.quality.name} y desbloquear este guardián a todo color.`;
+      return `Te faltan ${remaining} ${remaining === 1 ? 'tomate completo (pomodoro de 25+ min)' : 'tomates completos (pomodoros de 25+ min)'} en la Arena de Enfoque para demostrar tu cualidad de ${avatar.quality.name} y desbloquear este guardián a todo color.`;
     }
   }
 

@@ -148,7 +148,7 @@ export class MinijuegosDescanso implements OnInit, AfterViewInit, OnDestroy {
         title: isEn ? 'Classic Tic-Tac-Toe' : 'Gato Clásico',
         subtitle: isEn ? 'Expert AI' : 'IA Nivel Experto',
         category: isEn ? 'Logic' : 'Lógica',
-        isUnlocked: this.membership.isGameUnlocked('gato'),
+        isUnlocked: this.membership.isGameUnlocked('gato') || this.membership.isGameUnlocked('game_gato'),
         isPremium: false,
         costCoins: 0,
         icon: 'fa-table-cells-large',

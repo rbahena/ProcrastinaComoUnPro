@@ -8970,9 +8970,8 @@
           <i class="fa-solid fa-crosshairs" style="font-size: 15px;"></i>
         </button>
 
-        <!-- Pestaña 1: Combate Boss (Sólo si modo comunitario está activo) -->
-        <button *ngIf="coworkingMode() === 'comunitario'"
-                (click)="communityActiveTab.set('boss')"
+        <!-- Pestaña 1: Combate Boss -->
+        <button (click)="communityActiveTab.set('boss')"
                 [style.background]="communityActiveTab() === 'boss' ? 'var(--red)' : 'transparent'"
                 [style.color]="communityActiveTab() === 'boss' ? '#fff' : 'var(--muted)'"
                 style="border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
@@ -9024,7 +9023,7 @@
   </div>
 
   <!-- CONTENIDO DE LA PESTAÑA: BOSS -->
-  <div *ngIf="communityActiveTab() === 'boss' && coworkingMode() === 'comunitario'" style="flex: 1; display: flex; flex-direction: column; gap: 10px; min-height: 0;">
+  <div *ngIf="communityActiveTab() === 'boss'" style="flex: 1; display: flex; flex-direction: column; gap: 10px; min-height: 0;">
     
     <!-- Contenido del Jefe (Boss) -->
     <div [class.boss-attack-flash]="bossService.isUnderAttack()"
@@ -9052,6 +9051,25 @@
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
           <h3 style="font-size: var(--modal-title-size); font-weight: 900; color: #fff; margin: 0;">{{ bossService.activeBoss().name }}</h3>
+        </div>
+      </div>
+
+      <!-- Aviso para Plan Básico (Modo Espectador / Sin Afectar al Jefe) -->
+      <div *ngIf="!membership.isPremium()" 
+           style="margin: 8px 10px 0 10px; background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.35); border-radius: 8px; padding: 7px 10px; display: flex; align-items: center; gap: 8px; z-index: 1; position: relative; text-align: left;">
+        <i class="fa-solid fa-shield-halved" style="color: #fbbf24; font-size: 13px; flex-shrink: 0;"></i>
+        <div style="display: flex; flex-direction: column; gap: 1px; flex: 1;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+            <span style="font-size: 10.5px; font-weight: 800; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.3px;">
+              {{ 'focus.bossBasicNoticeTitle' | translate }}
+            </span>
+            <span style="font-size: 8.5px; font-weight: 800; background: rgba(245, 158, 11, 0.2); color: #fde68a; padding: 1px 5px; border-radius: 4px;">
+              {{ 'focus.bossBasicNoticeBadge' | translate }}
+            </span>
+          </div>
+          <span style="font-size: 9.5px; color: rgba(255, 255, 255, 0.75); font-weight: 500; line-height: 1.35;">
+            {{ 'focus.bossBasicNoticeDesc' | translate }}
+          </span>
         </div>
       </div>
 

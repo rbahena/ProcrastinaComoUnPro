@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { SupabaseService, UserDailyAttempt } from '../../services/supabase.service';
+import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { Navbar } from '../../components/navbar/navbar';
 import { TranslatePipe, TranslationService } from '../../services/translation.service';
 
@@ -28,6 +30,34 @@ export interface ObjectiveHistoryItem {
   category: string;
 }
 
+export interface RecentSessionItem {
+  id: string;
+  objective: string;
+  actualDurationSeconds: number;
+  durationMinutesFormatted: string;
+  durationMinutesNumber: number;
+  durationSecFormatted: string;
+  status: 'completed' | 'abandoned' | 'interrupted';
+  statusLabel: string;
+  statusBadgeClass: string;
+  statusIcon: string;
+  dateFormatted: string;
+  dateRaw: Date;
+  methodology: string;
+  methodologyLabel: string;
+  coworkingMode: string;
+  avatarId: string;
+  avatarName: string;
+  coinsEarned: number;
+  coinsPenalized: number;
+  tomatoesEarned: number;
+  isFullTomato: boolean;
+  bossDamageDealt: number;
+  bossHpHealed: number;
+  bossName: string;
+  hasBossImpact: boolean;
+}
+
 export interface ObjectivesCalendarDay {
   dayNumber: number | null;
   date: Date | null;
@@ -42,7 +72,7 @@ export interface ObjectivesCalendarDay {
 @Component({
   selector: 'app-estadisticas',
   standalone: true,
-  imports: [CommonModule, Navbar, TranslatePipe],
+  imports: [CommonModule, RouterModule, Navbar, TranslatePipe],
   templateUrl: './estadisticas.html',
   styleUrl: './estadisticas.css'
 })
@@ -50,9 +80,13 @@ export class Estadisticas implements OnInit, OnDestroy {
   public membership = inject(MembershipService);
   private supabaseService = inject(SupabaseService);
   public translation = inject(TranslationService);
+  public bossService = inject(ComunidadBossService);
 
   // Intentos del día actual (reales)
   dailyAttempts = signal<UserDailyAttempt[]>([]);
+
+  // Últimas 10 sesiones realizadas (cualquier duración)
+  recentSessions = signal<RecentSessionItem[]>([]);
 
   // Datos de la semana en curso (Lunes a Domingo, 7 elementos)
   weeklyHistorical = signal<number[]>([0, 0, 0, 0, 0, 0, 0]);
@@ -123,6 +157,7 @@ export class Estadisticas implements OnInit, OnDestroy {
       const pointsObjectives = Math.floor(this.membership.focusPoints() / 40);
       this.userTotalCompletedObjectives.set(Math.max(ideasCompleted, pointsObjectives));
       this.populateLocalObjectivesFallback();
+      await this.loadRecentSessions();
       return;
     }
 
@@ -135,6 +170,7 @@ export class Estadisticas implements OnInit, OnDestroy {
         const pointsObjectives = Math.floor(this.membership.focusPoints() / 40);
         this.userTotalCompletedObjectives.set(Math.max(ideasCompleted, pointsObjectives));
         this.populateLocalObjectivesFallback();
+        await this.loadRecentSessions();
         return;
       }
 
@@ -151,9 +187,11 @@ export class Estadisticas implements OnInit, OnDestroy {
 
       // Cargar historial de sesiones reales para análisis estadístico
       await this.loadRealSessionsObjectives();
+      await this.loadRecentSessions();
     } catch (e) {
       console.warn('[Estadísticas Load Error]', e);
       this.populateLocalObjectivesFallback();
+      await this.loadRecentSessions();
     }
   }
 
@@ -208,6 +246,235 @@ export class Estadisticas implements OnInit, OnDestroy {
 
     this.objectivesHistory.set(items);
   }
+
+  // Cargar las últimas 10 sesiones realizadas (desde Supabase con fallback local)
+  async loadRecentSessions() {
+    let cloudSessions: any[] = [];
+    let currentUserId: string | null = null;
+    let currentUserEmail = this.membership.getCurrentUserEmail();
+
+    if (this.supabaseService.isConfigured()) {
+      try {
+        const user = await this.supabaseService.getCurrentUser();
+        if (user) {
+          currentUserId = user.id;
+          if (user.email) currentUserEmail = user.email;
+          const { sessions } = await this.supabaseService.getFocusSessions(user.id, 20);
+          if (sessions && sessions.length > 0) {
+            cloudSessions = sessions;
+          }
+        }
+      } catch (e) {
+        console.warn('[Estadísticas] Error al cargar sesiones de Supabase:', e);
+      }
+    }
+
+    const localSessions = this.membership.getLocalRecentSessions();
+
+    // Map para deduplicar rigurosamente y evitar entradas duplicadas
+    const sessionMap = new Map<string, any>();
+    const knownNonceIds = new Set<string>();
+    const knownTimestamps: Array<{ time: number; duration: number }> = [];
+
+    // 1. Cargar sesiones autoritativas de Supabase (pertenecientes al usuario actual)
+    for (const s of cloudSessions) {
+      if (s.nonce_id) knownNonceIds.add(s.nonce_id);
+      if (s.id) knownNonceIds.add(s.id);
+
+      const sTime = new Date(s.completed_at || s.created_at || s.started_at || 0).getTime();
+      const sDur = s.actual_duration_seconds ?? s.planned_duration_seconds ?? 0;
+      if (sTime > 0) {
+        knownTimestamps.push({ time: sTime, duration: sDur });
+      }
+
+      const dedupeKey = s.nonce_id || s.id || `cloud_${sTime}_${sDur}`;
+      sessionMap.set(dedupeKey, {
+        id: s.id || s.nonce_id,
+        nonce_id: s.nonce_id,
+        objective_text: s.objective_text,
+        actual_duration_seconds: sDur,
+        status: s.status,
+        methodology: s.methodology,
+        coworking_mode: s.coworking_mode,
+        avatar_id: s.avatar_id,
+        coins_earned: s.coins_earned ?? 0,
+        coins_penalized: Number(s.coins_penalized ?? 0),
+        boss_damage_dealt: s.boss_damage_dealt !== undefined && s.boss_damage_dealt !== null ? Number(s.boss_damage_dealt) : 0,
+        boss_hp_healed: s.boss_hp_healed !== undefined && s.boss_hp_healed !== null ? Number(s.boss_hp_healed) : 0,
+        boss_name: (s as any).boss_name || '',
+        created_at: s.completed_at || s.created_at || s.started_at,
+        is_from_cloud: true
+      });
+    }
+
+    // 2. Integrar sesiones locales únicas del usuario actual (evitando duplicar las que ya vinieron de la nube)
+    for (const s of localSessions) {
+      // Filtrar sesiones que pertenezcan explícitamente a otro usuario
+      if (s.user_id && currentUserId && s.user_id !== currentUserId) continue;
+      if (s.user_email && currentUserEmail && s.user_email !== currentUserEmail) continue;
+
+      const localId = s.id || s.nonce_id;
+      if (localId && knownNonceIds.has(localId)) {
+        continue; // Duplicado exacto por nonce_id/id
+      }
+
+      const localTime = new Date(s.created_at || 0).getTime();
+      const localDur = s.actual_duration_seconds || 0;
+      const isDuplicateByTime = knownTimestamps.some(k =>
+        Math.abs(k.time - localTime) < 15000 && Math.abs(k.duration - localDur) < 5
+      );
+      if (isDuplicateByTime) {
+        continue; // Duplicado detectado por huella temporal cercana
+      }
+
+      const dedupeKey = localId || `local_${localTime}_${localDur}`;
+      sessionMap.set(dedupeKey, {
+        ...s,
+        is_from_cloud: false
+      });
+    }
+
+    const merged = Array.from(sessionMap.values());
+    merged.sort((a, b) => {
+      const timeA = new Date(a.created_at || 0).getTime();
+      const timeB = new Date(b.created_at || 0).getTime();
+      return timeB - timeA;
+    });
+
+    const activeBossName = this.bossService.activeBoss()?.name || 'Jefe de la Comunidad';
+
+    const top10: RecentSessionItem[] = merged.slice(0, 10).map(s => {
+      const durationSec = s.actual_duration_seconds ?? 0;
+      const durationMinsNum = Math.round(durationSec / 60);
+      const isCompleted = s.status === 'completed';
+      const isFull = isCompleted && durationSec >= 1500;
+      const tomatoes = isFull ? Math.max(1, Math.floor(durationSec / 1500)) : 0;
+      const badge = this.getStatusBadge(s.status);
+      const avatarId = s.avatar_id || this.membership.selectedAvatar() || 'gato';
+      const avatarName = this.membership.getAvatarNameById(avatarId);
+
+      // Daño infligido y salud recuperada del Jefe
+      // OBTENIDO DIRECTAMENTE de la columna en base de datos (focus_sessions.boss_damage_dealt / boss_hp_healed)
+      const bossDamage = Number(s.boss_damage_dealt ?? 0);
+      const bossHeal = Number(s.boss_hp_healed ?? 0);
+
+      const bossName = s.boss_name?.trim() || activeBossName;
+      const hasBossImpact = bossDamage > 0 || bossHeal > 0;
+
+      const isAbandonedOrInterrupted = s.status === 'abandoned' || s.status === 'interrupted';
+
+      // Monedas ganadas: si la base de datos o registro trae coins_earned > 0 se respeta fielmente;
+      // si es una sesión completada y trae 0 (por ejemplo registros históricos con avatar que tenía monedas en 0),
+      // se calculan las monedas correspondientes para que se muestren ambos items (tomates y monedas) cuando aplique.
+      let coins = Number(s.coins_earned ?? 0);
+      if (coins <= 0 && isCompleted) {
+        coins = durationSec >= 1500 
+          ? (this.membership.getAvatarCoinsPerPomodoro(avatarId) || 10) 
+          : (durationSec >= 60 ? 2 : 0);
+      }
+
+      // Monedas penalizadas: si fue abandonada o interrumpida
+      let penalizedCoins = Number(s.coins_penalized ?? 0);
+      if (penalizedCoins <= 0 && isAbandonedOrInterrupted) {
+        penalizedCoins = this.membership.getAvatarPausePenalty(avatarId) || 10;
+      }
+
+      return {
+        id: s.id || Math.random().toString(),
+        objective: (s.objective_text || '').trim() || 'Sesión de Enfoque',
+        actualDurationSeconds: durationSec,
+        durationMinutesFormatted: this.formatDurationMinutes(durationSec),
+        durationMinutesNumber: durationMinsNum,
+        durationSecFormatted: this.formatDurationExact(durationSec),
+        status: (s.status || 'completed') as 'completed' | 'abandoned' | 'interrupted',
+        statusLabel: badge.label,
+        statusBadgeClass: badge.class,
+        statusIcon: badge.icon,
+        dateFormatted: this.formatSessionDate(s.created_at),
+        dateRaw: new Date(s.created_at || Date.now()),
+        methodology: s.methodology || 'normal',
+        methodologyLabel: this.getMethodologyLabel(s.methodology),
+        coworkingMode: s.coworking_mode || 'comunitario',
+        avatarId: avatarId,
+        avatarName: avatarName,
+        coinsEarned: coins,
+        coinsPenalized: isAbandonedOrInterrupted ? penalizedCoins : 0,
+        tomatoesEarned: tomatoes,
+        isFullTomato: isFull,
+        bossDamageDealt: bossDamage,
+        bossHpHealed: bossHeal,
+        bossName: bossName,
+        hasBossImpact: hasBossImpact
+      };
+    });
+
+    this.recentSessions.set(top10);
+  }
+
+  formatDurationMinutes(seconds: number): string {
+    const s = Math.max(0, Math.floor(seconds || 0));
+    if (s < 60) {
+      return `< 1 min (${s}s)`;
+    }
+    const mins = Math.round(s / 60);
+    return `${mins} min`;
+  }
+
+  formatDurationExact(seconds: number): string {
+    const s = Math.max(0, Math.floor(seconds || 0));
+    const m = Math.floor(s / 60);
+    const rem = s % 60;
+    return `${m.toString().padStart(2, '0')}:${rem.toString().padStart(2, '0')}`;
+  }
+
+  formatSessionDate(dateStr?: string | Date): string {
+    if (!dateStr) return '--';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '--';
+    const lang = this.translation.currentLang();
+    const datePart = d.toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', {
+      day: 'numeric',
+      month: 'short'
+    });
+    const timePart = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `${datePart}, ${timePart}`;
+  }
+
+  getMethodologyLabel(m?: string): string {
+    const isEn = this.translation.currentLang() === 'en';
+    switch (m) {
+      case 'sapo': return isEn ? '🐸 Eat the Frog' : '🐸 Sapo';
+      case 'pareto': return isEn ? '📊 Pareto' : '📊 Pareto';
+      case 'normal':
+      case 'pomodoro':
+      default:
+        return isEn ? '🎯 Traditional' : '🎯 Tradicional';
+    }
+  }
+
+  getStatusBadge(status: string): { label: string; class: string; icon: string } {
+    const isEn = this.translation.currentLang() === 'en';
+    if (status === 'completed') {
+      return {
+        label: isEn ? 'Completed' : 'Completada',
+        class: 'badge-completed',
+        icon: 'fa-solid fa-circle-check'
+      };
+    }
+    if (status === 'abandoned') {
+      return {
+        label: isEn ? 'Abandoned' : 'Abandonada',
+        class: 'badge-abandoned',
+        icon: 'fa-solid fa-triangle-exclamation'
+      };
+    }
+    return {
+      label: isEn ? 'Interrupted' : 'Interrumpida',
+      class: 'badge-interrupted',
+      icon: 'fa-solid fa-circle-pause'
+    };
+  }
+
 
   private populateLocalObjectivesFallback() {
     const ideas = this.membership.capturedIdeas();
@@ -318,6 +585,20 @@ export class Estadisticas implements OnInit, OnDestroy {
   get longestStreak(): number {
     return Math.max(this.userStreak(), this.userLongestStreak(), this.membership.streak());
   }
+
+  // --- MINUTOS TOTALES DE ENFOQUE (HISTÓRICO) ---
+  totalFocusMinutes = computed(() => {
+    const secs = this.userTotalFocusSeconds();
+    if (secs > 0) {
+      return Math.round(secs / 60);
+    }
+    // Fallback: pomodoros acumulados * 25 minutos + minutos de hoy
+    return Math.max(this.annualTotal() * 25, this.todayFocusMinutes());
+  });
+
+  totalFocusMinutesFormatted = computed(() => {
+    return this.totalFocusMinutes().toLocaleString();
+  });
 
   // --- CÁLCULOS ANUALES Y TOTALES ---
   annualTotal = computed(() => {
