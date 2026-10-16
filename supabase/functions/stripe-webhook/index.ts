@@ -80,15 +80,31 @@ serve(async (req) => {
           }
         }
 
+        // Consultar perfil para verificar si ya se le dieron monedas de bienvenida
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('pro_coins, welcome_coins_awarded')
+          .eq('id', userId)
+          .maybeSingle();
+
+        const updatePayload: Record<string, any> = {
+          is_premium: true,
+          stripe_customer_id: customerId,
+          stripe_subscription_id: subscriptionId || null,
+          premium_until: premiumUntil,
+          updated_at: new Date().toISOString()
+        };
+
+        if (!profile?.welcome_coins_awarded) {
+          const currentCoins = Number(profile?.pro_coins) || 0;
+          updatePayload.pro_coins = currentCoins + 30;
+          updatePayload.welcome_coins_awarded = true;
+          console.log(`[stripe-webhook] Otorgando 30 Pro Coins de bienvenida al usuario ${userId}`);
+        }
+
         const { error: updateError } = await supabaseAdmin
           .from('profiles')
-          .update({
-            is_premium: true,
-            stripe_customer_id: customerId,
-            stripe_subscription_id: subscriptionId || null,
-            premium_until: premiumUntil,
-            updated_at: new Date().toISOString()
-          })
+          .update(updatePayload)
           .eq('id', userId);
 
         if (updateError) {
@@ -133,10 +149,21 @@ serve(async (req) => {
             const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
             const { data: profs } = await supabaseAdmin
               .from('profiles')
-              .select('id')
+              .select('id, pro_coins, welcome_coins_awarded')
               .or(`stripe_subscription_id.eq.${subscriptionId},stripe_customer_id.eq.${customerId}`);
             if (profs && profs.length > 0) {
               for (const p of profs) {
+                if (!p.welcome_coins_awarded) {
+                  await supabaseAdmin
+                    .from('profiles')
+                    .update({
+                      pro_coins: (Number(p.pro_coins) || 0) + 30,
+                      welcome_coins_awarded: true
+                    })
+                    .eq('id', p.id);
+                  console.log(`[stripe-webhook] Otorgando 30 Pro Coins de bienvenida a ${p.id} en customer.subscription.updated`);
+                }
+
                 const rows = vipAvatars.map(id => ({ user_id: p.id, item_id: id, unlock_source: 'admin' }));
                 await supabaseAdmin.from('user_unlocked_items').upsert(rows, { onConflict: 'user_id, item_id', ignoreDuplicates: true });
               }

@@ -79,7 +79,7 @@ serve(async (req) => {
     // 3. Obtener perfil de usuario
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('stripe_customer_id, email, username')
+      .select('stripe_customer_id, email, username, pro_coins, welcome_coins_awarded')
       .eq('id', user.id)
       .maybeSingle();
 
@@ -131,15 +131,26 @@ serve(async (req) => {
       }
 
       if (isProActive) {
+        const updatePayload: Record<string, any> = {
+          is_premium: true,
+          stripe_customer_id: customerId,
+          stripe_subscription_id: subscriptionId || profile?.stripe_subscription_id || null,
+          premium_until: premiumUntil,
+          updated_at: new Date().toISOString()
+        };
+
+        // Otorgar 30 Pro Coins de bienvenida al iniciar prueba o suscripción si aún no se han concedido
+        let welcomeBonusGranted = false;
+        if (!profile?.welcome_coins_awarded) {
+          const currentCoins = Number(profile?.pro_coins) || 0;
+          updatePayload.pro_coins = currentCoins + 30;
+          updatePayload.welcome_coins_awarded = true;
+          welcomeBonusGranted = true;
+        }
+
         await supabaseAdmin
           .from('profiles')
-          .update({
-            is_premium: true,
-            stripe_customer_id: customerId,
-            stripe_subscription_id: subscriptionId || profile?.stripe_subscription_id || null,
-            premium_until: premiumUntil,
-            updated_at: new Date().toISOString()
-          })
+          .update(updatePayload)
           .eq('id', user.id);
 
         const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
@@ -147,7 +158,15 @@ serve(async (req) => {
         await supabaseAdmin.from('user_unlocked_items').upsert(rows, { onConflict: 'user_id, item_id', ignoreDuplicates: true });
 
         return new Response(
-          JSON.stringify({ success: true, is_premium: true, customerId, subscriptionId, premiumUntil }),
+          JSON.stringify({ 
+            success: true, 
+            is_premium: true, 
+            customerId, 
+            subscriptionId, 
+            premiumUntil,
+            welcome_coins_awarded: welcomeBonusGranted,
+            bonus_coins: welcomeBonusGranted ? 30 : 0
+          }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }

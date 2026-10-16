@@ -146,6 +146,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     stripe_subscription_id TEXT,
     -- onboarding_completed: Flag para verificar si completó la configuración inicial de la cuenta.
     onboarding_completed BOOLEAN DEFAULT FALSE,
+    -- welcome_coins_awarded: Flag que indica si ya recibió el bono de 30 Pro Coins al iniciar prueba o suscripción Pro.
+    welcome_coins_awarded BOOLEAN DEFAULT FALSE,
     
     -- [COLUMNAS / RESTRICCIONES CHECK: GAMIFICACIÓN Y TELEMETRÍA DE ENFOQUE]
     -- pro_coins: Monedas virtuales acumuladas para comprar artículos en la tienda.
@@ -3878,6 +3880,7 @@ BEGIN
 
         -- B. Economía y Monedas de Tienda (ProCoins)
         NEW.pro_coins := OLD.pro_coins;
+        NEW.welcome_coins_awarded := OLD.welcome_coins_awarded;
 
         -- C. Telemetría de concentración y Puntos de Clasificación (XP)
         NEW.focus_points := OLD.focus_points;

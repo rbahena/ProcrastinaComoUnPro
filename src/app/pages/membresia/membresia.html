@@ -196,6 +196,15 @@
             <td><i class="fa-solid fa-circle-xmark cross-icon"></i></td>
             <td class="highlight-cell"><i class="fa-solid fa-circle-check check-icon gold"></i></td>
           </tr>
+          <!-- Fila 12: Bono de Bienvenida -->
+          <tr>
+            <td class="feature-info">
+              <strong>{{ 'membership.welcomeCoins' | translate }}</strong>
+              <span>{{ 'membership.welcomeCoinsDesc' | translate }}</span>
+            </td>
+            <td><i class="fa-solid fa-circle-xmark cross-icon"></i></td>
+            <td class="highlight-cell"><span class="badge-coins-bonus">+30 🪙</span></td>
+          </tr>
 
         </tbody>
       </table>
@@ -247,6 +256,9 @@
       <div class="toast-text">
         <h4>{{ 'membership.successTitle' | translate }}</h4>
         <p>{{ 'membership.successDesc' | translate }}</p>
+        <div class="welcome-coins-badge">
+          <span>🪙</span> +30 Pro Coins
+        </div>
       </div>
     </div>
   </div>

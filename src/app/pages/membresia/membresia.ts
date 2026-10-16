@@ -141,7 +141,7 @@ export class Membresia implements OnInit {
           setTimeout(() => {
             this.showSuccessToast.set(false);
             this.router.navigate([], { queryParams: {} });
-          }, 3500);
+          }, 4500);
         }
       } else {
         // Si no viene de redirect, verificar si el usuario ya tiene suscripción activa en Stripe

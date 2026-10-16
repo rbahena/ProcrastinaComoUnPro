@@ -35,7 +35,7 @@ serve(async (req) => {
     if (event_type === "START_TRIAL" || (method && method.toLowerCase().includes("7 d"))) {
       headerTitle = "💎 <b>¡Clic en Probar 7 Días Gratis!</b>";
       if (details) {
-        extraLine = `\n📦 <b>Plan:</b> ${details}`;
+        extraLine = `\n📦 <b>Plan:</b> ${details}\n🎁 <b>Bono:</b> 30 Pro Coins de Bienvenida`;
       }
     } else if (event_type === "VIEW_PLANS" || (method && method.toLowerCase().includes("mi plan"))) {
       headerTitle = "👀 <b>Usuario viendo la página \"Mi Plan\"</b>";

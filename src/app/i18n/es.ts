@@ -608,8 +608,10 @@ export const ES = {
     "faqA3": "Los precios están fijados en Dólares Estadounidenses (USD). Al momento de pagar, tu banco o tarjeta realiza automáticamente la conversión a tu moneda local según el tipo de cambio oficial, sin comisiones sorpresa.",
     "faqQ4": "¿Puedo cancelar o modificar mi membresía cuando quiera?",
     "faqA4": "¡Totalmente! Puedes gestionar o cancelar tu suscripción con un solo clic desde esta página en cualquier momento, sin plazos forzosos ni complicaciones.",
-    "successTitle": "¡Bienvenido al Templo Pro!",
-    "successDesc": "Tu cuenta se ha actualizado a COFU Pro con éxito. Redirigiendo a la comunidad..."
+    "welcomeCoins": "Bono de 30 Pro Coins de Bienvenida",
+    "welcomeCoinsDesc": "Recibe 30 monedas de regalo al activar tu prueba o suscripción para desbloquear avatares, juegos o cronómetros.",
+    "successTitle": "¡Bienvenido a COFU Pro!",
+    "successDesc": "Tu cuenta se ha actualizado a COFU Pro con éxito. ¡Has recibido 30 Pro Coins de bienvenida para estrenar en la tienda!"
   },
   "stats": {
     "pageTitle": "Tu Avance de Enfoque",
