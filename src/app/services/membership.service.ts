@@ -2494,6 +2494,10 @@ export class MembershipService {
     avatar_id?: string;
     coins_earned?: number;
     coins_penalized?: number;
+    xp_earned?: number;
+    xp_penalized?: number;
+    focus_points_earned?: number;
+    focus_points_penalized?: number;
     boss_damage_dealt?: number;
     boss_hp_healed?: number;
     boss_name?: string;
@@ -2517,6 +2521,8 @@ export class MembershipService {
         avatar_id: session.avatar_id || this.selectedAvatar() || 'gato',
         coins_earned: session.coins_earned || 0,
         coins_penalized: session.coins_penalized || 0,
+        xp_earned: session.xp_earned ?? session.focus_points_earned ?? 0,
+        xp_penalized: session.xp_penalized ?? session.focus_points_penalized ?? 0,
         boss_damage_dealt: session.boss_damage_dealt || 0,
         boss_hp_healed: session.boss_hp_healed || 0,
         boss_name: session.boss_name || '',

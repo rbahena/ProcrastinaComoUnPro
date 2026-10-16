@@ -451,13 +451,18 @@
                   <td class="td-rewards">
                     <div class="rewards-cell">
                       @if (session.tomatoesEarned > 0) {
-                        <span class="reward-pill tomato-pill" title="Tomates completos obtenidos">
+                        <span class="reward-pill positive-pill tomato-pill" title="Tomates completos obtenidos">
                           🍅 +{{ session.tomatoesEarned }}
                         </span>
                       }
                       @if (session.coinsEarned > 0) {
-                        <span class="reward-pill coins-pill" title="Monedas ganadas">
+                        <span class="reward-pill positive-pill coins-pill" title="Monedas ganadas">
                           🪙 +{{ session.coinsEarned }}
+                        </span>
+                      }
+                      @if (session.focusPointsEarned > 0) {
+                        <span class="reward-pill positive-pill points-pill" title="Puntos de enfoque obtenidos">
+                          <i class="fa-solid fa-bolt bolt-icon"></i> +{{ session.focusPointsEarned }}
                         </span>
                       }
                       @if (session.coinsPenalized > 0 && session.status !== 'completed') {
@@ -465,7 +470,12 @@
                           🪙 -{{ session.coinsPenalized }}
                         </span>
                       }
-                      @if (session.tomatoesEarned <= 0 && session.coinsEarned <= 0 && (!session.coinsPenalized || session.status === 'completed')) {
+                      @if (session.focusPointsPenalized > 0 && session.status !== 'completed') {
+                        <span class="reward-pill penalty-pill xp-penalty-pill" title="Puntos de enfoque penalizados">
+                          <i class="fa-solid fa-bolt bolt-icon"></i> -{{ session.focusPointsPenalized }}
+                        </span>
+                      }
+                      @if (session.tomatoesEarned <= 0 && session.coinsEarned <= 0 && session.focusPointsEarned <= 0 && (!session.coinsPenalized || session.status === 'completed') && (!session.focusPointsPenalized || session.status === 'completed')) {
                         <span class="empty-reward-dash" title="Sin recompensas">-</span>
                       }
                     </div>

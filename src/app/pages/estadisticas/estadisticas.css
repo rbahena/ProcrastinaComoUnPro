@@ -1685,43 +1685,75 @@ body.theme-light .stats-simple-footer {
 }
 
 /* Recompensas Pills */
+.recent-sessions-table thead th.th-rewards,
+.recent-sessions-table tbody td.td-rewards {
+  padding-left: 10px;
+  padding-right: 10px;
+  min-width: 120px;
+  width: 120px;
+}
+
 .rewards-cell {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 3px 5px;
   flex-wrap: wrap;
+  max-width: 102px;
 }
 
 .reward-pill {
-  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 6px;
+  padding: 1px 5px;
+  border-radius: 5px;
   white-space: nowrap;
+  line-height: 1.35;
 }
 
-.tomato-pill {
-  background: rgba(239, 68, 68, 0.15);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+.reward-pill .bolt-icon,
+.reward-pill i {
+  font-size: 0.62rem;
+}
+
+/* Píldoras de Suma / Recompensa (Verde homologado para todos los items positivos) */
+.positive-pill,
+.tomato-pill,
+.coins-pill,
+.points-pill {
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.positive-pill .bolt-icon,
+.positive-pill i,
+.points-pill .bolt-icon,
+.points-pill i {
+  color: #10b981;
+}
+
+/* Píldoras de Menos / Penalización (Rojo homologado para todos los items negativos) */
+.penalty-pill {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.penalty-pill .bolt-icon,
+.penalty-pill i,
+.xp-penalty-pill .bolt-icon,
+.xp-penalty-pill i {
+  color: #f87171;
 }
 
 .partial-pill {
   background: rgba(245, 158, 11, 0.15);
   color: #fcd34d;
   border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
-.coins-pill {
-  background: rgba(234, 179, 8, 0.15);
-  color: #fde047;
-  border: 1px solid rgba(234, 179, 8, 0.3);
-}
-
-.penalty-pill {
-  background: rgba(239, 68, 68, 0.16);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.35);
 }
 
 .abandoned-pill,
@@ -1826,6 +1858,48 @@ body.theme-light .recent-sessions-table tbody tr:hover {
 body.mode-light .recent-sessions-table tbody td,
 body.theme-light .recent-sessions-table tbody td {
   border-bottom: 1px solid #e2e8f0 !important;
+}
+
+body.mode-light .positive-pill,
+body.theme-light .positive-pill,
+body.mode-light .tomato-pill,
+body.theme-light .tomato-pill,
+body.mode-light .coins-pill,
+body.theme-light .coins-pill,
+body.mode-light .points-pill,
+body.theme-light .points-pill {
+  background: #ecfdf5 !important;
+  color: #059669 !important;
+  border-color: #a7f3d0 !important;
+}
+
+body.mode-light .positive-pill .bolt-icon,
+body.theme-light .positive-pill .bolt-icon,
+body.mode-light .positive-pill i,
+body.theme-light .positive-pill i,
+body.mode-light .points-pill .bolt-icon,
+body.theme-light .points-pill .bolt-icon,
+body.mode-light .points-pill i,
+body.theme-light .points-pill i {
+  color: #059669 !important;
+}
+
+body.mode-light .penalty-pill,
+body.theme-light .penalty-pill {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border-color: #fecaca !important;
+}
+
+body.mode-light .penalty-pill .bolt-icon,
+body.theme-light .penalty-pill .bolt-icon,
+body.mode-light .penalty-pill i,
+body.theme-light .penalty-pill i,
+body.mode-light .xp-penalty-pill .bolt-icon,
+body.theme-light .xp-penalty-pill .bolt-icon,
+body.mode-light .xp-penalty-pill i,
+body.theme-light .xp-penalty-pill i {
+  color: #dc2626 !important;
 }
 
 

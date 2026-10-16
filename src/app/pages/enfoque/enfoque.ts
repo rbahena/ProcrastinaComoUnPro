@@ -2296,6 +2296,12 @@ export class Enfoque implements OnInit, OnDestroy {
     const penaltyAmount = (status === 'abandoned' || status === 'interrupted')
       ? this.currentAvatarPausePenalty()
       : 0;
+    const penaltyXp = (status === 'abandoned' || status === 'interrupted') ? 20 : 0;
+
+    const objectiveCompletion = objCompleted || (this.objectiveCompleted() as any) || (status === 'completed' ? 'yes' : 'no');
+    const estimatedXp = status === 'completed'
+      ? (actualSeconds >= 60 ? (Math.max(1, Math.floor(actualSeconds / 60)) + (objectiveCompletion === 'yes' ? 20 : 0)) : 0)
+      : 0;
 
     // Guardar en el historial local de sesiones recientes (las últimas 30)
     this.membership.recordRecentSession({
@@ -2308,6 +2314,8 @@ export class Enfoque implements OnInit, OnDestroy {
       avatar_id: equippedAvatar,
       coins_earned: coinsEarned || 0,
       coins_penalized: penaltyAmount,
+      xp_earned: estimatedXp,
+      xp_penalized: penaltyXp,
       boss_damage_dealt: bossDamage,
       boss_hp_healed: bossHealed,
       boss_name: currentBossName,
@@ -2317,8 +2325,6 @@ export class Enfoque implements OnInit, OnDestroy {
     if (!this.supabaseService.isConfigured() || !this.supabaseService.currentUser()) {
       return;
     }
-
-    const objectiveCompletion = objCompleted || (this.objectiveCompleted() as any) || (status === 'completed' ? 'yes' : 'no');
     
     const distractions = this.distractionsList().map(d => ({
       id: d.id,
@@ -2374,6 +2380,10 @@ export class Enfoque implements OnInit, OnDestroy {
           ? ((result.coins_penalized !== undefined && result.coins_penalized > 0) ? result.coins_penalized : this.currentAvatarPausePenalty())
           : 0;
 
+        const settledXp = result.xp_earned !== undefined && Number(result.xp_earned) > 0
+          ? Number(result.xp_earned)
+          : estimatedXp;
+
         // Sincronizar el registro local con los valores exactos liquidados por la base de datos
         this.membership.recordRecentSession({
           id: nonceId,
@@ -2385,6 +2395,8 @@ export class Enfoque implements OnInit, OnDestroy {
           avatar_id: equippedAvatar,
           coins_earned: result.coins_earned ?? coinsEarned ?? 0,
           coins_penalized: finalPenalized,
+          xp_earned: settledXp,
+          xp_penalized: penaltyXp,
           boss_damage_dealt: result.boss_damage !== undefined ? result.boss_damage : bossDamage,
           boss_hp_healed: result.boss_heal !== undefined ? result.boss_heal : bossHealed,
           boss_name: currentBossName,
@@ -3128,12 +3140,13 @@ export class Enfoque implements OnInit, OnDestroy {
           this.showInterruptedModal.set(true);
           this.playAbandonmentSadSound();
 
+          this.membership.addFocusPoints(-20);
           if (this.membership.isPremium() && this.coworkingMode() === 'comunitario') {
-            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -50 XP). ${currentBossName} recuperó +${healHpInterrupted} HP.`, 'danger');
+            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -20 XP). ${currentBossName} recuperó +${healHpInterrupted} HP.`, 'danger');
           } else if (this.membership.isPremium()) {
-            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -50 XP).`, 'danger');
+            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -20 XP).`, 'danger');
           } else {
-            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins).`, 'danger');
+            this.showToast(`⚠️ Sesión cancelada por inactividad (-${penaltyCoinsInterrupted} ProCoins, -20 XP).`, 'danger');
           }
 
           // Notificación de escritorio y alerta de pestaña
@@ -3222,20 +3235,19 @@ export class Enfoque implements OnInit, OnDestroy {
 
     // 8. Efectos y notificaciones según tipo de cuenta
     const bossName = this.bossService.activeBoss().name || 'El Jefe';
+    this.membership.addFocusPoints(-20);
     if (this.membership.isPremium()) {
-      // Castigo de -50 XP por abandonar (exclusivo Premium)
-      this.membership.addFocusPoints(-50);
       // Cura al jefe por abandono en comunidad (solo usuarios Premium afectan al jefe)
       if (this.coworkingMode() === 'comunitario') {
         this.bossService.healBoss(this.userName() || 'Guerrero Anónimo', healHp);
         this.addComunidadEvent(`💔 ${this.userName() || 'Un Guerrero'} abandonó su sesión (-${penaltyCoins} ProCoins). ${bossName} recuperó +${healHp} HP.`, 'reaction');
-        this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins, -50 XP). ${bossName} recuperó +${healHp} HP.`, 'danger');
+        this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins, -20 XP). ${bossName} recuperó +${healHp} HP.`, 'danger');
       } else {
-        this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins, -50 XP).`, 'danger');
+        this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins, -20 XP).`, 'danger');
       }
     } else {
-      // Planes básicos pierden monedas pero no afectan al jefe de la comunidad
-      this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins).`, 'danger');
+      // Planes básicos pierden monedas y puntos de enfoque pero no afectan al jefe de la comunidad
+      this.showToast(`💔 Has abandonado la sesión (-${penaltyCoins} ProCoins, -20 XP).`, 'danger');
     }
 
     // 9. Liquidar en Supabase en segundo plano

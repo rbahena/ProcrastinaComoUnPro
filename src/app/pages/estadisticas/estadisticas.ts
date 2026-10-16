@@ -50,6 +50,8 @@ export interface RecentSessionItem {
   avatarName: string;
   coinsEarned: number;
   coinsPenalized: number;
+  focusPointsEarned: number;
+  focusPointsPenalized: number;
   tomatoesEarned: number;
   isFullTomato: boolean;
   bossDamageDealt: number;
@@ -299,6 +301,9 @@ export class Estadisticas implements OnInit, OnDestroy {
         avatar_id: s.avatar_id,
         coins_earned: s.coins_earned ?? 0,
         coins_penalized: Number(s.coins_penalized ?? 0),
+        xp_earned: Number(s.xp_earned ?? (s as any).focus_points_earned ?? 0),
+        xp_penalized: Number((s as any).xp_penalized ?? (s as any).focus_points_penalized ?? 0),
+        objective_completed: (s as any).objective_completed,
         boss_damage_dealt: s.boss_damage_dealt !== undefined && s.boss_damage_dealt !== null ? Number(s.boss_damage_dealt) : 0,
         boss_hp_healed: s.boss_hp_healed !== undefined && s.boss_hp_healed !== null ? Number(s.boss_hp_healed) : 0,
         boss_name: (s as any).boss_name || '',
@@ -379,6 +384,20 @@ export class Estadisticas implements OnInit, OnDestroy {
         penalizedCoins = this.membership.getAvatarPausePenalty(avatarId) || 10;
       }
 
+      // Puntos de enfoque (XP) ganados
+      let focusPoints = Number(s.xp_earned ?? s.focus_points_earned ?? 0);
+      if (focusPoints <= 0 && isCompleted) {
+        const baseMinXp = durationSec >= 60 ? Math.max(1, Math.floor(durationSec / 60)) : 0;
+        const objBonus = (s.objective_completed === 'yes' || s.objective_completed === undefined) ? 20 : 0;
+        focusPoints = baseMinXp + objBonus;
+      }
+
+      // Puntos de enfoque (XP) penalizados si fue abandonada o interrumpida
+      let penalizedPoints = Number(s.xp_penalized ?? s.focus_points_penalized ?? 0);
+      if (penalizedPoints <= 0 && isAbandonedOrInterrupted) {
+        penalizedPoints = 20;
+      }
+
       return {
         id: s.id || Math.random().toString(),
         objective: (s.objective_text || '').trim() || 'Sesión de Enfoque',
@@ -399,6 +418,8 @@ export class Estadisticas implements OnInit, OnDestroy {
         avatarName: avatarName,
         coinsEarned: coins,
         coinsPenalized: isAbandonedOrInterrupted ? penalizedCoins : 0,
+        focusPointsEarned: isCompleted ? focusPoints : 0,
+        focusPointsPenalized: isAbandonedOrInterrupted ? penalizedPoints : 0,
         tomatoesEarned: tomatoes,
         isFullTomato: isFull,
         bossDamageDealt: bossDamage,
