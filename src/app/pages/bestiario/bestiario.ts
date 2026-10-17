@@ -1,6 +1,7 @@
 import { Component, signal, computed, inject, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
 import { Navbar } from '../../components/navbar/navbar';
@@ -17,6 +18,12 @@ export class Bestiario {
   membership = inject(MembershipService);
   bossService = inject(ComunidadBossService);
   translation = inject(TranslationService);
+  router = inject(Router);
+
+  goToMembership() {
+    this.showGuide.set(false);
+    this.router.navigate(['/membresia']);
+  }
 
   currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
   userName!: WritableSignal<string>;
