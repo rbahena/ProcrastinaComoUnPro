@@ -488,7 +488,12 @@ export class SupabaseService {
       return { user: null, error: 'SUPABASE_NOT_CONFIGURED' };
     }
 
-    const emailClean = email.toLowerCase().trim();
+    const emailClean = (email || '').toLowerCase().trim();
+    const parts = emailClean.split('@');
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+    if (!emailClean || parts.length !== 2 || !parts[0] || !parts[1] || !parts[1].includes('.') || !emailRegex.test(emailClean) || emailClean.includes('..') || /\s/.test(emailClean)) {
+      return { user: null, error: 'Por favor, ingresa un correo electrónico con formato válido (ejemplo: usuario@correo.com).' };
+    }
 
     // 1. Verificación previa en profiles
     const alreadyExists = await this.isEmailRegistered(emailClean);
@@ -1068,6 +1073,9 @@ export class SupabaseService {
     isCritical: boolean = false,
     userName: string = 'Guerrero'
   ): Promise<{ success: boolean; error?: string; result?: any }> {
+    if (damage <= 0) {
+      return { success: true };
+    }
     if (!this.isConfigured()) {
       return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
     }

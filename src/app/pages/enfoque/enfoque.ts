@@ -2283,9 +2283,11 @@ export class Enfoque implements OnInit, OnDestroy {
     let bossDamage = 0;
     let bossHealed = 0;
 
+    const isFullPomodoro = actualSeconds >= 1500;
+
     if (isShared) {
       if (status === 'completed') {
-        bossDamage = this.membership.isPremium()
+        bossDamage = (this.membership.isPremium() && isFullPomodoro)
           ? this.membership.getAvatarDamagePoints(equippedAvatar)
           : 0;
       } else if (status === 'abandoned' || status === 'interrupted') {
@@ -3332,9 +3334,11 @@ export class Enfoque implements OnInit, OnDestroy {
         const coinsEarned = reward.coins;
         const tomatoesEarned = reward.tomatoes;
         
-        // Daño al Boss por completar el Pomodoro en la Comunidad (únicamente usuarios Premium pueden infligir daño)
+        const isFullPomodoro = actualSeconds >= 1500;
+        
+        // Daño al Boss por completar el Pomodoro en la Comunidad (únicamente usuarios Premium con bloques de 25+ min pueden infligir daño)
         if (isShared) {
-          if (this.membership.isPremium()) {
+          if (this.membership.isPremium() && isFullPomodoro) {
             const damage = this.membership.getAvatarDamagePoints(equippedAvatar);
             this.bossService.dealDamage(damage);
             this.membership.addWeeklyHonorPoints(Math.round(damage / 10));
@@ -3342,13 +3346,22 @@ export class Enfoque implements OnInit, OnDestroy {
             const eventText = `🗡️ ${this.userName()} completó su Pomodoro (+${coinsEarned} ProCoins) e infligió ${damage} DMG al Boss.`;
             this.addComunidadEvent(eventText, 'complete');
             this.showToastFeedback(`🎉 ¡Pomodoro completado! Ganaste +${coinsEarned} ProCoins (+${tomatoesEarned} 🍅) e infligiste ${damage} DMG al Boss.`, 'success');
+          } else if (this.membership.isPremium() && !isFullPomodoro) {
+            const eventText = `🍅 ${this.userName()} completó su sesión corta (+${coinsEarned} ProCoins).`;
+            this.addComunidadEvent(eventText, 'complete');
+            this.showToastFeedback(`🎉 ¡Sesión completada! Ganaste +${coinsEarned} ProCoins. (El daño al Boss requiere un bloque completo de 25+ min)`, 'info');
           } else {
             const eventText = `🍅 ${this.userName()} completó su sesión de enfoque (+${coinsEarned} ProCoins).`;
             this.addComunidadEvent(eventText, 'complete');
             this.showToastFeedback(`🎉 ¡Sesión completada! Ganaste +${coinsEarned} ProCoins (+${tomatoesEarned} 🍅).`, 'success');
           }
         } else {
-          this.showToastFeedback(`🎉 ¡Pomodoro completado! Ganaste +${coinsEarned} ProCoins (+${tomatoesEarned} 🍅).`, 'success');
+          this.showToastFeedback(
+            isFullPomodoro
+              ? `🎉 ¡Pomodoro completado! Ganaste +${coinsEarned} ProCoins (+${tomatoesEarned} 🍅).`
+              : `🎉 ¡Sesión completada! Ganaste +${coinsEarned} ProCoins.`,
+            'success'
+          );
         }
         
         // Recompensa adicional por objetivo cumplido (Pregunta 2)

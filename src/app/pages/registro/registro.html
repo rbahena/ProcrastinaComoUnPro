@@ -30,10 +30,27 @@
     }
 
     <!-- Main Form -->
-    <form (submit)="onSubmit($event, emailInput.value, passwordInput.value)" class="auth-form">
+    <form (submit)="onSubmit($event, emailInput.value, passwordInput.value)" class="auth-form" novalidate>
       <div class="form-group">
         <label for="email">{{ 'auth.emailLabel' | translate }}</label>
-        <input #emailInput type="email" id="email" [placeholder]="'auth.emailPlaceholder' | translate" required autocomplete="email" [disabled]="isLoading()">
+        <input 
+          #emailInput 
+          type="email" 
+          id="email" 
+          [placeholder]="'auth.emailPlaceholder' | translate" 
+          required 
+          autocomplete="email" 
+          [disabled]="isLoading()"
+          (input)="onEmailInput(emailInput.value)"
+          (blur)="onEmailBlur(emailInput.value)"
+          [class.input-error]="!!emailError()"
+        >
+        @if (emailError()) {
+          <div class="field-error-msg">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>{{ emailError() }}</span>
+          </div>
+        }
       </div>
 
       <div class="form-group">

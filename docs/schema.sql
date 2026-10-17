@@ -2061,8 +2061,8 @@ BEGIN
                 v_coins_earned := COALESCE(v_avatar.coins_per_pomodoro, 10);
             END IF;
             
-            -- Daño al Boss (exclusivo para usuarios con Membresía Pro)
-            IF v_user.is_premium THEN
+            -- Daño al Boss (exclusivo para usuarios con Membresía Pro y sesiones completas de al menos 25 minutos / 1500 segundos)
+            IF v_user.is_premium AND p_actual_seconds >= 1500 THEN
                 v_boss_damage := ROUND(v_avatar.boss_damage_points * v_time_factor);
 
                 -- Pasiva Táctica: Metodología Sapo / Rana (Golpe Crítico)
@@ -2102,9 +2102,9 @@ BEGIN
             -- XP base de enfoque: 1 XP por cada minuto completado
             v_xp_earned := v_xp_earned + GREATEST(1, (p_actual_seconds / 60)::INTEGER);
         ELSE
-            -- Sesión completada en menos de 2 minutos: sin monedas (prevención de granja)
+            -- Sesión completada en menos de 1 minuto: sin monedas ni daño (prevención de granja)
             v_coins_earned := 0;
-            v_boss_damage := 5;
+            v_boss_damage := 0;
         END IF;
 
         -- Cálculo de Racha (Streak) y Tomates según duración:
@@ -2516,6 +2516,11 @@ DECLARE
     v_event_type boss_event_type_enum := 'attack';
 BEGIN
     PERFORM set_config('app.settle_session', 'true', true);
+
+    -- Validar que el daño sea mayor a cero
+    IF COALESCE(p_damage, 0) <= 0 THEN
+        RETURN json_build_object('success', TRUE, 'current_hp', 0, 'damage_dealt', 0);
+    END IF;
 
     -- Validar si el usuario autenticado tiene membresía Pro (solo Pro inflige daño)
     IF v_user_id IS NOT NULL THEN

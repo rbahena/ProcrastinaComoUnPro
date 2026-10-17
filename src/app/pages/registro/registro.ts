@@ -13,6 +13,7 @@ import { TranslatePipe, TranslationService } from '../../services/translation.se
 })
 export class Registro {
   registroError = signal<string | null>(null);
+  emailError = signal<string | null>(null);
   isLoading = signal(false);
   showPassword = signal(false);
   password = signal<string>('');
@@ -63,6 +64,39 @@ export class Registro {
     public translation: TranslationService
   ) {}
 
+  isValidEmail(email: string): boolean {
+    if (!email) return false;
+    const trimmed = email.trim();
+    if (trimmed.length > 254) return false;
+    if (trimmed.includes('..') || /\s/.test(trimmed)) return false;
+    // Estructura formal: usuario @ dominio/subdominio . tld (debe contener un punto en el dominio, ej. .com, .co, .es, .org)
+    const parts = trimmed.split('@');
+    if (parts.length !== 2 || !parts[0] || !parts[1] || !parts[1].includes('.')) {
+      return false;
+    }
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(trimmed);
+  }
+
+  onEmailInput(val: string) {
+    // Si ya había un error visible, se reevalúa para removerlo en cuanto cumpla la regla de estructura
+    if (this.emailError()) {
+      if (!val || this.isValidEmail(val)) {
+        this.emailError.set(null);
+      }
+    }
+  }
+
+  onEmailBlur(val: string) {
+    const trimmed = (val || '').trim();
+    // Solo notifica al usuario cuando este no cumpla la regla
+    if (trimmed.length > 0 && !this.isValidEmail(trimmed)) {
+      this.emailError.set(this.translation.t('auth.invalidEmailError'));
+    } else {
+      this.emailError.set(null);
+    }
+  }
+
   onPasswordInput(val: string) {
     this.password.set(val);
   }
@@ -73,10 +107,34 @@ export class Registro {
 
   async onSubmit(event: Event, email: string, pass: string) {
     event.preventDefault();
-    this.isLoading.set(true);
     this.registroError.set(null);
 
-    const result = await this.membership.registerUser(email, pass);
+    const trimmedEmail = (email || '').trim();
+    if (!trimmedEmail) {
+      this.emailError.set(this.translation.t('auth.emailRequiredError'));
+      return;
+    }
+
+    if (!this.isValidEmail(trimmedEmail)) {
+      const msg = this.translation.t('auth.invalidEmailError');
+      this.emailError.set(msg);
+      this.registroError.set(msg);
+      return;
+    }
+
+    if (!pass || pass.length < 8) {
+      const msg = this.translation.currentLang() === 'en'
+        ? 'Password must be at least 8 characters long.'
+        : 'La contraseña debe tener al menos 8 caracteres.';
+      this.registroError.set(msg);
+      return;
+    }
+
+    this.emailError.set(null);
+    this.registroError.set(null);
+    this.isLoading.set(true);
+
+    const result = await this.membership.registerUser(trimmedEmail, pass);
     this.isLoading.set(false);
 
     if (result.success) {

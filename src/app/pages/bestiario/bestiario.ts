@@ -28,8 +28,26 @@ export class Bestiario {
   activeCardIndex = signal(0);
   sirenRevealed = signal<boolean>(false);
   showGuide = signal(false);
+  guideTab = signal<'rules' | 'manual'>('rules');
 
-  toggleGuide() {
+  openRules() {
+    this.guideTab.set('rules');
+    this.showGuide.set(true);
+  }
+
+  openManual() {
+    this.guideTab.set('manual');
+    this.showGuide.set(true);
+  }
+
+  setGuideTab(tab: 'rules' | 'manual') {
+    this.guideTab.set(tab);
+  }
+
+  toggleGuide(tab: 'rules' | 'manual' = 'rules') {
+    if (!this.showGuide()) {
+      this.guideTab.set(tab);
+    }
     this.showGuide.update(v => !v);
   }
 

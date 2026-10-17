@@ -164,8 +164,8 @@ export class ComunidadBossService {
 
   // Infligir daño directo al Jefe (exclusivo para planes Premium)
   dealDamage(amount: number) {
-    if (!this.membership.isPremium()) {
-      return; // Los planes básicos no pueden afectar al jefe ni aportar daño
+    if (!this.membership.isPremium() || amount <= 0) {
+      return; // Los planes básicos no pueden afectar al jefe ni aportar daño, y daño <= 0 no aplica
     }
 
     const finalAmount = amount;

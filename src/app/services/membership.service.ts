@@ -1666,10 +1666,11 @@ export class MembershipService {
     if (!email || !pass) {
       return { success: false, error: 'Por favor, completa todos los campos.' };
     }
-    
-    const emailLower = email.toLowerCase().trim();
-    if (!emailLower.includes('@')) {
-      return { success: false, error: 'El correo electrónico no es válido.' };
+    const emailLower = (email || '').toLowerCase().trim();
+    const parts = emailLower.split('@');
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+    if (parts.length !== 2 || !parts[0] || !parts[1] || !parts[1].includes('.') || !emailRegex.test(emailLower) || emailLower.includes('..') || /\s/.test(emailLower)) {
+      return { success: false, error: 'El correo electrónico no tiene un formato válido (ejemplo: usuario@correo.com).' };
     }
 
     if (pass.length < 8) {

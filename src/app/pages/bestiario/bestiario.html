@@ -17,8 +17,16 @@
 
       <!-- Panel de Recompensas y Guía -->
       <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <!-- Botón Reglas de Daño y Tiempos -->
+        <button (click)="openRules()" 
+                class="btn-como-vencer btn-boss-rules"
+                [title]="'bestiary.rulesTabTitle' | translate">
+          <i class="fa-solid fa-scroll icon-guide"></i>
+          <span>{{ 'bestiary.rulesTabTitle' | translate }}</span>
+        </button>
+
         <!-- Botón ¿Cómo Vencer? -->
-        <button (click)="toggleGuide()" 
+        <button (click)="openManual()" 
                 class="btn-como-vencer"
                 [title]="'bestiary.combatManualTitle' | translate">
           <i class="fa-solid fa-circle-question icon-guide"></i>
@@ -179,30 +187,113 @@
 
   </div>
 
-  <!-- MODAL DE INSTRUCCIONES (GUÍA DE COMBATE) -->
+  <!-- MODAL DE INSTRUCCIONES (GUÍA Y REGLAS DE COMBATE) -->
   <div *ngIf="showGuide()" 
        (click)="toggleGuide()" 
        style="position: fixed; inset: 0; background: rgba(5, 5, 8, 0.85); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn 0.25s ease;">
     
     <!-- Ventana Modal -->
     <div (click)="$event.stopPropagation()" 
-         style="background: #0d0d12; border: 2px solid rgba(255,255,255,0.06); border-radius: 16px; max-width: 860px; width: 100%; box-shadow: 0 0 40px rgba(99, 102, 241, 0.15); display: flex; flex-direction: column; overflow: hidden; animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+         style="background: #0d0d12; border: 2px solid rgba(255,255,255,0.06); border-radius: 16px; max-width: 880px; width: 100%; box-shadow: 0 0 40px rgba(99, 102, 241, 0.15); display: flex; flex-direction: column; overflow: hidden; animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
       
-      <!-- Header del Modal -->
-      <div style="padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
-        <h3 style="margin: 0; font-size: 18px; font-weight: 900; text-transform: uppercase; color: #fff; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-circle-question" style="color: var(--accent);"></i>
-          {{ 'bestiary.combatManualTitle' | translate }}
-        </h3>
+      <!-- Header del Modal con Selector de Pestañas -->
+      <div class="guide-modal-header">
+        <div class="guide-tabs">
+          <button class="guide-tab-btn" 
+                  [class.active]="guideTab() === 'rules'" 
+                  (click)="setGuideTab('rules')">
+            <i class="fa-solid fa-scroll"></i>
+            <span>{{ 'bestiary.rulesTabTitle' | translate }}</span>
+          </button>
+          <button class="guide-tab-btn" 
+                  [class.active]="guideTab() === 'manual'" 
+                  (click)="setGuideTab('manual')">
+            <i class="fa-solid fa-gamepad"></i>
+            <span>{{ 'bestiary.manualTabTitle' | translate }}</span>
+          </button>
+        </div>
         <button (click)="toggleGuide()" 
-                style="background: transparent; border: none; color: var(--muted); font-size: 24px; cursor: pointer; line-height: 1; transition: color 0.2s;"
-                onmouseover="this.style.color='#fff'"
-                onmouseout="this.style.color='var(--muted)'">&times;</button>
+                class="guide-modal-close"
+                aria-label="Cerrar">&times;</button>
       </div>
 
-      <!-- Contenido del Modal (Diseño de 2 columnas) -->
-      <div style="padding: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; max-height: 65vh; overflow-y: auto;">
-        
+      <!-- Pestaña 1: Reglas de Daño y Tiempos -->
+      <div *ngIf="guideTab() === 'rules'" style="padding: 24px 28px; max-height: 65vh; overflow-y: auto;" class="custom-scrollbar">
+        <div style="margin-bottom: 20px;">
+          <h4 style="margin: 0 0 6px 0; font-size: 16px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-clock" style="color: var(--accent, #6366f1);"></i>
+            {{ 'bestiary.timingRulesHeader' | translate }}
+          </h4>
+          <p style="margin: 0; font-size: 13.5px; color: var(--muted, #94a3b8); line-height: 1.5;">
+            {{ 'bestiary.timingRulesSub' | translate }}
+          </p>
+        </div>
+
+        <div class="rules-grid">
+          <!-- Regla 1: 25+ min Daño -->
+          <div class="rule-detail-card card-damage">
+            <div class="rule-detail-header">
+              <span class="rule-detail-title">
+                <i class="fa-solid fa-burst" style="color: #34d399; margin-right: 8px;"></i>
+                {{ 'bestiary.ruleDamageTitle' | translate }}
+              </span>
+              <span class="rule-badge badge-damage">{{ 'bestiary.ruleDamageBadge' | translate }}</span>
+            </div>
+            <p class="rule-detail-desc">{{ 'bestiary.ruleDamageDesc' | translate }}</p>
+          </div>
+
+          <!-- Regla 2: Corto < 25 min -->
+          <div class="rule-detail-card card-short">
+            <div class="rule-detail-header">
+              <span class="rule-detail-title">
+                <i class="fa-solid fa-shield-halved" style="color: #fbbf24; margin-right: 8px;"></i>
+                {{ 'bestiary.ruleShortTitle' | translate }}
+              </span>
+              <span class="rule-badge badge-short">{{ 'bestiary.ruleShortBadge' | translate }}</span>
+            </div>
+            <p class="rule-detail-desc">{{ 'bestiary.ruleShortDesc' | translate }}</p>
+          </div>
+
+          <!-- Regla 3: Abandono >= 1 min -->
+          <div class="rule-detail-card card-abandon">
+            <div class="rule-detail-header">
+              <span class="rule-detail-title">
+                <i class="fa-solid fa-heart-pulse" style="color: #f87171; margin-right: 8px;"></i>
+                {{ 'bestiary.ruleAbandonTitle' | translate }}
+              </span>
+              <span class="rule-badge badge-abandon">{{ 'bestiary.ruleAbandonBadge' | translate }}</span>
+            </div>
+            <p class="rule-detail-desc">{{ 'bestiary.ruleAbandonDesc' | translate }}</p>
+          </div>
+
+          <!-- Regla 4: Descarte < 1 min -->
+          <div class="rule-detail-card card-neutral">
+            <div class="rule-detail-header">
+              <span class="rule-detail-title">
+                <i class="fa-solid fa-bolt" style="color: #94a3b8; margin-right: 8px;"></i>
+                {{ 'bestiary.ruleDiscardTitle' | translate }}
+              </span>
+              <span class="rule-badge badge-neutral">{{ 'bestiary.ruleDiscardBadge' | translate }}</span>
+            </div>
+            <p class="rule-detail-desc">{{ 'bestiary.ruleDiscardDesc' | translate }}</p>
+          </div>
+
+          <!-- Regla 5: Cuenta Pro -->
+          <div class="rule-detail-card card-account" style="grid-column: 1 / -1;">
+            <div class="rule-detail-header">
+              <span class="rule-detail-title">
+                <i class="fa-solid fa-crown" style="color: #a5b4fc; margin-right: 8px;"></i>
+                {{ 'bestiary.ruleAccountTitle' | translate }}
+              </span>
+              <span class="rule-badge badge-account">{{ 'bestiary.ruleAccountBadge' | translate }}</span>
+            </div>
+            <p class="rule-detail-desc">{{ 'bestiary.ruleAccountDesc' | translate }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestaña 2: Manual de Combate (Diseño de 2 columnas) -->
+      <div *ngIf="guideTab() === 'manual'" style="padding: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; max-height: 65vh; overflow-y: auto;" class="custom-scrollbar">
         <!-- Paso 1 -->
         <div style="display: flex; gap: 12px; align-items: flex-start; text-align: left;">
           <div class="combat-guide-num step-1">1</div>
@@ -256,7 +347,6 @@
             <p class="combat-guide-desc">{{ 'bestiary.step6Desc' | translate }}</p>
           </div>
         </div>
-
       </div>
 
       <!-- Footer del Modal -->
