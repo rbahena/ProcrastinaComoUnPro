@@ -97,9 +97,9 @@ serve(async (req) => {
 
         if (!profile?.welcome_coins_awarded) {
           const currentCoins = Number(profile?.pro_coins) || 0;
-          updatePayload.pro_coins = currentCoins + 30;
+          updatePayload.pro_coins = currentCoins + 50;
           updatePayload.welcome_coins_awarded = true;
-          console.log(`[stripe-webhook] Otorgando 30 Pro Coins de bienvenida al usuario ${userId}`);
+          console.log(`[stripe-webhook] Otorgando 50 Pro Coins de bienvenida al usuario ${userId}`);
         }
 
         const { error: updateError } = await supabaseAdmin
@@ -157,11 +157,11 @@ serve(async (req) => {
                   await supabaseAdmin
                     .from('profiles')
                     .update({
-                      pro_coins: (Number(p.pro_coins) || 0) + 30,
+                      pro_coins: (Number(p.pro_coins) || 0) + 50,
                       welcome_coins_awarded: true
                     })
                     .eq('id', p.id);
-                  console.log(`[stripe-webhook] Otorgando 30 Pro Coins de bienvenida a ${p.id} en customer.subscription.updated`);
+                  console.log(`[stripe-webhook] Otorgando 50 Pro Coins de bienvenida a ${p.id} en customer.subscription.updated`);
                 }
 
                 const rows = vipAvatars.map(id => ({ user_id: p.id, item_id: id, unlock_source: 'admin' }));

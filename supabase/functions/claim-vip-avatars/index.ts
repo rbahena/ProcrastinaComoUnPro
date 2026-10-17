@@ -51,7 +51,7 @@ serve(async (req) => {
     // 2. Verificar estatus Premium directamente en la base de datos (inmutable desde el cliente)
     const { data: profile, error: profError } = await supabaseAdmin
       .from('profiles')
-      .select('is_premium')
+      .select('is_premium, pro_coins, welcome_coins_awarded')
       .eq('id', user.id)
       .single();
 
@@ -90,9 +90,35 @@ serve(async (req) => {
       );
     }
 
+    // 3.1 Garantizar que el usuario reciba sus 50 Pro Coins de bienvenida si aún no se le han asignado
+    let bonusCoinsAwarded = false;
+    if (!profile.welcome_coins_awarded) {
+      const currentCoins = Number(profile.pro_coins) || 0;
+      const { error: coinsError } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          pro_coins: currentCoins + 50,
+          welcome_coins_awarded: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (!coinsError) {
+        bonusCoinsAwarded = true;
+        console.log(`[claim-vip-avatars] Otorgando 50 Pro Coins de bienvenida a ${user.id}`);
+      } else {
+        console.error('[claim-vip-avatars] Error otorgando monedas de bienvenida:', coinsError);
+      }
+    }
+
     console.log(`[claim-vip-avatars] Avatares VIP desbloqueados legítimamente para usuario ${user.id}`);
     return new Response(
-      JSON.stringify({ success: true, items: VIP_AVATARS }),
+      JSON.stringify({ 
+        success: true, 
+        items: VIP_AVATARS,
+        bonus_coins_awarded: bonusCoinsAwarded,
+        bonus_coins: bonusCoinsAwarded ? 50 : 0
+      }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

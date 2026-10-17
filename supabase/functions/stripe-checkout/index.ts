@@ -79,9 +79,58 @@ serve(async (req) => {
     // 3. Obtener perfil de usuario
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('stripe_customer_id, email, username, pro_coins, welcome_coins_awarded')
+      .select('stripe_customer_id, email, username, pro_coins, welcome_coins_awarded, is_premium, premium_until')
       .eq('id', user.id)
       .maybeSingle();
+
+    // Activación directa de prueba gratuita de 7 días (demo in-app / prueba sin Stripe)
+    if (body.action === 'activate-trial') {
+      const trialDays = 7;
+      const trialEnd = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000).toISOString();
+      let welcomeBonusGranted = false;
+      const updatePayload: Record<string, any> = {
+        is_premium: true,
+        premium_until: trialEnd,
+        updated_at: new Date().toISOString()
+      };
+
+      // Otorgar 50 Pro Coins de bienvenida al activar la prueba si aún no se han concedido
+      if (!profile?.welcome_coins_awarded) {
+        const currentCoins = Number(profile?.pro_coins) || 0;
+        updatePayload.pro_coins = currentCoins + 50;
+        updatePayload.welcome_coins_awarded = true;
+        welcomeBonusGranted = true;
+        console.log(`[stripe-checkout activate-trial] Otorgando 50 Pro Coins de bienvenida a ${user.id}`);
+      }
+
+      const { error: updateError } = await supabaseAdmin
+        .from('profiles')
+        .update(updatePayload)
+        .eq('id', user.id);
+
+      if (updateError) {
+        console.error('[stripe-checkout activate-trial] Error actualizando perfil:', updateError);
+        return new Response(
+          JSON.stringify({ success: false, error: updateError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+      const rows = vipAvatars.map(id => ({ user_id: user.id, item_id: id, unlock_source: 'admin' }));
+      await supabaseAdmin.from('user_unlocked_items').upsert(rows, { onConflict: 'user_id, item_id', ignoreDuplicates: true });
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          is_premium: true,
+          premium_until: trialEnd,
+          welcome_coins_awarded: welcomeBonusGranted,
+          bonus_coins: welcomeBonusGranted ? 50 : 0
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Sincronización o verificación inmediata de suscripción Pro
     if (body.action === 'sync-subscription' || body.action === 'verify-session') {
@@ -104,8 +153,24 @@ serve(async (req) => {
         }
       }
 
-      // B) Si tenemos customerId, consultar las suscripciones del cliente en Stripe
-      if (customerId) {
+      // B) Si tenemos subscriptionId directamente, consultar la suscripción en Stripe
+      if (subscriptionId) {
+        try {
+          const sub = await stripe.subscriptions.retrieve(subscriptionId);
+          if (['active', 'trialing'].includes(sub.status)) {
+            isProActive = true;
+            const endTs = sub.trial_end || sub.current_period_end;
+            if (endTs) {
+              premiumUntil = new Date(endTs * 1000).toISOString();
+            }
+          }
+        } catch (subErr) {
+          console.error('[stripe-checkout sync] Error consultando subscription:', subErr);
+        }
+      }
+
+      // C) Si tenemos customerId y aún no validamos subscriptionId, consultar las suscripciones del cliente en Stripe
+      if (customerId && !isProActive) {
         try {
           const subs = await stripe.subscriptions.list({ customer: customerId, status: 'all', limit: 3 });
           for (const sub of subs.data) {
@@ -124,10 +189,10 @@ serve(async (req) => {
         }
       }
 
-      // Opción A: Si no hay suscripción activa en Stripe, pero el periodo de prueba premium_until aún no expira, se respeta el tiempo
-      if (!isProActive && profile?.premium_until && new Date(profile.premium_until).getTime() > Date.now()) {
+      // D) Si el usuario ya cuenta con estatus Premium o periodo de prueba no expirado en su perfil, se respeta
+      if (!isProActive && (profile?.is_premium || (profile?.premium_until && new Date(profile.premium_until).getTime() > Date.now()))) {
         isProActive = true;
-        premiumUntil = profile.premium_until;
+        premiumUntil = profile?.premium_until || null;
       }
 
       if (isProActive) {
@@ -139,13 +204,14 @@ serve(async (req) => {
           updated_at: new Date().toISOString()
         };
 
-        // Otorgar 30 Pro Coins de bienvenida al iniciar prueba o suscripción si aún no se han concedido
+        // Otorgar 50 Pro Coins de bienvenida al iniciar prueba o suscripción si aún no se han concedido
         let welcomeBonusGranted = false;
         if (!profile?.welcome_coins_awarded) {
           const currentCoins = Number(profile?.pro_coins) || 0;
-          updatePayload.pro_coins = currentCoins + 30;
+          updatePayload.pro_coins = currentCoins + 50;
           updatePayload.welcome_coins_awarded = true;
           welcomeBonusGranted = true;
+          console.log(`[stripe-checkout sync] Otorgando 50 Pro Coins de bienvenida a ${user.id}`);
         }
 
         await supabaseAdmin
@@ -165,7 +231,7 @@ serve(async (req) => {
             subscriptionId, 
             premiumUntil,
             welcome_coins_awarded: welcomeBonusGranted,
-            bonus_coins: welcomeBonusGranted ? 30 : 0
+            bonus_coins: welcomeBonusGranted ? 50 : 0
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

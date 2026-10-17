@@ -377,7 +377,9 @@ export interface UserProfile {
   selected_timer?: string;
   focus_preferences?: FocusPreferences;
   is_premium?: boolean;
+  premium_until?: string;
   pro_coins?: number;
+  welcome_coins_awarded?: boolean;
   focus_points?: number;
   focus_tomatoes?: number;
   completed_objectives?: number;
@@ -2558,10 +2560,10 @@ export class SupabaseService {
 
   /**
    * Invoca de forma segura la Edge Function 'claim-vip-avatars' para verificar
-   * el estatus de la suscripción en el servidor y desbloquear los avatares VIP
-   * en user_unlocked_items sin permitir inyecciones arbitrarias desde el cliente.
+   * el estatus de la suscripción en el servidor, desbloquear los avatares VIP
+   * y garantizar la entrega de las 50 Pro Coins de bienvenida si aún no se han concedido.
    */
-  async claimVipAvatars(): Promise<{ success: boolean; items?: string[]; error?: string }> {
+  async claimVipAvatars(): Promise<{ success: boolean; items?: string[]; bonus_coins_awarded?: boolean; bonus_coins?: number; error?: string }> {
     if (!this.isConfigured()) return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
     try {
       const { data, error } = await this.supabase.functions.invoke('claim-vip-avatars');
@@ -2571,6 +2573,54 @@ export class SupabaseService {
       return data || { success: true };
     } catch (e: any) {
       return { success: false, error: e?.message };
+    }
+  }
+
+  /**
+   * Activa directamente la prueba gratuita de 7 días de COFU Pro a través de la Edge Function
+   * o RPC del servidor, otorgando automáticamente las 50 Pro Coins de bienvenida y avatares VIP.
+   */
+  async activateFreeTrial(): Promise<{ success: boolean; is_premium: boolean; bonus_coins?: number; error?: string }> {
+    if (!this.isConfigured()) return { success: false, is_premium: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    try {
+      const { data: sessionData } = await this.supabase.auth.getSession();
+      const headers: Record<string, string> = {};
+      if (sessionData?.session?.access_token) {
+        headers['Authorization'] = `Bearer ${sessionData.session.access_token}`;
+      }
+
+      // 1. Invocar Edge Function stripe-checkout con acción 'activate-trial'
+      const { data, error } = await this.supabase.functions.invoke('stripe-checkout', {
+        body: { action: 'activate-trial' },
+        headers
+      });
+
+      if (!error && data?.success) {
+        return {
+          success: true,
+          is_premium: !!data.is_premium,
+          bonus_coins: data.bonus_coins ?? 50
+        };
+      }
+
+      // 2. Fallback a RPC 'activate_free_trial' si la Edge Function no responde
+      const { data: rpcData, error: rpcError } = await this.supabase.rpc('activate_free_trial');
+      if (!rpcError && rpcData?.success) {
+        return {
+          success: true,
+          is_premium: !!rpcData.is_premium,
+          bonus_coins: rpcData.bonus_coins ?? 50
+        };
+      }
+
+      return {
+        success: false,
+        is_premium: false,
+        error: error?.message || rpcError?.message || 'Error al activar la prueba gratuita'
+      };
+    } catch (e: any) {
+      console.warn('[SupabaseService activateFreeTrial exception]', e);
+      return { success: false, is_premium: false, error: e?.message };
     }
   }
 

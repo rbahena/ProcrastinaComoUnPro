@@ -124,6 +124,12 @@ BEGIN
         INSERT INTO public.user_unlocked_items (user_id, item_id, unlock_source)
         SELECT NEW.id, unnest(v_vip_avatars), 'admin'
         ON CONFLICT (user_id, item_id) DO NOTHING;
+
+        -- Adjudicar automáticamente las 50 Pro Coins de bienvenida si no se han concedido
+        IF NEW.welcome_coins_awarded IS NOT TRUE THEN
+            NEW.pro_coins := COALESCE(NEW.pro_coins, 0) + 50;
+            NEW.welcome_coins_awarded := TRUE;
+        END IF;
     END IF;
 
     RETURN NEW;

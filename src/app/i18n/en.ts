@@ -2,6 +2,8 @@ export const EN = {
   "common": {
     "loading": "Loading...",
     "save": "Save",
+    "saveChanges": "Save Changes",
+    "savechanges": "Save Changes",
     "cancel": "Cancel",
     "close": "Close",
     "confirm": "Confirm",
@@ -611,10 +613,10 @@ export const EN = {
     "faqA3": "Prices are set in US Dollars (USD). Your bank automatically converts to your local currency at official rates with zero surprise fees.",
     "faqQ4": "Can I cancel or modify my membership anytime?",
     "faqA4": "Absolutely! Manage or cancel your subscription with a single click at any time without lock-ins.",
-    "welcomeCoins": "30 Pro Coins Welcome Bonus",
-    "welcomeCoinsDesc": "Receive 30 gift coins upon activating your trial or subscription to unlock avatars, games, or timers.",
+    "welcomeCoins": "50 Pro Coins Welcome Bonus",
+    "welcomeCoinsDesc": "Receive 50 gift coins upon activating your trial or subscription to unlock avatars, games, or timers.",
     "successTitle": "Welcome to COFU Pro!",
-    "successDesc": "Your account has been upgraded to COFU Pro. You received 30 Pro Coins as a welcome bonus for the shop!"
+    "successDesc": "Your account has been upgraded to COFU Pro. You received 50 Pro Coins as a welcome bonus for the shop!"
   },
   "stats": {
     "pageTitle": "Your Focus Progress",

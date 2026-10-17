@@ -127,6 +127,7 @@ export class MembershipService {
 
   // Estado de membresía (Pro/Premium)
   isPremium = signal<boolean>(false);
+  welcomeCoinsAwarded = signal<boolean>(false);
 
   // Estado del sidebar global
   sidebarCollapsed = signal<boolean>(
@@ -463,6 +464,7 @@ export class MembershipService {
       },
       gamification: {
         proCoins: this.proCoins(),
+        welcomeCoinsAwarded: this.welcomeCoinsAwarded(),
         focusPoints: this.focusPoints(),
         focusTomatoes: this.focusTomatoes(),
         completedObjectives: this.completedObjectives(),
@@ -1070,26 +1072,38 @@ export class MembershipService {
     return { success: true };
   }
 
-  // Activar/desactivar Premium
+  // Activar/desactivar Premium (incluyendo prueba gratuita / demo de 7 días)
   async setPremium(premium: boolean) {
     this.isPremium.set(premium);
-    this.saveConsolidatedUserData();
 
     if (premium) {
+      // 1. Otorgar el bono de bienvenida de 50 monedas de regalo si aún no se han concedido
+      if (!this.welcomeCoinsAwarded()) {
+        this.welcomeCoinsAwarded.set(true);
+        this.addProCoins(50);
+      }
       this.unlockVipAvatarsForPremiumUser();
     } else {
       this.revokeVipAvatarsLocally();
     }
+
+    this.saveConsolidatedUserData();
 
     // Sincronizar estado en Supabase profiles si está conectado
     if (this.supabaseService.isConfigured()) {
       try {
         const user = this.supabaseService.currentUser();
         if (user) {
-          await this.supabaseService.updateProfile(user.id, { is_premium: premium });
+          if (premium) {
+            // Activar formalmente la prueba en el servidor para persistir is_premium y las 50 monedas
+            await this.supabaseService.activateFreeTrial();
+            await this.syncProfileFromSupabase();
+          } else {
+            await this.supabaseService.updateProfile(user.id, { is_premium: false });
+          }
         }
       } catch (e) {
-        console.warn('[MembershipService] Error sincronizando is_premium en Supabase:', e);
+        console.warn('[MembershipService] Error sincronizando premium en Supabase:', e);
       }
     }
   }
@@ -1857,6 +1871,9 @@ export class MembershipService {
     }
 
     // Supabase es la única fuente de verdad estricta para los valores de gamificación
+    if (p.welcome_coins_awarded !== undefined) {
+      this.welcomeCoinsAwarded.set(!!p.welcome_coins_awarded);
+    }
     const serverCoins = Number(p.pro_coins ?? p.coins ?? 0);
     this.proCoins.set(serverCoins);
 
@@ -2072,6 +2089,11 @@ export class MembershipService {
         const res = await this.supabaseService.claimVipAvatars();
         if (res?.success) {
           await this.syncUnlockedAvatarUrls();
+          if (res.bonus_coins_awarded) {
+            this.welcomeCoinsAwarded.set(true);
+            this.proCoins.update(c => c + 50);
+            this.saveConsolidatedUserData();
+          }
         }
       } catch (e) {
         console.warn('[MembershipService] Error sincronizando avatares VIP en user_unlocked_items:', e);
@@ -2171,6 +2193,7 @@ export class MembershipService {
         }
         if (bundle.gamification) {
           if (bundle.gamification.proCoins !== undefined) this.proCoins.set(bundle.gamification.proCoins);
+          if (bundle.gamification.welcomeCoinsAwarded !== undefined) this.welcomeCoinsAwarded.set(bundle.gamification.welcomeCoinsAwarded);
           if (bundle.gamification.focusPoints !== undefined) this.focusPoints.set(bundle.gamification.focusPoints);
           if (bundle.gamification.focusTomatoes !== undefined) {
             this.focusTomatoes.set(bundle.gamification.focusTomatoes);
