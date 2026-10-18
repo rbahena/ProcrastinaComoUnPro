@@ -530,7 +530,6 @@ interface CountryOption {
                       <i [class]="getHowToGetIcon(inspectedAvatar())" [style.color]="inspectedAvatar().color || 'var(--accent, #00f2fe)'"></i>
                       <span class="how-to-get-type-tag">{{ getHowToGetMethodTag(inspectedAvatar()) }}</span>
                     </div>
-                    <div class="how-to-get-main-title">{{ getHowToGetTitle(inspectedAvatar()) }}</div>
                     <p class="how-to-get-text">{{ getHowToGetDescription(inspectedAvatar()) }}</p>
 
                     <!-- Barra de progreso si es de cualidad y está bloqueado -->
@@ -2377,6 +2376,7 @@ interface CountryOption {
       display: flex;
       align-items: center;
       gap: 6px;
+      margin-bottom: 4px;
     }
     .how-to-get-header-line i {
       font-size: 10px;
@@ -2392,15 +2392,10 @@ interface CountryOption {
       text-transform: uppercase;
       letter-spacing: 0.3px;
     }
-    .how-to-get-main-title {
-      font-size: 11.5px;
-      font-weight: 800;
-      color: #fff;
-    }
     .how-to-get-text {
       font-size: 11px;
       color: #94a3b8;
-      line-height: 1.4;
+      line-height: 1.45;
       margin: 0;
     }
     .how-to-get-progress-wrap {
