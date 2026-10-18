@@ -213,6 +213,15 @@ export interface RankNeighborItem {
   podium_wins?: number;
 }
 
+export interface WeeklyPodiumSnapshotData {
+  has_snapshot: boolean;
+  year_week?: string;
+  week_end_date?: string;
+  first_place?: { id?: string; username: string; avatar: string; score: number };
+  second_place?: { id?: string; username: string; avatar: string; score: number };
+  third_place?: { id?: string; username: string; avatar: string; score: number };
+}
+
 export interface CommunityHomeDashboardData {
   total_users: number;
   completed_today: number;
@@ -221,6 +230,7 @@ export interface CommunityHomeDashboardData {
   podium: CommunityLeaderboardUser[];
   top_records: CommunityLeaderboardUser[];
   recent_avatars: CommunityLeaderboardUser[];
+  weekly_champions?: WeeklyPodiumSnapshotData;
 }
 
 export interface MedalleroBrokenRecordHolder {
@@ -1884,6 +1894,36 @@ export class SupabaseService {
     return units > 0;
   }
 
+  async getLatestWeeklyPodium(): Promise<WeeklyPodiumSnapshotData> {
+    if (!this.isConfigured()) return { has_snapshot: false };
+    try {
+      const { data: rpcData, error: rpcError } = await this.supabase.rpc('get_latest_weekly_podium');
+      if (!rpcError && rpcData && rpcData.has_snapshot) {
+        return rpcData;
+      }
+      const { data: directSnap } = await this.supabase
+        .from('weekly_podium_snapshots')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (directSnap) {
+        return {
+          has_snapshot: true,
+          year_week: directSnap.year_week,
+          week_end_date: directSnap.week_end_date,
+          first_place: { id: directSnap.first_place_id, username: directSnap.first_place_username, avatar: directSnap.first_place_avatar, score: directSnap.first_place_score },
+          second_place: { id: directSnap.second_place_id, username: directSnap.second_place_username, avatar: directSnap.second_place_avatar, score: directSnap.second_place_score },
+          third_place: { id: directSnap.third_place_id, username: directSnap.third_place_username, avatar: directSnap.third_place_avatar, score: directSnap.third_place_score }
+        };
+      }
+    } catch {
+      // Fallback seguro si la tabla aún no existe en Supabase
+    }
+    return { has_snapshot: false };
+  }
+
   // ==========================================
   // DASHBOARD DE LA COMUNIDAD (HOME)
   // ==========================================
@@ -1894,6 +1934,8 @@ export class SupabaseService {
     }
 
     try {
+      const weeklyChampions = await this.getLatestWeeklyPodium();
+
       // 1. Intentar llamar al RPC get_community_home_dashboard
       const { data: rpcData, error: rpcError } = await this.supabase.rpc('get_community_home_dashboard');
       if (!rpcError && rpcData && rpcData.success) {
@@ -1915,7 +1957,8 @@ export class SupabaseService {
             top_records: (rpcData.top_records ?? []).filter((p: any) => 
               this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)
             ),
-            recent_avatars: rpcData.recent_avatars ?? []
+            recent_avatars: rpcData.recent_avatars ?? [],
+            weekly_champions: weeklyChampions
           },
           error: null
         };
@@ -2017,7 +2060,8 @@ export class SupabaseService {
           rank_neighbors: rankNeighbors,
           podium,
           top_records: topRecords,
-          recent_avatars: recentAvatars
+          recent_avatars: recentAvatars,
+          weekly_champions: weeklyChampions
         },
         error: null
       };

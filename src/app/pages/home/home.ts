@@ -3,7 +3,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
-import { SupabaseService, CommunityLeaderboardUser, RankNeighborItem } from '../../services/supabase.service';
+import { SupabaseService, CommunityLeaderboardUser, RankNeighborItem, WeeklyPodiumSnapshotData } from '../../services/supabase.service';
 import { Navbar } from '../../components/navbar/navbar';
 
 export interface PodiumDisplayItem {
@@ -97,8 +97,11 @@ export class Home implements OnInit, OnDestroy {
   // Vecinos en el ranking de tomates (2 arriba, tú, 2 abajo)
   rankNeighbors = signal<RankNeighborItem[]>([]);
 
-  // Podio de Honor (Top 3 histórico real en orden [2º, 1º, 3º] para la UI en vivo)
+  // Podio de Honor (Top 3 Campeones Vigentes en orden [2º, 1º, 3º] para la UI)
   topPodiumUsers = signal<PodiumDisplayItem[]>([]);
+
+  // Carrera en Vivo (Top 1 al 5 en tiempo real)
+  liveWeeklyTop5 = signal<PodiumDisplayItem[]>([]);
 
   // Siguientes 2 Lugares (4º y 5º puesto)
   topRunnersUp = signal<PodiumDisplayItem[]>([]);
@@ -112,8 +115,8 @@ export class Home implements OnInit, OnDestroy {
 
   hasPodiumWinners = computed(() => {
     const list = this.topPodiumUsers();
-    if (!list || list.length < 3) return false;
-    return list.some(u => u.isAssigned);
+    const live = this.liveWeeklyTop5();
+    return (list && list.some(u => u.isAssigned)) || (live && live.some(u => u.isAssigned));
   });
 
   displayPomodoroCount = computed(() => {
@@ -416,7 +419,7 @@ export class Home implements OnInit, OnDestroy {
       }
 
       // 3. Podio de Honor y Disciplina (Top 5 real e histórico de base de datos)
-      this.processPodiumData(data.podium || []);
+      this.processPodiumData(data.podium || [], data.weekly_champions);
 
       // 4. Récords Históricos (Top 5 real de base de datos)
       this.processHistoricalRecords(data.top_records || []);
@@ -475,8 +478,8 @@ export class Home implements OnInit, OnDestroy {
     };
   }
 
-  private processPodiumData(podiumUsers: CommunityLeaderboardUser[]) {
-    // Filtrar solo usuarios PREMIUM que tengan puntos o tomates registrados en BD y cumplan >5 unidades o >1 semana
+  private processPodiumData(podiumUsers: CommunityLeaderboardUser[], championsData?: WeeklyPodiumSnapshotData) {
+    // 1. Filtrar solo usuarios PREMIUM que tengan puntos o tomates registrados
     const activeUsers = (podiumUsers || [])
       .filter(u => 
         u.is_premium === true && 
@@ -489,32 +492,73 @@ export class Home implements OnInit, OnDestroy {
         return (scoreB - scoreA) || ((b.focus_tomatoes || 0) - (a.focus_tomatoes || 0));
       });
 
-    if (activeUsers.length === 0) {
-      this.topPodiumUsers.set([]);
-      this.topRunnersUp.set([
-        this.getUnassignedPodiumItem(4, '4º'),
-        this.getUnassignedPodiumItem(5, '5º')
-      ]);
-      return;
+    // 2. Carrera en Vivo (Top 1 al 5 en tiempo real)
+    const live1: PodiumDisplayItem = activeUsers[0] ? this.formatPodiumUser(activeUsers[0], 1, '1º') : this.getUnassignedPodiumItem(1, '1º');
+    const live2: PodiumDisplayItem = activeUsers[1] ? this.formatPodiumUser(activeUsers[1], 2, '2º') : this.getUnassignedPodiumItem(2, '2º');
+    const live3: PodiumDisplayItem = activeUsers[2] ? this.formatPodiumUser(activeUsers[2], 3, '3º') : this.getUnassignedPodiumItem(3, '3º');
+    const live4: PodiumDisplayItem = activeUsers[3] ? this.formatPodiumUser(activeUsers[3], 4, '4º') : this.getUnassignedPodiumItem(4, '4º');
+    const live5: PodiumDisplayItem = activeUsers[4] ? this.formatPodiumUser(activeUsers[4], 5, '5º') : this.getUnassignedPodiumItem(5, '5º');
+
+    this.liveWeeklyTop5.set([live1, live2, live3, live4, live5]);
+    this.topRunnersUp.set([live4, live5]); // Mantenido por compatibilidad
+
+    // 3. Podio de Campeones Vigentes (Mitad Izquierda: 2º Plata, 1º Oro, 3º Bronce)
+    if (championsData && championsData.has_snapshot && championsData.first_place) {
+      const champ1: PodiumDisplayItem = {
+        position: 1,
+        name: championsData.first_place.username,
+        avatar: championsData.first_place.avatar,
+        color: this.membership.getAvatarColorById(championsData.first_place.avatar),
+        value: `${championsData.first_place.score} 🍅`,
+        details: `${championsData.first_place.score} 🍅`,
+        score: championsData.first_place.score,
+        place: '1º',
+        wins: 1,
+        isAssigned: true,
+        is_premium: true
+      };
+
+      const champ2: PodiumDisplayItem = (championsData.second_place && championsData.second_place.username !== 'En disputa') ? {
+        position: 2,
+        name: championsData.second_place.username,
+        avatar: championsData.second_place.avatar,
+        color: this.membership.getAvatarColorById(championsData.second_place.avatar),
+        value: `${championsData.second_place.score} 🍅`,
+        details: `${championsData.second_place.score} 🍅`,
+        score: championsData.second_place.score,
+        place: '2º',
+        wins: 1,
+        isAssigned: true,
+        is_premium: true
+      } : this.getUnassignedPodiumItem(2, '2º');
+
+      const champ3: PodiumDisplayItem = (championsData.third_place && championsData.third_place.username !== 'En disputa') ? {
+        position: 3,
+        name: championsData.third_place.username,
+        avatar: championsData.third_place.avatar,
+        color: this.membership.getAvatarColorById(championsData.third_place.avatar),
+        value: `${championsData.third_place.score} 🍅`,
+        details: `${championsData.third_place.score} 🍅`,
+        score: championsData.third_place.score,
+        place: '3º',
+        wins: 1,
+        isAssigned: true,
+        is_premium: true
+      } : this.getUnassignedPodiumItem(3, '3º');
+
+      this.topPodiumUsers.set([champ2, champ1, champ3]);
+    } else {
+      // Si aún no hay un corte semanal registrado, muestra a los líderes actuales en el podio
+      if (activeUsers.length === 0) {
+        this.topPodiumUsers.set([
+          this.getUnassignedPodiumItem(2, '2º'),
+          this.getUnassignedPodiumItem(1, '1º'),
+          this.getUnassignedPodiumItem(3, '3º')
+        ]);
+      } else {
+        this.topPodiumUsers.set([live2, live1, live3]);
+      }
     }
-
-    const firstUser = activeUsers[0];
-    const secondUser = activeUsers[1];
-    const thirdUser = activeUsers[2];
-    const fourthUser = activeUsers[3];
-    const fifthUser = activeUsers[4];
-
-    const first: PodiumDisplayItem = this.formatPodiumUser(firstUser, 1, '1º');
-    const second: PodiumDisplayItem = secondUser ? this.formatPodiumUser(secondUser, 2, '2º') : this.getUnassignedPodiumItem(2, '2º');
-    const third: PodiumDisplayItem = thirdUser ? this.formatPodiumUser(thirdUser, 3, '3º') : this.getUnassignedPodiumItem(3, '3º');
-
-    // Formato requerido para la UI: [2º (izquierda), 1º (centro), 3º (derecha)]
-    this.topPodiumUsers.set([second, first, third]);
-
-    // Siguientes 2 lugares (4º y 5º)
-    const fourth: PodiumDisplayItem = fourthUser ? this.formatPodiumUser(fourthUser, 4, '4º') : this.getUnassignedPodiumItem(4, '4º');
-    const fifth: PodiumDisplayItem = fifthUser ? this.formatPodiumUser(fifthUser, 5, '5º') : this.getUnassignedPodiumItem(5, '5º');
-    this.topRunnersUp.set([fourth, fifth]);
   }
 
   private processHistoricalRecords(records: CommunityLeaderboardUser[]) {

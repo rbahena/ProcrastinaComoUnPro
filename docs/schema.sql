@@ -3258,6 +3258,192 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
+-- ------------------------------------------------------------------------------
+-- 2. SISTEMA DE CIERRE SEMANAL Y PODIO DEFENSOR (SNAPSHOT INMUTABLE)
+-- ------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS public.weekly_podium_snapshots (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    week_end_date DATE NOT NULL,
+    year_week TEXT NOT NULL,
+    
+    first_place_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    first_place_username TEXT NOT NULL,
+    first_place_avatar TEXT NOT NULL DEFAULT 'gato',
+    first_place_score INT NOT NULL DEFAULT 0,
+    
+    second_place_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    second_place_username TEXT NOT NULL,
+    second_place_avatar TEXT NOT NULL DEFAULT 'gato',
+    second_place_score INT NOT NULL DEFAULT 0,
+    
+    third_place_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    third_place_username TEXT NOT NULL,
+    third_place_avatar TEXT NOT NULL DEFAULT 'gato',
+    third_place_score INT NOT NULL DEFAULT 0,
+    
+    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT uq_weekly_podium_year_week UNIQUE (year_week)
+);
+
+ALTER TABLE public.weekly_podium_snapshots ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Podios semanales visibles públicamente" ON public.weekly_podium_snapshots;
+CREATE POLICY "Podios semanales visibles públicamente"
+    ON public.weekly_podium_snapshots FOR SELECT
+    USING (true);
+
+CREATE OR REPLACE FUNCTION public.get_latest_weekly_podium()
+RETURNS JSONB AS $$
+DECLARE
+    v_snapshot RECORD;
+BEGIN
+    SELECT * INTO v_snapshot 
+    FROM public.weekly_podium_snapshots 
+    ORDER BY created_at DESC 
+    LIMIT 1;
+
+    IF v_snapshot IS NULL THEN
+        RETURN jsonb_build_object('has_snapshot', FALSE);
+    END IF;
+
+    RETURN jsonb_build_object(
+        'has_snapshot', TRUE,
+        'year_week', v_snapshot.year_week,
+        'week_end_date', v_snapshot.week_end_date,
+        'first_place', jsonb_build_object(
+            'id', v_snapshot.first_place_id,
+            'username', v_snapshot.first_place_username,
+            'avatar', v_snapshot.first_place_avatar,
+            'score', v_snapshot.first_place_score
+        ),
+        'second_place', jsonb_build_object(
+            'id', v_snapshot.second_place_id,
+            'username', v_snapshot.second_place_username,
+            'avatar', v_snapshot.second_place_avatar,
+            'score', v_snapshot.second_place_score
+        ),
+        'third_place', jsonb_build_object(
+            'id', v_snapshot.third_place_id,
+            'username', v_snapshot.third_place_username,
+            'avatar', v_snapshot.third_place_avatar,
+            'score', v_snapshot.third_place_score
+        )
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+CREATE OR REPLACE FUNCTION public.close_weekly_league_and_award_podium()
+RETURNS JSONB AS $$
+DECLARE
+    v_today DATE := CURRENT_DATE;
+    v_year_week TEXT := to_char(v_today, 'IYYY-"W"IW');
+    v_rec_1 RECORD;
+    v_rec_2 RECORD;
+    v_rec_3 RECORD;
+    v_snapshot_id UUID;
+BEGIN
+    IF EXISTS (SELECT 1 FROM public.weekly_podium_snapshots WHERE year_week = v_year_week) THEN
+        RETURN jsonb_build_object(
+            'success', FALSE,
+            'message', 'El podio para la semana ' || v_year_week || ' ya fue cerrado y premiado.'
+        );
+    END IF;
+
+    SELECT id, username, selected_avatar, focus_tomatoes, focus_points
+    INTO v_rec_1
+    FROM public.profiles
+    WHERE is_premium = TRUE AND (focus_tomatoes > 0 OR focus_points > 0)
+    ORDER BY focus_points DESC, focus_tomatoes DESC, created_at ASC
+    LIMIT 1 OFFSET 0;
+
+    SELECT id, username, selected_avatar, focus_tomatoes, focus_points
+    INTO v_rec_2
+    FROM public.profiles
+    WHERE is_premium = TRUE AND (focus_tomatoes > 0 OR focus_points > 0)
+    ORDER BY focus_points DESC, focus_tomatoes DESC, created_at ASC
+    LIMIT 1 OFFSET 1;
+
+    SELECT id, username, selected_avatar, focus_tomatoes, focus_points
+    INTO v_rec_3
+    FROM public.profiles
+    WHERE is_premium = TRUE AND (focus_tomatoes > 0 OR focus_points > 0)
+    ORDER BY focus_points DESC, focus_tomatoes DESC, created_at ASC
+    LIMIT 1 OFFSET 2;
+
+    IF v_rec_1 IS NULL THEN
+        RETURN jsonb_build_object(
+            'success', FALSE,
+            'message', 'No hay suficientes usuarios elegibles para premiar.'
+        );
+    END IF;
+
+    UPDATE public.profiles
+    SET gold_medals = COALESCE(gold_medals, 0) + 1,
+        podium_wins = COALESCE(podium_wins, 0) + 1,
+        pro_coins = COALESCE(pro_coins, 0) + 100
+    WHERE id = v_rec_1.id;
+
+    IF v_rec_2 IS NOT NULL THEN
+        UPDATE public.profiles
+        SET silver_medals = COALESCE(silver_medals, 0) + 1,
+            podium_wins = COALESCE(podium_wins, 0) + 1,
+            pro_coins = COALESCE(pro_coins, 0) + 50
+        WHERE id = v_rec_2.id;
+    END IF;
+
+    IF v_rec_3 IS NOT NULL THEN
+        UPDATE public.profiles
+        SET bronze_medals = COALESCE(bronze_medals, 0) + 1,
+            podium_wins = COALESCE(podium_wins, 0) + 1,
+            pro_coins = COALESCE(pro_coins, 0) + 25
+        WHERE id = v_rec_3.id;
+    END IF;
+
+    INSERT INTO public.weekly_podium_snapshots (
+        week_end_date,
+        year_week,
+        first_place_id,
+        first_place_username,
+        first_place_avatar,
+        first_place_score,
+        second_place_id,
+        second_place_username,
+        second_place_avatar,
+        second_place_score,
+        third_place_id,
+        third_place_username,
+        third_place_avatar,
+        third_place_score
+    ) VALUES (
+        v_today,
+        v_year_week,
+        v_rec_1.id,
+        v_rec_1.username,
+        COALESCE(v_rec_1.selected_avatar, 'gato'),
+        COALESCE(v_rec_1.focus_tomatoes, 0),
+        v_rec_2.id,
+        COALESCE(v_rec_2.username, 'En disputa'),
+        COALESCE(v_rec_2.selected_avatar, 'gato'),
+        COALESCE(v_rec_2.focus_tomatoes, 0),
+        v_rec_3.id,
+        COALESCE(v_rec_3.username, 'En disputa'),
+        COALESCE(v_rec_3.selected_avatar, 'gato'),
+        COALESCE(v_rec_3.focus_tomatoes, 0)
+    ) RETURNING id INTO v_snapshot_id;
+
+    RETURN jsonb_build_object(
+        'success', TRUE,
+        'snapshot_id', v_snapshot_id,
+        'year_week', v_year_week,
+        'first_place', v_rec_1.username,
+        'second_place', COALESCE(v_rec_2.username, 'En disputa'),
+        'third_place', COALESCE(v_rec_3.username, 'En disputa')
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+
 -- ==============================================================================
 -- 📦 PASO 8: SALÓN DE LA FAMA, MEDALLERO Y RÉCORDS HISTÓRICOS (/medallero)
 -- ==============================================================================
