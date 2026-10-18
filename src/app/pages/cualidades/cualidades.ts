@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MembershipService, AvatarItem, QualityItem, ALL_AVATARS_LIST } from '../../services/membership.service';
 import { Navbar } from '../../components/navbar/navbar';
 import { TranslatePipe, TranslationService } from '../../services/translation.service';
+import { UserSocialLinks } from '../../services/supabase.service';
 
 export type GuardianArchetype = 'Inicial' | 'Cualidad' | 'Cazador' | 'Alto Riesgo' | string;
 
@@ -253,6 +254,27 @@ interface CountryOption {
                       } @else {
                         <button class="btn-add-chip" (click)="toggleEditProfile()" [title]="'cualidades.addCountry' | translate">
                           <i class="fa-solid fa-plus"></i> {{ 'cualidades.addCountry' | translate }}
+                        </button>
+                      }
+
+                      @if (membership.userSocialLinks()?.linkedin) {
+                        <a [href]="formatSocialUrl(membership.userSocialLinks()?.linkedin, 'linkedin')" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()" class="identity-chip social-chip linkedin-chip" [title]="'LinkedIn: ' + membership.userSocialLinks()?.linkedin">
+                          <i class="fa-brands fa-linkedin"></i>
+                        </a>
+                      }
+                      @if (membership.userSocialLinks()?.github) {
+                        <a [href]="formatSocialUrl(membership.userSocialLinks()?.github, 'github')" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()" class="identity-chip social-chip github-chip" [title]="'GitHub: ' + membership.userSocialLinks()?.github">
+                          <i class="fa-brands fa-github"></i>
+                        </a>
+                      }
+                      @if (membership.userSocialLinks()?.portfolio) {
+                        <a [href]="formatSocialUrl(membership.userSocialLinks()?.portfolio, 'portfolio')" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()" class="identity-chip social-chip portfolio-chip" [title]="'Portafolio: ' + membership.userSocialLinks()?.portfolio">
+                          <i class="fa-solid fa-globe"></i>
+                        </a>
+                      }
+                      @if (!hasSocialLinks()) {
+                        <button class="btn-add-chip" (click)="toggleEditProfile()" [title]="'cualidades.addSocialLinks' | translate">
+                          <i class="fa-solid fa-plus"></i> {{ 'cualidades.addSocialLinks' | translate }}
                         </button>
                       }
                     </div>
@@ -782,6 +804,51 @@ interface CountryOption {
                 </select>
               </div>
 
+              <!-- SECCIÓN DE REDES Y PORTAFOLIO -->
+              <div class="form-group-item social-links-form-section">
+                <div class="social-links-header-line">
+                  <label><i class="fa-solid fa-share-nodes text-cyan"></i> {{ 'cualidades.socialLinksLabel' | translate }}</label>
+                </div>
+                <p class="form-helper-desc">
+                  {{ 'cualidades.socialLinksDesc' | translate }}
+                </p>
+
+                <div class="social-inputs-grid">
+                  <div class="social-input-row">
+                    <span class="social-input-prefix linkedin-prefix" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></span>
+                    <input 
+                      type="text" 
+                      [value]="inputLinkedin()" 
+                      (input)="onLinkedinInput($event)" 
+                      [placeholder]="'cualidades.linkedinPlaceholder' | translate"
+                      class="text-input-field social-input-field"
+                    />
+                  </div>
+
+                  <div class="social-input-row">
+                    <span class="social-input-prefix github-prefix" title="GitHub"><i class="fa-brands fa-github"></i></span>
+                    <input 
+                      type="text" 
+                      [value]="inputGithub()" 
+                      (input)="onGithubInput($event)" 
+                      [placeholder]="'cualidades.githubPlaceholder' | translate"
+                      class="text-input-field social-input-field"
+                    />
+                  </div>
+
+                  <div class="social-input-row">
+                    <span class="social-input-prefix portfolio-prefix" title="Portfolio"><i class="fa-solid fa-globe"></i></span>
+                    <input 
+                      type="text" 
+                      [value]="inputPortfolio()" 
+                      (input)="onPortfolioInput($event)" 
+                      [placeholder]="'cualidades.portfolioPlaceholder' | translate"
+                      class="text-input-field social-input-field"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <!-- CONTROL DE SEMANA ACTIVA (CONTROL DE RACHAS) -->
               <div class="form-group-item active-week-form-section">
                 <div class="active-days-header-line">
@@ -1118,6 +1185,46 @@ interface CountryOption {
     .identity-chip .country-flag-icon {
       font-size: 13.5px;
       line-height: 1;
+    }
+    .social-chip {
+      text-decoration: none;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+    .social-chip i {
+      font-size: 13.5px;
+    }
+    .social-chip:hover {
+      transform: translateY(-1px);
+    }
+    .linkedin-chip:hover {
+      border-color: rgba(14, 165, 233, 0.45);
+      background: rgba(14, 165, 233, 0.12);
+      color: #38bdf8;
+    }
+    .linkedin-chip i {
+      color: #0ea5e9;
+    }
+    .github-chip:hover {
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+    .github-chip i {
+      color: #f1f5f9;
+    }
+    .portfolio-chip:hover {
+      border-color: rgba(16, 185, 129, 0.45);
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+    }
+    .portfolio-chip i {
+      color: #10b981;
     }
     .btn-add-chip {
       display: inline-flex;
@@ -2651,8 +2758,10 @@ interface CountryOption {
       background: #141926;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
-      width: 420px;
+      width: 440px;
       max-width: 92vw;
+      max-height: 90vh;
+      overflow-y: auto;
       padding: 22px;
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
       display: flex;
@@ -2709,6 +2818,64 @@ interface CountryOption {
     .form-error-msg {
       font-size: 9px;
       color: #ef4444;
+    }
+
+    .social-links-form-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 2px;
+    }
+    .social-links-header-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .social-inputs-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .social-input-row {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+    .social-input-row:focus-within {
+      border-color: var(--accent, #00f2fe);
+    }
+    .social-input-prefix {
+      width: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.03);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      align-self: stretch;
+    }
+    .social-input-prefix.linkedin-prefix i {
+      color: #0ea5e9;
+    }
+    .social-input-prefix.github-prefix i {
+      color: #f1f5f9;
+    }
+    .social-input-prefix.portfolio-prefix i {
+      color: #10b981;
+    }
+    .social-input-field {
+      flex: 1;
+      border: none !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      padding: 8px 10px;
     }
 
     .active-week-form-section {
@@ -3190,6 +3357,9 @@ export class Cualidades implements OnInit {
   inputProfession = signal<string>('');
   selectedCountry = signal<string>('');
   selectedActiveDays = signal<number[]>([1, 2, 3, 4, 5]);
+  inputLinkedin = signal<string>('');
+  inputGithub = signal<string>('');
+  inputPortfolio = signal<string>('');
   usernameError = signal<string | null>(null);
   toastMessage = signal<string | null>(null);
 
@@ -3457,7 +3627,7 @@ export class Cualidades implements OnInit {
   hasCustomIdentity(): boolean {
     const prof = this.membership.userProfession();
     const country = this.membership.userCountry();
-    return !!((prof && prof.trim()) || (country && country.trim()));
+    return !!((prof && prof.trim()) || (country && country.trim()) || this.hasSocialLinks());
   }
 
   ngOnInit() {
@@ -3470,6 +3640,10 @@ export class Cualidades implements OnInit {
     this.inputProfession.set(this.membership.userProfession() || '');
     this.selectedCountry.set(this.membership.userCountry() || '');
     this.selectedActiveDays.set([...(this.membership.userActiveDays() || [1, 2, 3, 4, 5])]);
+    const s = this.membership.userSocialLinks();
+    this.inputLinkedin.set(s?.linkedin || '');
+    this.inputGithub.set(s?.github || '');
+    this.inputPortfolio.set(s?.portfolio || '');
   }
 
   scrollCarousel(direction: 'left' | 'right') {
@@ -3757,8 +3931,43 @@ export class Cualidades implements OnInit {
       this.inputProfession.set(this.membership.userProfession() || '');
       this.selectedCountry.set(this.membership.userCountry() || '');
       this.selectedActiveDays.set([...(this.membership.userActiveDays() || [1, 2, 3, 4, 5])]);
+      const s = this.membership.userSocialLinks();
+      this.inputLinkedin.set(s?.linkedin || '');
+      this.inputGithub.set(s?.github || '');
+      this.inputPortfolio.set(s?.portfolio || '');
       this.usernameError.set(null);
     }
+  }
+
+  hasSocialLinks(): boolean {
+    const s = this.membership.userSocialLinks();
+    return !!(s && ((s.linkedin && s.linkedin.trim()) || (s.github && s.github.trim()) || (s.portfolio && s.portfolio.trim())));
+  }
+
+  formatSocialUrl(val: string | undefined, type: 'linkedin' | 'github' | 'portfolio'): string {
+    if (!val || !val.trim()) return '#';
+    let clean = val.trim();
+    if (clean.startsWith('http://') || clean.startsWith('https://')) {
+      return clean;
+    }
+    if (type === 'github') {
+      clean = clean.replace(/^@/, '');
+      if (clean.includes('github.com/')) {
+        return `https://${clean.replace(/^https?:\/\//, '')}`;
+      }
+      return `https://github.com/${clean}`;
+    }
+    if (type === 'linkedin') {
+      clean = clean.replace(/^@/, '');
+      if (clean.includes('linkedin.com/')) {
+        return `https://${clean.replace(/^https?:\/\//, '')}`;
+      }
+      return `https://www.linkedin.com/in/${clean}`;
+    }
+    if (type === 'portfolio') {
+      return `https://${clean.replace(/^https?:\/\//, '')}`;
+    }
+    return clean;
   }
 
   isDaySelected(dayId: number): boolean {
@@ -3809,6 +4018,21 @@ export class Cualidades implements OnInit {
     this.inputProfession.set(val);
   }
 
+  onLinkedinInput(event: Event) {
+    const val = (event.target as HTMLInputElement).value;
+    this.inputLinkedin.set(val);
+  }
+
+  onGithubInput(event: Event) {
+    const val = (event.target as HTMLInputElement).value;
+    this.inputGithub.set(val);
+  }
+
+  onPortfolioInput(event: Event) {
+    const val = (event.target as HTMLInputElement).value;
+    this.inputPortfolio.set(val);
+  }
+
   onCountrySelect(event: Event) {
     const val = (event.target as HTMLSelectElement).value;
     this.selectedCountry.set(val);
@@ -3835,11 +4059,26 @@ export class Cualidades implements OnInit {
 
     let prof = (this.inputProfession() || '').replace(/["'\\]+/g, '').replace(/[\/\\]+/g, ' ').replace(/\s+/g, ' ').trim();
     const activeDays = this.selectedActiveDays();
+    const socialLinks: UserSocialLinks = {
+      linkedin: this.inputLinkedin().trim() || undefined,
+      github: this.inputGithub().trim() || undefined,
+      portfolio: this.inputPortfolio().trim() || undefined
+    };
     this.membership.userName.set(cleaned);
     this.membership.userProfession.set(prof);
     this.membership.userCountry.set(this.selectedCountry());
     this.membership.userActiveDays.set(activeDays);
-    await this.membership.saveSupabaseProfile(cleaned, this.membership.selectedAvatar(), this.selectedCountry(), undefined, prof, activeDays);
+    this.membership.userSocialLinks.set(socialLinks);
+    await this.membership.saveSupabaseProfile(
+      cleaned, 
+      this.membership.selectedAvatar(), 
+      this.selectedCountry(), 
+      undefined, 
+      prof, 
+      activeDays, 
+      undefined, 
+      socialLinks
+    );
     this.isEditingProfile.set(false);
     this.showToast(this.translation.currentLang() === 'en' ? 'Profile updated successfully.' : 'Perfil actualizado correctamente.');
   }

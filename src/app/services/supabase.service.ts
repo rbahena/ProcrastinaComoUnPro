@@ -362,6 +362,12 @@ export interface FocusPreferences {
   show_battery_button_in_arena?: boolean;
 }
 
+export interface UserSocialLinks {
+  linkedin?: string;
+  github?: string;
+  portfolio?: string;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -376,6 +382,7 @@ export interface UserProfile {
   selected_weapon?: string;
   selected_timer?: string;
   focus_preferences?: FocusPreferences;
+  social_links?: UserSocialLinks;
   is_premium?: boolean;
   premium_until?: string;
   pro_coins?: number;
@@ -676,9 +683,12 @@ export class SupabaseService {
         .eq('id', userId);
 
       if (error) {
-        // Si la columna focus_preferences no existe aún en la tabla profiles de Supabase, fallback seguro
-        if (updates.focus_preferences && error.message?.toLowerCase().includes('focus_preferences')) {
-          const { focus_preferences, ...restUpdates } = updates;
+        // Si la columna focus_preferences o social_links no existe aún en la tabla profiles de Supabase, fallback seguro
+        const errMsg = error.message?.toLowerCase() || '';
+        if ((updates.focus_preferences && errMsg.includes('focus_preferences')) || (updates.social_links && errMsg.includes('social_links'))) {
+          const restUpdates: any = { ...updates };
+          if (errMsg.includes('focus_preferences')) delete restUpdates.focus_preferences;
+          if (errMsg.includes('social_links')) delete restUpdates.social_links;
           if (Object.keys(restUpdates).length > 0) {
             const fallbackRes = await this.supabase
               .from('profiles')

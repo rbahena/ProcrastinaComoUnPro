@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { SupabaseService, CatalogItem, MultilingualText, CapturedIdea, IdeaPriority } from './supabase.service';
+import { SupabaseService, CatalogItem, MultilingualText, CapturedIdea, IdeaPriority, UserSocialLinks } from './supabase.service';
 import { TranslationService } from './translation.service';
 
 export function normalizeCapturedIdeas(raw: any[]): CapturedIdea[] {
@@ -243,6 +243,7 @@ export class MembershipService {
   userActiveDays = signal<number[]>([1, 2, 3, 4, 5]);
   userCountry = signal<string>('');
   userCountryCode = signal<string>('');
+  userSocialLinks = signal<UserSocialLinks>({});
   selectedAvatar = signal<string>('gato');
   selectedTheme = signal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>('samurai');
   themeMode = signal<'dark' | 'light'>('dark');
@@ -464,7 +465,8 @@ export class MembershipService {
         themeMode: this.themeMode(),
         onboardingCompleted: this.onboardingCompleted(),
         language: this.userLanguage(),
-        isPremium: this.isPremium()
+        isPremium: this.isPremium(),
+        socialLinks: this.userSocialLinks()
       },
       gamification: {
         proCoins: this.proCoins(),
@@ -1036,7 +1038,8 @@ export class MembershipService {
     countryCode?: string, 
     profession?: string, 
     activeDays?: number[],
-    theme?: 'samurai' | 'cyberpunk' | 'aurora' | 'zen'
+    theme?: 'samurai' | 'cyberpunk' | 'aurora' | 'zen',
+    socialLinks?: UserSocialLinks
   ): Promise<{ success: boolean; error?: string }> {
     const cleanProf = profession !== undefined ? cleanQuotedString(profession) : undefined;
     
@@ -1054,6 +1057,7 @@ export class MembershipService {
         if (countryCode) updates.country_code = countryCode;
         if (cleanProf !== undefined) updates.profession = cleanProf;
         if (activeDays !== undefined) updates.active_days = activeDays;
+        if (socialLinks !== undefined) updates.social_links = socialLinks;
 
         const { error } = await this.supabaseService.updateProfile(user.id, updates);
         if (error) {
@@ -1069,6 +1073,7 @@ export class MembershipService {
     if (countryCode) this.userCountryCode.set(countryCode);
     if (cleanProf !== undefined) this.userProfession.set(cleanProf);
     if (activeDays !== undefined) this.userActiveDays.set(activeDays);
+    if (socialLinks !== undefined) this.userSocialLinks.set(socialLinks);
     this.onboardingCompleted.set(true);
     this.saveConsolidatedUserData();
     this.applyGlobalTheme();
@@ -1847,6 +1852,7 @@ export class MembershipService {
     this.userCountryCode.set(p.country_code ? p.country_code : '');
     if (p.active_days) this.userActiveDays.set(p.active_days);
     if (p.last_focus_date) this.lastFocusDate.set(p.last_focus_date);
+    if (p.social_links) this.userSocialLinks.set(p.social_links);
     // Si el usuario seleccionó un idioma explícitamente en esta sesión, se respeta; si no, se respeta el idioma del navegador
     const manualLang = typeof localStorage !== 'undefined' ? (localStorage.getItem(TranslationService.MANUAL_CHOICE_KEY) as 'es' | 'en') : null;
     if (manualLang && (manualLang === 'es' || manualLang === 'en')) {
@@ -2200,6 +2206,7 @@ export class MembershipService {
             this.userLanguage.set(this.translationService.getBrowserLanguage());
           }
           if (bundle.profile.isPremium !== undefined) this.isPremium.set(bundle.profile.isPremium);
+          if (bundle.profile.socialLinks) this.userSocialLinks.set(bundle.profile.socialLinks);
         }
         if (bundle.gamification) {
           if (bundle.gamification.proCoins !== undefined) this.proCoins.set(bundle.gamification.proCoins);
@@ -2265,6 +2272,7 @@ export class MembershipService {
     this.userProfession.set('');
     this.userCountry.set('');
     this.userCountryCode.set('');
+    this.userSocialLinks.set({});
     this.userActiveDays.set([1, 2, 3, 4, 5]);
     this.proCoins.set(0);
     this.focusPoints.set(0);

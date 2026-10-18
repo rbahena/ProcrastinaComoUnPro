@@ -148,6 +148,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     onboarding_completed BOOLEAN DEFAULT FALSE,
     -- welcome_coins_awarded: Flag que indica si ya recibió el bono de 50 Pro Coins al iniciar prueba o suscripción Pro.
     welcome_coins_awarded BOOLEAN DEFAULT FALSE,
+    -- social_links: Redes sociales del usuario (linkedin, github, portfolio).
+    social_links JSONB DEFAULT '{}'::jsonb,
     
     -- [COLUMNAS / RESTRICCIONES CHECK: GAMIFICACIÓN Y TELEMETRÍA DE ENFOQUE]
     -- pro_coins: Monedas virtuales acumuladas para comprar artículos en la tienda.
