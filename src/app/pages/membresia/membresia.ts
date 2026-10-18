@@ -165,6 +165,9 @@ export class Membresia implements OnInit {
           });
         }
       } else {
+        if (status === 'cancelled') {
+          this.router.navigate([], { queryParams: {}, replaceUrl: true });
+        }
         // Siempre sincronizar el estatus real de Stripe al ingresar o regresar a Membresía
         await this.refreshSubscriptionStatus();
       }

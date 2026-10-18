@@ -231,10 +231,14 @@ serve(async (req) => {
         }
       }
 
+      let hasHadPriorSubscription = false;
       // C) Si tenemos customerId y aún no validamos subscriptionId, consultar las suscripciones del cliente en Stripe
       if (customerId && !isProActive) {
         try {
           const subs = await stripe.subscriptions.list({ customer: customerId, status: 'all', limit: 5 });
+          if (subs.data && subs.data.length > 0) {
+            hasHadPriorSubscription = true;
+          }
           for (const sub of subs.data) {
             const isCancelled = sub.cancel_at_period_end === true || sub.status === 'canceled' || Boolean(sub.canceled_at);
             if (['active', 'trialing'].includes(sub.status) && !isCancelled) {
@@ -301,14 +305,19 @@ serve(async (req) => {
       }
 
       // Si el periodo expiró definitivamente o fue cancelada:
+      const cancelPayload: Record<string, any> = {
+        is_premium: false,
+        premium_until: null,
+        stripe_subscription_id: null,
+        updated_at: new Date().toISOString()
+      };
+      if (hasHadPriorSubscription && !profile?.welcome_coins_awarded) {
+        cancelPayload.welcome_coins_awarded = true;
+      }
+
       await supabaseAdmin
         .from('profiles')
-        .update({
-          is_premium: false,
-          premium_until: null,
-          stripe_subscription_id: null,
-          updated_at: new Date().toISOString()
-        })
+        .update(cancelPayload)
         .eq('id', user.id);
 
       const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];

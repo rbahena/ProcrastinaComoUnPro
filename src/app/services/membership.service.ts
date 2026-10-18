@@ -131,7 +131,7 @@ export class MembershipService {
   stripeCustomerId = signal<string | null>(null);
 
   // Computado que indica si el usuario tuvo prueba o membresía previa y actualmente está cancelado / en plan básico
-  hasHadTrialOrCancelled = computed(() => !this.isPremium() && (this.welcomeCoinsAwarded() || !!this.stripeCustomerId()));
+  hasHadTrialOrCancelled = computed(() => !this.isPremium() && this.welcomeCoinsAwarded());
 
   // Estado del sidebar global
   sidebarCollapsed = signal<boolean>(
