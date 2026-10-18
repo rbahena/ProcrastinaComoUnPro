@@ -128,6 +128,10 @@ export class MembershipService {
   // Estado de membresía (Pro/Premium)
   isPremium = signal<boolean>(false);
   welcomeCoinsAwarded = signal<boolean>(false);
+  stripeCustomerId = signal<string | null>(null);
+
+  // Computado que indica si el usuario tuvo prueba o membresía previa y actualmente está cancelado / en plan básico
+  hasHadTrialOrCancelled = computed(() => !this.isPremium() && (this.welcomeCoinsAwarded() || !!this.stripeCustomerId()));
 
   // Estado del sidebar global
   sidebarCollapsed = signal<boolean>(
@@ -1072,7 +1076,7 @@ export class MembershipService {
     return { success: true };
   }
 
-  // Activar/desactivar Premium (incluyendo prueba gratuita / demo de 7 días)
+  // Activar/desactivar Premium (incluyendo prueba gratuita / demo de 1 día)
   async setPremium(premium: boolean) {
     this.isPremium.set(premium);
 
@@ -1853,15 +1857,20 @@ export class MembershipService {
       this.userLanguage.set(browserLang);
       this.translationService.setLanguage(browserLang, false);
     }
+    if (p.stripe_customer_id !== undefined) {
+      this.stripeCustomerId.set(p.stripe_customer_id || null);
+    }
     // Manejo robusto de estatus Premium con periodo de gracia de prueba (Opción A)
     let isCurrentlyPremium = false;
-    if (p.premium_until) {
-      const isExpired = new Date(p.premium_until).getTime() <= Date.now();
-      if (!isExpired) {
+    if (p.is_premium === true) {
+      if (p.premium_until) {
+        const isExpired = new Date(p.premium_until).getTime() <= Date.now();
+        if (!isExpired) {
+          isCurrentlyPremium = true;
+        }
+      } else {
         isCurrentlyPremium = true;
       }
-    } else if (p.is_premium === true) {
-      isCurrentlyPremium = true;
     }
 
     this.isPremium.set(isCurrentlyPremium);

@@ -38,6 +38,7 @@ export interface RankingPlayer {
   label?: string;
   isSelf?: boolean;
   isAssigned?: boolean;
+  is_premium?: boolean;
 }
 
 interface RawRankingPlayer {
@@ -54,6 +55,7 @@ interface RawRankingPlayer {
   tag?: string;
   label?: string;
   isSelf?: boolean;
+  is_premium?: boolean;
 }
 
 import { TranslatePipe, TranslationService } from '../../services/translation.service';
@@ -521,7 +523,8 @@ export class Medallero implements OnInit, OnDestroy {
         pomodoros: p.focus_tomatoes || 0,
         streakCount: p.streak_days || 0,
         rankName: this.membership.getAvatarTitle(p.selected_avatar || 'gato') + ofFocusText,
-        isSelf: p.username === ramName
+        isSelf: p.username === ramName,
+        is_premium: p.is_premium === true
       }));
 
     if (this.membership.isPremium() && this.isUserEligible(ramObjCount, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
@@ -532,7 +535,8 @@ export class Medallero implements OnInit, OnDestroy {
         pomodoros: this.membership.focusTomatoes(),
         streakCount: this.membership.streak(),
         rankName: this.membership.getAvatarTitle(ramAvatar) + ofFocusText,
-        isSelf: true
+        isSelf: true,
+        is_premium: this.membership.isPremium()
       });
     }
 
@@ -566,7 +570,8 @@ export class Medallero implements OnInit, OnDestroy {
         streakCount: p.streak_days || 0,
         objectives: p.focus_points ? Math.floor(p.focus_points / 40) : 0,
         title: this.membership.getAvatarTitle(p.selected_avatar || 'gato'),
-        isSelf: p.username === ramName
+        isSelf: p.username === ramName,
+        is_premium: p.is_premium === true
       }));
 
     if (this.membership.isPremium() && this.isUserEligible(ramTomatoes, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
@@ -577,7 +582,8 @@ export class Medallero implements OnInit, OnDestroy {
         streakCount: this.membership.streak(),
         objectives: Math.floor(this.membership.focusPoints() / 40),
         title: pomodoroWarriorText,
-        isSelf: true
+        isSelf: true,
+        is_premium: this.membership.isPremium()
       });
     }
 
@@ -611,7 +617,8 @@ export class Medallero implements OnInit, OnDestroy {
         pomodoros: p.focus_tomatoes || 0,
         objectives: p.focus_points ? Math.floor(p.focus_points / 40) : 0,
         tag: activeStreakText,
-        isSelf: p.username === ramName
+        isSelf: p.username === ramName,
+        is_premium: p.is_premium === true
       }));
 
     if (this.membership.isPremium() && this.isUserEligible(ramStreak, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
@@ -622,7 +629,8 @@ export class Medallero implements OnInit, OnDestroy {
         pomodoros: this.membership.focusTomatoes(),
         objectives: Math.floor(this.membership.focusPoints() / 40),
         tag: activeStreakText,
-        isSelf: true
+        isSelf: true,
+        is_premium: this.membership.isPremium()
       });
     }
 
@@ -656,7 +664,8 @@ export class Medallero implements OnInit, OnDestroy {
         damage: p.total_damage || 0,
         pomodoros: p.focus_tomatoes || 0,
         label: hunterText,
-        isSelf: p.username === ramName
+        isSelf: p.username === ramName,
+        is_premium: p.is_premium === true
       }));
 
     if (this.membership.isPremium() && this.isUserEligible(ramDamage, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
@@ -666,7 +675,8 @@ export class Medallero implements OnInit, OnDestroy {
         damage: ramDamage,
         pomodoros: this.membership.focusTomatoes(),
         label: activeWarriorText,
-        isSelf: true
+        isSelf: true,
+        is_premium: this.membership.isPremium()
       });
     }
 
@@ -698,7 +708,8 @@ export class Medallero implements OnInit, OnDestroy {
         coins: p.pro_coins || p.coins || 0,
         pomodoros: p.focus_tomatoes || 0,
         tag: tycoonText,
-        isSelf: p.username === ramName
+        isSelf: p.username === ramName,
+        is_premium: p.is_premium === true
       }));
 
     if (this.membership.isPremium() && this.isUserEligible(ramCoins, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
@@ -708,7 +719,8 @@ export class Medallero implements OnInit, OnDestroy {
         coins: ramCoins,
         pomodoros: this.membership.focusTomatoes(),
         tag: tycoonText,
-        isSelf: true
+        isSelf: true,
+        is_premium: this.membership.isPremium()
       });
     }
 
@@ -740,7 +752,8 @@ export class Medallero implements OnInit, OnDestroy {
         podiums: p.podium_wins || p.podiums || 0,
         pomodoros: p.focus_tomatoes || 0,
         tag: championText,
-        isSelf: p.username === ramName
+        isSelf: p.username === ramName,
+        is_premium: p.is_premium === true
       }));
 
     if (this.membership.isPremium() && this.isUserEligible(ramPodiums, ramCreatedAt) && !mapped.some(p => p.isSelf)) {
@@ -750,7 +763,8 @@ export class Medallero implements OnInit, OnDestroy {
         podiums: ramPodiums,
         pomodoros: this.membership.focusTomatoes(),
         tag: championText,
-        isSelf: true
+        isSelf: true,
+        is_premium: this.membership.isPremium()
       });
     }
 
@@ -835,24 +849,32 @@ export class Medallero implements OnInit, OnDestroy {
     return runnersUp;
   });
 
-  getPodiumUser(place: 1 | 2 | 3): { name: string; avatar: string; value: string; isSelf: boolean } {
+  getPodiumUser(place: 1 | 2 | 3): { name: string; avatar: string; value: string; isSelf: boolean; is_premium: boolean } {
     this.translation.currentLang();
     const idx = place - 1;
     const tab = this.activeTab();
     const disputeText = this.translation.t('medals.inDispute');
     if (tab === 'objectives') {
       const p = this.rankingObjectives()[idx];
-      return p ? { name: p.name, avatar: p.avatar, value: (p.objectives || 0) + ' objs', isSelf: !!p.isSelf } : { name: disputeText, avatar: '', value: '', isSelf: false };
+      return p ? { name: p.name, avatar: p.avatar, value: (p.objectives || 0) + ' objs', isSelf: !!p.isSelf, is_premium: !!p.is_premium } : { name: disputeText, avatar: '', value: '', isSelf: false, is_premium: false };
     } else if (tab === 'pomodoros') {
       const p = this.rankingPomodoros()[idx];
-      return p ? { name: p.name, avatar: p.avatar, value: (p.pomodoros || 0) + ' poms', isSelf: !!p.isSelf } : { name: disputeText, avatar: '', value: '', isSelf: false };
+      return p ? { name: p.name, avatar: p.avatar, value: (p.pomodoros || 0) + ' poms', isSelf: !!p.isSelf, is_premium: !!p.is_premium } : { name: disputeText, avatar: '', value: '', isSelf: false, is_premium: false };
     } else if (tab === 'streaks') {
       const p = this.rankingStreaks()[idx];
-      return p ? { name: p.name, avatar: p.avatar, value: (p.streakCount || 0) + ' ' + this.translation.t('common.days'), isSelf: !!p.isSelf } : { name: disputeText, avatar: '', value: '', isSelf: false };
+      return p ? { name: p.name, avatar: p.avatar, value: (p.streakCount || 0) + ' ' + this.translation.t('common.days'), isSelf: !!p.isSelf, is_premium: !!p.is_premium } : { name: disputeText, avatar: '', value: '', isSelf: false, is_premium: false };
     } else {
       const p = this.rankingBoss()[idx];
-      return p ? { name: p.name, avatar: p.avatar, value: (p.damage || 0) + ' HP', isSelf: !!p.isSelf } : { name: disputeText, avatar: '', value: '', isSelf: false };
+      return p ? { name: p.name, avatar: p.avatar, value: (p.damage || 0) + ' HP', isSelf: !!p.isSelf, is_premium: !!p.is_premium } : { name: disputeText, avatar: '', value: '', isSelf: false, is_premium: false };
     }
+  }
+
+  isUserItemPremium(p: any): boolean {
+    if (!p) return false;
+    if (p.isSelf || (this.userName() && (p.name === this.userName() || p.username === this.userName()))) {
+      return this.membership.isPremium();
+    }
+    return p.is_premium === true;
   }
 
   labels = computed(() => {

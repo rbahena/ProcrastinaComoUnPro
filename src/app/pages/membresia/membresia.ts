@@ -68,13 +68,13 @@ export class Membresia implements OnInit {
     const user = this.supabase.currentUser();
     const email = user?.email || this.membership.getCurrentUserEmail();
     const username = this.membership.userName() || (email ? email.split('@')[0] : 'Guerrero');
-    const planDetail = this.isAnnual() ? 'Anual ($35.88 USD/año con 7 días gratis)' : 'Mensual ($4.49 USD/mes con 7 días gratis)';
+    const planDetail = this.isAnnual() ? 'Anual ($35.88 USD/año con 1 día gratis)' : 'Mensual ($4.49 USD/mes con 1 día gratis)';
 
     if (email) {
       this.supabase.notifyTelegramAuth(
         email,
         username,
-        'Probar 7 días gratis',
+        'Probar 1 día gratis',
         'START_TRIAL',
         planDetail
       );
@@ -111,13 +111,34 @@ export class Membresia implements OnInit {
       const { data, error } = await this.supabase.createStripePortalSession();
       if (!error && data?.url) {
         window.location.href = data.url;
-      } else {
-        this.showToastFeedback('Para cambios de facturación o cancelación, contacta a soporte@cofu.io', 'info');
+        return;
+      }
+
+      const confirmCancel = confirm(
+        '¿Estás seguro de que deseas cancelar tu suscripción a COFU Pro? Perderás acceso a las salas de co-working y avatares legendarios.'
+      );
+      if (confirmCancel) {
+        await this.supabase.cancelStripeSubscription();
+        await this.membership.syncProfileFromSupabase();
+        this.showToastFeedback('Tu suscripción a COFU Pro ha sido cancelada exitosamente.', 'info');
       }
     } catch (e) {
       console.error(e);
+      this.showToastFeedback('Para cambios de facturación o cancelación, contacta a soporte@cofu.io', 'info');
     } finally {
       this.isProcessing.set(false);
+    }
+  }
+
+  async refreshSubscriptionStatus(): Promise<void> {
+    const session = await this.supabase.getSession();
+    if (session?.user) {
+      try {
+        await this.supabase.syncStripeSubscription();
+        await this.membership.syncProfileFromSupabase();
+      } catch (e) {
+        console.warn('[Membresia] Error al sincronizar con Stripe:', e);
+      }
     }
   }
 
@@ -133,28 +154,27 @@ export class Membresia implements OnInit {
           await this.supabase.syncStripeSubscription(sessionId);
           // 2. Refrescar el perfil completo de Supabase en memoria
           await this.membership.syncProfileFromSupabase();
-          this.showSuccessToast.set(true);
         } catch (e) {
           console.error('[Error de activación de suscripción]', e);
         } finally {
           this.isProcessing.set(false);
-          setTimeout(() => {
-            this.showSuccessToast.set(false);
-            this.router.navigate([], { queryParams: {} });
-          }, 4500);
+          // Redirigir de inmediato a Home con status=success
+          this.router.navigate(['/home'], {
+            queryParams: { status: 'success', session_id: sessionId },
+            replaceUrl: true
+          });
         }
       } else {
-        // Si no viene de redirect, verificar si el usuario ya tiene suscripción activa en Stripe
-        const session = await this.supabase.getSession();
-        if (session?.user && !this.membership.isPremium()) {
-          this.supabase.syncStripeSubscription().then(async res => {
-            if (res.success && res.is_premium) {
-              await this.membership.syncProfileFromSupabase();
-            }
-          }).catch(() => {});
-        }
+        // Siempre sincronizar el estatus real de Stripe al ingresar o regresar a Membresía
+        await this.refreshSubscriptionStatus();
       }
     });
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focus', () => {
+        this.refreshSubscriptionStatus();
+      }, { once: false });
+    }
   }
 
   private showToastFeedback(message: string, type: 'success' | 'info' = 'success'): void {

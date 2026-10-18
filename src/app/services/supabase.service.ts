@@ -1887,12 +1887,17 @@ export class SupabaseService {
       // 1. Intentar llamar al RPC get_community_home_dashboard
       const { data: rpcData, error: rpcError } = await this.supabase.rpc('get_community_home_dashboard');
       if (!rpcError && rpcData && rpcData.success) {
+        const currentUser = await this.getCurrentUser();
+        const rankNeighbors = (rpcData.rank_neighbors ?? []).map((n: any) => ({
+          ...n,
+          is_current_user: currentUser ? (n.id === currentUser.id || n.is_current_user === true) : Boolean(n.is_current_user)
+        }));
         return {
           data: {
             total_users: rpcData.total_users ?? 0,
             completed_today: rpcData.completed_today ?? 0,
             user_rank: rpcData.user_rank ?? 1,
-            rank_neighbors: rpcData.rank_neighbors ?? [],
+            rank_neighbors: rankNeighbors,
             podium: (rpcData.podium ?? []).filter((p: any) => 
               this.isEligibleForRankingCategory(Math.floor((p.focus_points || 0) / 40) || (p.focus_tomatoes || 0), p.created_at) || 
               this.isEligibleForRankingCategory(p.focus_tomatoes || 0, p.created_at)
@@ -2440,7 +2445,7 @@ export class SupabaseService {
   // MONETIZACIÓN Y PAGOS STRIPE
   // ==========================================
 
-  async createStripeCheckoutSession(plan: 'monthly' | 'annual', currency: string = 'USD'): Promise<{ data: { url: string } | null; error: string | null }> {
+  async createStripeCheckoutSession(plan: 'monthly' | 'annual', currency: string = 'USD', successPath: string = '/home'): Promise<{ data: { url: string } | null; error: string | null }> {
     if (!this.isConfigured()) return { data: null, error: 'SUPABASE_NOT_CONFIGURED' };
     try {
       const { data: sessionData } = await this.supabase.auth.getSession();
@@ -2450,7 +2455,7 @@ export class SupabaseService {
       }
 
       const { data, error } = await this.supabase.functions.invoke('stripe-checkout', {
-        body: { plan, currency },
+        body: { plan, currency, successPath },
         headers
       });
       if (error) {
@@ -2540,6 +2545,39 @@ export class SupabaseService {
     }
   }
 
+  async cancelStripeSubscription(): Promise<{ success: boolean; error: string | null }> {
+    if (!this.isConfigured()) return { success: false, error: 'SUPABASE_NOT_CONFIGURED' };
+    try {
+      const { data: sessionData } = await this.supabase.auth.getSession();
+      const headers: Record<string, string> = {};
+      if (sessionData?.session?.access_token) {
+        headers['Authorization'] = `Bearer ${sessionData.session.access_token}`;
+      }
+
+      const { data, error } = await this.supabase.functions.invoke('stripe-checkout', {
+        body: { action: 'cancel-subscription' },
+        headers
+      });
+
+      if (error) {
+        let detail = error.message;
+        try {
+          if ('context' in error && (error as any).context) {
+            const errorJson = await (error as any).context.json();
+            detail = errorJson.message || errorJson.error || detail;
+          }
+        } catch {}
+        console.warn('[Stripe Cancel Warning]', detail);
+        return { success: false, error: detail };
+      }
+
+      return { success: !!data?.success, error: null };
+    } catch (e: any) {
+      console.warn('[Stripe Cancel Exception]', e);
+      return { success: false, error: e.message };
+    }
+  }
+
   // ==========================================
   // STORAGE BUCKET: AVATARES PROTEGIDOS
   // ==========================================
@@ -2585,7 +2623,7 @@ export class SupabaseService {
   }
 
   /**
-   * Activa directamente la prueba gratuita de 7 días de COFU Pro a través de la Edge Function
+   * Activa directamente la prueba gratuita de 1 día de COFU Pro a través de la Edge Function
    * o RPC del servidor, otorgando automáticamente las 50 Pro Coins de bienvenida y avatares VIP.
    */
   async activateFreeTrial(): Promise<{ success: boolean; is_premium: boolean; bonus_coins?: number; error?: string }> {

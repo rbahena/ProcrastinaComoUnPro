@@ -940,8 +940,9 @@
             <i *ngIf="!getPodiumUser(2).avatar" class="fa-solid fa-user" style="color: #a1a1aa; font-size: 20px;"></i>
             <span style="position: absolute; bottom: -5px; right: -5px; background: #a1a1aa; color: #000; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900;">2</span>
           </div>
-          <span style="font-size: 12px; font-weight: 700; color: var(--text); max-width: 110px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 2px;">
+          <span style="font-size: 12px; font-weight: 700; color: var(--text); max-width: 110px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 2px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
             {{ getPodiumUser(2).name || 'En disputa' }}
+            <i *ngIf="getPodiumUser(2).name && isUserItemPremium(getPodiumUser(2))" class="fa-solid fa-crown" style="font-size: 9px; color: var(--yellow); filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));"></i>
           </span>
           <span style="font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 8px;">
             {{ getPodiumUser(2).value }}
@@ -958,8 +959,9 @@
             <i *ngIf="!getPodiumUser(1).avatar" class="fa-solid fa-crown" style="color: var(--yellow); font-size: 26px;"></i>
             <span style="position: absolute; bottom: -5px; right: -5px; background: var(--yellow); color: #000; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900;">1</span>
           </div>
-          <span style="font-size: 13.5px; font-weight: 800; color: #fff; max-width: 130px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 2px;">
+          <span style="font-size: 13.5px; font-weight: 800; color: #fff; max-width: 130px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 2px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
             {{ getPodiumUser(1).name || 'En disputa' }}
+            <i *ngIf="getPodiumUser(1).name && isUserItemPremium(getPodiumUser(1))" class="fa-solid fa-crown" style="font-size: 10px; color: var(--yellow); filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));"></i>
           </span>
           <span style="font-size: 12px; font-weight: 800; color: var(--yellow); margin-bottom: 8px;">
             {{ getPodiumUser(1).value }}
@@ -976,8 +978,9 @@
             <i *ngIf="!getPodiumUser(3).avatar" class="fa-solid fa-user" style="color: #cd7f32; font-size: 20px;"></i>
             <span style="position: absolute; bottom: -5px; right: -5px; background: #cd7f32; color: #000; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900;">3</span>
           </div>
-          <span style="font-size: 12px; font-weight: 700; color: var(--text); max-width: 110px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 2px;">
+          <span style="font-size: 12px; font-weight: 700; color: var(--text); max-width: 110px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 2px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
             {{ getPodiumUser(3).name || 'En disputa' }}
+            <i *ngIf="getPodiumUser(3).name && isUserItemPremium(getPodiumUser(3))" class="fa-solid fa-crown" style="font-size: 9px; color: var(--yellow); filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));"></i>
           </span>
           <span style="font-size: 11px; font-weight: 700; color: #cd7f32; margin-bottom: 8px;">
             {{ getPodiumUser(3).value }}
@@ -1009,7 +1012,10 @@
                 </td>
                 <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
                   <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
-                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
+                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'" style="display: inline-flex; align-items: center; gap: 5px;">
+                    <span>{{ p.name }}</span>
+                    <i *ngIf="isUserItemPremium(p)" class="fa-solid fa-crown" style="font-size: 10px; color: var(--yellow); filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));" [attr.data-tooltip]="'COFU Pro 👑'"></i>
+                  </strong>
                   <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{ 'common.you' | translate }}</span>
                 </td>
                 <td style="padding: 12px 18px; color: var(--muted);">{{ p.rankName }}</td>
@@ -1024,7 +1030,10 @@
                 </td>
                 <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
                   <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
-                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
+                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'" style="display: inline-flex; align-items: center; gap: 5px;">
+                    <span>{{ p.name }}</span>
+                    <i *ngIf="isUserItemPremium(p)" class="fa-solid fa-crown" style="font-size: 10px; color: var(--yellow); filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));" [attr.data-tooltip]="'COFU Pro 👑'"></i>
+                  </strong>
                   <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{ 'common.you' | translate }}</span>
                 </td>
                 <td style="padding: 12px 18px; color: var(--muted);">{{ p.title }}</td>
@@ -1039,7 +1048,10 @@
                 </td>
                 <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
                   <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
-                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
+                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'" style="display: inline-flex; align-items: center; gap: 5px;">
+                    <span>{{ p.name }}</span>
+                    <i *ngIf="isUserItemPremium(p)" class="fa-solid fa-crown" style="font-size: 10px; color: var(--yellow); filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));" [attr.data-tooltip]="'COFU Pro 👑'"></i>
+                  </strong>
                   <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{ 'common.you' | translate }}</span>
                 </td>
                 <td style="padding: 12px 18px; color: var(--muted);">{{ p.tag }}</td>
@@ -1054,7 +1066,10 @@
                 </td>
                 <td style="padding: 12px 18px; display: flex; align-items: center; gap: 10px;">
                   <div [class]="'avatar-sprite sprite-' + p.avatar" style="width: 32px; height: 32px; border-radius: 50%;"></div>
-                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'">{{ p.name }}</strong>
+                  <strong [style.color]="p.isSelf ? 'var(--accent)' : 'var(--text)'" style="display: inline-flex; align-items: center; gap: 5px;">
+                    <span>{{ p.name }}</span>
+                    <i *ngIf="isUserItemPremium(p)" class="fa-solid fa-crown" style="font-size: 10px; color: var(--yellow); filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));" [attr.data-tooltip]="'COFU Pro 👑'"></i>
+                  </strong>
                   <span *ngIf="p.isSelf" style="background: var(--accent); color: #000; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{ 'common.you' | translate }}</span>
                 </td>
                 <td style="padding: 12px 18px; color: var(--muted);">{{ p.label }}</td>

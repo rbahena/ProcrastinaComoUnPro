@@ -1,7 +1,7 @@
 // ==============================================================================
 // Edge Function: stripe-checkout
 // Propósito: Genera sesiones de pago seguras para suscripciones COFU Pro
-// con 7 días de prueba gratuita y cobro recurrente automático en USD.
+// con 1 día de prueba gratuita y cobro recurrente automático en USD.
 // (100% Autónomo: Puedes copiar y pegar todo este archivo directamente
 // en el editor web de Supabase Dashboard sin dependencias externas).
 // ==============================================================================
@@ -83,9 +83,9 @@ serve(async (req) => {
       .eq('id', user.id)
       .maybeSingle();
 
-    // Activación directa de prueba gratuita de 7 días (demo in-app / prueba sin Stripe)
+    // Activación directa de prueba gratuita de 1 día (demo in-app / prueba sin Stripe)
     if (body.action === 'activate-trial') {
-      const trialDays = 7;
+      const trialDays = 1;
       const trialEnd = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000).toISOString();
       let welcomeBonusGranted = false;
       const updatePayload: Record<string, any> = {
@@ -132,6 +132,67 @@ serve(async (req) => {
       );
     }
 
+    // Cancelación explícita de suscripción
+    if (body.action === 'cancel-subscription') {
+      const customerId = profile?.stripe_customer_id;
+      const subscriptionId = profile?.stripe_subscription_id;
+
+      if (subscriptionId) {
+        try {
+          await stripe.subscriptions.cancel(subscriptionId);
+        } catch (err) {
+          console.warn('[stripe-checkout cancel] Error cancelando sub por ID:', err);
+        }
+      }
+
+      if (customerId) {
+        try {
+          const subs = await stripe.subscriptions.list({ customer: customerId, status: 'all' });
+          for (const sub of subs.data) {
+            if (['active', 'trialing'].includes(sub.status)) {
+              try {
+                await stripe.subscriptions.cancel(sub.id);
+              } catch (err) {
+                console.warn('[stripe-checkout cancel] Error cancelando sub del cliente:', err);
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('[stripe-checkout cancel] Error listando suscripciones:', err);
+        }
+      }
+
+      await supabaseAdmin
+        .from('profiles')
+        .update({
+          is_premium: false,
+          premium_until: null,
+          stripe_subscription_id: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      const vipAvatars = ['leon', 'tigre', 'fenix', 'grifo', 'lince', 'elefante'];
+      await supabaseAdmin
+        .from('user_unlocked_items')
+        .delete()
+        .eq('user_id', user.id)
+        .in('item_id', vipAvatars)
+        .eq('unlock_source', 'admin');
+
+      if (vipAvatars.includes(profile?.selected_avatar)) {
+        await supabaseAdmin
+          .from('profiles')
+          .update({ selected_avatar: 'gato' })
+          .eq('id', user.id);
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, is_premium: false, is_cancelled: true }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Sincronización o verificación inmediata de suscripción Pro
     if (body.action === 'sync-subscription' || body.action === 'verify-session') {
       let customerId = profile?.stripe_customer_id;
@@ -157,7 +218,8 @@ serve(async (req) => {
       if (subscriptionId) {
         try {
           const sub = await stripe.subscriptions.retrieve(subscriptionId);
-          if (['active', 'trialing'].includes(sub.status)) {
+          const isCancelled = sub.cancel_at_period_end === true || sub.status === 'canceled' || Boolean(sub.canceled_at);
+          if (['active', 'trialing'].includes(sub.status) && !isCancelled) {
             isProActive = true;
             const endTs = sub.trial_end || sub.current_period_end;
             if (endTs) {
@@ -172,9 +234,10 @@ serve(async (req) => {
       // C) Si tenemos customerId y aún no validamos subscriptionId, consultar las suscripciones del cliente en Stripe
       if (customerId && !isProActive) {
         try {
-          const subs = await stripe.subscriptions.list({ customer: customerId, status: 'all', limit: 3 });
+          const subs = await stripe.subscriptions.list({ customer: customerId, status: 'all', limit: 5 });
           for (const sub of subs.data) {
-            if (['active', 'trialing'].includes(sub.status)) {
+            const isCancelled = sub.cancel_at_period_end === true || sub.status === 'canceled' || Boolean(sub.canceled_at);
+            if (['active', 'trialing'].includes(sub.status) && !isCancelled) {
               isProActive = true;
               subscriptionId = sub.id;
               const endTs = sub.trial_end || sub.current_period_end;
@@ -189,8 +252,8 @@ serve(async (req) => {
         }
       }
 
-      // D) Si el usuario ya cuenta con estatus Premium o periodo de prueba no expirado en su perfil, se respeta
-      if (!isProActive && (profile?.is_premium || (profile?.premium_until && new Date(profile.premium_until).getTime() > Date.now()))) {
+      // D) Solo si NO existe cliente en Stripe (ej. prueba manual/offline), respetar premium_until no expirado
+      if (!customerId && !isProActive && profile?.is_premium === true && profile?.premium_until && new Date(profile.premium_until).getTime() > Date.now()) {
         isProActive = true;
         premiumUntil = profile?.premium_until || null;
       }
@@ -237,7 +300,7 @@ serve(async (req) => {
         );
       }
 
-      // Si el periodo expiró definitivamente o no tiene suscripción:
+      // Si el periodo expiró definitivamente o fue cancelada:
       await supabaseAdmin
         .from('profiles')
         .update({
@@ -264,7 +327,7 @@ serve(async (req) => {
       }
 
       return new Response(
-        JSON.stringify({ success: false, is_premium: false }),
+        JSON.stringify({ success: true, is_premium: false, is_cancelled: true }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -291,7 +354,22 @@ serve(async (req) => {
     // 5. Configurar URLs de éxito y cancelación
     const origin = req.headers.get('origin') || 'https://procrastinacomonpro.com';
 
-    // 6. Crear Checkout Session en Stripe con 7 DÍAS DE PRUEBA GRATIS
+    // 6. Configurar datos de suscripción: 1 día de prueba gratuita garantizado
+    const subscriptionData: Record<string, any> = {
+      trial_period_days: 1,
+      trial_settings: {
+        end_behavior: {
+          missing_payment_method: 'cancel'
+        }
+      },
+      metadata: {
+        supabase_uid: user.id,
+        plan: plan,
+        currency: currency
+      }
+    };
+
+    // 7. Crear Checkout Session en Stripe
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_update: {
@@ -308,7 +386,7 @@ serve(async (req) => {
             currency: currency,
             product_data: {
               name: `COFU Pro (${plan === 'annual' ? 'Plan Anual' : 'Plan Mensual'}) 👑`,
-              description: 'Prueba de 7 días gratis. Acceso total a Salas de Coworking, Ligas, Desbloqueables Legendarios y Pro Coins.'
+              description: 'Prueba de 1 día gratis. Acceso total a Salas de Coworking, Ligas, Desbloqueables Legendarios y Pro Coins.'
             },
             unit_amount: amount,
             recurring: {
@@ -323,20 +401,8 @@ serve(async (req) => {
         plan: plan,
         currency: currency
       },
-      subscription_data: {
-        trial_period_days: 7,
-        trial_settings: {
-          end_behavior: {
-            missing_payment_method: 'cancel'
-          }
-        },
-        metadata: {
-          supabase_uid: user.id,
-          plan: plan,
-          currency: currency
-        }
-      },
-      success_url: `${origin}/membresia?status=success&session_id={CHECKOUT_SESSION_ID}`,
+      subscription_data: subscriptionData,
+      success_url: `${origin}${body.successPath || '/home'}?status=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/membresia?status=cancelled`
     });
 

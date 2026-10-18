@@ -13,6 +13,22 @@
     </div>
   </div>
 
+  <!-- AVISO DE SUSCRIPCIÓN CANCELADA / PLAN BÁSICO ACTIVO -->
+  @if (!membership.isPremium() && membership.hasHadTrialOrCancelled()) {
+    <div class="cancelled-subscription-banner">
+      <div class="banner-icon-col">
+        <i class="fa-solid fa-circle-exclamation"></i>
+      </div>
+      <div class="banner-text-col">
+        <div class="banner-title-row">
+          <h4>{{ 'membership.subscriptionCancelledNoticeTitle' | translate }}</h4>
+          <span class="basic-plan-pill">{{ 'membership.subscriptionCancelledBadge' | translate }}</span>
+        </div>
+        <p>{{ 'membership.subscriptionCancelledNoticeDesc' | translate }}</p>
+      </div>
+    </div>
+  }
+
   <!-- SELECTOR DE FACTURACIÓN (TABS) -->
   <div class="toggle-wrapper">
     <div class="plan-toggle">
@@ -57,9 +73,8 @@
                 <!-- Botón de Acción Gratuito -->
                 <button class="plan-cta-btn free-tier-btn"
                         [class.current-active]="!membership.isPremium()"
-                        [disabled]="!membership.isPremium()"
-                        (click)="membership.isPremium() ? openCustomerPortal() : null">
-                  {{ !membership.isPremium() ? ('membership.currentPlan' | translate) : ('membership.managePlan' | translate) }}
+                        [disabled]="true">
+                  {{ !membership.isPremium() ? ('membership.currentPlan' | translate) : ('membership.freePlan' | translate) }}
                 </button>
               </div>
             </th>
@@ -67,7 +82,9 @@
             <!-- Columna Kaizen Pro (Destacada) -->
             <th class="plan-header-col highlight-header-col">
               <div class="plan-header-content">
-                <span class="popular-badge">{{ 'membership.freeTrialBadge' | translate }}</span>
+                <span class="popular-badge">
+                  {{ membership.hasHadTrialOrCancelled() ? ('membership.renewalBadge' | translate) : ('membership.freeTrialBadge' | translate) }}
+                </span>
                 <span class="plan-name gold-text">{{ 'membership.proPlan' | translate }}</span>
                 <div class="price-display">
                   <span class="currency">$</span>
@@ -75,7 +92,11 @@
                   <span class="period">{{ 'membership.usdMonth' | translate }}</span>
                 </div>
                 <p class="billing-info">
-                  {{ isAnnual() ? ('membership.billedAnnually' | translate) : ('membership.billedMonthly' | translate) }}
+                  @if (membership.hasHadTrialOrCancelled()) {
+                    {{ isAnnual() ? ('membership.billedAnnuallyRenew' | translate) : ('membership.billedMonthlyRenew' | translate) }}
+                  } @else {
+                    {{ isAnnual() ? ('membership.billedAnnually' | translate) : ('membership.billedMonthly' | translate) }}
+                  }
                 </p>
                 
                 <!-- Botón de Acción Premium -->
@@ -85,10 +106,26 @@
                         class="plan-cta-btn premium-tier-btn">
                   @if (isProcessing()) {
                     <i class="fa-solid fa-spinner fa-spin"></i>
-                    <span>{{ 'membership.startingTrial' | translate }}</span>
+                    <span>
+                      @if (membership.isPremium()) {
+                        {{ 'membership.cancellingSubscription' | translate }}
+                      } @else if (membership.hasHadTrialOrCancelled()) {
+                        {{ 'membership.renewingPlan' | translate }}
+                      } @else {
+                        {{ 'membership.startingTrial' | translate }}
+                      }
+                    </span>
                   } @else {
-                    <i class="fa-solid" [class]="membership.isPremium() ? 'fa-crown' : 'fa-bolt'"></i>
-                    <span>{{ membership.isPremium() ? ('membership.youArePro' | translate) : ('membership.startFreeTrial' | translate) }}</span>
+                    @if (membership.isPremium()) {
+                      <i class="fa-solid fa-ban"></i>
+                      <span>{{ 'membership.cancelSubscription' | translate }}</span>
+                    } @else if (membership.hasHadTrialOrCancelled()) {
+                      <i class="fa-solid fa-rotate-right"></i>
+                      <span>{{ 'membership.renewPlan' | translate }}</span>
+                    } @else {
+                      <i class="fa-solid fa-bolt"></i>
+                      <span>{{ 'membership.startFreeTrial' | translate }}</span>
+                    }
                   }
                 </button>
               </div>

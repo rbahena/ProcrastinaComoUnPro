@@ -1,5 +1,5 @@
 import { Component, signal, computed, OnInit, OnDestroy, WritableSignal, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MembershipService } from '../../services/membership.service';
 import { ComunidadBossService } from '../../services/comunidad-boss.service';
@@ -17,6 +17,7 @@ export interface PodiumDisplayItem {
   place: string;
   wins: number;
   isAssigned?: boolean;
+  is_premium?: boolean;
 }
 
 export interface HistoricalRecordItem {
@@ -27,6 +28,7 @@ export interface HistoricalRecordItem {
   tomatoes: number;
   wins: number;
   isAssigned?: boolean;
+  is_premium?: boolean;
 }
 
 export interface CommunityCompanionItem {
@@ -37,6 +39,7 @@ export interface CommunityCompanionItem {
   wins: number;
   status?: 'focused' | 'break' | 'paused' | 'abandoned' | 'idle';
   mission?: string;
+  is_premium?: boolean;
 }
 
 import { TranslatePipe, TranslationService } from '../../services/translation.service';
@@ -51,9 +54,11 @@ import { TranslatePipe, TranslationService } from '../../services/translation.se
 export class Home implements OnInit, OnDestroy {
   public membership = inject(MembershipService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   public bossService = inject(ComunidadBossService);
   private supabaseService = inject(SupabaseService);
   public translation = inject(TranslationService);
+  showSuccessProToast = signal<boolean>(false);
 
   currentTheme!: WritableSignal<'samurai' | 'cyberpunk' | 'aurora' | 'zen'>;
   userName!: WritableSignal<string>;
@@ -262,6 +267,29 @@ export class Home implements OnInit, OnDestroy {
   ngOnInit() {
     this.updateLastUpdatedTime();
 
+    // 0. Detectar retorno exitoso de Stripe Checkout (prueba o suscripción Pro)
+    this.route.queryParams.subscribe(async params => {
+      const status = params['status'];
+      const sessionId = params['session_id'];
+
+      if (status === 'success') {
+        try {
+          if (sessionId) {
+            await this.supabaseService.syncStripeSubscription(sessionId);
+          }
+          await this.membership.syncProfileFromSupabase();
+          this.showSuccessProToast.set(true);
+        } catch (e) {
+          console.error('[Error al sincronizar retorno de Stripe en Home]', e);
+        } finally {
+          setTimeout(() => {
+            this.showSuccessProToast.set(false);
+            this.router.navigate([], { queryParams: {}, replaceUrl: true });
+          }, 5000);
+        }
+      }
+    });
+
     // 1. Cargar datos del dashboard desde Supabase
     this.loadDashboardFromSupabase();
 
@@ -354,7 +382,7 @@ export class Home implements OnInit, OnDestroy {
         if (!this.membership.isPremium()) {
           // Filtrar miembros para mostrar los que compiten arriba y colocar al usuario básico estrictamente al final absoluto
           const otherMembers = data.rank_neighbors
-            .filter((n: RankNeighborItem) => !n.is_current_user)
+            .filter((n: RankNeighborItem) => !n.is_current_user && n.username !== this.userName())
             .slice(0, 3);
           
           const selfItem: RankNeighborItem = {
@@ -365,7 +393,7 @@ export class Home implements OnInit, OnDestroy {
             focus_tomatoes: this.membership.focusTomatoes(),
             rank: realUsersCount,
             is_current_user: true,
-            is_premium: false,
+            is_premium: this.membership.isPremium(),
             podium_wins: this.membership.podiumWins()
           };
 
@@ -426,7 +454,8 @@ export class Home implements OnInit, OnDestroy {
       score,
       place,
       wins: u.podium_wins || 0,
-      isAssigned: true
+      isAssigned: true,
+      is_premium: u.is_premium === true
     };
   }
 
@@ -441,7 +470,8 @@ export class Home implements OnInit, OnDestroy {
       score: 0,
       place,
       wins: 0,
-      isAssigned: false
+      isAssigned: false,
+      is_premium: false
     };
   }
 
@@ -506,7 +536,8 @@ export class Home implements OnInit, OnDestroy {
           color: this.membership.getAvatarColorById(r.selected_avatar || 'gato'),
           tomatoes: r.focus_tomatoes || 0,
           wins: r.podium_wins || 0,
-          isAssigned: true
+          isAssigned: true,
+          is_premium: r.is_premium === true
         });
       });
     }
@@ -521,11 +552,20 @@ export class Home implements OnInit, OnDestroy {
         color: 'transparent',
         tomatoes: 0,
         wins: 0,
-        isAssigned: false
+        isAssigned: false,
+        is_premium: false
       });
     }
 
     this.topHistoricalRecords.set(list);
+  }
+
+  isUserItemPremium(item: any): boolean {
+    if (!item) return false;
+    if (item.is_current_user || item.isSelf || item.id === 'self' || item.id === 'me' || (this.userName() && (item.username === this.userName() || item.name === this.userName()))) {
+      return this.membership.isPremium();
+    }
+    return item.is_premium === true;
   }
 
   private handlePresenceSync(presenceState: any) {
@@ -552,7 +592,8 @@ export class Home implements OnInit, OnDestroy {
       color: this.getSelectedAvatarColor(),
       wins: this.membership.podiumWins(),
       status: isSelfInPomodoro ? 'focused' : 'idle',
-      mission: isSelfInPomodoro ? 'Enfoque Activo' : 'En el campamento'
+      mission: isSelfInPomodoro ? 'Enfoque Activo' : 'En el campamento',
+      is_premium: this.membership.isPremium()
     };
 
     if (isSelfInPomodoro) {
@@ -588,7 +629,8 @@ export class Home implements OnInit, OnDestroy {
             color: this.membership.getAvatarColorById(p.avatar || 'gato'),
             wins: 0,
             status: p.status || 'idle',
-            mission: p.mission || (p.status === 'focused' ? 'Enfoque Activo' : 'En el campamento')
+            mission: p.mission || (p.status === 'focused' ? 'Enfoque Activo' : 'En el campamento'),
+            is_premium: p.is_premium === true
           };
 
           if (p.status === 'focused') {
@@ -752,13 +794,15 @@ export class Home implements OnInit, OnDestroy {
   zoomAvatarGuardian = signal('');
   zoomAvatarColor = signal('');
   zoomAvatarWins = signal(0);
+  zoomAvatarIsPremium = signal(false);
 
-  zoomAvatar(avatarId: string, name: string, guardian: string, color: string, winsCount: number = 0) {
+  zoomAvatar(avatarId: string, name: string, guardian: string, color: string, winsCount: number = 0, isPremium: boolean = false) {
     this.zoomAvatarId.set(avatarId);
     this.zoomAvatarName.set(name);
     this.zoomAvatarGuardian.set(guardian);
     this.zoomAvatarColor.set(color);
     this.zoomAvatarWins.set(winsCount);
+    this.zoomAvatarIsPremium.set(isPremium || (this.userName() === name ? this.membership.isPremium() : false));
     this.showAvatarZoomModal.set(true);
   }
 
