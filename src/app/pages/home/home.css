@@ -846,9 +846,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 90px;
+  flex: 1 1 0;
+  min-width: 115px;
+  max-width: 160px;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+}
+
+.podio-column.first-place {
+  flex: 1.15 1 0;
+  min-width: 125px;
+  max-width: 175px;
 }
 
 .podio-column:hover {
@@ -1208,8 +1216,8 @@
 /* ===== EXPANDED PODIO TWO-HALVES GRID LAYOUT ===== */
 .podio-expanded-grid {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 20px;
+  grid-template-columns: 1.35fr 0.95fr;
+  gap: 24px;
   align-items: center;
   margin-top: 6px;
   flex: 1;
@@ -1220,7 +1228,7 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
-  padding-right: 16px;
+  padding-right: 20px;
   height: 100%;
   justify-content: center;
 }
@@ -1232,6 +1240,8 @@
   padding: 0 4px 6px 4px;
   border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
   margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .podio-section-title {
@@ -1243,23 +1253,34 @@
 }
 
 .podio-top3-badge {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--yellow);
   background: rgba(255, 215, 0, 0.08);
   border: 1px solid rgba(255, 215, 0, 0.25);
   border-radius: 10px;
-  padding: 2px 8px;
+  padding: 2.5px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.podio-week-range-text {
+  font-size: 10px;
+  opacity: 0.85;
+  font-weight: 600;
 }
 
 .podio-columns-row {
   display: flex;
   align-items: flex-end;
-  justify-content: center;
-  gap: 12px;
+  justify-content: space-around;
+  gap: 22px;
   min-height: 175px;
   padding-bottom: 4px;
   padding-top: 10px;
+  width: 100%;
 }
 
 .podio-crown-badge {
@@ -1277,12 +1298,63 @@
   font-size: 12.5px;
   font-weight: 700;
   color: var(--text);
+  white-space: nowrap;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+
+.podio-name-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 100%;
-  text-align: center;
-  margin-top: 2px;
+  max-width: 100%;
+}
+
+.podio-flag-badge {
+  font-size: 13.5px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+.podio-flag-badge:hover {
+  transform: scale(1.3) translateY(-1px);
+}
+
+.podio-flag-img {
+  width: 19px;
+  height: 13.5px;
+  object-fit: cover;
+  border-radius: 2.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+
+.podio-flag-img:hover {
+  transform: scale(1.3) translateY(-1px);
+}
+
+.podio-column.first-place .podio-user-name {
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .podio-user-points {
@@ -1318,6 +1390,104 @@
   justify-content: space-between;
   padding: 0 4px 6px 4px;
   border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.runners-live-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 10px;
+  padding: 2.5px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.runners-week-range-text {
+  font-size: 10px;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.live-week-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.runners-countdown-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+  padding: 2.5px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4.5px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.runners-countdown-badge:hover,
+.podio-cutoff-header-badge:hover {
+  filter: brightness(1.15);
+}
+
+.runners-countdown-badge.urgent {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.38);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.12);
+}
+
+.podio-cutoff-header-badge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 4px;
+  padding: 2px 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  cursor: default;
+  transition: all 0.2s ease;
+}
+
+.podio-cutoff-header-badge.urgent {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.runners-countdown-badge.urgent i,
+.podio-cutoff-header-badge.urgent i {
+  animation: pulseClock 2s infinite ease-in-out;
+}
+
+@keyframes pulseClock {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.75;
+  }
 }
 
 .runners-up-list {
@@ -1330,12 +1500,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 10px;
+  padding: 6px 11px;
   background: rgba(255, 255, 255, 0.025);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 9px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  cursor: default;
 }
 
 .runner-up-card:hover {
@@ -1375,7 +1546,7 @@
   font-weight: 900;
   font-family: 'Space Grotesk', sans-serif;
   flex-shrink: 0;
-  margin-right: 2px;
+  margin-right: 10px;
 }
 
 .runner-rank-badge.rank-1 {
@@ -1447,7 +1618,7 @@
   flex-direction: column;
   gap: 2px;
   flex: 1;
-  margin-left: 8px;
+  margin-left: 10px;
   overflow: hidden;
 }
 
@@ -1464,6 +1635,40 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.runner-flag-badge {
+  font-size: 12.5px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+.runner-flag-badge:hover {
+  transform: scale(1.25);
+}
+
+.runner-flag-img {
+  width: 18px;
+  height: 12.5px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.runner-flag-img:hover {
+  transform: scale(1.25);
 }
 
 .runner-wins {
@@ -1488,17 +1693,27 @@
 
 .runner-score-badge {
   flex-shrink: 0;
-  padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 3.5px 8px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.22);
   border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.runner-score-icon {
+  font-size: 11px;
+  color: #22c55e;
+  filter: drop-shadow(0 0 3px rgba(34, 197, 94, 0.45));
 }
 
 .runner-score-value {
   font-size: 12.5px;
   font-weight: 800;
-  color: var(--yellow);
+  color: #22c55e;
   font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.2px;
 }
 
 @media (max-width: 1024px) {
@@ -1517,6 +1732,21 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     padding-right: 0;
     padding-bottom: 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  .podio-columns-row {
+    gap: 8px;
+  }
+  .podio-column {
+    min-width: 85px;
+  }
+  .podio-column.first-place {
+    min-width: 95px;
+  }
+  .podio-user-name {
+    font-size: 11px;
   }
 }
 

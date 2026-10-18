@@ -3173,8 +3173,10 @@ BEGIN
         WHERE id = v_user_id;
         
         IF v_user_rank IS NULL THEN
-            v_user_rank := v_total_users;
+            v_user_rank := v_total_users + 1;
         END IF;
+    ELSE
+        v_user_rank := v_total_users + 1;
     END IF;
 
     -- 3b. Obtener vecinos en el ranking (2 puestos arriba, tú, 2 puestos abajo)
@@ -3298,9 +3300,17 @@ RETURNS JSONB AS $$
 DECLARE
     v_snapshot RECORD;
 BEGIN
-    SELECT * INTO v_snapshot 
-    FROM public.weekly_podium_snapshots 
-    ORDER BY created_at DESC 
+    SELECT 
+        s.*,
+        p1.country AS p1_country, p1.country_code AS p1_code,
+        p2.country AS p2_country, p2.country_code AS p2_code,
+        p3.country AS p3_country, p3.country_code AS p3_code
+    INTO v_snapshot 
+    FROM public.weekly_podium_snapshots s
+    LEFT JOIN public.profiles p1 ON p1.id = s.first_place_id
+    LEFT JOIN public.profiles p2 ON p2.id = s.second_place_id
+    LEFT JOIN public.profiles p3 ON p3.id = s.third_place_id
+    ORDER BY s.created_at DESC 
     LIMIT 1;
 
     IF v_snapshot IS NULL THEN
@@ -3315,19 +3325,25 @@ BEGIN
             'id', v_snapshot.first_place_id,
             'username', v_snapshot.first_place_username,
             'avatar', v_snapshot.first_place_avatar,
-            'score', v_snapshot.first_place_score
+            'score', v_snapshot.first_place_score,
+            'country', v_snapshot.p1_country,
+            'country_code', v_snapshot.p1_code
         ),
         'second_place', jsonb_build_object(
             'id', v_snapshot.second_place_id,
             'username', v_snapshot.second_place_username,
             'avatar', v_snapshot.second_place_avatar,
-            'score', v_snapshot.second_place_score
+            'score', v_snapshot.second_place_score,
+            'country', v_snapshot.p2_country,
+            'country_code', v_snapshot.p2_code
         ),
         'third_place', jsonb_build_object(
             'id', v_snapshot.third_place_id,
             'username', v_snapshot.third_place_username,
             'avatar', v_snapshot.third_place_avatar,
-            'score', v_snapshot.third_place_score
+            'score', v_snapshot.third_place_score,
+            'country', v_snapshot.p3_country,
+            'country_code', v_snapshot.p3_code
         )
     );
 END;
@@ -3421,15 +3437,15 @@ BEGIN
         v_rec_1.id,
         v_rec_1.username,
         COALESCE(v_rec_1.selected_avatar, 'gato'),
-        COALESCE(v_rec_1.focus_tomatoes, 0),
+        COALESCE(v_rec_1.focus_points, 0),
         v_rec_2.id,
         COALESCE(v_rec_2.username, 'En disputa'),
         COALESCE(v_rec_2.selected_avatar, 'gato'),
-        COALESCE(v_rec_2.focus_tomatoes, 0),
+        COALESCE(v_rec_2.focus_points, 0),
         v_rec_3.id,
         COALESCE(v_rec_3.username, 'En disputa'),
         COALESCE(v_rec_3.selected_avatar, 'gato'),
-        COALESCE(v_rec_3.focus_tomatoes, 0)
+        COALESCE(v_rec_3.focus_points, 0)
     ) RETURNING id INTO v_snapshot_id;
 
     RETURN jsonb_build_object(

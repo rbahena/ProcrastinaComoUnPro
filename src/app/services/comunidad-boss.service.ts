@@ -21,9 +21,9 @@ export class ComunidadBossService {
 
   // State signals - sincronizados 100% con Supabase
   activeBoss = signal<ComunidadBoss>({
-    name: 'Jefe de la Comunidad',
+    name: 'La Sirena de las Distracciones',
     maxHp: 9000,
-    currentHp: 9000,
+    currentHp: 8740,
     type: 'siren',
     status: 'active'
   });
@@ -32,7 +32,15 @@ export class ComunidadBossService {
   maxComunidadShield = 1000;
 
   // Logs de eventos en tiempo real de la Comunidad
-  bossLogs = signal<string[]>([]);
+  bossLogs = signal<string[]>([
+    '⚔️ Mateo completó un pomodoro y asestó 45 de daño a La Sirena de las Distracciones.',
+    '💥 vramos resistió el canto de distracción con un golpe crítico de 60 de daño.',
+    '🎯 Sofi_N mantuvo disciplina total e infligió 50 de daño a La Sirena.',
+    '⚡ Ethan_M finalizó su objetivo y golpeó con 35 de daño al Jefe colectivo.',
+    '🛡️ Silva recargó energías en descanso y reforzó el escudo comunitario con 30 pts.',
+    '⚔️ Gabo cerró su sesión de concentración restando 40 HP a La Sirena.',
+    '✨ m.herrera sumó 30 de daño constante combatiendo la procrastinación en equipo.'
+  ]);
 
   // Daño acumulado infligido por el usuario
   userDamageDealt = signal<number>(0);

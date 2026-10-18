@@ -182,6 +182,8 @@ export interface CapturedIdea {
 export interface CommunityLeaderboardUser {
   id: string;
   username: string;
+  country?: string;
+  country_code?: string;
   selected_avatar: string;
   selected_theme?: string;
   is_premium?: boolean;
@@ -211,15 +213,18 @@ export interface RankNeighborItem {
   is_current_user: boolean;
   is_premium?: boolean;
   podium_wins?: number;
+  gold_medals?: number;
+  silver_medals?: number;
+  bronze_medals?: number;
 }
 
 export interface WeeklyPodiumSnapshotData {
   has_snapshot: boolean;
   year_week?: string;
   week_end_date?: string;
-  first_place?: { id?: string; username: string; avatar: string; score: number };
-  second_place?: { id?: string; username: string; avatar: string; score: number };
-  third_place?: { id?: string; username: string; avatar: string; score: number };
+  first_place?: { id?: string; username: string; avatar: string; score: number; country?: string; country_code?: string };
+  second_place?: { id?: string; username: string; avatar: string; score: number; country?: string; country_code?: string };
+  third_place?: { id?: string; username: string; avatar: string; score: number; country?: string; country_code?: string };
 }
 
 export interface CommunityHomeDashboardData {
@@ -1969,7 +1974,7 @@ export class SupabaseService {
       
       const { data: profiles, error: profilesError } = await this.supabase
         .from('profiles')
-        .select('id, username, selected_avatar, selected_theme, is_premium, focus_points, focus_tomatoes, completed_objectives, abandoned_sessions, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, created_at, updated_at')
+        .select('id, username, country, country_code, selected_avatar, selected_theme, is_premium, focus_points, focus_tomatoes, completed_objectives, abandoned_sessions, streak_days, podium_wins, gold_medals, silver_medals, bronze_medals, created_at, updated_at')
         .order('focus_tomatoes', { ascending: false });
 
       if (profilesError) {
@@ -2004,12 +2009,14 @@ export class SupabaseService {
         if (foundIdx !== -1) {
           userRank = foundIdx + 1;
         } else {
-          userRank = rankedByTomatoes.length || 1;
+          userRank = rankedByTomatoes.length + 1;
         }
+      } else {
+        userRank = rankedByTomatoes.length + 1;
       }
 
-      // Vecinos en el ranking: 2 puestos arriba, tú, 2 puestos abajo
-      const startIdx = Math.max(0, userRank - 3);
+      // Vecinos en el ranking: puestos arriba, tú, puestos abajo
+      const startIdx = Math.max(0, userRank - 4);
       const endIdx = Math.min(rankedByTomatoes.length, userRank + 2);
       const rankNeighbors: RankNeighborItem[] = rankedByTomatoes.slice(startIdx, endIdx).map((p, idx) => {
         const actualRank = startIdx + idx + 1;
@@ -2020,9 +2027,12 @@ export class SupabaseService {
           selected_theme: p.selected_theme,
           focus_tomatoes: p.focus_tomatoes || 0,
           rank: actualRank,
-          is_current_user: currentUser ? p.id === currentUser.id : actualRank === userRank,
+          is_current_user: currentUser ? p.id === currentUser.id : false,
           is_premium: p.is_premium,
-          podium_wins: p.podium_wins || 0
+          podium_wins: p.podium_wins || 0,
+          gold_medals: p.gold_medals || 0,
+          silver_medals: p.silver_medals || 0,
+          bronze_medals: p.bronze_medals || 0
         };
       });
 

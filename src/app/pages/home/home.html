@@ -62,7 +62,7 @@
                class="avatar-stack-item avatar-sprite"
                [class]="'sprite-' + user.avatar"
                [style.border-color]="'var(--green)'"
-               (click)="zoomAvatar(user.avatar, user.name, getAvatarTitle(user.avatar), user.color, user.wins, isUserItemPremium(user))">
+               (click)="zoomAvatar(user.avatar, user.name, getAvatarTitle(user.avatar), user.color, user.wins, isUserItemPremium(user), user.gold_medals, user.silver_medals, user.bronze_medals)">
             <span class="avatar-tooltip">{{ user.name }} {{ isUserItemPremium(user) ? '👑 ' : '' }}({{ 'home.inPomodoro' | translate }})</span>
           </div>
         </div>
@@ -215,7 +215,7 @@
               <div class="avatar-sprite ladder-mini-avatar"
                    [class]="'sprite-' + item.selected_avatar"
                    [style.background-color]="membership.getAvatarColorById(item.selected_avatar)"
-                   (click)="zoomAvatar(item.selected_avatar, item.username, getAvatarTitle(item.selected_avatar), membership.getAvatarColorById(item.selected_avatar), item.podium_wins || 0, isUserItemPremium(item))">
+                   (click)="zoomAvatar(item.selected_avatar, item.username, getAvatarTitle(item.selected_avatar), membership.getAvatarColorById(item.selected_avatar), item.podium_wins || 0, isUserItemPremium(item), item.gold_medals, item.silver_medals, item.bronze_medals)">
               </div>
 
               <!-- Nombre de Usuario -->
@@ -262,7 +262,9 @@
             <span class="ladder-rank-tag tag-self" [style.color]="!membership.isPremium() ? '#f97316' : ''">#{{ rankingPosition() }}</span>
             <div class="avatar-sprite ladder-mini-avatar"
                  [class]="'sprite-' + selectedAvatar()"
-                 [style.background-color]="getSelectedAvatarColor()">
+                 [style.background-color]="getSelectedAvatarColor()"
+                 style="cursor: zoom-in;"
+                 (click)="zoomAvatar(selectedAvatar(), userName(), getAvatarTitle(selectedAvatar()), getSelectedAvatarColor(), membership.podiumWins(), membership.isPremium(), membership.goldMedals(), membership.silverMedals(), membership.bronzeMedals())">
             </div>
             <div class="ladder-mini-name">
               <span class="ladder-name-text" [style.color]="membership.isPremium() ? 'var(--yellow)' : '#f97316'">{{ userName() }}</span>
@@ -389,7 +391,7 @@
                    [style.left.px]="idx * 14"
                    [style.z-index]="3 - idx"
                    style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; background-size: cover; background-position: center;"
-                   (click)="zoomAvatar(user.avatar, user.name, getAvatarTitle(user.avatar), user.color, user.wins, isUserItemPremium(user))"></div>
+                   (click)="zoomAvatar(user.avatar, user.name, getAvatarTitle(user.avatar), user.color, user.wins, isUserItemPremium(user), user.gold_medals, user.silver_medals, user.bronze_medals)"></div>
               <div *ngIf="liveCampUsersCount() > 2"
                    style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg3); position: absolute; left: 28px; z-index: 1; background: var(--accent); color: #000; font-size: 9.5px; font-weight: 900; display: flex; align-items: center; justify-content: center;">
                 {{ liveCampUsersCount() > 20 ? '+18' : ('+' + (liveCampUsersCount() - 2)) }}
@@ -430,6 +432,12 @@
               <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                 <h4 style="font-size: 13px; font-weight: 800; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">{{ 'home.podiumHonor' | translate }}</h4>
                 <span style="font-size: 11px; font-weight: 800; color: #22c55e; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 4px; padding: 2px 7px; text-transform: uppercase; letter-spacing: 0.5px;">{{ 'home.liveBadge' | translate }}</span>
+                <span class="podio-cutoff-header-badge custom-tooltip-host"
+                      [class.urgent]="isPodiumCutoffUrgent()"
+                      [attr.data-tooltip]="podiumCountdownTooltip()">
+                  <i class="fa-regular fa-clock"></i>
+                  <span>{{ podiumCountdownText() }}</span>
+                </span>
                 <a *ngIf="!membership.isPremium()" 
                    routerLink="/membership"
                    class="custom-tooltip-host"
@@ -457,28 +465,43 @@
                 <i class="fa-solid fa-crown" style="color: var(--yellow); font-size: 11px;"></i>
                 <span class="podio-section-title">{{ 'home.reigningChampions' | translate }}</span>
               </div>
-              <span class="podio-top3-badge">{{ 'home.defendingRoyals' | translate }}</span>
+              <div class="podio-week-indicator" [attr.data-tooltip]="'Podio de la semana anterior cerrado y premiado'">
+                <span class="podio-top3-badge">
+                  <i class="fa-solid fa-trophy" style="font-size: 9px; margin-right: 2px;"></i>
+                  {{ podiumWeekBadge() }}
+                  <span *ngIf="podiumWeekRange()" class="podio-week-range-text">• {{ podiumWeekRange() }}</span>
+                </span>
+              </div>
             </div>
             
             <div class="podio-columns-row">
               <!-- 2º Puesto (Izquierda) -->
-              <div class="podio-column second-place custom-tooltip-host" 
-                   [attr.data-tooltip]="!rankingData()[0]?.isAssigned ? ('common.locked' | translate) : (rankingData()[0].name + ' • ' + rankingData()[0].value + ' (' + (rankingData()[0].details || '') + ')')">
+              <div class="podio-column second-place">
                 <div class="podio-avatar-wrapper">
                   <div *ngIf="rankingData()[0]?.isAssigned"
                        class="podio-avatar avatar-sprite"
                         [class]="'sprite-' + rankingData()[0].avatar" 
                         [style.background-color]="rankingData()[0].color"
                         style="cursor: zoom-in;"
-                        (click)="zoomAvatar(rankingData()[0].avatar, rankingData()[0].name, getAvatarTitle(rankingData()[0].avatar), rankingData()[0].color, rankingData()[0].wins, isUserItemPremium(rankingData()[0]))">
+                        (click)="zoomAvatar(rankingData()[0].avatar, rankingData()[0].name, getAvatarTitle(rankingData()[0].avatar), rankingData()[0].color, rankingData()[0].wins, isUserItemPremium(rankingData()[0]), rankingData()[0].gold_medals, rankingData()[0].silver_medals, rankingData()[0].bronze_medals)">
                   </div>
                   <div *ngIf="!rankingData()[0]?.isAssigned"
                        style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);">
                     <i class="fa-solid fa-lock" style="font-size: 13px; opacity: 0.5;"></i>
                   </div>
                 </div>
-                <span class="podio-user-name" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
-                  {{ rankingData()[0]?.isAssigned ? rankingData()[0].name : ('medals.inDispute' | translate) }}
+                <span class="podio-user-name">
+                  <img *ngIf="rankingData()[0]?.isAssigned && rankingData()[0].flag_code" 
+                       [src]="'https://flagcdn.com/w40/' + rankingData()[0].flag_code + '.png'" 
+                       [alt]="rankingData()[0].country || rankingData()[0].flag_code" 
+                       [attr.data-tooltip]="rankingData()[0].country || 'País'"
+                       class="podio-flag-img">
+                  <span *ngIf="rankingData()[0]?.isAssigned && !rankingData()[0].flag_code && rankingData()[0].flag" 
+                        class="podio-flag-badge" 
+                        [attr.data-tooltip]="rankingData()[0].country || 'País'">
+                    {{ rankingData()[0].flag }}
+                  </span>
+                  <span class="podio-name-text">{{ rankingData()[0]?.isAssigned ? rankingData()[0].name : ('medals.inDispute' | translate) }}</span>
                   <i *ngIf="rankingData()[0]?.isAssigned && isUserItemPremium(rankingData()[0])" 
                      class="fa-solid fa-crown ladder-crown-icon" 
                      [attr.data-tooltip]="'COFU Pro 👑'" 
@@ -491,8 +514,7 @@
               </div>
 
               <!-- 1º Puesto (Centro) -->
-              <div class="podio-column first-place custom-tooltip-host" 
-                   [attr.data-tooltip]="!rankingData()[1]?.isAssigned ? ('common.locked' | translate) : (rankingData()[1].name + ' • ' + rankingData()[1].value + ' (' + (rankingData()[1].details || '') + ')')">
+              <div class="podio-column first-place">
                 <div class="podio-crown-badge">
                   <i class="fa-solid fa-crown"></i>
                 </div>
@@ -502,15 +524,25 @@
                        [class]="'sprite-' + rankingData()[1].avatar" 
                        [style.background-color]="rankingData()[1].color"
                        style="cursor: zoom-in;"
-                       (click)="zoomAvatar(rankingData()[1].avatar, rankingData()[1].name, getAvatarTitle(rankingData()[1].avatar), rankingData()[1].color, rankingData()[1].wins, isUserItemPremium(rankingData()[1]))">
+                       (click)="zoomAvatar(rankingData()[1].avatar, rankingData()[1].name, getAvatarTitle(rankingData()[1].avatar), rankingData()[1].color, rankingData()[1].wins, isUserItemPremium(rankingData()[1]), rankingData()[1].gold_medals, rankingData()[1].silver_medals, rankingData()[1].bronze_medals)">
                   </div>
                   <div *ngIf="!rankingData()[1]?.isAssigned"
                        style="width: 48px; height: 48px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);">
                     <i class="fa-solid fa-lock" style="font-size: 15px; opacity: 0.5;"></i>
                   </div>
                 </div>
-                <span class="podio-user-name" style="font-weight: 800; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
-                  {{ rankingData()[1]?.isAssigned ? rankingData()[1].name : ('medals.inDispute' | translate) }}
+                <span class="podio-user-name">
+                  <img *ngIf="rankingData()[1]?.isAssigned && rankingData()[1].flag_code" 
+                       [src]="'https://flagcdn.com/w40/' + rankingData()[1].flag_code + '.png'" 
+                       [alt]="rankingData()[1].country || rankingData()[1].flag_code" 
+                       [attr.data-tooltip]="rankingData()[1].country || 'País'"
+                       class="podio-flag-img">
+                  <span *ngIf="rankingData()[1]?.isAssigned && !rankingData()[1].flag_code && rankingData()[1].flag" 
+                        class="podio-flag-badge" 
+                        [attr.data-tooltip]="rankingData()[1].country || 'País'">
+                    {{ rankingData()[1].flag }}
+                  </span>
+                  <span class="podio-name-text">{{ rankingData()[1]?.isAssigned ? rankingData()[1].name : ('medals.inDispute' | translate) }}</span>
                   <i *ngIf="rankingData()[1]?.isAssigned && isUserItemPremium(rankingData()[1])" 
                      class="fa-solid fa-crown ladder-crown-icon" 
                      [attr.data-tooltip]="'COFU Pro 👑'" 
@@ -523,23 +555,32 @@
               </div>
 
               <!-- 3º Puesto (Derecha) -->
-              <div class="podio-column third-place custom-tooltip-host" 
-                   [attr.data-tooltip]="!rankingData()[2]?.isAssigned ? ('common.locked' | translate) : (rankingData()[2].name + ' • ' + rankingData()[2].value + ' (' + (rankingData()[2].details || '') + ')')">
+              <div class="podio-column third-place">
                 <div class="podio-avatar-wrapper">
                   <div *ngIf="rankingData()[2]?.isAssigned"
                        class="podio-avatar avatar-sprite"
                        [class]="'sprite-' + rankingData()[2].avatar" 
                        [style.background-color]="rankingData()[2].color"
                        style="cursor: zoom-in;"
-                       (click)="zoomAvatar(rankingData()[2].avatar, rankingData()[2].name, getAvatarTitle(rankingData()[2].avatar), rankingData()[2].color, rankingData()[2].wins, isUserItemPremium(rankingData()[2]))">
+                       (click)="zoomAvatar(rankingData()[2].avatar, rankingData()[2].name, getAvatarTitle(rankingData()[2].avatar), rankingData()[2].color, rankingData()[2].wins, isUserItemPremium(rankingData()[2]), rankingData()[2].gold_medals, rankingData()[2].silver_medals, rankingData()[2].bronze_medals)">
                   </div>
                   <div *ngIf="!rankingData()[2]?.isAssigned"
                        style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);">
                     <i class="fa-solid fa-lock" style="font-size: 13px; opacity: 0.5;"></i>
                   </div>
                 </div>
-                <span class="podio-user-name" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
-                  {{ rankingData()[2]?.isAssigned ? rankingData()[2].name : ('medals.inDispute' | translate) }}
+                <span class="podio-user-name">
+                  <img *ngIf="rankingData()[2]?.isAssigned && rankingData()[2].flag_code" 
+                       [src]="'https://flagcdn.com/w40/' + rankingData()[2].flag_code + '.png'" 
+                       [alt]="rankingData()[2].country || rankingData()[2].flag_code" 
+                       [attr.data-tooltip]="rankingData()[2].country || 'País'"
+                       class="podio-flag-img">
+                  <span *ngIf="rankingData()[2]?.isAssigned && !rankingData()[2].flag_code && rankingData()[2].flag" 
+                        class="podio-flag-badge" 
+                        [attr.data-tooltip]="rankingData()[2].country || 'País'">
+                    {{ rankingData()[2].flag }}
+                  </span>
+                  <span class="podio-name-text">{{ rankingData()[2]?.isAssigned ? rankingData()[2].name : ('medals.inDispute' | translate) }}</span>
                   <i *ngIf="rankingData()[2]?.isAssigned && isUserItemPremium(rankingData()[2])" 
                      class="fa-solid fa-crown ladder-crown-icon" 
                      [attr.data-tooltip]="'COFU Pro 👑'" 
@@ -556,24 +597,32 @@
           <!-- MITAD DERECHA: CARRERA EN VIVO (TOP 1 AL 5) -->
           <div class="podio-runners-section">
             <div class="runners-up-header">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-bolt" style="color: var(--accent); font-size: 12px;"></i>
+              <div style="display: flex; align-items: center;">
                 <span style="font-size: 12.5px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.6px;">{{ 'home.liveRaceTitle' | translate }}</span>
               </div>
-              <span style="font-size: 10.5px; font-weight: 700; color: #22c55e; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 2px 8px; display: inline-flex; align-items: center; gap: 4px;">
-                <span class="pulse-green-dot" style="width: 4px; height: 4px;"></span>
-                {{ 'home.liveRaceBadge' | translate }}
-              </span>
+              <div class="live-week-indicator">
+                <span class="runners-live-badge" [attr.data-tooltip]="'Semana vigente en disputa en tiempo real'">
+                  <span class="pulse-green-dot" style="width: 4px; height: 4px;"></span>
+                  {{ currentWeekBadge() }}
+                  <span *ngIf="currentWeekRange()" class="runners-week-range-text">• {{ currentWeekRange() }}</span>
+                </span>
+                <span class="runners-countdown-badge custom-tooltip-host"
+                      [class.urgent]="isPodiumCutoffUrgent()"
+                      [attr.data-tooltip]="podiumCountdownTooltip()">
+                  <i class="fa-regular fa-clock"></i>
+                  <span>{{ podiumCountdownText() }}</span>
+                </span>
+              </div>
             </div>
 
             <div class="runners-up-list">
               <div *ngFor="let runner of liveWeeklyTop5()" 
-                   class="runner-up-card custom-tooltip-host"
+                   class="runner-up-card"
                    [class.unassigned]="!runner.isAssigned"
                    [class.rank-row-gold]="runner.position === 1 && runner.isAssigned"
                    [class.rank-row-silver]="runner.position === 2 && runner.isAssigned"
                    [class.rank-row-bronze]="runner.position === 3 && runner.isAssigned"
-                   [attr.data-tooltip]="!runner.isAssigned ? ('common.locked' | translate) : (runner.name + ' • ' + runner.value + ' (' + (runner.details || '') + ')')">
+                   [attr.data-tooltip]="runner.isAssigned && runner.details ? runner.details : null">
                 
                 <!-- Badge de Posición (1º a 5º) -->
                 <div class="runner-rank-badge" 
@@ -592,7 +641,7 @@
                        [class]="'sprite-' + runner.avatar"
                        [style.background-color]="runner.color"
                        style="cursor: zoom-in;"
-                       (click)="zoomAvatar(runner.avatar, runner.name, getAvatarTitle(runner.avatar), runner.color, runner.wins, isUserItemPremium(runner))">
+                       (click)="zoomAvatar(runner.avatar, runner.name, getAvatarTitle(runner.avatar), runner.color, runner.wins, isUserItemPremium(runner), runner.gold_medals, runner.silver_medals, runner.bronze_medals)">
                   </div>
                   <div *ngIf="!runner.isAssigned" class="runner-avatar-placeholder">
                     <i class="fa-solid fa-lock"></i>
@@ -603,22 +652,24 @@
                 <div class="runner-info">
                   <div class="runner-name-row">
                     <span class="runner-name" style="display: inline-flex; align-items: center; gap: 4px;">
+                      <img *ngIf="runner.isAssigned && runner.flag_code" 
+                           [src]="'https://flagcdn.com/w40/' + runner.flag_code + '.png'" 
+                           [alt]="runner.country || runner.flag_code" 
+                           [title]="runner.country || 'País'"
+                           class="runner-flag-img">
+                      <span *ngIf="runner.isAssigned && !runner.flag_code && runner.flag" 
+                            class="runner-flag-badge" 
+                            [title]="runner.country || 'País'">
+                        {{ runner.flag }}
+                      </span>
                       {{ runner.isAssigned ? runner.name : ('medals.inDispute' | translate) }}
-                      <i *ngIf="runner.isAssigned && isUserItemPremium(runner)" 
-                         class="fa-solid fa-crown ladder-crown-icon" 
-                         [attr.data-tooltip]="'COFU Pro 👑'" 
-                         data-tooltip-align="top">
-                      </i>
-                    </span>
-                    <span *ngIf="runner.isAssigned && runner.wins > 0" class="runner-wins" [attr.data-tooltip]="runner.wins + ' podios ganados'">
-                      🏆 {{ runner.wins }}
                     </span>
                   </div>
-                  <span class="runner-details">{{ runner.isAssigned ? (runner.details || '0 🍅 • 0 🎯 • 0 🚫') : ('common.locked' | translate) }}</span>
                 </div>
 
                 <!-- Puntos de Productividad -->
                 <div class="runner-score-badge">
+                  <i *ngIf="runner.isAssigned" class="fa-solid fa-bolt runner-score-icon"></i>
                   <span class="runner-score-value">{{ runner.isAssigned ? runner.value : ('medals.available' | translate) }}</span>
                 </div>
               </div>
@@ -797,18 +848,49 @@
     </div>
 
     <!-- Información del Avatar -->
-    <div>
+    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
       <h3 style="font-size: 16px; font-weight: 800; color: var(--text); margin: 0; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
         <span>{{ zoomAvatarName() }}</span>
         <i *ngIf="zoomAvatarIsPremium()" class="fa-solid fa-crown ladder-crown-icon" style="font-size: 13px;" [attr.data-tooltip]="'COFU Pro 👑'"></i>
       </h3>
-      <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0 0;">{{ 'home.focusingSubtitle' | translate }}</p>
-    </div>
 
-    <!-- MEDALLAS DEL USUARIO EN ZOOM -->
-    <div *ngIf="zoomAvatarWins() > 0" 
-         style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; border-top: 1px dashed var(--border); padding-top: 12px;">
-      <span style="font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">{{ 'home.rank' | translate }} ({{ zoomAvatarWins() }})</span>
+      <!-- CONTEOS DE PODIOS Y MEDALLAS DEBAJO DEL NOMBRE -->
+      <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; width: 100%;">
+        <!-- Podios (1º / Oro) -->
+        <div class="custom-tooltip-host"
+             [attr.data-tooltip]="'home.goldMedalTooltip' | translate"
+             style="flex: 1; font-size: 11px; font-weight: 800; color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 6px 4px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-trophy" style="font-size: 11px;"></i>
+            <span style="font-size: 13px; font-weight: 900;">{{ zoomAvatarGoldMedals() }}</span>
+          </div>
+          <span style="font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.4px; opacity: 0.9;">{{ (zoomAvatarGoldMedals() === 1 ? 'home.podium' : 'home.podiums') | translate }}</span>
+        </div>
+
+        <!-- Plata (2º Lugar) -->
+        <div class="custom-tooltip-host"
+             [attr.data-tooltip]="'home.silverMedalTooltip' | translate"
+             style="flex: 1; font-size: 11px; font-weight: 800; color: #cbd5e1; background: rgba(203, 213, 225, 0.1); border: 1px solid rgba(203, 213, 225, 0.3); border-radius: 8px; padding: 6px 4px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-medal" style="font-size: 11px;"></i>
+            <span style="font-size: 13px; font-weight: 900;">{{ zoomAvatarSilverMedals() }}</span>
+          </div>
+          <span style="font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.4px; opacity: 0.9;">{{ 'home.silver' | translate }}</span>
+        </div>
+
+        <!-- Bronce (3º Lugar) -->
+        <div class="custom-tooltip-host"
+             [attr.data-tooltip]="'home.bronzeMedalTooltip' | translate"
+             style="flex: 1; font-size: 11px; font-weight: 800; color: #d97706; background: rgba(217, 119, 6, 0.1); border: 1px solid rgba(217, 119, 6, 0.3); border-radius: 8px; padding: 6px 4px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-medal" style="font-size: 11px;"></i>
+            <span style="font-size: 13px; font-weight: 900;">{{ zoomAvatarBronzeMedals() }}</span>
+          </div>
+          <span style="font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.4px; opacity: 0.9;">{{ 'home.bronze' | translate }}</span>
+        </div>
+      </div>
+
+      <p style="font-size: 12px; color: var(--muted); margin: 8px 0 0 0;">{{ 'home.focusingSubtitle' | translate }}</p>
     </div>
 
     <!-- Botón de Acción Cerrar -->

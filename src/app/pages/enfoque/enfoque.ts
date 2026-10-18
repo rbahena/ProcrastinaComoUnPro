@@ -10,6 +10,7 @@ import { Navbar } from '../../components/navbar/navbar';
 import { MinijuegosDescanso } from '../../components/minijuegos-descanso/minijuegos-descanso';
 import { BACKGROUND_SOUNDS, END_SESSION_SOUNDS, BackgroundSoundOption, EndSessionSoundOption } from './sounds.data';
 import { TranslatePipe, TranslationService } from '../../services/translation.service';
+import { CompanionSimulatorService } from '../../services/companion-simulator.service';
 
 export interface MotivationItem {
   id: string;
@@ -93,6 +94,7 @@ export class Enfoque implements OnInit, OnDestroy {
   public bossService = inject(ComunidadBossService);
   public notificationService = inject(NotificationService);
   public translation = inject(TranslationService);
+  public simulator = inject(CompanionSimulatorService);
   private router = inject(Router);
   currentSessionNonceId: string | null = null;
   isSettlingSession = signal<boolean>(false);
@@ -1418,7 +1420,101 @@ export class Enfoque implements OnInit, OnDestroy {
       const userMots: MotivationItem[] = savedUserMotivations ? JSON.parse(savedUserMotivations) : [];
       const savedLikedIds: string[] = JSON.parse(localStorage.getItem('user-liked-motivations') || '[]');
       
-      const all = userMots.map(m => ({
+      const defaultCommunityMotivations: MotivationItem[] = [
+        {
+          id: 'mot-ghost-mateo',
+          userName: 'Mateo',
+          avatar: 'perro',
+          text: 'No esperes a tener ganas para empezar. La motivación aparece después de los primeros 5 minutos de enfoque.',
+          category: 'disciplina',
+          timestamp: 'Hace 3h',
+          createdAt: Date.now() - 3 * 3600 * 1000,
+          likes: 14,
+          isUser: false,
+          likedByMe: savedLikedIds.includes('mot-ghost-mateo')
+        },
+        {
+          id: 'mot-ghost-vramos',
+          userName: 'vramos',
+          avatar: 'conejo',
+          text: 'Cada bloque de estudio cuenta. La constancia silenciosa de hoy es el éxito del mañana.',
+          category: 'crecimiento',
+          timestamp: 'Hace 5h',
+          createdAt: Date.now() - 5 * 3600 * 1000,
+          likes: 12,
+          isUser: false,
+          likedByMe: savedLikedIds.includes('mot-ghost-vramos')
+        },
+        {
+          id: 'mot-ghost-sofi',
+          userName: 'Sofi_N',
+          avatar: 'hamster',
+          text: 'Un artículo a la vez, una ley a la vez. El secreto no es la prisa, es no detenerse.',
+          category: 'disciplina',
+          timestamp: 'Hace 8h',
+          createdAt: Date.now() - 8 * 3600 * 1000,
+          likes: 10,
+          isUser: false,
+          likedByMe: savedLikedIds.includes('mot-ghost-sofi')
+        },
+        {
+          id: 'mot-ghost-ethan',
+          userName: 'Ethan_M',
+          avatar: 'loro',
+          text: 'Enfócate en lo que puedes controlar hoy. La ejecución vence al perfeccionismo siempre.',
+          category: 'metas',
+          timestamp: 'Hace 12h',
+          createdAt: Date.now() - 12 * 3600 * 1000,
+          likes: 9,
+          isUser: false,
+          likedByMe: savedLikedIds.includes('mot-ghost-ethan')
+        },
+        {
+          id: 'mot-ghost-silva',
+          userName: 'Silva',
+          avatar: 'gato',
+          text: 'La profundidad requiere calma. Apaga las notificaciones y sumérgete en una sola tarea.',
+          category: 'crecimiento',
+          timestamp: 'Hace 16h',
+          createdAt: Date.now() - 16 * 3600 * 1000,
+          likes: 7,
+          isUser: false,
+          likedByMe: savedLikedIds.includes('mot-ghost-silva')
+        },
+        {
+          id: 'mot-ghost-gabo',
+          userName: 'Gabo',
+          avatar: 'raton',
+          text: 'Los grandes resultados se construyen con pequeñas sumas diarias. 25 minutos valen oro.',
+          category: 'disciplina',
+          timestamp: 'Hace 22h',
+          createdAt: Date.now() - 22 * 3600 * 1000,
+          likes: 6,
+          isUser: false,
+          likedByMe: savedLikedIds.includes('mot-ghost-gabo')
+        },
+        {
+          id: 'mot-ghost-mherrera',
+          userName: 'm.herrera',
+          avatar: 'tortuga',
+          text: 'Paso a paso, como la tortuga: despacio pero sin pausa. ¡Ánimo guerreros!',
+          category: 'pasion',
+          timestamp: 'Ayer',
+          createdAt: Date.now() - 26 * 3600 * 1000,
+          likes: 5,
+          isUser: false,
+          likedByMe: savedLikedIds.includes('mot-ghost-mherrera')
+        }
+      ];
+
+      const merged = [...userMots];
+      defaultCommunityMotivations.forEach(def => {
+        if (!merged.some(m => m.id === def.id || m.text === def.text)) {
+          merged.push(def);
+        }
+      });
+
+      const all = merged.map(m => ({
         ...m,
         likedByMe: savedLikedIds.includes(m.id) || m.likedByMe
       }));
@@ -5594,33 +5690,42 @@ export class Enfoque implements OnInit, OnDestroy {
         .order('last_focus_date', { ascending: false, nullsFirst: false })
         .limit(20);
 
+      const simList = this.simulator.getEnfoqueSimulatedUsers(this.userName(), 1);
+      const simIds = new Set(simList.map(s => s.userId));
+      const simNames = new Set(simList.map(s => s.name.toLowerCase()));
+
       if (!error && data) {
         this.dbRegisteredProfiles = data.filter(p => {
           if (currentUserId && p.id === currentUserId) return false;
           return true;
         });
         
-        // Lista inicial a partir de los perfiles reales registrados
-        const initialList = this.dbRegisteredProfiles.map((prof, idx) => ({
-          id: prof.id,
-          userId: prof.id,
-          name: prof.username || 'Guerrero',
-          avatar: prof.selected_avatar || 'gato',
-          is_premium: prof.is_premium === true,
-          status: 'idle' as const,
-          mission: 'En el campamento',
-          timeLeft: 0,
-          percentage: 0,
-          target_end_time: null,
-          total_duration: 1500,
-          desk: idx + 1,
-          is_live: false,
-          reaction: ''
-        }));
-        this.comunidadUsers.set(initialList);
+        // Lista inicial combinando compañeros simulados con perfiles reales
+        const initialList = this.dbRegisteredProfiles
+          .filter(prof => !simIds.has(prof.id) && !simNames.has((prof.username || '').toLowerCase()))
+          .map((prof, idx) => ({
+            id: prof.id,
+            userId: prof.id,
+            name: prof.username || 'Guerrero',
+            avatar: prof.selected_avatar || 'gato',
+            is_premium: prof.is_premium === true,
+            status: 'idle' as const,
+            mission: 'En el campamento',
+            timeLeft: 0,
+            percentage: 0,
+            target_end_time: null,
+            total_duration: 1500,
+            desk: simList.length + idx + 1,
+            is_live: false,
+            reaction: ''
+          }));
+        this.comunidadUsers.set([...simList, ...initialList]);
+      } else {
+        this.comunidadUsers.set(simList);
       }
     } catch (e) {
       console.warn('[Error loading real community profiles]', e);
+      this.comunidadUsers.set(this.simulator.getEnfoqueSimulatedUsers(this.userName(), 1));
     }
   }
 
@@ -5731,6 +5836,16 @@ export class Enfoque implements OnInit, OnDestroy {
     // Obtener lista de IDs y nombres de usuarios actualmente en vivo para no duplicarlos
     const liveUserIds = new Set(liveUsersList.map(u => u.userId));
     const liveNames = new Set(liveUsersList.map(u => u.name.toLowerCase()));
+
+    // Incorporar compañeros simulados vivos para mantener los escritorios habitados y activos
+    const simUsers = this.simulator.getEnfoqueSimulatedUsers(this.userName(), liveUsersList.length + 1);
+    simUsers.forEach(sim => {
+      if (!liveUserIds.has(sim.userId) && !liveNames.has(sim.name.toLowerCase())) {
+        liveUsersList.push(sim);
+        liveUserIds.add(sim.userId);
+        liveNames.add(sim.name.toLowerCase());
+      }
+    });
 
     const dbUsersList: any[] = [];
     this.dbRegisteredProfiles.forEach((prof, idx) => {
@@ -5890,6 +6005,16 @@ export class Enfoque implements OnInit, OnDestroy {
         };
       } else if (u.status === 'focused') {
         const newTime = Math.max(0, (u.timeLeft > 0 ? u.timeLeft : total) - 1);
+        if (newTime <= 0 && u.id && u.id.startsWith('a0000000-')) {
+          return {
+            ...u,
+            status: 'break',
+            timeLeft: 300,
+            percentage: 0,
+            mission: '☕ Pausa para café y estiramiento',
+            target_end_time: Date.now() + 300000
+          };
+        }
         const pct = Math.min(100, Math.floor(((total - newTime) / total) * 100));
         return {
           ...u,
@@ -5906,6 +6031,16 @@ export class Enfoque implements OnInit, OnDestroy {
       } else if (u.status === 'break' || u.status === 'paused') {
         const fallbackTotal = u.status === 'paused' ? 120 : 300;
         const newTime = Math.max(0, (u.timeLeft > 0 ? u.timeLeft : fallbackTotal) - 1);
+        if (newTime <= 0 && u.id && u.id.startsWith('a0000000-')) {
+          return {
+            ...u,
+            status: 'focused',
+            timeLeft: 1500,
+            percentage: 0,
+            mission: '🎯 Nuevo bloque de concentración',
+            target_end_time: Date.now() + 1500000
+          };
+        }
         return {
           ...u,
           timeLeft: newTime,
@@ -5916,6 +6051,22 @@ export class Enfoque implements OnInit, OnDestroy {
     });
 
     this.comunidadUsers.set(updatedUsers);
+
+    // Apoyo ocasional y motivacional de compañero virtual durante sesión de enfoque activa
+    if (this.arenaState() === 'active' && !this.isBreak() && !this.emergencyPauseActive()) {
+      if (Math.random() < 0.0018) {
+        const cheer = this.simulator.getRandomSupportCheer(this.userName());
+        if (cheer) {
+          this.userActiveReaction.set(cheer.emoji);
+          this.addComunidadEvent(`¡${cheer.from} te envió energía! ${cheer.emoji}`, 'reaction');
+          setTimeout(() => {
+            if (this.userActiveReaction() === cheer.emoji) {
+              this.userActiveReaction.set('');
+            }
+          }, 3500);
+        }
+      }
+    }
   }
 
   showToast(msg: string, type: 'info' | 'warning' | 'success' | 'danger' = 'info') {

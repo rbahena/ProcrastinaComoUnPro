@@ -233,65 +233,65 @@ button { font-family: inherit; cursor: pointer; }
 
 .avatar-sprite.sprite-dragon {
   background-image: var(--avatar-img-dragon, url('/assets/images/avatars/dragon_locked.webp'));
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 45px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(0, 255, 157, 0.35);
-  border: 2px solid #10b981 !important;
-  animation: dragon-legendary-glow 3s infinite alternate;
+  box-shadow: 0 0 5px rgba(16, 185, 129, 0.22), 0 2px 6px rgba(0, 0, 0, 0.35);
+  border: 1.5px solid rgba(16, 185, 129, 0.45) !important;
+  animation: dragon-legendary-glow 4s infinite alternate ease-in-out;
 }
 .avatar-sprite.sprite-fenix {
   background-image: var(--avatar-img-fenix, url('/assets/images/avatars/fenix_locked.webp'));
-  box-shadow: 0 0 20px rgba(249, 115, 22, 0.6), 0 0 45px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(251, 146, 60, 0.35);
-  border: 2px solid #f97316 !important;
-  animation: fenix-legendary-glow 3s infinite alternate;
+  box-shadow: 0 0 5px rgba(249, 115, 22, 0.22), 0 2px 6px rgba(0, 0, 0, 0.35);
+  border: 1.5px solid rgba(249, 115, 22, 0.45) !important;
+  animation: fenix-legendary-glow 4s infinite alternate ease-in-out;
 }
 .avatar-sprite.sprite-grifo {
   background-image: var(--avatar-img-grifo, url('/assets/images/avatars/grifo_locked.webp'));
-  box-shadow: 0 0 20px rgba(234, 179, 8, 0.6), 0 0 45px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(253, 224, 71, 0.35);
-  border: 2px solid #eab308 !important;
-  animation: grifo-legendary-glow 3s infinite alternate;
+  box-shadow: 0 0 5px rgba(234, 179, 8, 0.22), 0 2px 6px rgba(0, 0, 0, 0.35);
+  border: 1.5px solid rgba(234, 179, 8, 0.45) !important;
+  animation: grifo-legendary-glow 4s infinite alternate ease-in-out;
 }
 
 @keyframes dragon-legendary-glow {
   0% {
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5), 0 0 30px rgba(0, 0, 0, 0.8);
-    filter: brightness(0.95) contrast(1.05);
+    box-shadow: 0 0 3px rgba(16, 185, 129, 0.15), 0 2px 5px rgba(0, 0, 0, 0.3);
+    filter: brightness(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(0, 196, 159, 0.75), 0 0 50px rgba(16, 185, 129, 0.5);
-    filter: brightness(1.15) contrast(1.1);
+    box-shadow: 0 0 6px rgba(0, 196, 159, 0.25), 0 2px 6px rgba(16, 185, 129, 0.2);
+    filter: brightness(1.02);
   }
   100% {
-    box-shadow: 0 0 35px rgba(0, 255, 157, 0.95), 0 0 70px rgba(0, 0, 0, 0.95);
-    filter: brightness(1.25) contrast(1.15);
+    box-shadow: 0 0 4px rgba(0, 255, 157, 0.2), 0 2px 5px rgba(0, 0, 0, 0.3);
+    filter: brightness(1.01);
   }
 }
 
 @keyframes fenix-legendary-glow {
   0% {
-    box-shadow: 0 0 15px rgba(249, 115, 22, 0.5), 0 0 30px rgba(0, 0, 0, 0.8);
-    filter: brightness(0.95) contrast(1.05);
+    box-shadow: 0 0 3px rgba(249, 115, 22, 0.15), 0 2px 5px rgba(0, 0, 0, 0.3);
+    filter: brightness(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(239, 68, 68, 0.75), 0 0 50px rgba(249, 115, 22, 0.5);
-    filter: brightness(1.15) contrast(1.1);
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.25), 0 2px 6px rgba(249, 115, 22, 0.2);
+    filter: brightness(1.02);
   }
   100% {
-    box-shadow: 0 0 35px rgba(251, 146, 60, 0.95), 0 0 70px rgba(0, 0, 0, 0.95);
-    filter: brightness(1.25) contrast(1.15);
+    box-shadow: 0 0 4px rgba(251, 146, 60, 0.2), 0 2px 5px rgba(0, 0, 0, 0.3);
+    filter: brightness(1.01);
   }
 }
 
 @keyframes grifo-legendary-glow {
   0% {
-    box-shadow: 0 0 15px rgba(234, 179, 8, 0.5), 0 0 30px rgba(0, 0, 0, 0.8);
-    filter: brightness(0.95) contrast(1.05);
+    box-shadow: 0 0 3px rgba(234, 179, 8, 0.15), 0 2px 5px rgba(0, 0, 0, 0.3);
+    filter: brightness(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(250, 204, 21, 0.75), 0 0 50px rgba(234, 179, 8, 0.5);
-    filter: brightness(1.15) contrast(1.1);
+    box-shadow: 0 0 6px rgba(250, 204, 21, 0.25), 0 2px 6px rgba(234, 179, 8, 0.2);
+    filter: brightness(1.02);
   }
   100% {
-    box-shadow: 0 0 35px rgba(254, 240, 138, 0.95), 0 0 70px rgba(0, 0, 0, 0.95);
-    filter: brightness(1.25) contrast(1.15);
+    box-shadow: 0 0 4px rgba(254, 240, 138, 0.2), 0 2px 5px rgba(0, 0, 0, 0.3);
+    filter: brightness(1.01);
   }
 }
 
