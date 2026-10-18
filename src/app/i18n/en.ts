@@ -193,7 +193,7 @@ export const EN = {
     "pausePenalty": "Pause Penalty",
     "bossDamage": "Boss Damage",
     "bossHeal": "Community Defense",
-    "sessionPerformance": "Session Performance",
+    "sessionPerformance": "Rewards & Penalties",
     "pomodoroImpact": "Pomodoro Impact",
     "sessionCompleted": "Session Completed",
     "pauseOrAbandon": "Pause or Abandon",

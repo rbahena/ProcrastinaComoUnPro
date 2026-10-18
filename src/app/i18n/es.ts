@@ -193,7 +193,7 @@ export const ES = {
     "pausePenalty": "Penalización por Pausa",
     "bossDamage": "Daño al Jefe",
     "bossHeal": "Recuperación de Jefe",
-    "sessionPerformance": "Rendimiento por Sesión",
+    "sessionPerformance": "Recompensas y Penalizaciones",
     "pomodoroImpact": "Impacto Pomodoro",
     "sessionCompleted": "Sesión Completada",
     "pauseOrAbandon": "Pausa o Abandono",
