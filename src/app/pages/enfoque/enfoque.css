@@ -6887,6 +6887,92 @@ body.theme-light-zen .settings-mobile-action-bar,
   border-color: rgba(0, 0, 0, 0.06);
 }
 
+/* =========================================================
+   CONSOLA DE ESTRATEGIA Y OBJETIVO DE SESIÓN (RESPONSIVE MÓVIL)
+   ========================================================= */
+
+.console-drawer-backdrop {
+  display: none;
+}
+
+.console-strategy-drawer {
+  position: fixed;
+  left: 12px;
+  right: auto;
+  bottom: 64px;
+  top: auto;
+  width: var(--drawer-width, 360px);
+  height: var(--drawer-height, auto);
+  max-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1.5px solid var(--border, rgba(255, 255, 255, 0.12));
+  background: rgba(10, 10, 12, 0.96);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65);
+  border-radius: 16px;
+  z-index: 2000;
+  box-sizing: border-box;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+@media (max-width: 768px) {
+  .console-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1999;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: fadeInConsoleBackdrop 0.2s ease-out;
+  }
+
+  .console-strategy-drawer {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+    bottom: 74px !important;
+    height: auto !important;
+    max-height: calc(88vh - 74px) !important;
+    border-radius: 16px !important;
+    padding: 14px !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85), 0 0 25px rgba(99, 102, 241, 0.2) !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .console-strategy-drawer {
+    left: 8px !important;
+    right: 8px !important;
+    max-width: calc(100vw - 16px) !important;
+    padding: 12px 10px !important;
+    bottom: 70px !important;
+  }
+}
+
+@keyframes fadeInConsoleBackdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Modo claro para consola de estrategia */
+body.theme-light .console-strategy-drawer,
+body.mode-light .console-strategy-drawer,
+body.theme-light-zen .console-strategy-drawer,
+[data-theme='light'] .console-strategy-drawer {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.15);
+  color: #0f172a;
+}
+
+
 
 
 

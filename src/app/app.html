@@ -1,5 +1,8 @@
 <router-outlet></router-outlet>
 
+<!-- Backdrop de cierre para pantallas móviles y escritorio -->
+<div class="fleeting-backdrop" *ngIf="showFloatingInput()" (click)="closeFloatingInput()"></div>
+
 <div class="fleeting-notes-widget" *ngIf="!isLandingOrAuthRoute()" [class.success-firing]="isAnimatingSuccess()">
   
   <!-- Contenedor del Input Expandible -->
@@ -35,6 +38,9 @@
       </div>
 
       <span class="shortcut-tag">Alt + I</span>
+      <button type="button" class="mobile-fleeting-close-btn" (click)="closeFloatingInput()" aria-label="Cerrar modal">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
 
     <div class="panel-body">
