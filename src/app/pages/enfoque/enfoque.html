@@ -7166,91 +7166,113 @@
   </div>
 </div>
 
-<!-- MODAL DE CONFIGURACIÓN Y PERSONALIZACIÓN ZEN (CON MENÚ LATERAL INTERNO) -->
+<!-- MODAL DE CONFIGURACIÓN Y PERSONALIZACIÓN ZEN (CON MENÚ LATERAL INTERNO Y RESPONSIVE MÓVIL) -->
 <div *ngIf="showSetupSettings() && arenaState() === 'setup'" 
-     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 15000; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Space Grotesk', sans-serif;">
+     class="settings-modal-backdrop">
   
-  <div style="background: rgba(10, 10, 12, 0.98); border: 1.5px solid var(--border); border-radius: 20px; max-width: var(--modal-width); width: 100%; height: var(--modal-height); display: flex; box-shadow: 0 30px 70px rgba(0,0,0,0.7); position: relative; overflow: hidden; animation: slideDown 0.25s ease;">
+  <div class="settings-modal-card">
     
-    <!-- MENU LATERAL INTERNO (IZQUIERDA) -->
-    <div style="width: 240px; border-right: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); display: flex; flex-direction: column; padding: 28px 20px; box-sizing: border-box;">
+    <!-- CABECERA MÓVIL -->
+    <div class="settings-mobile-header">
+      <div class="settings-mobile-title-wrap">
+        <i class="fa-solid fa-sliders" style="color: var(--accent);"></i>
+        <span>Ajustes</span>
+      </div>
+      <button type="button" class="settings-mobile-close-btn" (click)="showSetupSettings.set(false)" aria-label="Cerrar ajustes">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- TABS HORIZONTALES MÓVILES -->
+    <div class="settings-mobile-tabs-bar">
+      <button type="button" (click)="settingsActiveTab.set('time')" [class.active]="settingsActiveTab() === 'time'" class="settings-mobile-tab-btn">
+        <i class="fa-solid fa-clock"></i>
+        <span>{{ 'focus.settingsTimeShort' | translate }}</span>
+      </button>
+      <button type="button" (click)="settingsActiveTab.set('notifications')" [class.active]="settingsActiveTab() === 'notifications'" class="settings-mobile-tab-btn">
+        <i class="fa-solid fa-bell"></i>
+        <span>{{ 'focus.settingsNotifShort' | translate }}</span>
+      </button>
+      <button type="button" (click)="settingsActiveTab.set('themes')" [class.active]="settingsActiveTab() === 'themes'" class="settings-mobile-tab-btn">
+        <i class="fa-solid fa-palette"></i>
+        <span>{{ 'focus.settingsThemesShort' | translate }}</span>
+      </button>
+      <button type="button" (click)="settingsActiveTab.set('timerStyle')" [class.active]="settingsActiveTab() === 'timerStyle'" class="settings-mobile-tab-btn">
+        <i class="fa-solid fa-hourglass-half"></i>
+        <span>{{ 'focus.settingsClockShort' | translate }}</span>
+      </button>
+    </div>
+
+    <!-- MENU LATERAL INTERNO (IZQUIERDA) - Desktop -->
+    <div class="settings-modal-sidebar">
       
       <!-- Título Sidebar -->
-      <h3 style="font-size: var(--modal-title-size); font-weight: 900; color: var(--text); margin: 0 0 28px 0; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 10px;">
+      <h3 class="settings-sidebar-title">
         <i class="fa-solid fa-sliders" style="color: var(--accent);"></i>
         Ajustes
       </h3>
 
       <!-- Opciones del Menú (Vertical) -->
-      <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+      <div class="settings-sidebar-nav">
         <!-- Botón Pestaña 1: Tiempos y Ciclos -->
         <button (click)="settingsActiveTab.set('time')"
-                [style.background]="settingsActiveTab() === 'time' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                [style.borderColor]="settingsActiveTab() === 'time' ? 'var(--accent)' : 'transparent'"
-                [style.color]="settingsActiveTab() === 'time' ? 'var(--accent)' : 'var(--muted)'"
-                style="display: flex; align-items: center; gap: 12px; width: 100%; border: 1px solid transparent; padding: 12px 16px; border-radius: 8px; font-size: var(--modal-header-size); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: left; transition: all 0.2s; font-family: inherit; outline: none;">
+                [class.is-active]="settingsActiveTab() === 'time'"
+                class="settings-sidebar-tab-btn">
           <i class="fa-solid fa-clock" style="font-size: 14px;"></i>
-          Tiempos y Ciclos
+          <span>{{ 'focus.settingsTimeAndSounds' | translate }}</span>
         </button>
 
         <!-- Botón Pestaña 2: Notificaciones -->
         <button (click)="settingsActiveTab.set('notifications')"
-                [style.background]="settingsActiveTab() === 'notifications' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                [style.borderColor]="settingsActiveTab() === 'notifications' ? 'var(--accent)' : 'transparent'"
-                [style.color]="settingsActiveTab() === 'notifications' ? 'var(--accent)' : 'var(--muted)'"
-                style="display: flex; align-items: center; gap: 12px; width: 100%; border: 1px solid transparent; padding: 12px 16px; border-radius: 8px; font-size: var(--modal-header-size); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: left; transition: all 0.2s; font-family: inherit; outline: none;">
+                [class.is-active]="settingsActiveTab() === 'notifications'"
+                class="settings-sidebar-tab-btn">
           <i class="fa-solid fa-bell" style="font-size: 14px;"></i>
-          Notificaciones
+          <span>{{ 'focus.settingsNotificationsAlerts' | translate }}</span>
         </button>
 
         <!-- Botón Pestaña 3: Temas y Fondos -->
         <button (click)="settingsActiveTab.set('themes')"
-                [style.background]="settingsActiveTab() === 'themes' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                [style.borderColor]="settingsActiveTab() === 'themes' ? 'var(--accent)' : 'transparent'"
-                [style.color]="settingsActiveTab() === 'themes' ? 'var(--accent)' : 'var(--muted)'"
-                style="display: flex; align-items: center; gap: 12px; width: 100%; border: 1px solid transparent; padding: 12px 16px; border-radius: 8px; font-size: var(--modal-header-size); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: left; transition: all 0.2s; font-family: inherit; outline: none;">
+                [class.is-active]="settingsActiveTab() === 'themes'"
+                class="settings-sidebar-tab-btn">
           <i class="fa-solid fa-palette" style="font-size: 14px;"></i>
-          Temas y Fondos
+          <span>{{ 'focus.settingsThemesAndSpaces' | translate }}</span>
         </button>
 
         <!-- Botón Pestaña 4: Estilo Reloj -->
         <button (click)="settingsActiveTab.set('timerStyle')"
-                [style.background]="settingsActiveTab() === 'timerStyle' ? 'rgba(255,255,255,0.05)' : 'transparent'"
-                [style.borderColor]="settingsActiveTab() === 'timerStyle' ? 'var(--accent)' : 'transparent'"
-                [style.color]="settingsActiveTab() === 'timerStyle' ? 'var(--accent)' : 'var(--muted)'"
-                style="display: flex; align-items: center; gap: 12px; width: 100%; border: 1px solid transparent; padding: 12px 16px; border-radius: 8px; font-size: var(--modal-header-size); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: left; transition: all 0.2s; font-family: inherit; outline: none;">
+                [class.is-active]="settingsActiveTab() === 'timerStyle'"
+                class="settings-sidebar-tab-btn">
           <i class="fa-solid fa-hourglass-half" style="font-size: 14px;"></i>
-          Estilo Reloj
+          <span>{{ 'focus.settingsClockStyle' | translate }}</span>
         </button>
       </div>
 
       <!-- Botón de Cierre / Guardar en el Pie del Sidebar -->
       <button (click)="showSetupSettings.set(false)"
-              style="margin-top: auto; border: none; padding: 12px; border-radius: 8px; background: var(--accent); color: #000; font-size: var(--modal-header-size); font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; font-family: inherit;"
-              onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.35)';"
-              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+              class="settings-sidebar-apply-btn">
         <i class="fa-solid fa-check"></i>
-        Aplicar
+        <span>{{ 'focus.settingsApply' | translate }}</span>
       </button>
 
     </div>
 
     <!-- PANEL DE CONTENIDO (DERECHA) -->
-    <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 28px; box-sizing: border-box; position: relative;">
+    <div class="settings-modal-content">
       
       <!-- Botón X Cerrar -->
       <button (click)="showSetupSettings.set(false)" 
-              style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 20px; z-index: 10;">
+              class="settings-desktop-close-btn"
+              aria-label="Cerrar modal">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
       <!-- Título de la Pestaña Activa -->
-      <h2 style="font-size: var(--modal-title-size); font-weight: 900; color: #fff; margin: 0 0 20px 0; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 10px; letter-spacing: 0.5px;">
+      <h2 class="settings-content-heading">
         {{ settingsActiveTab() === 'time' ? ('focus.settingsTimeAndSounds' | translate) : settingsActiveTab() === 'notifications' ? ('focus.settingsNotificationsAlerts' | translate) : settingsActiveTab() === 'themes' ? ('focus.settingsThemesAndSpaces' | translate) : ('focus.settingsClockStyle' | translate) }}
       </h2>
 
       <!-- Contenido Scrollable -->
-      <div class="custom-scrollbar" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-right: 6px;">
+      <div class="custom-scrollbar settings-scrollable-body">
         
         <!-- CONTENIDO TABS: TIME (TIEMPOS, SONIDOS Y ALARMAS POR RUBRO) -->
         <div *ngIf="settingsActiveTab() === 'time'" style="display: flex; flex-direction: column; gap: 18px;">
@@ -7282,7 +7304,7 @@
             </div>
 
             <!-- Fila de Configuración -->
-            <div style="display: grid; grid-template-columns: 140px 1fr 1fr; gap: 14px; align-items: start;">
+            <div class="settings-config-grid">
               <!-- 1. Duración -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
                 <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">{{ 'focus.durationLabel' | translate }}</span>
@@ -7415,7 +7437,7 @@
               </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: 140px 1fr 1fr; gap: 14px; align-items: start;">
+            <div class="settings-config-grid">
               <!-- 1. Duración -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
                 <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">{{ 'focus.durationLabel' | translate }}</span>
@@ -7527,7 +7549,7 @@
               </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: 130px 130px 1fr 1fr; gap: 12px; align-items: start;">
+            <div class="settings-config-grid settings-long-break-grid">
               <!-- 1. Duración -->
               <div style="display: flex; flex-direction: column; gap: 6px;">
                 <span style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;">{{ 'focus.durationLabel' | translate }}</span>
@@ -7995,7 +8017,7 @@
           <!-- Tema Visual Selector -->
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <span style="font-size: var(--modal-header-size); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Tema Visual</span>
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+            <div class="settings-theme-options-grid">
               <button *ngFor="let t of themeOptions" 
                       (click)="selectThemeOption(t)"
                       style="border: 1px solid var(--border); padding: 10px 4px; border-radius: 6px; background: transparent; cursor: pointer; font-size: var(--modal-subtext-size); font-weight: 800; font-family: inherit; transition: all 0.2s; text-transform: capitalize; position: relative;"
@@ -8073,7 +8095,7 @@
                 </div>
 
                 <!-- Grilla de Tarjetas -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px;">
+                <div class="bg-thumbs-grid">
                   <div *ngFor="let bg of cat.availableItems"
                        (click)="setBackground(bg)"
                        class="bg-thumb-card"
@@ -8150,7 +8172,7 @@
               </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px;">
+            <div class="timer-thumbs-grid">
               
               <!-- 1.1 Digital Clásico -->
               <div class="timer-thumb-card" (click)="setTimerStyle('digital')">
@@ -8261,7 +8283,7 @@
               </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px;">
+            <div class="timer-thumbs-grid">
               
               <!-- 2.1 Fogata -->
               <div class="timer-thumb-card" (click)="setTimerStyle('fire')">
@@ -8415,7 +8437,7 @@
               </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px;">
+            <div class="timer-thumbs-grid">
               
               <!-- 3.1 Órbita Solar -->
               <div class="timer-thumb-card" (click)="setTimerStyle('solar')">
@@ -8535,7 +8557,7 @@
               </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px;">
+            <div class="timer-thumbs-grid">
               
               <!-- 4.1 Titanic -->
               <div class="timer-thumb-card" (click)="setTimerStyle('titanic')">
@@ -8720,6 +8742,14 @@
 
       </div>
 
+    </div>
+
+    <!-- BARRA DE ACCIÓN MÓVIL (Aplicar y Cerrar) -->
+    <div class="settings-mobile-action-bar">
+      <button type="button" (click)="showSetupSettings.set(false)" class="settings-mobile-apply-btn">
+        <i class="fa-solid fa-check"></i>
+        <span>{{ 'focus.settingsApply' | translate }}</span>
+      </button>
     </div>
 
   </div>
