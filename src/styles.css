@@ -1597,11 +1597,9 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
     color: var(--accent);
   }
   .mobile-drawer-nav-item.active {
-    background: rgba(0, 242, 254, 0.1);
+    background: rgba(0, 242, 254, 0.12);
     color: var(--accent) !important;
     font-weight: 700;
-    border-left: 3px solid var(--accent);
-    padding-left: 7px;
   }
   .drawer-item-left {
     display: flex;
@@ -3887,7 +3885,6 @@ body.mode-light .mobile-drawer-nav-item.active,
 body.theme-light .mobile-drawer-nav-item.active {
   background: #e0f2fe !important;
   color: #0284c7 !important;
-  border-left-color: #0284c7 !important;
 }
 
 body.mode-light .mobile-drawer-nav-item.active .drawer-icon-box,
