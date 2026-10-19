@@ -68,13 +68,13 @@ export class Membresia implements OnInit {
     const user = this.supabase.currentUser();
     const email = user?.email || this.membership.getCurrentUserEmail();
     const username = this.membership.userName() || (email ? email.split('@')[0] : 'Guerrero');
-    const planDetail = this.isAnnual() ? 'Anual ($35.88 USD/año con 1 día gratis)' : 'Mensual ($4.49 USD/mes con 1 día gratis)';
+    const planDetail = this.isAnnual() ? 'Anual ($35.88 USD/año con 7 días gratis)' : 'Mensual ($4.49 USD/mes con 7 días gratis)';
 
     if (email) {
       this.supabase.notifyTelegramAuth(
         email,
         username,
-        'Probar 1 día gratis',
+        'Probar 7 días gratis',
         'START_TRIAL',
         planDetail
       );

@@ -2687,7 +2687,7 @@ export class SupabaseService {
   }
 
   /**
-   * Activa directamente la prueba gratuita de 1 día de COFU Pro a través de la Edge Function
+   * Activa directamente la prueba gratuita de 7 días de COFU Pro a través de la Edge Function
    * o RPC del servidor, otorgando automáticamente las 50 Pro Coins de bienvenida y avatares VIP.
    */
   async activateFreeTrial(): Promise<{ success: boolean; is_premium: boolean; bonus_coins?: number; error?: string }> {

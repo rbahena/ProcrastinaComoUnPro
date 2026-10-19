@@ -173,7 +173,7 @@ BEGIN
         RETURN jsonb_build_object('success', FALSE, 'error', 'PROFILE_NOT_FOUND');
     END IF;
 
-    v_trial_end := NOW() + INTERVAL '1 day';
+    v_trial_end := NOW() + INTERVAL '7 days';
 
     -- Si aún no ha recibido el premio de 50 monedas, otorgarlo
     IF v_prof.welcome_coins_awarded IS NOT TRUE THEN

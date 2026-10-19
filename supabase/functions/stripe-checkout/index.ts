@@ -1,7 +1,7 @@
 // ==============================================================================
 // Edge Function: stripe-checkout
 // Propósito: Genera sesiones de pago seguras para suscripciones COFU Pro
-// con 1 día de prueba gratuita y cobro recurrente automático en USD.
+// con 7 días de prueba gratuita y cobro recurrente automático en USD.
 // (100% Autónomo: Puedes copiar y pegar todo este archivo directamente
 // en el editor web de Supabase Dashboard sin dependencias externas).
 // ==============================================================================
@@ -83,9 +83,9 @@ serve(async (req) => {
       .eq('id', user.id)
       .maybeSingle();
 
-    // Activación directa de prueba gratuita de 1 día (demo in-app / prueba sin Stripe)
+    // Activación directa de prueba gratuita de 7 días (demo in-app / prueba sin Stripe)
     if (body.action === 'activate-trial') {
-      const trialDays = 1;
+      const trialDays = 7;
       const trialEnd = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000).toISOString();
       let welcomeBonusGranted = false;
       const updatePayload: Record<string, any> = {
@@ -363,9 +363,9 @@ serve(async (req) => {
     // 5. Configurar URLs de éxito y cancelación
     const origin = req.headers.get('origin') || 'https://procrastinacomonpro.com';
 
-    // 6. Configurar datos de suscripción: 1 día de prueba gratuita garantizado
+    // 6. Configurar datos de suscripción: 7 días de prueba gratuita garantizado
     const subscriptionData: Record<string, any> = {
-      trial_period_days: 1,
+      trial_period_days: 7,
       trial_settings: {
         end_behavior: {
           missing_payment_method: 'cancel'
@@ -395,7 +395,7 @@ serve(async (req) => {
             currency: currency,
             product_data: {
               name: `COFU Pro (${plan === 'annual' ? 'Plan Anual' : 'Plan Mensual'}) 👑`,
-              description: 'Prueba de 1 día gratis. Acceso total a Salas de Coworking, Ligas, Desbloqueables Legendarios y Pro Coins.'
+              description: 'Prueba de 7 días gratis. Acceso total a Salas de Coworking, Ligas, Desbloqueables Legendarios y Pro Coins.'
             },
             unit_amount: amount,
             recurring: {

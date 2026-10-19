@@ -1081,7 +1081,7 @@ export class MembershipService {
     return { success: true };
   }
 
-  // Activar/desactivar Premium (incluyendo prueba gratuita / demo de 1 día)
+  // Activar/desactivar Premium (incluyendo prueba gratuita / demo de 7 días)
   async setPremium(premium: boolean) {
     this.isPremium.set(premium);
 
