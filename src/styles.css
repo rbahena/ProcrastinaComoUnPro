@@ -1697,7 +1697,11 @@ input:checked + .toggle-track::before { transform: translateX(18px); }
   .main {
     margin-left: 0;
     padding: 84px 16px 40px; /* 60px header + 24px padding */
+    width: 100%;
     max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   /* Diseños colapsables a una columna */
