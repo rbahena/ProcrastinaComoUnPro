@@ -17,6 +17,11 @@ export class Membresia implements OnInit {
   isAnnual = signal<boolean>(true);
   showSuccessToast = signal<boolean>(false);
   isProcessing = signal<boolean>(false);
+  showMobileTable = signal<boolean>(false);
+
+  toggleMobileTable(): void {
+    this.showMobileTable.update(v => !v);
+  }
 
   constructor(
     private router: Router,

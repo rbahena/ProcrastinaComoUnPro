@@ -673,6 +673,11 @@ export const ES = {
     "faqA4": "¡Totalmente! Puedes gestionar o cancelar tu suscripción con un solo clic desde esta página en cualquier momento, sin plazos forzosos ni complicaciones.",
     "welcomeCoins": "Bono de 50 Pro Coins de Bienvenida",
     "welcomeCoinsDesc": "Recibe 50 monedas de regalo al activar tu prueba o suscripción para desbloquear avatares, juegos o cronómetros.",
+    "viewDetailedComparison": "Ver comparativa detallada",
+    "hideDetailedComparison": "Ocultar comparativa detallada",
+    "freeFeaturesTitle": "Incluido en Plan Gratuito:",
+    "everythingInFreePlus": "Todo lo del Plan Gratuito, más:",
+    "swipeHint": "Desliza horizontalmente para comparar",
     "successTitle": "¡Bienvenido a COFU Pro!",
     "successDesc": "Tu cuenta se ha actualizado a COFU Pro con éxito. ¡Has recibido 50 Pro Coins de bienvenida para estrenar en la tienda!"
   },

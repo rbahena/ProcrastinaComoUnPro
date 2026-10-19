@@ -673,6 +673,11 @@ export const EN = {
     "faqA4": "Absolutely! Manage or cancel your subscription with a single click at any time without lock-ins.",
     "welcomeCoins": "50 Pro Coins Welcome Bonus",
     "welcomeCoinsDesc": "Receive 50 gift coins upon activating your trial or subscription to unlock avatars, games, or timers.",
+    "viewDetailedComparison": "View detailed comparison",
+    "hideDetailedComparison": "Hide detailed comparison",
+    "freeFeaturesTitle": "Included in Free Plan:",
+    "everythingInFreePlus": "Everything in Free Plan, plus:",
+    "swipeHint": "Swipe horizontally to compare",
     "successTitle": "Welcome to COFU Pro!",
     "successDesc": "Your account has been upgraded to COFU Pro. You received 50 Pro Coins as a welcome bonus for the shop!"
   },
