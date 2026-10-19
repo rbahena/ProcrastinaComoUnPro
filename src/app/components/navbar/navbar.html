@@ -15,6 +15,10 @@
       <span class="nav-dot"></span>
       {{ 'nav.focus' | translate }}
     </a>
+    <a (click)="onNavClick($event, '/analytics')" [routerLink]="membership.isFocusActive() ? null : '/analytics'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
+      <span class="nav-dot"></span>
+      {{ 'nav.stats' | translate }}
+    </a>
     <a (click)="onNavClick($event, '/goals')" [routerLink]="membership.isFocusActive() ? null : '/goals'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
       {{ 'nav.goals' | translate }}
@@ -25,10 +29,6 @@
     <a (click)="onNavClick($event, '/bestiary')" [routerLink]="membership.isFocusActive() ? null : '/bestiary'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
       {{ 'nav.challenges' | translate }}
-    </a>
-    <a (click)="onNavClick($event, '/analytics')" [routerLink]="membership.isFocusActive() ? null : '/analytics'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
-      <span class="nav-dot"></span>
-      {{ 'nav.stats' | translate }}
     </a>
     <a (click)="onNavClick($event, '/leaderboards')" [routerLink]="membership.isFocusActive() ? null : '/leaderboards'" routerLinkActive="active" class="nav-item" [class.item-locked]="membership.isFocusActive()">
       <span class="nav-dot"></span>
@@ -370,7 +370,22 @@
         <span *ngIf="membership.isFocusActive()" class="drawer-active-pulse-dot"></span>
       </a>
 
-      <!-- 3. Metas / Ideas -->
+      <!-- 3. Estadísticas -->
+      <a (click)="onNavClick($event, '/analytics')" 
+         [routerLink]="membership.isFocusActive() ? null : '/analytics'" 
+         routerLinkActive="active" 
+         class="mobile-drawer-nav-item"
+         [class.item-locked]="membership.isFocusActive()">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.stats' | translate }}</span>
+        </div>
+        <i *ngIf="membership.isFocusActive()" class="fa-solid fa-lock drawer-lock-icon"></i>
+      </a>
+
+      <!-- 4. Metas / Ideas -->
       <a (click)="onNavClick($event, '/goals')" 
          [routerLink]="membership.isFocusActive() ? null : '/goals'" 
          routerLinkActive="active" 
@@ -390,7 +405,7 @@
         </div>
       </a>
 
-      <!-- 4. Retos / Bestiario -->
+      <!-- 5. Retos / Bestiario -->
       <a (click)="onNavClick($event, '/bestiary')" 
          [routerLink]="membership.isFocusActive() ? null : '/bestiary'" 
          routerLinkActive="active" 
@@ -401,21 +416,6 @@
             <i class="fa-solid fa-dragon"></i>
           </div>
           <span class="drawer-item-title">{{ 'nav.challenges' | translate }}</span>
-        </div>
-        <i *ngIf="membership.isFocusActive()" class="fa-solid fa-lock drawer-lock-icon"></i>
-      </a>
-
-      <!-- 5. Estadísticas -->
-      <a (click)="onNavClick($event, '/analytics')" 
-         [routerLink]="membership.isFocusActive() ? null : '/analytics'" 
-         routerLinkActive="active" 
-         class="mobile-drawer-nav-item"
-         [class.item-locked]="membership.isFocusActive()">
-        <div class="drawer-item-left">
-          <div class="drawer-icon-box">
-            <i class="fa-solid fa-chart-line"></i>
-          </div>
-          <span class="drawer-item-title">{{ 'nav.stats' | translate }}</span>
         </div>
         <i *ngIf="membership.isFocusActive()" class="fa-solid fa-lock drawer-lock-icon"></i>
       </a>
