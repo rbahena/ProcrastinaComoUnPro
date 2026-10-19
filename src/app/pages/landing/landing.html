@@ -6,79 +6,184 @@
     <div style="display: flex; flex-direction: column; line-height: 1.1;">
       <span class="logo-text"
         style="font-size: 20px; font-weight: 900; letter-spacing: -0.5px; line-height: 1;">COFU</span>
-      <span
+      <span class="logo-slogan"
         style="font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 0.5px; margin-top: 3px; text-transform: uppercase;">
         {{ 'auth.slogan' | translate }}
       </span>
     </div>
   </a>
 
-  <div style="display: flex; gap: 12px; align-items: center;">
-    <!-- Selector desplegable de idioma con Icono Translate -->
-    <div class="lang-dropdown-container" style="position: relative;">
-      <button type="button" 
-              (click)="toggleLangMenu($event)"
-              class="lang-dropdown-trigger-btn"
-              [attr.aria-expanded]="langMenuOpen()"
-              [attr.title]="'nav.language' | translate"
-              style="background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); border-radius: 9px; color: var(--text); padding: 7px 11px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
-        <i class="fa-solid fa-language" style="color: var(--accent); font-size: 16px;"></i>
-        <span style="font-size: 12px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">{{ translation.currentLang() }}</span>
-        <i class="fa-solid fa-chevron-down" style="font-size: 9px; color: var(--muted); transition: transform 0.2s;" [style.transform]="langMenuOpen() ? 'rotate(180deg)' : 'none'"></i>
-      </button>
+  <div class="landing-header-actions" style="display: flex; gap: 10px; align-items: center;">
+    <!-- Acciones Desktop -->
+    <div class="landing-desktop-actions" style="display: flex; gap: 10px; align-items: center;">
+      <!-- Selector desplegable de idioma con Icono Translate -->
+      <div class="lang-dropdown-container" style="position: relative;">
+        <button type="button" 
+                (click)="toggleLangMenu($event)"
+                class="lang-dropdown-trigger-btn"
+                [attr.aria-expanded]="langMenuOpen()"
+                [attr.title]="'nav.language' | translate"
+                style="background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); border-radius: 9px; color: var(--text); padding: 7px 11px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+          <i class="fa-solid fa-language" style="color: var(--accent); font-size: 16px;"></i>
+          <span style="font-size: 12px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">{{ translation.currentLang() }}</span>
+          <i class="fa-solid fa-chevron-down" style="font-size: 9px; color: var(--muted); transition: transform 0.2s;" [style.transform]="langMenuOpen() ? 'rotate(180deg)' : 'none'"></i>
+        </button>
 
-      @if (langMenuOpen()) {
-        <div class="lang-dropdown-panel"
-             (click)="$event.stopPropagation()"
-             style="position: absolute; top: calc(100% + 8px); right: 0; min-width: 145px; background: rgba(8, 12, 24, 0.96); backdrop-filter: blur(20px); border: 1px solid rgba(0, 242, 254, 0.22); border-radius: 10px; padding: 5px; box-shadow: 0 14px 35px rgba(0, 0, 0, 0.65), 0 0 15px rgba(0, 242, 254, 0.1); z-index: 1000; display: flex; flex-direction: column; gap: 2px;">
-          
-          <!-- Opción: Español -->
-          <button type="button" 
-                  (click)="selectLanguage('es')"
-                  style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 8px 10px; border-radius: 7px; border: none; background: transparent; color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; transition: all 0.15s;"
-                  [style.background]="translation.currentLang() === 'es' ? 'rgba(0, 242, 254, 0.12)' : 'transparent'"
-                  [style.color]="translation.currentLang() === 'es' ? 'var(--accent)' : 'var(--text)'"
-                  onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'"
-                  onmouseout="this.style.background = this.getAttribute('data-selected') === 'true' ? 'rgba(0, 242, 254, 0.12)' : 'transparent'"
-                  [attr.data-selected]="translation.currentLang() === 'es'">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 13px; font-weight: 800; opacity: 0.85;">ES</span>
-              <span>Español</span>
-            </div>
-            @if (translation.currentLang() === 'es') {
-              <i class="fa-solid fa-check" style="font-size: 11px; color: var(--accent);"></i>
-            }
-          </button>
+        @if (langMenuOpen()) {
+          <div class="lang-dropdown-panel"
+               (click)="$event.stopPropagation()"
+               style="position: absolute; top: calc(100% + 8px); right: 0; min-width: 145px; background: rgba(8, 12, 24, 0.96); backdrop-filter: blur(20px); border: 1px solid rgba(0, 242, 254, 0.22); border-radius: 10px; padding: 5px; box-shadow: 0 14px 35px rgba(0, 0, 0, 0.65), 0 0 15px rgba(0, 242, 254, 0.1); z-index: 1000; display: flex; flex-direction: column; gap: 2px;">
+            
+            <!-- Opción: Español -->
+            <button type="button" 
+                    (click)="selectLanguage('es')"
+                    style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 8px 10px; border-radius: 7px; border: none; background: transparent; color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; transition: all 0.15s;"
+                    [style.background]="translation.currentLang() === 'es' ? 'rgba(0, 242, 254, 0.12)' : 'transparent'"
+                    [style.color]="translation.currentLang() === 'es' ? 'var(--accent)' : 'var(--text)'"
+                    onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'"
+                    onmouseout="this.style.background = this.getAttribute('data-selected') === 'true' ? 'rgba(0, 242, 254, 0.12)' : 'transparent'"
+                    [attr.data-selected]="translation.currentLang() === 'es'">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 13px; font-weight: 800; opacity: 0.85;">ES</span>
+                <span>Español</span>
+              </div>
+              @if (translation.currentLang() === 'es') {
+                <i class="fa-solid fa-check" style="font-size: 11px; color: var(--accent);"></i>
+              }
+            </button>
 
-          <!-- Opción: English -->
-          <button type="button" 
-                  (click)="selectLanguage('en')"
-                  style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 8px 10px; border-radius: 7px; border: none; background: transparent; color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; transition: all 0.15s;"
-                  [style.background]="translation.currentLang() === 'en' ? 'rgba(0, 242, 254, 0.12)' : 'transparent'"
-                  [style.color]="translation.currentLang() === 'en' ? 'var(--accent)' : 'var(--text)'"
-                  onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'"
-                  onmouseout="this.style.background = this.getAttribute('data-selected') === 'true' ? 'rgba(0, 242, 254, 0.12)' : 'transparent'"
-                  [attr.data-selected]="translation.currentLang() === 'en'">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 13px; font-weight: 800; opacity: 0.85;">EN</span>
-              <span>English</span>
-            </div>
-            @if (translation.currentLang() === 'en') {
-              <i class="fa-solid fa-check" style="font-size: 11px; color: var(--accent);"></i>
-            }
-          </button>
+            <!-- Opción: English -->
+            <button type="button" 
+                    (click)="selectLanguage('en')"
+                    style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 8px 10px; border-radius: 7px; border: none; background: transparent; color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; transition: all 0.15s;"
+                    [style.background]="translation.currentLang() === 'en' ? 'rgba(0, 242, 254, 0.12)' : 'transparent'"
+                    [style.color]="translation.currentLang() === 'en' ? 'var(--accent)' : 'var(--text)'"
+                    onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'"
+                    onmouseout="this.style.background = this.getAttribute('data-selected') === 'true' ? 'rgba(0, 242, 254, 0.12)' : 'transparent'"
+                    [attr.data-selected]="translation.currentLang() === 'en'">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 13px; font-weight: 800; opacity: 0.85;">EN</span>
+                <span>English</span>
+              </div>
+              @if (translation.currentLang() === 'en') {
+                <i class="fa-solid fa-check" style="font-size: 11px; color: var(--accent);"></i>
+              }
+            </button>
+          </div>
+        }
+      </div>
 
-        </div>
-      }
+      <a routerLink="/login" class="btn btn-ghost btn-sm">
+        {{ 'auth.loginBtn' | translate }}
+      </a>
+      <a routerLink="/register" class="btn btn-outline-accent btn-sm">
+        {{ 'auth.registerBtn' | translate }}
+      </a>
     </div>
-    <a routerLink="/login" class="btn btn-ghost btn-sm">
-      {{ 'auth.loginBtn' | translate }}
-    </a>
-    <a routerLink="/register" class="btn btn-outline-accent btn-sm">
-      {{ 'auth.registerBtn' | translate }}
-    </a>
+
+    <!-- Botón Hamburguesa Móvil Landing -->
+    <button type="button"
+            class="landing-mobile-toggle-btn"
+            (click)="toggleMobileNav($event)"
+            [class.is-open]="mobileNavOpen()"
+            [attr.aria-expanded]="mobileNavOpen()"
+            [attr.aria-label]="mobileNavOpen() ? 'Cerrar menú' : 'Abrir menú'">
+      <i [class]="mobileNavOpen() ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+    </button>
   </div>
 </header>
+
+<!-- BACKDROP DEL MENÚ MÓVIL LANDING -->
+@if (mobileNavOpen()) {
+  <div class="navbar-mobile-backdrop" (click)="closeMobileNav()"></div>
+}
+
+<!-- DRAWER LATERAL MÓVIL LANDING -->
+@if (mobileNavOpen()) {
+  <div class="navbar-mobile-drawer" (click)="$event.stopPropagation()">
+    <!-- Header del Drawer -->
+    <div class="mobile-drawer-header">
+      <div class="mobile-drawer-user-info">
+        <img class="logo-img" src="/assets/images/brand/cofu_logo.jpg" alt="COFU Logo">
+        <div class="mobile-drawer-user-details">
+          <span class="mobile-drawer-username">COFU</span>
+          <span class="mobile-drawer-plan">{{ 'auth.slogan' | translate }}</span>
+        </div>
+      </div>
+      <button type="button"
+              class="mobile-drawer-close-btn"
+              (click)="closeMobileNav()"
+              aria-label="Cerrar menú">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Cuerpo del Drawer: Las 3 opciones declaradas -->
+    <div class="landing-drawer-body">
+      <!-- 1. Idioma -->
+      <div class="mobile-drawer-nav-section">
+        <span class="mobile-drawer-section-title">{{ 'nav.language' | translate }}</span>
+        <div class="landing-drawer-lang-grid">
+          <button type="button"
+                  (click)="selectLanguage('es')"
+                  class="landing-drawer-lang-btn"
+                  [class.is-active]="translation.currentLang() === 'es'">
+            <div class="lang-btn-left">
+              <span class="lang-badge">ES</span>
+              <span class="lang-name">Español</span>
+            </div>
+            @if (translation.currentLang() === 'es') {
+              <i class="fa-solid fa-circle-check lang-active-check"></i>
+            }
+          </button>
+          <button type="button"
+                  (click)="selectLanguage('en')"
+                  class="landing-drawer-lang-btn"
+                  [class.is-active]="translation.currentLang() === 'en'">
+            <div class="lang-btn-left">
+              <span class="lang-badge">EN</span>
+              <span class="lang-name">English</span>
+            </div>
+            @if (translation.currentLang() === 'en') {
+              <i class="fa-solid fa-circle-check lang-active-check"></i>
+            }
+          </button>
+        </div>
+      </div>
+
+      <div class="landing-drawer-divider"></div>
+
+      <!-- 2. Acceso -->
+      <div class="mobile-drawer-nav-section">
+        <span class="mobile-drawer-section-title">{{ 'auth.loginTitle' | translate }}</span>
+        <div class="landing-drawer-actions">
+          <!-- Iniciar Sesión -->
+          <a routerLink="/login" (click)="closeMobileNav()" class="landing-drawer-item">
+            <div class="drawer-item-left">
+              <div class="drawer-icon-box">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+              </div>
+              <span>{{ 'auth.loginBtn' | translate }}</span>
+            </div>
+            <i class="fa-solid fa-chevron-right drawer-arrow-icon"></i>
+          </a>
+
+          <!-- Empezar Gratis -->
+          <a routerLink="/register" (click)="closeMobileNav()" class="landing-drawer-cta">
+            <i class="fa-solid fa-bolt"></i>
+            <span>{{ 'auth.registerBtn' | translate }}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer del Drawer -->
+    <div class="landing-drawer-footer">
+      <span class="landing-drawer-brand">COFU</span>
+      <span class="landing-drawer-tagline">{{ 'auth.slogan' | translate }}</span>
+    </div>
+  </div>
+}
 
 <main>
   <!-- SPACIOUS PREMIUM HERO SECTION -->

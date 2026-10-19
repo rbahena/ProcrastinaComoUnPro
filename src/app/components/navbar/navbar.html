@@ -36,8 +36,10 @@
     </a>
   </div>
 
-  <!-- INDICADORES GLOBALES (TOMATES, MONEDAS Y TEMA) -->
-  <div class="global-currency-header">
+  <!-- GRUPO DERECHO DE ACCIONES DEL NAVBAR -->
+  <div class="navbar-actions-group">
+    <!-- INDICADORES GLOBALES (TOMATES, MONEDAS Y TEMA) -->
+    <div class="global-currency-header">
     <!-- Tomates -->
     <div class="header-currency-badge tomato-badge" 
          [attr.data-tooltip]="'nav.tooltipTomatoes' | translate"
@@ -72,7 +74,7 @@
   </div>
   
   <!-- CONTENEDOR DE CAMPANA DE NOTIFICACIONES -->
-  <div class="navbar-notification-container" style="position: relative; z-index: 1010; margin-right: 12px;">
+  <div class="navbar-notification-container" style="position: relative; z-index: 1010;">
     <button type="button"
             (click)="onBellToggle($event)"
             class="navbar-bell-btn"
@@ -246,6 +248,248 @@
       <a routerLink="/login" (click)="membership.logout()" class="dropdown-item-link logout-dropdown-link">
         <i class="fa-solid fa-right-from-bracket" style="font-size: 11px; width: 14px; text-align: center;"></i>
         <span>{{ 'nav.logout' | translate }}</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- BOTÓN HAMBURGUESA PARA MENÚ MÓVIL -->
+  <button type="button"
+          class="navbar-mobile-toggle-btn"
+          (click)="toggleMobileMenu($event)"
+          [class.is-open]="mobileMenuOpen()"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          [attr.aria-label]="mobileMenuOpen() ? 'Cerrar menú' : 'Abrir menú'">
+    <i [class]="mobileMenuOpen() ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+  </button>
+  </div>
+</div>
+
+<!-- BACKDROP DEL MENÚ MÓVIL -->
+<div *ngIf="mobileMenuOpen()" 
+     class="navbar-mobile-backdrop" 
+     (click)="closeMobileMenu()">
+</div>
+
+<!-- DRAWER / PANEL DESPLEGABLE DEL MENÚ MÓVIL -->
+<div *ngIf="mobileMenuOpen()" 
+     class="navbar-mobile-drawer"
+     [class.is-open]="mobileMenuOpen()"
+     (click)="$event.stopPropagation()">
+
+  <!-- Cabecera del Menú Móvil -->
+  <div class="mobile-drawer-header">
+    <div class="mobile-drawer-user-info">
+      <div [class]="'avatar avatar-sprite sprite-' + membership.selectedAvatar()" class="mobile-drawer-avatar"></div>
+      <div class="mobile-drawer-user-details">
+        <span class="mobile-drawer-username">
+          {{ membership.userName() }}
+          <i *ngIf="membership.isPremium()" class="fa-solid fa-crown" style="font-size: 11px; color: var(--yellow);"></i>
+        </span>
+        <span class="mobile-drawer-plan">
+          {{ membership.isPremium() ? ('nav.planPro' | translate) : ('nav.planBasic' | translate) }}
+        </span>
+      </div>
+    </div>
+    <button type="button" class="mobile-drawer-close-btn" (click)="closeMobileMenu()" aria-label="Cerrar menú">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <!-- Alerta de Modo Enfoque Activo si aplica -->
+  <div *ngIf="membership.isFocusActive()" class="mobile-drawer-focus-banner">
+    <i class="fa-solid fa-lock"></i>
+    <div class="focus-banner-text">
+      <strong>{{ 'nav.focusActiveBadge' | translate }}</strong>
+      <span>{{ 'nav.focusLockedTooltip' | translate }}</span>
+    </div>
+  </div>
+
+  <!-- Resumen de Indicadores / Monedas en el Menú Móvil -->
+  <div class="mobile-drawer-currency-grid">
+    <div class="mobile-currency-card tomato-card" [attr.title]="'nav.tooltipTomatoes' | translate">
+      <span class="currency-card-emoji">🍅</span>
+      <div class="currency-card-info">
+        <span class="currency-card-val">{{ membership.focusTomatoes() }}</span>
+        <span class="currency-card-lbl">{{ 'common.tomatoes' | translate }}</span>
+      </div>
+    </div>
+    <div class="mobile-currency-card xp-card" [attr.title]="'nav.tooltipXp' | translate">
+      <i class="fa-solid fa-bolt currency-card-icon xp-color"></i>
+      <div class="currency-card-info">
+        <span class="currency-card-val">{{ membership.focusPoints() }}</span>
+        <span class="currency-card-lbl">XP</span>
+      </div>
+    </div>
+    <div class="mobile-currency-card coins-card" [attr.title]="'nav.tooltipCoins' | translate">
+      <i class="fa-solid fa-coins currency-card-icon coins-color"></i>
+      <div class="currency-card-info">
+        <span class="currency-card-val">{{ membership.proCoins() }}</span>
+        <span class="currency-card-lbl">{{ 'common.coins' | translate }}</span>
+      </div>
+    </div>
+    <div class="mobile-currency-card streak-card" [attr.title]="'nav.tooltipStreak' | translate">
+      <i class="fa-solid fa-fire currency-card-icon fire-color"></i>
+      <div class="currency-card-info">
+        <span class="currency-card-val">{{ membership.streak() }}</span>
+        <span class="currency-card-lbl">{{ 'common.streak' | translate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Navegación Principal -->
+  <div class="mobile-drawer-nav-section">
+    <span class="mobile-drawer-section-title">Navegación</span>
+    <div class="mobile-drawer-nav-list">
+      <!-- 1. Inicio -->
+      <a (click)="onNavClick($event, '/home')" 
+         [routerLink]="membership.isFocusActive() ? null : '/home'" 
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: true}"
+         class="mobile-drawer-nav-item"
+         [class.item-locked]="membership.isFocusActive()">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box">
+            <i class="fa-solid fa-house"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.home' | translate }}</span>
+        </div>
+        <i *ngIf="membership.isFocusActive()" class="fa-solid fa-lock drawer-lock-icon"></i>
+      </a>
+
+      <!-- 2. Enfoque -->
+      <a routerLink="/focus" 
+         (click)="closeMobileMenu()" 
+         routerLinkActive="active" 
+         class="mobile-drawer-nav-item">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box focus-icon-box">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.focus' | translate }}</span>
+        </div>
+        <span *ngIf="membership.isFocusActive()" class="drawer-active-pulse-dot"></span>
+      </a>
+
+      <!-- 3. Metas / Ideas -->
+      <a (click)="onNavClick($event, '/goals')" 
+         [routerLink]="membership.isFocusActive() ? null : '/goals'" 
+         routerLinkActive="active" 
+         class="mobile-drawer-nav-item"
+         [class.item-locked]="membership.isFocusActive()">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box">
+            <i class="fa-solid fa-bullseye"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.goals' | translate }}</span>
+        </div>
+        <div class="drawer-item-right">
+          <span *ngIf="membership.pendingCapturedIdeasCount() > 0" class="ideas-badge">
+            {{ membership.pendingCapturedIdeasCount() }}
+          </span>
+          <i *ngIf="membership.isFocusActive()" class="fa-solid fa-lock drawer-lock-icon"></i>
+        </div>
+      </a>
+
+      <!-- 4. Retos / Bestiario -->
+      <a (click)="onNavClick($event, '/bestiary')" 
+         [routerLink]="membership.isFocusActive() ? null : '/bestiary'" 
+         routerLinkActive="active" 
+         class="mobile-drawer-nav-item"
+         [class.item-locked]="membership.isFocusActive()">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box">
+            <i class="fa-solid fa-dragon"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.challenges' | translate }}</span>
+        </div>
+        <i *ngIf="membership.isFocusActive()" class="fa-solid fa-lock drawer-lock-icon"></i>
+      </a>
+
+      <!-- 5. Estadísticas -->
+      <a (click)="onNavClick($event, '/analytics')" 
+         [routerLink]="membership.isFocusActive() ? null : '/analytics'" 
+         routerLinkActive="active" 
+         class="mobile-drawer-nav-item"
+         [class.item-locked]="membership.isFocusActive()">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.stats' | translate }}</span>
+        </div>
+        <i *ngIf="membership.isFocusActive()" class="fa-solid fa-lock drawer-lock-icon"></i>
+      </a>
+
+      <!-- 6. Récords / Medallero -->
+      <a (click)="onNavClick($event, '/leaderboards')" 
+         [routerLink]="membership.isFocusActive() ? null : '/leaderboards'" 
+         routerLinkActive="active" 
+         class="mobile-drawer-nav-item"
+         [class.item-locked]="membership.isFocusActive()">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.records' | translate }}</span>
+        </div>
+        <i *ngIf="membership.isFocusActive()" class="fa-solid fa-lock drawer-lock-icon"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Sección de Cuenta & Preferencias -->
+  <div class="mobile-drawer-nav-section">
+    <span class="mobile-drawer-section-title">Cuenta</span>
+    <div class="mobile-drawer-nav-list">
+      <!-- Mi Perfil -->
+      <a routerLink="/profile" 
+         (click)="closeMobileMenu()" 
+         class="mobile-drawer-nav-item">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.profile' | translate }}</span>
+        </div>
+      </a>
+
+      <!-- Mi Plan Pro -->
+      <a routerLink="/membership" 
+         (click)="closeMobileMenu()" 
+         class="mobile-drawer-nav-item">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box plan-icon-box">
+            <i class="fa-solid fa-crown"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.plan' | translate }}</span>
+        </div>
+      </a>
+
+      <!-- Selector de Idioma -->
+      <div class="mobile-drawer-nav-item mobile-lang-item" (click)="membership.toggleLanguage()">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box">
+            <i class="fa-solid fa-language"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.language' | translate }}</span>
+        </div>
+        <div class="dropdown-lang-switcher">
+          <span class="lang-opt" [class.is-active]="membership.userLanguage() === 'en'">EN</span>
+          <span class="lang-slash">/</span>
+          <span class="lang-opt" [class.is-active]="membership.userLanguage() === 'es'">ES</span>
+        </div>
+      </div>
+
+      <!-- Cerrar Sesión -->
+      <a routerLink="/login" 
+         (click)="membership.logout(); closeMobileMenu();" 
+         class="mobile-drawer-nav-item drawer-logout-item">
+        <div class="drawer-item-left">
+          <div class="drawer-icon-box logout-icon-box">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </div>
+          <span class="drawer-item-title">{{ 'nav.logout' | translate }}</span>
+        </div>
       </a>
     </div>
   </div>

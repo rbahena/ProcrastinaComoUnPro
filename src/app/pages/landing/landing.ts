@@ -35,9 +35,11 @@ export class Landing implements OnInit, OnDestroy {
   private timerId?: any;
 
   langMenuOpen = signal<boolean>(false);
+  mobileNavOpen = signal<boolean>(false);
 
   toggleLangMenu(event: Event) {
     event.stopPropagation();
+    this.closeMobileNav();
     this.langMenuOpen.update(open => !open);
   }
 
@@ -45,14 +47,48 @@ export class Landing implements OnInit, OnDestroy {
     this.langMenuOpen.set(false);
   }
 
-  selectLanguage(lang: 'es' | 'en') {
+  toggleMobileNav(event: Event) {
+    event.stopPropagation();
+    this.closeLangMenu();
+    const next = !this.mobileNavOpen();
+    this.mobileNavOpen.set(next);
+    if (typeof document !== 'undefined') {
+      document.body.classList.toggle('mobile-menu-open', next);
+    }
+  }
+
+  closeMobileNav() {
+    this.mobileNavOpen.set(false);
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('mobile-menu-open');
+    }
+  }
+
+  selectLanguage(lang: 'es' | 'en', closeMobile = false) {
     this.translation.setLanguage(lang, true);
     this.closeLangMenu();
+    if (closeMobile) {
+      this.closeMobileNav();
+    }
   }
 
   @HostListener('document:click')
   onDocumentClick() {
     this.closeLangMenu();
+    this.closeMobileNav();
+  }
+
+  @HostListener('window:keydown.escape')
+  onEscape() {
+    this.closeLangMenu();
+    this.closeMobileNav();
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    if (typeof window !== 'undefined' && window.innerWidth > 768 && this.mobileNavOpen()) {
+      this.closeMobileNav();
+    }
   }
 
   private getExcusesMap(lang: string): Record<string, ExcuseDetail> {
@@ -190,6 +226,9 @@ export class Landing implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.timerId) {
       clearInterval(this.timerId);
+    }
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('mobile-menu-open');
     }
   }
 
