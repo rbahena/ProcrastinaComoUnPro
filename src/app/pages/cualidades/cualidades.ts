@@ -404,7 +404,7 @@ interface CountryOption {
                 <div class="avatars-grid-container">
                   <div 
                     *ngFor="let avatar of group.avatars"
-                    (click)="selectAvatar(avatar)"
+                    (click)="selectAvatar(avatar, true)"
                     class="vertical-hero-card"
                     [class.is-active]="inspectedAvatar().id === avatar.id"
                     [class.is-equipped]="membership.selectedAvatar() === avatar.id"
@@ -485,7 +485,7 @@ interface CountryOption {
           </div>
 
           <!-- COLUMNA DERECHA: PANEL DE DETALLE DEL AVATAR -->
-          <div class="avatar-detail-column">
+          <div class="avatar-detail-column" id="avatarDetailColumn">
             
             <div class="clean-spotlight-card">
               
@@ -1542,17 +1542,24 @@ interface CountryOption {
     /* ==================================================== */
     .guardian-selection-dashboard {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(370px, 1.2fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
       gap: 22px;
       align-items: start;
       width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
     @media (max-width: 1080px) {
       .guardian-selection-dashboard {
-        grid-template-columns: 1fr;
+        grid-template-columns: 100%;
+        gap: 20px;
       }
       .avatar-detail-column {
         position: static !important;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
       }
     }
 
@@ -1568,6 +1575,10 @@ interface CountryOption {
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
       backdrop-filter: blur(14px);
       box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .catalog-header-bar {
@@ -2004,13 +2015,14 @@ interface CountryOption {
       gap: 3px;
     }
     .hero-card-name {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 900;
       color: #fff;
       margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      line-height: 1.25;
+      word-break: break-word;
+      text-align: center;
       max-width: 100%;
       letter-spacing: -0.2px;
     }
@@ -2018,9 +2030,13 @@ interface CountryOption {
       margin-top: 1px;
       font-size: 8.5px;
       font-weight: 850;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       text-transform: uppercase;
       color: #64748b;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.2;
+      word-break: break-word;
     }
     .hero-card-status-strip .status-active {
       color: #34d399;
@@ -2055,6 +2071,10 @@ interface CountryOption {
       flex-direction: column;
       position: sticky;
       top: 86px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .clean-spotlight-card {
@@ -2071,6 +2091,9 @@ interface CountryOption {
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
     }
 
     /* 1. HERO HEADER INTEGRADO CON AVATAR GIGANTE / DESTACADO */
@@ -2086,6 +2109,10 @@ interface CountryOption {
       border-radius: 18px;
       padding: 16px 18px 18px;
       overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
     .hero-ambient-glow {
       position: absolute;
@@ -2101,6 +2128,8 @@ interface CountryOption {
       align-items: center;
       gap: 8px;
       z-index: 5;
+      flex-wrap: wrap;
+      box-sizing: border-box;
     }
     .hero-stars-pill {
       display: inline-flex;
@@ -2394,6 +2423,9 @@ interface CountryOption {
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
+      width: 100%;
+      min-width: 0;
     }
     .ability-lead-tag {
       font-size: 8.5px;
@@ -2404,20 +2436,25 @@ interface CountryOption {
       padding: 1.5px 5px;
       border-radius: 4px;
       text-transform: uppercase;
+      flex-shrink: 0;
     }
     .ability-title-txt {
       font-size: 11px;
       font-weight: 800;
       color: #f1f5f9;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.3;
+      flex: 1;
+      min-width: 0;
     }
     .ability-body-txt {
       font-size: 11px;
       color: #94a3b8;
-      line-height: 1.4;
+      line-height: 1.45;
       margin: 0;
+      word-break: break-word;
+      width: 100%;
     }
 
     /* 4. SECCIÓN: ¿CÓMO CONSIGO ESTE AVATAR? */
@@ -2668,6 +2705,7 @@ interface CountryOption {
     }
     .btn-clean-cta {
       width: 100%;
+      max-width: 100%;
       padding: 11px 18px;
       border-radius: 10px;
       font-size: 11.5px;
@@ -2683,6 +2721,10 @@ interface CountryOption {
       letter-spacing: 0.4px;
       font-family: inherit;
       box-sizing: border-box;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.35;
+      word-break: break-word;
     }
     .btn-clean-cta.is-active-equipped {
       background: rgba(16, 185, 129, 0.1);
@@ -3311,28 +3353,896 @@ interface CountryOption {
     .text-yellow { color: #fbbf24; }
     .text-orange { color: #f97316; }
 
+    .avatar-detail-column {
+      scroll-margin-top: 80px;
+    }
+
     @media (max-width: 900px) {
       .profile-page-wrapper {
-        padding: 80px 16px 40px;
+        padding: 76px 12px 40px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
       }
-      .clean-spotlight-card {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 18px;
+      .profile-layout-container {
+        gap: 16px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow-x: hidden;
       }
-      .tactical-metrics-row {
-        grid-template-columns: 1fr;
+      .profile-page-header {
+        padding-bottom: 8px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
       }
-      .tactical-lore-row {
-        grid-template-columns: 1fr;
+      .profile-page-title {
+        font-size: 22px;
       }
-      .hero-visual-dock {
-        min-height: auto;
-        padding: 18px;
+      .profile-page-subtitle {
+        font-size: 12.5px;
+      }
+
+      /* 1. PERFIL STRATIS */
+      .stratis-profile-card {
+        border-radius: 16px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .profile-banner-cover {
+        height: 110px;
+        padding: 10px 14px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .plan-status-pill {
+        font-size: 8px;
+        padding: 2.5px 8px;
+      }
+      .profile-body-content {
+        padding: 0 14px 18px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .avatar-overlapping-wrapper {
+        width: 114px;
+        height: 114px;
+        margin: -57px auto 12px auto;
+      }
+      .round-avatar-frame {
+        width: 114px;
+        height: 114px;
+        border-width: 3.5px;
+      }
+      .sprite-circle {
+        width: 106px;
+        height: 106px;
+      }
+      .avatar-circle-edit-btn {
+        bottom: 2px;
+        right: 2px;
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+        border-width: 2.5px;
       }
       .user-details-row {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .user-primary-info {
+        align-items: center;
+        text-align: center;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .user-name-title-row {
+        justify-content: center;
+        width: 100%;
+      }
+      .user-display-name {
+        font-size: 20px;
+        text-align: center;
+        word-break: break-word;
+        max-width: 100%;
+      }
+      .user-identity-metadata {
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .identity-chip {
+        font-size: 11px;
+        padding: 2.5px 8px;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .btn-add-chip {
+        font-size: 11px;
+        padding: 2.5px 8px;
+      }
+      .btn-complete-profile {
+        font-size: 11.5px;
+        padding: 5px 10px;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .user-active-week-line {
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .active-days-chip,
+      .last-focus-date-chip {
+        font-size: 10.5px;
+        padding: 2.5px 8px;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .user-inline-telemetry {
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        margin-top: 4px;
+      }
+      .tele-pill {
+        padding: 4px 7px;
+        gap: 4px;
+        border-radius: 7px;
+        box-sizing: border-box;
+      }
+      .tele-num {
+        font-size: 12px;
+      }
+      .tele-icon {
+        font-size: 11px;
+      }
+
+      /* 2. SKILLS PILLS */
+      .stratis-skills-card {
+        padding: 10px 12px;
+        border-radius: 14px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .skills-bar-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .skills-lead-indicator {
+        justify-content: space-between;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .skills-pills-matrix {
+        justify-content: center;
+        gap: 5px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .quality-skill-pill {
+        padding: 3px 8px;
+        font-size: 10px;
+        gap: 4px;
+        box-sizing: border-box;
+      }
+      .pill-name {
+        font-size: 10px;
+      }
+
+      /* 3. DASHBOARD Y CATÁLOGO */
+      .guardian-selection-dashboard {
+        display: grid;
+        grid-template-columns: 100% !important;
+        gap: 16px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .avatars-catalog-column {
+        padding: 14px 12px;
+        border-radius: 16px;
+        gap: 12px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      .catalog-header-bar {
+        gap: 8px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .catalog-main-title {
+        font-size: 18px;
+      }
+      .category-filter-chips {
+        gap: 4px;
+        padding-bottom: 4px;
+        width: 100%;
+        box-sizing: border-box;
+        -webkit-overflow-scrolling: touch;
+      }
+      .category-filter-chips button {
+        padding: 4px 7px;
+        font-size: 9.5px;
+      }
+      .avatars-catalog-scrollable {
+        max-height: 480px;
+        padding: 2px 2px 8px 2px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow-x: hidden;
+      }
+      .avatar-category-section {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .avatar-category-divider {
+        gap: 8px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .category-divider-badge {
+        padding: 2px 9px;
+        font-size: 9.5px;
+      }
+      .avatars-grid-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px;
+        padding: 2px 0 6px 0;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      /* 3.1 TARJETAS VERTICALES DE AVATARES MINIATURA */
+      .vertical-hero-card {
+        height: 215px !important;
+        min-height: 210px;
+        border-radius: 14px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+      }
+      .hero-card-top-badges {
+        position: relative;
+        z-index: 5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 7px;
+        gap: 3px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .top-badges-left, .top-badges-right {
+        display: flex;
+        align-items: center;
+        gap: 2.5px;
+        min-width: 0;
+      }
+      .top-badges-left { flex-shrink: 1; }
+      .top-badges-right { flex-shrink: 0; }
+      .card-tier-pill {
+        font-size: 7.5px;
+        font-weight: 900;
+        padding: 2px 5px;
+        border-radius: 4px;
+        white-space: nowrap;
+        line-height: 1.1;
+      }
+      .card-unlock-pill {
+        font-size: 7.5px;
+        font-weight: 900;
+        padding: 2px 5px;
+        border-radius: 4px;
+        white-space: nowrap;
+        gap: 2.5px;
+        line-height: 1.1;
+      }
+      .card-state-pill {
+        width: 18px;
+        height: 18px;
+        font-size: 8px;
+      }
+      .card-vertical-evo-rail {
+        width: 14px;
+        padding: 6px 0;
+      }
+      .evo-rail-icon {
+        font-size: 7px;
+      }
+      .evo-rail-text {
+        font-size: 5.5px;
+        letter-spacing: 0.8px;
+      }
+      .evo-rail-sparkle {
+        font-size: 6px;
+      }
+      .vertical-hero-card.has-evo-rail .hero-card-top-badges {
+        padding-left: 17px;
+      }
+      .vertical-hero-card.has-evo-rail .hero-card-footer-glass {
+        padding-left: 17px;
+      }
+      .vertical-hero-card.has-evo-rail .hero-card-artwork-frame {
+        margin-left: 6px;
+      }
+      .hero-card-artwork-frame {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        pointer-events: none;
+      }
+      .hero-card-sprite {
+        width: 96px;
+        height: 96px;
+      }
+      .hero-card-footer-glass {
+        position: relative;
+        z-index: 5;
+        background: linear-gradient(180deg, transparent 0%, rgba(10, 14, 24, 0.78) 25%, rgba(8, 11, 18, 0.96) 100%);
+        padding: 8px 6px 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 2px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .hero-card-name {
+        font-size: 11.5px;
+        font-weight: 850;
+        color: #fff;
+        margin: 0;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        line-height: 1.25;
+        text-align: center;
+        word-break: break-word;
+        max-width: 100%;
+      }
+      .hero-card-status-strip {
+        margin-top: 1px;
+        font-size: 7.5px;
+        font-weight: 850;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        color: #64748b;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.2;
+        word-break: break-word;
+      }
+
+      /* 4. CARD DEL DETALLE DEL AVATAR (SPOTLIGHT) */
+      .avatar-detail-column {
+        position: static !important;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        scroll-margin-top: 76px;
+      }
+      .clean-spotlight-card {
+        padding: 14px 12px;
+        border-radius: 16px;
+        gap: 12px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      .detail-hero-header {
+        padding: 12px 10px;
+        border-radius: 14px;
+        gap: 8px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      .hero-top-badges-bar {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+      }
+      .hero-stars-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 2.5px 7px;
+        font-size: 8.5px;
+        flex-shrink: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .hero-state-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2.5px 8px;
+        font-size: 8.5px;
+        flex-shrink: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.2;
+      }
+      .hero-showcase-wrapper {
+        margin: 6px 0 10px 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .hero-portrait-frame {
+        width: 175px;
+        height: 175px;
+        max-width: min(175px, 50vw);
+        max-height: min(175px, 50vw);
+        border-width: 3.5px;
+        box-sizing: border-box;
+      }
+      .hero-portrait-sprite {
+        width: 165px;
+        height: 165px;
+        max-width: min(165px, 47vw);
+        max-height: min(165px, 47vw);
+      }
+      .hero-identity-body {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 4px;
+      }
+      .hero-avatar-name {
+        font-size: 20px;
+        font-weight: 900;
+        text-align: center;
+        word-break: break-word;
+        max-width: 100%;
+      }
+      .hero-quote-snippet {
+        font-size: 10.5px;
+        text-align: center;
+        justify-content: center;
+        word-break: break-word;
+        max-width: 100%;
+        line-height: 1.4;
+      }
+      .detail-section {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .section-title-bar {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .section-title {
+        font-size: 10px;
+      }
+      .section-subtitle {
+        font-size: 9.5px;
+      }
+      .tactical-metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .clean-metric-tile {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        gap: 6px;
+      }
+      .tile-header {
+        font-size: 9.5px;
+        gap: 4px;
+      }
+      .tile-stats-row {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 6px 4px;
+        gap: 4px;
+      }
+      .tile-stat-item {
+        min-width: 0;
+        flex: 1;
+        box-sizing: border-box;
+        text-align: center;
+      }
+      .tile-stat-item .stat-value {
+        font-size: 14px;
+      }
+      .tile-stat-item .stat-label {
+        font-size: 8px;
+        line-height: 1.25;
+        white-space: normal;
+        word-break: break-word;
+        text-align: center;
+      }
+      .clean-abilities-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .clean-ability-item {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        gap: 5px;
+      }
+      .ability-lead {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .ability-title-txt {
+        font-size: 11px;
+        font-weight: 850;
+        color: #f1f5f9;
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.3;
+        flex: 1;
+        min-width: 0;
+      }
+      .ability-body-txt {
+        font-size: 11px;
+        color: #94a3b8;
+        line-height: 1.45;
+        margin: 0;
+        word-break: break-word;
+        width: 100%;
+      }
+      .how-to-get-section {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .how-to-get-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 10px 10px;
+        gap: 6px;
+      }
+      .how-to-get-body {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .how-to-get-header-line {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .how-to-get-type-tag {
+        white-space: normal;
+        word-break: break-word;
+      }
+      .how-to-get-text {
+        font-size: 10.5px;
+        line-height: 1.45;
+        word-break: break-word;
+        width: 100%;
+      }
+      .how-to-get-progress-wrap {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .how-to-get-coins-summary {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .coins-summary-chip, .coins-summary-balance {
+        max-width: 100%;
+        box-sizing: border-box;
+        word-break: break-word;
+      }
+      .how-to-get-vip-summary {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .vip-summary-text {
+        word-break: break-word;
+        width: 100%;
+      }
+      .clean-evolution-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 12px 10px;
+      }
+      .evo-universal-mystery-text {
+        font-size: 11px;
+        line-height: 1.5;
+        word-break: break-word;
+        width: 100%;
+      }
+      .detail-actions-dock {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .btn-clean-cta {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 11px 12px;
+        font-size: 11px;
+        font-weight: 850;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.35;
+        word-break: break-word;
+      }
+
+      /* 5. MODALES RESPONSIVOS */
+      .edit-modal-window {
+        width: 100%;
+        max-width: calc(100vw - 28px);
+        box-sizing: border-box;
+        padding: 18px 16px;
+        border-radius: 16px;
+        gap: 14px;
+      }
+      .week-days-selector-grid {
+        gap: 4px;
+      }
+      .btn-week-day-pill {
+        padding: 6px 2px;
+      }
+      .day-short-name {
+        font-size: 10px;
+      }
+      .quality-incomplete-card {
+        max-width: calc(100vw - 28px);
+        box-sizing: border-box;
+        padding: 22px 16px 20px;
+        border-radius: 20px;
+        gap: 14px;
+      }
+      .unlock-success-card {
+        max-width: calc(100vw - 32px);
+        box-sizing: border-box;
+        padding: 24px 16px;
+        border-radius: 18px;
+      }
+      .sprite-reward {
+        width: 110px;
+        height: 110px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .profile-page-wrapper {
+        padding: 72px 10px 32px;
+      }
+      .profile-banner-cover {
+        height: 95px;
+        padding: 8px 10px;
+      }
+      .avatar-overlapping-wrapper {
+        width: 104px;
+        height: 104px;
+        margin: -52px auto 8px auto;
+      }
+      .round-avatar-frame {
+        width: 104px;
+        height: 104px;
+        border-width: 3px;
+      }
+      .sprite-circle {
+        width: 96px;
+        height: 96px;
+      }
+      .avatar-circle-edit-btn {
+        bottom: 0px;
+        right: 0px;
+        width: 30px;
+        height: 30px;
+        font-size: 11px;
+      }
+      .user-display-name {
+        font-size: 18px;
+      }
+      .identity-chip {
+        font-size: 10px;
+        padding: 2px 6.5px;
+      }
+      .active-days-chip,
+      .last-focus-date-chip {
+        font-size: 9.5px;
+        padding: 2px 6.5px;
+      }
+      .tele-pill {
+        padding: 3px 6px;
+        gap: 3px;
+      }
+      .tele-num {
+        font-size: 11px;
+      }
+      .tele-icon {
+        font-size: 10px;
+      }
+      .avatars-catalog-column {
+        padding: 12px 10px;
+      }
+      .avatars-grid-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px;
+      }
+      .vertical-hero-card {
+        height: 205px !important;
+        min-height: 200px;
+        border-radius: 12px;
+      }
+      .hero-card-sprite {
+        width: 88px;
+        height: 88px;
+      }
+      .hero-card-top-badges {
+        padding: 5px 4px;
+        gap: 2px;
+      }
+      .card-tier-pill {
+        font-size: 7px;
+        padding: 1.5px 3.5px;
+      }
+      .card-unlock-pill {
+        font-size: 7px;
+        padding: 1.5px 3.5px;
+        gap: 2px;
+      }
+      .hero-card-name {
+        font-size: 11px;
+      }
+      .hero-card-status-strip {
+        font-size: 7px;
+      }
+      .hero-portrait-frame {
+        width: 155px;
+        height: 155px;
+        max-width: min(155px, 46vw);
+        max-height: min(155px, 46vw);
+        border-width: 3px;
+      }
+      .hero-portrait-sprite {
+        width: 145px;
+        height: 145px;
+        max-width: min(145px, 43vw);
+        max-height: min(145px, 43vw);
+      }
+      .hero-avatar-name {
+        font-size: 18px;
+      }
+      .clean-spotlight-card {
+        padding: 12px 8px;
+        gap: 10px;
+      }
+      .detail-hero-header {
+        padding: 10px 8px;
+        gap: 6px;
+      }
+      .clean-metric-tile {
+        padding: 7px 8px;
+      }
+      .clean-ability-item {
+        padding: 7px 8px;
+      }
+      .how-to-get-card {
+        padding: 8px 8px;
+      }
+      .btn-clean-cta {
+        padding: 10px 10px;
+        font-size: 10.5px;
       }
     }
   `]
@@ -3657,10 +4567,16 @@ export class Cualidades implements OnInit {
     this.selectedCategory.set(category);
   }
 
-  selectAvatar(avatar: ComunidadAvatar) {
+  selectAvatar(avatar: ComunidadAvatar, isUserClick = false) {
     this.inspectedAvatarId.set(avatar.id);
     if (avatar.isUnlocked) {
       this.membership.ensureAvatarLoaded(avatar.id);
+    }
+    if (isUserClick && typeof window !== 'undefined' && window.innerWidth <= 900) {
+      const el = document.getElementById('avatarDetailColumn');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   }
 
@@ -4103,6 +5019,12 @@ export class Cualidades implements OnInit {
     const relatedAvatar = this.allAvatars().find(a => a.qualityId === q.id);
     if (relatedAvatar) {
       this.inspectedAvatarId.set(relatedAvatar.id);
+      if (q.isUnlocked && typeof window !== 'undefined' && window.innerWidth <= 900) {
+        const el = document.getElementById('avatarDetailColumn');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
     }
     if (!q.isUnlocked) {
       if (relatedAvatar) {
